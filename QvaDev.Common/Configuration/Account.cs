@@ -2,6 +2,6 @@
 {
     public class Account : BaseElement
     {
-        public string Platform { get; set; }
+        public string PlatformDescription { get; set; }
     }
 }

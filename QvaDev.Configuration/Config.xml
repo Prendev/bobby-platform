@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Config xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  
+  <CommonConfigSection>
+    <CTraderPlatforms>
+      
+      <CTraderPlatform>
+        <Description>cTrader Prod</Description>
+        <PlatformType>cTrader</PlatformType>
+        <AccountsApi>https://api.spotware.com</AccountsApi>
+        <TradingHost>tradeapi.spotware.com</TradingHost>
+        <AccessToken>802TOtADXELJqQ9gkiYfCLbqWWMqfbLWzzMPtg9PUa8</AccessToken>
+        <ClientId>353_RTrdmK0Q01Czcaq1p19Y4RbJgngCn7Wc065c7QnFqHuUfr127S</ClientId>
+        <Secret>tQjMpGEbdvP68VXzm9sCQY3tuawrApSl5ZvmOGCAqov1eFT3zn</Secret>
+        <Playground>https://connect.spotware.com/apps/353/playground</Playground>
+      </CTraderPlatform>
+
+      <CTraderPlatform>
+        <Description>cTrader Sandbox</Description>
+        <PlatformType>cTrader</PlatformType>
+        <AccountsApi>https://sandbox-api.spotware.com</AccountsApi>
+        <TradingHost>sandbox-tradeapi.spotware.com</TradingHost>
+        <AccessToken></AccessToken>
+        <ClientId></ClientId>
+        <Secret ></Secret>
+        <Playground></Playground>
+      </CTraderPlatform>
+      
+    </CTraderPlatforms>
+  </CommonConfigSection>
+  
+  <MasterAccountsSection></MasterAccountsSection>
+  
+  <SlaveAccountsSection></SlaveAccountsSection>
+  
+  
+  <ConnectorConfig></ConnectorConfig>
+</Config>
