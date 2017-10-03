@@ -6,12 +6,14 @@ namespace QvaDev.Configuration
     {
         public Config()
         {
+            AccountsSection = new AccountsSection();
             CommonConfigSection = new CommonConfigSection();
             MasterAccountsSection = new MasterAccountsSection();
             SlaveAccountsSection = new SlaveAccountsSection();
             ConnectorConfig = new ConnectorConfig();
         }
 
+        public AccountsSection AccountsSection { get; set; }
         public CommonConfigSection CommonConfigSection { get; set; }
         public MasterAccountsSection MasterAccountsSection { get; set; }
         public SlaveAccountsSection SlaveAccountsSection { get; set; }

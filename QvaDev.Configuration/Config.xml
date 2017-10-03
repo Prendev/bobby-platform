@@ -1,6 +1,54 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Config xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   
+  <AccountsSection>
+    <Mt4Accounts>
+
+      <Mt4Account>
+        <Description>Aura1</Description>
+        <PlatformDescription>AuraFX-Demo</PlatformDescription>
+        <Username>8801562</Username>
+        <Password>k0agjjf</Password>
+      </Mt4Account>
+
+      <Mt4Account>
+        <Description>Aura4</Description>
+        <PlatformDescription>AuraFX-Demo</PlatformDescription>
+        <Username>8801567</Username>
+        <Password>4kfmvmo</Password>
+      </Mt4Account>
+
+    </Mt4Accounts>
+    
+    <CTraderAccounts>
+
+      <CTraderAccount>
+        <Description>cTrader1</Description>
+        <PlatformDescription>cTrader Prod</PlatformDescription>
+        <AccountNumber>3174636</AccountNumber>
+      </CTraderAccount>
+
+      <CTraderAccount>
+        <Description>cTrader2</Description>
+        <PlatformDescription>cTrader Prod</PlatformDescription>
+        <AccountNumber>3174645</AccountNumber>
+      </CTraderAccount>
+
+      <CTraderAccount>
+        <Description>cTrader3</Description>
+        <PlatformDescription>cTrader Prod</PlatformDescription>
+        <AccountNumber>3175387</AccountNumber>
+      </CTraderAccount>
+
+      <CTraderAccount>
+        <Description>cTrader4</Description>
+        <PlatformDescription>cTrader Prod</PlatformDescription>
+        <AccountNumber>3175388</AccountNumber>
+      </CTraderAccount>
+      
+    </CTraderAccounts>
+  </AccountsSection>
+    
   <CommonConfigSection>
     <CTraderPlatforms>
       

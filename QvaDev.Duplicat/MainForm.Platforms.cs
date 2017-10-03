@@ -1,23 +1,15 @@
 ﻿using System.ComponentModel;
 using System.Windows.Forms;
 using QvaDev.Common.Configuration;
-using QvaDev.Configuration;
 
 namespace QvaDev.Duplicat
 {
     public partial class MainForm
     {
-        private Config _config;
         private BindingList<CTraderPlatform> _cTraderPlatforms;
         private BindingList<Mt4Platform> _mt4Platforms;
 
-        private void buttonLoadConfig_Click(object sender, System.EventArgs e)
-        {
-            _config = _configService.Load(textBoxLoadConfig.Text);
-            AttachConfig();
-        }
-
-        private void AttachConfig()
+        private void AttachPlatforms()
         {
             comboBoxMt4Platforms.DataSource = null;
             dataGridViewCTraderPlatforms.DataSource = null;
@@ -31,16 +23,14 @@ namespace QvaDev.Duplicat
         private void AttachMt4Platforms()
         {
             _mt4Platforms = new BindingList<Mt4Platform>(_config.CommonConfigSection.Mt4Platforms);
-            var source = new BindingSource(_mt4Platforms, null);
-            comboBoxMt4Platforms.DataSource = source;
+            comboBoxMt4Platforms.DataSource = new BindingSource(_mt4Platforms, null);
             comboBoxMt4Platforms.DisplayMember = "Description";
         }
 
         private void AttachCTraderPlatforms()
         {
             _cTraderPlatforms = new BindingList<CTraderPlatform>(_config.CommonConfigSection.CTraderPlatforms);
-            var source = new BindingSource(_cTraderPlatforms, null);
-            dataGridViewCTraderPlatforms.DataSource = source;
+            dataGridViewCTraderPlatforms.DataSource = new BindingSource(_cTraderPlatforms, null);
             dataGridViewCTraderPlatforms.Columns["Description"].DisplayIndex = 0;
         }
 

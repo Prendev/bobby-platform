@@ -43,6 +43,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AccountsSection.cs" />
     <Compile Include="CommonConfigSection.cs" />
     <Compile Include="Config.cs" />
     <Compile Include="MasterAccountsSection.cs" />

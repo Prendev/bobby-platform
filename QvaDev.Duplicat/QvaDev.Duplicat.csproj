@@ -52,7 +52,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Dependencies.cs" />
-    <Compile Include="MainForm.Config.cs">
+    <Compile Include="MainForm.Accounts.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MainForm.Platforms.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="MainForm.cs">
