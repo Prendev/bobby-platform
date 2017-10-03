@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{10A3EF89-12BB-4D00-9950-36BFED281B91}</ProjectGuid>
+    <ProjectGuid>{5B92788F-AF48-4709-A539-BBA2822A06B7}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>QvaDev.Common</RootNamespace>
-    <AssemblyName>QvaDev.Common</AssemblyName>
+    <RootNamespace>QvaDev.CTraderIntegration</RootNamespace>
+    <AssemblyName>QvaDev.CTraderIntegration</AssemblyName>
     <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -30,6 +30,13 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Google.ProtocolBuffers, Version=2.4.1.555, Culture=neutral, PublicKeyToken=17b3b1f090c3ea48, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\QvaDev.CTraderApi\Protofiles\google\ProtocolBuffers\bin\NET35\Debug\Google.ProtocolBuffers.dll</HintPath>
+    </Reference>
+    <Reference Include="log4net, Version=2.0.8.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+      <HintPath>..\packages\log4net.2.0.8\lib\net45-full\log4net.dll</HintPath>
+    </Reference>
     <Reference Include="RestSharp">
       <HintPath>..\..\Mt4ToIgCopier\packages\RestSharp.105.2.3\lib\net46\RestSharp.dll</HintPath>
     </Reference>
@@ -43,42 +50,39 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Configuration\BaseElement.cs" />
-    <Compile Include="Configuration\Mt4Account.cs" />
-    <Compile Include="Configuration\CTraderAccount.cs" />
-    <Compile Include="Configuration\Account.cs" />
-    <Compile Include="Configuration\InstrumentMapping.cs" />
-    <Compile Include="Configuration\CTraderPlatform.cs" />
-    <Compile Include="Configuration\PlatformTypes.cs" />
-    <Compile Include="Integration\ConnectorConfig.cs" />
-    <Compile Include="Integration\IAccountInfo.cs" />
-    <Compile Include="Integration\IConnector.cs" />
+    <Compile Include="AccountInfo.cs" />
+    <Compile Include="Connector.cs" />
+    <Compile Include="ConnectorFactory.cs" />
+    <Compile Include="CTraderClientWrapper.cs" />
+    <Compile Include="Dto\AccountRequest.cs" />
+    <Compile Include="Dto\BaseRequest.cs" />
+    <Compile Include="Dto\DealData.cs" />
+    <Compile Include="Dto\DealsRequest.cs" />
+    <Compile Include="Dto\PositionData.cs" />
+    <Compile Include="Dto\AccountData.cs" />
+    <Compile Include="Dto\ListResponse.cs" />
+    <Compile Include="Model\RetryOrder.cs" />
+    <Compile Include="Model\MarketOrder.cs" />
+    <Compile Include="Model\Position.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Services\ExchangeRatesService.cs" />
-    <Compile Include="UnexpectedStatusCodeException.cs" />
+    <Compile Include="RestService.cs" />
+    <Compile Include="Services\TradingAccountsService.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Mt4SrvFiles\AuraFX-Demo.srv">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Mt4SrvFiles\AuraFX-LD Live.srv">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Mt4SrvFiles\AuraFX-NY Live.srv">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Mt4SrvFiles\CoreSpreads-DemoBravo.srv">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Mt4SrvFiles\OANDA-v20 Practice.srv">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Mt4SrvFiles\PriorFX-Demo.srv">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Mt4SrvFiles\RegalCoreMarkets-Demo.srv">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    <ProjectReference Include="..\QvaDev.Common\QvaDev.Common.csproj">
+      <Project>{10a3ef89-12bb-4d00-9950-36bfed281b91}</Project>
+      <Name>QvaDev.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\QvaDev.CTraderApi\QvaDev.CTraderApi.csproj">
+      <Project>{866039F3-42FF-4D42-A85E-F91CEF04F3DF}</Project>
+      <Name>QvaDev.CTraderApi</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
     </None>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

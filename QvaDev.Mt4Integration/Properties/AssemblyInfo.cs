@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("QvaDev.Common")]
+[assembly: AssemblyTitle("QvaDev.Mt4Integration")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Microsoft")]
-[assembly: AssemblyProduct("QvaDev.Common")]
+[assembly: AssemblyProduct("QvaDev.Mt4Integration")]
 [assembly: AssemblyCopyright("Copyright © Microsoft 2017")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("10a3ef89-12bb-4d00-9950-36bfed281b91")]
+[assembly: Guid("73a2679e-f17e-4484-8874-461d3fc895dd")]
 
 // Version information for an assembly consists of the following four values:
 //

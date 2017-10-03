@@ -1,0 +1,159 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{6BE03623-7714-40DE-968E-CB3A60F569EB}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>cTraderTest</RootNamespace>
+    <AssemblyName>cTraderTest</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Protofiles\google\ProtocolBuffers\AbstractBuilder.cs" />
+    <Compile Include="Protofiles\google\ProtocolBuffers\AbstractBuilderLite.cs" />
+    <Compile Include="Protofiles\google\ProtocolBuffers\AbstractMessage.cs" />
+    <Compile Include="Protofiles\google\ProtocolBuffers\AbstractMessageLite.cs" />
+    <Compile Include="Protofiles\google\ProtocolBuffers\ByteArray.cs" />
+    <Compile Include="Protofiles\google\ProtocolBuffers\ByteString.cs" />
+    <Compile Include="Protofiles\google\ProtocolBuffers\Collections\Enumerables.cs" />
+    <Compile Include="Protofiles\google\ProtocolBuffers\Collections\IPopsicleList.cs" />
+    <Compile Include="Protofiles\google\ProtocolBuffers\Collections\PopsicleList.cs" />
+    <Compile Include="Protofiles\google\ProtocolBuffers\CodedOutputStream.ComputeSize.cs" />
+    <Compile Include="Protofiles\google\ProtocolBuffers\CustomSerialization.cs" />
+    <Compile Include="Protofiles\google\ProtocolBuffers\Delegates.cs" />
+    <Compile Include="Protofiles\google\ProtocolBuffers\CodedInputStream.cs" />
+    <Compile Include="Protofiles\google\ProtocolBuffers\CodedOutputStream.cs" />
+    <Compile Include="Protofiles\google\ProtocolBuffers\Collections\Dictionaries.cs" />
+    <Compile Include="Protofiles\google\ProtocolBuffers\Collections\Lists.cs" />
+    <Compile Include="Protofiles\google\ProtocolBuffers\Collections\ReadOnlyDictionary.cs" />
+    <Compile Include="Protofiles\google\ProtocolBuffers\DescriptorProtos\CSharpOptions.cs" />
+    <Compile Include="Protofiles\google\ProtocolBuffers\DescriptorProtos\DescriptorProtoFile.cs" />
+    <Compile Include="Protofiles\google\ProtocolBuffers\DescriptorProtos\IDescriptorProto.cs" />
+    <Compile Include="Protofiles\google\ProtocolBuffers\DescriptorProtos\PartialClasses.cs" />
+    <Compile Include="Protofiles\google\ProtocolBuffers\Descriptors\DescriptorBase.cs" />
+    <Compile Include="Protofiles\google\ProtocolBuffers\Descriptors\DescriptorPool.cs" />
+    <Compile Include="Protofiles\google\ProtocolBuffers\Descriptors\DescriptorUtil.cs" />
+    <Compile Include="Protofiles\google\ProtocolBuffers\Descriptors\DescriptorValidationException.cs" />
+    <Compile Include="Protofiles\google\ProtocolBuffers\Descriptors\EnumDescriptor.cs" />
+    <Compile Include="Protofiles\google\ProtocolBuffers\Descriptors\EnumValueDescriptor.cs" />
+    <Compile Include="Protofiles\google\ProtocolBuffers\Descriptors\FieldDescriptor.cs" />
+    <Compile Include="Protofiles\google\ProtocolBuffers\Descriptors\FieldMappingAttribute.cs" />
+    <Compile Include="Protofiles\google\ProtocolBuffers\Descriptors\FieldType.cs" />
+    <Compile Include="Protofiles\google\ProtocolBuffers\Descriptors\FileDescriptor.cs" />
+    <Compile Include="Protofiles\google\ProtocolBuffers\Descriptors\IDescriptor.cs" />
+    <Compile Include="Protofiles\google\ProtocolBuffers\Descriptors\IndexedDescriptorBase.cs" />
+    <Compile Include="Protofiles\google\ProtocolBuffers\Descriptors\MappedType.cs" />
+    <Compile Include="Protofiles\google\ProtocolBuffers\Descriptors\MessageDescriptor.cs" />
+    <Compile Include="Protofiles\google\ProtocolBuffers\Descriptors\MethodDescriptor.cs" />
+    <Compile Include="Protofiles\google\ProtocolBuffers\Descriptors\PackageDescriptor.cs" />
+    <Compile Include="Protofiles\google\ProtocolBuffers\Descriptors\ServiceDescriptor.cs" />
+    <Compile Include="Protofiles\google\ProtocolBuffers\DynamicMessage.cs" />
+    <Compile Include="Protofiles\google\ProtocolBuffers\EnumLite.cs" />
+    <Compile Include="Protofiles\google\ProtocolBuffers\ExtendableBuilder.cs" />
+    <Compile Include="Protofiles\google\ProtocolBuffers\ExtendableBuilderLite.cs" />
+    <Compile Include="Protofiles\google\ProtocolBuffers\ExtendableMessage.cs" />
+    <Compile Include="Protofiles\google\ProtocolBuffers\ExtendableMessageLite.cs" />
+    <Compile Include="Protofiles\google\ProtocolBuffers\ExtensionInfo.cs" />
+    <Compile Include="Protofiles\google\ProtocolBuffers\ExtensionRegistry.cs" />
+    <Compile Include="Protofiles\google\ProtocolBuffers\ExtensionRegistryLite.cs" />
+    <Compile Include="Protofiles\google\ProtocolBuffers\FieldAccess\ReflectionUtil.cs" />
+    <Compile Include="Protofiles\google\ProtocolBuffers\FieldAccess\SingleEnumAccessor.cs" />
+    <Compile Include="Protofiles\google\ProtocolBuffers\FieldAccess\SingleMessageAccessor.cs" />
+    <Compile Include="Protofiles\google\ProtocolBuffers\FieldAccess\SinglePrimitiveAccessor.cs" />
+    <Compile Include="Protofiles\google\ProtocolBuffers\FieldAccess\RepeatedPrimitiveAccessor.cs" />
+    <Compile Include="Protofiles\google\ProtocolBuffers\FieldAccess\RepeatedEnumAccessor.cs" />
+    <Compile Include="Protofiles\google\ProtocolBuffers\FieldAccess\IFieldAccessor.cs" />
+    <Compile Include="Protofiles\google\ProtocolBuffers\FieldAccess\FieldAccessorTable.cs" />
+    <Compile Include="Protofiles\google\ProtocolBuffers\FieldAccess\RepeatedMessageAccessor.cs" />
+    <Compile Include="Protofiles\google\ProtocolBuffers\FieldSet.cs" />
+    <Compile Include="Protofiles\google\ProtocolBuffers\FrameworkPortability.cs" />
+    <Compile Include="Protofiles\google\ProtocolBuffers\GeneratedBuilder.cs" />
+    <Compile Include="Protofiles\google\ProtocolBuffers\GeneratedBuilderLite.cs" />
+    <Compile Include="Protofiles\google\ProtocolBuffers\GeneratedExtensionLite.cs" />
+    <Compile Include="Protofiles\google\ProtocolBuffers\GeneratedMessageLite.cs" />
+    <Compile Include="Protofiles\google\ProtocolBuffers\GeneratedRepeatExtension.cs" />
+    <Compile Include="Protofiles\google\ProtocolBuffers\GeneratedSingleExtension.cs" />
+    <Compile Include="Protofiles\google\ProtocolBuffers\GeneratedMessage.cs" />
+    <Compile Include="Protofiles\google\ProtocolBuffers\IBuilder.cs" />
+    <Compile Include="Protofiles\google\ProtocolBuffers\GeneratedExtensionBase.cs" />
+    <Compile Include="Protofiles\google\ProtocolBuffers\IBuilderLite.cs" />
+    <Compile Include="Protofiles\google\ProtocolBuffers\ICodedInputStream.cs" />
+    <Compile Include="Protofiles\google\ProtocolBuffers\ICodedOutputStream.cs" />
+    <Compile Include="Protofiles\google\ProtocolBuffers\IMessage.cs" />
+    <Compile Include="Protofiles\google\ProtocolBuffers\IMessageLite.cs" />
+    <Compile Include="Protofiles\google\ProtocolBuffers\InvalidProtocolBufferException.cs" />
+    <Compile Include="Protofiles\google\ProtocolBuffers\IRpcChannel.cs" />
+    <Compile Include="Protofiles\google\ProtocolBuffers\IRpcController.cs" />
+    <Compile Include="Protofiles\google\ProtocolBuffers\IRpcDispatch.cs" />
+    <Compile Include="Protofiles\google\ProtocolBuffers\IService.cs" />
+    <Compile Include="Protofiles\google\ProtocolBuffers\MessageStreamIterator.cs" />
+    <Compile Include="Protofiles\google\ProtocolBuffers\MessageStreamWriter.cs" />
+    <Compile Include="Protofiles\google\ProtocolBuffers\MessageUtil.cs" />
+    <Compile Include="Protofiles\google\ProtocolBuffers\NameHelpers.cs" />
+    <Compile Include="Protofiles\google\ProtocolBuffers\RpcUtil.cs" />
+    <Compile Include="Protofiles\google\ProtocolBuffers\SortedList.cs" />
+    <Compile Include="Protofiles\google\ProtocolBuffers\TextFormat.cs" />
+    <Compile Include="Protofiles\google\ProtocolBuffers\TextGenerator.cs" />
+    <Compile Include="Protofiles\google\ProtocolBuffers\TextTokenizer.cs" />
+    <Compile Include="Protofiles\google\ProtocolBuffers\ThrowHelper.cs" />
+    <Compile Include="Protofiles\google\ProtocolBuffers\UninitializedMessageException.cs" />
+    <Compile Include="Protofiles\google\ProtocolBuffers\UnknownField.cs" />
+    <Compile Include="Protofiles\google\ProtocolBuffers\UnknownFieldSet.cs" />
+    <Compile Include="Protofiles\google\ProtocolBuffers\WireFormat.cs" />
+
+    <Compile Include="Protofiles\CommonMessages.cs" />
+    <Compile Include="Protofiles\CommonModelMessages.cs" />
+    <Compile Include="Protofiles\OpenApiMessages.cs" />
+    <Compile Include="Protofiles\OpenApiModelMessages.cs" />
+    <Compile Include="MessagesFactory.cs" />
+    <Compile Include="MessagesPresentation.cs" />
+    <Compile Include="ModelObjectsFactory.cs" />
+    <Compile Include="Properties\cTraderTest.cs" />
+    <Compile Include="cTraderTest.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

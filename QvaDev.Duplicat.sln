@@ -3,7 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26730.10
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QvaDev.Common", "QvaDev.Common\QvaDev.Common.csproj", "{1FAF44D5-5270-4124-9B6C-CD54E13B4571}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QvaDev.CTraderApi", "QvaDev.CTraderApi\QvaDev.CTraderApi.csproj", "{866039F3-42FF-4D42-A85E-F91CEF04F3DF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QvaDev.Mt4Integration", "QvaDev.Mt4Integration\QvaDev.Mt4Integration.csproj", "{73A2679E-F17E-4484-8874-461D3FC895DD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QvaDev.Common", "QvaDev.Common\QvaDev.Common.csproj", "{10A3EF89-12BB-4D00-9950-36BFED281B91}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QvaDev.CTraderIntegration", "QvaDev.CTraderIntegration\QvaDev.CTraderIntegration.csproj", "{5B92788F-AF48-4709-A539-BBA2822A06B7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,10 +17,22 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{1FAF44D5-5270-4124-9B6C-CD54E13B4571}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1FAF44D5-5270-4124-9B6C-CD54E13B4571}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1FAF44D5-5270-4124-9B6C-CD54E13B4571}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1FAF44D5-5270-4124-9B6C-CD54E13B4571}.Release|Any CPU.Build.0 = Release|Any CPU
+		{866039F3-42FF-4D42-A85E-F91CEF04F3DF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{866039F3-42FF-4D42-A85E-F91CEF04F3DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{866039F3-42FF-4D42-A85E-F91CEF04F3DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{866039F3-42FF-4D42-A85E-F91CEF04F3DF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{73A2679E-F17E-4484-8874-461D3FC895DD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{73A2679E-F17E-4484-8874-461D3FC895DD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{73A2679E-F17E-4484-8874-461D3FC895DD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{73A2679E-F17E-4484-8874-461D3FC895DD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{10A3EF89-12BB-4D00-9950-36BFED281B91}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{10A3EF89-12BB-4D00-9950-36BFED281B91}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{10A3EF89-12BB-4D00-9950-36BFED281B91}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{10A3EF89-12BB-4D00-9950-36BFED281B91}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5B92788F-AF48-4709-A539-BBA2822A06B7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5B92788F-AF48-4709-A539-BBA2822A06B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5B92788F-AF48-4709-A539-BBA2822A06B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5B92788F-AF48-4709-A539-BBA2822A06B7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
