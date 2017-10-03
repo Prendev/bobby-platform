@@ -1,9 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using System.IO;
 using System.Windows.Forms;
 using Autofac;
+using QvaDev.Data;
 
 namespace QvaDev.Duplicat
 {
@@ -15,6 +14,10 @@ namespace QvaDev.Duplicat
         [STAThread]
         static void Main()
         {
+            AppDomain.CurrentDomain.SetData("DataDirectory", Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory));
+            using (var c = new DuplicatContext())
+                c.Init();
+
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             using (var scope = Dependencies.GetContainer().BeginLifetimeScope())

@@ -1,6 +1,8 @@
 ﻿using Autofac;
 using log4net;
 using QvaDev.Configuration.Services;
+using QvaDev.Data;
+using QvaDev.Data.Repositories;
 
 namespace QvaDev.Duplicat
 {
@@ -17,6 +19,7 @@ namespace QvaDev.Duplicat
         {
             RegisterApp(builder);
             RegisterConfiguration(builder);
+            RegisterData(builder);
         }
 
         private static void RegisterApp(ContainerBuilder builder)
@@ -33,6 +36,12 @@ namespace QvaDev.Duplicat
                 var service = c.Resolve<IConfigService>();
                 return service.Config;
             }).InstancePerLifetimeScope();
+        }
+
+        private static void RegisterData(ContainerBuilder builder)
+        {
+            builder.RegisterType<MetaTraderPlatformRepository>().As<IMetaTraderPlatformRepository>();
+            builder.RegisterInstance(new DuplicatContext());
         }
     }
 }
