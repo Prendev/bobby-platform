@@ -1,4 +1,5 @@
-﻿using System.Windows.Forms;
+﻿using System.Data.Entity;
+using System.Windows.Forms;
 using QvaDev.Duplicat.ViewModel;
 
 namespace QvaDev.Duplicat
@@ -12,40 +13,41 @@ namespace QvaDev.Duplicat
         )
         {
             _viewModel = viewModel;
-            InitializeComponent();
 
+            Load += MainForm_Load;
+            InitializeComponent();
+        }
+
+        private void MainForm_Load(object sender, System.EventArgs e)
+        {
             InitView();
         }
 
         private void InitView()
         {
-            dataGridViewMt4Accounts.DataBindings.Add("ReadOnly", _viewModel, "IsConfigReadonly");
-            dataGridViewCTraderPlatforms.DataBindings.Add("ReadOnly", _viewModel, "IsConfigReadonly");
-            dataGridViewCTraderAccounts.DataBindings.Add("ReadOnly", _viewModel, "IsConfigReadonly");
-            dataGridViewProfiles.DataBindings.Add("ReadOnly", _viewModel, "IsConfigReadonly");
-            dataGridViewGroups.DataBindings.Add("ReadOnly", _viewModel, "IsConfigReadonly");
-            dataGridViewMasters.DataBindings.Add("ReadOnly", _viewModel, "IsConfigReadonly");
-            dataGridViewSlaves.DataBindings.Add("ReadOnly", _viewModel, "IsConfigReadonly");
-            comboBoxProfile.DataBindings.Add("Enabled", _viewModel, "IsConfigEditable");
+            dgvMtAccounts.DataBindings.Add("ReadOnly", _viewModel, "IsConfigReadonly");
+            dgvCtPlatforms.DataBindings.Add("ReadOnly", _viewModel, "IsConfigReadonly");
+            dgvCtAccounts.DataBindings.Add("ReadOnly", _viewModel, "IsConfigReadonly");
+            dgvProfiles.DataBindings.Add("ReadOnly", _viewModel, "IsConfigReadonly");
+            dgvGroups.DataBindings.Add("ReadOnly", _viewModel, "IsConfigReadonly");
+            dgvMasters.DataBindings.Add("ReadOnly", _viewModel, "IsConfigReadonly");
+            dgvSlaves.DataBindings.Add("ReadOnly", _viewModel, "IsConfigReadonly");
+            //comboBoxProfile.DataBindings.Add("Enabled", _viewModel, "IsConfigEditable");
 
             radioButtonDisconnect.DataBindings.Add("Checked", _viewModel, "IsDisconnect", true, DataSourceUpdateMode.OnPropertyChanged, false);
             radioButtonConnect.DataBindings.Add("Checked", _viewModel, "IsConnect", true, DataSourceUpdateMode.OnPropertyChanged, false);
             radioButtonCopy.DataBindings.Add("Checked", _viewModel, "IsCopy", true, DataSourceUpdateMode.OnPropertyChanged, false);
 
-            comboBoxProfile.DataBindings.Add("SelectedValue", _viewModel, "SelectedProfileId", true, DataSourceUpdateMode.OnPropertyChanged, false);
-            comboBoxProfile.DisplayMember = "Description";
-            comboBoxProfile.ValueMember = "Id";
+            buttonSave.Click += (s, e) => { _viewModel.Execute<SaveCommand>(); };
 
-            buttonSave.Click += (sender, e) => { _viewModel.Execute<SaveCommand>(); };
-
-            dataGridViewMt4Platforms.DataError += DataGridView_DataError;
-            dataGridViewMt4Accounts.DataError += DataGridView_DataError;
-            dataGridViewCTraderPlatforms.DataError += DataGridView_DataError;
-            dataGridViewCTraderAccounts.DataError += DataGridView_DataError;
-            dataGridViewProfiles.DataError += DataGridView_DataError;
-            dataGridViewGroups.DataError += DataGridView_DataError;
-            dataGridViewMasters.DataError += DataGridView_DataError;
-            dataGridViewSlaves.DataError += DataGridView_DataError;
+            dgvMtPlatforms.DataError += DataGridView_DataError;
+            dgvMtAccounts.DataError += DataGridView_DataError;
+            dgvCtPlatforms.DataError += DataGridView_DataError;
+            dgvCtAccounts.DataError += DataGridView_DataError;
+            dgvProfiles.DataError += DataGridView_DataError;
+            dgvGroups.DataError += DataGridView_DataError;
+            dgvMasters.DataError += DataGridView_DataError;
+            dgvSlaves.DataError += DataGridView_DataError;
 
             _viewModel.ProfileChanged += AttachDataSources;
 
@@ -60,25 +62,22 @@ namespace QvaDev.Duplicat
 
         private void AttachDataSources()
         {
-            dataGridViewMt4Accounts.AddComboBoxColumn(_viewModel.MetaTraderPlatforms);
-            dataGridViewCTraderAccounts.AddComboBoxColumn(_viewModel.CTraderPlatforms);
-            dataGridViewGroups.AddComboBoxColumn(_viewModel.Profiles);
-            dataGridViewMasters.AddComboBoxColumn(_viewModel.Groups);
-            dataGridViewMasters.AddComboBoxColumn(_viewModel.MetaTraderAccounts);
-            dataGridViewSlaves.AddComboBoxColumn(_viewModel.Masters, "NotMappedDescription");
-            dataGridViewSlaves.AddComboBoxColumn(_viewModel.CTraderAccounts);
+            dgvMtAccounts.AddComboBoxColumn(_viewModel.MtPlatforms);
+            dgvCtAccounts.AddComboBoxColumn(_viewModel.CtPlatforms);
+            dgvGroups.AddComboBoxColumn(_viewModel.Profiles);
+            dgvMasters.AddComboBoxColumn(_viewModel.Groups);
+            dgvMasters.AddComboBoxColumn(_viewModel.MtAccounts);
+            dgvSlaves.AddComboBoxColumn(_viewModel.Masters, "NotMappedDescription");
+            dgvSlaves.AddComboBoxColumn(_viewModel.CtAccounts);
 
-            comboBoxProfile.DataSource = _viewModel.Profiles;
-            //comboBoxProfile.SelectedValue = _viewModel.SelectedProfileId;
-
-            dataGridViewMt4Platforms.DataSource = _viewModel.MetaTraderPlatforms;
-            dataGridViewMt4Accounts.DataSource = _viewModel.MetaTraderAccounts;
-            dataGridViewCTraderPlatforms.DataSource = _viewModel.CTraderPlatforms;
-            dataGridViewCTraderAccounts.DataSource = _viewModel.CTraderAccounts;
-            dataGridViewProfiles.DataSource = _viewModel.Profiles;
-            dataGridViewGroups.DataSource = _viewModel.Groups;
-            dataGridViewMasters.DataSource = _viewModel.Masters;
-            dataGridViewSlaves.DataSource = _viewModel.Slaves;
+            dgvMtPlatforms.DataSource = _viewModel.MtPlatforms.ToBindingList();
+            dgvMtAccounts.DataSource = _viewModel.MtAccounts.ToBindingList();
+            dgvCtPlatforms.DataSource = _viewModel.CtPlatforms.ToBindingList();
+            dgvCtAccounts.DataSource = _viewModel.CtAccounts.ToBindingList();
+            dgvProfiles.DataSource = _viewModel.Profiles.ToBindingList();
+            dgvGroups.DataSource = _viewModel.Groups.ToBindingList();
+            dgvMasters.DataSource = _viewModel.Masters.ToBindingList();
+            dgvSlaves.DataSource = _viewModel.Slaves.ToBindingList();
         }
     }
 }

@@ -25,9 +25,10 @@ namespace QvaDev.Duplicat
         private static void RegisterApp(ContainerBuilder builder)
         {
             builder.RegisterInstance(LogManager.GetLogger(""));
-            builder.RegisterType<MainForm>().AsSelf();
-            builder.RegisterType<ViewModel.DuplicatViewModel>().AsSelf();
-            builder.RegisterType<ViewModel.SaveCommand>().AsSelf();
+            builder.RegisterType<MainForm>().AsSelf().InstancePerLifetimeScope();
+            builder.RegisterType<ViewModel.DuplicatViewModel>().AsSelf().InstancePerLifetimeScope();
+            builder.RegisterType<ViewModel.SaveCommand>().AsSelf().InstancePerLifetimeScope();
+            builder.RegisterType<ViewModel.SwitchProfileCommand>().AsSelf().InstancePerLifetimeScope();
         }
 
         private static void RegisterConfiguration(ContainerBuilder builder)

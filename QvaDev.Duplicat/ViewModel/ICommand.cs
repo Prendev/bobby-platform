@@ -1,7 +1,9 @@
-﻿namespace QvaDev.Duplicat.ViewModel
+﻿using QvaDev.Data;
+
+namespace QvaDev.Duplicat.ViewModel
 {
     public interface ICommand
     {
-        void Execute(object parameter = null);
+        void Execute(DuplicatContext duplicatContext, object parameter = null);
     }
 }

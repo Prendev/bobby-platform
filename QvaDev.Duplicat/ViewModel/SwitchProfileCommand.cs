@@ -2,11 +2,12 @@
 
 namespace QvaDev.Duplicat.ViewModel
 {
-    public class SaveCommand : ICommand
+    public class SwitchProfileCommand : ICommand
     {
         public void Execute(DuplicatContext duplicatContext, object parameter = null)
         {
-            duplicatContext.SaveChanges();
+            //int selectedProfileId = parameter as int? ?? 0;
+            //_duplicatViewModel.LoadDataContext(selectedProfileId);
         }
     }
 }

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
+using System.Collections.ObjectModel;
+using System.Data.Entity;
 using System.Windows.Forms;
 
 namespace QvaDev.Duplicat
@@ -15,7 +15,7 @@ namespace QvaDev.Duplicat
             DataSourceChanged += CustomDataGridView_DataSourceChanged;
         }
 
-        public void AddComboBoxColumn<T>(BindingList<T> list, string displayMember = "Description")
+        public void AddComboBoxColumn<T>(ObservableCollection<T> list, string displayMember = "Description") where T : class
         {
             var name = typeof(T).Name;
             if (!_invisibleColumns.Contains(name))
@@ -24,7 +24,7 @@ namespace QvaDev.Duplicat
             if (!Columns.Contains($"{name}*"))
                 Columns.Add(new DataGridViewComboBoxColumn()
                 {
-                    DataSource = list,
+                    DataSource = new BindingSource() { DataSource = list.ToBindingList() },
                     Name = $"{name}*",
                     DataPropertyName = $"{name}Id",
                     DisplayMember = displayMember,
@@ -32,7 +32,7 @@ namespace QvaDev.Duplicat
                     HeaderText = $"{name}*"
                 });
             else if (Columns[$"{name}*"] is DataGridViewComboBoxColumn)
-                ((DataGridViewComboBoxColumn)Columns[$"{name}*"]).DataSource = list;
+                ((DataGridViewComboBoxColumn)Columns[$"{name}*"]).DataSource = new BindingSource() { DataSource = list.ToBindingList() };
         }
 
         private void CustomDataGridView_DataSourceChanged(object sender, EventArgs e)

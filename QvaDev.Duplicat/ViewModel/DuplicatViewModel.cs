@@ -1,7 +1,10 @@
-﻿using System.ComponentModel;
+﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Data.Entity;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Windows.Forms;
 using Autofac;
 using QvaDev.Data;
 using QvaDev.Data.Models;
@@ -25,24 +28,30 @@ namespace QvaDev.Duplicat.ViewModel
         private DuplicatContext _duplicatContext;
         
         private readonly IComponentContext _componentContext;
-
-        public BindingList<MetaTraderPlatform> MetaTraderPlatforms { get; private set; }
-        public BindingList<CTraderPlatform> CTraderPlatforms { get; private set; }
-        public BindingList<MetaTraderAccount> MetaTraderAccounts { get; private set; }
-        public BindingList<CTraderAccount> CTraderAccounts { get; private set; }
-        public BindingList<Profile> Profiles { get; private set; }
-        public BindingList<Group> Groups { get; private set; }
-        public BindingList<Master> Masters { get; private set; }
-        public BindingList<Slave> Slaves { get; private set; }
+        
+        public ObservableCollection<MetaTraderPlatform> MtPlatforms { get; private set; }
+        public ObservableCollection<CTraderPlatform> CtPlatforms { get; private set; }
+        public ObservableCollection<MetaTraderAccount> MtAccounts { get; private set; }
+        public ObservableCollection<CTraderAccount> CtAccounts { get; private set; }
+        public ObservableCollection<Profile> Profiles { get; private set; }
+        public ObservableCollection<Group> Groups { get; private set; }
+        public ObservableCollection<Master> Masters { get; private set; }
+        public ObservableCollection<Slave> Slaves { get; private set; }
 
         public event PropertyChangedEventHandler PropertyChanged;
         public event ProfileChangedEventHandler ProfileChanged;
 
         private int _selectedProfileId;
+
         public int SelectedProfileId
         {
-            get => _selectedProfileId;
-            set { _selectedProfileId = value; LoadDataContext(); }
+            get => 1;
+            set
+            {
+                _selectedProfileId = value;
+                LoadDataContext();
+                ProfileChanged?.Invoke();
+            }
         }
 
 
@@ -76,22 +85,20 @@ namespace QvaDev.Duplicat.ViewModel
             _duplicatContext.Masters.Where(g => g.Group.ProfileId == SelectedProfileId).Load();
             _duplicatContext.Slaves.Where(g => g.Master.Group.ProfileId == SelectedProfileId).Load();
 
-            MetaTraderPlatforms = _duplicatContext.MetaTraderPlatforms.Local.ToBindingList();
-            CTraderPlatforms = _duplicatContext.CTraderPlatforms.Local.ToBindingList();
-            MetaTraderAccounts = _duplicatContext.MetaTraderAccounts.Local.ToBindingList();
-            CTraderAccounts = _duplicatContext.CTraderAccounts.Local.ToBindingList();
-            Profiles = _duplicatContext.Profiles.Local.ToBindingList();
-            Groups = _duplicatContext.Groups.Local.ToBindingList();
-            Masters = _duplicatContext.Masters.Local.ToBindingList();
-            Slaves = _duplicatContext.Slaves.Local.ToBindingList();
-
-            ProfileChanged?.Invoke();
+            MtPlatforms = _duplicatContext.MetaTraderPlatforms.Local;
+            CtPlatforms = _duplicatContext.CTraderPlatforms.Local;
+            MtAccounts = _duplicatContext.MetaTraderAccounts.Local;
+            CtAccounts = _duplicatContext.CTraderAccounts.Local;
+            Profiles = _duplicatContext.Profiles.Local;
+            Groups = _duplicatContext.Groups.Local;
+            Masters = _duplicatContext.Masters.Local;
+            Slaves = _duplicatContext.Slaves.Local;
         }
 
         public void Execute<TCommand>(object parameter = null) where TCommand : ICommand
         {
             var command = _componentContext.Resolve<TCommand>();
-            command.Execute(parameter);
+            command.Execute(_duplicatContext, parameter);
         }
 
         [NotifyPropertyChangedInvocator]
