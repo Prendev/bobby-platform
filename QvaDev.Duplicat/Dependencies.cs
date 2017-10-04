@@ -26,6 +26,8 @@ namespace QvaDev.Duplicat
         {
             builder.RegisterInstance(LogManager.GetLogger(""));
             builder.RegisterType<MainForm>().AsSelf();
+            builder.RegisterType<ViewModel.ViewModel>().AsSelf();
+            builder.RegisterType<ViewModel.SaveCommand>().AsSelf();
         }
 
         private static void RegisterConfiguration(ContainerBuilder builder)

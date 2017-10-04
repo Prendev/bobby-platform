@@ -29,7 +29,13 @@
         private void InitializeComponent()
         {
             this.tabControl1 = new System.Windows.Forms.TabControl();
-            this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.tabPageProfileAndGroup = new System.Windows.Forms.TabPage();
+            this.tableLayoutPanelProfilesAndGroups = new System.Windows.Forms.TableLayoutPanel();
+            this.groupBox6 = new System.Windows.Forms.GroupBox();
+            this.dataGridViewProfiles = new System.Windows.Forms.DataGridView();
+            this.groupBox7 = new System.Windows.Forms.GroupBox();
+            this.dataGridViewGroups = new System.Windows.Forms.DataGridView();
+            this.tabPageCopier = new System.Windows.Forms.TabPage();
             this.tabPageMt4 = new System.Windows.Forms.TabPage();
             this.tableLayoutPanelMt4 = new System.Windows.Forms.TableLayoutPanel();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
@@ -43,15 +49,18 @@
             this.tableLayoutPanelMain = new System.Windows.Forms.TableLayoutPanel();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.radioButtonDisconnect = new System.Windows.Forms.RadioButton();
-            this.textBoxSaveConfig = new System.Windows.Forms.TextBox();
             this.radioButtonConnect = new System.Windows.Forms.RadioButton();
             this.buttonSaveConfig = new System.Windows.Forms.Button();
             this.radioButtonCopy = new System.Windows.Forms.RadioButton();
-            this.textBoxLoadConfig = new System.Windows.Forms.TextBox();
-            this.buttonLoadConfig = new System.Windows.Forms.Button();
             this.groupBox5 = new System.Windows.Forms.GroupBox();
             this.dataGridViewCTraderAccounts = new System.Windows.Forms.DataGridView();
             this.tabControl1.SuspendLayout();
+            this.tabPageProfileAndGroup.SuspendLayout();
+            this.tableLayoutPanelProfilesAndGroups.SuspendLayout();
+            this.groupBox6.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewProfiles)).BeginInit();
+            this.groupBox7.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewGroups)).BeginInit();
             this.tabPageMt4.SuspendLayout();
             this.tableLayoutPanelMt4.SuspendLayout();
             this.groupBox4.SuspendLayout();
@@ -70,7 +79,8 @@
             // 
             // tabControl1
             // 
-            this.tabControl1.Controls.Add(this.tabPage1);
+            this.tabControl1.Controls.Add(this.tabPageProfileAndGroup);
+            this.tabControl1.Controls.Add(this.tabPageCopier);
             this.tabControl1.Controls.Add(this.tabPageMt4);
             this.tabControl1.Controls.Add(this.tabPageCTrader);
             this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -80,15 +90,82 @@
             this.tabControl1.Size = new System.Drawing.Size(1046, 507);
             this.tabControl1.TabIndex = 0;
             // 
-            // tabPage1
+            // tabPageProfileAndGroup
             // 
-            this.tabPage1.Location = new System.Drawing.Point(4, 22);
-            this.tabPage1.Name = "tabPage1";
-            this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(1038, 481);
-            this.tabPage1.TabIndex = 0;
-            this.tabPage1.Text = "tabPage1";
-            this.tabPage1.UseVisualStyleBackColor = true;
+            this.tabPageProfileAndGroup.Controls.Add(this.tableLayoutPanelProfilesAndGroups);
+            this.tabPageProfileAndGroup.Location = new System.Drawing.Point(4, 22);
+            this.tabPageProfileAndGroup.Name = "tabPageProfileAndGroup";
+            this.tabPageProfileAndGroup.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPageProfileAndGroup.Size = new System.Drawing.Size(1038, 481);
+            this.tabPageProfileAndGroup.TabIndex = 3;
+            this.tabPageProfileAndGroup.Text = "Profiles and Groups";
+            this.tabPageProfileAndGroup.UseVisualStyleBackColor = true;
+            // 
+            // tableLayoutPanelProfilesAndGroups
+            // 
+            this.tableLayoutPanelProfilesAndGroups.ColumnCount = 2;
+            this.tableLayoutPanelProfilesAndGroups.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanelProfilesAndGroups.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanelProfilesAndGroups.Controls.Add(this.groupBox6, 0, 0);
+            this.tableLayoutPanelProfilesAndGroups.Controls.Add(this.groupBox7, 1, 0);
+            this.tableLayoutPanelProfilesAndGroups.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableLayoutPanelProfilesAndGroups.Location = new System.Drawing.Point(3, 3);
+            this.tableLayoutPanelProfilesAndGroups.Name = "tableLayoutPanelProfilesAndGroups";
+            this.tableLayoutPanelProfilesAndGroups.RowCount = 1;
+            this.tableLayoutPanelProfilesAndGroups.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanelProfilesAndGroups.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 475F));
+            this.tableLayoutPanelProfilesAndGroups.Size = new System.Drawing.Size(1032, 475);
+            this.tableLayoutPanelProfilesAndGroups.TabIndex = 0;
+            // 
+            // groupBox6
+            // 
+            this.groupBox6.Controls.Add(this.dataGridViewProfiles);
+            this.groupBox6.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.groupBox6.Location = new System.Drawing.Point(3, 3);
+            this.groupBox6.Name = "groupBox6";
+            this.groupBox6.Size = new System.Drawing.Size(510, 469);
+            this.groupBox6.TabIndex = 0;
+            this.groupBox6.TabStop = false;
+            this.groupBox6.Text = "Profiles";
+            // 
+            // dataGridViewProfiles
+            // 
+            this.dataGridViewProfiles.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dataGridViewProfiles.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dataGridViewProfiles.Location = new System.Drawing.Point(3, 16);
+            this.dataGridViewProfiles.Name = "dataGridViewProfiles";
+            this.dataGridViewProfiles.Size = new System.Drawing.Size(504, 450);
+            this.dataGridViewProfiles.TabIndex = 0;
+            // 
+            // groupBox7
+            // 
+            this.groupBox7.Controls.Add(this.dataGridViewGroups);
+            this.groupBox7.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.groupBox7.Location = new System.Drawing.Point(519, 3);
+            this.groupBox7.Name = "groupBox7";
+            this.groupBox7.Size = new System.Drawing.Size(510, 469);
+            this.groupBox7.TabIndex = 1;
+            this.groupBox7.TabStop = false;
+            this.groupBox7.Text = "Groups";
+            // 
+            // dataGridViewGroups
+            // 
+            this.dataGridViewGroups.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dataGridViewGroups.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dataGridViewGroups.Location = new System.Drawing.Point(3, 16);
+            this.dataGridViewGroups.Name = "dataGridViewGroups";
+            this.dataGridViewGroups.Size = new System.Drawing.Size(504, 450);
+            this.dataGridViewGroups.TabIndex = 0;
+            // 
+            // tabPageCopier
+            // 
+            this.tabPageCopier.Location = new System.Drawing.Point(4, 22);
+            this.tabPageCopier.Name = "tabPageCopier";
+            this.tabPageCopier.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPageCopier.Size = new System.Drawing.Size(1038, 481);
+            this.tabPageCopier.TabIndex = 0;
+            this.tabPageCopier.Text = "Copier";
+            this.tabPageCopier.UseVisualStyleBackColor = true;
             // 
             // tabPageMt4
             // 
@@ -98,7 +175,7 @@
             this.tabPageMt4.Padding = new System.Windows.Forms.Padding(3);
             this.tabPageMt4.Size = new System.Drawing.Size(1038, 481);
             this.tabPageMt4.TabIndex = 1;
-            this.tabPageMt4.Text = "MT4";
+            this.tabPageMt4.Text = "MT4 accounts";
             this.tabPageMt4.UseVisualStyleBackColor = true;
             // 
             // tableLayoutPanelMt4
@@ -168,7 +245,7 @@
             this.tabPageCTrader.Padding = new System.Windows.Forms.Padding(3);
             this.tabPageCTrader.Size = new System.Drawing.Size(1038, 481);
             this.tabPageCTrader.TabIndex = 2;
-            this.tabPageCTrader.Text = "cTrader";
+            this.tabPageCTrader.Text = "cTrader accounts";
             this.tabPageCTrader.UseVisualStyleBackColor = true;
             // 
             // tableLayoutPanelCTrader
@@ -225,12 +302,9 @@
             // groupBox3
             // 
             this.groupBox3.Controls.Add(this.radioButtonDisconnect);
-            this.groupBox3.Controls.Add(this.textBoxSaveConfig);
             this.groupBox3.Controls.Add(this.radioButtonConnect);
             this.groupBox3.Controls.Add(this.buttonSaveConfig);
             this.groupBox3.Controls.Add(this.radioButtonCopy);
-            this.groupBox3.Controls.Add(this.textBoxLoadConfig);
-            this.groupBox3.Controls.Add(this.buttonLoadConfig);
             this.groupBox3.Dock = System.Windows.Forms.DockStyle.Fill;
             this.groupBox3.Location = new System.Drawing.Point(3, 3);
             this.groupBox3.Name = "groupBox3";
@@ -252,14 +326,6 @@
             this.radioButtonDisconnect.Text = "Disconnect";
             this.radioButtonDisconnect.UseVisualStyleBackColor = true;
             // 
-            // textBoxSaveConfig
-            // 
-            this.textBoxSaveConfig.Location = new System.Drawing.Point(274, 21);
-            this.textBoxSaveConfig.Name = "textBoxSaveConfig";
-            this.textBoxSaveConfig.Size = new System.Drawing.Size(100, 20);
-            this.textBoxSaveConfig.TabIndex = 8;
-            this.textBoxSaveConfig.Text = "Config.xml";
-            // 
             // radioButtonConnect
             // 
             this.radioButtonConnect.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
@@ -273,13 +339,12 @@
             // 
             // buttonSaveConfig
             // 
-            this.buttonSaveConfig.Location = new System.Drawing.Point(193, 19);
+            this.buttonSaveConfig.Location = new System.Drawing.Point(6, 19);
             this.buttonSaveConfig.Name = "buttonSaveConfig";
             this.buttonSaveConfig.Size = new System.Drawing.Size(75, 23);
             this.buttonSaveConfig.TabIndex = 7;
             this.buttonSaveConfig.Text = "Save config";
             this.buttonSaveConfig.UseVisualStyleBackColor = true;
-            this.buttonSaveConfig.Click += new System.EventHandler(this.buttonSaveConfig_Click);
             // 
             // radioButtonCopy
             // 
@@ -291,24 +356,6 @@
             this.radioButtonCopy.TabIndex = 13;
             this.radioButtonCopy.Text = "Copy";
             this.radioButtonCopy.UseVisualStyleBackColor = true;
-            // 
-            // textBoxLoadConfig
-            // 
-            this.textBoxLoadConfig.Location = new System.Drawing.Point(87, 21);
-            this.textBoxLoadConfig.Name = "textBoxLoadConfig";
-            this.textBoxLoadConfig.Size = new System.Drawing.Size(100, 20);
-            this.textBoxLoadConfig.TabIndex = 6;
-            this.textBoxLoadConfig.Text = "Config.xml";
-            // 
-            // buttonLoadConfig
-            // 
-            this.buttonLoadConfig.Location = new System.Drawing.Point(6, 19);
-            this.buttonLoadConfig.Name = "buttonLoadConfig";
-            this.buttonLoadConfig.Size = new System.Drawing.Size(75, 23);
-            this.buttonLoadConfig.TabIndex = 0;
-            this.buttonLoadConfig.Text = "Load config";
-            this.buttonLoadConfig.UseVisualStyleBackColor = true;
-            this.buttonLoadConfig.Click += new System.EventHandler(this.buttonLoadConfig_Click);
             // 
             // groupBox5
             // 
@@ -339,6 +386,12 @@
             this.Name = "MainForm";
             this.Text = "QvaDev.Duplicat";
             this.tabControl1.ResumeLayout(false);
+            this.tabPageProfileAndGroup.ResumeLayout(false);
+            this.tableLayoutPanelProfilesAndGroups.ResumeLayout(false);
+            this.groupBox6.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewProfiles)).EndInit();
+            this.groupBox7.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewGroups)).EndInit();
             this.tabPageMt4.ResumeLayout(false);
             this.tableLayoutPanelMt4.ResumeLayout(false);
             this.groupBox4.ResumeLayout(false);
@@ -361,7 +414,7 @@
         #endregion
 
         private System.Windows.Forms.TabControl tabControl1;
-        private System.Windows.Forms.TabPage tabPage1;
+        private System.Windows.Forms.TabPage tabPageCopier;
         private System.Windows.Forms.TabPage tabPageMt4;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanelMt4;
         private System.Windows.Forms.GroupBox groupBox2;
@@ -370,12 +423,9 @@
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanelMain;
         private System.Windows.Forms.GroupBox groupBox3;
         private System.Windows.Forms.RadioButton radioButtonDisconnect;
-        private System.Windows.Forms.TextBox textBoxSaveConfig;
         private System.Windows.Forms.RadioButton radioButtonConnect;
         private System.Windows.Forms.Button buttonSaveConfig;
         private System.Windows.Forms.RadioButton radioButtonCopy;
-        private System.Windows.Forms.TextBox textBoxLoadConfig;
-        private System.Windows.Forms.Button buttonLoadConfig;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanelCTrader;
         private System.Windows.Forms.GroupBox groupBox4;
         private System.Windows.Forms.DataGridView dataGridViewMt4Accounts;
@@ -391,6 +441,12 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn playgroundDataGridViewTextBoxColumn;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.DataGridView dataGridViewMt4Platforms;
+        private System.Windows.Forms.TabPage tabPageProfileAndGroup;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanelProfilesAndGroups;
+        private System.Windows.Forms.GroupBox groupBox6;
+        private System.Windows.Forms.DataGridView dataGridViewProfiles;
+        private System.Windows.Forms.GroupBox groupBox7;
+        private System.Windows.Forms.DataGridView dataGridViewGroups;
     }
 }
 

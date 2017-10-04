@@ -2,15 +2,8 @@
 
 namespace QvaDev.Data.Models
 {
-    public class MetaTraderAccount
+    public class MetaTraderAccount : BaseDescriptionEntity
     {
-        [Key]
-        [Dapper.Contrib.Extensions.Key]
-        public int Id { get; set; }
-
-        [Required]
-        public string Description { get; set; }
-
         [Required]
         public string Username { get; set; }
 

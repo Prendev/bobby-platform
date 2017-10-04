@@ -2,9 +2,9 @@
 
 namespace QvaDev.Data.Models
 {
-    public class MetaTraderPlatform : BaseDescriptionEntity
+    public abstract class BaseDescriptionEntity : BaseEntity
     {
         [Required]
-        public string SrvFilePath { get; set; }
+        public string Description { get; set; }
     }
 }

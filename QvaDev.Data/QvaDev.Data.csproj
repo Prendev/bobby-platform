@@ -56,10 +56,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DuplicatContext.cs" />
+    <Compile Include="Models\BaseEntity.cs" />
+    <Compile Include="Models\BaseDescriptionEntity.cs" />
     <Compile Include="Models\CTraderAccount.cs" />
     <Compile Include="Models\CTraderPlatform.cs" />
+    <Compile Include="Models\Slave.cs" />
     <Compile Include="Models\MetaTraderPlatform.cs" />
     <Compile Include="Models\MetaTraderAccount.cs" />
+    <Compile Include="Models\Group.cs" />
+    <Compile Include="Models\Master.cs" />
+    <Compile Include="Models\Profile.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repositories\Mt4PlatformRepository.cs" />
   </ItemGroup>

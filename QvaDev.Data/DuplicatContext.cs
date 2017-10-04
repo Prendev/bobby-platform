@@ -12,6 +12,11 @@ namespace QvaDev.Data
         public DbSet<MetaTraderAccount> MetaTraderAccounts { get; set; }
         public DbSet<CTraderAccount> CTraderAccounts { get; set; }
 
+        public DbSet<Profile> Profiles { get; set; }
+        public DbSet<Group> Groups { get; set; }
+        public DbSet<Master> Masters { get; set; }
+        public DbSet<Slave> Slaves { get; set; }
+
         public void Init()
         {
             var exists = Database.Exists();
@@ -85,6 +90,16 @@ namespace QvaDev.Data
                 AccountNumber = 3175388,
                 CTraderPlatform = cTraderPlatform
             });
+
+            Profiles.Add(new Profile() { Description = "Dummy Profile 1" });
+            Profiles.Add(new Profile() { Description = "Dummy Profile 2" });
+
+            SaveChanges();
+
+            Groups.Add(new Group() {Description = "Dummy Group 1", Profile = Profiles.First(p => p.Description == "Dummy Profile 1") });
+            Groups.Add(new Group() {Description = "Dummy Group 2", Profile = Profiles.First(p => p.Description == "Dummy Profile 1") });
+            Groups.Add(new Group() {Description = "Dummy Group 3", Profile = Profiles.First(p => p.Description == "Dummy Profile 2") });
+            Groups.Add(new Group() {Description = "Dummy Group 4", Profile = Profiles.First(p => p.Description == "Dummy Profile 2") });
 
             SaveChanges();
         }
