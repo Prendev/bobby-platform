@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Configuration;
 using System.Data.SqlClient;
-using Dapper;
 using Dapper.Contrib.Extensions;
 using QvaDev.Data.Models;
 
@@ -15,8 +14,6 @@ namespace QvaDev.Data.Repositories
 
     public class MetaTraderPlatformRepository : IMetaTraderPlatformRepository
     {
-        private const string WhereSql = "SELECT * FROM Mappings WHERE OrderNumber = @OrderNumber AND IgAccountId = @igAccountId";
-
         public void Add(MetaTraderPlatform entity)
         {
             using (var conn = new SqlConnection(ConfigurationManager.ConnectionStrings["DuplicatContext"].ConnectionString))

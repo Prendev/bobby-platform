@@ -43,7 +43,6 @@ namespace QvaDev.Duplicat
         private static void RegisterData(ContainerBuilder builder)
         {
             builder.RegisterType<MetaTraderPlatformRepository>().As<IMetaTraderPlatformRepository>();
-            builder.RegisterInstance(new DuplicatContext());
         }
     }
 }
