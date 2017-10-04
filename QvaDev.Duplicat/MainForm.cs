@@ -1,40 +1,42 @@
 ﻿using System.Windows.Forms;
-using QvaDev.Data;
 using QvaDev.Duplicat.ViewModel;
 
 namespace QvaDev.Duplicat
 {
     public partial class MainForm : Form
     {
-        private readonly ViewModel.ViewModel _viewModel;
-        private readonly DuplicatContext _duplicatContext;
+        private readonly DuplicatViewModel _duplicatViewModel;
 
         public MainForm(
-            ViewModel.ViewModel viewModel,
-            DuplicatContext duplicatContext
+            DuplicatViewModel duplicatViewModel
         )
         {
-            _viewModel = viewModel;
-            _duplicatContext = duplicatContext;
+            _duplicatViewModel = duplicatViewModel;
             InitializeComponent();
 
             InitViewModel();
+            AttachProfileSelector();
             AttachDataSources();
         }
 
         private void InitViewModel()
         {
-            dataGridViewMt4Accounts.DataBindings.Add(new Binding("ReadOnly", _viewModel, "IsConfigReadonly"));
-            dataGridViewCTraderPlatforms.DataBindings.Add(new Binding("ReadOnly", _viewModel, "IsConfigReadonly"));
-            dataGridViewCTraderAccounts.DataBindings.Add(new Binding("ReadOnly", _viewModel, "IsConfigReadonly"));
-            dataGridViewProfiles.DataBindings.Add(new Binding("ReadOnly", _viewModel, "IsConfigReadonly"));
-            dataGridViewGroups.DataBindings.Add(new Binding("ReadOnly", _viewModel, "IsConfigReadonly"));
+            dataGridViewMt4Accounts.DataBindings.Add(new Binding("ReadOnly", _duplicatViewModel, "IsConfigReadonly"));
+            dataGridViewCTraderPlatforms.DataBindings.Add(new Binding("ReadOnly", _duplicatViewModel, "IsConfigReadonly"));
+            dataGridViewCTraderAccounts.DataBindings.Add(new Binding("ReadOnly", _duplicatViewModel, "IsConfigReadonly"));
+            dataGridViewProfiles.DataBindings.Add(new Binding("ReadOnly", _duplicatViewModel, "IsConfigReadonly"));
+            dataGridViewGroups.DataBindings.Add(new Binding("ReadOnly", _duplicatViewModel, "IsConfigReadonly"));
 
-            radioButtonDisconnect.DataBindings.Add(new Binding("Checked", _viewModel, "IsDisconnect", true, DataSourceUpdateMode.OnPropertyChanged, false));
-            radioButtonConnect.DataBindings.Add(new Binding("Checked", _viewModel, "IsConnect", true, DataSourceUpdateMode.OnPropertyChanged, false));
-            radioButtonCopy.DataBindings.Add(new Binding("Checked", _viewModel, "IsCopy", true, DataSourceUpdateMode.OnPropertyChanged, false));
+            radioButtonDisconnect.DataBindings.Add(new Binding("Checked", _duplicatViewModel, "IsDisconnect", true, DataSourceUpdateMode.OnPropertyChanged, false));
+            radioButtonConnect.DataBindings.Add(new Binding("Checked", _duplicatViewModel, "IsConnect", true, DataSourceUpdateMode.OnPropertyChanged, false));
+            radioButtonCopy.DataBindings.Add(new Binding("Checked", _duplicatViewModel, "IsCopy", true, DataSourceUpdateMode.OnPropertyChanged, false));
 
-            buttonSaveConfig.Click += (sender, e) => { _viewModel.Execute<SaveCommand>(); };
+            buttonSave.Click += (sender, e) => { _duplicatViewModel.Execute<SaveCommand>(); };
+        }
+
+        private void AttachProfileSelector()
+        {
+            comboBoxProfile.DataSource = _duplicatViewModel.Profiles;
         }
 
         private void AttachDataSources()
@@ -46,51 +48,51 @@ namespace QvaDev.Duplicat
             dataGridViewProfiles.DataError += DataGridView_DataError;
             dataGridViewGroups.DataError += DataGridView_DataError;
 
-            dataGridViewMt4Platforms.DataSource = _viewModel.MetaTraderPlatforms;
+            dataGridViewMt4Platforms.DataSource = _duplicatViewModel.MetaTraderPlatforms;
             dataGridViewMt4Platforms.Columns["Id"].Visible = false;
             dataGridViewMt4Accounts.Columns.Add(new DataGridViewComboBoxColumn()
             {
-                DataSource = _viewModel.MetaTraderPlatforms,
+                DataSource = _duplicatViewModel.MetaTraderPlatforms,
                 Name = "MetaTraderPlatformId",
                 DataPropertyName = "MetaTraderPlatformId",
                 DisplayMember = "Description",
                 ValueMember = "Id",
                 HeaderText = "Platform"
             });
-            dataGridViewMt4Accounts.DataSource = _viewModel.MetaTraderAccounts;
+            dataGridViewMt4Accounts.DataSource = _duplicatViewModel.MetaTraderAccounts;
             dataGridViewMt4Accounts.Columns["Id"].Visible = false;
             dataGridViewMt4Accounts.Columns["MetaTraderPlatform"].Visible = false;
             dataGridViewMt4Accounts.Columns["MetaTraderPlatformId"].DisplayIndex = dataGridViewMt4Accounts.Columns.Count - 1;
 
-            dataGridViewCTraderPlatforms.DataSource = _viewModel.CTraderPlatforms;
+            dataGridViewCTraderPlatforms.DataSource = _duplicatViewModel.CTraderPlatforms;
             dataGridViewCTraderPlatforms.Columns["Id"].Visible = false;
             dataGridViewCTraderAccounts.Columns.Add(new DataGridViewComboBoxColumn()
             {
-                DataSource = _viewModel.CTraderPlatforms,
+                DataSource = _duplicatViewModel.CTraderPlatforms,
                 Name = "CTraderPlatformId",
                 DataPropertyName = "CTraderPlatformId",
                 DisplayMember = "Description",
                 ValueMember = "Id",
                 HeaderText = "Platform"
             });
-            dataGridViewCTraderAccounts.DataSource = _viewModel.CTraderAccounts;
+            dataGridViewCTraderAccounts.DataSource = _duplicatViewModel.CTraderAccounts;
             dataGridViewCTraderAccounts.Columns["Id"].Visible = false;
             dataGridViewCTraderAccounts.Columns["CTraderPlatform"].Visible = false;
             dataGridViewCTraderAccounts.Columns["CTraderPlatformId"].DisplayIndex = dataGridViewCTraderAccounts.Columns.Count - 1;
 
-            dataGridViewProfiles.DataSource = _viewModel.Profiles;
+            dataGridViewProfiles.DataSource = _duplicatViewModel.Profiles;
             dataGridViewProfiles.Columns["Id"].Visible = false;
 
             dataGridViewGroups.Columns.Add(new DataGridViewComboBoxColumn()
             {
-                DataSource = _viewModel.Profiles,
+                DataSource = _duplicatViewModel.Profiles,
                 Name = "ProfileId",
                 DataPropertyName = "ProfileId",
                 DisplayMember = "Description",
                 ValueMember = "Id",
                 HeaderText = "Profile"
             });
-            dataGridViewGroups.DataSource = _viewModel.Groups;
+            dataGridViewGroups.DataSource = _duplicatViewModel.Groups;
             dataGridViewGroups.Columns["Id"].Visible = false;
             dataGridViewGroups.Columns["Profile"].Visible = false;
             dataGridViewGroups.Columns["ProfileId"].DisplayIndex = dataGridViewGroups.Columns.Count - 1;

@@ -45,15 +45,16 @@
             this.tabPageCTrader = new System.Windows.Forms.TabPage();
             this.tableLayoutPanelCTrader = new System.Windows.Forms.TableLayoutPanel();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.dataGridViewCTraderPlatforms = new System.Windows.Forms.DataGridView();
             this.tableLayoutPanelMain = new System.Windows.Forms.TableLayoutPanel();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.comboBoxProfile = new System.Windows.Forms.ComboBox();
             this.radioButtonDisconnect = new System.Windows.Forms.RadioButton();
             this.radioButtonConnect = new System.Windows.Forms.RadioButton();
-            this.buttonSaveConfig = new System.Windows.Forms.Button();
+            this.buttonSave = new System.Windows.Forms.Button();
             this.radioButtonCopy = new System.Windows.Forms.RadioButton();
             this.groupBox5 = new System.Windows.Forms.GroupBox();
             this.dataGridViewCTraderAccounts = new System.Windows.Forms.DataGridView();
+            this.dataGridViewCTraderPlatforms = new System.Windows.Forms.DataGridView();
             this.tabControl1.SuspendLayout();
             this.tabPageProfileAndGroup.SuspendLayout();
             this.tableLayoutPanelProfilesAndGroups.SuspendLayout();
@@ -70,11 +71,11 @@
             this.tabPageCTrader.SuspendLayout();
             this.tableLayoutPanelCTrader.SuspendLayout();
             this.groupBox2.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewCTraderPlatforms)).BeginInit();
             this.tableLayoutPanelMain.SuspendLayout();
             this.groupBox3.SuspendLayout();
             this.groupBox5.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewCTraderAccounts)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewCTraderPlatforms)).BeginInit();
             this.SuspendLayout();
             // 
             // tabControl1
@@ -274,16 +275,6 @@
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Platforms";
             // 
-            // dataGridViewCTraderPlatforms
-            // 
-            this.dataGridViewCTraderPlatforms.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridViewCTraderPlatforms.DataSource = this.tableLayoutPanelMain.ColumnStyles;
-            this.dataGridViewCTraderPlatforms.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dataGridViewCTraderPlatforms.Location = new System.Drawing.Point(3, 16);
-            this.dataGridViewCTraderPlatforms.Name = "dataGridViewCTraderPlatforms";
-            this.dataGridViewCTraderPlatforms.Size = new System.Drawing.Size(504, 450);
-            this.dataGridViewCTraderPlatforms.TabIndex = 3;
-            // 
             // tableLayoutPanelMain
             // 
             this.tableLayoutPanelMain.ColumnCount = 1;
@@ -301,9 +292,10 @@
             // 
             // groupBox3
             // 
+            this.groupBox3.Controls.Add(this.comboBoxProfile);
             this.groupBox3.Controls.Add(this.radioButtonDisconnect);
             this.groupBox3.Controls.Add(this.radioButtonConnect);
-            this.groupBox3.Controls.Add(this.buttonSaveConfig);
+            this.groupBox3.Controls.Add(this.buttonSave);
             this.groupBox3.Controls.Add(this.radioButtonCopy);
             this.groupBox3.Dock = System.Windows.Forms.DockStyle.Fill;
             this.groupBox3.Location = new System.Drawing.Point(3, 3);
@@ -312,6 +304,15 @@
             this.groupBox3.TabIndex = 1;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Main control panel";
+            // 
+            // comboBoxProfile
+            // 
+            this.comboBoxProfile.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboBoxProfile.FormattingEnabled = true;
+            this.comboBoxProfile.Location = new System.Drawing.Point(151, 21);
+            this.comboBoxProfile.Name = "comboBoxProfile";
+            this.comboBoxProfile.Size = new System.Drawing.Size(121, 21);
+            this.comboBoxProfile.TabIndex = 14;
             // 
             // radioButtonDisconnect
             // 
@@ -337,14 +338,14 @@
             this.radioButtonConnect.Text = "Connect";
             this.radioButtonConnect.UseVisualStyleBackColor = true;
             // 
-            // buttonSaveConfig
+            // buttonSave
             // 
-            this.buttonSaveConfig.Location = new System.Drawing.Point(6, 19);
-            this.buttonSaveConfig.Name = "buttonSaveConfig";
-            this.buttonSaveConfig.Size = new System.Drawing.Size(75, 23);
-            this.buttonSaveConfig.TabIndex = 7;
-            this.buttonSaveConfig.Text = "Save config";
-            this.buttonSaveConfig.UseVisualStyleBackColor = true;
+            this.buttonSave.Location = new System.Drawing.Point(6, 19);
+            this.buttonSave.Name = "buttonSave";
+            this.buttonSave.Size = new System.Drawing.Size(139, 23);
+            this.buttonSave.TabIndex = 7;
+            this.buttonSave.Text = "Save changes";
+            this.buttonSave.UseVisualStyleBackColor = true;
             // 
             // radioButtonCopy
             // 
@@ -377,6 +378,15 @@
             this.dataGridViewCTraderAccounts.Size = new System.Drawing.Size(504, 450);
             this.dataGridViewCTraderAccounts.TabIndex = 2;
             // 
+            // dataGridViewCTraderPlatforms
+            // 
+            this.dataGridViewCTraderPlatforms.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dataGridViewCTraderPlatforms.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dataGridViewCTraderPlatforms.Location = new System.Drawing.Point(3, 16);
+            this.dataGridViewCTraderPlatforms.Name = "dataGridViewCTraderPlatforms";
+            this.dataGridViewCTraderPlatforms.Size = new System.Drawing.Size(504, 450);
+            this.dataGridViewCTraderPlatforms.TabIndex = 0;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -401,12 +411,12 @@
             this.tabPageCTrader.ResumeLayout(false);
             this.tableLayoutPanelCTrader.ResumeLayout(false);
             this.groupBox2.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewCTraderPlatforms)).EndInit();
             this.tableLayoutPanelMain.ResumeLayout(false);
             this.groupBox3.ResumeLayout(false);
             this.groupBox3.PerformLayout();
             this.groupBox5.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewCTraderAccounts)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewCTraderPlatforms)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -418,13 +428,12 @@
         private System.Windows.Forms.TabPage tabPageMt4;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanelMt4;
         private System.Windows.Forms.GroupBox groupBox2;
-        private System.Windows.Forms.DataGridView dataGridViewCTraderPlatforms;
         private System.Windows.Forms.TabPage tabPageCTrader;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanelMain;
         private System.Windows.Forms.GroupBox groupBox3;
         private System.Windows.Forms.RadioButton radioButtonDisconnect;
         private System.Windows.Forms.RadioButton radioButtonConnect;
-        private System.Windows.Forms.Button buttonSaveConfig;
+        private System.Windows.Forms.Button buttonSave;
         private System.Windows.Forms.RadioButton radioButtonCopy;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanelCTrader;
         private System.Windows.Forms.GroupBox groupBox4;
@@ -447,6 +456,8 @@
         private System.Windows.Forms.DataGridView dataGridViewProfiles;
         private System.Windows.Forms.GroupBox groupBox7;
         private System.Windows.Forms.DataGridView dataGridViewGroups;
+        private System.Windows.Forms.ComboBox comboBoxProfile;
+        private System.Windows.Forms.DataGridView dataGridViewCTraderPlatforms;
     }
 }
 

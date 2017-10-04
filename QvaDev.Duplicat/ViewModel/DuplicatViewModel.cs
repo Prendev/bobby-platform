@@ -5,11 +5,10 @@ using Autofac;
 using QvaDev.Data;
 using QvaDev.Data.Models;
 using QvaDev.Duplicat.Annotations;
-using IContainer = Autofac.IContainer;
 
 namespace QvaDev.Duplicat.ViewModel
 {
-    public class ViewModel : INotifyPropertyChanged
+    public class DuplicatViewModel : INotifyPropertyChanged
     {
         public enum States
         {
@@ -31,12 +30,14 @@ namespace QvaDev.Duplicat.ViewModel
         public BindingList<Profile> Profiles { get; }
         public BindingList<Group> Groups { get; }
 
+        public Profile SelectedProfile { get; set; }
+
         public bool IsDisconnect { get => _state == States.Disconnect; set { if (value) _state = States.Disconnect; } }
         public bool IsConnect { get => _state == States.Connect; set { if (value) _state = States.Connect; } }
         public bool IsCopy { get => _state == States.Copy; set { if (value) _state = States.Copy; } }
         public bool IsConfigReadonly => _state != States.Disconnect;
 
-        public ViewModel(
+        public DuplicatViewModel(
             IComponentContext componentContext,
             DuplicatContext duplicatContext)
         {
