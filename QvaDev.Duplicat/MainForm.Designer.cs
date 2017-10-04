@@ -33,61 +33,62 @@
             this.tableLayoutPanelCopier = new System.Windows.Forms.TableLayoutPanel();
             this.tableLayoutPanelMasterSlave = new System.Windows.Forms.TableLayoutPanel();
             this.groupBox8 = new System.Windows.Forms.GroupBox();
-            this.dgvMasters = new QvaDev.Duplicat.CustomDataGridView();
             this.groupBox9 = new System.Windows.Forms.GroupBox();
-            this.dgvSlaves = new QvaDev.Duplicat.CustomDataGridView();
             this.tabPageProfileAndGroup = new System.Windows.Forms.TabPage();
             this.tableLayoutPanelProfilesAndGroups = new System.Windows.Forms.TableLayoutPanel();
             this.groupBox6 = new System.Windows.Forms.GroupBox();
-            this.dgvProfiles = new QvaDev.Duplicat.CustomDataGridView();
             this.groupBox7 = new System.Windows.Forms.GroupBox();
-            this.dgvGroups = new QvaDev.Duplicat.CustomDataGridView();
             this.tabPageMt4 = new System.Windows.Forms.TabPage();
             this.tableLayoutPanelMt4 = new System.Windows.Forms.TableLayoutPanel();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
-            this.dgvMtAccounts = new QvaDev.Duplicat.CustomDataGridView();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.dgvMtPlatforms = new QvaDev.Duplicat.CustomDataGridView();
             this.tabPageCTrader = new System.Windows.Forms.TabPage();
             this.tableLayoutPanelCTrader = new System.Windows.Forms.TableLayoutPanel();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.dgvCtPlatforms = new QvaDev.Duplicat.CustomDataGridView();
             this.groupBox5 = new System.Windows.Forms.GroupBox();
-            this.dgvCtAccounts = new QvaDev.Duplicat.CustomDataGridView();
             this.tableLayoutPanelMain = new System.Windows.Forms.TableLayoutPanel();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.radioButtonDisconnect = new System.Windows.Forms.RadioButton();
             this.radioButtonConnect = new System.Windows.Forms.RadioButton();
             this.buttonSave = new System.Windows.Forms.Button();
             this.radioButtonCopy = new System.Windows.Forms.RadioButton();
+            this.dgvMasters = new QvaDev.Duplicat.CustomDataGridView();
+            this.dgvSlaves = new QvaDev.Duplicat.CustomDataGridView();
+            this.dgvProfiles = new QvaDev.Duplicat.CustomDataGridView();
+            this.dgvGroups = new QvaDev.Duplicat.CustomDataGridView();
+            this.dgvMtAccounts = new QvaDev.Duplicat.CustomDataGridView();
+            this.dgvMtPlatforms = new QvaDev.Duplicat.CustomDataGridView();
+            this.dgvCtPlatforms = new QvaDev.Duplicat.CustomDataGridView();
+            this.dgvCtAccounts = new QvaDev.Duplicat.CustomDataGridView();
+            this.comboBoxProfile = new System.Windows.Forms.ComboBox();
             this.tabControl1.SuspendLayout();
             this.tabPageCopier.SuspendLayout();
             this.tableLayoutPanelCopier.SuspendLayout();
             this.tableLayoutPanelMasterSlave.SuspendLayout();
             this.groupBox8.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dgvMasters)).BeginInit();
             this.groupBox9.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dgvSlaves)).BeginInit();
             this.tabPageProfileAndGroup.SuspendLayout();
             this.tableLayoutPanelProfilesAndGroups.SuspendLayout();
             this.groupBox6.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dgvProfiles)).BeginInit();
             this.groupBox7.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dgvGroups)).BeginInit();
             this.tabPageMt4.SuspendLayout();
             this.tableLayoutPanelMt4.SuspendLayout();
             this.groupBox4.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dgvMtAccounts)).BeginInit();
             this.groupBox1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dgvMtPlatforms)).BeginInit();
             this.tabPageCTrader.SuspendLayout();
             this.tableLayoutPanelCTrader.SuspendLayout();
             this.groupBox2.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dgvCtPlatforms)).BeginInit();
             this.groupBox5.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dgvCtAccounts)).BeginInit();
             this.tableLayoutPanelMain.SuspendLayout();
             this.groupBox3.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvMasters)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvSlaves)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvProfiles)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvGroups)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvMtAccounts)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvMtPlatforms)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvCtPlatforms)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvCtAccounts)).BeginInit();
             this.SuspendLayout();
             // 
             // tabControl1
@@ -155,15 +156,6 @@
             this.groupBox8.TabStop = false;
             this.groupBox8.Text = "Masters";
             // 
-            // dgvMasters
-            // 
-            this.dgvMasters.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgvMasters.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dgvMasters.Location = new System.Drawing.Point(3, 16);
-            this.dgvMasters.Name = "dgvMasters";
-            this.dgvMasters.Size = new System.Drawing.Size(498, 115);
-            this.dgvMasters.TabIndex = 0;
-            // 
             // groupBox9
             // 
             this.groupBox9.Controls.Add(this.dgvSlaves);
@@ -174,15 +166,6 @@
             this.groupBox9.TabIndex = 1;
             this.groupBox9.TabStop = false;
             this.groupBox9.Text = "Slaves";
-            // 
-            // dgvSlaves
-            // 
-            this.dgvSlaves.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgvSlaves.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dgvSlaves.Location = new System.Drawing.Point(3, 16);
-            this.dgvSlaves.Name = "dgvSlaves";
-            this.dgvSlaves.Size = new System.Drawing.Size(498, 304);
-            this.dgvSlaves.TabIndex = 0;
             // 
             // tabPageProfileAndGroup
             // 
@@ -222,15 +205,6 @@
             this.groupBox6.TabStop = false;
             this.groupBox6.Text = "Profiles";
             // 
-            // dgvProfiles
-            // 
-            this.dgvProfiles.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgvProfiles.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dgvProfiles.Location = new System.Drawing.Point(3, 16);
-            this.dgvProfiles.Name = "dgvProfiles";
-            this.dgvProfiles.Size = new System.Drawing.Size(504, 450);
-            this.dgvProfiles.TabIndex = 0;
-            // 
             // groupBox7
             // 
             this.groupBox7.Controls.Add(this.dgvGroups);
@@ -241,15 +215,6 @@
             this.groupBox7.TabIndex = 1;
             this.groupBox7.TabStop = false;
             this.groupBox7.Text = "Groups";
-            // 
-            // dgvGroups
-            // 
-            this.dgvGroups.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgvGroups.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dgvGroups.Location = new System.Drawing.Point(3, 16);
-            this.dgvGroups.Name = "dgvGroups";
-            this.dgvGroups.Size = new System.Drawing.Size(504, 450);
-            this.dgvGroups.TabIndex = 0;
             // 
             // tabPageMt4
             // 
@@ -289,15 +254,6 @@
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "Accounts";
             // 
-            // dgvMtAccounts
-            // 
-            this.dgvMtAccounts.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgvMtAccounts.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dgvMtAccounts.Location = new System.Drawing.Point(3, 16);
-            this.dgvMtAccounts.Name = "dgvMtAccounts";
-            this.dgvMtAccounts.Size = new System.Drawing.Size(504, 450);
-            this.dgvMtAccounts.TabIndex = 0;
-            // 
             // groupBox1
             // 
             this.groupBox1.Controls.Add(this.dgvMtPlatforms);
@@ -308,18 +264,6 @@
             this.groupBox1.TabIndex = 2;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Platforms";
-            // 
-            // dgvMtPlatforms
-            // 
-            this.dgvMtPlatforms.AllowUserToAddRows = false;
-            this.dgvMtPlatforms.AllowUserToDeleteRows = false;
-            this.dgvMtPlatforms.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgvMtPlatforms.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dgvMtPlatforms.Location = new System.Drawing.Point(3, 16);
-            this.dgvMtPlatforms.Name = "dgvMtPlatforms";
-            this.dgvMtPlatforms.ReadOnly = true;
-            this.dgvMtPlatforms.Size = new System.Drawing.Size(504, 450);
-            this.dgvMtPlatforms.TabIndex = 0;
             // 
             // tabPageCTrader
             // 
@@ -358,15 +302,6 @@
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Platforms";
             // 
-            // dgvCtPlatforms
-            // 
-            this.dgvCtPlatforms.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgvCtPlatforms.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dgvCtPlatforms.Location = new System.Drawing.Point(3, 16);
-            this.dgvCtPlatforms.Name = "dgvCtPlatforms";
-            this.dgvCtPlatforms.Size = new System.Drawing.Size(504, 450);
-            this.dgvCtPlatforms.TabIndex = 0;
-            // 
             // groupBox5
             // 
             this.groupBox5.Controls.Add(this.dgvCtAccounts);
@@ -377,15 +312,6 @@
             this.groupBox5.TabIndex = 1;
             this.groupBox5.TabStop = false;
             this.groupBox5.Text = "Accounts";
-            // 
-            // dgvCtAccounts
-            // 
-            this.dgvCtAccounts.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgvCtAccounts.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dgvCtAccounts.Location = new System.Drawing.Point(3, 16);
-            this.dgvCtAccounts.Name = "dgvCtAccounts";
-            this.dgvCtAccounts.Size = new System.Drawing.Size(504, 450);
-            this.dgvCtAccounts.TabIndex = 0;
             // 
             // tableLayoutPanelMain
             // 
@@ -404,6 +330,7 @@
             // 
             // groupBox3
             // 
+            this.groupBox3.Controls.Add(this.comboBoxProfile);
             this.groupBox3.Controls.Add(this.radioButtonDisconnect);
             this.groupBox3.Controls.Add(this.radioButtonConnect);
             this.groupBox3.Controls.Add(this.buttonSave);
@@ -460,6 +387,90 @@
             this.radioButtonCopy.Text = "Copy";
             this.radioButtonCopy.UseVisualStyleBackColor = true;
             // 
+            // dgvMasters
+            // 
+            this.dgvMasters.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgvMasters.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dgvMasters.Location = new System.Drawing.Point(3, 16);
+            this.dgvMasters.Name = "dgvMasters";
+            this.dgvMasters.Size = new System.Drawing.Size(498, 115);
+            this.dgvMasters.TabIndex = 0;
+            // 
+            // dgvSlaves
+            // 
+            this.dgvSlaves.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgvSlaves.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dgvSlaves.Location = new System.Drawing.Point(3, 16);
+            this.dgvSlaves.Name = "dgvSlaves";
+            this.dgvSlaves.Size = new System.Drawing.Size(498, 304);
+            this.dgvSlaves.TabIndex = 0;
+            // 
+            // dgvProfiles
+            // 
+            this.dgvProfiles.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgvProfiles.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dgvProfiles.Location = new System.Drawing.Point(3, 16);
+            this.dgvProfiles.Name = "dgvProfiles";
+            this.dgvProfiles.Size = new System.Drawing.Size(504, 450);
+            this.dgvProfiles.TabIndex = 0;
+            // 
+            // dgvGroups
+            // 
+            this.dgvGroups.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgvGroups.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dgvGroups.Location = new System.Drawing.Point(3, 16);
+            this.dgvGroups.Name = "dgvGroups";
+            this.dgvGroups.Size = new System.Drawing.Size(504, 450);
+            this.dgvGroups.TabIndex = 0;
+            // 
+            // dgvMtAccounts
+            // 
+            this.dgvMtAccounts.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgvMtAccounts.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dgvMtAccounts.Location = new System.Drawing.Point(3, 16);
+            this.dgvMtAccounts.Name = "dgvMtAccounts";
+            this.dgvMtAccounts.Size = new System.Drawing.Size(504, 450);
+            this.dgvMtAccounts.TabIndex = 0;
+            // 
+            // dgvMtPlatforms
+            // 
+            this.dgvMtPlatforms.AllowUserToAddRows = false;
+            this.dgvMtPlatforms.AllowUserToDeleteRows = false;
+            this.dgvMtPlatforms.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgvMtPlatforms.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dgvMtPlatforms.Location = new System.Drawing.Point(3, 16);
+            this.dgvMtPlatforms.Name = "dgvMtPlatforms";
+            this.dgvMtPlatforms.ReadOnly = true;
+            this.dgvMtPlatforms.Size = new System.Drawing.Size(504, 450);
+            this.dgvMtPlatforms.TabIndex = 0;
+            // 
+            // dgvCtPlatforms
+            // 
+            this.dgvCtPlatforms.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgvCtPlatforms.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dgvCtPlatforms.Location = new System.Drawing.Point(3, 16);
+            this.dgvCtPlatforms.Name = "dgvCtPlatforms";
+            this.dgvCtPlatforms.Size = new System.Drawing.Size(504, 450);
+            this.dgvCtPlatforms.TabIndex = 0;
+            // 
+            // dgvCtAccounts
+            // 
+            this.dgvCtAccounts.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgvCtAccounts.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dgvCtAccounts.Location = new System.Drawing.Point(3, 16);
+            this.dgvCtAccounts.Name = "dgvCtAccounts";
+            this.dgvCtAccounts.Size = new System.Drawing.Size(504, 450);
+            this.dgvCtAccounts.TabIndex = 0;
+            // 
+            // comboBoxProfile
+            // 
+            this.comboBoxProfile.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboBoxProfile.FormattingEnabled = true;
+            this.comboBoxProfile.Location = new System.Drawing.Point(151, 19);
+            this.comboBoxProfile.Name = "comboBoxProfile";
+            this.comboBoxProfile.Size = new System.Drawing.Size(121, 21);
+            this.comboBoxProfile.TabIndex = 14;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -473,30 +484,30 @@
             this.tableLayoutPanelCopier.ResumeLayout(false);
             this.tableLayoutPanelMasterSlave.ResumeLayout(false);
             this.groupBox8.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.dgvMasters)).EndInit();
             this.groupBox9.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.dgvSlaves)).EndInit();
             this.tabPageProfileAndGroup.ResumeLayout(false);
             this.tableLayoutPanelProfilesAndGroups.ResumeLayout(false);
             this.groupBox6.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.dgvProfiles)).EndInit();
             this.groupBox7.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.dgvGroups)).EndInit();
             this.tabPageMt4.ResumeLayout(false);
             this.tableLayoutPanelMt4.ResumeLayout(false);
             this.groupBox4.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.dgvMtAccounts)).EndInit();
             this.groupBox1.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.dgvMtPlatforms)).EndInit();
             this.tabPageCTrader.ResumeLayout(false);
             this.tableLayoutPanelCTrader.ResumeLayout(false);
             this.groupBox2.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.dgvCtPlatforms)).EndInit();
             this.groupBox5.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.dgvCtAccounts)).EndInit();
             this.tableLayoutPanelMain.ResumeLayout(false);
             this.groupBox3.ResumeLayout(false);
             this.groupBox3.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvMasters)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvSlaves)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvProfiles)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvGroups)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvMtAccounts)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvMtPlatforms)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvCtPlatforms)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvCtAccounts)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -543,6 +554,7 @@
         private CustomDataGridView dgvMtAccounts;
         private CustomDataGridView dgvCtPlatforms;
         private CustomDataGridView dgvCtAccounts;
+        private System.Windows.Forms.ComboBox comboBoxProfile;
     }
 }
 

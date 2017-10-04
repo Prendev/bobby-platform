@@ -28,7 +28,18 @@ namespace QvaDev.Duplicat.ViewModel
         private DuplicatContext _duplicatContext;
         
         private readonly IComponentContext _componentContext;
-        
+
+        public List<Profile> SelectorProfiles
+        {
+            get => _selectorProfiles;
+            set
+            {
+                if (value == _selectorProfiles) return;
+                _selectorProfiles = value;
+                OnPropertyChanged();
+            }
+        }
+
         public ObservableCollection<MetaTraderPlatform> MtPlatforms { get; private set; }
         public ObservableCollection<CTraderPlatform> CtPlatforms { get; private set; }
         public ObservableCollection<MetaTraderAccount> MtAccounts { get; private set; }
@@ -42,10 +53,11 @@ namespace QvaDev.Duplicat.ViewModel
         public event ProfileChangedEventHandler ProfileChanged;
 
         private int _selectedProfileId;
+        private List<Profile> _selectorProfiles;
 
         public int SelectedProfileId
         {
-            get => 1;
+            get => _selectedProfileId;
             set
             {
                 _selectedProfileId = value;
@@ -76,6 +88,8 @@ namespace QvaDev.Duplicat.ViewModel
             _duplicatContext?.Dispose();
             _duplicatContext = new DuplicatContext();
 
+            SelectorProfiles = SelectorProfiles ?? new List<Profile>(_duplicatContext.Profiles.ToList());
+
             _duplicatContext.MetaTraderPlatforms.Load();
             _duplicatContext.CTraderPlatforms.Load();
             _duplicatContext.MetaTraderAccounts.Load();
@@ -98,7 +112,7 @@ namespace QvaDev.Duplicat.ViewModel
         public void Execute<TCommand>(object parameter = null) where TCommand : ICommand
         {
             var command = _componentContext.Resolve<TCommand>();
-            command.Execute(_duplicatContext, parameter);
+            command.Execute(_duplicatContext, this, parameter);
         }
 
         [NotifyPropertyChangedInvocator]

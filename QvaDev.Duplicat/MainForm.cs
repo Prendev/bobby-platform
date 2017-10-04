@@ -1,5 +1,8 @@
-﻿using System.Data.Entity;
+﻿using System.ComponentModel;
+using System.Data.Entity;
+using System.Linq;
 using System.Windows.Forms;
+using QvaDev.Data.Models;
 using QvaDev.Duplicat.ViewModel;
 
 namespace QvaDev.Duplicat
@@ -50,8 +53,26 @@ namespace QvaDev.Duplicat
             dgvSlaves.DataError += DataGridView_DataError;
 
             _viewModel.ProfileChanged += AttachDataSources;
+            _viewModel.PropertyChanged += PropertyChanged;
+
+            comboBoxProfile.BindingContext = new BindingContext();
+            comboBoxProfile.DataBindings.Add("SelectedValue", _viewModel, "SelectedProfileId", true, DataSourceUpdateMode.OnPropertyChanged, false);
+            comboBoxProfile.DataSource = new BindingList<Profile>(_viewModel.SelectorProfiles);
+            comboBoxProfile.DisplayMember = "Description";
+            comboBoxProfile.ValueMember = "Id";
 
             AttachDataSources();
+        }
+
+        private void PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(_viewModel.SelectorProfiles))
+            {
+                var selectedProfileId = _viewModel.SelectedProfileId;
+                comboBoxProfile.DataSource = new BindingList<Profile>(_viewModel.SelectorProfiles);
+                if (_viewModel.SelectorProfiles.Any(p => p.Id == selectedProfileId))
+                    comboBoxProfile.SelectedValue = selectedProfileId;
+            }
         }
 
         private void DataGridView_DataError(object sender, DataGridViewDataErrorEventArgs e)
