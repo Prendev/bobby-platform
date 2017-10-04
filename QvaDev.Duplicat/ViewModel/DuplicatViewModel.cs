@@ -32,6 +32,8 @@ namespace QvaDev.Duplicat.ViewModel
         public BindingList<CTraderAccount> CTraderAccounts { get; private set; }
         public BindingList<Profile> Profiles { get; private set; }
         public BindingList<Group> Groups { get; private set; }
+        public BindingList<Master> Masters { get; private set; }
+        public BindingList<Slave> Slaves { get; private set; }
 
         public event PropertyChangedEventHandler PropertyChanged;
         public event ProfileChangedEventHandler ProfileChanged;
@@ -48,6 +50,7 @@ namespace QvaDev.Duplicat.ViewModel
         public bool IsConnect { get => _state == States.Connect; set { if (value) _state = States.Connect; } }
         public bool IsCopy { get => _state == States.Copy; set { if (value) _state = States.Copy; } }
         public bool IsConfigReadonly => _state != States.Disconnect;
+        public bool IsConfigEditable => _state == States.Disconnect;
 
         public DuplicatViewModel(
             IComponentContext componentContext)
@@ -70,6 +73,8 @@ namespace QvaDev.Duplicat.ViewModel
             _duplicatContext.CTraderAccounts.Load();
             _duplicatContext.Profiles.Load();
             _duplicatContext.Groups.Where(g => g.ProfileId == SelectedProfileId).Load();
+            _duplicatContext.Masters.Where(g => g.Group.ProfileId == SelectedProfileId).Load();
+            _duplicatContext.Slaves.Where(g => g.Master.Group.ProfileId == SelectedProfileId).Load();
 
             MetaTraderPlatforms = _duplicatContext.MetaTraderPlatforms.Local.ToBindingList();
             CTraderPlatforms = _duplicatContext.CTraderPlatforms.Local.ToBindingList();
@@ -77,6 +82,8 @@ namespace QvaDev.Duplicat.ViewModel
             CTraderAccounts = _duplicatContext.CTraderAccounts.Local.ToBindingList();
             Profiles = _duplicatContext.Profiles.Local.ToBindingList();
             Groups = _duplicatContext.Groups.Local.ToBindingList();
+            Masters = _duplicatContext.Masters.Local.ToBindingList();
+            Slaves = _duplicatContext.Slaves.Local.ToBindingList();
 
             ProfileChanged?.Invoke();
         }

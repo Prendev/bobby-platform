@@ -19,17 +19,22 @@ namespace QvaDev.Duplicat
 
         private void InitView()
         {
-            dataGridViewMt4Accounts.DataBindings.Add(new Binding("ReadOnly", _viewModel, "IsConfigReadonly"));
-            dataGridViewCTraderPlatforms.DataBindings.Add(new Binding("ReadOnly", _viewModel, "IsConfigReadonly"));
-            dataGridViewCTraderAccounts.DataBindings.Add(new Binding("ReadOnly", _viewModel, "IsConfigReadonly"));
-            dataGridViewProfiles.DataBindings.Add(new Binding("ReadOnly", _viewModel, "IsConfigReadonly"));
-            dataGridViewGroups.DataBindings.Add(new Binding("ReadOnly", _viewModel, "IsConfigReadonly"));
+            dataGridViewMt4Accounts.DataBindings.Add("ReadOnly", _viewModel, "IsConfigReadonly");
+            dataGridViewCTraderPlatforms.DataBindings.Add("ReadOnly", _viewModel, "IsConfigReadonly");
+            dataGridViewCTraderAccounts.DataBindings.Add("ReadOnly", _viewModel, "IsConfigReadonly");
+            dataGridViewProfiles.DataBindings.Add("ReadOnly", _viewModel, "IsConfigReadonly");
+            dataGridViewGroups.DataBindings.Add("ReadOnly", _viewModel, "IsConfigReadonly");
+            dataGridViewMasters.DataBindings.Add("ReadOnly", _viewModel, "IsConfigReadonly");
+            dataGridViewSlaves.DataBindings.Add("ReadOnly", _viewModel, "IsConfigReadonly");
+            comboBoxProfile.DataBindings.Add("Enabled", _viewModel, "IsConfigEditable");
 
-            radioButtonDisconnect.DataBindings.Add(new Binding("Checked", _viewModel, "IsDisconnect", true, DataSourceUpdateMode.OnPropertyChanged, false));
-            radioButtonConnect.DataBindings.Add(new Binding("Checked", _viewModel, "IsConnect", true, DataSourceUpdateMode.OnPropertyChanged, false));
-            radioButtonCopy.DataBindings.Add(new Binding("Checked", _viewModel, "IsCopy", true, DataSourceUpdateMode.OnPropertyChanged, false));
+            radioButtonDisconnect.DataBindings.Add("Checked", _viewModel, "IsDisconnect", true, DataSourceUpdateMode.OnPropertyChanged, false);
+            radioButtonConnect.DataBindings.Add("Checked", _viewModel, "IsConnect", true, DataSourceUpdateMode.OnPropertyChanged, false);
+            radioButtonCopy.DataBindings.Add("Checked", _viewModel, "IsCopy", true, DataSourceUpdateMode.OnPropertyChanged, false);
 
             comboBoxProfile.DataBindings.Add("SelectedValue", _viewModel, "SelectedProfileId", true, DataSourceUpdateMode.OnPropertyChanged, false);
+            comboBoxProfile.DisplayMember = "Description";
+            comboBoxProfile.ValueMember = "Id";
 
             buttonSave.Click += (sender, e) => { _viewModel.Execute<SaveCommand>(); };
 
@@ -39,10 +44,11 @@ namespace QvaDev.Duplicat
             dataGridViewCTraderAccounts.DataError += DataGridView_DataError;
             dataGridViewProfiles.DataError += DataGridView_DataError;
             dataGridViewGroups.DataError += DataGridView_DataError;
+            dataGridViewMasters.DataError += DataGridView_DataError;
+            dataGridViewSlaves.DataError += DataGridView_DataError;
 
             _viewModel.ProfileChanged += AttachDataSources;
 
-            InitDataSources();
             AttachDataSources();
         }
 
@@ -52,70 +58,27 @@ namespace QvaDev.Duplicat
             throw e.Exception;
         }
 
-        private void InitDataSources()
-        {
-            comboBoxProfile.DisplayMember = "Description";
-            comboBoxProfile.ValueMember = "Id";
-
-            dataGridViewMt4Accounts.Columns.Add(new DataGridViewComboBoxColumn()
-            {
-                DataSource = _viewModel.MetaTraderPlatforms,
-                Name = "MetaTraderPlatformId",
-                DataPropertyName = "MetaTraderPlatformId",
-                DisplayMember = "Description",
-                ValueMember = "Id",
-                HeaderText = "Platform"
-            });
-
-            dataGridViewCTraderAccounts.Columns.Add(new DataGridViewComboBoxColumn()
-            {
-                DataSource = _viewModel.CTraderPlatforms,
-                Name = "CTraderPlatformId",
-                DataPropertyName = "CTraderPlatformId",
-                DisplayMember = "Description",
-                ValueMember = "Id",
-                HeaderText = "Platform"
-            });
-
-            dataGridViewGroups.Columns.Add(new DataGridViewComboBoxColumn()
-            {
-                DataSource = _viewModel.Profiles,
-                Name = "ProfileId",
-                DataPropertyName = "ProfileId",
-                DisplayMember = "Description",
-                ValueMember = "Id",
-                HeaderText = "Profile"
-            });
-        }
-
         private void AttachDataSources()
         {
+            dataGridViewMt4Accounts.AddComboBoxColumn(_viewModel.MetaTraderPlatforms);
+            dataGridViewCTraderAccounts.AddComboBoxColumn(_viewModel.CTraderPlatforms);
+            dataGridViewGroups.AddComboBoxColumn(_viewModel.Profiles);
+            dataGridViewMasters.AddComboBoxColumn(_viewModel.Groups);
+            dataGridViewMasters.AddComboBoxColumn(_viewModel.MetaTraderAccounts);
+            dataGridViewSlaves.AddComboBoxColumn(_viewModel.Masters, "NotMappedDescription");
+            dataGridViewSlaves.AddComboBoxColumn(_viewModel.CTraderAccounts);
+
             comboBoxProfile.DataSource = _viewModel.Profiles;
-            comboBoxProfile.SelectedValue = _viewModel.SelectedProfileId;
+            //comboBoxProfile.SelectedValue = _viewModel.SelectedProfileId;
 
             dataGridViewMt4Platforms.DataSource = _viewModel.MetaTraderPlatforms;
-            dataGridViewMt4Platforms.Columns["Id"].Visible = false;
-
             dataGridViewMt4Accounts.DataSource = _viewModel.MetaTraderAccounts;
-            dataGridViewMt4Accounts.Columns["Id"].Visible = false;
-            dataGridViewMt4Accounts.Columns["MetaTraderPlatform"].Visible = false;
-            dataGridViewMt4Accounts.Columns["MetaTraderPlatformId"].DisplayIndex = dataGridViewMt4Accounts.Columns.Count - 1;
-
             dataGridViewCTraderPlatforms.DataSource = _viewModel.CTraderPlatforms;
-            dataGridViewCTraderPlatforms.Columns["Id"].Visible = false;
-
             dataGridViewCTraderAccounts.DataSource = _viewModel.CTraderAccounts;
-            dataGridViewCTraderAccounts.Columns["Id"].Visible = false;
-            dataGridViewCTraderAccounts.Columns["CTraderPlatform"].Visible = false;
-            dataGridViewCTraderAccounts.Columns["CTraderPlatformId"].DisplayIndex = dataGridViewCTraderAccounts.Columns.Count - 1;
-
             dataGridViewProfiles.DataSource = _viewModel.Profiles;
-            dataGridViewProfiles.Columns["Id"].Visible = false;
-
             dataGridViewGroups.DataSource = _viewModel.Groups;
-            dataGridViewGroups.Columns["Id"].Visible = false;
-            dataGridViewGroups.Columns["Profile"].Visible = false;
-            dataGridViewGroups.Columns["ProfileId"].DisplayIndex = dataGridViewGroups.Columns.Count - 1;
+            dataGridViewMasters.DataSource = _viewModel.Masters;
+            dataGridViewSlaves.DataSource = _viewModel.Slaves;
         }
     }
 }

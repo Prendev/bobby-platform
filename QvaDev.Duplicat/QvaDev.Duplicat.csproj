@@ -58,6 +58,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CustomDataGridView.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Dependencies.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>

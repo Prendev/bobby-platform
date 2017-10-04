@@ -102,6 +102,42 @@ namespace QvaDev.Data
             Groups.Add(new Group() {Description = "Dummy Group 4", Profile = Profiles.First(p => p.Description == "Dummy Profile 2") });
 
             SaveChanges();
+
+            Masters.Add(new Master
+            {
+                Group = Groups.First(a => a.Description == "Dummy Group 1"),
+                MetaTraderAccount = MetaTraderAccounts.First(a => a.Description == "Aura1")
+            });
+            Masters.Add(new Master
+            {
+                Group = Groups.First(a => a.Description == "Dummy Group 2"),
+                MetaTraderAccount = MetaTraderAccounts.First(a => a.Description == "Aura2")
+            });
+
+            SaveChanges();
+
+            Slaves.Add(new Slave
+            {
+                Master = Masters.ToList().First(),
+                CTraderAccount = CTraderAccounts.First(a => a.Description == "cTrader1")
+            });
+            Slaves.Add(new Slave
+            {
+                Master = Masters.ToList().First(),
+                CTraderAccount = CTraderAccounts.First(a => a.Description == "cTrader2")
+            });
+            Slaves.Add(new Slave
+            {
+                Master = Masters.ToList().Last(),
+                CTraderAccount = CTraderAccounts.First(a => a.Description == "cTrader3")
+            });
+            Slaves.Add(new Slave
+            {
+                Master = Masters.ToList().Last(),
+                CTraderAccount = CTraderAccounts.First(a => a.Description == "cTrader4")
+            });
+
+            SaveChanges();
         }
     }
 }

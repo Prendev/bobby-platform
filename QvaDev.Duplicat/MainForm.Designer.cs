@@ -32,22 +32,16 @@
             this.tabPageProfileAndGroup = new System.Windows.Forms.TabPage();
             this.tableLayoutPanelProfilesAndGroups = new System.Windows.Forms.TableLayoutPanel();
             this.groupBox6 = new System.Windows.Forms.GroupBox();
-            this.dataGridViewProfiles = new System.Windows.Forms.DataGridView();
             this.groupBox7 = new System.Windows.Forms.GroupBox();
-            this.dataGridViewGroups = new System.Windows.Forms.DataGridView();
             this.tabPageCopier = new System.Windows.Forms.TabPage();
             this.tabPageMt4 = new System.Windows.Forms.TabPage();
             this.tableLayoutPanelMt4 = new System.Windows.Forms.TableLayoutPanel();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
-            this.dataGridViewMt4Accounts = new System.Windows.Forms.DataGridView();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.dataGridViewMt4Platforms = new System.Windows.Forms.DataGridView();
             this.tabPageCTrader = new System.Windows.Forms.TabPage();
             this.tableLayoutPanelCTrader = new System.Windows.Forms.TableLayoutPanel();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.dataGridViewCTraderPlatforms = new System.Windows.Forms.DataGridView();
             this.groupBox5 = new System.Windows.Forms.GroupBox();
-            this.dataGridViewCTraderAccounts = new System.Windows.Forms.DataGridView();
             this.tableLayoutPanelMain = new System.Windows.Forms.TableLayoutPanel();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.comboBoxProfile = new System.Windows.Forms.ComboBox();
@@ -55,27 +49,46 @@
             this.radioButtonConnect = new System.Windows.Forms.RadioButton();
             this.buttonSave = new System.Windows.Forms.Button();
             this.radioButtonCopy = new System.Windows.Forms.RadioButton();
+            this.tableLayoutPanelCopier = new System.Windows.Forms.TableLayoutPanel();
+            this.tableLayoutPanelMasterSlave = new System.Windows.Forms.TableLayoutPanel();
+            this.groupBox8 = new System.Windows.Forms.GroupBox();
+            this.groupBox9 = new System.Windows.Forms.GroupBox();
+            this.dataGridViewSlaves = new QvaDev.Duplicat.CustomDataGridView();
+            this.dataGridViewMasters = new QvaDev.Duplicat.CustomDataGridView();
+            this.dataGridViewProfiles = new QvaDev.Duplicat.CustomDataGridView();
+            this.dataGridViewGroups = new QvaDev.Duplicat.CustomDataGridView();
+            this.dataGridViewMt4Platforms = new QvaDev.Duplicat.CustomDataGridView();
+            this.dataGridViewMt4Accounts = new QvaDev.Duplicat.CustomDataGridView();
+            this.dataGridViewCTraderPlatforms = new QvaDev.Duplicat.CustomDataGridView();
+            this.dataGridViewCTraderAccounts = new QvaDev.Duplicat.CustomDataGridView();
             this.tabControl1.SuspendLayout();
             this.tabPageProfileAndGroup.SuspendLayout();
             this.tableLayoutPanelProfilesAndGroups.SuspendLayout();
             this.groupBox6.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewProfiles)).BeginInit();
             this.groupBox7.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewGroups)).BeginInit();
+            this.tabPageCopier.SuspendLayout();
             this.tabPageMt4.SuspendLayout();
             this.tableLayoutPanelMt4.SuspendLayout();
             this.groupBox4.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewMt4Accounts)).BeginInit();
             this.groupBox1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewMt4Platforms)).BeginInit();
             this.tabPageCTrader.SuspendLayout();
             this.tableLayoutPanelCTrader.SuspendLayout();
             this.groupBox2.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewCTraderPlatforms)).BeginInit();
             this.groupBox5.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewCTraderAccounts)).BeginInit();
             this.tableLayoutPanelMain.SuspendLayout();
             this.groupBox3.SuspendLayout();
+            this.tableLayoutPanelCopier.SuspendLayout();
+            this.tableLayoutPanelMasterSlave.SuspendLayout();
+            this.groupBox8.SuspendLayout();
+            this.groupBox9.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewSlaves)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewMasters)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewProfiles)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewGroups)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewMt4Platforms)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewMt4Accounts)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewCTraderPlatforms)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewCTraderAccounts)).BeginInit();
             this.SuspendLayout();
             // 
             // tabControl1
@@ -129,15 +142,6 @@
             this.groupBox6.TabStop = false;
             this.groupBox6.Text = "Profiles";
             // 
-            // dataGridViewProfiles
-            // 
-            this.dataGridViewProfiles.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridViewProfiles.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dataGridViewProfiles.Location = new System.Drawing.Point(3, 16);
-            this.dataGridViewProfiles.Name = "dataGridViewProfiles";
-            this.dataGridViewProfiles.Size = new System.Drawing.Size(504, 450);
-            this.dataGridViewProfiles.TabIndex = 0;
-            // 
             // groupBox7
             // 
             this.groupBox7.Controls.Add(this.dataGridViewGroups);
@@ -149,17 +153,9 @@
             this.groupBox7.TabStop = false;
             this.groupBox7.Text = "Groups";
             // 
-            // dataGridViewGroups
-            // 
-            this.dataGridViewGroups.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridViewGroups.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dataGridViewGroups.Location = new System.Drawing.Point(3, 16);
-            this.dataGridViewGroups.Name = "dataGridViewGroups";
-            this.dataGridViewGroups.Size = new System.Drawing.Size(504, 450);
-            this.dataGridViewGroups.TabIndex = 0;
-            // 
             // tabPageCopier
             // 
+            this.tabPageCopier.Controls.Add(this.tableLayoutPanelCopier);
             this.tabPageCopier.Location = new System.Drawing.Point(4, 22);
             this.tabPageCopier.Name = "tabPageCopier";
             this.tabPageCopier.Padding = new System.Windows.Forms.Padding(3);
@@ -206,15 +202,6 @@
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "Accounts";
             // 
-            // dataGridViewMt4Accounts
-            // 
-            this.dataGridViewMt4Accounts.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridViewMt4Accounts.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dataGridViewMt4Accounts.Location = new System.Drawing.Point(3, 16);
-            this.dataGridViewMt4Accounts.Name = "dataGridViewMt4Accounts";
-            this.dataGridViewMt4Accounts.Size = new System.Drawing.Size(504, 450);
-            this.dataGridViewMt4Accounts.TabIndex = 2;
-            // 
             // groupBox1
             // 
             this.groupBox1.Controls.Add(this.dataGridViewMt4Platforms);
@@ -225,18 +212,6 @@
             this.groupBox1.TabIndex = 2;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Platforms";
-            // 
-            // dataGridViewMt4Platforms
-            // 
-            this.dataGridViewMt4Platforms.AllowUserToAddRows = false;
-            this.dataGridViewMt4Platforms.AllowUserToDeleteRows = false;
-            this.dataGridViewMt4Platforms.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridViewMt4Platforms.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dataGridViewMt4Platforms.Location = new System.Drawing.Point(3, 16);
-            this.dataGridViewMt4Platforms.Name = "dataGridViewMt4Platforms";
-            this.dataGridViewMt4Platforms.ReadOnly = true;
-            this.dataGridViewMt4Platforms.Size = new System.Drawing.Size(504, 450);
-            this.dataGridViewMt4Platforms.TabIndex = 0;
             // 
             // tabPageCTrader
             // 
@@ -275,15 +250,6 @@
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Platforms";
             // 
-            // dataGridViewCTraderPlatforms
-            // 
-            this.dataGridViewCTraderPlatforms.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridViewCTraderPlatforms.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dataGridViewCTraderPlatforms.Location = new System.Drawing.Point(3, 16);
-            this.dataGridViewCTraderPlatforms.Name = "dataGridViewCTraderPlatforms";
-            this.dataGridViewCTraderPlatforms.Size = new System.Drawing.Size(504, 450);
-            this.dataGridViewCTraderPlatforms.TabIndex = 0;
-            // 
             // groupBox5
             // 
             this.groupBox5.Controls.Add(this.dataGridViewCTraderAccounts);
@@ -294,15 +260,6 @@
             this.groupBox5.TabIndex = 1;
             this.groupBox5.TabStop = false;
             this.groupBox5.Text = "Accounts";
-            // 
-            // dataGridViewCTraderAccounts
-            // 
-            this.dataGridViewCTraderAccounts.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridViewCTraderAccounts.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dataGridViewCTraderAccounts.Location = new System.Drawing.Point(3, 16);
-            this.dataGridViewCTraderAccounts.Name = "dataGridViewCTraderAccounts";
-            this.dataGridViewCTraderAccounts.Size = new System.Drawing.Size(504, 450);
-            this.dataGridViewCTraderAccounts.TabIndex = 2;
             // 
             // tableLayoutPanelMain
             // 
@@ -387,6 +344,133 @@
             this.radioButtonCopy.Text = "Copy";
             this.radioButtonCopy.UseVisualStyleBackColor = true;
             // 
+            // tableLayoutPanelCopier
+            // 
+            this.tableLayoutPanelCopier.ColumnCount = 2;
+            this.tableLayoutPanelCopier.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanelCopier.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanelCopier.Controls.Add(this.tableLayoutPanelMasterSlave, 0, 0);
+            this.tableLayoutPanelCopier.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableLayoutPanelCopier.Location = new System.Drawing.Point(3, 3);
+            this.tableLayoutPanelCopier.Name = "tableLayoutPanelCopier";
+            this.tableLayoutPanelCopier.RowCount = 1;
+            this.tableLayoutPanelCopier.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanelCopier.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.tableLayoutPanelCopier.Size = new System.Drawing.Size(1032, 475);
+            this.tableLayoutPanelCopier.TabIndex = 0;
+            // 
+            // tableLayoutPanelMasterSlave
+            // 
+            this.tableLayoutPanelMasterSlave.ColumnCount = 1;
+            this.tableLayoutPanelMasterSlave.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanelMasterSlave.Controls.Add(this.groupBox8, 0, 0);
+            this.tableLayoutPanelMasterSlave.Controls.Add(this.groupBox9, 0, 1);
+            this.tableLayoutPanelMasterSlave.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableLayoutPanelMasterSlave.Location = new System.Drawing.Point(3, 3);
+            this.tableLayoutPanelMasterSlave.Name = "tableLayoutPanelMasterSlave";
+            this.tableLayoutPanelMasterSlave.RowCount = 2;
+            this.tableLayoutPanelMasterSlave.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 30F));
+            this.tableLayoutPanelMasterSlave.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 70F));
+            this.tableLayoutPanelMasterSlave.Size = new System.Drawing.Size(510, 469);
+            this.tableLayoutPanelMasterSlave.TabIndex = 0;
+            // 
+            // groupBox8
+            // 
+            this.groupBox8.Controls.Add(this.dataGridViewMasters);
+            this.groupBox8.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.groupBox8.Location = new System.Drawing.Point(3, 3);
+            this.groupBox8.Name = "groupBox8";
+            this.groupBox8.Size = new System.Drawing.Size(504, 134);
+            this.groupBox8.TabIndex = 0;
+            this.groupBox8.TabStop = false;
+            this.groupBox8.Text = "Masters";
+            // 
+            // groupBox9
+            // 
+            this.groupBox9.Controls.Add(this.dataGridViewSlaves);
+            this.groupBox9.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.groupBox9.Location = new System.Drawing.Point(3, 143);
+            this.groupBox9.Name = "groupBox9";
+            this.groupBox9.Size = new System.Drawing.Size(504, 323);
+            this.groupBox9.TabIndex = 1;
+            this.groupBox9.TabStop = false;
+            this.groupBox9.Text = "Slaves";
+            // 
+            // dataGridViewSlaves
+            // 
+            this.dataGridViewSlaves.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dataGridViewSlaves.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dataGridViewSlaves.Location = new System.Drawing.Point(3, 16);
+            this.dataGridViewSlaves.Name = "dataGridViewSlaves";
+            this.dataGridViewSlaves.Size = new System.Drawing.Size(498, 304);
+            this.dataGridViewSlaves.TabIndex = 0;
+            // 
+            // dataGridViewMasters
+            // 
+            this.dataGridViewMasters.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dataGridViewMasters.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dataGridViewMasters.Location = new System.Drawing.Point(3, 16);
+            this.dataGridViewMasters.Name = "dataGridViewMasters";
+            this.dataGridViewMasters.Size = new System.Drawing.Size(498, 115);
+            this.dataGridViewMasters.TabIndex = 0;
+            // 
+            // dataGridViewProfiles
+            // 
+            this.dataGridViewProfiles.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dataGridViewProfiles.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dataGridViewProfiles.Location = new System.Drawing.Point(3, 16);
+            this.dataGridViewProfiles.Name = "dataGridViewProfiles";
+            this.dataGridViewProfiles.Size = new System.Drawing.Size(504, 450);
+            this.dataGridViewProfiles.TabIndex = 0;
+            // 
+            // dataGridViewGroups
+            // 
+            this.dataGridViewGroups.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dataGridViewGroups.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dataGridViewGroups.Location = new System.Drawing.Point(3, 16);
+            this.dataGridViewGroups.Name = "dataGridViewGroups";
+            this.dataGridViewGroups.Size = new System.Drawing.Size(504, 450);
+            this.dataGridViewGroups.TabIndex = 0;
+            // 
+            // dataGridViewMt4Platforms
+            // 
+            this.dataGridViewMt4Platforms.AllowUserToAddRows = false;
+            this.dataGridViewMt4Platforms.AllowUserToDeleteRows = false;
+            this.dataGridViewMt4Platforms.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dataGridViewMt4Platforms.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dataGridViewMt4Platforms.Location = new System.Drawing.Point(3, 16);
+            this.dataGridViewMt4Platforms.Name = "dataGridViewMt4Platforms";
+            this.dataGridViewMt4Platforms.ReadOnly = true;
+            this.dataGridViewMt4Platforms.Size = new System.Drawing.Size(504, 450);
+            this.dataGridViewMt4Platforms.TabIndex = 0;
+            // 
+            // dataGridViewMt4Accounts
+            // 
+            this.dataGridViewMt4Accounts.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dataGridViewMt4Accounts.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dataGridViewMt4Accounts.Location = new System.Drawing.Point(3, 16);
+            this.dataGridViewMt4Accounts.Name = "dataGridViewMt4Accounts";
+            this.dataGridViewMt4Accounts.Size = new System.Drawing.Size(504, 450);
+            this.dataGridViewMt4Accounts.TabIndex = 0;
+            // 
+            // dataGridViewCTraderPlatforms
+            // 
+            this.dataGridViewCTraderPlatforms.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dataGridViewCTraderPlatforms.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dataGridViewCTraderPlatforms.Location = new System.Drawing.Point(3, 16);
+            this.dataGridViewCTraderPlatforms.Name = "dataGridViewCTraderPlatforms";
+            this.dataGridViewCTraderPlatforms.Size = new System.Drawing.Size(504, 450);
+            this.dataGridViewCTraderPlatforms.TabIndex = 0;
+            // 
+            // dataGridViewCTraderAccounts
+            // 
+            this.dataGridViewCTraderAccounts.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dataGridViewCTraderAccounts.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dataGridViewCTraderAccounts.Location = new System.Drawing.Point(3, 16);
+            this.dataGridViewCTraderAccounts.Name = "dataGridViewCTraderAccounts";
+            this.dataGridViewCTraderAccounts.Size = new System.Drawing.Size(504, 450);
+            this.dataGridViewCTraderAccounts.TabIndex = 0;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -399,24 +483,31 @@
             this.tabPageProfileAndGroup.ResumeLayout(false);
             this.tableLayoutPanelProfilesAndGroups.ResumeLayout(false);
             this.groupBox6.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewProfiles)).EndInit();
             this.groupBox7.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewGroups)).EndInit();
+            this.tabPageCopier.ResumeLayout(false);
             this.tabPageMt4.ResumeLayout(false);
             this.tableLayoutPanelMt4.ResumeLayout(false);
             this.groupBox4.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewMt4Accounts)).EndInit();
             this.groupBox1.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewMt4Platforms)).EndInit();
             this.tabPageCTrader.ResumeLayout(false);
             this.tableLayoutPanelCTrader.ResumeLayout(false);
             this.groupBox2.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewCTraderPlatforms)).EndInit();
             this.groupBox5.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewCTraderAccounts)).EndInit();
             this.tableLayoutPanelMain.ResumeLayout(false);
             this.groupBox3.ResumeLayout(false);
             this.groupBox3.PerformLayout();
+            this.tableLayoutPanelCopier.ResumeLayout(false);
+            this.tableLayoutPanelMasterSlave.ResumeLayout(false);
+            this.groupBox8.ResumeLayout(false);
+            this.groupBox9.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewSlaves)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewMasters)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewProfiles)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewGroups)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewMt4Platforms)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewMt4Accounts)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewCTraderPlatforms)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewCTraderAccounts)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -437,9 +528,7 @@
         private System.Windows.Forms.RadioButton radioButtonCopy;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanelCTrader;
         private System.Windows.Forms.GroupBox groupBox4;
-        private System.Windows.Forms.DataGridView dataGridViewMt4Accounts;
         private System.Windows.Forms.GroupBox groupBox5;
-        private System.Windows.Forms.DataGridView dataGridViewCTraderAccounts;
         private System.Windows.Forms.DataGridViewTextBoxColumn cTraderPlatformIdDataGridViewTextBoxColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn descriptionDataGridViewTextBoxColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn accountsApiDataGridViewTextBoxColumn;
@@ -449,15 +538,23 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn secretDataGridViewTextBoxColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn playgroundDataGridViewTextBoxColumn;
         private System.Windows.Forms.GroupBox groupBox1;
-        private System.Windows.Forms.DataGridView dataGridViewMt4Platforms;
         private System.Windows.Forms.TabPage tabPageProfileAndGroup;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanelProfilesAndGroups;
         private System.Windows.Forms.GroupBox groupBox6;
-        private System.Windows.Forms.DataGridView dataGridViewProfiles;
         private System.Windows.Forms.GroupBox groupBox7;
-        private System.Windows.Forms.DataGridView dataGridViewGroups;
         private System.Windows.Forms.ComboBox comboBoxProfile;
-        private System.Windows.Forms.DataGridView dataGridViewCTraderPlatforms;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanelCopier;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanelMasterSlave;
+        private System.Windows.Forms.GroupBox groupBox8;
+        private System.Windows.Forms.GroupBox groupBox9;
+        private CustomDataGridView dataGridViewMasters;
+        private CustomDataGridView dataGridViewSlaves;
+        private CustomDataGridView dataGridViewProfiles;
+        private CustomDataGridView dataGridViewGroups;
+        private CustomDataGridView dataGridViewMt4Platforms;
+        private CustomDataGridView dataGridViewMt4Accounts;
+        private CustomDataGridView dataGridViewCTraderPlatforms;
+        private CustomDataGridView dataGridViewCTraderAccounts;
     }
 }
 

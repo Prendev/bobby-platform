@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace QvaDev.Data.Models
 {
@@ -13,5 +14,8 @@ namespace QvaDev.Data.Models
         public int MetaTraderAccountId { get; set; }
         [Required]
         public MetaTraderAccount MetaTraderAccount { get; set; }
+
+        [NotMapped]
+        public string NotMappedDescription => $"{Group?.Description} | {MetaTraderAccount?.Description}";
     }
 }
