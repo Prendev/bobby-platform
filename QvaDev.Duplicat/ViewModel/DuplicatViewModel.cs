@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Data.Entity;
 using System.Linq;
@@ -11,6 +10,13 @@ namespace QvaDev.Duplicat.ViewModel
 {
     public class DuplicatViewModel : BaseViewModel
     {
+        private enum States
+        {
+            Disconnect,
+            Connect,
+            Copy
+        }
+
         public delegate void ProfileChangedEventHandler();
 
         private readonly IComponentContext _componentContext;
@@ -28,11 +34,11 @@ namespace QvaDev.Duplicat.ViewModel
         public event ProfileChangedEventHandler ProfileChanged;
         
         public int SelectedProfileId { get => Get<int>(); set => Set(value); }
-        public bool IsDisconnect { get => Get<bool>(); set => Set(value); }
-        public bool IsConnect { get => Get<bool>(); set => Set(value); }
-        public bool IsCopy { get => Get<bool>(); set => Set(value); }
+        private States State { get => Get<States>(); set => Set(value); }
+        public bool IsDisconnect { get => State == States.Disconnect; set => State = value ? States.Disconnect : State; }
+        public bool IsConnect { get => State == States.Connect; set => State = value ? States.Connect : State; }
+        public bool IsCopy { get => State == States.Copy; set => State = value ? States.Copy : State; }
         public bool IsConfigReadonly { get => Get<bool>(); set => Set(value); }
-        public bool IsConfigEditable { get => Get<bool>(); set => Set(value); }
 
         public DuplicatViewModel(
             IComponentContext componentContext)
@@ -45,11 +51,9 @@ namespace QvaDev.Duplicat.ViewModel
 
         private void DuplicatViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(IsDisconnect) || e.PropertyName == nameof(IsConnect) ||
-                e.PropertyName == nameof(IsCopy))
+            if (e.PropertyName == nameof(State))
             {
                 IsConfigReadonly = !IsDisconnect;
-                IsConfigEditable = IsDisconnect;
             }
             else if (e.PropertyName == nameof(SelectedProfileId))
             {

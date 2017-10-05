@@ -28,17 +28,21 @@ namespace QvaDev.Duplicat
 
         private void InitView()
         {
-            dgvMtAccounts.DataBindings.Add("ReadOnly", _viewModel, "IsConfigReadonly");
-            dgvCtPlatforms.DataBindings.Add("ReadOnly", _viewModel, "IsConfigReadonly");
-            dgvCtAccounts.DataBindings.Add("ReadOnly", _viewModel, "IsConfigReadonly");
-            dgvProfiles.DataBindings.Add("ReadOnly", _viewModel, "IsConfigReadonly");
-            dgvGroups.DataBindings.Add("ReadOnly", _viewModel, "IsConfigReadonly");
-            dgvMasters.DataBindings.Add("ReadOnly", _viewModel, "IsConfigReadonly");
-            dgvSlaves.DataBindings.Add("ReadOnly", _viewModel, "IsConfigReadonly");
+            dgvMtAccounts.DataBindings.Add(new Binding("ReadOnly", _viewModel, "IsConfigReadonly"));
+            dgvCtPlatforms.DataBindings.Add(new Binding("ReadOnly", _viewModel, "IsConfigReadonly"));
+            dgvCtAccounts.DataBindings.Add(new Binding("ReadOnly", _viewModel, "IsConfigReadonly"));
+            dgvProfiles.DataBindings.Add(new Binding("ReadOnly", _viewModel, "IsConfigReadonly"));
+            dgvGroups.DataBindings.Add(new Binding("ReadOnly", _viewModel, "IsConfigReadonly"));
+            dgvMasters.DataBindings.Add(new Binding("ReadOnly", _viewModel, "IsConfigReadonly"));
+            dgvSlaves.DataBindings.Add(new Binding("ReadOnly", _viewModel, "IsConfigReadonly"));
 
-            radioButtonDisconnect.DataBindings.Add("Checked", _viewModel, "IsDisconnect", true, DataSourceUpdateMode.OnPropertyChanged, false);
-            radioButtonConnect.DataBindings.Add("Checked", _viewModel, "IsConnect", true, DataSourceUpdateMode.OnPropertyChanged, false);
-            radioButtonCopy.DataBindings.Add("Checked", _viewModel, "IsCopy", true, DataSourceUpdateMode.OnPropertyChanged, false);
+            var inverseBinding = new Binding("Enabled", _viewModel, "IsConfigReadonly");
+            inverseBinding.Format += (s, e) => e.Value = !(bool)e.Value;
+            buttonLoadProfile.DataBindings.Add(inverseBinding);
+
+            radioButtonDisconnect.DataBindings.Add(new Binding("Checked", _viewModel, "IsDisconnect", true, DataSourceUpdateMode.OnPropertyChanged, false));
+            radioButtonConnect.DataBindings.Add(new Binding("Checked", _viewModel, "IsConnect", true, DataSourceUpdateMode.OnPropertyChanged, false));
+            radioButtonCopy.DataBindings.Add(new Binding("Checked", _viewModel, "IsCopy", true, DataSourceUpdateMode.OnPropertyChanged, false));
 
             buttonSave.Click += (s, e) => { _viewModel.Execute<SaveCommand>(); };
             buttonLoadProfile.Click += (s, e) => { _viewModel.Execute<LoadProfileCommand>(dgvProfiles.CurrentRow?.DataBoundItem); };
