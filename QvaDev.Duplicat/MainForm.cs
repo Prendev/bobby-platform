@@ -1,6 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System;
 using System.Data.Entity;
-using System.Linq;
 using System.Windows.Forms;
 using QvaDev.Data.Models;
 using QvaDev.Duplicat.ViewModel;
@@ -35,17 +34,23 @@ namespace QvaDev.Duplicat
             dgvGroups.DataBindings.Add(new Binding("ReadOnly", _viewModel, "IsConfigReadonly"));
             dgvMasters.DataBindings.Add(new Binding("ReadOnly", _viewModel, "IsConfigReadonly"));
             dgvSlaves.DataBindings.Add(new Binding("ReadOnly", _viewModel, "IsConfigReadonly"));
+            dgvSymbolMappings.DataBindings.Add(new Binding("ReadOnly", _viewModel, "IsConfigReadonly"));
+            dgvCopiers.DataBindings.Add(new Binding("ReadOnly", _viewModel, "IsConfigReadonly"));
 
             var inverseBinding = new Binding("Enabled", _viewModel, "IsConfigReadonly");
             inverseBinding.Format += (s, e) => e.Value = !(bool)e.Value;
             buttonLoadProfile.DataBindings.Add(inverseBinding);
+            inverseBinding = new Binding("Enabled", _viewModel, "IsConfigReadonly");
+            inverseBinding.Format += (s, e) => e.Value = !(bool)e.Value;
+            buttonLoadCopier.DataBindings.Add(inverseBinding);
 
             radioButtonDisconnect.DataBindings.Add(new Binding("Checked", _viewModel, "IsDisconnect", true, DataSourceUpdateMode.OnPropertyChanged, false));
             radioButtonConnect.DataBindings.Add(new Binding("Checked", _viewModel, "IsConnect", true, DataSourceUpdateMode.OnPropertyChanged, false));
             radioButtonCopy.DataBindings.Add(new Binding("Checked", _viewModel, "IsCopy", true, DataSourceUpdateMode.OnPropertyChanged, false));
 
-            buttonSave.Click += (s, e) => { _viewModel.Execute<SaveCommand>(); };
-            buttonLoadProfile.Click += (s, e) => { _viewModel.Execute<LoadProfileCommand>(dgvProfiles.CurrentRow?.DataBoundItem); };
+            buttonSave.Click += (s, e) => { _viewModel.SaveCommand(); };
+            buttonLoadProfile.Click += (s, e) => { _viewModel.LoadProfileCommand(dgvProfiles.GetSelectedItem<Profile>()); };
+            buttonLoadCopier.Click += (s, e) => { _viewModel.LoadCopierCommand(dgvSlaves.GetSelectedItem<Slave>()); };
 
             dgvMtPlatforms.DataError += DataGridView_DataError;
             dgvMtAccounts.DataError += DataGridView_DataError;
@@ -55,6 +60,11 @@ namespace QvaDev.Duplicat
             dgvGroups.DataError += DataGridView_DataError;
             dgvMasters.DataError += DataGridView_DataError;
             dgvSlaves.DataError += DataGridView_DataError;
+            dgvSymbolMappings.DataError += DataGridView_DataError;
+            dgvCopiers.DataError += DataGridView_DataError;
+
+            dgvSymbolMappings.DefaultValuesNeeded += (s, e) => { e.Row.Cells["SlaveId"].Value = _viewModel.SelectedSlaveId; };
+            dgvCopiers.DefaultValuesNeeded += (s, e) => { e.Row.Cells["SlaveId"].Value = _viewModel.SelectedSlaveId; };
 
             _viewModel.ProfileChanged += AttachDataSources;
 
@@ -85,6 +95,23 @@ namespace QvaDev.Duplicat
             dgvGroups.DataSource = _viewModel.Groups.ToBindingList();
             dgvMasters.DataSource = _viewModel.Masters.ToBindingList();
             dgvSlaves.DataSource = _viewModel.Slaves.ToBindingList();
+
+            dgvSymbolMappings.DataSource = _viewModel.SymbolMappings.ToBindingList();
+            dgvSymbolMappings.Columns["SlaveId"].Visible = false;
+            dgvSymbolMappings.Columns["Slave"].Visible = false;
+
+            if (!dgvCopiers.Columns.Contains("MmType"))
+                dgvCopiers.Columns.Add(new DataGridViewComboBoxColumn
+                {
+                    Name = "MmType",
+                    DataSource = Enum.GetValues(typeof(MmTypes)),
+                    DataPropertyName = "MmType",
+                    ValueType = typeof(MmTypes),
+                    HeaderText = "MmType*"
+                });
+            dgvCopiers.DataSource = _viewModel.Copiers.ToBindingList();
+            dgvCopiers.Columns["SlaveId"].Visible = false;
+            dgvCopiers.Columns["Slave"].Visible = false;
         }
     }
 }

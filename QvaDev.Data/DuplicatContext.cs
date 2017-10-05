@@ -17,6 +17,9 @@ namespace QvaDev.Data
         public DbSet<Master> Masters { get; set; }
         public DbSet<Slave> Slaves { get; set; }
 
+        public DbSet<Copier> Copiers { get; set; }
+        public DbSet<SymbolMapping> SymbolMappings { get; set; }
+
         public void Init()
         {
             var exists = Database.Exists();
@@ -136,6 +139,20 @@ namespace QvaDev.Data
                 Master = Masters.ToList().Last(),
                 CTraderAccount = CTraderAccounts.First(a => a.Description == "cTrader4")
             });
+
+            SaveChanges();
+
+            var slave = Slaves.First();
+            SymbolMappings.Add(new SymbolMapping {Slave = slave, From = "GER30.pri", To = "GERMAN30"});
+            SymbolMappings.Add(new SymbolMapping {Slave = slave, From = "UK100.pri", To = "UK100"});
+            SymbolMappings.Add(new SymbolMapping {Slave = slave, From = "US30.pri", To = "US30.PRM"});
+            SymbolMappings.Add(new SymbolMapping {Slave = slave, From = "XAUUSD.pri", To = "XAUUSD" });
+
+            slave = Slaves.First(x => x.Id == 2);
+            SymbolMappings.Add(new SymbolMapping { Slave = slave, From = "GER30.ex", To = "GERMAN30" });
+            SymbolMappings.Add(new SymbolMapping { Slave = slave, From = "UK100.ex", To = "UK100" });
+            SymbolMappings.Add(new SymbolMapping { Slave = slave, From = "US30.ex", To = "US30.PRM" });
+            SymbolMappings.Add(new SymbolMapping { Slave = slave, From = "XAUUSD.ex", To = "XAUUSD" });
 
             SaveChanges();
         }

@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace QvaDev.Data.Models
 {
@@ -13,5 +14,7 @@ namespace QvaDev.Data.Models
         public int CTraderAccountId { get; set; }
         [Required]
         public CTraderAccount CTraderAccount { get; set; }
+
+        public List<SymbolMapping> SymbolMappings { get; set; }
     }
 }

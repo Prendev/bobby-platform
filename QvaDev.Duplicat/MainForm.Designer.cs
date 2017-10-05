@@ -30,23 +30,22 @@
         {
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPageCopier = new System.Windows.Forms.TabPage();
-            this.tableLayoutPanelCopier = new System.Windows.Forms.TableLayoutPanel();
-            this.tableLayoutPanelMasterSlave = new System.Windows.Forms.TableLayoutPanel();
+            this.tlpCopier = new System.Windows.Forms.TableLayoutPanel();
             this.groupBox8 = new System.Windows.Forms.GroupBox();
             this.groupBox9 = new System.Windows.Forms.GroupBox();
             this.tabPageProfileAndGroup = new System.Windows.Forms.TabPage();
-            this.tableLayoutPanelProfilesAndGroups = new System.Windows.Forms.TableLayoutPanel();
+            this.tlpProfilesAndGroups = new System.Windows.Forms.TableLayoutPanel();
             this.groupBox6 = new System.Windows.Forms.GroupBox();
             this.groupBox7 = new System.Windows.Forms.GroupBox();
             this.tabPageMt4 = new System.Windows.Forms.TabPage();
-            this.tableLayoutPanelMt4 = new System.Windows.Forms.TableLayoutPanel();
+            this.tlpMt = new System.Windows.Forms.TableLayoutPanel();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.tabPageCTrader = new System.Windows.Forms.TabPage();
-            this.tableLayoutPanelCTrader = new System.Windows.Forms.TableLayoutPanel();
+            this.tlpCTrader = new System.Windows.Forms.TableLayoutPanel();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.groupBox5 = new System.Windows.Forms.GroupBox();
-            this.tableLayoutPanelMain = new System.Windows.Forms.TableLayoutPanel();
+            this.tlpMain = new System.Windows.Forms.TableLayoutPanel();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.radioButtonDisconnect = new System.Windows.Forms.RadioButton();
             this.radioButtonConnect = new System.Windows.Forms.RadioButton();
@@ -61,25 +60,30 @@
             this.dgvMtPlatforms = new QvaDev.Duplicat.CustomDataGridView();
             this.dgvCtPlatforms = new QvaDev.Duplicat.CustomDataGridView();
             this.dgvCtAccounts = new QvaDev.Duplicat.CustomDataGridView();
+            this.groupBox10 = new System.Windows.Forms.GroupBox();
+            this.groupBox11 = new System.Windows.Forms.GroupBox();
+            this.tlpCopierTop = new System.Windows.Forms.TableLayoutPanel();
+            this.buttonLoadCopier = new System.Windows.Forms.Button();
+            this.dgvSymbolMappings = new QvaDev.Duplicat.CustomDataGridView();
+            this.dgvCopiers = new QvaDev.Duplicat.CustomDataGridView();
             this.tabControl1.SuspendLayout();
             this.tabPageCopier.SuspendLayout();
-            this.tableLayoutPanelCopier.SuspendLayout();
-            this.tableLayoutPanelMasterSlave.SuspendLayout();
+            this.tlpCopier.SuspendLayout();
             this.groupBox8.SuspendLayout();
             this.groupBox9.SuspendLayout();
             this.tabPageProfileAndGroup.SuspendLayout();
-            this.tableLayoutPanelProfilesAndGroups.SuspendLayout();
+            this.tlpProfilesAndGroups.SuspendLayout();
             this.groupBox6.SuspendLayout();
             this.groupBox7.SuspendLayout();
             this.tabPageMt4.SuspendLayout();
-            this.tableLayoutPanelMt4.SuspendLayout();
+            this.tlpMt.SuspendLayout();
             this.groupBox4.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.tabPageCTrader.SuspendLayout();
-            this.tableLayoutPanelCTrader.SuspendLayout();
+            this.tlpCTrader.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox5.SuspendLayout();
-            this.tableLayoutPanelMain.SuspendLayout();
+            this.tlpMain.SuspendLayout();
             this.groupBox3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvMasters)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvSlaves)).BeginInit();
@@ -89,6 +93,11 @@
             ((System.ComponentModel.ISupportInitialize)(this.dgvMtPlatforms)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvCtPlatforms)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvCtAccounts)).BeginInit();
+            this.groupBox10.SuspendLayout();
+            this.groupBox11.SuspendLayout();
+            this.tlpCopierTop.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvSymbolMappings)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvCopiers)).BeginInit();
             this.SuspendLayout();
             // 
             // tabControl1
@@ -106,7 +115,7 @@
             // 
             // tabPageCopier
             // 
-            this.tabPageCopier.Controls.Add(this.tableLayoutPanelCopier);
+            this.tabPageCopier.Controls.Add(this.tlpCopier);
             this.tabPageCopier.Location = new System.Drawing.Point(4, 22);
             this.tabPageCopier.Name = "tabPageCopier";
             this.tabPageCopier.Padding = new System.Windows.Forms.Padding(3);
@@ -115,35 +124,20 @@
             this.tabPageCopier.Text = "Copier";
             this.tabPageCopier.UseVisualStyleBackColor = true;
             // 
-            // tableLayoutPanelCopier
+            // tlpCopier
             // 
-            this.tableLayoutPanelCopier.ColumnCount = 2;
-            this.tableLayoutPanelCopier.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanelCopier.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanelCopier.Controls.Add(this.tableLayoutPanelMasterSlave, 0, 0);
-            this.tableLayoutPanelCopier.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tableLayoutPanelCopier.Location = new System.Drawing.Point(3, 3);
-            this.tableLayoutPanelCopier.Name = "tableLayoutPanelCopier";
-            this.tableLayoutPanelCopier.RowCount = 1;
-            this.tableLayoutPanelCopier.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanelCopier.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 475F));
-            this.tableLayoutPanelCopier.Size = new System.Drawing.Size(1032, 475);
-            this.tableLayoutPanelCopier.TabIndex = 0;
-            // 
-            // tableLayoutPanelMasterSlave
-            // 
-            this.tableLayoutPanelMasterSlave.ColumnCount = 1;
-            this.tableLayoutPanelMasterSlave.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanelMasterSlave.Controls.Add(this.groupBox8, 0, 0);
-            this.tableLayoutPanelMasterSlave.Controls.Add(this.groupBox9, 0, 1);
-            this.tableLayoutPanelMasterSlave.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tableLayoutPanelMasterSlave.Location = new System.Drawing.Point(3, 3);
-            this.tableLayoutPanelMasterSlave.Name = "tableLayoutPanelMasterSlave";
-            this.tableLayoutPanelMasterSlave.RowCount = 2;
-            this.tableLayoutPanelMasterSlave.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 30F));
-            this.tableLayoutPanelMasterSlave.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 70F));
-            this.tableLayoutPanelMasterSlave.Size = new System.Drawing.Size(510, 469);
-            this.tableLayoutPanelMasterSlave.TabIndex = 0;
+            this.tlpCopier.ColumnCount = 1;
+            this.tlpCopier.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tlpCopier.Controls.Add(this.groupBox10, 0, 1);
+            this.tlpCopier.Controls.Add(this.tlpCopierTop, 0, 0);
+            this.tlpCopier.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tlpCopier.Location = new System.Drawing.Point(3, 3);
+            this.tlpCopier.Name = "tlpCopier";
+            this.tlpCopier.RowCount = 2;
+            this.tlpCopier.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 70F));
+            this.tlpCopier.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 30F));
+            this.tlpCopier.Size = new System.Drawing.Size(1032, 475);
+            this.tlpCopier.TabIndex = 0;
             // 
             // groupBox8
             // 
@@ -151,7 +145,7 @@
             this.groupBox8.Dock = System.Windows.Forms.DockStyle.Fill;
             this.groupBox8.Location = new System.Drawing.Point(3, 3);
             this.groupBox8.Name = "groupBox8";
-            this.groupBox8.Size = new System.Drawing.Size(504, 134);
+            this.groupBox8.Size = new System.Drawing.Size(332, 320);
             this.groupBox8.TabIndex = 0;
             this.groupBox8.TabStop = false;
             this.groupBox8.Text = "Masters";
@@ -160,16 +154,16 @@
             // 
             this.groupBox9.Controls.Add(this.dgvSlaves);
             this.groupBox9.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.groupBox9.Location = new System.Drawing.Point(3, 143);
+            this.groupBox9.Location = new System.Drawing.Point(341, 3);
             this.groupBox9.Name = "groupBox9";
-            this.groupBox9.Size = new System.Drawing.Size(504, 323);
+            this.groupBox9.Size = new System.Drawing.Size(342, 320);
             this.groupBox9.TabIndex = 1;
             this.groupBox9.TabStop = false;
             this.groupBox9.Text = "Slaves";
             // 
             // tabPageProfileAndGroup
             // 
-            this.tabPageProfileAndGroup.Controls.Add(this.tableLayoutPanelProfilesAndGroups);
+            this.tabPageProfileAndGroup.Controls.Add(this.tlpProfilesAndGroups);
             this.tabPageProfileAndGroup.Location = new System.Drawing.Point(4, 22);
             this.tabPageProfileAndGroup.Name = "tabPageProfileAndGroup";
             this.tabPageProfileAndGroup.Padding = new System.Windows.Forms.Padding(3);
@@ -178,21 +172,21 @@
             this.tabPageProfileAndGroup.Text = "Profiles and Groups";
             this.tabPageProfileAndGroup.UseVisualStyleBackColor = true;
             // 
-            // tableLayoutPanelProfilesAndGroups
+            // tlpProfilesAndGroups
             // 
-            this.tableLayoutPanelProfilesAndGroups.ColumnCount = 2;
-            this.tableLayoutPanelProfilesAndGroups.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanelProfilesAndGroups.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanelProfilesAndGroups.Controls.Add(this.groupBox6, 0, 0);
-            this.tableLayoutPanelProfilesAndGroups.Controls.Add(this.groupBox7, 1, 0);
-            this.tableLayoutPanelProfilesAndGroups.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tableLayoutPanelProfilesAndGroups.Location = new System.Drawing.Point(3, 3);
-            this.tableLayoutPanelProfilesAndGroups.Name = "tableLayoutPanelProfilesAndGroups";
-            this.tableLayoutPanelProfilesAndGroups.RowCount = 1;
-            this.tableLayoutPanelProfilesAndGroups.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanelProfilesAndGroups.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 475F));
-            this.tableLayoutPanelProfilesAndGroups.Size = new System.Drawing.Size(1032, 475);
-            this.tableLayoutPanelProfilesAndGroups.TabIndex = 0;
+            this.tlpProfilesAndGroups.ColumnCount = 2;
+            this.tlpProfilesAndGroups.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tlpProfilesAndGroups.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tlpProfilesAndGroups.Controls.Add(this.groupBox6, 0, 0);
+            this.tlpProfilesAndGroups.Controls.Add(this.groupBox7, 1, 0);
+            this.tlpProfilesAndGroups.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tlpProfilesAndGroups.Location = new System.Drawing.Point(3, 3);
+            this.tlpProfilesAndGroups.Name = "tlpProfilesAndGroups";
+            this.tlpProfilesAndGroups.RowCount = 1;
+            this.tlpProfilesAndGroups.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tlpProfilesAndGroups.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 475F));
+            this.tlpProfilesAndGroups.Size = new System.Drawing.Size(1032, 475);
+            this.tlpProfilesAndGroups.TabIndex = 0;
             // 
             // groupBox6
             // 
@@ -218,7 +212,7 @@
             // 
             // tabPageMt4
             // 
-            this.tabPageMt4.Controls.Add(this.tableLayoutPanelMt4);
+            this.tabPageMt4.Controls.Add(this.tlpMt);
             this.tabPageMt4.Location = new System.Drawing.Point(4, 22);
             this.tabPageMt4.Name = "tabPageMt4";
             this.tabPageMt4.Padding = new System.Windows.Forms.Padding(3);
@@ -227,21 +221,21 @@
             this.tabPageMt4.Text = "MT4 accounts";
             this.tabPageMt4.UseVisualStyleBackColor = true;
             // 
-            // tableLayoutPanelMt4
+            // tlpMt
             // 
-            this.tableLayoutPanelMt4.ColumnCount = 2;
-            this.tableLayoutPanelMt4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanelMt4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanelMt4.Controls.Add(this.groupBox4, 1, 0);
-            this.tableLayoutPanelMt4.Controls.Add(this.groupBox1, 0, 0);
-            this.tableLayoutPanelMt4.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tableLayoutPanelMt4.Location = new System.Drawing.Point(3, 3);
-            this.tableLayoutPanelMt4.Name = "tableLayoutPanelMt4";
-            this.tableLayoutPanelMt4.RowCount = 1;
-            this.tableLayoutPanelMt4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanelMt4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 475F));
-            this.tableLayoutPanelMt4.Size = new System.Drawing.Size(1032, 475);
-            this.tableLayoutPanelMt4.TabIndex = 0;
+            this.tlpMt.ColumnCount = 2;
+            this.tlpMt.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tlpMt.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tlpMt.Controls.Add(this.groupBox4, 1, 0);
+            this.tlpMt.Controls.Add(this.groupBox1, 0, 0);
+            this.tlpMt.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tlpMt.Location = new System.Drawing.Point(3, 3);
+            this.tlpMt.Name = "tlpMt";
+            this.tlpMt.RowCount = 1;
+            this.tlpMt.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tlpMt.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 475F));
+            this.tlpMt.Size = new System.Drawing.Size(1032, 475);
+            this.tlpMt.TabIndex = 0;
             // 
             // groupBox4
             // 
@@ -267,7 +261,7 @@
             // 
             // tabPageCTrader
             // 
-            this.tabPageCTrader.Controls.Add(this.tableLayoutPanelCTrader);
+            this.tabPageCTrader.Controls.Add(this.tlpCTrader);
             this.tabPageCTrader.Location = new System.Drawing.Point(4, 22);
             this.tabPageCTrader.Name = "tabPageCTrader";
             this.tabPageCTrader.Padding = new System.Windows.Forms.Padding(3);
@@ -276,20 +270,20 @@
             this.tabPageCTrader.Text = "cTrader accounts";
             this.tabPageCTrader.UseVisualStyleBackColor = true;
             // 
-            // tableLayoutPanelCTrader
+            // tlpCTrader
             // 
-            this.tableLayoutPanelCTrader.ColumnCount = 2;
-            this.tableLayoutPanelCTrader.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanelCTrader.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanelCTrader.Controls.Add(this.groupBox2, 0, 0);
-            this.tableLayoutPanelCTrader.Controls.Add(this.groupBox5, 1, 0);
-            this.tableLayoutPanelCTrader.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tableLayoutPanelCTrader.Location = new System.Drawing.Point(3, 3);
-            this.tableLayoutPanelCTrader.Name = "tableLayoutPanelCTrader";
-            this.tableLayoutPanelCTrader.RowCount = 1;
-            this.tableLayoutPanelCTrader.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanelCTrader.Size = new System.Drawing.Size(1032, 475);
-            this.tableLayoutPanelCTrader.TabIndex = 0;
+            this.tlpCTrader.ColumnCount = 2;
+            this.tlpCTrader.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tlpCTrader.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tlpCTrader.Controls.Add(this.groupBox2, 0, 0);
+            this.tlpCTrader.Controls.Add(this.groupBox5, 1, 0);
+            this.tlpCTrader.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tlpCTrader.Location = new System.Drawing.Point(3, 3);
+            this.tlpCTrader.Name = "tlpCTrader";
+            this.tlpCTrader.RowCount = 1;
+            this.tlpCTrader.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tlpCTrader.Size = new System.Drawing.Size(1032, 475);
+            this.tlpCTrader.TabIndex = 0;
             // 
             // groupBox2
             // 
@@ -313,23 +307,24 @@
             this.groupBox5.TabStop = false;
             this.groupBox5.Text = "Accounts";
             // 
-            // tableLayoutPanelMain
+            // tlpMain
             // 
-            this.tableLayoutPanelMain.ColumnCount = 1;
-            this.tableLayoutPanelMain.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanelMain.Controls.Add(this.tabControl1, 0, 1);
-            this.tableLayoutPanelMain.Controls.Add(this.groupBox3, 0, 0);
-            this.tableLayoutPanelMain.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tableLayoutPanelMain.Location = new System.Drawing.Point(0, 0);
-            this.tableLayoutPanelMain.Name = "tableLayoutPanelMain";
-            this.tableLayoutPanelMain.RowCount = 2;
-            this.tableLayoutPanelMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 52F));
-            this.tableLayoutPanelMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanelMain.Size = new System.Drawing.Size(1052, 565);
-            this.tableLayoutPanelMain.TabIndex = 1;
+            this.tlpMain.ColumnCount = 1;
+            this.tlpMain.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tlpMain.Controls.Add(this.tabControl1, 0, 1);
+            this.tlpMain.Controls.Add(this.groupBox3, 0, 0);
+            this.tlpMain.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tlpMain.Location = new System.Drawing.Point(0, 0);
+            this.tlpMain.Name = "tlpMain";
+            this.tlpMain.RowCount = 2;
+            this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 52F));
+            this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tlpMain.Size = new System.Drawing.Size(1052, 565);
+            this.tlpMain.TabIndex = 1;
             // 
             // groupBox3
             // 
+            this.groupBox3.Controls.Add(this.buttonLoadCopier);
             this.groupBox3.Controls.Add(this.buttonLoadProfile);
             this.groupBox3.Controls.Add(this.radioButtonDisconnect);
             this.groupBox3.Controls.Add(this.radioButtonConnect);
@@ -369,9 +364,9 @@
             // 
             // buttonSave
             // 
-            this.buttonSave.Location = new System.Drawing.Point(162, 19);
+            this.buttonSave.Location = new System.Drawing.Point(318, 19);
             this.buttonSave.Name = "buttonSave";
-            this.buttonSave.Size = new System.Drawing.Size(139, 23);
+            this.buttonSave.Size = new System.Drawing.Size(150, 23);
             this.buttonSave.TabIndex = 7;
             this.buttonSave.Text = "Save changes";
             this.buttonSave.UseVisualStyleBackColor = true;
@@ -403,7 +398,7 @@
             this.dgvMasters.Location = new System.Drawing.Point(3, 16);
             this.dgvMasters.MultiSelect = false;
             this.dgvMasters.Name = "dgvMasters";
-            this.dgvMasters.Size = new System.Drawing.Size(498, 115);
+            this.dgvMasters.Size = new System.Drawing.Size(326, 301);
             this.dgvMasters.TabIndex = 0;
             // 
             // dgvSlaves
@@ -413,7 +408,7 @@
             this.dgvSlaves.Location = new System.Drawing.Point(3, 16);
             this.dgvSlaves.MultiSelect = false;
             this.dgvSlaves.Name = "dgvSlaves";
-            this.dgvSlaves.Size = new System.Drawing.Size(498, 304);
+            this.dgvSlaves.Size = new System.Drawing.Size(336, 301);
             this.dgvSlaves.TabIndex = 0;
             // 
             // dgvProfiles
@@ -479,33 +474,101 @@
             this.dgvCtAccounts.Size = new System.Drawing.Size(504, 450);
             this.dgvCtAccounts.TabIndex = 0;
             // 
+            // groupBox10
+            // 
+            this.groupBox10.Controls.Add(this.dgvCopiers);
+            this.groupBox10.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.groupBox10.Location = new System.Drawing.Point(3, 335);
+            this.groupBox10.Name = "groupBox10";
+            this.groupBox10.Size = new System.Drawing.Size(1026, 137);
+            this.groupBox10.TabIndex = 0;
+            this.groupBox10.TabStop = false;
+            this.groupBox10.Text = "Copier";
+            // 
+            // groupBox11
+            // 
+            this.groupBox11.Controls.Add(this.dgvSymbolMappings);
+            this.groupBox11.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.groupBox11.Location = new System.Drawing.Point(689, 3);
+            this.groupBox11.Name = "groupBox11";
+            this.groupBox11.Size = new System.Drawing.Size(334, 320);
+            this.groupBox11.TabIndex = 1;
+            this.groupBox11.TabStop = false;
+            this.groupBox11.Text = "Symbol mappings";
+            // 
+            // tlpCopierTop
+            // 
+            this.tlpCopierTop.ColumnCount = 3;
+            this.tlpCopierTop.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33F));
+            this.tlpCopierTop.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 34F));
+            this.tlpCopierTop.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33F));
+            this.tlpCopierTop.Controls.Add(this.groupBox11, 2, 0);
+            this.tlpCopierTop.Controls.Add(this.groupBox8, 0, 0);
+            this.tlpCopierTop.Controls.Add(this.groupBox9, 1, 0);
+            this.tlpCopierTop.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tlpCopierTop.Location = new System.Drawing.Point(3, 3);
+            this.tlpCopierTop.Name = "tlpCopierTop";
+            this.tlpCopierTop.RowCount = 1;
+            this.tlpCopierTop.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tlpCopierTop.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.tlpCopierTop.Size = new System.Drawing.Size(1026, 326);
+            this.tlpCopierTop.TabIndex = 1;
+            // 
+            // buttonLoadCopier
+            // 
+            this.buttonLoadCopier.Location = new System.Drawing.Point(162, 19);
+            this.buttonLoadCopier.Name = "buttonLoadCopier";
+            this.buttonLoadCopier.Size = new System.Drawing.Size(150, 23);
+            this.buttonLoadCopier.TabIndex = 15;
+            this.buttonLoadCopier.Text = "Load copier";
+            this.buttonLoadCopier.UseVisualStyleBackColor = true;
+            // 
+            // dgvSymbolMappings
+            // 
+            this.dgvSymbolMappings.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgvSymbolMappings.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dgvSymbolMappings.Location = new System.Drawing.Point(3, 16);
+            this.dgvSymbolMappings.MultiSelect = false;
+            this.dgvSymbolMappings.Name = "dgvSymbolMappings";
+            this.dgvSymbolMappings.Size = new System.Drawing.Size(328, 301);
+            this.dgvSymbolMappings.TabIndex = 0;
+            // 
+            // dgvCopiers
+            // 
+            this.dgvCopiers.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgvCopiers.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dgvCopiers.Location = new System.Drawing.Point(3, 16);
+            this.dgvCopiers.MultiSelect = false;
+            this.dgvCopiers.Name = "dgvCopiers";
+            this.dgvCopiers.Size = new System.Drawing.Size(1020, 118);
+            this.dgvCopiers.TabIndex = 0;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1052, 565);
-            this.Controls.Add(this.tableLayoutPanelMain);
+            this.Controls.Add(this.tlpMain);
             this.Name = "MainForm";
             this.Text = "QvaDev.Duplicat";
             this.tabControl1.ResumeLayout(false);
             this.tabPageCopier.ResumeLayout(false);
-            this.tableLayoutPanelCopier.ResumeLayout(false);
-            this.tableLayoutPanelMasterSlave.ResumeLayout(false);
+            this.tlpCopier.ResumeLayout(false);
             this.groupBox8.ResumeLayout(false);
             this.groupBox9.ResumeLayout(false);
             this.tabPageProfileAndGroup.ResumeLayout(false);
-            this.tableLayoutPanelProfilesAndGroups.ResumeLayout(false);
+            this.tlpProfilesAndGroups.ResumeLayout(false);
             this.groupBox6.ResumeLayout(false);
             this.groupBox7.ResumeLayout(false);
             this.tabPageMt4.ResumeLayout(false);
-            this.tableLayoutPanelMt4.ResumeLayout(false);
+            this.tlpMt.ResumeLayout(false);
             this.groupBox4.ResumeLayout(false);
             this.groupBox1.ResumeLayout(false);
             this.tabPageCTrader.ResumeLayout(false);
-            this.tableLayoutPanelCTrader.ResumeLayout(false);
+            this.tlpCTrader.ResumeLayout(false);
             this.groupBox2.ResumeLayout(false);
             this.groupBox5.ResumeLayout(false);
-            this.tableLayoutPanelMain.ResumeLayout(false);
+            this.tlpMain.ResumeLayout(false);
             this.groupBox3.ResumeLayout(false);
             this.groupBox3.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvMasters)).EndInit();
@@ -516,6 +579,11 @@
             ((System.ComponentModel.ISupportInitialize)(this.dgvMtPlatforms)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvCtPlatforms)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvCtAccounts)).EndInit();
+            this.groupBox10.ResumeLayout(false);
+            this.groupBox11.ResumeLayout(false);
+            this.tlpCopierTop.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.dgvSymbolMappings)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvCopiers)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -525,16 +593,16 @@
         private System.Windows.Forms.TabControl tabControl1;
         private System.Windows.Forms.TabPage tabPageCopier;
         private System.Windows.Forms.TabPage tabPageMt4;
-        private System.Windows.Forms.TableLayoutPanel tableLayoutPanelMt4;
+        private System.Windows.Forms.TableLayoutPanel tlpMt;
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.TabPage tabPageCTrader;
-        private System.Windows.Forms.TableLayoutPanel tableLayoutPanelMain;
+        private System.Windows.Forms.TableLayoutPanel tlpMain;
         private System.Windows.Forms.GroupBox groupBox3;
         private System.Windows.Forms.RadioButton radioButtonDisconnect;
         private System.Windows.Forms.RadioButton radioButtonConnect;
         private System.Windows.Forms.Button buttonSave;
         private System.Windows.Forms.RadioButton radioButtonCopy;
-        private System.Windows.Forms.TableLayoutPanel tableLayoutPanelCTrader;
+        private System.Windows.Forms.TableLayoutPanel tlpCTrader;
         private System.Windows.Forms.GroupBox groupBox4;
         private System.Windows.Forms.GroupBox groupBox5;
         private System.Windows.Forms.DataGridViewTextBoxColumn cTraderPlatformIdDataGridViewTextBoxColumn;
@@ -547,11 +615,10 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn playgroundDataGridViewTextBoxColumn;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.TabPage tabPageProfileAndGroup;
-        private System.Windows.Forms.TableLayoutPanel tableLayoutPanelProfilesAndGroups;
+        private System.Windows.Forms.TableLayoutPanel tlpProfilesAndGroups;
         private System.Windows.Forms.GroupBox groupBox6;
         private System.Windows.Forms.GroupBox groupBox7;
-        private System.Windows.Forms.TableLayoutPanel tableLayoutPanelCopier;
-        private System.Windows.Forms.TableLayoutPanel tableLayoutPanelMasterSlave;
+        private System.Windows.Forms.TableLayoutPanel tlpCopier;
         private System.Windows.Forms.GroupBox groupBox8;
         private System.Windows.Forms.GroupBox groupBox9;
         private CustomDataGridView dgvMasters;
@@ -563,6 +630,12 @@
         private CustomDataGridView dgvCtPlatforms;
         private CustomDataGridView dgvCtAccounts;
         private System.Windows.Forms.Button buttonLoadProfile;
+        private System.Windows.Forms.GroupBox groupBox10;
+        private System.Windows.Forms.GroupBox groupBox11;
+        private System.Windows.Forms.TableLayoutPanel tlpCopierTop;
+        private System.Windows.Forms.Button buttonLoadCopier;
+        private CustomDataGridView dgvCopiers;
+        private CustomDataGridView dgvSymbolMappings;
     }
 }
 

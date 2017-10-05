@@ -13,6 +13,7 @@ namespace QvaDev.Duplicat
         public CustomDataGridView()
         {
             MultiSelect = false;
+            AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
             DataSourceChanged += CustomDataGridView_DataSourceChanged;
         }
 
@@ -34,6 +35,11 @@ namespace QvaDev.Duplicat
                 });
             else if (Columns[$"{name}*"] is DataGridViewComboBoxColumn)
                 ((DataGridViewComboBoxColumn)Columns[$"{name}*"]).DataSource = new BindingSource() { DataSource = list.ToBindingList() };
+        }
+
+        public T GetSelectedItem<T>() where T : class
+        {
+            return CurrentRow?.DataBoundItem as T;
         }
 
         private void CustomDataGridView_DataSourceChanged(object sender, EventArgs e)

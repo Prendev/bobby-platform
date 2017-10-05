@@ -2,7 +2,6 @@
 using System.ComponentModel;
 using System.Data.Entity;
 using System.Linq;
-using Autofac;
 using QvaDev.Data;
 using QvaDev.Data.Models;
 
@@ -18,8 +17,7 @@ namespace QvaDev.Duplicat.ViewModel
         }
 
         public delegate void ProfileChangedEventHandler();
-
-        private readonly IComponentContext _componentContext;
+        
         private DuplicatContext _duplicatContext;
 
         public ObservableCollection<MetaTraderPlatform> MtPlatforms { get; private set;  }
@@ -30,23 +28,44 @@ namespace QvaDev.Duplicat.ViewModel
         public ObservableCollection<Group> Groups { get; private set; }
         public ObservableCollection<Master> Masters { get; private set; }
         public ObservableCollection<Slave> Slaves { get; private set; }
+        public ObservableCollection<SymbolMapping> SymbolMappings { get; private set; }
+        public ObservableCollection<Copier> Copiers { get; private set; }
 
         public event ProfileChangedEventHandler ProfileChanged;
         
-        public int SelectedProfileId { get => Get<int>(); set => Set(value); }
         private States State { get => Get<States>(); set => Set(value); }
         public bool IsDisconnect { get => State == States.Disconnect; set => State = value ? States.Disconnect : State; }
         public bool IsConnect { get => State == States.Connect; set => State = value ? States.Connect : State; }
         public bool IsCopy { get => State == States.Copy; set => State = value ? States.Copy : State; }
         public bool IsConfigReadonly { get => Get<bool>(); set => Set(value); }
 
-        public DuplicatViewModel(
-            IComponentContext componentContext)
+        public int SelectedProfileId { get => Get<int>(); set => Set(value); }
+        public int SelectedSlaveId { get => Get<int>(); set => Set(value); }
+
+        public DuplicatViewModel()
         {
-            _componentContext = componentContext;
             PropertyChanged += DuplicatViewModel_PropertyChanged;
             IsDisconnect = true;
             LoadDataContext();
+        }
+
+        public void SaveCommand()
+        {
+            _duplicatContext.SaveChanges();
+        }
+
+        public void LoadProfileCommand(Profile profile)
+        {
+            SelectedProfileId = profile?.Id ?? 0;
+            LoadDataContext();
+            ProfileChanged?.Invoke();
+        }
+
+        public void LoadCopierCommand(Slave slave)
+        {
+            SelectedSlaveId = slave?.Id ?? 0;
+            LoadDataContext();
+            ProfileChanged?.Invoke();
         }
 
         private void DuplicatViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -54,11 +73,6 @@ namespace QvaDev.Duplicat.ViewModel
             if (e.PropertyName == nameof(State))
             {
                 IsConfigReadonly = !IsDisconnect;
-            }
-            else if (e.PropertyName == nameof(SelectedProfileId))
-            {
-                LoadDataContext();
-                ProfileChanged?.Invoke();
             }
         }
 
@@ -72,9 +86,11 @@ namespace QvaDev.Duplicat.ViewModel
             _duplicatContext.MetaTraderAccounts.Load();
             _duplicatContext.CTraderAccounts.Load();
             _duplicatContext.Profiles.Load();
-            _duplicatContext.Groups.Where(g => g.ProfileId == SelectedProfileId).Load();
-            _duplicatContext.Masters.Where(g => g.Group.ProfileId == SelectedProfileId).Load();
-            _duplicatContext.Slaves.Where(g => g.Master.Group.ProfileId == SelectedProfileId).Load();
+            _duplicatContext.Groups.Where(e => e.ProfileId == SelectedProfileId).Load();
+            _duplicatContext.Masters.Where(e => e.Group.ProfileId == SelectedProfileId).Load();
+            _duplicatContext.Slaves.Where(e => e.Master.Group.ProfileId == SelectedProfileId).Load();
+            _duplicatContext.SymbolMappings.Where(e => e.SlaveId == SelectedSlaveId).Load();
+            _duplicatContext.Copiers.Where(e => e.SlaveId == SelectedSlaveId).Load();
 
             MtPlatforms = _duplicatContext.MetaTraderPlatforms.Local;
             CtPlatforms = _duplicatContext.CTraderPlatforms.Local;
@@ -84,12 +100,8 @@ namespace QvaDev.Duplicat.ViewModel
             Groups = _duplicatContext.Groups.Local;
             Masters = _duplicatContext.Masters.Local;
             Slaves = _duplicatContext.Slaves.Local;
-        }
-
-        public void Execute<TCommand>(object parameter = null) where TCommand : ICommand
-        {
-            var command = _componentContext.Resolve<TCommand>();
-            command.Execute(_duplicatContext, this, parameter);
+            SymbolMappings = _duplicatContext.SymbolMappings.Local;
+            Copiers = _duplicatContext.Copiers.Local;
         }
     }
 }
