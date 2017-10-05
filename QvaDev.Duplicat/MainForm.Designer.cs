@@ -52,6 +52,7 @@
             this.radioButtonConnect = new System.Windows.Forms.RadioButton();
             this.buttonSave = new System.Windows.Forms.Button();
             this.radioButtonCopy = new System.Windows.Forms.RadioButton();
+            this.buttonLoadProfile = new System.Windows.Forms.Button();
             this.dgvMasters = new QvaDev.Duplicat.CustomDataGridView();
             this.dgvSlaves = new QvaDev.Duplicat.CustomDataGridView();
             this.dgvProfiles = new QvaDev.Duplicat.CustomDataGridView();
@@ -60,7 +61,6 @@
             this.dgvMtPlatforms = new QvaDev.Duplicat.CustomDataGridView();
             this.dgvCtPlatforms = new QvaDev.Duplicat.CustomDataGridView();
             this.dgvCtAccounts = new QvaDev.Duplicat.CustomDataGridView();
-            this.comboBoxProfile = new System.Windows.Forms.ComboBox();
             this.tabControl1.SuspendLayout();
             this.tabPageCopier.SuspendLayout();
             this.tableLayoutPanelCopier.SuspendLayout();
@@ -93,10 +93,10 @@
             // 
             // tabControl1
             // 
-            this.tabControl1.Controls.Add(this.tabPageCopier);
             this.tabControl1.Controls.Add(this.tabPageProfileAndGroup);
             this.tabControl1.Controls.Add(this.tabPageMt4);
             this.tabControl1.Controls.Add(this.tabPageCTrader);
+            this.tabControl1.Controls.Add(this.tabPageCopier);
             this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tabControl1.Location = new System.Drawing.Point(3, 55);
             this.tabControl1.Name = "tabControl1";
@@ -330,7 +330,7 @@
             // 
             // groupBox3
             // 
-            this.groupBox3.Controls.Add(this.comboBoxProfile);
+            this.groupBox3.Controls.Add(this.buttonLoadProfile);
             this.groupBox3.Controls.Add(this.radioButtonDisconnect);
             this.groupBox3.Controls.Add(this.radioButtonConnect);
             this.groupBox3.Controls.Add(this.buttonSave);
@@ -369,7 +369,7 @@
             // 
             // buttonSave
             // 
-            this.buttonSave.Location = new System.Drawing.Point(6, 19);
+            this.buttonSave.Location = new System.Drawing.Point(162, 19);
             this.buttonSave.Name = "buttonSave";
             this.buttonSave.Size = new System.Drawing.Size(139, 23);
             this.buttonSave.TabIndex = 7;
@@ -387,11 +387,21 @@
             this.radioButtonCopy.Text = "Copy";
             this.radioButtonCopy.UseVisualStyleBackColor = true;
             // 
+            // buttonLoadProfile
+            // 
+            this.buttonLoadProfile.Location = new System.Drawing.Point(6, 19);
+            this.buttonLoadProfile.Name = "buttonLoadProfile";
+            this.buttonLoadProfile.Size = new System.Drawing.Size(150, 23);
+            this.buttonLoadProfile.TabIndex = 14;
+            this.buttonLoadProfile.Text = "Load selected profile";
+            this.buttonLoadProfile.UseVisualStyleBackColor = true;
+            // 
             // dgvMasters
             // 
             this.dgvMasters.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgvMasters.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dgvMasters.Location = new System.Drawing.Point(3, 16);
+            this.dgvMasters.MultiSelect = false;
             this.dgvMasters.Name = "dgvMasters";
             this.dgvMasters.Size = new System.Drawing.Size(498, 115);
             this.dgvMasters.TabIndex = 0;
@@ -401,6 +411,7 @@
             this.dgvSlaves.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgvSlaves.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dgvSlaves.Location = new System.Drawing.Point(3, 16);
+            this.dgvSlaves.MultiSelect = false;
             this.dgvSlaves.Name = "dgvSlaves";
             this.dgvSlaves.Size = new System.Drawing.Size(498, 304);
             this.dgvSlaves.TabIndex = 0;
@@ -410,6 +421,7 @@
             this.dgvProfiles.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgvProfiles.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dgvProfiles.Location = new System.Drawing.Point(3, 16);
+            this.dgvProfiles.MultiSelect = false;
             this.dgvProfiles.Name = "dgvProfiles";
             this.dgvProfiles.Size = new System.Drawing.Size(504, 450);
             this.dgvProfiles.TabIndex = 0;
@@ -419,6 +431,7 @@
             this.dgvGroups.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgvGroups.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dgvGroups.Location = new System.Drawing.Point(3, 16);
+            this.dgvGroups.MultiSelect = false;
             this.dgvGroups.Name = "dgvGroups";
             this.dgvGroups.Size = new System.Drawing.Size(504, 450);
             this.dgvGroups.TabIndex = 0;
@@ -428,6 +441,7 @@
             this.dgvMtAccounts.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgvMtAccounts.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dgvMtAccounts.Location = new System.Drawing.Point(3, 16);
+            this.dgvMtAccounts.MultiSelect = false;
             this.dgvMtAccounts.Name = "dgvMtAccounts";
             this.dgvMtAccounts.Size = new System.Drawing.Size(504, 450);
             this.dgvMtAccounts.TabIndex = 0;
@@ -439,6 +453,7 @@
             this.dgvMtPlatforms.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgvMtPlatforms.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dgvMtPlatforms.Location = new System.Drawing.Point(3, 16);
+            this.dgvMtPlatforms.MultiSelect = false;
             this.dgvMtPlatforms.Name = "dgvMtPlatforms";
             this.dgvMtPlatforms.ReadOnly = true;
             this.dgvMtPlatforms.Size = new System.Drawing.Size(504, 450);
@@ -449,6 +464,7 @@
             this.dgvCtPlatforms.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgvCtPlatforms.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dgvCtPlatforms.Location = new System.Drawing.Point(3, 16);
+            this.dgvCtPlatforms.MultiSelect = false;
             this.dgvCtPlatforms.Name = "dgvCtPlatforms";
             this.dgvCtPlatforms.Size = new System.Drawing.Size(504, 450);
             this.dgvCtPlatforms.TabIndex = 0;
@@ -458,18 +474,10 @@
             this.dgvCtAccounts.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgvCtAccounts.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dgvCtAccounts.Location = new System.Drawing.Point(3, 16);
+            this.dgvCtAccounts.MultiSelect = false;
             this.dgvCtAccounts.Name = "dgvCtAccounts";
             this.dgvCtAccounts.Size = new System.Drawing.Size(504, 450);
             this.dgvCtAccounts.TabIndex = 0;
-            // 
-            // comboBoxProfile
-            // 
-            this.comboBoxProfile.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.comboBoxProfile.FormattingEnabled = true;
-            this.comboBoxProfile.Location = new System.Drawing.Point(151, 19);
-            this.comboBoxProfile.Name = "comboBoxProfile";
-            this.comboBoxProfile.Size = new System.Drawing.Size(121, 21);
-            this.comboBoxProfile.TabIndex = 14;
             // 
             // MainForm
             // 
@@ -554,7 +562,7 @@
         private CustomDataGridView dgvMtAccounts;
         private CustomDataGridView dgvCtPlatforms;
         private CustomDataGridView dgvCtAccounts;
-        private System.Windows.Forms.ComboBox comboBoxProfile;
+        private System.Windows.Forms.Button buttonLoadProfile;
     }
 }
 

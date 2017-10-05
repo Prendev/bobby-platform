@@ -3,44 +3,20 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Data.Entity;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Windows.Forms;
 using Autofac;
 using QvaDev.Data;
 using QvaDev.Data.Models;
-using QvaDev.Duplicat.Annotations;
 
 namespace QvaDev.Duplicat.ViewModel
 {
-
-    public class DuplicatViewModel : INotifyPropertyChanged
+    public class DuplicatViewModel : BaseViewModel
     {
-        public enum States
-        {
-            Disconnect,
-            Connect,
-            Copy
-        }
-
         public delegate void ProfileChangedEventHandler();
 
-        private States _state;
-        private DuplicatContext _duplicatContext;
-        
         private readonly IComponentContext _componentContext;
+        private DuplicatContext _duplicatContext;
 
-        public List<Profile> SelectorProfiles
-        {
-            get => _selectorProfiles;
-            set
-            {
-                if (value == _selectorProfiles) return;
-                _selectorProfiles = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public ObservableCollection<MetaTraderPlatform> MtPlatforms { get; private set; }
+        public ObservableCollection<MetaTraderPlatform> MtPlatforms { get; private set;  }
         public ObservableCollection<CTraderPlatform> CtPlatforms { get; private set; }
         public ObservableCollection<MetaTraderAccount> MtAccounts { get; private set; }
         public ObservableCollection<CTraderAccount> CtAccounts { get; private set; }
@@ -49,46 +25,43 @@ namespace QvaDev.Duplicat.ViewModel
         public ObservableCollection<Master> Masters { get; private set; }
         public ObservableCollection<Slave> Slaves { get; private set; }
 
-        public event PropertyChangedEventHandler PropertyChanged;
         public event ProfileChangedEventHandler ProfileChanged;
-
-        private int _selectedProfileId;
-        private List<Profile> _selectorProfiles;
-
-        public int SelectedProfileId
-        {
-            get => _selectedProfileId;
-            set
-            {
-                _selectedProfileId = value;
-                LoadDataContext();
-                ProfileChanged?.Invoke();
-            }
-        }
-
-
-        public bool IsDisconnect { get => _state == States.Disconnect; set { if (value) _state = States.Disconnect; } }
-        public bool IsConnect { get => _state == States.Connect; set { if (value) _state = States.Connect; } }
-        public bool IsCopy { get => _state == States.Copy; set { if (value) _state = States.Copy; } }
-        public bool IsConfigReadonly => _state != States.Disconnect;
-        public bool IsConfigEditable => _state == States.Disconnect;
+        
+        public int SelectedProfileId { get => Get<int>(); set => Set(value); }
+        public bool IsDisconnect { get => Get<bool>(); set => Set(value); }
+        public bool IsConnect { get => Get<bool>(); set => Set(value); }
+        public bool IsCopy { get => Get<bool>(); set => Set(value); }
+        public bool IsConfigReadonly { get => Get<bool>(); set => Set(value); }
+        public bool IsConfigEditable { get => Get<bool>(); set => Set(value); }
 
         public DuplicatViewModel(
             IComponentContext componentContext)
         {
             _componentContext = componentContext;
-
+            PropertyChanged += DuplicatViewModel_PropertyChanged;
             IsDisconnect = true;
-
             LoadDataContext();
+        }
+
+        private void DuplicatViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(IsDisconnect) || e.PropertyName == nameof(IsConnect) ||
+                e.PropertyName == nameof(IsCopy))
+            {
+                IsConfigReadonly = !IsDisconnect;
+                IsConfigEditable = IsDisconnect;
+            }
+            else if (e.PropertyName == nameof(SelectedProfileId))
+            {
+                LoadDataContext();
+                ProfileChanged?.Invoke();
+            }
         }
 
         private void LoadDataContext()
         {
             _duplicatContext?.Dispose();
             _duplicatContext = new DuplicatContext();
-
-            SelectorProfiles = SelectorProfiles ?? new List<Profile>(_duplicatContext.Profiles.ToList());
 
             _duplicatContext.MetaTraderPlatforms.Load();
             _duplicatContext.CTraderPlatforms.Load();
@@ -113,12 +86,6 @@ namespace QvaDev.Duplicat.ViewModel
         {
             var command = _componentContext.Resolve<TCommand>();
             command.Execute(_duplicatContext, this, parameter);
-        }
-
-        [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

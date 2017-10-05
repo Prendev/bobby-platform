@@ -28,7 +28,7 @@ namespace QvaDev.Duplicat
             builder.RegisterType<MainForm>().AsSelf().InstancePerLifetimeScope();
             builder.RegisterType<ViewModel.DuplicatViewModel>().AsSelf().InstancePerLifetimeScope();
             builder.RegisterType<ViewModel.SaveCommand>().AsSelf().InstancePerLifetimeScope();
-            builder.RegisterType<ViewModel.SwitchProfileCommand>().AsSelf().InstancePerLifetimeScope();
+            builder.RegisterType<ViewModel.LoadProfileCommand>().AsSelf().InstancePerLifetimeScope();
         }
 
         private static void RegisterConfiguration(ContainerBuilder builder)

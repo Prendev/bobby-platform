@@ -35,13 +35,13 @@ namespace QvaDev.Duplicat
             dgvGroups.DataBindings.Add("ReadOnly", _viewModel, "IsConfigReadonly");
             dgvMasters.DataBindings.Add("ReadOnly", _viewModel, "IsConfigReadonly");
             dgvSlaves.DataBindings.Add("ReadOnly", _viewModel, "IsConfigReadonly");
-            //comboBoxProfile.DataBindings.Add("Enabled", _viewModel, "IsConfigEditable");
 
             radioButtonDisconnect.DataBindings.Add("Checked", _viewModel, "IsDisconnect", true, DataSourceUpdateMode.OnPropertyChanged, false);
             radioButtonConnect.DataBindings.Add("Checked", _viewModel, "IsConnect", true, DataSourceUpdateMode.OnPropertyChanged, false);
             radioButtonCopy.DataBindings.Add("Checked", _viewModel, "IsCopy", true, DataSourceUpdateMode.OnPropertyChanged, false);
 
             buttonSave.Click += (s, e) => { _viewModel.Execute<SaveCommand>(); };
+            buttonLoadProfile.Click += (s, e) => { _viewModel.Execute<LoadProfileCommand>(dgvProfiles.CurrentRow?.DataBoundItem); };
 
             dgvMtPlatforms.DataError += DataGridView_DataError;
             dgvMtAccounts.DataError += DataGridView_DataError;
@@ -53,26 +53,8 @@ namespace QvaDev.Duplicat
             dgvSlaves.DataError += DataGridView_DataError;
 
             _viewModel.ProfileChanged += AttachDataSources;
-            _viewModel.PropertyChanged += PropertyChanged;
-
-            comboBoxProfile.BindingContext = new BindingContext();
-            comboBoxProfile.DataBindings.Add("SelectedValue", _viewModel, "SelectedProfileId", true, DataSourceUpdateMode.OnPropertyChanged, false);
-            comboBoxProfile.DataSource = new BindingList<Profile>(_viewModel.SelectorProfiles);
-            comboBoxProfile.DisplayMember = "Description";
-            comboBoxProfile.ValueMember = "Id";
 
             AttachDataSources();
-        }
-
-        private void PropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            if (e.PropertyName == nameof(_viewModel.SelectorProfiles))
-            {
-                var selectedProfileId = _viewModel.SelectedProfileId;
-                comboBoxProfile.DataSource = new BindingList<Profile>(_viewModel.SelectorProfiles);
-                if (_viewModel.SelectorProfiles.Any(p => p.Id == selectedProfileId))
-                    comboBoxProfile.SelectedValue = selectedProfileId;
-            }
         }
 
         private void DataGridView_DataError(object sender, DataGridViewDataErrorEventArgs e)

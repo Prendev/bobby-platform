@@ -71,8 +71,9 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ViewModel\BaseViewModel.cs" />
     <Compile Include="ViewModel\ICommand.cs" />
-    <Compile Include="ViewModel\SwitchProfileCommand.cs" />
+    <Compile Include="ViewModel\LoadProfileCommand.cs" />
     <Compile Include="ViewModel\SaveCommand.cs" />
     <Compile Include="ViewModel\DuplicatViewModel.cs" />
     <EmbeddedResource Include="MainForm.resx">

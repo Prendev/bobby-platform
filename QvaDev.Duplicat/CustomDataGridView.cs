@@ -12,6 +12,7 @@ namespace QvaDev.Duplicat
 
         public CustomDataGridView()
         {
+            MultiSelect = false;
             DataSourceChanged += CustomDataGridView_DataSourceChanged;
         }
 
