@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Data.Entity;
 using System.Windows.Forms;
+using QvaDev.Common.Attributes;
 
 namespace QvaDev.Duplicat
 {
     public class CustomDataGridView : DataGridView
     {
-        private readonly List<string> _invisibleColumns = new List<string> {"Id", "NotMappedDescription" };
+        private readonly List<string> _invisibleColumns = new List<string>();
 
         public CustomDataGridView()
         {
@@ -44,8 +45,17 @@ namespace QvaDev.Duplicat
 
         private void CustomDataGridView_DataSourceChanged(object sender, EventArgs e)
         {
-            if (Columns.Contains("Description"))
-                Columns["Description"].DisplayIndex = 0;
+            var genericArgs =  DataSource?.GetType().GetGenericArguments();
+            if (genericArgs?.Length > 0)
+            {
+                foreach (var prop in genericArgs[0].GetProperties())
+                foreach (var attr in prop.GetCustomAttributes(true))
+                {
+                    if (!Columns.Contains(prop.Name)) continue;
+                    if (attr is InvisibleColumnAttribute) Columns[prop.Name].Visible = false;
+                    if (attr is DisplayIndexAttribute) Columns[prop.Name].DisplayIndex = ((DisplayIndexAttribute)attr).Index;
+                }
+            }
 
             foreach (var name in _invisibleColumns)
             {

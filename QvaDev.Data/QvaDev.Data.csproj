@@ -75,5 +75,11 @@
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\QvaDev.Common\QvaDev.Common.csproj">
+      <Project>{10A3EF89-12BB-4D00-9950-36BFED281B91}</Project>
+      <Name>QvaDev.Common</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

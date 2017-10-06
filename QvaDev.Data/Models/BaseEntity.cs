@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using QvaDev.Common.Attributes;
 
 namespace QvaDev.Data.Models
 {
@@ -6,6 +7,7 @@ namespace QvaDev.Data.Models
     {
         [Key]
         [Dapper.Contrib.Extensions.Key]
+        [InvisibleColumn]
         public int Id { get; set; }
     }
 }

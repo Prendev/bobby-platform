@@ -43,6 +43,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Attributes\DisplayIndexAttribute.cs" />
+    <Compile Include="Attributes\InvisibleColumnAttribute.cs" />
     <Compile Include="Configuration\BaseElement.cs" />
     <Compile Include="Configuration\Mt4Platform.cs" />
     <Compile Include="Configuration\Mt4Account.cs" />

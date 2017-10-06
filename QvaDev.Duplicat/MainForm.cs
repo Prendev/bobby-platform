@@ -84,7 +84,7 @@ namespace QvaDev.Duplicat
             dgvGroups.AddComboBoxColumn(_viewModel.Profiles);
             dgvMasters.AddComboBoxColumn(_viewModel.Groups);
             dgvMasters.AddComboBoxColumn(_viewModel.MtAccounts);
-            dgvSlaves.AddComboBoxColumn(_viewModel.Masters, "NotMappedDescription");
+            dgvSlaves.AddComboBoxColumn(_viewModel.Masters);
             dgvSlaves.AddComboBoxColumn(_viewModel.CtAccounts);
 
             dgvMtPlatforms.DataSource = _viewModel.MtPlatforms.ToBindingList();
