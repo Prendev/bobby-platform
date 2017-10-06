@@ -52,8 +52,8 @@
     <Compile Include="Configuration\Account.cs" />
     <Compile Include="Configuration\InstrumentMapping.cs" />
     <Compile Include="Configuration\CTraderPlatform.cs" />
+    <Compile Include="Integration\BaseAccountInfo.cs" />
     <Compile Include="Integration\ConnectorConfig.cs" />
-    <Compile Include="Integration\IAccountInfo.cs" />
     <Compile Include="Integration\IConnector.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\ExchangeRatesService.cs" />

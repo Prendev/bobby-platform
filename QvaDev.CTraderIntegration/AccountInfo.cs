@@ -2,9 +2,8 @@
 
 namespace QvaDev.CTraderIntegration
 {
-    public class AccountInfo : IAccountInfo
+    public class AccountInfo : BaseAccountInfo
     {
-        public string Description { get; set; }
         public long AccountNumber { get; set; }
     }
 }

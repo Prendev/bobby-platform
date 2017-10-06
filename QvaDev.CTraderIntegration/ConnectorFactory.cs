@@ -6,7 +6,12 @@ using QvaDev.CTraderIntegration.Services;
 
 namespace QvaDev.CTraderIntegration
 {
-    public class ConnectorFactory
+    public interface IConnectorFactory
+    {
+        Connector Create(CTraderPlatform platform, CTraderAccount account);
+    }
+
+    public class ConnectorFactory : IConnectorFactory
     {
         /// <summary>
         /// The key is Platform's description
