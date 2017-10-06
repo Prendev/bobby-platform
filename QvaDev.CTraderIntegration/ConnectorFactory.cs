@@ -31,12 +31,15 @@ namespace QvaDev.CTraderIntegration
 
         public Connector Create(CTraderPlatform platform)
         {
-            var cTraderClientWrapper = _cTraderClientWrappers.GetOrAdd(platform.Description,
-                new CTraderClientWrapper(platform, _tradingAccountsService));
+            lock (_cTraderClientWrappers)
+            {
+                var cTraderClientWrapper = _cTraderClientWrappers.GetOrAdd(platform.Description,
+                    new CTraderClientWrapper(platform, _tradingAccountsService));
 
-            var connector = new Connector(cTraderClientWrapper, _log);
+                var connector = new Connector(cTraderClientWrapper, _log);
 
-            return connector;
+                return connector;
+            }
         }
     }
 }
