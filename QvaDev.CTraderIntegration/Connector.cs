@@ -17,27 +17,36 @@ namespace QvaDev.CTraderIntegration
 
         public string Description { get; private set; }
         public bool IsConnected => _wrapper?.IsConnected == true && _accountId > 0;
+
         public double LotsMultiplier => 10000000;
 
         public Connector(
-            ConnectorConfig connectorConfig,
+            CTraderClientWrapper cTraderClientWrapper,
             ILog log)
         {
-            _connectorConfig = connectorConfig;
+            _wrapper = cTraderClientWrapper;
+            _connectorConfig = new ConnectorConfig() { MaxRetryCount = 5, RetryPeriodInMilliseconds = 3000};
             _log = log;
         }
 
-        public void Connect(CTraderClientWrapper cTraderClientWrapper, AccountInfo accountInfo)
+        public void Disconnect()
         {
-            _wrapper = cTraderClientWrapper;
+            _wrapper.CTraderClient.SendUnsubscribeForTradingEventsRequest(_accountId);
+            _accountId = 0;
+        }
+
+        public bool Connect(AccountInfo accountInfo)
+        {
             Description = accountInfo.Description;
 
-            if (!_wrapper.IsConnected) return;
+            if (!_wrapper.IsConnected) return false;
             _accountId = _wrapper.Accounts.Find(a => a.accountNumber == accountInfo.AccountNumber)?.accountId ?? 0;
-            if (_accountId == 0) return;
+            if (_accountId == 0) return false;
 
             _wrapper.CTraderClient.SendSubscribeForTradingEventsRequest(_wrapper.Platform.AccessToken, _accountId);
 
+            _wrapper.CTraderClient.OnPosition -= OnPosition;
+            _wrapper.CTraderClient.OnError -= OnError;
             _wrapper.CTraderClient.OnPosition += OnPosition;
             _wrapper.CTraderClient.OnError += OnError;
 
@@ -45,6 +54,7 @@ namespace QvaDev.CTraderIntegration
             //_cTraderClient.OnLogin += OnLogin;
             //_cTraderClient.OnTick += OnTick;
 
+            return true;
         }
 
         public void SendMarketOrderRequest(string symbol, ProtoTradeSide type, long volume, string clientOrderId = null)

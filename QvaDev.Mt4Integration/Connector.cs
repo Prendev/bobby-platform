@@ -20,7 +20,12 @@ namespace QvaDev.Mt4Integration
             _log = log;
         }
 
-        public void Connect(AccountInfo accountInfo)
+        public void Disconnect()
+        {
+            QuoteClient?.Disconnect();
+        }
+
+        public bool Connect(AccountInfo accountInfo)
         {
             Description = accountInfo.Description;
             Server[] slaves = null;
@@ -39,9 +44,8 @@ namespace QvaDev.Mt4Integration
                 if(!IsConnected) ConnectSlaves(slaves, accountInfo);
             }
 
-            if (!IsConnected) return;
-            
-            _log.Debug($"{accountInfo.Description} user ({accountInfo.User}) connected");
+            if (IsConnected) _log.Debug($"{accountInfo.Description} user ({accountInfo.User}) connected");
+            return IsConnected;
         }
 
         private QuoteClient CreateQuoteClient(AccountInfo accountInfo, string host, int port)

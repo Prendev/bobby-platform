@@ -1,8 +1,11 @@
 ﻿using Autofac;
 using log4net;
 using QvaDev.Configuration.Services;
+using QvaDev.CTraderIntegration;
+using QvaDev.CTraderIntegration.Services;
 using QvaDev.Data;
 using QvaDev.Data.Repositories;
+using QvaDev.Orchestration;
 
 namespace QvaDev.Duplicat
 {
@@ -20,6 +23,7 @@ namespace QvaDev.Duplicat
             RegisterApp(builder);
             RegisterConfiguration(builder);
             RegisterData(builder);
+            RegisterOrchestration(builder);
         }
 
         private static void RegisterApp(ContainerBuilder builder)
@@ -42,6 +46,14 @@ namespace QvaDev.Duplicat
         private static void RegisterData(ContainerBuilder builder)
         {
             builder.RegisterType<MetaTraderPlatformRepository>().As<IMetaTraderPlatformRepository>();
+        }
+
+        private static void RegisterOrchestration(ContainerBuilder builder)
+        {
+            builder.RegisterType<Orchestrator>().As<IOrchestrator>();
+            builder.RegisterType<ConnectorFactory>().As<IConnectorFactory>();
+            builder.RegisterType<TradingAccountsService>().As<ITradingAccountsService>();
+            builder.RegisterType<RestService>().As<IRestService>();
         }
     }
 }

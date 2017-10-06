@@ -8,7 +8,7 @@ namespace QvaDev.CTraderIntegration
 {
     public interface IConnectorFactory
     {
-        Connector Create(CTraderPlatform platform, CTraderAccount account);
+        Connector Create(CTraderPlatform platform);
     }
 
     public class ConnectorFactory : IConnectorFactory
@@ -20,27 +20,21 @@ namespace QvaDev.CTraderIntegration
 
         private readonly ILog _log;
         private readonly ITradingAccountsService _tradingAccountsService;
-        private readonly ConnectorConfig _connectorConfig;
 
         public ConnectorFactory(
-            ConnectorConfig connectorConfig,
             ILog log,
             ITradingAccountsService tradingAccountsService)
         {
-            _connectorConfig = connectorConfig;
             _tradingAccountsService = tradingAccountsService;
             _log = log;
         }
 
-        public Connector Create(CTraderPlatform platform, CTraderAccount account)
+        public Connector Create(CTraderPlatform platform)
         {
-            var connector = new Connector(_connectorConfig, _log);
-
             var cTraderClientWrapper = _cTraderClientWrappers.GetOrAdd(platform.Description,
                 new CTraderClientWrapper(platform, _tradingAccountsService));
 
-            connector.Connect(cTraderClientWrapper,
-                new AccountInfo() {Description = account.Description, AccountNumber = account.AccountNumber});
+            var connector = new Connector(cTraderClientWrapper, _log);
 
             return connector;
         }

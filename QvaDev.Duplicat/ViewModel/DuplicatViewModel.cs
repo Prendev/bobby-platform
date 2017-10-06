@@ -2,8 +2,10 @@
 using System.ComponentModel;
 using System.Data.Entity;
 using System.Linq;
+using QvaDev.Common;
 using QvaDev.Data;
 using QvaDev.Data.Models;
+using QvaDev.Orchestration;
 
 namespace QvaDev.Duplicat.ViewModel
 {
@@ -19,6 +21,7 @@ namespace QvaDev.Duplicat.ViewModel
         public delegate void ProfileChangedEventHandler();
         
         private DuplicatContext _duplicatContext;
+        private readonly IOrchestrator _orchestrator;
 
         public ObservableCollection<MetaTraderPlatform> MtPlatforms { get; private set;  }
         public ObservableCollection<CTraderPlatform> CtPlatforms { get; private set; }
@@ -42,8 +45,10 @@ namespace QvaDev.Duplicat.ViewModel
         public int SelectedProfileId { get => Get<int>(); set => Set(value); }
         public int SelectedSlaveId { get => Get<int>(); set => Set(value); }
 
-        public DuplicatViewModel()
+        public DuplicatViewModel(
+            IOrchestrator orchestrator)
         {
+            _orchestrator = orchestrator;
             PropertyChanged += DuplicatViewModel_PropertyChanged;
             IsDisconnect = true;
             LoadDataContext();
@@ -73,6 +78,8 @@ namespace QvaDev.Duplicat.ViewModel
             if (e.PropertyName == nameof(State))
             {
                 IsConfigReadonly = !IsDisconnect;
+                if (State == States.Connect) _orchestrator.Connect(_duplicatContext);
+                else if (State == States.Disconnect) _orchestrator.Disconnect(_duplicatContext);
             }
         }
 

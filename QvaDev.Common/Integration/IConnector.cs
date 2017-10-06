@@ -4,5 +4,6 @@
     {
         string Description { get; }
         bool IsConnected { get; }
+        void Disconnect();
     }
 }

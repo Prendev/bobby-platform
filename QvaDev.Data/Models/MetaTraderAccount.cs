@@ -2,10 +2,10 @@
 
 namespace QvaDev.Data.Models
 {
-    public class MetaTraderAccount : BaseDescriptionEntity
+    public class MetaTraderAccount : BaseAccountEntity
     {
         [Required]
-        public string Username { get; set; }
+        public long User { get; set; }
 
         [Required]
         public string Password { get; set; }

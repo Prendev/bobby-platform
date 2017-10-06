@@ -57,14 +57,14 @@ namespace QvaDev.Data
             MetaTraderAccounts.Add(new MetaTraderAccount()
             {
                 Description = "Aura1",
-                Username = "8801562",
+                User = 8801562,
                 Password = "k0agjjf",
                 MetaTraderPlatform = mt4Platform
             });
             MetaTraderAccounts.Add(new MetaTraderAccount()
             {
                 Description = "Aura2",
-                Username = "8801567",
+                User = 8801567,
                 Password = "4kfmvmo",
                 MetaTraderPlatform = mt4Platform
             });

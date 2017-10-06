@@ -71,7 +71,6 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ViewModel\BaseViewModel.cs" />
     <Compile Include="ViewModel\DuplicatViewModel.cs" />
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
@@ -108,9 +107,17 @@
       <Project>{C852E53A-2691-405F-B64D-B7A97BFEC79E}</Project>
       <Name>QvaDev.Configuration</Name>
     </ProjectReference>
+    <ProjectReference Include="..\QvaDev.CTraderIntegration\QvaDev.CTraderIntegration.csproj">
+      <Project>{5B92788F-AF48-4709-A539-BBA2822A06B7}</Project>
+      <Name>QvaDev.CTraderIntegration</Name>
+    </ProjectReference>
     <ProjectReference Include="..\QvaDev.Data\QvaDev.Data.csproj">
       <Project>{D7DA9DD6-1BA9-45B9-9581-1D095631DF0D}</Project>
       <Name>QvaDev.Data</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\QvaDev.Orchestration\QvaDev.Orchestration.csproj">
+      <Project>{7FCD6735-2115-4096-B5C9-E5CD7B4A3C1C}</Project>
+      <Name>QvaDev.Orchestration</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{D7DA9DD6-1BA9-45B9-9581-1D095631DF0D}</ProjectGuid>
+    <ProjectGuid>{7FCD6735-2115-4096-B5C9-E5CD7B4A3C1C}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>QvaDev.Data</RootNamespace>
-    <AssemblyName>QvaDev.Data</AssemblyName>
+    <RootNamespace>QvaDev.Orchestration</RootNamespace>
+    <AssemblyName>QvaDev.Orchestration</AssemblyName>
     <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -30,23 +30,18 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Dapper, Version=1.50.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapper.1.50.0\lib\net451\Dapper.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapper.Contrib, Version=1.50.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapper.Contrib.1.50.0\lib\net45\Dapper.Contrib.dll</HintPath>
-    </Reference>
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.dll</HintPath>
     </Reference>
     <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.SqlServer.dll</HintPath>
     </Reference>
+    <Reference Include="log4net, Version=2.0.8.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+      <HintPath>..\packages\log4net.2.0.8\lib\net45-full\log4net.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
-    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Data.Linq" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -55,32 +50,34 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DuplicatContext.cs" />
-    <Compile Include="Models\BaseAccountEntity.cs" />
-    <Compile Include="Models\BaseEntity.cs" />
-    <Compile Include="Models\BaseDescriptionEntity.cs" />
-    <Compile Include="Models\Copier.cs" />
-    <Compile Include="Models\CTraderAccount.cs" />
-    <Compile Include="Models\CTraderPlatform.cs" />
-    <Compile Include="Models\Slave.cs" />
-    <Compile Include="Models\MetaTraderPlatform.cs" />
-    <Compile Include="Models\MetaTraderAccount.cs" />
-    <Compile Include="Models\Group.cs" />
-    <Compile Include="Models\Master.cs" />
-    <Compile Include="Models\Profile.cs" />
-    <Compile Include="Models\SymbolMapping.cs" />
+    <Compile Include="Orchestrator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Repositories\Mt4PlatformRepository.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="App.config" />
-    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\QvaDev.Common\QvaDev.Common.csproj">
       <Project>{10A3EF89-12BB-4D00-9950-36BFED281B91}</Project>
       <Name>QvaDev.Common</Name>
     </ProjectReference>
+    <ProjectReference Include="..\QvaDev.CTraderApi\QvaDev.CTraderApi.csproj">
+      <Project>{866039f3-42ff-4d42-a85e-f91cef04f3df}</Project>
+      <Name>QvaDev.CTraderApi</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\QvaDev.CTraderIntegration\QvaDev.CTraderIntegration.csproj">
+      <Project>{5b92788f-af48-4709-a539-bba2822a06b7}</Project>
+      <Name>QvaDev.CTraderIntegration</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\QvaDev.Data\QvaDev.Data.csproj">
+      <Project>{D7DA9DD6-1BA9-45B9-9581-1D095631DF0D}</Project>
+      <Name>QvaDev.Data</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\QvaDev.Mt4Integration\QvaDev.Mt4Integration.csproj">
+      <Project>{73a2679e-f17e-4484-8874-461d3fc895dd}</Project>
+      <Name>QvaDev.Mt4Integration</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

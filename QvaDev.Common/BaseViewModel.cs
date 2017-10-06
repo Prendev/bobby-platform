@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using QvaDev.Duplicat.Annotations;
+using QvaDev.Common.Annotations;
 
-namespace QvaDev.Duplicat.ViewModel
+namespace QvaDev.Common
 {
     public class BaseViewModel : INotifyPropertyChanged
     {
