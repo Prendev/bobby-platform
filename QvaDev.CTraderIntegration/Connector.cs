@@ -12,7 +12,7 @@ namespace QvaDev.CTraderIntegration
         private readonly ConnectorConfig _connectorConfig;
         private readonly ConcurrentDictionary<string, MarketOrder> _marketOrders = new ConcurrentDictionary<string, MarketOrder>();
         private readonly ConcurrentDictionary<long, RetryOrder> _closeOrders = new ConcurrentDictionary<long, RetryOrder>();
-        private CTraderClientWrapper _wrapper;
+        private readonly CTraderClientWrapper _wrapper;
         private long _accountId;
 
         public string Description { get; private set; }
