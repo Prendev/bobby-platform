@@ -187,7 +187,7 @@ namespace QvaDev.Orchestration
                             if (e.Action == OrderEventArgs.Actions.Open)
                             {
                                 var volume = 100 * e.Volume * copier.CopyRatio;
-                                slaveConnector.SendMarketRangeOrderRequest(symbol, type, (long) volume, e.OperPrice, e.Ticket);
+                                slaveConnector.SendMarketRangeOrderRequest(symbol, type, (long) volume, e.OperPrice, copier.SlippageInPips ?? 0, e.Ticket.ToString());
                             }
                             else if (e.Action == OrderEventArgs.Actions.Close)
                             {

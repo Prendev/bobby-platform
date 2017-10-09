@@ -94,11 +94,12 @@ namespace QvaDev.Duplicat.ViewModel
             _duplicatContext.MetaTraderAccounts.Load();
             _duplicatContext.CTraderAccounts.Load();
             _duplicatContext.Profiles.Load();
-            _duplicatContext.Groups.Where(e => e.ProfileId == SelectedProfileId).Load();
-            _duplicatContext.Masters.Where(e => e.Group.ProfileId == SelectedProfileId).Load();
-            _duplicatContext.Slaves.Where(e => e.Master.Group.ProfileId == SelectedProfileId).Load();
-            _duplicatContext.SymbolMappings.Where(e => e.SlaveId == SelectedSlaveId).Load();
-            _duplicatContext.Copiers.Where(e => e.SlaveId == SelectedSlaveId).Load();
+            _duplicatContext.Groups.Where(e => e.ProfileId == SelectedProfileId)
+                .Include(e => e.Masters).Load();
+            _duplicatContext.Masters.Where(e => e.Group.ProfileId == SelectedProfileId)
+                .Include(e => e.Slaves).Load();
+            _duplicatContext.Slaves.Where(e => e.Master.Group.ProfileId == SelectedProfileId)
+                .Include(e => e.Copiers).Include(e => e.SymbolMappings).Load();
 
             MtPlatforms = _duplicatContext.MetaTraderPlatforms.Local;
             CtPlatforms = _duplicatContext.CTraderPlatforms.Local;
@@ -110,6 +111,9 @@ namespace QvaDev.Duplicat.ViewModel
             Slaves = _duplicatContext.Slaves.Local;
             SymbolMappings = _duplicatContext.SymbolMappings.Local;
             Copiers = _duplicatContext.Copiers.Local;
+
+            foreach (var sm in SymbolMappings.Where(e => e.SlaveId != SelectedSlaveId)) sm.IsFiltered = true;
+            foreach (var c in Copiers.Where(e => e.SlaveId != SelectedSlaveId)) c.IsFiltered = true;
         }
     }
 }

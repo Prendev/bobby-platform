@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace QvaDev.Data.Models
 {
@@ -8,5 +9,7 @@ namespace QvaDev.Data.Models
         public int ProfileId { get; set; }
         [Required]
         public Profile Profile { get; set; }
+
+        public List<Master> Masters { get => Get(() => new List<Master>()); set => Set(value, false); }
     }
 }
