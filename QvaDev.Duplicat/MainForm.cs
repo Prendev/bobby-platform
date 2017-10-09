@@ -100,15 +100,6 @@ namespace QvaDev.Duplicat
             dgvSymbolMappings.Columns["SlaveId"].Visible = false;
             dgvSymbolMappings.Columns["Slave"].Visible = false;
 
-            if (!dgvCopiers.Columns.Contains("MmType"))
-                dgvCopiers.Columns.Add(new DataGridViewComboBoxColumn
-                {
-                    Name = "MmType",
-                    DataSource = Enum.GetValues(typeof(MmTypes)),
-                    DataPropertyName = "MmType",
-                    ValueType = typeof(MmTypes),
-                    HeaderText = "MmType*"
-                });
             dgvCopiers.DataSource = _viewModel.Copiers.ToBindingList();
             dgvCopiers.Columns["SlaveId"].Visible = false;
             dgvCopiers.Columns["Slave"].Visible = false;

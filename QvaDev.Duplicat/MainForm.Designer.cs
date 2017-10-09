@@ -336,7 +336,7 @@
             this.tabPageCopier.Padding = new System.Windows.Forms.Padding(3);
             this.tabPageCopier.Size = new System.Drawing.Size(1038, 481);
             this.tabPageCopier.TabIndex = 0;
-            this.tabPageCopier.Text = "Copier";
+            this.tabPageCopier.Text = "Copiers";
             this.tabPageCopier.UseVisualStyleBackColor = true;
             // 
             // tlpCopier
@@ -363,7 +363,7 @@
             this.groupBox10.Size = new System.Drawing.Size(1026, 137);
             this.groupBox10.TabIndex = 0;
             this.groupBox10.TabStop = false;
-            this.groupBox10.Text = "Copier";
+            this.groupBox10.Text = "Copiers";
             // 
             // dgvCopiers
             // 

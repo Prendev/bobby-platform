@@ -80,6 +80,7 @@ namespace QvaDev.Duplicat.ViewModel
                 IsConfigReadonly = !IsDisconnect;
                 if (State == States.Connect) _orchestrator.Connect(_duplicatContext);
                 else if (State == States.Disconnect) _orchestrator.Disconnect(_duplicatContext);
+                else if (State == States.Copy) _orchestrator.StartCopiers(_duplicatContext);
             }
         }
 

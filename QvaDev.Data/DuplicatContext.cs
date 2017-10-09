@@ -147,12 +147,16 @@ namespace QvaDev.Data
             SymbolMappings.Add(new SymbolMapping {Slave = slave, From = "UK100.pri", To = "UK100"});
             SymbolMappings.Add(new SymbolMapping {Slave = slave, From = "US30.pri", To = "US30.PRM"});
             SymbolMappings.Add(new SymbolMapping {Slave = slave, From = "XAUUSD.pri", To = "XAUUSD" });
+            SymbolMappings.Add(new SymbolMapping {Slave = slave, From = "EURUSD+", To = "EURUSD" });
+
+            Copiers.Add(new Copier {Slave = slave, CopyRatio = 2, SlippageInPips = 3});
 
             slave = Slaves.First(x => x.Id == 2);
             SymbolMappings.Add(new SymbolMapping { Slave = slave, From = "GER30.ex", To = "GERMAN30" });
             SymbolMappings.Add(new SymbolMapping { Slave = slave, From = "UK100.ex", To = "UK100" });
             SymbolMappings.Add(new SymbolMapping { Slave = slave, From = "US30.ex", To = "US30.PRM" });
             SymbolMappings.Add(new SymbolMapping { Slave = slave, From = "XAUUSD.ex", To = "XAUUSD" });
+            SymbolMappings.Add(new SymbolMapping { Slave = slave, From = "EURUSD+", To = "EURUSD" });
 
             SaveChanges();
         }

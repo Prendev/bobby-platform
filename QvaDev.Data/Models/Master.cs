@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using QvaDev.Common.Attributes;
 
@@ -15,6 +16,8 @@ namespace QvaDev.Data.Models
         public int MetaTraderAccountId { get; set; }
         [Required]
         public MetaTraderAccount MetaTraderAccount { get; set; }
+
+        public List<Slave> Slaves { get => Get(() => new List<Slave>()); set => Set(value, false); }
 
         [NotMapped]
         [InvisibleColumn]

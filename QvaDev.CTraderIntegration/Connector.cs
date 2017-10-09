@@ -1,8 +1,12 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
 using log4net;
 using QvaDev.Common.Integration;
+using QvaDev.CTraderIntegration.Dto;
 using QvaDev.CTraderIntegration.Model;
+using QvaDev.CTraderIntegration.Services;
 
 namespace QvaDev.CTraderIntegration
 {
@@ -14,16 +18,20 @@ namespace QvaDev.CTraderIntegration
         private readonly ConcurrentDictionary<long, RetryOrder> _closeOrders = new ConcurrentDictionary<long, RetryOrder>();
         private readonly CTraderClientWrapper _wrapper;
         private long _accountId;
+        private readonly ITradingAccountsService _tradingAccountsService;
 
         public string Description { get; private set; }
         public bool IsConnected => _wrapper?.IsConnected == true && _accountId > 0;
+        public event OrderEventHandler OnOrder;
 
-        public double LotsMultiplier => 10000000;
+        public double VolumeMultiplier => 100;
 
         public Connector(
             CTraderClientWrapper cTraderClientWrapper,
+            ITradingAccountsService tradingAccountsService,
             ILog log)
         {
+            _tradingAccountsService = tradingAccountsService;
             _wrapper = cTraderClientWrapper;
             _connectorConfig = new ConnectorConfig() { MaxRetryCount = 5, RetryPeriodInMilliseconds = 3000};
             _log = log;
@@ -79,6 +87,16 @@ namespace QvaDev.CTraderIntegration
         {
             _closeOrders.GetOrAdd(positionId, new RetryOrder { Volume = volume });
             _wrapper.CTraderClient.SendClosePositionRequest(_wrapper.Platform.AccessToken, _accountId, positionId, volume, $"{_accountId}|{positionId}");
+        }
+
+        public List<PositionData> GetPositions()
+        {
+            return _tradingAccountsService.GetPositions(new AccountRequest
+            {
+                AccessToken = _wrapper.Platform.AccessToken,
+                BaseUrl = _wrapper.Platform.AccountsApi,
+                AccountId = _accountId
+            });
         }
 
         private void OnPosition(ProtoOAPosition position)

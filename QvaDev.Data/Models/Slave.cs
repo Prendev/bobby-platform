@@ -15,6 +15,9 @@ namespace QvaDev.Data.Models
         [Required]
         public CTraderAccount CTraderAccount { get; set; }
 
-        public List<SymbolMapping> SymbolMappings { get; set; }
+        public string SymbolSuffix { get; set; }
+
+        public List<SymbolMapping> SymbolMappings { get => Get(() => new List<SymbolMapping>()); set => Set(value, false); }
+        public List<Copier> Copiers { get => Get(() => new List<Copier>()); set => Set(value, false); }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using QvaDev.Common.Annotations;
@@ -12,27 +13,28 @@ namespace QvaDev.Common
         public event PropertyChangedEventHandler PropertyChanged;
 
         [NotifyPropertyChangedInvocator]
-        protected T Get<T>([CallerMemberName] string propertyName = null)
+        protected T Get<T>(Func<T> defaultValueFactory = null, [CallerMemberName] string propertyName = null)
         {
             if (string.IsNullOrEmpty(propertyName))
                 return default(T);
 
             if (!_propertyValues.ContainsKey(propertyName))
-                _propertyValues[propertyName] = default(T);
+                _propertyValues[propertyName] = defaultValueFactory == null ? default(T) : defaultValueFactory.Invoke();
 
             return (T)_propertyValues[propertyName];
         }
 
         [NotifyPropertyChangedInvocator]
-        protected void Set<T>(T value, [CallerMemberName] string propertyName = null)
+        protected void Set<T>(T value, bool raiseEvent = true, [CallerMemberName] string propertyName = null)
         {
             if (string.IsNullOrEmpty(propertyName)) return;
 
-            var oldValue = Get<T>(propertyName);
+            var oldValue = Get<T>(null, propertyName);
             if (value.Equals(oldValue)) return;
 
             _propertyValues[propertyName] = value;
-            OnPropertyChanged(propertyName);
+
+            if(raiseEvent) OnPropertyChanged(propertyName);
         }
 
         [NotifyPropertyChangedInvocator]
