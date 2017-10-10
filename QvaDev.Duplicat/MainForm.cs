@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data.Entity;
+using System.Threading;
 using System.Windows.Forms;
 using QvaDev.Data.Models;
 using QvaDev.Duplicat.ViewModel;
@@ -27,6 +28,8 @@ namespace QvaDev.Duplicat
 
         private void InitView()
         {
+            _viewModel.SynchronizationContext = SynchronizationContext.Current;
+
             dgvMtAccounts.DataBindings.Add(new Binding("ReadOnly", _viewModel, "IsConfigReadonly"));
             dgvCtPlatforms.DataBindings.Add(new Binding("ReadOnly", _viewModel, "IsConfigReadonly"));
             dgvCtAccounts.DataBindings.Add(new Binding("ReadOnly", _viewModel, "IsConfigReadonly"));
@@ -43,6 +46,10 @@ namespace QvaDev.Duplicat
             inverseBinding = new Binding("Enabled", _viewModel, "IsConfigReadonly");
             inverseBinding.Format += (s, e) => e.Value = !(bool)e.Value;
             buttonLoadCopier.DataBindings.Add(inverseBinding);
+
+            var titleBinding = new Binding("Text", _viewModel, "IsLoading");
+            titleBinding.Format += (s, e) => e.Value = (bool) e.Value ? "QvaDev.Duplicat - Loading..." : "QvaDev.Duplicat";
+            DataBindings.Add(titleBinding);
 
             radioButtonDisconnect.DataBindings.Add(new Binding("Checked", _viewModel, "IsDisconnect", true, DataSourceUpdateMode.OnPropertyChanged, false));
             radioButtonConnect.DataBindings.Add(new Binding("Checked", _viewModel, "IsConnect", true, DataSourceUpdateMode.OnPropertyChanged, false));
@@ -87,20 +94,20 @@ namespace QvaDev.Duplicat
             dgvSlaves.AddComboBoxColumn(_viewModel.Masters);
             dgvSlaves.AddComboBoxColumn(_viewModel.CtAccounts);
 
-            dgvMtPlatforms.DataSource = _viewModel.MtPlatforms.ToBindingList();
-            dgvMtAccounts.DataSource = _viewModel.MtAccounts.ToBindingList();
-            dgvCtPlatforms.DataSource = _viewModel.CtPlatforms.ToBindingList();
-            dgvCtAccounts.DataSource = _viewModel.CtAccounts.ToBindingList();
-            dgvProfiles.DataSource = _viewModel.Profiles.ToBindingList();
-            dgvGroups.DataSource = _viewModel.Groups.ToBindingList();
-            dgvMasters.DataSource = _viewModel.Masters.ToBindingList();
-            dgvSlaves.DataSource = _viewModel.Slaves.ToBindingList();
+            dgvMtPlatforms.DataSource = _viewModel.MtPlatforms.ToDataSource();
+            dgvMtAccounts.DataSource = _viewModel.MtAccounts.ToDataSource();
+            dgvCtPlatforms.DataSource = _viewModel.CtPlatforms.ToDataSource();
+            dgvCtAccounts.DataSource = _viewModel.CtAccounts.ToDataSource();
+            dgvProfiles.DataSource = _viewModel.Profiles.ToDataSource();
+            dgvGroups.DataSource = _viewModel.Groups.ToDataSource();
+            dgvMasters.DataSource = _viewModel.Masters.ToDataSource();
+            dgvSlaves.DataSource = _viewModel.Slaves.ToDataSource();
 
-            dgvSymbolMappings.DataSource = _viewModel.SymbolMappings.ToBindingList();
+            dgvSymbolMappings.DataSource = _viewModel.SymbolMappings.ToDataSource();
             dgvSymbolMappings.Columns["SlaveId"].Visible = false;
             dgvSymbolMappings.Columns["Slave"].Visible = false;
 
-            dgvCopiers.DataSource = _viewModel.Copiers.ToBindingList();
+            dgvCopiers.DataSource = _viewModel.Copiers.ToDataSource();
             dgvCopiers.Columns["SlaveId"].Visible = false;
             dgvCopiers.Columns["Slave"].Visible = false;
         }

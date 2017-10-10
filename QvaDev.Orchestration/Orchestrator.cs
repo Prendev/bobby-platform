@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using log4net;
 using QvaDev.Common.Integration;
 using QvaDev.CTraderIntegration;
-using QvaDev.CTraderIntegration.Services;
 using QvaDev.Data;
 using CtConnector = QvaDev.CTraderIntegration.Connector;
 using MtConnector = QvaDev.Mt4Integration.Connector;
@@ -13,9 +12,9 @@ namespace QvaDev.Orchestration
 {
     public interface IOrchestrator
     {
-        void Connect(DuplicatContext duplicatContext);
-        void Disconnect(DuplicatContext duplicatContext);
-        void StartCopiers(DuplicatContext duplicatContext);
+        Task Connect(DuplicatContext duplicatContext);
+        Task Disconnect(DuplicatContext duplicatContext);
+        Task StartCopiers(DuplicatContext duplicatContext);
     }
 
     public class Orchestrator : IOrchestrator
@@ -43,17 +42,15 @@ namespace QvaDev.Orchestration
             _log = log;
         }
 
-        public void Connect(DuplicatContext duplicatContext)
+        public Task Connect(DuplicatContext duplicatContext)
         {
             _areCopiersActive = false;
-            ConnectMtAccounts(duplicatContext);
-            ConenctCtAccounts(duplicatContext);
+            return Task.WhenAll(ConnectMtAccounts(duplicatContext), ConenctCtAccounts(duplicatContext));
         }
 
-        private void ConnectMtAccounts(DuplicatContext duplicatContext)
+        private Task ConnectMtAccounts(DuplicatContext duplicatContext)
         {
-            foreach (var account in duplicatContext.MetaTraderAccounts)
-            {
+            var tasks = duplicatContext.MetaTraderAccounts.AsEnumerable().Select(account =>
                 Task.Factory.StartNew(() =>
                 {
                     if (account.IsConnected) return;
@@ -66,18 +63,18 @@ namespace QvaDev.Orchestration
                     account.IsConnected = connector.Connect(new Mt4Integration.AccountInfo()
                     {
                         Description = account.Description,
-                        User = (uint)account.User,
+                        User = (uint) account.User,
                         Password = account.Password,
                         Srv = account.MetaTraderPlatform.SrvFilePath
                     });
-                }, TaskCreationOptions.LongRunning);
-            }
+                }, TaskCreationOptions.LongRunning));
+
+            return Task.WhenAll(tasks);
         }
 
-        private void ConenctCtAccounts(DuplicatContext duplicatContext)
+        private Task ConenctCtAccounts(DuplicatContext duplicatContext)
         {
-            foreach (var account in duplicatContext.CTraderAccounts)
-            {
+            var tasks = duplicatContext.CTraderAccounts.AsEnumerable().Select(account =>
                 Task.Factory.StartNew(() =>
                 {
                     if (account.IsConnected) return;
@@ -110,47 +107,47 @@ namespace QvaDev.Orchestration
                         _ctPositions[account.AccountNumber].GetOrAdd(p.positionId,
                             new CtPosition {Volume = p.volume, ClientOrderId = p.GetCliendOrderId()});
                     }
-                }, TaskCreationOptions.LongRunning);
-            }
+                }, TaskCreationOptions.LongRunning));
+
+            return Task.WhenAll(tasks);
         }
 
-        public void Disconnect(DuplicatContext duplicatContext)
+        public Task Disconnect(DuplicatContext duplicatContext)
         {
             _areCopiersActive = false;
-            DisconnectMtAccounts(duplicatContext);
-            DisconnectCtAccounts(duplicatContext);
+            return Task.WhenAll(DisconnectMtAccounts(duplicatContext), DisconnectCtAccounts(duplicatContext));
         }
 
-        private void DisconnectMtAccounts(DuplicatContext duplicatContext)
+        private Task DisconnectMtAccounts(DuplicatContext duplicatContext)
         {
-            foreach (var account in duplicatContext.MetaTraderAccounts)
-            {
-                if (!account.IsConnected) continue;
+            var tasks = duplicatContext.MetaTraderAccounts.AsEnumerable().Select(account =>
                 Task.Factory.StartNew(() =>
                 {
+                    if (!account.IsConnected) return;
                     account.Connector.Disconnect();
                     account.IsConnected = false;
-                }, TaskCreationOptions.LongRunning);
-            }
+                }, TaskCreationOptions.LongRunning));
+
+            return Task.WhenAll(tasks);
         }
 
-        private void DisconnectCtAccounts(DuplicatContext duplicatContext)
+        private Task DisconnectCtAccounts(DuplicatContext duplicatContext)
         {
-            foreach (var account in duplicatContext.CTraderAccounts)
-            {
-                if (!account.IsConnected) continue;
+            var tasks = duplicatContext.CTraderAccounts.AsEnumerable().Select(account =>
                 Task.Factory.StartNew(() =>
                 {
+                    if (!account.IsConnected) return;
                     account.Connector.Disconnect();
                     account.IsConnected = false;
-                }, TaskCreationOptions.LongRunning);
-            }
+                }, TaskCreationOptions.LongRunning));
+
+            return Task.WhenAll(tasks);
         }
 
-        public void StartCopiers(DuplicatContext duplicatContext)
+        public async Task StartCopiers(DuplicatContext duplicatContext)
         {
             _duplicatContext = duplicatContext;
-            Connect(_duplicatContext);
+            await Connect(_duplicatContext);
             foreach (var master in duplicatContext.Copiers.Local
                 .Where(c => c.Slave.CTraderAccount.IsConnected && c.Slave.Master.MetaTraderAccount.IsConnected)
                 .Select(c => c.Slave.Master).Distinct())

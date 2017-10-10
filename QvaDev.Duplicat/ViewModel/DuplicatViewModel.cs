@@ -41,6 +41,7 @@ namespace QvaDev.Duplicat.ViewModel
         public bool IsConnect { get => State == States.Connect; set => State = value ? States.Connect : State; }
         public bool IsCopy { get => State == States.Copy; set => State = value ? States.Copy : State; }
         public bool IsConfigReadonly { get => Get<bool>(); set => Set(value); }
+        public bool IsLoading { get => Get<bool>(); set => Set(value); }
 
         public int SelectedProfileId { get => Get<int>(); set => Set(value); }
         public int SelectedSlaveId { get => Get<int>(); set => Set(value); }
@@ -75,13 +76,19 @@ namespace QvaDev.Duplicat.ViewModel
 
         private void DuplicatViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(State))
-            {
-                IsConfigReadonly = !IsDisconnect;
-                if (State == States.Connect) _orchestrator.Connect(_duplicatContext);
-                else if (State == States.Disconnect) _orchestrator.Disconnect(_duplicatContext);
-                else if (State == States.Copy) _orchestrator.StartCopiers(_duplicatContext);
-            }
+            if (e.PropertyName == nameof(State)) StateChangeCommand();
+        }
+
+        private void StateChangeCommand()
+        {
+            IsLoading = true;
+            IsConfigReadonly = true;
+            if (State == States.Disconnect) _orchestrator.Disconnect(_duplicatContext)
+                .ContinueWith(prevTask => { prevTask.Wait(); IsLoading = false; IsConfigReadonly = false; });
+            else if (State == States.Connect) _orchestrator.Connect(_duplicatContext)
+                .ContinueWith(prevTask => { prevTask.Wait(); IsLoading = false; IsConfigReadonly = true; });
+            else if (State == States.Copy) _orchestrator.StartCopiers(_duplicatContext)
+                .ContinueWith(prevTask => { prevTask.Wait(); IsLoading = false; IsConfigReadonly = true; });
         }
 
         private void LoadDataContext()

@@ -47,7 +47,7 @@ namespace QvaDev.Duplicat
             if (!Columns.Contains($"{name}*"))
                 Columns.Add(new DataGridViewComboBoxColumn()
                 {
-                    DataSource = new BindingSource() { DataSource = list.ToBindingList() },
+                    DataSource = list.ToDataSource(),
                     Name = $"{name}*",
                     DataPropertyName = $"{name}Id",
                     DisplayMember = displayMember,
@@ -55,7 +55,7 @@ namespace QvaDev.Duplicat
                     HeaderText = $"{name}*"
                 });
             else if (Columns[$"{name}*"] is DataGridViewComboBoxColumn)
-                ((DataGridViewComboBoxColumn)Columns[$"{name}*"]).DataSource = new BindingSource() { DataSource = list.ToBindingList() };
+                ((DataGridViewComboBoxColumn)Columns[$"{name}*"]).DataSource = list.ToDataSource();
         }
 
         public T GetSelectedItem<T>() where T : class
