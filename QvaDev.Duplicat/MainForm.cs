@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Data.Entity;
 using System.Threading;
 using System.Windows.Forms;
 using QvaDev.Data.Models;
@@ -21,7 +20,7 @@ namespace QvaDev.Duplicat
             InitializeComponent();
         }
 
-        private void MainForm_Load(object sender, System.EventArgs e)
+        private void MainForm_Load(object sender, EventArgs e)
         {
             InitView();
         }
@@ -40,12 +39,19 @@ namespace QvaDev.Duplicat
             dgvSymbolMappings.DataBindings.Add(new Binding("ReadOnly", _viewModel, "IsConfigReadonly"));
             dgvCopiers.DataBindings.Add(new Binding("ReadOnly", _viewModel, "IsConfigReadonly"));
 
+
             var inverseBinding = new Binding("Enabled", _viewModel, "IsConfigReadonly");
             inverseBinding.Format += (s, e) => e.Value = !(bool)e.Value;
             buttonLoadProfile.DataBindings.Add(inverseBinding);
+
             inverseBinding = new Binding("Enabled", _viewModel, "IsConfigReadonly");
             inverseBinding.Format += (s, e) => e.Value = !(bool)e.Value;
             buttonLoadCopier.DataBindings.Add(inverseBinding);
+
+            inverseBinding = new Binding("Enabled", _viewModel, "IsLoading");
+            inverseBinding.Format += (s, e) => e.Value = !(bool)e.Value;
+            groupBoxMainControl.DataBindings.Add(inverseBinding);
+
 
             var titleBinding = new Binding("Text", _viewModel, "IsLoading");
             titleBinding.Format += (s, e) => e.Value = (bool) e.Value ? "QvaDev.Duplicat - Loading..." : "QvaDev.Duplicat";

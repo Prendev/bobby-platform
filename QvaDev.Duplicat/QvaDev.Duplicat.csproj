@@ -58,6 +58,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ViewModel\BaseViewModel.cs" />
     <Compile Include="CustomDataGridView.cs">
       <SubType>Component</SubType>
     </Compile>

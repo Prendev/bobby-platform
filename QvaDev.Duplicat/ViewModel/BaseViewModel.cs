@@ -5,18 +5,14 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using QvaDev.Common.Annotations;
-using QvaDev.Common.Attributes;
 
-namespace QvaDev.Common
+namespace QvaDev.Duplicat.ViewModel
 {
     public class BaseViewModel : INotifyPropertyChanged
     {
         private readonly Dictionary<string, object> _propertyValues = new Dictionary<string, object>();
 
         public event PropertyChangedEventHandler PropertyChanged;
-
-        [NotMapped]
-        [InvisibleColumn]
         public SynchronizationContext SynchronizationContext { get; set; }
 
         [NotifyPropertyChangedInvocator]
@@ -47,8 +43,7 @@ namespace QvaDev.Common
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
-            if (SynchronizationContext == null) PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-            else SynchronizationContext.Post(o => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName)), null);
+            SynchronizationContext.Post(o => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName)), null);
         }
     }
 }

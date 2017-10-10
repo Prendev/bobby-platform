@@ -1,5 +1,7 @@
-﻿using System.Collections.Concurrent;
+﻿using System;
+using System.Collections.Concurrent;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using log4net;
 using QvaDev.Common.Integration;
@@ -25,6 +27,8 @@ namespace QvaDev.Orchestration
             public string ClientOrderId { get; set; }
         }
 
+        private SynchronizationContext _synchronizationContext;
+        private readonly Func<SynchronizationContext> _synchronizationContextFactory;
         private readonly ILog _log;
         private readonly IConnectorFactory _connectorFactory;
 
@@ -34,16 +38,20 @@ namespace QvaDev.Orchestration
             new ConcurrentDictionary<long, ConcurrentDictionary<long, CtPosition>>();
 
 
+
         public Orchestrator(
+            Func<SynchronizationContext> synchronizationContextFactory,
             IConnectorFactory connectorFactory,
             ILog log)
         {
+            _synchronizationContextFactory = synchronizationContextFactory;
             _connectorFactory = connectorFactory;
             _log = log;
         }
 
         public Task Connect(DuplicatContext duplicatContext)
         {
+            _synchronizationContext = _synchronizationContext ?? _synchronizationContextFactory.Invoke();
             _areCopiersActive = false;
             return Task.WhenAll(ConnectMtAccounts(duplicatContext), ConenctCtAccounts(duplicatContext));
         }
@@ -67,6 +75,7 @@ namespace QvaDev.Orchestration
                         Password = account.Password,
                         Srv = account.MetaTraderPlatform.SrvFilePath
                     });
+                    account.RaisePropertyChanged(_synchronizationContext, nameof(account.IsConnected));
                 }, TaskCreationOptions.LongRunning));
 
             return Task.WhenAll(tasks);
@@ -93,11 +102,13 @@ namespace QvaDev.Orchestration
                         });
                         account.Connector = connector;
                     }
+                    
                     account.IsConnected = connector.Connect(new AccountInfo()
                     {
                         Description = account.Description,
                         AccountNumber = account.AccountNumber
                     });
+                    account.RaisePropertyChanged(_synchronizationContext, nameof(account.IsConnected));
 
                     if (!account.IsConnected) return;
 
@@ -126,6 +137,7 @@ namespace QvaDev.Orchestration
                     if (!account.IsConnected) return;
                     account.Connector.Disconnect();
                     account.IsConnected = false;
+                    account.RaisePropertyChanged(_synchronizationContext, nameof(account.IsConnected));
                 }, TaskCreationOptions.LongRunning));
 
             return Task.WhenAll(tasks);
@@ -139,6 +151,7 @@ namespace QvaDev.Orchestration
                     if (!account.IsConnected) return;
                     account.Connector.Disconnect();
                     account.IsConnected = false;
+                    account.RaisePropertyChanged(_synchronizationContext, nameof(account.IsConnected));
                 }, TaskCreationOptions.LongRunning));
 
             return Task.WhenAll(tasks);

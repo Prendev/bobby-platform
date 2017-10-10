@@ -49,7 +49,7 @@
             this.groupBox8 = new System.Windows.Forms.GroupBox();
             this.groupBox9 = new System.Windows.Forms.GroupBox();
             this.tlpMain = new System.Windows.Forms.TableLayoutPanel();
-            this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.groupBoxMainControl = new System.Windows.Forms.GroupBox();
             this.buttonLoadCopier = new System.Windows.Forms.Button();
             this.buttonLoadProfile = new System.Windows.Forms.Button();
             this.radioButtonDisconnect = new System.Windows.Forms.RadioButton();
@@ -87,7 +87,7 @@
             this.groupBox8.SuspendLayout();
             this.groupBox9.SuspendLayout();
             this.tlpMain.SuspendLayout();
-            this.groupBox3.SuspendLayout();
+            this.groupBoxMainControl.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvProfiles)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvGroups)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvMtAccounts)).BeginInit();
@@ -352,7 +352,7 @@
             this.tlpMain.ColumnCount = 1;
             this.tlpMain.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tlpMain.Controls.Add(this.tabControl1, 0, 1);
-            this.tlpMain.Controls.Add(this.groupBox3, 0, 0);
+            this.tlpMain.Controls.Add(this.groupBoxMainControl, 0, 0);
             this.tlpMain.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tlpMain.Location = new System.Drawing.Point(0, 0);
             this.tlpMain.Name = "tlpMain";
@@ -362,21 +362,21 @@
             this.tlpMain.Size = new System.Drawing.Size(1052, 565);
             this.tlpMain.TabIndex = 1;
             // 
-            // groupBox3
+            // groupBoxMainControl
             // 
-            this.groupBox3.Controls.Add(this.buttonLoadCopier);
-            this.groupBox3.Controls.Add(this.buttonLoadProfile);
-            this.groupBox3.Controls.Add(this.radioButtonDisconnect);
-            this.groupBox3.Controls.Add(this.radioButtonConnect);
-            this.groupBox3.Controls.Add(this.buttonSave);
-            this.groupBox3.Controls.Add(this.radioButtonCopy);
-            this.groupBox3.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.groupBox3.Location = new System.Drawing.Point(3, 3);
-            this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(1046, 46);
-            this.groupBox3.TabIndex = 1;
-            this.groupBox3.TabStop = false;
-            this.groupBox3.Text = "Main control panel";
+            this.groupBoxMainControl.Controls.Add(this.buttonLoadCopier);
+            this.groupBoxMainControl.Controls.Add(this.buttonLoadProfile);
+            this.groupBoxMainControl.Controls.Add(this.radioButtonDisconnect);
+            this.groupBoxMainControl.Controls.Add(this.radioButtonConnect);
+            this.groupBoxMainControl.Controls.Add(this.buttonSave);
+            this.groupBoxMainControl.Controls.Add(this.radioButtonCopy);
+            this.groupBoxMainControl.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.groupBoxMainControl.Location = new System.Drawing.Point(3, 3);
+            this.groupBoxMainControl.Name = "groupBoxMainControl";
+            this.groupBoxMainControl.Size = new System.Drawing.Size(1046, 46);
+            this.groupBoxMainControl.TabIndex = 1;
+            this.groupBoxMainControl.TabStop = false;
+            this.groupBoxMainControl.Text = "Main control panel";
             // 
             // buttonLoadCopier
             // 
@@ -582,8 +582,8 @@
             this.groupBox8.ResumeLayout(false);
             this.groupBox9.ResumeLayout(false);
             this.tlpMain.ResumeLayout(false);
-            this.groupBox3.ResumeLayout(false);
-            this.groupBox3.PerformLayout();
+            this.groupBoxMainControl.ResumeLayout(false);
+            this.groupBoxMainControl.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvProfiles)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvGroups)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvMtAccounts)).EndInit();
@@ -607,7 +607,7 @@
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.TabPage tabPageCTrader;
         private System.Windows.Forms.TableLayoutPanel tlpMain;
-        private System.Windows.Forms.GroupBox groupBox3;
+        private System.Windows.Forms.GroupBox groupBoxMainControl;
         private System.Windows.Forms.RadioButton radioButtonDisconnect;
         private System.Windows.Forms.RadioButton radioButtonConnect;
         private System.Windows.Forms.Button buttonSave;

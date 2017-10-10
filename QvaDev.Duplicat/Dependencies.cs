@@ -1,9 +1,10 @@
-﻿using Autofac;
+﻿using System;
+using System.Threading;
+using Autofac;
 using log4net;
 using QvaDev.Configuration.Services;
 using QvaDev.CTraderIntegration;
 using QvaDev.CTraderIntegration.Services;
-using QvaDev.Data;
 using QvaDev.Data.Repositories;
 using QvaDev.Orchestration;
 
@@ -31,6 +32,7 @@ namespace QvaDev.Duplicat
             builder.RegisterInstance(LogManager.GetLogger(""));
             builder.RegisterType<MainForm>().AsSelf().InstancePerLifetimeScope();
             builder.RegisterType<ViewModel.DuplicatViewModel>().AsSelf().InstancePerLifetimeScope();
+            builder.Register((c, p) => new Func<SynchronizationContext>(() => SynchronizationContext.Current));
         }
 
         private static void RegisterConfiguration(ContainerBuilder builder)

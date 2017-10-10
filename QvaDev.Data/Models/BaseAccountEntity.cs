@@ -10,8 +10,9 @@ namespace QvaDev.Data.Models
         [NotMapped]
         [InvisibleColumn]
         public IConnector Connector { get; set; }
+
         [NotMapped]
         [ReadOnly(true)]
-        public bool IsConnected { get => Get<bool>(); set => Set(value); }
+        public bool IsConnected { get; set; }
     }
 }
