@@ -28,6 +28,7 @@ namespace QvaDev.Mt4Integration
         {
             QuoteClient.OnOrderUpdate -= OnOrderUpdate;
             QuoteClient?.Disconnect();
+            _log.Debug($"{_accountInfo.Description} account ({_accountInfo.User}) disconnected");
         }
 
 
@@ -86,7 +87,7 @@ namespace QvaDev.Mt4Integration
         {
             var quoteClient = new QuoteClient(accountInfo.User, accountInfo.Password, host, port);
 
-            quoteClient.OnDisconnect += (sender, args) => Connect(accountInfo);
+            //quoteClient.OnDisconnect += (sender, args) => Connect(accountInfo);
 
             return quoteClient;
         }

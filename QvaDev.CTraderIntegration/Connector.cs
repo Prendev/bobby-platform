@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using log4net;
 using QvaDev.Common.Integration;
 using QvaDev.CTraderIntegration.Dto;
@@ -41,6 +42,7 @@ namespace QvaDev.CTraderIntegration
         {
             _wrapper.CTraderClient.SendUnsubscribeForTradingEventsRequest(_accountId);
             _accountId = 0;
+            _log.Debug($"{_accountInfo.Description} account ({_accountInfo.AccountNumber}) disconnected");
         }
 
         public bool Connect(AccountInfo accountInfo)
