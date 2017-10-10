@@ -43,7 +43,10 @@ namespace QvaDev.Duplicat.ViewModel
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
-            SynchronizationContext.Post(o => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName)), null);
+            lock (SynchronizationContext)
+            {
+                SynchronizationContext.Post(o => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName)), null);
+            }
         }
     }
 }

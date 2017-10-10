@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
 using log4net;
 using QvaDev.Common.Integration;
 using QvaDev.CTraderIntegration.Dto;
@@ -19,8 +18,9 @@ namespace QvaDev.CTraderIntegration
         private readonly CTraderClientWrapper _wrapper;
         private long _accountId;
         private readonly ITradingAccountsService _tradingAccountsService;
+        private AccountInfo _accountInfo;
 
-        public string Description { get; private set; }
+        public string Description => _accountInfo?.Description;
         public bool IsConnected => _wrapper?.IsConnected == true && _accountId > 0;
         public event OrderEventHandler OnOrder;
 
@@ -45,11 +45,14 @@ namespace QvaDev.CTraderIntegration
 
         public bool Connect(AccountInfo accountInfo)
         {
-            Description = accountInfo.Description;
+            _accountInfo = accountInfo;
+            _accountId = _wrapper.Accounts.Find(a => a.accountNumber == _accountInfo.AccountNumber)?.accountId ?? 0;
 
-            if (!_wrapper.IsConnected) return false;
-            _accountId = _wrapper.Accounts.Find(a => a.accountNumber == accountInfo.AccountNumber)?.accountId ?? 0;
-            if (_accountId == 0) return false;
+            if (!_wrapper.IsConnected || _accountId == 0)
+            {
+                _log.Error($"{_accountInfo.Description} account ({_accountInfo.AccountNumber}) FAILED to connect");
+                return false;
+            }
 
             _wrapper.CTraderClient.SendSubscribeForTradingEventsRequest(_wrapper.Platform.AccessToken, _accountId);
 
@@ -62,6 +65,7 @@ namespace QvaDev.CTraderIntegration
             //_cTraderClient.OnLogin += OnLogin;
             //_cTraderClient.OnTick += OnTick;
 
+            _log.Debug($"{_accountInfo.Description} account ({_accountInfo.AccountNumber}) connected");
             return true;
         }
 
@@ -91,12 +95,15 @@ namespace QvaDev.CTraderIntegration
 
         public List<PositionData> GetPositions()
         {
-            return _tradingAccountsService.GetPositions(new AccountRequest
+            var positions = _tradingAccountsService.GetPositions(new AccountRequest
             {
                 AccessToken = _wrapper.Platform.AccessToken,
                 BaseUrl = _wrapper.Platform.AccountsApi,
                 AccountId = _accountId
             });
+
+            _log.Debug($"{_accountInfo.Description} account ({_accountInfo.AccountNumber}) positions acquired");
+            return positions;
         }
 
         private void OnPosition(ProtoOAPosition position)

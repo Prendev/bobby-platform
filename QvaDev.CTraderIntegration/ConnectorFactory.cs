@@ -34,7 +34,7 @@ namespace QvaDev.CTraderIntegration
             lock (platform.Description)
             {
                 var cTraderClientWrapper = _cTraderClientWrappers.GetOrAdd(platform.Description,
-                    s => new CTraderClientWrapper(platform, _tradingAccountsService));
+                    s => new CTraderClientWrapper(platform, _tradingAccountsService, _log));
 
                 var connector = new Connector(cTraderClientWrapper, _tradingAccountsService, _log);
 

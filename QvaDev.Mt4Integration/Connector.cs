@@ -44,7 +44,7 @@ namespace QvaDev.Mt4Integration
             }
             catch (Exception e)
             {
-                _log.Error($"{_accountInfo.Description} user ({_accountInfo.User}) failed to connect", e);
+                _log.Error($"{_accountInfo.Description} account ({_accountInfo.User}) FAILED to connect", e);
             }
             finally
             {
@@ -53,7 +53,7 @@ namespace QvaDev.Mt4Integration
 
             if (!IsConnected) return IsConnected;
 
-            _log.Debug($"{_accountInfo.Description} user ({_accountInfo.User}) connected");
+            _log.Debug($"{_accountInfo.Description} account ({_accountInfo.User}) connected");
 
             QuoteClient.OnOrderUpdate -= OnOrderUpdate;
             QuoteClient.OnOrderUpdate += OnOrderUpdate;

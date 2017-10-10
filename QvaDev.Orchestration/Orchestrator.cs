@@ -108,9 +108,12 @@ namespace QvaDev.Orchestration
                         Description = account.Description,
                         AccountNumber = account.AccountNumber
                     });
-                    account.RaisePropertyChanged(_synchronizationContext, nameof(account.IsConnected));
 
-                    if (!account.IsConnected) return;
+                    if (!account.IsConnected)
+                    {
+                        account.RaisePropertyChanged(_synchronizationContext, nameof(account.IsConnected));
+                        return;
+                    }
 
                     _ctPositions.GetOrAdd(account.AccountNumber, new ConcurrentDictionary<long, CtPosition>());
                     foreach (var p in connector.GetPositions())
@@ -118,6 +121,7 @@ namespace QvaDev.Orchestration
                         _ctPositions[account.AccountNumber].GetOrAdd(p.positionId,
                             new CtPosition {Volume = p.volume, ClientOrderId = p.GetCliendOrderId()});
                     }
+                    account.RaisePropertyChanged(_synchronizationContext, nameof(account.IsConnected));
                 }, TaskCreationOptions.LongRunning));
 
             return Task.WhenAll(tasks);

@@ -24,7 +24,7 @@ namespace QvaDev.Data.Models
         {
             lock (syncContext)
             {
-                syncContext.Send(o => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName)), null);
+                syncContext.Post(o => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName)), null);
             }
         }
 

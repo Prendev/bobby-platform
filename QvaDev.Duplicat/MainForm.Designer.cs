@@ -66,6 +66,8 @@
             this.dgvSymbolMappings = new QvaDev.Duplicat.CustomDataGridView();
             this.dgvMasters = new QvaDev.Duplicat.CustomDataGridView();
             this.dgvSlaves = new QvaDev.Duplicat.CustomDataGridView();
+            this.tabPageLog = new System.Windows.Forms.TabPage();
+            this.textBoxLog = new System.Windows.Forms.TextBox();
             this.tabControlMain.SuspendLayout();
             this.tabPageProfileAndGroup.SuspendLayout();
             this.tlpProfilesAndGroups.SuspendLayout();
@@ -98,6 +100,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.dgvSymbolMappings)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvMasters)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvSlaves)).BeginInit();
+            this.tabPageLog.SuspendLayout();
             this.SuspendLayout();
             // 
             // tabControlMain
@@ -106,6 +109,7 @@
             this.tabControlMain.Controls.Add(this.tabPageMt4);
             this.tabControlMain.Controls.Add(this.tabPageCTrader);
             this.tabControlMain.Controls.Add(this.tabPageCopier);
+            this.tabControlMain.Controls.Add(this.tabPageLog);
             this.tabControlMain.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tabControlMain.Location = new System.Drawing.Point(3, 55);
             this.tabControlMain.Name = "tabControlMain";
@@ -553,6 +557,28 @@
             this.dgvSlaves.Size = new System.Drawing.Size(336, 301);
             this.dgvSlaves.TabIndex = 0;
             // 
+            // tabPageLog
+            // 
+            this.tabPageLog.Controls.Add(this.textBoxLog);
+            this.tabPageLog.Location = new System.Drawing.Point(4, 22);
+            this.tabPageLog.Name = "tabPageLog";
+            this.tabPageLog.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPageLog.Size = new System.Drawing.Size(1038, 481);
+            this.tabPageLog.TabIndex = 4;
+            this.tabPageLog.Text = "Log";
+            this.tabPageLog.UseVisualStyleBackColor = true;
+            // 
+            // textBoxLog
+            // 
+            this.textBoxLog.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.textBoxLog.Location = new System.Drawing.Point(3, 3);
+            this.textBoxLog.Multiline = true;
+            this.textBoxLog.Name = "textBoxLog";
+            this.textBoxLog.ReadOnly = true;
+            this.textBoxLog.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            this.textBoxLog.Size = new System.Drawing.Size(1032, 475);
+            this.textBoxLog.TabIndex = 0;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -594,6 +620,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.dgvSymbolMappings)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvMasters)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvSlaves)).EndInit();
+            this.tabPageLog.ResumeLayout(false);
+            this.tabPageLog.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -646,6 +674,8 @@
         private System.Windows.Forms.Button buttonShowSelectedSlave;
         private CustomDataGridView dgvCopiers;
         private CustomDataGridView dgvSymbolMappings;
+        private System.Windows.Forms.TabPage tabPageLog;
+        private System.Windows.Forms.TextBox textBoxLog;
     }
 }
 

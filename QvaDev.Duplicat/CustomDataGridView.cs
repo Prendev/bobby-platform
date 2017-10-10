@@ -19,6 +19,7 @@ namespace QvaDev.Duplicat
             MultiSelect = false;
             AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
             DataSourceChanged += CustomDataGridView_DataSourceChanged;
+            RowPrePaint += CustomDataGridView_RowPrePaint;
         }
 
         public void AddComboBoxColumn<T>(ObservableCollection<T> list, string displayMember = "Description") where T : class
@@ -63,6 +64,19 @@ namespace QvaDev.Duplicat
                 row.Visible = !filterableEntity.IsFiltered;
                 currencyManager.ResumeBinding();
             }
+        }
+
+
+        private void CustomDataGridView_RowPrePaint(object sender, DataGridViewRowPrePaintEventArgs e)
+        {
+            var bindingList = DataSource as IBindingList;
+            if (bindingList == null) return;
+            if (bindingList.Count <= e.RowIndex) return;
+
+            var entity = bindingList[e.RowIndex] as BaseAccountEntity;
+            if (entity == null) return;
+
+            Rows[e.RowIndex].DefaultCellStyle.BackColor = entity.IsConnected ? Color.LightGreen : Color.White;
         }
 
         private void CustomDataGridView_DataSourceChanged(object sender, EventArgs e)

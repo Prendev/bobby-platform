@@ -19,6 +19,7 @@ namespace QvaDev.Duplicat
 
             Load += MainForm_Load;
             InitializeComponent();
+            TextBoxAppender.ConfigureTextBoxAppender(textBoxLog);
         }
 
         private void MainForm_Load(object sender, EventArgs e)

@@ -84,11 +84,13 @@ namespace QvaDev.Duplicat.ViewModel
             IsLoading = true;
             IsConfigReadonly = true;
             if (State == States.Disconnect) _orchestrator.Disconnect(_duplicatContext)
-                .ContinueWith(prevTask => { prevTask.Wait(); IsLoading = false; IsConfigReadonly = false; });
+                .ContinueWith(prevTask => { IsLoading = false; IsConfigReadonly = false; });
             else if (State == States.Connect) _orchestrator.Connect(_duplicatContext)
-                .ContinueWith(prevTask => { prevTask.Wait(); IsLoading = false; IsConfigReadonly = true; });
+                .ContinueWith(prevTask => {
+                    IsLoading = false;
+                    IsConfigReadonly = true; });
             else if (State == States.Copy) _orchestrator.StartCopiers(_duplicatContext)
-                .ContinueWith(prevTask => { prevTask.Wait(); IsLoading = false; IsConfigReadonly = true; });
+                .ContinueWith(prevTask => { IsLoading = false; IsConfigReadonly = true; });
         }
 
         private void LoadDataContext()
