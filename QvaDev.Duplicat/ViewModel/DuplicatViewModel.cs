@@ -67,11 +67,11 @@ namespace QvaDev.Duplicat.ViewModel
             ProfileChanged?.Invoke();
         }
 
-        public void LoadCopierCommand(Slave slave)
+        public void ShowSelectedSlaveCommand(Slave slave)
         {
             SelectedSlaveId = slave?.Id ?? 0;
-            LoadDataContext();
-            ProfileChanged?.Invoke();
+            foreach (var e in SymbolMappings) e.IsFiltered = e.SlaveId != SelectedSlaveId;
+            foreach (var e in Copiers) e.IsFiltered = e.SlaveId != SelectedSlaveId;
         }
 
         private void DuplicatViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -119,8 +119,8 @@ namespace QvaDev.Duplicat.ViewModel
             SymbolMappings = _duplicatContext.SymbolMappings.Local;
             Copiers = _duplicatContext.Copiers.Local;
 
-            foreach (var sm in SymbolMappings.Where(e => e.SlaveId != SelectedSlaveId)) sm.IsFiltered = true;
-            foreach (var c in Copiers.Where(e => e.SlaveId != SelectedSlaveId)) c.IsFiltered = true;
+            foreach (var e in SymbolMappings) e.IsFiltered = e.SlaveId != SelectedSlaveId;
+            foreach (var e in Copiers) e.IsFiltered = e.SlaveId != SelectedSlaveId;
         }
     }
 }

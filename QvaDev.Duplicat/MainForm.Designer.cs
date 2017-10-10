@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.tabControl1 = new System.Windows.Forms.TabControl();
+            this.tabControlMain = new System.Windows.Forms.TabControl();
             this.tabPageProfileAndGroup = new System.Windows.Forms.TabPage();
             this.tlpProfilesAndGroups = new System.Windows.Forms.TableLayoutPanel();
             this.groupBox6 = new System.Windows.Forms.GroupBox();
@@ -50,7 +50,7 @@
             this.groupBox9 = new System.Windows.Forms.GroupBox();
             this.tlpMain = new System.Windows.Forms.TableLayoutPanel();
             this.groupBoxMainControl = new System.Windows.Forms.GroupBox();
-            this.buttonLoadCopier = new System.Windows.Forms.Button();
+            this.buttonShowSelectedSlave = new System.Windows.Forms.Button();
             this.buttonLoadProfile = new System.Windows.Forms.Button();
             this.radioButtonDisconnect = new System.Windows.Forms.RadioButton();
             this.radioButtonConnect = new System.Windows.Forms.RadioButton();
@@ -66,7 +66,7 @@
             this.dgvSymbolMappings = new QvaDev.Duplicat.CustomDataGridView();
             this.dgvMasters = new QvaDev.Duplicat.CustomDataGridView();
             this.dgvSlaves = new QvaDev.Duplicat.CustomDataGridView();
-            this.tabControl1.SuspendLayout();
+            this.tabControlMain.SuspendLayout();
             this.tabPageProfileAndGroup.SuspendLayout();
             this.tlpProfilesAndGroups.SuspendLayout();
             this.groupBox6.SuspendLayout();
@@ -100,18 +100,18 @@
             ((System.ComponentModel.ISupportInitialize)(this.dgvSlaves)).BeginInit();
             this.SuspendLayout();
             // 
-            // tabControl1
+            // tabControlMain
             // 
-            this.tabControl1.Controls.Add(this.tabPageProfileAndGroup);
-            this.tabControl1.Controls.Add(this.tabPageMt4);
-            this.tabControl1.Controls.Add(this.tabPageCTrader);
-            this.tabControl1.Controls.Add(this.tabPageCopier);
-            this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tabControl1.Location = new System.Drawing.Point(3, 55);
-            this.tabControl1.Name = "tabControl1";
-            this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(1046, 507);
-            this.tabControl1.TabIndex = 0;
+            this.tabControlMain.Controls.Add(this.tabPageProfileAndGroup);
+            this.tabControlMain.Controls.Add(this.tabPageMt4);
+            this.tabControlMain.Controls.Add(this.tabPageCTrader);
+            this.tabControlMain.Controls.Add(this.tabPageCopier);
+            this.tabControlMain.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tabControlMain.Location = new System.Drawing.Point(3, 55);
+            this.tabControlMain.Name = "tabControlMain";
+            this.tabControlMain.SelectedIndex = 0;
+            this.tabControlMain.Size = new System.Drawing.Size(1046, 507);
+            this.tabControlMain.TabIndex = 0;
             // 
             // tabPageProfileAndGroup
             // 
@@ -351,7 +351,7 @@
             // 
             this.tlpMain.ColumnCount = 1;
             this.tlpMain.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tlpMain.Controls.Add(this.tabControl1, 0, 1);
+            this.tlpMain.Controls.Add(this.tabControlMain, 0, 1);
             this.tlpMain.Controls.Add(this.groupBoxMainControl, 0, 0);
             this.tlpMain.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tlpMain.Location = new System.Drawing.Point(0, 0);
@@ -364,7 +364,7 @@
             // 
             // groupBoxMainControl
             // 
-            this.groupBoxMainControl.Controls.Add(this.buttonLoadCopier);
+            this.groupBoxMainControl.Controls.Add(this.buttonShowSelectedSlave);
             this.groupBoxMainControl.Controls.Add(this.buttonLoadProfile);
             this.groupBoxMainControl.Controls.Add(this.radioButtonDisconnect);
             this.groupBoxMainControl.Controls.Add(this.radioButtonConnect);
@@ -378,14 +378,14 @@
             this.groupBoxMainControl.TabStop = false;
             this.groupBoxMainControl.Text = "Main control panel";
             // 
-            // buttonLoadCopier
+            // buttonShowSelectedSlave
             // 
-            this.buttonLoadCopier.Location = new System.Drawing.Point(162, 19);
-            this.buttonLoadCopier.Name = "buttonLoadCopier";
-            this.buttonLoadCopier.Size = new System.Drawing.Size(150, 23);
-            this.buttonLoadCopier.TabIndex = 15;
-            this.buttonLoadCopier.Text = "Load copiers";
-            this.buttonLoadCopier.UseVisualStyleBackColor = true;
+            this.buttonShowSelectedSlave.Location = new System.Drawing.Point(162, 19);
+            this.buttonShowSelectedSlave.Name = "buttonShowSelectedSlave";
+            this.buttonShowSelectedSlave.Size = new System.Drawing.Size(150, 23);
+            this.buttonShowSelectedSlave.TabIndex = 15;
+            this.buttonShowSelectedSlave.Text = "Show selected slave";
+            this.buttonShowSelectedSlave.UseVisualStyleBackColor = true;
             // 
             // buttonLoadProfile
             // 
@@ -561,7 +561,7 @@
             this.Controls.Add(this.tlpMain);
             this.Name = "MainForm";
             this.Text = "QvaDev.Duplicat";
-            this.tabControl1.ResumeLayout(false);
+            this.tabControlMain.ResumeLayout(false);
             this.tabPageProfileAndGroup.ResumeLayout(false);
             this.tlpProfilesAndGroups.ResumeLayout(false);
             this.groupBox6.ResumeLayout(false);
@@ -600,7 +600,7 @@
 
         #endregion
 
-        private System.Windows.Forms.TabControl tabControl1;
+        private System.Windows.Forms.TabControl tabControlMain;
         private System.Windows.Forms.TabPage tabPageCopier;
         private System.Windows.Forms.TabPage tabPageMt4;
         private System.Windows.Forms.TableLayoutPanel tlpMt;
@@ -643,7 +643,7 @@
         private System.Windows.Forms.GroupBox groupBox10;
         private System.Windows.Forms.GroupBox groupBox11;
         private System.Windows.Forms.TableLayoutPanel tlpCopierTop;
-        private System.Windows.Forms.Button buttonLoadCopier;
+        private System.Windows.Forms.Button buttonShowSelectedSlave;
         private CustomDataGridView dgvCopiers;
         private CustomDataGridView dgvSymbolMappings;
     }

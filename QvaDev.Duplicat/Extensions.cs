@@ -4,9 +4,9 @@ namespace QvaDev.Duplicat
 {
     public static class Extensions
     {
-        public static SyncBindingSource<T> ToDataSource<T>(this ObservableCollection<T> list)
-        {
-            return new SyncBindingSource<T>(list);
-        }
+        //public static SyncBindingSource<T> ToDataSource<T>(this ObservableCollection<T> list)
+        //{
+        //    return new SyncBindingSource<T>(list);
+        //}
     }
 }

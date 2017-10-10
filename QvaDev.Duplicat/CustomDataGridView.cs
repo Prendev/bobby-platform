@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Data.Entity;
+using System.Drawing;
 using System.Windows.Forms;
 using QvaDev.Common.Attributes;
 using QvaDev.Data.Models;
@@ -18,25 +19,7 @@ namespace QvaDev.Duplicat
             MultiSelect = false;
             AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
             DataSourceChanged += CustomDataGridView_DataSourceChanged;
-
-            RowPrePaint += CustomDataGridView_RowPrePaint;
         }
-
-
-        private void CustomDataGridView_RowPrePaint(object sender, DataGridViewRowPrePaintEventArgs e)
-        {
-            var bindingList = DataSource as IBindingList;
-            if (bindingList == null) return;
-            if (bindingList.Count <= e.RowIndex) return;
-
-            var entity = bindingList[e.RowIndex] as IFilterableEntity;
-            if (entity == null) return;
-
-            var currencyManager = (CurrencyManager)BindingContext[DataSource];
-            currencyManager.SuspendBinding();
-            CurrentCell = null;
-            Rows[e.RowIndex].Visible = !entity.IsFiltered;
-        } 
 
         public void AddComboBoxColumn<T>(ObservableCollection<T> list, string displayMember = "Description") where T : class
         {
@@ -47,7 +30,7 @@ namespace QvaDev.Duplicat
             if (!Columns.Contains($"{name}*"))
                 Columns.Add(new DataGridViewComboBoxColumn()
                 {
-                    DataSource = list.ToDataSource(),
+                    DataSource = list.ToBindingList(),
                     Name = $"{name}*",
                     DataPropertyName = $"{name}Id",
                     DisplayMember = displayMember,
@@ -55,12 +38,31 @@ namespace QvaDev.Duplicat
                     HeaderText = $"{name}*"
                 });
             else if (Columns[$"{name}*"] is DataGridViewComboBoxColumn)
-                ((DataGridViewComboBoxColumn)Columns[$"{name}*"]).DataSource = list.ToDataSource();
+                ((DataGridViewComboBoxColumn)Columns[$"{name}*"]).DataSource = list.ToBindingList();
         }
 
         public T GetSelectedItem<T>() where T : class
         {
             return CurrentRow?.DataBoundItem as T;
+        }
+
+        public void FilterRows()
+        {
+            var bindingList = DataSource as IBindingList;
+            if (bindingList == null) return;
+            foreach (DataGridViewRow row in Rows)
+            {
+                var filterableEntity = row.DataBoundItem as IFilterableEntity;
+                if (filterableEntity == null) continue;
+
+                row.ReadOnly = filterableEntity.IsFiltered;
+                row.DefaultCellStyle.BackColor = filterableEntity.IsFiltered ? Color.LightGray : Color.White;
+
+                var currencyManager = (CurrencyManager)BindingContext[DataSource];
+                currencyManager.SuspendBinding();
+                row.Visible = !filterableEntity.IsFiltered;
+                currencyManager.ResumeBinding();
+            }
         }
 
         private void CustomDataGridView_DataSourceChanged(object sender, EventArgs e)
@@ -82,6 +84,7 @@ namespace QvaDev.Duplicat
                 if (!Columns.Contains(name)) continue;
                 Columns[name].Visible = false;
             }
+            FilterRows();
         }
     }
 }

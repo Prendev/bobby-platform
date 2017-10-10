@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data.Entity;
 using System.Threading;
 using System.Windows.Forms;
 using QvaDev.Data.Models;
@@ -46,7 +47,7 @@ namespace QvaDev.Duplicat
 
             inverseBinding = new Binding("Enabled", _viewModel, "IsConfigReadonly");
             inverseBinding.Format += (s, e) => e.Value = !(bool)e.Value;
-            buttonLoadCopier.DataBindings.Add(inverseBinding);
+            buttonShowSelectedSlave.DataBindings.Add(inverseBinding);
 
             inverseBinding = new Binding("Enabled", _viewModel, "IsLoading");
             inverseBinding.Format += (s, e) => e.Value = !(bool)e.Value;
@@ -63,7 +64,18 @@ namespace QvaDev.Duplicat
 
             buttonSave.Click += (s, e) => { _viewModel.SaveCommand(); };
             buttonLoadProfile.Click += (s, e) => { _viewModel.LoadProfileCommand(dgvProfiles.GetSelectedItem<Profile>()); };
-            buttonLoadCopier.Click += (s, e) => { _viewModel.LoadCopierCommand(dgvSlaves.GetSelectedItem<Slave>()); };
+            buttonShowSelectedSlave.Click += (s, e) =>
+            {
+                _viewModel.ShowSelectedSlaveCommand(dgvSlaves.GetSelectedItem<Slave>());
+                dgvCopiers.FilterRows();
+                dgvSymbolMappings.FilterRows();
+            };
+            tabControlMain.SelectedIndexChanged += (s, e) =>
+            {
+                if (tabControlMain.SelectedTab.Name != tabPageCopier.Name) return;
+                dgvCopiers.FilterRows();
+                dgvSymbolMappings.FilterRows();
+            };
 
             dgvMtPlatforms.DataError += DataGridView_DataError;
             dgvMtAccounts.DataError += DataGridView_DataError;
@@ -100,20 +112,20 @@ namespace QvaDev.Duplicat
             dgvSlaves.AddComboBoxColumn(_viewModel.Masters);
             dgvSlaves.AddComboBoxColumn(_viewModel.CtAccounts);
 
-            dgvMtPlatforms.DataSource = _viewModel.MtPlatforms.ToDataSource();
-            dgvMtAccounts.DataSource = _viewModel.MtAccounts.ToDataSource();
-            dgvCtPlatforms.DataSource = _viewModel.CtPlatforms.ToDataSource();
-            dgvCtAccounts.DataSource = _viewModel.CtAccounts.ToDataSource();
-            dgvProfiles.DataSource = _viewModel.Profiles.ToDataSource();
-            dgvGroups.DataSource = _viewModel.Groups.ToDataSource();
-            dgvMasters.DataSource = _viewModel.Masters.ToDataSource();
-            dgvSlaves.DataSource = _viewModel.Slaves.ToDataSource();
+            dgvMtPlatforms.DataSource = _viewModel.MtPlatforms.ToBindingList();
+            dgvMtAccounts.DataSource = _viewModel.MtAccounts.ToBindingList();
+            dgvCtPlatforms.DataSource = _viewModel.CtPlatforms.ToBindingList();
+            dgvCtAccounts.DataSource = _viewModel.CtAccounts.ToBindingList();
+            dgvProfiles.DataSource = _viewModel.Profiles.ToBindingList();
+            dgvGroups.DataSource = _viewModel.Groups.ToBindingList();
+            dgvMasters.DataSource = _viewModel.Masters.ToBindingList();
+            dgvSlaves.DataSource = _viewModel.Slaves.ToBindingList();
 
-            dgvSymbolMappings.DataSource = _viewModel.SymbolMappings.ToDataSource();
+            dgvSymbolMappings.DataSource = _viewModel.SymbolMappings.ToBindingList();
             dgvSymbolMappings.Columns["SlaveId"].Visible = false;
             dgvSymbolMappings.Columns["Slave"].Visible = false;
 
-            dgvCopiers.DataSource = _viewModel.Copiers.ToDataSource();
+            dgvCopiers.DataSource = _viewModel.Copiers.ToBindingList();
             dgvCopiers.Columns["SlaveId"].Visible = false;
             dgvCopiers.Columns["Slave"].Visible = false;
         }
