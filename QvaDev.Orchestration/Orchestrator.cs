@@ -173,7 +173,8 @@ namespace QvaDev.Orchestration
                 master.MetaTraderAccount.Connector.OnOrder += MasterOnOrderUpdate;
             }
 
-            _areCopiersActive = true; ;
+            _areCopiersActive = true;
+            _log.Info($"Copiers are started");
         }
 
         private void MasterOnOrderUpdate(object sender, OrderEventArgs e)
@@ -186,7 +187,7 @@ namespace QvaDev.Orchestration
                     _log.Info($"Master {e.Side:F} signal on {e.Symbol} with open time: {e.OpenTime:o}");
 
                     //var account = _config.MasterAccounts.First(a => a.Description == masterConnector.AccountInfo.Description);
-                    var masters = _duplicatContext.Masters.Where(m => m.MetaTraderAccount.Description == e.AccountDescription);
+                    var masters = _duplicatContext.Masters.Local.Where(m => m.MetaTraderAccount.Description == e.AccountDescription);
                     var type = e.Side == OrderEventArgs.Sides.Buy ? ProtoTradeSide.BUY : ProtoTradeSide.SELL;
 
                     foreach (var master in masters)

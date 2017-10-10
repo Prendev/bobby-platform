@@ -46,10 +46,6 @@ namespace QvaDev.Duplicat
             inverseBinding.Format += (s, e) => e.Value = !(bool)e.Value;
             buttonLoadProfile.DataBindings.Add(inverseBinding);
 
-            inverseBinding = new Binding("Enabled", _viewModel, "IsConfigReadonly");
-            inverseBinding.Format += (s, e) => e.Value = !(bool)e.Value;
-            buttonShowSelectedSlave.DataBindings.Add(inverseBinding);
-
             inverseBinding = new Binding("Enabled", _viewModel, "IsLoading");
             inverseBinding.Format += (s, e) => e.Value = !(bool)e.Value;
             groupBoxMainControl.DataBindings.Add(inverseBinding);

@@ -103,12 +103,11 @@ namespace QvaDev.Duplicat.ViewModel
             _duplicatContext.MetaTraderAccounts.Load();
             _duplicatContext.CTraderAccounts.Load();
             _duplicatContext.Profiles.Load();
-            _duplicatContext.Groups.Where(e => e.ProfileId == SelectedProfileId)
-                .Include(e => e.Masters).Load();
-            _duplicatContext.Masters.Where(e => e.Group.ProfileId == SelectedProfileId)
-                .Include(e => e.Slaves).Load();
-            _duplicatContext.Slaves.Where(e => e.Master.Group.ProfileId == SelectedProfileId)
-                .Include(e => e.Copiers).Include(e => e.SymbolMappings).Load();
+            _duplicatContext.Groups.Where(e => e.ProfileId == SelectedProfileId).Load();
+            _duplicatContext.Masters.Where(e => e.Group.ProfileId == SelectedProfileId).Load();
+            _duplicatContext.Slaves.Where(e => e.Master.Group.ProfileId == SelectedProfileId).Load();
+            _duplicatContext.Copiers.Where(e => e.Slave.Master.Group.ProfileId == SelectedProfileId).Load();
+            _duplicatContext.SymbolMappings.Where(e => e.Slave.Master.Group.ProfileId == SelectedProfileId).Load();
 
             MtPlatforms = _duplicatContext.MetaTraderPlatforms.Local;
             CtPlatforms = _duplicatContext.CTraderPlatforms.Local;
