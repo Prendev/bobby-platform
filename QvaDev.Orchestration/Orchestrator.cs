@@ -171,7 +171,7 @@ namespace QvaDev.Orchestration
                         var slaveConnector = (CtConnector) slave.CTraderAccount.Connector;
                         var symbol = slave.SymbolMappings?.Any(m => m.From == e.Symbol) == true
                             ? slave.SymbolMappings.First(m => m.From == e.Symbol).To
-                            : e.Symbol + slave.SymbolSuffix;
+                            : e.Symbol + (slave.SymbolSuffix ?? "");
                         foreach (var copier in slave.Copiers)
                         {
                             var volume = (long) (100 * e.Volume * copier.CopyRatio);

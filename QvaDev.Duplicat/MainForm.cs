@@ -86,7 +86,14 @@ namespace QvaDev.Duplicat
             dgvCopiers.DataError += DataGridView_DataError;
 
             dgvSymbolMappings.DefaultValuesNeeded += (s, e) => { e.Row.Cells["SlaveId"].Value = _viewModel.SelectedSlaveId; };
-            dgvCopiers.DefaultValuesNeeded += (s, e) => { e.Row.Cells["SlaveId"].Value = _viewModel.SelectedSlaveId; };
+            dgvCopiers.DefaultValuesNeeded += (s, e) =>
+            {
+                e.Row.Cells["SlaveId"].Value = _viewModel.SelectedSlaveId;
+                e.Row.Cells["UseMarketRangeOrder"].Value = true;
+                e.Row.Cells["SlippageInPips"].Value = 1;
+                e.Row.Cells["MaxRetryCount"].Value = 5;
+                e.Row.Cells["RetryPeriodInMilliseconds"].Value = 3000;
+            };
 
             _viewModel.ProfileChanged += AttachDataSources;
 
