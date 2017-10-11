@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -7,7 +6,7 @@ using log4net;
 using QvaDev.Common.Integration;
 using QvaDev.CTraderIntegration;
 using QvaDev.Data;
-using CtConnector = QvaDev.CTraderIntegration.Connector;
+using CtConnector = QvaDev.CTraderIntegration.ConnectorRetryDecorator;
 using MtConnector = QvaDev.Mt4Integration.Connector;
 
 namespace QvaDev.Orchestration
@@ -21,12 +20,6 @@ namespace QvaDev.Orchestration
 
     public class Orchestrator : IOrchestrator
     {
-        private class CtPosition
-        {
-            public long Volume { get; set; }
-            public string ClientOrderId { get; set; }
-        }
-
         private SynchronizationContext _synchronizationContext;
         private readonly Func<SynchronizationContext> _synchronizationContextFactory;
         private readonly ILog _log;
@@ -34,10 +27,6 @@ namespace QvaDev.Orchestration
 
         private DuplicatContext _duplicatContext;
         private bool _areCopiersActive;
-        private readonly ConcurrentDictionary<long, ConcurrentDictionary<long, CtPosition>> _ctPositions =
-            new ConcurrentDictionary<long, ConcurrentDictionary<long, CtPosition>>();
-
-
 
         public Orchestrator(
             Func<SynchronizationContext> synchronizationContextFactory,
@@ -76,7 +65,7 @@ namespace QvaDev.Orchestration
                         Srv = account.MetaTraderPlatform.SrvFilePath
                     });
                     account.RaisePropertyChanged(_synchronizationContext, nameof(account.IsConnected));
-                }, TaskCreationOptions.LongRunning));
+                }));
 
             return Task.WhenAll(tasks);
         }
@@ -90,7 +79,7 @@ namespace QvaDev.Orchestration
                     var connector = account.Connector as CtConnector;
                     if (connector == null)
                     {
-                        connector = _connectorFactory.Create(new Common.Configuration.CTraderPlatform()
+                        connector = (CtConnector)_connectorFactory.Create(new Common.Configuration.CTraderPlatform()
                         {
                             Description = account.CTraderPlatform.Description,
                             AccessToken = account.CTraderPlatform.AccessToken,
@@ -102,27 +91,13 @@ namespace QvaDev.Orchestration
                         });
                         account.Connector = connector;
                     }
-                    
                     account.IsConnected = connector.Connect(new AccountInfo()
                     {
                         Description = account.Description,
                         AccountNumber = account.AccountNumber
                     });
-
-                    if (!account.IsConnected)
-                    {
-                        account.RaisePropertyChanged(_synchronizationContext, nameof(account.IsConnected));
-                        return;
-                    }
-
-                    _ctPositions.GetOrAdd(account.AccountNumber, new ConcurrentDictionary<long, CtPosition>());
-                    foreach (var p in connector.GetPositions())
-                    {
-                        _ctPositions[account.AccountNumber].GetOrAdd(p.positionId,
-                            new CtPosition {Volume = p.volume, ClientOrderId = p.GetCliendOrderId()});
-                    }
                     account.RaisePropertyChanged(_synchronizationContext, nameof(account.IsConnected));
-                }, TaskCreationOptions.LongRunning));
+                }));
 
             return Task.WhenAll(tasks);
         }
@@ -142,7 +117,7 @@ namespace QvaDev.Orchestration
                     account.Connector.Disconnect();
                     account.IsConnected = false;
                     account.RaisePropertyChanged(_synchronizationContext, nameof(account.IsConnected));
-                }, TaskCreationOptions.LongRunning));
+                }));
 
             return Task.WhenAll(tasks);
         }
@@ -156,7 +131,7 @@ namespace QvaDev.Orchestration
                     account.Connector.Disconnect();
                     account.IsConnected = false;
                     account.RaisePropertyChanged(_synchronizationContext, nameof(account.IsConnected));
-                }, TaskCreationOptions.LongRunning));
+                }));
 
             return Task.WhenAll(tasks);
         }
@@ -200,22 +175,14 @@ namespace QvaDev.Orchestration
                         foreach (var copier in slave.Copiers)
                         {
                             if (e.Action == OrderEventArgs.Actions.Open)
-                            {
-                                var volume = 100 * e.Volume * copier.CopyRatio;
-                                slaveConnector.SendMarketRangeOrderRequest(symbol, type, (long) volume, e.OperPrice, copier.SlippageInPips ?? 0, e.Ticket.ToString());
-                            }
+                                //slaveConnector.SendMarketRangeOrderRequest(symbol, type, (long) volume, e.OperPrice, copier.SlippageInPips ?? 0, e.Ticket.ToString());
+                                slaveConnector.SendMarketOrderRequest(symbol, type, (long) (100 * e.Volume * copier.CopyRatio), $"{slave.Id}-{e.Ticket}");
                             else if (e.Action == OrderEventArgs.Actions.Close)
-                            {
-                                //foreach (var pos in _cTraderPositions[slave]
-                                //    .Where(p => p.Value.ClientOrderId == e.Order.Ticket.ToString()))
-                                //{
-                                //    slaveConnector.SendClosePositionRequest(pos.Key, Math.Abs(pos.Value.Volume));
-                                //}
-                            }
+                                slaveConnector.SendClosePositionRequests($"{slave.Id}-{e.Ticket}");
                         }
                     }
                 }
-            }, TaskCreationOptions.LongRunning);
+            });
         }
     }
 }

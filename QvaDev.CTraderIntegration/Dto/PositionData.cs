@@ -21,12 +21,5 @@
         public string comment { get; set; }
         public string channel { get; set; }
         public string label { get; set; }
-
-        public string GetCliendOrderId()
-        {
-            if (string.IsNullOrWhiteSpace(comment)) return null;
-            if (comment.Split('|').Length != 2) return null;
-            return comment.Split('|')[1];
-        }
     }
 }

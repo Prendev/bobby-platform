@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace QvaDev.CTraderIntegration.Model
+﻿namespace QvaDev.CTraderIntegration.Model
 {
     public class MarketOrder : RetryOrder
     {
@@ -9,5 +7,6 @@ namespace QvaDev.CTraderIntegration.Model
         public string Comment { get; set; }
         public double Price { get; set; }
         public int SlippageInPips { get; set; }
+        public long Volume { get; set; }
     }
 }

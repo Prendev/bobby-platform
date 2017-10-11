@@ -9,7 +9,6 @@ namespace QvaDev.CTraderIntegration.Model
             Time = DateTime.UtcNow;
         }
 
-        public long Volume { get; set; }
         public DateTime Time { get; }
         public int RetryCount { get; set; }
     }
