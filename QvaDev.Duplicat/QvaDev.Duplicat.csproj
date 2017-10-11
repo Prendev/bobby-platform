@@ -112,10 +112,6 @@
       <Project>{10A3EF89-12BB-4D00-9950-36BFED281B91}</Project>
       <Name>QvaDev.Common</Name>
     </ProjectReference>
-    <ProjectReference Include="..\QvaDev.Configuration\QvaDev.Configuration.csproj">
-      <Project>{C852E53A-2691-405F-B64D-B7A97BFEC79E}</Project>
-      <Name>QvaDev.Configuration</Name>
-    </ProjectReference>
     <ProjectReference Include="..\QvaDev.CTraderIntegration\QvaDev.CTraderIntegration.csproj">
       <Project>{5B92788F-AF48-4709-A539-BBA2822A06B7}</Project>
       <Name>QvaDev.CTraderIntegration</Name>

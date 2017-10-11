@@ -170,10 +170,14 @@ namespace QvaDev.Data
             SymbolMappings.Add(new SymbolMapping { Slave = slave, From = "XAUUSD.ex", To = "XAUUSD" });
             SymbolMappings.Add(new SymbolMapping { Slave = slave, From = "EURUSD+", To = "EURUSD" });
 
-            Copiers.Add(new Copier { Slave = Slaves.First(x => x.Id == 1), CopyRatio = 1, SlippageInPips = 30 });
-            Copiers.Add(new Copier { Slave = Slaves.First(x => x.Id == 2), CopyRatio = 1, SlippageInPips = 30 });
-            Copiers.Add(new Copier { Slave = Slaves.First(x => x.Id == 3), CopyRatio = 1, SlippageInPips = 30 });
-            Copiers.Add(new Copier { Slave = Slaves.First(x => x.Id == 4), CopyRatio = 1, SlippageInPips = 30 });
+            Copiers.Add(new Copier { Slave = Slaves.First(x => x.Id == 1), CopyRatio = 1, UseMarketRangeOrder = true,
+                SlippageInPips = 30, MaxRetryCount = 5, RetryPeriodInMilliseconds = 3000 });
+            Copiers.Add(new Copier { Slave = Slaves.First(x => x.Id == 2), CopyRatio = 1, UseMarketRangeOrder = true,
+                SlippageInPips = 30, MaxRetryCount = 5, RetryPeriodInMilliseconds = 3000 });
+            Copiers.Add(new Copier { Slave = Slaves.First(x => x.Id == 3), CopyRatio = 1, UseMarketRangeOrder = true,
+                SlippageInPips = 30, MaxRetryCount = 5, RetryPeriodInMilliseconds = 3000 });
+            Copiers.Add(new Copier { Slave = Slaves.First(x => x.Id == 4), CopyRatio = 1, UseMarketRangeOrder = true,
+                SlippageInPips = 30, MaxRetryCount = 5, RetryPeriodInMilliseconds = 3000 });
 
             SaveChanges();
         }

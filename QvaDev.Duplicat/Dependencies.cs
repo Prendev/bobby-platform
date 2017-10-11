@@ -2,7 +2,6 @@
 using System.Threading;
 using Autofac;
 using log4net;
-using QvaDev.Configuration.Services;
 using QvaDev.CTraderIntegration;
 using QvaDev.CTraderIntegration.Services;
 using QvaDev.Data.Repositories;
@@ -22,7 +21,6 @@ namespace QvaDev.Duplicat
         private static void Register(ContainerBuilder builder)
         {
             RegisterApp(builder);
-            RegisterConfiguration(builder);
             RegisterData(builder);
             RegisterOrchestration(builder);
         }
@@ -33,16 +31,6 @@ namespace QvaDev.Duplicat
             builder.RegisterType<MainForm>().AsSelf().InstancePerLifetimeScope();
             builder.RegisterType<ViewModel.DuplicatViewModel>().AsSelf().InstancePerLifetimeScope();
             builder.Register((c, p) => new Func<SynchronizationContext>(() => SynchronizationContext.Current));
-        }
-
-        private static void RegisterConfiguration(ContainerBuilder builder)
-        {
-            builder.RegisterType<ConfigService>().As<IConfigService>();
-            builder.Register((c, p) =>
-            {
-                var service = c.Resolve<IConfigService>();
-                return service.Config;
-            }).InstancePerLifetimeScope();
         }
 
         private static void RegisterData(ContainerBuilder builder)

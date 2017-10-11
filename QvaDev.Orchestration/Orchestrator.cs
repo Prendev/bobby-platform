@@ -159,10 +159,10 @@ namespace QvaDev.Orchestration
             {
                 lock (sender)
                 {
-                    _log.Info($"Master {e.Side:F} {e.Action:F} signal on {e.Symbol} with open time: {e.OpenTime:o}");
+                    _log.Info($"Master {e.Action:F} {e.Side:F} signal on {e.Symbol} with open time: {e.OpenTime:o}");
 
-                    //var account = _config.MasterAccounts.First(a => a.Description == masterConnector.AccountInfo.Description);
-                    var masters = _duplicatContext.Masters.Local.Where(m => m.MetaTraderAccount.Description == e.AccountDescription);
+                    var masters = _duplicatContext.Masters.Local
+                        .Where(m => m.MetaTraderAccount.Description == e.AccountDescription);
                     var type = e.Side == OrderEventArgs.Sides.Buy ? ProtoTradeSide.BUY : ProtoTradeSide.SELL;
 
                     foreach (var master in masters)
@@ -174,11 +174,16 @@ namespace QvaDev.Orchestration
                             : e.Symbol + slave.SymbolSuffix;
                         foreach (var copier in slave.Copiers)
                         {
-                            if (e.Action == OrderEventArgs.Actions.Open)
-                                //slaveConnector.SendMarketRangeOrderRequest(symbol, type, (long) volume, e.OperPrice, copier.SlippageInPips ?? 0, e.Ticket.ToString());
-                                slaveConnector.SendMarketOrderRequest(symbol, type, (long) (100 * e.Volume * copier.CopyRatio), $"{slave.Id}-{e.Ticket}");
+                            var volume = (long) (100 * e.Volume * copier.CopyRatio);
+                            if (e.Action == OrderEventArgs.Actions.Open && copier.UseMarketRangeOrder)
+                                slaveConnector.SendMarketRangeOrderRequest(symbol, type, volume, e.OperPrice,
+                                    copier.SlippageInPips, $"{slave.Id}-{e.Ticket}", copier.MaxRetryCount, copier.RetryPeriodInMilliseconds);
+                            else if (e.Action == OrderEventArgs.Actions.Open && !copier.UseMarketRangeOrder)
+                                slaveConnector.SendMarketOrderRequest(symbol, type, volume, $"{slave.Id}-{e.Ticket}",
+                                    copier.MaxRetryCount, copier.RetryPeriodInMilliseconds);
                             else if (e.Action == OrderEventArgs.Actions.Close)
-                                slaveConnector.SendClosePositionRequests($"{slave.Id}-{e.Ticket}");
+                                slaveConnector.SendClosePositionRequests($"{slave.Id}-{e.Ticket}",
+                                    copier.MaxRetryCount, copier.RetryPeriodInMilliseconds);
                         }
                     }
                 }

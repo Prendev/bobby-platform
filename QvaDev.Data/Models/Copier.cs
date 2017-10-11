@@ -14,7 +14,17 @@ namespace QvaDev.Data.Models
         [Required]
         public decimal CopyRatio { get; set; }
 
-        public int? SlippageInPips { get; set; }
+        [Required]
+        public bool UseMarketRangeOrder { get; set; }
+
+        [Required]
+        public int SlippageInPips { get; set; }
+
+        [Required]
+        public int MaxRetryCount { get; set; }
+
+        [Required]
+        public int RetryPeriodInMilliseconds { get; set; }
 
         [NotMapped]
         [InvisibleColumn]

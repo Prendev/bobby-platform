@@ -55,7 +55,6 @@
     <Compile Include="Configuration\InstrumentMapping.cs" />
     <Compile Include="Configuration\CTraderPlatform.cs" />
     <Compile Include="Integration\BaseAccountInfo.cs" />
-    <Compile Include="Integration\ConnectorConfig.cs" />
     <Compile Include="Integration\IConnector.cs" />
     <Compile Include="Integration\OrderEventArgs.cs" />
     <Compile Include="Properties\Annotations.cs" />
