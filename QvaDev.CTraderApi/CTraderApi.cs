@@ -6,6 +6,7 @@ using System.Net.Sockets;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
+using log4net;
 
 namespace QvaDev.CTraderApi
 {
@@ -22,11 +23,13 @@ namespace QvaDev.CTraderApi
 
     public class CTraderClient
     {
-        public  bool ConnectShutdown
+        public bool ConnectShutdown
         {
             get => _connectShutdown;
             set => _connectShutdown = value;
         }
+
+        public static ILog Log { get; set; }
         
         private const uint MsgTimeout = 20;
         static readonly DateTime MsgTimestamp = DateTime.Now.AddSeconds(MsgTimeout);
@@ -58,11 +61,18 @@ namespace QvaDev.CTraderApi
             _connectShutdown = false;
             while (!_connectShutdown)
             {
-                Thread.Sleep(1000);
-
-                if (DateTime.Now > MsgTimestamp)
+                try
                 {
-                    SendPingRequest();
+                    Thread.Sleep(1000);
+
+                    if (DateTime.Now > MsgTimestamp)
+                    {
+                        SendPingRequest();
+                    }
+                }
+                catch (Exception e)
+                {
+                    Log?.Error("Listener throws exception", e);
                 }
             }
         }
@@ -84,33 +94,40 @@ namespace QvaDev.CTraderApi
             var _length = new byte[sizeof(int)];
             while (!_connectShutdown)
             {
-                Thread.Sleep(1);
-
-                int readBytes = 0;
-                do
+                try
                 {
-                    Thread.Sleep(0);
-                    readBytes += sslStream.Read(_length, readBytes, _length.Length - readBytes);
-                } while (readBytes < _length.Length);
+                    Thread.Sleep(1);
 
-                int length = BitConverter.ToInt32(_length.Reverse().ToArray(), 0);
-                if (length <= 0)
-                    continue;
+                    int readBytes = 0;
+                    do
+                    {
+                        Thread.Sleep(1);
+                        readBytes += sslStream.Read(_length, readBytes, _length.Length - readBytes);
+                    } while (readBytes < _length.Length);
 
-                if (length > MaxSiz)
-                    throw new IndexOutOfRangeException();
+                    int length = BitConverter.ToInt32(_length.Reverse().ToArray(), 0);
+                    if (length <= 0)
+                        continue;
 
-                byte[] message = new byte[length];
-                if (_debugConsole) Console.WriteLine("Data received: {0}", GetHexadecimal(_length));
-                readBytes = 0;
-                do
+                    if (length > MaxSiz)
+                        throw new IndexOutOfRangeException();
+
+                    byte[] message = new byte[length];
+                    if (_debugConsole) Log?.Debug($"Data received: {GetHexadecimal(_length)}");
+                    readBytes = 0;
+                    do
+                    {
+                        Thread.Sleep(1);
+                        readBytes += sslStream.Read(message, readBytes, message.Length - readBytes);
+                    } while (readBytes < length);
+                    if (_debugConsole) Log?.Debug($"Data received: {GetHexadecimal(message)}");
+
+                    messagesQueue.Enqueue(message);
+                }
+                catch (Exception e)
                 {
-                    Thread.Sleep(0);
-                    readBytes += sslStream.Read(message, readBytes, message.Length - readBytes);
-                } while (readBytes < length);
-                if (_debugConsole) Console.WriteLine("Data received: {0}", GetHexadecimal(message));
-
-                messagesQueue.Enqueue(message);
+                    Log?.Error("Listener throws exception: {0}", e);
+                }
             }
         }
 
@@ -121,18 +138,25 @@ namespace QvaDev.CTraderApi
             _connectShutdown = false;
             while (!_connectShutdown)
             {
-                Thread.Sleep(1);
+                try
+                {
+                    Thread.Sleep(1);
 
-                if (messagesQueue.Count <= 0)
-                    continue;
+                    if (messagesQueue.Count <= 0)
+                        continue;
 
-                byte[] message = (byte[]) messagesQueue.Dequeue();
-                byte[] length = BitConverter.GetBytes(message.Length).Reverse().ToArray();
+                    byte[] message = (byte[])messagesQueue.Dequeue();
+                    byte[] length = BitConverter.GetBytes(message.Length).Reverse().ToArray();
 
-                sslStream.Write(length);
-                if (_debugConsole) Console.WriteLine("Data sent: {0}", GetHexadecimal(length));
-                sslStream.Write(message);
-                if (_debugConsole) Console.WriteLine("Data sent: {0}", GetHexadecimal(message));
+                    sslStream.Write(length);
+                    if (_debugConsole) Log?.Debug($"Data sent: {GetHexadecimal(length)}");
+                    sslStream.Write(message);
+                    if (_debugConsole) Log?.Debug($"Data sent: {GetHexadecimal(message)}");
+                }
+                catch (Exception e)
+                {
+                    Log?.Error("Transmitter throws exception: {0}", e);
+                }
             }
         }
 
@@ -143,13 +167,20 @@ namespace QvaDev.CTraderApi
             _connectShutdown = false;
             while (!_connectShutdown)
             {
-                Thread.Sleep(0);
+                try
+                {
+                    Thread.Sleep(1);
 
-                if (messagesQueue.Count <= 0)
-                    continue;
+                    if (messagesQueue.Count <= 0)
+                        continue;
 
-                byte[] message = (byte[]) messagesQueue.Dequeue();
-                ProcessIncomingDataStream(msgFactory, message);
+                    byte[] message = (byte[])messagesQueue.Dequeue();
+                    ProcessIncomingDataStream(msgFactory, message);
+                }
+                catch (Exception e)
+                {
+                    Log?.Error("DataProcessor throws exception: {0}", e);
+                }
             }
         }
 
@@ -159,7 +190,7 @@ namespace QvaDev.CTraderApi
             var msg = msgFactory.GetMessage(rawData);
 
             if (_debugConsole)
-                Console.WriteLine($"ProcessIncomingDataStream() Message received:\n{MessagesPresentation.ToString(msg)}");
+                Log?.Debug($"ProcessIncomingDataStream() Message received:\n{MessagesPresentation.ToString(msg)}");
 
             if (_connectShutdown || !msg.HasPayload)
             {
@@ -226,7 +257,7 @@ namespace QvaDev.CTraderApi
         {
             var msg = OutMsgFactory.CreatePingRequest((ulong) DateTime.Now.Ticks);
             if (_debugConsole)
-                Console.WriteLine("SendPingRequest() Message to be send:\n{0}", MessagesPresentation.ToString(msg));
+                Log?.Debug($"SendPingRequest() Message to be send:\n{MessagesPresentation.ToString(msg)}");
             WriteQueueSync.Enqueue(msg.ToByteArray());
         }
 
@@ -235,7 +266,7 @@ namespace QvaDev.CTraderApi
         {
             var msg = OutMsgFactory.CreatePingResponse((ulong) DateTime.Now.Ticks);
             if (_debugConsole)
-                Console.WriteLine("SendPingResponse() Message to be send:\n{0}", MessagesPresentation.ToString(msg));
+                Log?.Debug($"SendPingResponse() Message to be send:\n{MessagesPresentation.ToString(msg)}");
             WriteQueueSync.Enqueue(msg.ToByteArray());
         }
 
@@ -244,8 +275,7 @@ namespace QvaDev.CTraderApi
         {
             var msg = OutMsgFactory.CreateAuthorizationRequest(clientId, secret);
             if (_debugConsole)
-                Console.WriteLine("SendAuthorizationRequest() Message to be send:\n{0}",
-                    MessagesPresentation.ToString(msg));
+                Log?.Debug($"SendAuthorizationRequest() Message to be send:\n{MessagesPresentation.ToString(msg)}");
             WriteQueueSync.Enqueue(msg.ToByteArray());
         }
 
@@ -254,8 +284,7 @@ namespace QvaDev.CTraderApi
         {
             var msg = OutMsgFactory.CreateSubscribeForSpotsRequest(accountId, accessToken, symbol, comment);
             if (_debugConsole)
-                Console.WriteLine("SendSubscribeForSpotsRequest() Message to be send:\n{0}",
-                    MessagesPresentation.ToString(msg));
+                Log?.Debug($"SendSubscribeForSpotsRequest() Message to be send:\n{MessagesPresentation.ToString(msg)}");
             WriteQueueSync.Enqueue(msg.ToByteArray());
         }
 
@@ -264,8 +293,7 @@ namespace QvaDev.CTraderApi
         {
             var msg = OutMsgFactory.CreateSubscribeForTradingEventsRequest(accountId, accessToken);
             if (_debugConsole)
-                Console.WriteLine("SendSubscribeForTradingEventsRequest() Message to be send:\n{0}",
-                    MessagesPresentation.ToString(msg));
+                Log?.Debug($"SendSubscribeForTradingEventsRequest() Message to be send:\n{MessagesPresentation.ToString(msg)}");
             WriteQueueSync.Enqueue(msg.ToByteArray());
         }
 
@@ -274,8 +302,7 @@ namespace QvaDev.CTraderApi
         {
             var msg = OutMsgFactory.CreateUnsubscribeForTradingEventsRequest(accountId);
             if (_debugConsole)
-                Console.WriteLine("SendUnsubscribeForTradingEventsRequest() Message to be send:\n{0}",
-                    MessagesPresentation.ToString(msg));
+                Log?.Debug($"SendUnsubscribeForTradingEventsRequest() Message to be send:\n{MessagesPresentation.ToString(msg)}");
             WriteQueueSync.Enqueue(msg.ToByteArray());
         }
 
@@ -284,8 +311,7 @@ namespace QvaDev.CTraderApi
         {
             var msg = OutMsgFactory.CreateMarketOrderRequest(accountId, accessToken, symbol, type, volume, clientMsgId);
             if (_debugConsole)
-                Console.WriteLine("SendMarketOrderRequest() Message to be send:\n{0}",
-                    MessagesPresentation.ToString(msg));
+                Log?.Debug($"SendMarketOrderRequest() Message to be send:\n{MessagesPresentation.ToString(msg)}");
             WriteQueueSync.Enqueue(msg.ToByteArray());
         }
 
@@ -295,8 +321,7 @@ namespace QvaDev.CTraderApi
         {
             var msg = OutMsgFactory.CreateMarketRangeOrderRequest(accountId, accessToken, symbol, type, volume, price, range, clientMsgId);
             if (_debugConsole)
-                Console.WriteLine("SendMarketRangeOrderRequest() Message to be send:\n{0}",
-                    MessagesPresentation.ToString(msg));
+                Log?.Debug($"SendMarketRangeOrderRequest() Message to be send:\n{MessagesPresentation.ToString(msg)}");
             WriteQueueSync.Enqueue(msg.ToByteArray());
         }
 
@@ -306,8 +331,7 @@ namespace QvaDev.CTraderApi
         {
             var msg = OutMsgFactory.CreateLimitOrderRequest(accountId, accessToken, symbol, type, volume, price, clientMsgId);
             if (_debugConsole)
-                Console.WriteLine("SendLimitOrderRequest() Message to be send:\n{0}",
-                    MessagesPresentation.ToString(msg));
+                Log?.Debug($"SendLimitOrderRequest() Message to be send:\n{MessagesPresentation.ToString(msg)}");
             WriteQueueSync.Enqueue(msg.ToByteArray());
         }
 
@@ -317,8 +341,7 @@ namespace QvaDev.CTraderApi
         {
             var msg = OutMsgFactory.CreateStopOrderRequest(accountId, accessToken, symbol, type, volume, price, clientMsgId);
             if (_debugConsole)
-                Console.WriteLine("SendStopOrderRequest() Message to be send:\n{0}",
-                    MessagesPresentation.ToString(msg));
+                Log?.Debug($"SendStopOrderRequest() Message to be send:\n{MessagesPresentation.ToString(msg)}");
             WriteQueueSync.Enqueue(msg.ToByteArray());
         }
 
@@ -327,8 +350,7 @@ namespace QvaDev.CTraderApi
         {
             var msg = OutMsgFactory.CreateClosePositionRequest(accountId, accessToken, position, volume, clientMsgId);
             if (_debugConsole)
-                Console.WriteLine("SendClosePositionRequest() Message to be send:\n{0}",
-                    MessagesPresentation.ToString(msg));
+                Log?.Debug($"SendClosePositionRequest() Message to be send:\n{MessagesPresentation.ToString(msg)}");
             WriteQueueSync.Enqueue(msg.ToByteArray());
         }
 
@@ -341,53 +363,25 @@ namespace QvaDev.CTraderApi
             _parseThread = new Thread(() =>
             {
                 Thread.CurrentThread.IsBackground = true;
-                try
-                {
-                    IncomingDataProcessing(InMsgFactory, ReadQueueSync);
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine("DataProcessor throws exception: {0}", e);
-                }
+                IncomingDataProcessing(InMsgFactory, ReadQueueSync);
             });
 
             _inputThread = new Thread(() =>
             {
                 Thread.CurrentThread.IsBackground = true;
-                try
-                {
-                    Listen(_sslStream, ReadQueueSync);
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine("Listener throws exception: {0}", e);
-                }
+                Listen(_sslStream, ReadQueueSync);
             });
 
             _outputThread = new Thread(() =>
             {
                 Thread.CurrentThread.IsBackground = true;
-                try
-                {
-                    Transmit(_sslStream, WriteQueueSync);
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine("Transmitter throws exception: {0}", e);
-                }
+                Transmit(_sslStream, WriteQueueSync);
             });
 
             _pingThread = new Thread(() =>
             {
                 Thread.CurrentThread.IsBackground = true;
-                try
-                {
-                    Ping();
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine("Listener throws exception: {0}", e);
-                }
+                Ping();
             });
 
         }
@@ -397,7 +391,7 @@ namespace QvaDev.CTraderApi
             SslPolicyErrors sslPolicyErrors)
         {
             if (sslPolicyErrors == SslPolicyErrors.None) return true;
-            if (_debugConsole) Console.WriteLine("Certificate error: {0}", sslPolicyErrors);
+            if (_debugConsole) Log?.Error($"Certificate error: {sslPolicyErrors}");
             return false;
         }
 
@@ -416,7 +410,7 @@ namespace QvaDev.CTraderApi
             }
             catch (Exception e)
             {
-                if (_debugConsole) Console.WriteLine("Establishing SSL connection error: {0}", e);
+                if (_debugConsole) Log?.Error("Establishing SSL connection error: {0}", e);
                 return false;
             }
             if (clientId != null && secret != null) SendAuthorizationRequest(clientId, secret);

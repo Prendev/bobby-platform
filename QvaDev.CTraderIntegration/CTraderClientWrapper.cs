@@ -19,6 +19,8 @@ namespace QvaDev.CTraderIntegration
             ITradingAccountsService tradingAccountService,
             ILog log)
         {
+            lock (log) CTraderClient.Log = CTraderClient.Log;
+
             CTraderClient = new CTraderClient();
             Platform = platform;
             IsConnected = CTraderClient.Connect(platform.TradingHost, 5032, platform.ClientId, platform.Secret);

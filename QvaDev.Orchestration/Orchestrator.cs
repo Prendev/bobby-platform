@@ -159,7 +159,7 @@ namespace QvaDev.Orchestration
             {
                 lock (sender)
                 {
-                    _log.Info($"Master {e.Side:F} signal on {e.Symbol} with open time: {e.OpenTime:o}");
+                    _log.Info($"Master {e.Side:F} {e.Action:F} signal on {e.Symbol} with open time: {e.OpenTime:o}");
 
                     //var account = _config.MasterAccounts.First(a => a.Description == masterConnector.AccountInfo.Description);
                     var masters = _duplicatContext.Masters.Local.Where(m => m.MetaTraderAccount.Description == e.AccountDescription);

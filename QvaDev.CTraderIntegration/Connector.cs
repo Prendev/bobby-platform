@@ -32,7 +32,8 @@ namespace QvaDev.CTraderIntegration
 
         public void Disconnect()
         {
-            _wrapper.CTraderClient.SendUnsubscribeForTradingEventsRequest(AccountId);
+            lock (_wrapper.CTraderClient)
+                _wrapper.CTraderClient.SendUnsubscribeForTradingEventsRequest(AccountId);
             AccountId = 0;
             _log.Debug($"{_accountInfo.Description} account ({_accountInfo.AccountNumber}) disconnected");
         }
@@ -54,19 +55,22 @@ namespace QvaDev.CTraderIntegration
 
         public void SendMarketOrderRequest(string symbol, ProtoTradeSide type, long volume, string clientMsgId = null)
         {
-            _wrapper.CTraderClient.SendMarketOrderRequest(_wrapper.Platform.AccessToken, AccountId, symbol, type, volume, clientMsgId);
+            lock (_wrapper.CTraderClient)
+                _wrapper.CTraderClient.SendMarketOrderRequest(_wrapper.Platform.AccessToken, AccountId, symbol, type, volume, clientMsgId);
         }
 
 
         public void SendMarketRangeOrderRequest(string symbol, ProtoTradeSide type, long volume, double price, int slippageInPips, string clientMsgId = null)
         {
-            _wrapper.CTraderClient.SendMarketRangeOrderRequest(_wrapper.Platform.AccessToken, AccountId, symbol, type, volume,
-                price, slippageInPips, clientMsgId);
+            lock(_wrapper.CTraderClient)
+                _wrapper.CTraderClient.SendMarketRangeOrderRequest(_wrapper.Platform.AccessToken, AccountId, symbol, type, volume,
+                    price, slippageInPips, clientMsgId);
         }
 
         public void SendClosePositionRequest(long positionId, long volume, string clientMsgId = null)
         {
-            _wrapper.CTraderClient.SendClosePositionRequest(_wrapper.Platform.AccessToken, AccountId, positionId, volume, clientMsgId);
+            lock (_wrapper.CTraderClient)
+                _wrapper.CTraderClient.SendClosePositionRequest(_wrapper.Platform.AccessToken, AccountId, positionId, volume, clientMsgId);
         }
 
         public List<PositionData> GetPositions()
