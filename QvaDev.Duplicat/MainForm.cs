@@ -97,7 +97,29 @@ namespace QvaDev.Duplicat
 
             _viewModel.ProfileChanged += AttachDataSources;
 
+            var btnColumn = new DataGridViewButtonColumn
+            {
+                Name = "AccessNewCTrader",
+                HeaderText = "New ID",
+                Text = "Access",
+                UseColumnTextForButtonValue = true
+            };
+            dgvCtPlatforms.Columns.Add(btnColumn);
+            dgvCtPlatforms.CellContentClick += DgvCtPlatforms_CellContentClick;
+
             AttachDataSources();
+        }
+
+        private void DgvCtPlatforms_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex < 0) return;
+            var column = dgvCtPlatforms.Columns[e.ColumnIndex];
+            if (!(column is DataGridViewButtonColumn)) return;
+            if (column.Name != "AccessNewCTrader") return;
+
+            var ctPlatform = dgvCtPlatforms.Rows[e.RowIndex].DataBoundItem as CTraderPlatform;
+            if (ctPlatform == null) return;
+            _viewModel.AccessNewCTraderCommand(ctPlatform);
         }
 
         private void DataGridView_DataError(object sender, DataGridViewDataErrorEventArgs e)

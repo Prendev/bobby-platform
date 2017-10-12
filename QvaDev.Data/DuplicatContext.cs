@@ -37,7 +37,7 @@ namespace QvaDev.Data
 
             if (exists) return;
 
-            var cTraderProd = new CTraderPlatform()
+            CTraderPlatforms.Add(new CTraderPlatform()
             {
                 Description = "cTrader Prod",
                 AccountsApi = "https://api.spotware.com",
@@ -45,9 +45,20 @@ namespace QvaDev.Data
                 AccessToken = "802TOtADXELJqQ9gkiYfCLbqWWMqfbLWzzMPtg9PUa8",
                 ClientId = "353_RTrdmK0Q01Czcaq1p19Y4RbJgngCn7Wc065c7QnFqHuUfr127S",
                 Secret = "tQjMpGEbdvP68VXzm9sCQY3tuawrApSl5ZvmOGCAqov1eFT3zn",
-                Playground = "https://connect.spotware.com/apps/353/playground"
-            };
-            CTraderPlatforms.Add(cTraderProd);
+                Playground = "https://connect.spotware.com/apps/353/playground",
+                AccessBaseUrl = "https://connect.spotware.com/apps"
+            });
+            CTraderPlatforms.Add(new CTraderPlatform()
+            {
+                Description = "cTrader Sandbox",
+                AccountsApi = "https://sandbox-api.spotware.com",
+                TradingHost = "sandbox-tradeapi.spotware.com",
+                AccessToken = "?",
+                ClientId = "?",
+                Secret = "?",
+                Playground = "?",
+                AccessBaseUrl = "https://sandbox-connect.spotware.com/apps"
+            });
 
             SaveChanges();
 

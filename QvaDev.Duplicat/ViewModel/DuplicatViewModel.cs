@@ -1,6 +1,9 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Configuration;
 using System.Data.Entity;
+using System.Diagnostics;
 using System.Linq;
 using QvaDev.Common;
 using QvaDev.Data;
@@ -72,6 +75,29 @@ namespace QvaDev.Duplicat.ViewModel
             SelectedSlaveId = slave?.Id ?? 0;
             foreach (var e in SymbolMappings) e.IsFiltered = e.SlaveId != SelectedSlaveId;
             foreach (var e in Copiers) e.IsFiltered = e.SlaveId != SelectedSlaveId;
+        }
+
+        public void AccessNewCTraderCommand(CTraderPlatform p)
+        {
+            // Full redirect url should be added on redirect
+            var redirectUri = $"{ConfigurationManager.AppSettings["cTraderRedirectBaseUrl"]}/{p.ClientId}";
+
+
+            //var redirectUri = $"{p.AccessBaseUrl}auth?grant_type=authorization_code&" +
+            //                  $"client_id={p.ClientId}&" +
+            //                  $"client_secret={p.Secret}&" +
+            //                  $"redirect_uri={UrlHelper.Encode(p.Playground)}";
+
+            var accessUrl = $"{p.AccessBaseUrl}/auth?scope=trading&" +
+                            $"client_id={p.ClientId}&" +
+                            $"redirect_uri={UrlHelper.Encode(redirectUri)}";
+
+            using (var process = new Process())
+            {
+                process.StartInfo.FileName = @"chrome.exe";
+                process.StartInfo.Arguments = $"{accessUrl} --incognito";
+                process.Start();
+            }
         }
 
         private void DuplicatViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)

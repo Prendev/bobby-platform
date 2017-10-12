@@ -21,5 +21,8 @@ namespace QvaDev.Data.Models
 
         [Required]
         public string Playground { get; set; }
+
+        [Required]
+        public string AccessBaseUrl { get; set; }
     }
 }

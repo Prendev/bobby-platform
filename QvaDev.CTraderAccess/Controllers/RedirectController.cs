@@ -2,11 +2,17 @@
 
 namespace QvaDev.CTraderAccess.Controllers
 {
+    [AllowAnonymous]
     public class RedirectController : ApiController
     {
-        public IHttpActionResult Get([FromUri]string id, string code)
+        public IHttpActionResult Get(string id, [FromUri]string code = null)
         {
-            return Ok();
+            //var redirectUri = $"{p.AccessBaseUrl}auth?grant_type=authorization_code&" +
+            //                  $"client_id={p.ClientId}&" +
+            //                  $"client_secret={p.Secret}&" +
+            //                  $"redirect_uri={Uri.EscapeDataString(p.Playground)}";
+
+            return Ok("Sikerült!!!");
         }
     }
 }
