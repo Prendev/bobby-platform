@@ -18,10 +18,11 @@ namespace QvaDev.CTraderAccess.Controllers
 
             if (p == null) return BadRequest("Missing cTrader platform");
 
-            var accessUri = $"{p.AccessBaseUrl}/auth?grant_type=authorization_code&" +
+            var accessUri = $"{p.AccessBaseUrl}/token?" +
+                            "grant_type=authorization_code&" +
                             $"client_id={p.ClientId}&" +
                             $"client_secret={p.Secret}&" +
-                            $"redirect_uri={HttpUtility.UrlEncode(p.Playground)}&" +
+                            $"redirect_uri={HttpUtility.UrlEncode(Request.RequestUri.OriginalString.Split('?').First())}&" +
                             $"code={code}";
 
             return Redirect(accessUri);
