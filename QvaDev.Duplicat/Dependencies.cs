@@ -2,6 +2,7 @@
 using System.Threading;
 using Autofac;
 using log4net;
+using QvaDev.Common.Services;
 using QvaDev.CTraderIntegration;
 using QvaDev.CTraderIntegration.Services;
 using QvaDev.Data.Repositories;
@@ -36,6 +37,7 @@ namespace QvaDev.Duplicat
         private static void RegisterData(ContainerBuilder builder)
         {
             builder.RegisterType<MetaTraderPlatformRepository>().As<IMetaTraderPlatformRepository>();
+            builder.RegisterType<XmlService>().As<IXmlService>();
         }
 
         private static void RegisterOrchestration(ContainerBuilder builder)

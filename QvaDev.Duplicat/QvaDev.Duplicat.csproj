@@ -127,5 +127,8 @@
       <Name>QvaDev.Orchestration</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="todo.txt" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

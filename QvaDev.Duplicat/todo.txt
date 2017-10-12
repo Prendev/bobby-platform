@@ -1,0 +1,14 @@
+C:\Windows\System32\inetsrv\config
+
+<applicationPools>
+    <add name="DefaultAppPool" />
+    <add name="Classic .NET AppPool" managedPipelineMode="Classic" />
+    <add name="ASP.NET v4.0" managedRuntimeVersion="v4.0" />
+    <add name="ASP.NET v4.0 Classic" managedRuntimeVersion="v4.0" managedPipelineMode="Classic" />
+    <add name="QvaDev.CTraderAccess" managedRuntimeVersion="v4.0">
+        <processModel identityType="ApplicationPoolIdentity" loadUserProfile="true" setProfileEnvironment="true" />
+    </add>
+    <applicationPoolDefaults>
+        <processModel identityType="ApplicationPoolIdentity" loadUserProfile="true" setProfileEnvironment="false" />
+    </applicationPoolDefaults>
+</applicationPools>

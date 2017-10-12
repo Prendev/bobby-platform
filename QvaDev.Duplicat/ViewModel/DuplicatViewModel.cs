@@ -6,6 +6,7 @@ using System.Data.Entity;
 using System.Diagnostics;
 using System.Linq;
 using QvaDev.Common;
+using QvaDev.Common.Services;
 using QvaDev.Data;
 using QvaDev.Data.Models;
 using QvaDev.Orchestration;
@@ -25,6 +26,7 @@ namespace QvaDev.Duplicat.ViewModel
         
         private DuplicatContext _duplicatContext;
         private readonly IOrchestrator _orchestrator;
+        private readonly IXmlService _xmlService;
 
         public ObservableCollection<MetaTraderPlatform> MtPlatforms { get; private set;  }
         public ObservableCollection<CTraderPlatform> CtPlatforms { get; private set; }
@@ -50,8 +52,10 @@ namespace QvaDev.Duplicat.ViewModel
         public int SelectedSlaveId { get => Get<int>(); set => Set(value); }
 
         public DuplicatViewModel(
-            IOrchestrator orchestrator)
+            IOrchestrator orchestrator,
+            IXmlService xmlService)
         {
+            _xmlService = xmlService;
             _orchestrator = orchestrator;
             PropertyChanged += DuplicatViewModel_PropertyChanged;
             IsDisconnect = true;
@@ -79,14 +83,10 @@ namespace QvaDev.Duplicat.ViewModel
 
         public void AccessNewCTraderCommand(CTraderPlatform p)
         {
-            // Full redirect url should be added on redirect
-            var redirectUri = $"{ConfigurationManager.AppSettings["cTraderRedirectBaseUrl"]}/{p.ClientId}";
+            _xmlService.Save(CtPlatforms.ToList(), ConfigurationManager.AppSettings["CTraderPlatformsPath"]);
 
-
-            //var redirectUri = $"{p.AccessBaseUrl}auth?grant_type=authorization_code&" +
-            //                  $"client_id={p.ClientId}&" +
-            //                  $"client_secret={p.Secret}&" +
-            //                  $"redirect_uri={UrlHelper.Encode(p.Playground)}";
+            // Full redirect url should be added on playground
+            var redirectUri = $"{ConfigurationManager.AppSettings["CTraderRedirectBaseUrl"]}/{p.ClientId}";
 
             var accessUrl = $"{p.AccessBaseUrl}/auth?scope=trading&" +
                             $"client_id={p.ClientId}&" +

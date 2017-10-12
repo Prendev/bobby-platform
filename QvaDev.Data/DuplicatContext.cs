@@ -25,15 +25,19 @@ namespace QvaDev.Data
             var exists = Database.Exists();
             if (!exists) Database.Create();
 
-            foreach (var srv in Directory.GetFiles(".\\Mt4SrvFiles", "*.srv").Select(Path.GetFileNameWithoutExtension))
+            try
             {
-                if (MetaTraderPlatforms.Any(p => p.Description == srv)) continue;
-                MetaTraderPlatforms.Add(new MetaTraderPlatform()
+                foreach (var srv in Directory.GetFiles(".\\Mt4SrvFiles", "*.srv").Select(Path.GetFileNameWithoutExtension))
                 {
-                    Description = srv,
-                    SrvFilePath = $"Mt4SrvFiles\\{srv}.srv"
-                });
+                    if (MetaTraderPlatforms.Any(p => p.Description == srv)) continue;
+                    MetaTraderPlatforms.Add(new MetaTraderPlatform()
+                    {
+                        Description = srv,
+                        SrvFilePath = $"Mt4SrvFiles\\{srv}.srv"
+                    });
+                }
             }
+            catch  { }
 
             if (exists) return;
 
