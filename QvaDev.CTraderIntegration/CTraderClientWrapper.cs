@@ -1,35 +1,31 @@
-﻿using System.Collections.Generic;
-using log4net;
-using QvaDev.Common.Configuration;
+﻿using log4net;
 using QvaDev.CTraderApi;
-using QvaDev.CTraderIntegration.Dto;
-using QvaDev.CTraderIntegration.Services;
 
 namespace QvaDev.CTraderIntegration
 {
     public class CTraderClientWrapper
     {
         public bool IsConnected { get; }
-        public CTraderPlatform Platform { get; }
+        public PlatformInfo PlatformInfo { get; }
         public CTraderClient CTraderClient { get; }
 
         public CTraderClientWrapper(
-            CTraderPlatform platform,
+            PlatformInfo platformInfo,
             ILog log)
         {
             lock (log) CTraderClient.Log = CTraderClient.Log;
 
             CTraderClient = new CTraderClient();
-            Platform = platform;
-            IsConnected = CTraderClient.Connect(platform.TradingHost, 5032, platform.ClientId, platform.Secret);
+            PlatformInfo = platformInfo;
+            IsConnected = CTraderClient.Connect(platformInfo.TradingHost, 5032, platformInfo.ClientId, platformInfo.Secret);
             if (!IsConnected)
             {
-                log.Error($"{platform.Description} cTrader platform FAILED to connect");
+                log.Error($"{platformInfo.Description} cTrader platform FAILED to connect");
                 return;
             }
-            log.Debug($"{platform.Description} cTrader platform connected");
+            log.Debug($"{platformInfo.Description} cTrader platform connected");
 
-            log.Debug($"{platform.Description} cTrader platform accounts acquired");
+            log.Debug($"{platformInfo.Description} cTrader platform accounts acquired");
         }
     }
 }

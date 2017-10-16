@@ -76,7 +76,7 @@ namespace QvaDev.CTraderIntegration
             var positions = _tradingAccountsService.GetPositions(new AccountRequest
             {
                 AccessToken = _accountInfo.AccessToken,
-                BaseUrl = _wrapper.Platform.AccountsApi,
+                BaseUrl = _wrapper.PlatformInfo.AccountsApi,
                 AccountId = AccountId
             });
 

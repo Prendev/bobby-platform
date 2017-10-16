@@ -1,7 +1,8 @@
-﻿namespace QvaDev.Common.Configuration
+﻿namespace QvaDev.CTraderIntegration
 {
-    public class CTraderPlatform : BaseElement
+    public class PlatformInfo
     {
+        public string Description { get; set; }
         public string AccountsApi { get; set; }
         public string TradingHost { get; set; }
         public string ClientId { get; set; }

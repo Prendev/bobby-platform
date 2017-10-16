@@ -80,7 +80,7 @@ namespace QvaDev.Orchestration
                     if (connector == null)
                     {
                         connector = (CtConnector) _connectorFactory.Create(
-                            new Common.Configuration.CTraderPlatform()
+                            new PlatformInfo
                             {
                                 Description = account.CTraderPlatform.Description,
                                 AccountsApi = account.CTraderPlatform.AccountsApi,
@@ -89,7 +89,7 @@ namespace QvaDev.Orchestration
                                 Secret = account.CTraderPlatform.Secret,
                                 Playground = account.CTraderPlatform.Playground
                             },
-                            new Common.Configuration.CTraderAccount()
+                            new AccountInfo
                             {
                                 Description = account.Description,
                                 AccountNumber = account.AccountNumber,
