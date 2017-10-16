@@ -7,12 +7,23 @@ namespace QvaDev.Data.Models
 {
     public class BaseAccountEntity : BaseDescriptionEntity
     {
+        public enum States
+        {
+            Disconnected,
+            Connected,
+            Error
+        }
+
         [NotMapped]
         [InvisibleColumn]
         public IConnector Connector { get; set; }
 
         [NotMapped]
         [ReadOnly(true)]
-        public bool IsConnected { get; set; }
+        public States State { get; set; }
+
+        //[NotMapped]
+        //[ReadOnly(true)]
+        //public bool IsConnected => State == States.Connected;
     }
 }

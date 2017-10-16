@@ -76,7 +76,11 @@ namespace QvaDev.Duplicat
             var entity = bindingList[e.RowIndex] as BaseAccountEntity;
             if (entity == null) return;
 
-            Rows[e.RowIndex].DefaultCellStyle.BackColor = entity.IsConnected ? Color.LightGreen : Color.White;
+            if (entity.State == BaseAccountEntity.States.Connected)
+                Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.LightGreen;
+            else if (entity.State == BaseAccountEntity.States.Error)
+                Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.PaleVioletRed;
+            else Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.White;
         }
 
         private void CustomDataGridView_DataSourceChanged(object sender, EventArgs e)

@@ -105,7 +105,7 @@ namespace QvaDev.Mt4Integration
                 }
                 catch (Exception e)
                 {
-                    _log.Error($"{accountInfo.Description} user ({accountInfo.User}) failed to connect", e);
+                    _log.Error($"{_accountInfo.Description} account ({_accountInfo.User}) FAILED to connect", e);
                 }
             }
         }

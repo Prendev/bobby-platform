@@ -50,21 +50,24 @@ namespace QvaDev.Orchestration
             var tasks = duplicatContext.MetaTraderAccounts.AsEnumerable().Select(account =>
                 Task.Factory.StartNew(() =>
                 {
-                    if (account.IsConnected) return;
+                    if (account.State == Data.Models.BaseAccountEntity.States.Connected) return;
                     var connector = account.Connector as MtConnector;
                     if (connector == null)
                     {
                         connector = new MtConnector(_log);
                         account.Connector = connector;
                     }
-                    account.IsConnected = connector.Connect(new Mt4Integration.AccountInfo()
+                    var connected = connector.Connect(new Mt4Integration.AccountInfo()
                     {
                         Description = account.Description,
                         User = (uint) account.User,
                         Password = account.Password,
                         Srv = account.MetaTraderPlatform.SrvFilePath
                     });
-                    account.RaisePropertyChanged(_synchronizationContext, nameof(account.IsConnected));
+                    account.State = connected
+                        ? Data.Models.BaseAccountEntity.States.Connected
+                        : Data.Models.BaseAccountEntity.States.Error;
+                    account.RaisePropertyChanged(_synchronizationContext, nameof(account.State));
                 }));
 
             return Task.WhenAll(tasks);
@@ -75,7 +78,7 @@ namespace QvaDev.Orchestration
             var tasks = duplicatContext.CTraderAccounts.AsEnumerable().Select(account =>
                 Task.Factory.StartNew(() =>
                 {
-                    if (account.IsConnected) return;
+                    if (account.State == Data.Models.BaseAccountEntity.States.Connected) return;
                     var connector = account.Connector as CtConnector;
                     if (connector == null)
                     {
@@ -97,12 +100,15 @@ namespace QvaDev.Orchestration
                             });
                         account.Connector = connector;
                     }
-                    account.IsConnected = connector.Connect(new AccountInfo()
+                    var connected = connector.Connect(new AccountInfo()
                     {
                         Description = account.Description,
                         AccountNumber = account.AccountNumber
                     });
-                    account.RaisePropertyChanged(_synchronizationContext, nameof(account.IsConnected));
+                    account.State = connected
+                        ? Data.Models.BaseAccountEntity.States.Connected
+                        : Data.Models.BaseAccountEntity.States.Error;
+                    account.RaisePropertyChanged(_synchronizationContext, nameof(account.State));
                 }));
 
             return Task.WhenAll(tasks);
@@ -119,10 +125,10 @@ namespace QvaDev.Orchestration
             var tasks = duplicatContext.MetaTraderAccounts.AsEnumerable().Select(account =>
                 Task.Factory.StartNew(() =>
                 {
-                    if (!account.IsConnected) return;
+                    if (account.State == Data.Models.BaseAccountEntity.States.Disconnected) return;
                     account.Connector.Disconnect();
-                    account.IsConnected = false;
-                    account.RaisePropertyChanged(_synchronizationContext, nameof(account.IsConnected));
+                    account.State = Data.Models.BaseAccountEntity.States.Disconnected;
+                    account.RaisePropertyChanged(_synchronizationContext, nameof(account.State));
                 }));
 
             return Task.WhenAll(tasks);
@@ -133,10 +139,10 @@ namespace QvaDev.Orchestration
             var tasks = duplicatContext.CTraderAccounts.AsEnumerable().Select(account =>
                 Task.Factory.StartNew(() =>
                 {
-                    if (!account.IsConnected) return;
+                    if (account.State == Data.Models.BaseAccountEntity.States.Disconnected) return;
                     account.Connector.Disconnect();
-                    account.IsConnected = false;
-                    account.RaisePropertyChanged(_synchronizationContext, nameof(account.IsConnected));
+                    account.State = Data.Models.BaseAccountEntity.States.Disconnected;
+                    account.RaisePropertyChanged(_synchronizationContext, nameof(account.State));
                 }));
 
             return Task.WhenAll(tasks);
@@ -147,7 +153,8 @@ namespace QvaDev.Orchestration
             _duplicatContext = duplicatContext;
             await Connect(_duplicatContext);
             foreach (var master in duplicatContext.Copiers.Local
-                .Where(c => c.Slave.CTraderAccount.IsConnected && c.Slave.Master.MetaTraderAccount.IsConnected)
+                .Where(c => c.Slave.CTraderAccount.State == Data.Models.BaseAccountEntity.States.Connected &&
+                            c.Slave.Master.MetaTraderAccount.State == Data.Models.BaseAccountEntity.States.Connected)
                 .Select(c => c.Slave.Master).Distinct())
             {
                 master.MetaTraderAccount.Connector.OnOrder -= MasterOnOrderUpdate;
