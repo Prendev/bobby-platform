@@ -11,9 +11,6 @@ namespace QvaDev.Data.Models
         public string TradingHost { get; set; }
 
         [Required]
-        public string AccessToken { get; set; }
-
-        [Required]
         public string ClientId { get; set; }
 
         [Required]

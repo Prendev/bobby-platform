@@ -46,7 +46,6 @@ namespace QvaDev.Data
                 Description = "cTrader Prod",
                 AccountsApi = "https://api.spotware.com",
                 TradingHost = "tradeapi.spotware.com",
-                AccessToken = "802TOtADXELJqQ9gkiYfCLbqWWMqfbLWzzMPtg9PUa8",
                 ClientId = "353_RTrdmK0Q01Czcaq1p19Y4RbJgngCn7Wc065c7QnFqHuUfr127S",
                 Secret = "tQjMpGEbdvP68VXzm9sCQY3tuawrApSl5ZvmOGCAqov1eFT3zn",
                 Playground = "https://connect.spotware.com/apps/353/playground",
@@ -57,7 +56,6 @@ namespace QvaDev.Data
                 Description = "cTrader Sandbox",
                 AccountsApi = "https://sandbox-api.spotware.com",
                 TradingHost = "sandbox-tradeapi.spotware.com",
-                AccessToken = "?",
                 ClientId = "?",
                 Secret = "?",
                 Playground = "?",
@@ -88,25 +86,29 @@ namespace QvaDev.Data
             {
                 Description = "cTrader1",
                 AccountNumber = 3174636,
-                CTraderPlatform = cTraderPlatform
+                CTraderPlatform = cTraderPlatform,
+                AccessToken = "802TOtADXELJqQ9gkiYfCLbqWWMqfbLWzzMPtg9PUa8"
             });
             CTraderAccounts.Add(new CTraderAccount()
             {
                 Description = "cTrader2",
                 AccountNumber = 3174645,
-                CTraderPlatform = cTraderPlatform
+                CTraderPlatform = cTraderPlatform,
+                AccessToken = "802TOtADXELJqQ9gkiYfCLbqWWMqfbLWzzMPtg9PUa8"
             });
             CTraderAccounts.Add(new CTraderAccount()
             {
                 Description = "cTrader3",
                 AccountNumber = 3175387,
-                CTraderPlatform = cTraderPlatform
+                CTraderPlatform = cTraderPlatform,
+                AccessToken = "802TOtADXELJqQ9gkiYfCLbqWWMqfbLWzzMPtg9PUa8"
             });
             CTraderAccounts.Add(new CTraderAccount()
             {
                 Description = "cTrader4",
                 AccountNumber = 3175388,
-                CTraderPlatform = cTraderPlatform
+                CTraderPlatform = cTraderPlatform,
+                AccessToken = "802TOtADXELJqQ9gkiYfCLbqWWMqfbLWzzMPtg9PUa8"
             });
 
             Profiles.Add(new Profile() { Description = "Dummy Profile 1" });

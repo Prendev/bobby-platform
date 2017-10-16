@@ -79,16 +79,22 @@ namespace QvaDev.Orchestration
                     var connector = account.Connector as CtConnector;
                     if (connector == null)
                     {
-                        connector = (CtConnector)_connectorFactory.Create(new Common.Configuration.CTraderPlatform()
-                        {
-                            Description = account.CTraderPlatform.Description,
-                            AccessToken = account.CTraderPlatform.AccessToken,
-                            AccountsApi = account.CTraderPlatform.AccountsApi,
-                            ClientId = account.CTraderPlatform.ClientId,
-                            TradingHost = account.CTraderPlatform.TradingHost,
-                            Secret = account.CTraderPlatform.Secret,
-                            Playground = account.CTraderPlatform.Playground
-                        });
+                        connector = (CtConnector) _connectorFactory.Create(
+                            new Common.Configuration.CTraderPlatform()
+                            {
+                                Description = account.CTraderPlatform.Description,
+                                AccountsApi = account.CTraderPlatform.AccountsApi,
+                                ClientId = account.CTraderPlatform.ClientId,
+                                TradingHost = account.CTraderPlatform.TradingHost,
+                                Secret = account.CTraderPlatform.Secret,
+                                Playground = account.CTraderPlatform.Playground
+                            },
+                            new Common.Configuration.CTraderAccount()
+                            {
+                                Description = account.Description,
+                                AccountNumber = account.AccountNumber,
+                                AccessToken = account.AccessToken
+                            });
                         account.Connector = connector;
                     }
                     account.IsConnected = connector.Connect(new AccountInfo()

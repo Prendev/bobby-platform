@@ -12,11 +12,9 @@ namespace QvaDev.CTraderIntegration
         public bool IsConnected { get; }
         public CTraderPlatform Platform { get; }
         public CTraderClient CTraderClient { get; }
-        public List<AccountData> Accounts { get; }
 
         public CTraderClientWrapper(
             CTraderPlatform platform,
-            ITradingAccountsService tradingAccountService,
             ILog log)
         {
             lock (log) CTraderClient.Log = CTraderClient.Log;
@@ -30,8 +28,6 @@ namespace QvaDev.CTraderIntegration
                 return;
             }
             log.Debug($"{platform.Description} cTrader platform connected");
-            Accounts = tradingAccountService.GetAccounts(
-                new BaseRequest() {AccessToken = platform.AccessToken, BaseUrl = platform.AccountsApi});
 
             log.Debug($"{platform.Description} cTrader platform accounts acquired");
         }

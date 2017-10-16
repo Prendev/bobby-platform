@@ -11,20 +11,22 @@ namespace QvaDev.CTraderIntegration
         private readonly ILog _log;
         private readonly CTraderClientWrapper _wrapper;
         private readonly ITradingAccountsService _tradingAccountsService;
-        private AccountInfo _accountInfo;
+        private readonly AccountInfo _accountInfo;
 
         public string Description => _accountInfo?.Description;
-        public long AccountId { get; private set; }
+        public long AccountId => _accountInfo?.AccountId ?? 0;
         public bool IsConnected => _wrapper?.IsConnected == true && AccountId > 0;
         public event OrderEventHandler OnOrder;
 
         public double VolumeMultiplier => 100;
 
         public Connector(
+            AccountInfo accountInfo,
             CTraderClientWrapper cTraderClientWrapper,
             ITradingAccountsService tradingAccountsService,
             ILog log)
         {
+            _accountInfo = accountInfo;
             _tradingAccountsService = tradingAccountsService;
             _wrapper = cTraderClientWrapper;
             _log = log;
@@ -34,16 +36,12 @@ namespace QvaDev.CTraderIntegration
         {
             lock (_wrapper.CTraderClient)
                 _wrapper.CTraderClient.SendUnsubscribeForTradingEventsRequest(AccountId);
-            AccountId = 0;
             _log.Debug($"{_accountInfo.Description} account ({_accountInfo.AccountNumber}) disconnected");
         }
 
-        public bool Connect(AccountInfo accountInfo)
+        public bool Connect()
         {
-            _accountInfo = accountInfo;
-            AccountId = _wrapper.Accounts.Find(a => a.accountNumber == _accountInfo.AccountNumber)?.accountId ?? 0;
-
-            if (!_wrapper.IsConnected || AccountId == 0)
+            if (!IsConnected)
             {
                 _log.Error($"{_accountInfo.Description} account ({_accountInfo.AccountNumber}) FAILED to connect");
                 return false;
@@ -56,28 +54,28 @@ namespace QvaDev.CTraderIntegration
         public void SendMarketOrderRequest(string symbol, ProtoTradeSide type, long volume, string clientMsgId = null)
         {
             lock (_wrapper.CTraderClient)
-                _wrapper.CTraderClient.SendMarketOrderRequest(_wrapper.Platform.AccessToken, AccountId, symbol, type, volume, clientMsgId);
+                _wrapper.CTraderClient.SendMarketOrderRequest(_accountInfo.AccessToken, AccountId, symbol, type, volume, clientMsgId);
         }
 
 
         public void SendMarketRangeOrderRequest(string symbol, ProtoTradeSide type, long volume, double price, int slippageInPips, string clientMsgId = null)
         {
             lock(_wrapper.CTraderClient)
-                _wrapper.CTraderClient.SendMarketRangeOrderRequest(_wrapper.Platform.AccessToken, AccountId, symbol, type, volume,
+                _wrapper.CTraderClient.SendMarketRangeOrderRequest(_accountInfo.AccessToken, AccountId, symbol, type, volume,
                     price, slippageInPips, clientMsgId);
         }
 
         public void SendClosePositionRequest(long positionId, long volume, string clientMsgId = null)
         {
             lock (_wrapper.CTraderClient)
-                _wrapper.CTraderClient.SendClosePositionRequest(_wrapper.Platform.AccessToken, AccountId, positionId, volume, clientMsgId);
+                _wrapper.CTraderClient.SendClosePositionRequest(_accountInfo.AccessToken, AccountId, positionId, volume, clientMsgId);
         }
 
         public List<PositionData> GetPositions()
         {
             var positions = _tradingAccountsService.GetPositions(new AccountRequest
             {
-                AccessToken = _wrapper.Platform.AccessToken,
+                AccessToken = _accountInfo.AccessToken,
                 BaseUrl = _wrapper.Platform.AccountsApi,
                 AccountId = AccountId
             });
