@@ -156,6 +156,7 @@ namespace QvaDev.Duplicat
             dgvMasters.AddComboBoxColumn(_viewModel.MtAccounts);
             dgvSlaves.AddComboBoxColumn(_viewModel.Masters);
             dgvSlaves.AddComboBoxColumn(_viewModel.CtAccounts);
+            dgvMonitors.AddComboBoxColumn(_viewModel.Profiles);
             dgvAlpha.AddComboBoxColumn(_viewModel.MtAccounts);
             dgvAlpha.AddComboBoxColumn(_viewModel.CtAccounts);
             dgvBeta.AddComboBoxColumn(_viewModel.MtAccounts);

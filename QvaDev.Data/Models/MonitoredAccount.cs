@@ -24,6 +24,6 @@ namespace QvaDev.Data.Models
 
         [NotMapped]
         [ReadOnly(true)]
-        public double ActualLots { get; set; }
+        public double ActualLots { get => Get<double>(); set => Set(value); }
     }
 }
