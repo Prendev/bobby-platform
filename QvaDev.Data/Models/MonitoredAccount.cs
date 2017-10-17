@@ -20,10 +20,10 @@ namespace QvaDev.Data.Models
         public string Symbol { get; set; }
 
         [Required]
-        public double ExpectedLots { get; set; }
+        public long ExpectedContracts { get; set; }
 
         [NotMapped]
         [ReadOnly(true)]
-        public double ActualLots { get => Get<double>(); set => Set(value); }
+        public long ActualContracts { get; set; }
     }
 }

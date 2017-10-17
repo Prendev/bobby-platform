@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -16,9 +17,11 @@ namespace QvaDev.Data.Models
 
         [NotMapped]
         [ReadOnly(true)]
-        public double ExpectedLots { get => Get<double>(); set => Set(value); }
+        public long ExpectedContracts { get; set; }
         [NotMapped]
         [ReadOnly(true)]
-        public double ActualLots { get => Get<double>(); set => Set(value); }
+        public long ActualContracts { get; set; }
+
+        public List<MonitoredAccount> MonitoredAccounts { get => Get(() => new List<MonitoredAccount>()); set => Set(value, false); }
     }
 }

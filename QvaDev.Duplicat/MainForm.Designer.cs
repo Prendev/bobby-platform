@@ -61,8 +61,11 @@
             this.tabPageMonitor = new System.Windows.Forms.TabPage();
             this.tlpMonitor = new System.Windows.Forms.TableLayoutPanel();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.dgvMonitors = new QvaDev.Duplicat.CustomDataGridView();
             this.groupBox12 = new System.Windows.Forms.GroupBox();
+            this.dgvAlpha = new QvaDev.Duplicat.CustomDataGridView();
             this.groupBox13 = new System.Windows.Forms.GroupBox();
+            this.dgvBeta = new QvaDev.Duplicat.CustomDataGridView();
             this.groupBox14 = new System.Windows.Forms.GroupBox();
             this.btnLoadBeta = new System.Windows.Forms.Button();
             this.btnLoadAlpha = new System.Windows.Forms.Button();
@@ -72,13 +75,10 @@
             this.groupBoxMainControl = new System.Windows.Forms.GroupBox();
             this.buttonShowSelectedSlave = new System.Windows.Forms.Button();
             this.buttonLoadProfile = new System.Windows.Forms.Button();
-            this.radioButtonDisconnect = new System.Windows.Forms.RadioButton();
-            this.radioButtonConnect = new System.Windows.Forms.RadioButton();
+            this.rbDisconnect = new System.Windows.Forms.RadioButton();
+            this.rbConnect = new System.Windows.Forms.RadioButton();
             this.buttonSave = new System.Windows.Forms.Button();
-            this.radioButtonCopy = new System.Windows.Forms.RadioButton();
-            this.dgvMonitors = new QvaDev.Duplicat.CustomDataGridView();
-            this.dgvAlpha = new QvaDev.Duplicat.CustomDataGridView();
-            this.dgvBeta = new QvaDev.Duplicat.CustomDataGridView();
+            this.rbCopy = new System.Windows.Forms.RadioButton();
             this.tabControlMain.SuspendLayout();
             this.tabPageProfileAndGroup.SuspendLayout();
             this.tlpProfilesAndGroups.SuspendLayout();
@@ -112,15 +112,15 @@
             this.tabPageMonitor.SuspendLayout();
             this.tlpMonitor.SuspendLayout();
             this.groupBox3.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvMonitors)).BeginInit();
             this.groupBox12.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvAlpha)).BeginInit();
             this.groupBox13.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvBeta)).BeginInit();
             this.groupBox14.SuspendLayout();
             this.tabPageLog.SuspendLayout();
             this.tlpMain.SuspendLayout();
             this.groupBoxMainControl.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dgvMonitors)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.dgvAlpha)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.dgvBeta)).BeginInit();
             this.SuspendLayout();
             // 
             // tabControlMain
@@ -526,6 +526,17 @@
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Monitors";
             // 
+            // dgvMonitors
+            // 
+            this.dgvMonitors.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
+            this.dgvMonitors.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgvMonitors.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dgvMonitors.Location = new System.Drawing.Point(3, 16);
+            this.dgvMonitors.MultiSelect = false;
+            this.dgvMonitors.Name = "dgvMonitors";
+            this.dgvMonitors.Size = new System.Drawing.Size(504, 125);
+            this.dgvMonitors.TabIndex = 0;
+            // 
             // groupBox12
             // 
             this.groupBox12.Controls.Add(this.dgvAlpha);
@@ -537,6 +548,17 @@
             this.groupBox12.TabStop = false;
             this.groupBox12.Text = "Side A";
             // 
+            // dgvAlpha
+            // 
+            this.dgvAlpha.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
+            this.dgvAlpha.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgvAlpha.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dgvAlpha.Location = new System.Drawing.Point(3, 16);
+            this.dgvAlpha.MultiSelect = false;
+            this.dgvAlpha.Name = "dgvAlpha";
+            this.dgvAlpha.Size = new System.Drawing.Size(504, 280);
+            this.dgvAlpha.TabIndex = 0;
+            // 
             // groupBox13
             // 
             this.groupBox13.Controls.Add(this.dgvBeta);
@@ -547,6 +569,17 @@
             this.groupBox13.TabIndex = 2;
             this.groupBox13.TabStop = false;
             this.groupBox13.Text = "Side B";
+            // 
+            // dgvBeta
+            // 
+            this.dgvBeta.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
+            this.dgvBeta.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgvBeta.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dgvBeta.Location = new System.Drawing.Point(3, 16);
+            this.dgvBeta.MultiSelect = false;
+            this.dgvBeta.Name = "dgvBeta";
+            this.dgvBeta.Size = new System.Drawing.Size(504, 280);
+            this.dgvBeta.TabIndex = 0;
             // 
             // groupBox14
             // 
@@ -562,7 +595,7 @@
             // 
             // btnLoadBeta
             // 
-            this.btnLoadBeta.Location = new System.Drawing.Point(162, 19);
+            this.btnLoadBeta.Location = new System.Drawing.Point(6, 48);
             this.btnLoadBeta.Name = "btnLoadBeta";
             this.btnLoadBeta.Size = new System.Drawing.Size(150, 23);
             this.btnLoadBeta.TabIndex = 17;
@@ -619,10 +652,10 @@
             // 
             this.groupBoxMainControl.Controls.Add(this.buttonShowSelectedSlave);
             this.groupBoxMainControl.Controls.Add(this.buttonLoadProfile);
-            this.groupBoxMainControl.Controls.Add(this.radioButtonDisconnect);
-            this.groupBoxMainControl.Controls.Add(this.radioButtonConnect);
+            this.groupBoxMainControl.Controls.Add(this.rbDisconnect);
+            this.groupBoxMainControl.Controls.Add(this.rbConnect);
             this.groupBoxMainControl.Controls.Add(this.buttonSave);
-            this.groupBoxMainControl.Controls.Add(this.radioButtonCopy);
+            this.groupBoxMainControl.Controls.Add(this.rbCopy);
             this.groupBoxMainControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.groupBoxMainControl.Location = new System.Drawing.Point(3, 3);
             this.groupBoxMainControl.Name = "groupBoxMainControl";
@@ -649,29 +682,29 @@
             this.buttonLoadProfile.Text = "Load selected profile";
             this.buttonLoadProfile.UseVisualStyleBackColor = true;
             // 
-            // radioButtonDisconnect
+            // rbDisconnect
             // 
-            this.radioButtonDisconnect.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.radioButtonDisconnect.AutoSize = true;
-            this.radioButtonDisconnect.Checked = true;
-            this.radioButtonDisconnect.Location = new System.Drawing.Point(835, 22);
-            this.radioButtonDisconnect.Name = "radioButtonDisconnect";
-            this.radioButtonDisconnect.Size = new System.Drawing.Size(79, 17);
-            this.radioButtonDisconnect.TabIndex = 11;
-            this.radioButtonDisconnect.TabStop = true;
-            this.radioButtonDisconnect.Text = "Disconnect";
-            this.radioButtonDisconnect.UseVisualStyleBackColor = true;
+            this.rbDisconnect.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.rbDisconnect.AutoSize = true;
+            this.rbDisconnect.Checked = true;
+            this.rbDisconnect.Location = new System.Drawing.Point(835, 22);
+            this.rbDisconnect.Name = "rbDisconnect";
+            this.rbDisconnect.Size = new System.Drawing.Size(79, 17);
+            this.rbDisconnect.TabIndex = 11;
+            this.rbDisconnect.TabStop = true;
+            this.rbDisconnect.Text = "Disconnect";
+            this.rbDisconnect.UseVisualStyleBackColor = true;
             // 
-            // radioButtonConnect
+            // rbConnect
             // 
-            this.radioButtonConnect.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.radioButtonConnect.AutoSize = true;
-            this.radioButtonConnect.Location = new System.Drawing.Point(920, 22);
-            this.radioButtonConnect.Name = "radioButtonConnect";
-            this.radioButtonConnect.Size = new System.Drawing.Size(65, 17);
-            this.radioButtonConnect.TabIndex = 12;
-            this.radioButtonConnect.Text = "Connect";
-            this.radioButtonConnect.UseVisualStyleBackColor = true;
+            this.rbConnect.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.rbConnect.AutoSize = true;
+            this.rbConnect.Location = new System.Drawing.Point(920, 22);
+            this.rbConnect.Name = "rbConnect";
+            this.rbConnect.Size = new System.Drawing.Size(65, 17);
+            this.rbConnect.TabIndex = 12;
+            this.rbConnect.Text = "Connect";
+            this.rbConnect.UseVisualStyleBackColor = true;
             // 
             // buttonSave
             // 
@@ -682,49 +715,16 @@
             this.buttonSave.Text = "Save config changes";
             this.buttonSave.UseVisualStyleBackColor = true;
             // 
-            // radioButtonCopy
+            // rbCopy
             // 
-            this.radioButtonCopy.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.radioButtonCopy.AutoSize = true;
-            this.radioButtonCopy.Location = new System.Drawing.Point(991, 22);
-            this.radioButtonCopy.Name = "radioButtonCopy";
-            this.radioButtonCopy.Size = new System.Drawing.Size(49, 17);
-            this.radioButtonCopy.TabIndex = 13;
-            this.radioButtonCopy.Text = "Copy";
-            this.radioButtonCopy.UseVisualStyleBackColor = true;
-            // 
-            // dgvMonitors
-            // 
-            this.dgvMonitors.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
-            this.dgvMonitors.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgvMonitors.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dgvMonitors.Location = new System.Drawing.Point(3, 16);
-            this.dgvMonitors.MultiSelect = false;
-            this.dgvMonitors.Name = "dgvMonitors";
-            this.dgvMonitors.Size = new System.Drawing.Size(504, 125);
-            this.dgvMonitors.TabIndex = 0;
-            // 
-            // dgvAlpha
-            // 
-            this.dgvAlpha.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
-            this.dgvAlpha.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgvAlpha.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dgvAlpha.Location = new System.Drawing.Point(3, 16);
-            this.dgvAlpha.MultiSelect = false;
-            this.dgvAlpha.Name = "dgvAlpha";
-            this.dgvAlpha.Size = new System.Drawing.Size(504, 280);
-            this.dgvAlpha.TabIndex = 0;
-            // 
-            // dgvBeta
-            // 
-            this.dgvBeta.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
-            this.dgvBeta.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgvBeta.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dgvBeta.Location = new System.Drawing.Point(3, 16);
-            this.dgvBeta.MultiSelect = false;
-            this.dgvBeta.Name = "dgvBeta";
-            this.dgvBeta.Size = new System.Drawing.Size(504, 280);
-            this.dgvBeta.TabIndex = 0;
+            this.rbCopy.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.rbCopy.AutoSize = true;
+            this.rbCopy.Location = new System.Drawing.Point(991, 22);
+            this.rbCopy.Name = "rbCopy";
+            this.rbCopy.Size = new System.Drawing.Size(49, 17);
+            this.rbCopy.TabIndex = 13;
+            this.rbCopy.Text = "Copy";
+            this.rbCopy.UseVisualStyleBackColor = true;
             // 
             // MainForm
             // 
@@ -767,17 +767,17 @@
             this.tabPageMonitor.ResumeLayout(false);
             this.tlpMonitor.ResumeLayout(false);
             this.groupBox3.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.dgvMonitors)).EndInit();
             this.groupBox12.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.dgvAlpha)).EndInit();
             this.groupBox13.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.dgvBeta)).EndInit();
             this.groupBox14.ResumeLayout(false);
             this.tabPageLog.ResumeLayout(false);
             this.tabPageLog.PerformLayout();
             this.tlpMain.ResumeLayout(false);
             this.groupBoxMainControl.ResumeLayout(false);
             this.groupBoxMainControl.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dgvMonitors)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.dgvAlpha)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.dgvBeta)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -792,10 +792,10 @@
         private System.Windows.Forms.TabPage tabPageCTrader;
         private System.Windows.Forms.TableLayoutPanel tlpMain;
         private System.Windows.Forms.GroupBox groupBoxMainControl;
-        private System.Windows.Forms.RadioButton radioButtonDisconnect;
-        private System.Windows.Forms.RadioButton radioButtonConnect;
+        private System.Windows.Forms.RadioButton rbDisconnect;
+        private System.Windows.Forms.RadioButton rbConnect;
         private System.Windows.Forms.Button buttonSave;
-        private System.Windows.Forms.RadioButton radioButtonCopy;
+        private System.Windows.Forms.RadioButton rbCopy;
         private System.Windows.Forms.TableLayoutPanel tlpCTrader;
         private System.Windows.Forms.GroupBox groupBox4;
         private System.Windows.Forms.GroupBox groupBox5;

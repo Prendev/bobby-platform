@@ -12,16 +12,16 @@ namespace QvaDev.CTraderIntegration
 {
     public class ConnectorRetryDecorator : IConnector
     {
-        private class CtPosition
+        public class CtPosition
         {
             public long PositionId { get; set; }
             public long Volume { get; set; }
             public string ClientMsgId { get; set; }
             public RetryOrder CloseOrder { get; set; }
+            public string Symbol { get; set; }
         }
 
         private readonly ILog _log;
-        private readonly ConcurrentDictionary<long, CtPosition> _positions = new ConcurrentDictionary<long, CtPosition>();
         private readonly ConcurrentDictionary<string, MarketOrder> _marketOrders = new ConcurrentDictionary<string, MarketOrder>();
         private readonly CTraderClientWrapper _cTraderClientWrapper;
         private readonly Connector _connector;
@@ -30,6 +30,7 @@ namespace QvaDev.CTraderIntegration
         public string Description => _connector?.Description;
         public long AccountId => _accountInfo?.AccountId ?? 0;
         public bool IsConnected => _connector?.IsConnected == true;
+        public readonly ConcurrentDictionary<long, CtPosition> Positions = new ConcurrentDictionary<long, CtPosition>();
         public event OrderEventHandler OnOrder;
 
         public double VolumeMultiplier => 100;
@@ -69,7 +70,14 @@ namespace QvaDev.CTraderIntegration
             //_cTraderClient.OnTick += OnTick;
 
             foreach (var p in GetPositions())
-                _positions.GetOrAdd(p.positionId, new CtPosition {PositionId = p.positionId, Volume = p.volume, ClientMsgId = p.comment});
+                Positions.GetOrAdd(p.positionId,
+                    new CtPosition
+                    {
+                        PositionId = p.positionId,
+                        Volume = p.volume,
+                        ClientMsgId = p.comment,
+                        Symbol = p.symbolName
+                    });
 
             return true;
         }
@@ -108,7 +116,7 @@ namespace QvaDev.CTraderIntegration
         public void SendClosePositionRequests(string clientOrderId, int maxRetryCount = 5, int retryPeriodInMilliseconds = 3000)
         {
             var clientMsgId = $"{AccountId}|{clientOrderId}";
-            foreach (var pos in _positions.Where(p => p.Value.ClientMsgId == clientMsgId))
+            foreach (var pos in Positions.Where(p => p.Value.ClientMsgId == clientMsgId))
                 SendClosePositionRequest(pos.Key, Math.Abs(pos.Value.Volume), maxRetryCount, retryPeriodInMilliseconds);
         }
 
@@ -117,7 +125,7 @@ namespace QvaDev.CTraderIntegration
             var clientMsgId = $"{AccountId}|{positionId}";
 
             CtPosition position;
-            if(_positions.TryGetValue(positionId, out position))
+            if(Positions.TryGetValue(positionId, out position))
                 position.CloseOrder = new RetryOrder { MaxRetryCount = maxRetryCount, RetryPeriodInMilliseconds = retryPeriodInMilliseconds };
 
             _connector.SendClosePositionRequest(positionId, volume, clientMsgId);
@@ -134,8 +142,8 @@ namespace QvaDev.CTraderIntegration
             if (p.PositionStatus != ProtoOAPositionStatus.OA_POSITION_STATUS_OPEN &&
                 p.PositionStatus != ProtoOAPositionStatus.OA_POSITION_STATUS_CLOSED) return;
 
-            var pos = _positions.AddOrUpdate(p.PositionId,
-                id => new CtPosition {PositionId = p.PositionId, Volume = p.Volume, ClientMsgId = p.Comment},
+            var pos = Positions.AddOrUpdate(p.PositionId,
+                id => new CtPosition {PositionId = p.PositionId, Volume = p.Volume, ClientMsgId = p.Comment, Symbol = p.SymbolName},
                 (id, old) => new CtPosition {PositionId = p.PositionId, Volume = p.Volume, ClientMsgId = p.Comment});
 
             CheckMarketOrder(p);
@@ -164,7 +172,7 @@ namespace QvaDev.CTraderIntegration
         {
             if (ctPos.Volume == 0)
             {
-                _positions.TryRemove(protoPos.PositionId, out ctPos);
+                Positions.TryRemove(protoPos.PositionId, out ctPos);
                 return;
             }
             ctPos.Volume = protoPos.Volume;
@@ -186,7 +194,7 @@ namespace QvaDev.CTraderIntegration
             long positionId;
             CtPosition ctPos;
             var parts = clientMsgId.Split('|');
-            if (long.TryParse(parts[1], out positionId) && _positions.TryGetValue(positionId, out ctPos))
+            if (long.TryParse(parts[1], out positionId) && Positions.TryGetValue(positionId, out ctPos))
                 RetryClose(ctPos);
         }
 

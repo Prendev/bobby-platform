@@ -113,13 +113,13 @@ namespace QvaDev.Duplicat.ViewModel
         {
             IsLoading = true;
             IsConfigReadonly = true;
-            if (State == States.Disconnect) _orchestrator.Disconnect(_duplicatContext)
+            if (State == States.Disconnect) _orchestrator.Disconnect()
                 .ContinueWith(prevTask => { IsLoading = false; IsConfigReadonly = false; });
-            else if (State == States.Connect) _orchestrator.Connect(_duplicatContext)
+            else if (State == States.Connect) _orchestrator.Connect(_duplicatContext, SelectedAlphaMonitorId, SelectedBetaMonitorId)
                 .ContinueWith(prevTask => {
                     IsLoading = false;
                     IsConfigReadonly = true; });
-            else if (State == States.Copy) _orchestrator.StartCopiers(_duplicatContext)
+            else if (State == States.Copy) _orchestrator.StartCopiers(_duplicatContext, SelectedAlphaMonitorId, SelectedBetaMonitorId)
                 .ContinueWith(prevTask => { IsLoading = false; IsConfigReadonly = true; });
         }
 

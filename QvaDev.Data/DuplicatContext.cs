@@ -230,37 +230,39 @@ namespace QvaDev.Data
             {
                 MetaTraderAccount = MetaTraderAccounts.First(e => e.Id == 1),
                 Monitor = Monitors.First(e => e.Id == 1),
-                ExpectedLots = 0.1
+                ExpectedContracts = 1000,
+                Symbol = "EURUSD+"
             });
             MonitoredAccounts.Add(new MonitoredAccount
             {
-                MetaTraderAccount = MetaTraderAccounts.First(e => e.Id == 1),
+                MetaTraderAccount = MetaTraderAccounts.First(e => e.Id == 2),
                 Monitor = Monitors.First(e => e.Id == 2),
-                ExpectedLots = 0.1
+                ExpectedContracts = 1000,
+                Symbol = "EURUSD+"
             });
             MonitoredAccounts.Add(new MonitoredAccount
             {
                 CTraderAccount = CTraderAccounts.First(e => e.Id == 1),
                 Monitor = Monitors.First(e => e.Id == 1),
-                ExpectedLots = 0.1
+                ExpectedContracts = 1000
             });
             MonitoredAccounts.Add(new MonitoredAccount
             {
                 CTraderAccount = CTraderAccounts.First(e => e.Id == 2),
                 Monitor = Monitors.First(e => e.Id == 1),
-                ExpectedLots = 0.2
+                ExpectedContracts = 2000
             });
             MonitoredAccounts.Add(new MonitoredAccount
             {
                 CTraderAccount = CTraderAccounts.First(e => e.Id == 3),
                 Monitor = Monitors.First(e => e.Id == 2),
-                ExpectedLots = 0.3
+                ExpectedContracts = 3000
             });
             MonitoredAccounts.Add(new MonitoredAccount
             {
                 CTraderAccount = CTraderAccounts.First(e => e.Id == 4),
                 Monitor = Monitors.First(e => e.Id == 2),
-                ExpectedLots = 0.4
+                ExpectedContracts = 4000
             });
 
             SaveChanges();

@@ -6,6 +6,7 @@ using log4net;
 using QvaDev.Common.Integration;
 using QvaDev.CTraderIntegration;
 using QvaDev.Data;
+using QvaDev.Data.Models;
 using CtConnector = QvaDev.CTraderIntegration.ConnectorRetryDecorator;
 using MtConnector = QvaDev.Mt4Integration.Connector;
 
@@ -13,9 +14,9 @@ namespace QvaDev.Orchestration
 {
     public interface IOrchestrator
     {
-        Task Connect(DuplicatContext duplicatContext);
-        Task Disconnect(DuplicatContext duplicatContext);
-        Task StartCopiers(DuplicatContext duplicatContext);
+        Task StartCopiers(DuplicatContext duplicatContext, int alphaMonitorId, int betaMonitorId);
+        Task Connect(DuplicatContext duplicatContext, int alphaMonitorId, int betaMonitorId);
+        Task Disconnect();
     }
 
     public class Orchestrator : IOrchestrator
@@ -38,19 +39,20 @@ namespace QvaDev.Orchestration
             _log = log;
         }
 
-        public Task Connect(DuplicatContext duplicatContext)
+        public Task Connect(DuplicatContext duplicatContext, int alphaMonitorId, int betaMonitorId)
         {
+            _duplicatContext = duplicatContext;
             _synchronizationContext = _synchronizationContext ?? _synchronizationContextFactory.Invoke();
             _areCopiersActive = false;
-            return Task.WhenAll(ConnectMtAccounts(duplicatContext), ConenctCtAccounts(duplicatContext));
+            return Task.WhenAll(ConnectMtAccounts(alphaMonitorId, betaMonitorId), ConenctCtAccounts(alphaMonitorId, betaMonitorId));
         }
 
-        private Task ConnectMtAccounts(DuplicatContext duplicatContext)
+        private Task ConnectMtAccounts(int alphaMonitorId, int betaMonitorId)
         {
-            var tasks = duplicatContext.MetaTraderAccounts.AsEnumerable().Select(account =>
+            var tasks = _duplicatContext.MetaTraderAccounts.AsEnumerable().Select(account =>
                 Task.Factory.StartNew(() =>
                 {
-                    if (account.State == Data.Models.BaseAccountEntity.States.Connected) return;
+                    if (account.State == BaseAccountEntity.States.Connected) return;
                     var connector = account.Connector as MtConnector;
                     if (connector == null)
                     {
@@ -65,20 +67,22 @@ namespace QvaDev.Orchestration
                         Srv = account.MetaTraderPlatform.SrvFilePath
                     });
                     account.State = connected
-                        ? Data.Models.BaseAccountEntity.States.Connected
-                        : Data.Models.BaseAccountEntity.States.Error;
+                        ? BaseAccountEntity.States.Connected
+                        : BaseAccountEntity.States.Error;
                     account.RaisePropertyChanged(_synchronizationContext, nameof(account.State));
+
+                    MonitorAccount(account, alphaMonitorId, betaMonitorId);
                 }));
 
             return Task.WhenAll(tasks);
         }
 
-        private Task ConenctCtAccounts(DuplicatContext duplicatContext)
+        private Task ConenctCtAccounts(int alphaMonitorId, int betaMonitorId)
         {
-            var tasks = duplicatContext.CTraderAccounts.AsEnumerable().Select(account =>
+            var tasks = _duplicatContext.CTraderAccounts.AsEnumerable().Select(account =>
                 Task.Factory.StartNew(() =>
                 {
-                    if (account.State == Data.Models.BaseAccountEntity.States.Connected) return;
+                    if (account.State == BaseAccountEntity.States.Connected) return;
                     var connector = account.Connector as CtConnector;
                     if (connector == null)
                     {
@@ -106,55 +110,56 @@ namespace QvaDev.Orchestration
                         AccountNumber = account.AccountNumber
                     });
                     account.State = connected
-                        ? Data.Models.BaseAccountEntity.States.Connected
-                        : Data.Models.BaseAccountEntity.States.Error;
+                        ? BaseAccountEntity.States.Connected
+                        : BaseAccountEntity.States.Error;
                     account.RaisePropertyChanged(_synchronizationContext, nameof(account.State));
+
+                    MonitorAccount(account, alphaMonitorId, betaMonitorId);
                 }));
 
             return Task.WhenAll(tasks);
         }
 
-        public Task Disconnect(DuplicatContext duplicatContext)
+        public Task Disconnect()
         {
             _areCopiersActive = false;
-            return Task.WhenAll(DisconnectMtAccounts(duplicatContext), DisconnectCtAccounts(duplicatContext));
+            return Task.WhenAll(DisconnectMtAccounts(), DisconnectCtAccounts());
         }
 
-        private Task DisconnectMtAccounts(DuplicatContext duplicatContext)
+        private Task DisconnectMtAccounts()
         {
-            var tasks = duplicatContext.MetaTraderAccounts.AsEnumerable().Select(account =>
+            var tasks = _duplicatContext.MetaTraderAccounts.AsEnumerable().Select(account =>
                 Task.Factory.StartNew(() =>
                 {
-                    if (account.State == Data.Models.BaseAccountEntity.States.Disconnected) return;
+                    if (account.State == BaseAccountEntity.States.Disconnected) return;
                     account.Connector.Disconnect();
-                    account.State = Data.Models.BaseAccountEntity.States.Disconnected;
+                    account.State = BaseAccountEntity.States.Disconnected;
                     account.RaisePropertyChanged(_synchronizationContext, nameof(account.State));
                 }));
 
             return Task.WhenAll(tasks);
         }
 
-        private Task DisconnectCtAccounts(DuplicatContext duplicatContext)
+        private Task DisconnectCtAccounts()
         {
-            var tasks = duplicatContext.CTraderAccounts.AsEnumerable().Select(account =>
+            var tasks = _duplicatContext.CTraderAccounts.AsEnumerable().Select(account =>
                 Task.Factory.StartNew(() =>
                 {
-                    if (account.State == Data.Models.BaseAccountEntity.States.Disconnected) return;
+                    if (account.State == BaseAccountEntity.States.Disconnected) return;
                     account.Connector.Disconnect();
-                    account.State = Data.Models.BaseAccountEntity.States.Disconnected;
+                    account.State = BaseAccountEntity.States.Disconnected;
                     account.RaisePropertyChanged(_synchronizationContext, nameof(account.State));
                 }));
 
             return Task.WhenAll(tasks);
         }
 
-        public async Task StartCopiers(DuplicatContext duplicatContext)
+        public async Task StartCopiers(DuplicatContext duplicatContext, int alphaMonitorId, int betaMonitorId)
         {
-            _duplicatContext = duplicatContext;
-            await Connect(_duplicatContext);
-            foreach (var master in duplicatContext.Copiers.Local
-                .Where(c => c.Slave.CTraderAccount.State == Data.Models.BaseAccountEntity.States.Connected &&
-                            c.Slave.Master.MetaTraderAccount.State == Data.Models.BaseAccountEntity.States.Connected)
+            await Connect(_duplicatContext, alphaMonitorId, betaMonitorId);
+            foreach (var master in _duplicatContext.Copiers.Local
+                .Where(c => c.Slave.CTraderAccount.State == BaseAccountEntity.States.Connected &&
+                            c.Slave.Master.MetaTraderAccount.State == BaseAccountEntity.States.Connected)
                 .Select(c => c.Slave.Master).Distinct())
             {
                 master.MetaTraderAccount.Connector.OnOrder -= MasterOnOrderUpdate;
@@ -201,6 +206,44 @@ namespace QvaDev.Orchestration
                     }
                 }
             });
+        }
+
+        private void MonitorAccount(MetaTraderAccount account, int alphaMonitorId, int betaMonitorId)
+        {
+            var monitored = account.MonitoredAccounts
+                .FirstOrDefault(a => a.MonitorId == alphaMonitorId || a.MonitorId == betaMonitorId);
+            if (monitored == null) return;
+
+            var connector = account.Connector as MtConnector;
+            if (connector == null) return;
+
+            var symbol = monitored.Symbol ?? monitored.Monitor.Symbol;
+
+            var symbolInfo = connector.QuoteClient.GetSymbolInfo(symbol);
+
+            monitored.ActualContracts = (long)connector.QuoteClient.GetOpenedOrders()
+                .Where(o => o.Symbol == symbol)
+                .Sum(o => o.Lots * symbolInfo.ContractSize);
+            monitored.RaisePropertyChanged(_synchronizationContext, nameof(monitored.ActualContracts));
+        }
+
+        private void MonitorAccount(CTraderAccount account, int alphaMonitorId, int betaMonitorId)
+        {
+            if (account.State != BaseAccountEntity.States.Connected) return;
+
+            var monitored = account.MonitoredAccounts
+                .FirstOrDefault(a => a.MonitorId == alphaMonitorId || a.MonitorId == betaMonitorId);
+            if (monitored == null) return;
+
+            var connector = account.Connector as CtConnector;
+            if (connector == null) return;
+
+            var symbol = monitored.Symbol ?? monitored.Monitor.Symbol;
+
+            monitored.ActualContracts = connector.Positions
+                .Where(p => p.Value.Symbol == symbol)
+                .Sum(p => p.Value.Volume / 100);
+            monitored.RaisePropertyChanged(_synchronizationContext, nameof(monitored.ActualContracts));
         }
     }
 }

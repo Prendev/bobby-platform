@@ -43,6 +43,8 @@ namespace QvaDev.Duplicat
             dgvSymbolMappings.DataBindings.Add(new Binding("ReadOnly", _viewModel, "IsConfigReadonly"));
             dgvCopiers.DataBindings.Add(new Binding("ReadOnly", _viewModel, "IsConfigReadonly"));
             dgvMonitors.DataBindings.Add(new Binding("ReadOnly", _viewModel, "IsConfigReadonly"));
+            dgvAlpha.DataBindings.Add(new Binding("ReadOnly", _viewModel, "IsConfigReadonly"));
+            dgvBeta.DataBindings.Add(new Binding("ReadOnly", _viewModel, "IsConfigReadonly"));
 
 
             var inverseBinding = new Binding("Enabled", _viewModel, "IsConfigReadonly");
@@ -58,9 +60,9 @@ namespace QvaDev.Duplicat
             titleBinding.Format += (s, e) => e.Value = (bool) e.Value ? "QvaDev.Duplicat - Loading..." : "QvaDev.Duplicat";
             DataBindings.Add(titleBinding);
 
-            radioButtonDisconnect.DataBindings.Add(new Binding("Checked", _viewModel, "IsDisconnect", true, DataSourceUpdateMode.OnPropertyChanged, false));
-            radioButtonConnect.DataBindings.Add(new Binding("Checked", _viewModel, "IsConnect", true, DataSourceUpdateMode.OnPropertyChanged, false));
-            radioButtonCopy.DataBindings.Add(new Binding("Checked", _viewModel, "IsCopy", true, DataSourceUpdateMode.OnPropertyChanged, false));
+            rbDisconnect.DataBindings.Add(new Binding("Checked", _viewModel, "IsDisconnect", true, DataSourceUpdateMode.OnPropertyChanged, false));
+            rbConnect.DataBindings.Add(new Binding("Checked", _viewModel, "IsConnect", true, DataSourceUpdateMode.OnPropertyChanged, false));
+            rbCopy.DataBindings.Add(new Binding("Checked", _viewModel, "IsCopy", true, DataSourceUpdateMode.OnPropertyChanged, false));
 
             buttonSave.Click += (s, e) => { _viewModel.SaveCommand(); };
             buttonLoadProfile.Click += (s, e) => { _viewModel.LoadProfileCommand(dgvProfiles.GetSelectedItem<Profile>()); };
@@ -72,9 +74,16 @@ namespace QvaDev.Duplicat
             };
             tabControlMain.SelectedIndexChanged += (s, e) =>
             {
-                if (tabControlMain.SelectedTab.Name != tabPageCopier.Name) return;
-                dgvCopiers.FilterRows();
-                dgvSymbolMappings.FilterRows();
+                if (tabControlMain.SelectedTab.Name == tabPageCopier.Name)
+                {
+                    dgvCopiers.FilterRows();
+                    dgvSymbolMappings.FilterRows();
+                }
+                else if (tabControlMain.SelectedTab.Name == tabPageMonitor.Name)
+                {
+                    FilterMonitoredAccountRows(dgvAlpha);
+                    FilterMonitoredAccountRows(dgvBeta);
+                }
             };
 
             dgvMtPlatforms.DataError += DataGridView_DataError;
@@ -103,6 +112,10 @@ namespace QvaDev.Duplicat
             dgvBeta.DefaultValuesNeeded += (s, e) => { e.Row.Cells["MonitorId"].Value = _viewModel.SelectedBetaMonitorId; };
             dgvAlpha.DataSourceChanged += (s, e) => FilterMonitoredAccountRows((DataGridView) s);
             dgvBeta.DataSourceChanged += (s, e) => FilterMonitoredAccountRows((DataGridView) s);
+            dgvAlpha.SelectionChanged += (s, e) => FilterMonitoredAccountRows((DataGridView)s);
+            dgvBeta.SelectionChanged += (s, e) => FilterMonitoredAccountRows((DataGridView)s);
+            dgvAlpha.RowPrePaint += (s, e) => FilterMonitoredAccountRows((DataGridView)s);
+            dgvBeta.RowPrePaint += (s, e) => FilterMonitoredAccountRows((DataGridView)s);
             btnLoadAlpha.Click += (s, e) =>
             {
                 _viewModel.SelectedAlphaMonitorId = dgvMonitors.GetSelectedItem<Data.Models.Monitor>().Id;
@@ -206,10 +219,13 @@ namespace QvaDev.Duplicat
                 row.ReadOnly = isFiltered;
                 row.DefaultCellStyle.BackColor = isFiltered ? Color.LightGray : Color.White;
 
-                var currencyManager = (CurrencyManager)BindingContext[dgv.DataSource];
-                currencyManager.SuspendBinding();
-                row.Visible = !isFiltered;
-                currencyManager.ResumeBinding();
+                if (row.Visible == isFiltered)
+                {
+                    var currencyManager = (CurrencyManager)BindingContext[dgv.DataSource];
+                    currencyManager.SuspendBinding();
+                    row.Visible = !isFiltered;
+                    currencyManager.ResumeBinding();
+                }
             }
         }
     }
