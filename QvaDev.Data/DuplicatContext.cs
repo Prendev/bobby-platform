@@ -20,6 +20,9 @@ namespace QvaDev.Data
         public DbSet<Copier> Copiers { get; set; }
         public DbSet<SymbolMapping> SymbolMappings { get; set; }
 
+        public DbSet<Monitor> Monitors { get; set; }
+        public DbSet<MonitoredAccount> MonitoredAccounts { get; set; }
+
         public void Init()
         {
             var exists = Database.Exists();
@@ -195,6 +198,70 @@ namespace QvaDev.Data
                 SlippageInPips = 30, MaxRetryCount = 5, RetryPeriodInMilliseconds = 3000 });
             Copiers.Add(new Copier { Slave = Slaves.First(x => x.Id == 4), CopyRatio = 1, UseMarketRangeOrder = true,
                 SlippageInPips = 30, MaxRetryCount = 5, RetryPeriodInMilliseconds = 3000 });
+
+            Monitors.Add(new Monitor
+            {
+                Description = "Side A",
+                Profile = Profiles.First(p => p.Description == "Dummy Profile 1"),
+                Symbol = "EURUSD"
+            });
+            Monitors.Add(new Monitor
+            {
+                Description = "Side B",
+                Profile = Profiles.First(p => p.Description == "Dummy Profile 1"),
+                Symbol = "EURUSD"
+            });
+            Monitors.Add(new Monitor
+            {
+                Description = "Side C",
+                Profile = Profiles.First(p => p.Description == "Dummy Profile 1"),
+                Symbol = "EURUSD"
+            });
+            Monitors.Add(new Monitor
+            {
+                Description = "Side D",
+                Profile = Profiles.First(p => p.Description == "Dummy Profile 1"),
+                Symbol = "EURUSD"
+            });
+
+            SaveChanges();
+
+            MonitoredAccounts.Add(new MonitoredAccount
+            {
+                MetaTraderAccount = MetaTraderAccounts.First(e => e.Id == 1),
+                Monitor = Monitors.First(e => e.Id == 1),
+                ExpectedLots = 0.1
+            });
+            MonitoredAccounts.Add(new MonitoredAccount
+            {
+                MetaTraderAccount = MetaTraderAccounts.First(e => e.Id == 1),
+                Monitor = Monitors.First(e => e.Id == 2),
+                ExpectedLots = 0.1
+            });
+            MonitoredAccounts.Add(new MonitoredAccount
+            {
+                CTraderAccount = CTraderAccounts.First(e => e.Id == 1),
+                Monitor = Monitors.First(e => e.Id == 1),
+                ExpectedLots = 0.1
+            });
+            MonitoredAccounts.Add(new MonitoredAccount
+            {
+                CTraderAccount = CTraderAccounts.First(e => e.Id == 2),
+                Monitor = Monitors.First(e => e.Id == 1),
+                ExpectedLots = 0.2
+            });
+            MonitoredAccounts.Add(new MonitoredAccount
+            {
+                CTraderAccount = CTraderAccounts.First(e => e.Id == 3),
+                Monitor = Monitors.First(e => e.Id == 2),
+                ExpectedLots = 0.3
+            });
+            MonitoredAccounts.Add(new MonitoredAccount
+            {
+                CTraderAccount = CTraderAccounts.First(e => e.Id == 4),
+                Monitor = Monitors.First(e => e.Id == 2),
+                ExpectedLots = 0.4
+            });
 
             SaveChanges();
         }

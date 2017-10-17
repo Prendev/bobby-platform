@@ -1,5 +1,7 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Data.Entity;
+using System.Drawing;
 using System.Threading;
 using System.Windows.Forms;
 using QvaDev.Data.Models;
@@ -40,6 +42,7 @@ namespace QvaDev.Duplicat
             dgvSlaves.DataBindings.Add(new Binding("ReadOnly", _viewModel, "IsConfigReadonly"));
             dgvSymbolMappings.DataBindings.Add(new Binding("ReadOnly", _viewModel, "IsConfigReadonly"));
             dgvCopiers.DataBindings.Add(new Binding("ReadOnly", _viewModel, "IsConfigReadonly"));
+            dgvMonitors.DataBindings.Add(new Binding("ReadOnly", _viewModel, "IsConfigReadonly"));
 
 
             var inverseBinding = new Binding("Enabled", _viewModel, "IsConfigReadonly");
@@ -84,6 +87,7 @@ namespace QvaDev.Duplicat
             dgvSlaves.DataError += DataGridView_DataError;
             dgvSymbolMappings.DataError += DataGridView_DataError;
             dgvCopiers.DataError += DataGridView_DataError;
+            dgvMonitors.DataError += DataGridView_DataError;
 
             dgvSymbolMappings.DefaultValuesNeeded += (s, e) => { e.Row.Cells["SlaveId"].Value = _viewModel.SelectedSlaveId; };
             dgvCopiers.DefaultValuesNeeded += (s, e) =>
@@ -93,6 +97,21 @@ namespace QvaDev.Duplicat
                 e.Row.Cells["SlippageInPips"].Value = 1;
                 e.Row.Cells["MaxRetryCount"].Value = 5;
                 e.Row.Cells["RetryPeriodInMilliseconds"].Value = 3000;
+            };
+
+            dgvAlpha.DefaultValuesNeeded += (s, e) => { e.Row.Cells["MonitorId"].Value = _viewModel.SelectedAlphaMonitorId; };
+            dgvBeta.DefaultValuesNeeded += (s, e) => { e.Row.Cells["MonitorId"].Value = _viewModel.SelectedBetaMonitorId; };
+            dgvAlpha.DataSourceChanged += (s, e) => FilterMonitoredAccountRows((DataGridView) s);
+            dgvBeta.DataSourceChanged += (s, e) => FilterMonitoredAccountRows((DataGridView) s);
+            btnLoadAlpha.Click += (s, e) =>
+            {
+                _viewModel.SelectedAlphaMonitorId = dgvMonitors.GetSelectedItem<Data.Models.Monitor>().Id;
+                FilterMonitoredAccountRows(dgvAlpha);
+            };
+            btnLoadBeta.Click += (s, e) =>
+            {
+                _viewModel.SelectedBetaMonitorId = dgvMonitors.GetSelectedItem<Data.Models.Monitor>().Id;
+                FilterMonitoredAccountRows(dgvBeta);
             };
 
             _viewModel.ProfileChanged += AttachDataSources;
@@ -137,6 +156,10 @@ namespace QvaDev.Duplicat
             dgvMasters.AddComboBoxColumn(_viewModel.MtAccounts);
             dgvSlaves.AddComboBoxColumn(_viewModel.Masters);
             dgvSlaves.AddComboBoxColumn(_viewModel.CtAccounts);
+            dgvAlpha.AddComboBoxColumn(_viewModel.MtAccounts);
+            dgvAlpha.AddComboBoxColumn(_viewModel.CtAccounts);
+            dgvBeta.AddComboBoxColumn(_viewModel.MtAccounts);
+            dgvBeta.AddComboBoxColumn(_viewModel.CtAccounts);
 
             dgvMtPlatforms.DataSource = _viewModel.MtPlatforms.ToBindingList();
             dgvMtAccounts.DataSource = _viewModel.MtAccounts.ToBindingList();
@@ -154,6 +177,39 @@ namespace QvaDev.Duplicat
             dgvCopiers.DataSource = _viewModel.Copiers.ToBindingList();
             dgvCopiers.Columns["SlaveId"].Visible = false;
             dgvCopiers.Columns["Slave"].Visible = false;
+
+            dgvAlpha.DataSource = _viewModel.MonitoredAccounts.ToBindingList();
+            dgvAlpha.Columns["MonitorId"].Visible = false;
+            dgvAlpha.Columns["Monitor"].Visible = false;
+            dgvBeta.DataSource = _viewModel.MonitoredAccounts.ToBindingList();
+            dgvBeta.Columns["MonitorId"].Visible = false;
+            dgvBeta.Columns["Monitor"].Visible = false;
+
+            dgvMonitors.DataSource = _viewModel.Monitors.ToBindingList();
+        }
+
+        private void FilterMonitoredAccountRows(DataGridView dgv)
+        {
+            var monitorId = 0;
+            if (dgv == dgvAlpha) monitorId = _viewModel.SelectedAlphaMonitorId;
+            else if (dgv == dgvBeta) monitorId = _viewModel.SelectedBetaMonitorId;
+
+            var bindingList = dgv.DataSource as IBindingList;
+            if (bindingList == null) return;
+            foreach (DataGridViewRow row in dgv.Rows)
+            {
+                var entity = row.DataBoundItem as MonitoredAccount;
+                if (entity == null) continue;
+
+                var isFiltered = entity.MonitorId != monitorId;
+                row.ReadOnly = isFiltered;
+                row.DefaultCellStyle.BackColor = isFiltered ? Color.LightGray : Color.White;
+
+                var currencyManager = (CurrencyManager)BindingContext[dgv.DataSource];
+                currencyManager.SuspendBinding();
+                row.Visible = !isFiltered;
+                currencyManager.ResumeBinding();
+            }
         }
     }
 }

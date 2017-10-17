@@ -58,6 +58,14 @@
             this.dgvMasters = new QvaDev.Duplicat.CustomDataGridView();
             this.groupBox9 = new System.Windows.Forms.GroupBox();
             this.dgvSlaves = new QvaDev.Duplicat.CustomDataGridView();
+            this.tabPageMonitor = new System.Windows.Forms.TabPage();
+            this.tlpMonitor = new System.Windows.Forms.TableLayoutPanel();
+            this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.groupBox12 = new System.Windows.Forms.GroupBox();
+            this.groupBox13 = new System.Windows.Forms.GroupBox();
+            this.groupBox14 = new System.Windows.Forms.GroupBox();
+            this.btnLoadBeta = new System.Windows.Forms.Button();
+            this.btnLoadAlpha = new System.Windows.Forms.Button();
             this.tabPageLog = new System.Windows.Forms.TabPage();
             this.textBoxLog = new System.Windows.Forms.TextBox();
             this.tlpMain = new System.Windows.Forms.TableLayoutPanel();
@@ -68,6 +76,9 @@
             this.radioButtonConnect = new System.Windows.Forms.RadioButton();
             this.buttonSave = new System.Windows.Forms.Button();
             this.radioButtonCopy = new System.Windows.Forms.RadioButton();
+            this.dgvMonitors = new QvaDev.Duplicat.CustomDataGridView();
+            this.dgvAlpha = new QvaDev.Duplicat.CustomDataGridView();
+            this.dgvBeta = new QvaDev.Duplicat.CustomDataGridView();
             this.tabControlMain.SuspendLayout();
             this.tabPageProfileAndGroup.SuspendLayout();
             this.tlpProfilesAndGroups.SuspendLayout();
@@ -98,9 +109,18 @@
             ((System.ComponentModel.ISupportInitialize)(this.dgvMasters)).BeginInit();
             this.groupBox9.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvSlaves)).BeginInit();
+            this.tabPageMonitor.SuspendLayout();
+            this.tlpMonitor.SuspendLayout();
+            this.groupBox3.SuspendLayout();
+            this.groupBox12.SuspendLayout();
+            this.groupBox13.SuspendLayout();
+            this.groupBox14.SuspendLayout();
             this.tabPageLog.SuspendLayout();
             this.tlpMain.SuspendLayout();
             this.groupBoxMainControl.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvMonitors)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvAlpha)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvBeta)).BeginInit();
             this.SuspendLayout();
             // 
             // tabControlMain
@@ -109,6 +129,7 @@
             this.tabControlMain.Controls.Add(this.tabPageMt4);
             this.tabControlMain.Controls.Add(this.tabPageCTrader);
             this.tabControlMain.Controls.Add(this.tabPageCopier);
+            this.tabControlMain.Controls.Add(this.tabPageMonitor);
             this.tabControlMain.Controls.Add(this.tabPageLog);
             this.tabControlMain.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tabControlMain.Location = new System.Drawing.Point(3, 55);
@@ -464,6 +485,99 @@
             this.dgvSlaves.Size = new System.Drawing.Size(336, 301);
             this.dgvSlaves.TabIndex = 0;
             // 
+            // tabPageMonitor
+            // 
+            this.tabPageMonitor.Controls.Add(this.tlpMonitor);
+            this.tabPageMonitor.Location = new System.Drawing.Point(4, 22);
+            this.tabPageMonitor.Name = "tabPageMonitor";
+            this.tabPageMonitor.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPageMonitor.Size = new System.Drawing.Size(1038, 481);
+            this.tabPageMonitor.TabIndex = 5;
+            this.tabPageMonitor.Text = "Monitors";
+            this.tabPageMonitor.UseVisualStyleBackColor = true;
+            // 
+            // tlpMonitor
+            // 
+            this.tlpMonitor.ColumnCount = 2;
+            this.tlpMonitor.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tlpMonitor.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tlpMonitor.Controls.Add(this.groupBox3, 0, 0);
+            this.tlpMonitor.Controls.Add(this.groupBox12, 0, 1);
+            this.tlpMonitor.Controls.Add(this.groupBox13, 1, 1);
+            this.tlpMonitor.Controls.Add(this.groupBox14, 1, 0);
+            this.tlpMonitor.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tlpMonitor.Location = new System.Drawing.Point(3, 3);
+            this.tlpMonitor.Name = "tlpMonitor";
+            this.tlpMonitor.RowCount = 3;
+            this.tlpMonitor.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 150F));
+            this.tlpMonitor.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tlpMonitor.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.tlpMonitor.Size = new System.Drawing.Size(1032, 475);
+            this.tlpMonitor.TabIndex = 0;
+            // 
+            // groupBox3
+            // 
+            this.groupBox3.Controls.Add(this.dgvMonitors);
+            this.groupBox3.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.groupBox3.Location = new System.Drawing.Point(3, 3);
+            this.groupBox3.Name = "groupBox3";
+            this.groupBox3.Size = new System.Drawing.Size(510, 144);
+            this.groupBox3.TabIndex = 0;
+            this.groupBox3.TabStop = false;
+            this.groupBox3.Text = "Monitors";
+            // 
+            // groupBox12
+            // 
+            this.groupBox12.Controls.Add(this.dgvAlpha);
+            this.groupBox12.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.groupBox12.Location = new System.Drawing.Point(3, 153);
+            this.groupBox12.Name = "groupBox12";
+            this.groupBox12.Size = new System.Drawing.Size(510, 299);
+            this.groupBox12.TabIndex = 1;
+            this.groupBox12.TabStop = false;
+            this.groupBox12.Text = "Side A";
+            // 
+            // groupBox13
+            // 
+            this.groupBox13.Controls.Add(this.dgvBeta);
+            this.groupBox13.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.groupBox13.Location = new System.Drawing.Point(519, 153);
+            this.groupBox13.Name = "groupBox13";
+            this.groupBox13.Size = new System.Drawing.Size(510, 299);
+            this.groupBox13.TabIndex = 2;
+            this.groupBox13.TabStop = false;
+            this.groupBox13.Text = "Side B";
+            // 
+            // groupBox14
+            // 
+            this.groupBox14.Controls.Add(this.btnLoadBeta);
+            this.groupBox14.Controls.Add(this.btnLoadAlpha);
+            this.groupBox14.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.groupBox14.Location = new System.Drawing.Point(519, 3);
+            this.groupBox14.Name = "groupBox14";
+            this.groupBox14.Size = new System.Drawing.Size(510, 144);
+            this.groupBox14.TabIndex = 3;
+            this.groupBox14.TabStop = false;
+            this.groupBox14.Text = "Control";
+            // 
+            // btnLoadBeta
+            // 
+            this.btnLoadBeta.Location = new System.Drawing.Point(162, 19);
+            this.btnLoadBeta.Name = "btnLoadBeta";
+            this.btnLoadBeta.Size = new System.Drawing.Size(150, 23);
+            this.btnLoadBeta.TabIndex = 17;
+            this.btnLoadBeta.Text = "Load selected to side B";
+            this.btnLoadBeta.UseVisualStyleBackColor = true;
+            // 
+            // btnLoadAlpha
+            // 
+            this.btnLoadAlpha.Location = new System.Drawing.Point(6, 19);
+            this.btnLoadAlpha.Name = "btnLoadAlpha";
+            this.btnLoadAlpha.Size = new System.Drawing.Size(150, 23);
+            this.btnLoadAlpha.TabIndex = 16;
+            this.btnLoadAlpha.Text = "Load selected to side A";
+            this.btnLoadAlpha.UseVisualStyleBackColor = true;
+            // 
             // tabPageLog
             // 
             this.tabPageLog.Controls.Add(this.textBoxLog);
@@ -579,6 +693,39 @@
             this.radioButtonCopy.Text = "Copy";
             this.radioButtonCopy.UseVisualStyleBackColor = true;
             // 
+            // dgvMonitors
+            // 
+            this.dgvMonitors.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
+            this.dgvMonitors.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgvMonitors.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dgvMonitors.Location = new System.Drawing.Point(3, 16);
+            this.dgvMonitors.MultiSelect = false;
+            this.dgvMonitors.Name = "dgvMonitors";
+            this.dgvMonitors.Size = new System.Drawing.Size(504, 125);
+            this.dgvMonitors.TabIndex = 0;
+            // 
+            // dgvAlpha
+            // 
+            this.dgvAlpha.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
+            this.dgvAlpha.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgvAlpha.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dgvAlpha.Location = new System.Drawing.Point(3, 16);
+            this.dgvAlpha.MultiSelect = false;
+            this.dgvAlpha.Name = "dgvAlpha";
+            this.dgvAlpha.Size = new System.Drawing.Size(504, 280);
+            this.dgvAlpha.TabIndex = 0;
+            // 
+            // dgvBeta
+            // 
+            this.dgvBeta.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
+            this.dgvBeta.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgvBeta.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dgvBeta.Location = new System.Drawing.Point(3, 16);
+            this.dgvBeta.MultiSelect = false;
+            this.dgvBeta.Name = "dgvBeta";
+            this.dgvBeta.Size = new System.Drawing.Size(504, 280);
+            this.dgvBeta.TabIndex = 0;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -617,11 +764,20 @@
             ((System.ComponentModel.ISupportInitialize)(this.dgvMasters)).EndInit();
             this.groupBox9.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dgvSlaves)).EndInit();
+            this.tabPageMonitor.ResumeLayout(false);
+            this.tlpMonitor.ResumeLayout(false);
+            this.groupBox3.ResumeLayout(false);
+            this.groupBox12.ResumeLayout(false);
+            this.groupBox13.ResumeLayout(false);
+            this.groupBox14.ResumeLayout(false);
             this.tabPageLog.ResumeLayout(false);
             this.tabPageLog.PerformLayout();
             this.tlpMain.ResumeLayout(false);
             this.groupBoxMainControl.ResumeLayout(false);
             this.groupBoxMainControl.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvMonitors)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvAlpha)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvBeta)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -676,6 +832,17 @@
         private CustomDataGridView dgvSymbolMappings;
         private System.Windows.Forms.TabPage tabPageLog;
         private System.Windows.Forms.TextBox textBoxLog;
+        private System.Windows.Forms.TabPage tabPageMonitor;
+        private System.Windows.Forms.TableLayoutPanel tlpMonitor;
+        private System.Windows.Forms.GroupBox groupBox3;
+        private System.Windows.Forms.GroupBox groupBox12;
+        private System.Windows.Forms.GroupBox groupBox13;
+        private System.Windows.Forms.GroupBox groupBox14;
+        private System.Windows.Forms.Button btnLoadBeta;
+        private System.Windows.Forms.Button btnLoadAlpha;
+        private CustomDataGridView dgvMonitors;
+        private CustomDataGridView dgvAlpha;
+        private CustomDataGridView dgvBeta;
     }
 }
 
