@@ -228,20 +228,6 @@ namespace QvaDev.Data
 
             MonitoredAccounts.Add(new MonitoredAccount
             {
-                MetaTraderAccount = MetaTraderAccounts.First(e => e.Id == 1),
-                Monitor = Monitors.First(e => e.Id == 1),
-                ExpectedContracts = 1000,
-                Symbol = "EURUSD+"
-            });
-            MonitoredAccounts.Add(new MonitoredAccount
-            {
-                MetaTraderAccount = MetaTraderAccounts.First(e => e.Id == 2),
-                Monitor = Monitors.First(e => e.Id == 2),
-                ExpectedContracts = 1000,
-                Symbol = "EURUSD+"
-            });
-            MonitoredAccounts.Add(new MonitoredAccount
-            {
                 CTraderAccount = CTraderAccounts.First(e => e.Id == 1),
                 Monitor = Monitors.First(e => e.Id == 1),
                 ExpectedContracts = 1000
@@ -252,6 +238,24 @@ namespace QvaDev.Data
                 Monitor = Monitors.First(e => e.Id == 1),
                 ExpectedContracts = 2000
             });
+
+            MonitoredAccounts.Add(new MonitoredAccount
+            {
+                MetaTraderAccount = MetaTraderAccounts.First(e => e.Id == 1),
+                Monitor = Monitors.First(e => e.Id == 1),
+                ExpectedContracts = 1000,
+                Symbol = "EURUSD+",
+                IsMaster = true
+            });
+            MonitoredAccounts.Add(new MonitoredAccount
+            {
+                MetaTraderAccount = MetaTraderAccounts.First(e => e.Id == 2),
+                Monitor = Monitors.First(e => e.Id == 2),
+                ExpectedContracts = 1000,
+                Symbol = "EURUSD+",
+                IsMaster = true
+            });
+
             MonitoredAccounts.Add(new MonitoredAccount
             {
                 CTraderAccount = CTraderAccounts.First(e => e.Id == 3),

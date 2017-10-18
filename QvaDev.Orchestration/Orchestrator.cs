@@ -14,6 +14,7 @@ namespace QvaDev.Orchestration
         Task StartCopiers(DuplicatContext duplicatContext, int alphaMonitorId, int betaMonitorId);
         Task Connect(DuplicatContext duplicatContext, int alphaMonitorId, int betaMonitorId);
         Task Disconnect();
+        Task BalanceReport(DateTime from);
     }
 
     public class Orchestrator : IOrchestrator
@@ -171,6 +172,15 @@ namespace QvaDev.Orchestration
 
             _areCopiersActive = true;
             _log.Info($"Copiers are started");
+        }
+
+
+        public Task BalanceReport(DateTime from)
+        {
+            return Task.Factory.StartNew(() =>
+            {
+                //_balanceReportService.Report(_mt4Connectors, _cTraderConnectors, from);
+            });
         }
 
         private void MasterOnOrderUpdate(object sender, PositionEventArgs e)

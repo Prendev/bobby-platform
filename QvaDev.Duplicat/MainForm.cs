@@ -43,8 +43,10 @@ namespace QvaDev.Duplicat
             dgvSymbolMappings.DataBindings.Add(new Binding("ReadOnly", _viewModel, "IsConfigReadonly"));
             dgvCopiers.DataBindings.Add(new Binding("ReadOnly", _viewModel, "IsConfigReadonly"));
             dgvMonitors.DataBindings.Add(new Binding("ReadOnly", _viewModel, "IsConfigReadonly"));
-            dgvAlpha.DataBindings.Add(new Binding("ReadOnly", _viewModel, "IsConfigReadonly"));
-            dgvBeta.DataBindings.Add(new Binding("ReadOnly", _viewModel, "IsConfigReadonly"));
+            dgvAlphaMasters.DataBindings.Add(new Binding("ReadOnly", _viewModel, "IsConfigReadonly"));
+            dgvAlphaAccounts.DataBindings.Add(new Binding("ReadOnly", _viewModel, "IsConfigReadonly"));
+            dgvBetaMasters.DataBindings.Add(new Binding("ReadOnly", _viewModel, "IsConfigReadonly"));
+            dgvBetaAccounts.DataBindings.Add(new Binding("ReadOnly", _viewModel, "IsConfigReadonly"));
 
 
             var inverseBinding = new Binding("Enabled", _viewModel, "IsConfigReadonly");
@@ -81,8 +83,10 @@ namespace QvaDev.Duplicat
                 }
                 else if (tabControlMain.SelectedTab.Name == tabPageMonitor.Name)
                 {
-                    FilterMonitoredAccountRows(dgvAlpha);
-                    FilterMonitoredAccountRows(dgvBeta);
+                    FilterMonitoredAccountRows(dgvAlphaMasters, true);
+                    FilterMonitoredAccountRows(dgvAlphaAccounts, false);
+                    FilterMonitoredAccountRows(dgvBetaMasters, true);
+                    FilterMonitoredAccountRows(dgvBetaAccounts, false);
                 }
             };
 
@@ -97,6 +101,10 @@ namespace QvaDev.Duplicat
             dgvSymbolMappings.DataError += DataGridView_DataError;
             dgvCopiers.DataError += DataGridView_DataError;
             dgvMonitors.DataError += DataGridView_DataError;
+            dgvAlphaMasters.DataError += DataGridView_DataError;
+            dgvAlphaAccounts.DataError += DataGridView_DataError;
+            dgvBetaMasters.DataError += DataGridView_DataError;
+            dgvBetaAccounts.DataError += DataGridView_DataError;
 
             dgvSymbolMappings.DefaultValuesNeeded += (s, e) => { e.Row.Cells["SlaveId"].Value = _viewModel.SelectedSlaveId; };
             dgvCopiers.DefaultValuesNeeded += (s, e) =>
@@ -108,23 +116,49 @@ namespace QvaDev.Duplicat
                 e.Row.Cells["RetryPeriodInMilliseconds"].Value = 3000;
             };
 
-            dgvAlpha.DefaultValuesNeeded += (s, e) => { e.Row.Cells["MonitorId"].Value = _viewModel.SelectedAlphaMonitorId; };
-            dgvBeta.DefaultValuesNeeded += (s, e) => { e.Row.Cells["MonitorId"].Value = _viewModel.SelectedBetaMonitorId; };
-            dgvAlpha.DataSourceChanged += (s, e) => FilterMonitoredAccountRows((DataGridView) s);
-            dgvBeta.DataSourceChanged += (s, e) => FilterMonitoredAccountRows((DataGridView) s);
-            dgvAlpha.SelectionChanged += (s, e) => FilterMonitoredAccountRows((DataGridView)s);
-            dgvBeta.SelectionChanged += (s, e) => FilterMonitoredAccountRows((DataGridView)s);
-            dgvAlpha.RowPrePaint += (s, e) => FilterMonitoredAccountRows((DataGridView)s);
-            dgvBeta.RowPrePaint += (s, e) => FilterMonitoredAccountRows((DataGridView)s);
+            dgvAlphaMasters.DefaultValuesNeeded += (s, e) =>
+            {
+                e.Row.Cells["MonitorId"].Value = _viewModel.SelectedAlphaMonitorId;
+                e.Row.Cells["IsMaster"].Value = false;
+            };
+            dgvAlphaAccounts.DefaultValuesNeeded += (s, e) =>
+            {
+                e.Row.Cells["MonitorId"].Value = _viewModel.SelectedAlphaMonitorId;
+                e.Row.Cells["IsMaster"].Value = true;
+            };
+            dgvBetaMasters.DefaultValuesNeeded += (s, e) =>
+            {
+                e.Row.Cells["MonitorId"].Value = _viewModel.SelectedBetaMonitorId;
+                e.Row.Cells["IsMaster"].Value = true;
+            };
+            dgvBetaAccounts.DefaultValuesNeeded += (s, e) =>
+            {
+                e.Row.Cells["MonitorId"].Value = _viewModel.SelectedBetaMonitorId;
+                e.Row.Cells["IsMaster"].Value = false;
+            };
+            dgvAlphaMasters.DataSourceChanged += (s, e) => FilterMonitoredAccountRows((DataGridView)s, true);
+            dgvAlphaMasters.SelectionChanged += (s, e) => FilterMonitoredAccountRows((DataGridView)s, true);
+            dgvAlphaMasters.RowPrePaint += (s, e) => FilterMonitoredAccountRows((DataGridView)s, true);
+            dgvAlphaAccounts.DataSourceChanged += (s, e) => FilterMonitoredAccountRows((DataGridView) s, false);
+            dgvAlphaAccounts.SelectionChanged += (s, e) => FilterMonitoredAccountRows((DataGridView)s, false);
+            dgvAlphaAccounts.RowPrePaint += (s, e) => FilterMonitoredAccountRows((DataGridView)s, false);
+            dgvBetaMasters.DataSourceChanged += (s, e) => FilterMonitoredAccountRows((DataGridView)s, true);
+            dgvBetaMasters.SelectionChanged += (s, e) => FilterMonitoredAccountRows((DataGridView)s, true);
+            dgvBetaMasters.RowPrePaint += (s, e) => FilterMonitoredAccountRows((DataGridView)s, true);
+            dgvBetaAccounts.DataSourceChanged += (s, e) => FilterMonitoredAccountRows((DataGridView) s, false);
+            dgvBetaAccounts.SelectionChanged += (s, e) => FilterMonitoredAccountRows((DataGridView)s, false);
+            dgvBetaAccounts.RowPrePaint += (s, e) => FilterMonitoredAccountRows((DataGridView)s, false);
             btnLoadAlpha.Click += (s, e) =>
             {
                 _viewModel.SelectedAlphaMonitorId = dgvMonitors.GetSelectedItem<Data.Models.Monitor>().Id;
-                FilterMonitoredAccountRows(dgvAlpha);
+                FilterMonitoredAccountRows(dgvAlphaMasters, true);
+                FilterMonitoredAccountRows(dgvAlphaAccounts, false);
             };
             btnLoadBeta.Click += (s, e) =>
             {
                 _viewModel.SelectedBetaMonitorId = dgvMonitors.GetSelectedItem<Data.Models.Monitor>().Id;
-                FilterMonitoredAccountRows(dgvBeta);
+                FilterMonitoredAccountRows(dgvBetaMasters, true);
+                FilterMonitoredAccountRows(dgvBetaAccounts, false);
             };
 
             _viewModel.ProfileChanged += AttachDataSources;
@@ -170,10 +204,15 @@ namespace QvaDev.Duplicat
             dgvSlaves.AddComboBoxColumn(_viewModel.Masters);
             dgvSlaves.AddComboBoxColumn(_viewModel.CtAccounts);
             dgvMonitors.AddComboBoxColumn(_viewModel.Profiles);
-            dgvAlpha.AddComboBoxColumn(_viewModel.MtAccounts);
-            dgvAlpha.AddComboBoxColumn(_viewModel.CtAccounts);
-            dgvBeta.AddComboBoxColumn(_viewModel.MtAccounts);
-            dgvBeta.AddComboBoxColumn(_viewModel.CtAccounts);
+
+            dgvAlphaMasters.AddComboBoxColumn(_viewModel.MtAccounts);
+            dgvAlphaMasters.AddComboBoxColumn(_viewModel.CtAccounts);
+            dgvAlphaAccounts.AddComboBoxColumn(_viewModel.MtAccounts);
+            dgvAlphaAccounts.AddComboBoxColumn(_viewModel.CtAccounts);
+            dgvBetaMasters.AddComboBoxColumn(_viewModel.MtAccounts);
+            dgvBetaMasters.AddComboBoxColumn(_viewModel.CtAccounts);
+            dgvBetaAccounts.AddComboBoxColumn(_viewModel.MtAccounts);
+            dgvBetaAccounts.AddComboBoxColumn(_viewModel.CtAccounts);
 
             dgvMtPlatforms.DataSource = _viewModel.MtPlatforms.ToBindingList();
             dgvMtAccounts.DataSource = _viewModel.MtAccounts.ToBindingList();
@@ -192,21 +231,32 @@ namespace QvaDev.Duplicat
             dgvCopiers.Columns["SlaveId"].Visible = false;
             dgvCopiers.Columns["Slave"].Visible = false;
 
-            dgvAlpha.DataSource = _viewModel.MonitoredAccounts.ToBindingList();
-            dgvAlpha.Columns["MonitorId"].Visible = false;
-            dgvAlpha.Columns["Monitor"].Visible = false;
-            dgvBeta.DataSource = _viewModel.MonitoredAccounts.ToBindingList();
-            dgvBeta.Columns["MonitorId"].Visible = false;
-            dgvBeta.Columns["Monitor"].Visible = false;
+            dgvAlphaMasters.DataSource = _viewModel.MonitoredAccounts.ToBindingList();
+            dgvAlphaMasters.Columns["MonitorId"].Visible = false;
+            dgvAlphaMasters.Columns["Monitor"].Visible = false;
+            dgvAlphaMasters.Columns["IsMaster"].Visible = false;
+            dgvAlphaAccounts.DataSource = _viewModel.MonitoredAccounts.ToBindingList();
+            dgvAlphaAccounts.Columns["MonitorId"].Visible = false;
+            dgvAlphaAccounts.Columns["Monitor"].Visible = false;
+            dgvAlphaAccounts.Columns["IsMaster"].Visible = false;
+
+            dgvBetaMasters.DataSource = _viewModel.MonitoredAccounts.ToBindingList();
+            dgvBetaMasters.Columns["MonitorId"].Visible = false;
+            dgvBetaMasters.Columns["Monitor"].Visible = false;
+            dgvBetaMasters.Columns["IsMaster"].Visible = false;
+            dgvBetaAccounts.DataSource = _viewModel.MonitoredAccounts.ToBindingList();
+            dgvBetaAccounts.Columns["MonitorId"].Visible = false;
+            dgvBetaAccounts.Columns["Monitor"].Visible = false;
+            dgvBetaAccounts.Columns["IsMaster"].Visible = false;
 
             dgvMonitors.DataSource = _viewModel.Monitors.ToBindingList();
         }
 
-        private void FilterMonitoredAccountRows(DataGridView dgv)
+        private void FilterMonitoredAccountRows(DataGridView dgv, bool isMaster)
         {
             var monitorId = 0;
-            if (dgv == dgvAlpha) monitorId = _viewModel.SelectedAlphaMonitorId;
-            else if (dgv == dgvBeta) monitorId = _viewModel.SelectedBetaMonitorId;
+            if (dgv == dgvAlphaAccounts || dgv == dgvAlphaMasters) monitorId = _viewModel.SelectedAlphaMonitorId;
+            else if (dgv == dgvBetaAccounts || dgv == dgvBetaMasters) monitorId = _viewModel.SelectedBetaMonitorId;
 
             var bindingList = dgv.DataSource as IBindingList;
             if (bindingList == null) return;
@@ -215,7 +265,7 @@ namespace QvaDev.Duplicat
                 var entity = row.DataBoundItem as MonitoredAccount;
                 if (entity == null) continue;
 
-                var isFiltered = entity.MonitorId != monitorId;
+                var isFiltered = entity.MonitorId != monitorId || entity.IsMaster != isMaster;
                 row.ReadOnly = isFiltered;
                 row.DefaultCellStyle.BackColor = isFiltered ? Color.LightGray : Color.White;
 

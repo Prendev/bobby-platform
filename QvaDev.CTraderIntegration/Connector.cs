@@ -247,5 +247,13 @@ namespace QvaDev.CTraderIntegration
             _cTraderClientWrapper.CTraderClient.SendClosePositionRequest(_accountInfo.AccessToken, AccountId,
                 ctPos.Id, ctPos.Volume, $"{AccountId}|{ctPos.Id}");
         }
+
+        public static DateTime CTraderTimestampToDatetime(long timestamp)
+        {
+            // Java timestamp is milliseconds past epoch
+            var dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+            dtDateTime = dtDateTime.AddMilliseconds(timestamp).ToLocalTime();
+            return dtDateTime;
+        }
     }
 }

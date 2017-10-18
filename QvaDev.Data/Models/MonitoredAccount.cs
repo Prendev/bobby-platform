@@ -11,6 +11,9 @@ namespace QvaDev.Data.Models
         [Required]
         public Monitor Monitor { get; set; }
 
+        [Required]
+        public bool IsMaster { get; set; }
+
         public int? CTraderAccountId { get; set; }
         public CTraderAccount CTraderAccount { get; set; }
 
