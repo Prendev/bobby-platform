@@ -9,5 +9,6 @@ namespace QvaDev.Common.Integration
         ConcurrentDictionary<long, Position> Positions { get; }
         event PositionEventHandler OnPosition;
         void Disconnect();
+        long GetOpenContracts(string symbol);
     }
 }

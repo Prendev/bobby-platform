@@ -214,29 +214,35 @@ namespace QvaDev.Orchestration
 
         private void MonitorAccount(BaseAccountEntity account)
         {
+            UpdateActualContracts(account);
+
+            account.Connector.OnPosition -= Monitor_OnPosition;
+            account.Connector.OnPosition += Monitor_OnPosition;
+        }
+
+        private void Monitor_OnPosition(object sender, PositionEventArgs e)
+        {
+            BaseAccountEntity account = null;
+            if (e.AccountType == AccountTypes.Ct)
+                account = _duplicatContext.CTraderAccounts.Local.FirstOrDefault(a => a.Id == e.Position.AccountId);
+            else if(e.AccountType == AccountTypes.Mt4)
+                account = _duplicatContext.MetaTraderAccounts.Local.FirstOrDefault(a => a.Id == e.Position.AccountId);
+
+            UpdateActualContracts(account);
+        }
+
+        private void UpdateActualContracts(BaseAccountEntity account)
+        {
+            if (account?.Connector == null) return;
             if (account.State != BaseAccountEntity.States.Connected) return;
 
             var monitored = account.MonitoredAccounts
                 .FirstOrDefault(a => a.MonitorId == _alphaMonitorId || a.MonitorId == _betaMonitorId);
             if (monitored == null) return;
 
-            var connector = account.Connector;
-            if (account.Connector == null) return;
-
             var symbol = monitored.Symbol ?? monitored.Monitor.Symbol;
-
-            monitored.ActualContracts = connector.Positions
-                .Where(p => p.Value.Symbol == symbol)
-                .Sum(p => p.Value.RealVolume);
+            monitored.ActualContracts = account.Connector.GetOpenContracts(symbol);
             monitored.RaisePropertyChanged(_synchronizationContext, nameof(monitored.ActualContracts));
-
-            connector.OnPosition -= Connector_OnPosition;
-            connector.OnPosition += Connector_OnPosition;
-        }
-
-        private void Connector_OnPosition(object sender, PositionEventArgs e)
-        {
-            throw new NotImplementedException();
         }
     }
 }

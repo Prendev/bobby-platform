@@ -83,12 +83,7 @@ namespace QvaDev.Mt4Integration
 
         public long GetOpenContracts(string symbol)
         {
-            var symbolInfo = QuoteClient.GetSymbolInfo(symbol);
-
-            return (long) QuoteClient.GetOpenedOrders()
-                .Where(o => o.Symbol == symbol)
-                .Where(o => o.Type == Op.Buy || o.Type == Op.Sell)
-                .Sum(o => o.Lots * symbolInfo.ContractSize * (o.Type == Op.Buy ? 1 : -1));
+            return Positions.Where(p => p.Value.Symbol == symbol).Sum(p => p.Value.RealVolume);
         }
 
         private void OnOrderUpdate(object sender, OrderUpdateEventArgs update)

@@ -88,6 +88,11 @@ namespace QvaDev.CTraderIntegration
             return IsConnected;
         }
 
+        public long GetOpenContracts(string symbol)
+        {
+            return Positions.Where(p => p.Value.Symbol == symbol).Sum(p => p.Value.RealVolume);
+        }
+
         public void SendMarketOrderRequest(string symbol, ProtoTradeSide type, long volume, string clientOrderId, int maxRetryCount = 5, int retryPeriodInMilliseconds = 3000)
         {
             var clientMsgId = $"{AccountId}|{clientOrderId}";
