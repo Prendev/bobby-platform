@@ -23,7 +23,7 @@ namespace QvaDev.CTraderIntegration
             new ConcurrentDictionary<string, Lazy<CTraderClientWrapper>>();
 
         /// <summary>
-        /// The ley is access token
+        /// The key is access token
         /// </summary>
         private readonly ConcurrentDictionary<string, Lazy<List<AccountData>>> _accounts =
             new ConcurrentDictionary<string, Lazy<List<AccountData>>>();
@@ -42,7 +42,7 @@ namespace QvaDev.CTraderIntegration
         public IConnector Create(PlatformInfo platformInfo, AccountInfo accountInfo)
         {
             var accounts = _accounts.GetOrAdd(accountInfo.AccessToken,
-                key => new Lazy<List<AccountData>>(() =>
+                accessToken => new Lazy<List<AccountData>>(() =>
                 {
                     var accs = _tradingAccountsService
                         .GetAccounts(new BaseRequest
@@ -51,7 +51,7 @@ namespace QvaDev.CTraderIntegration
                             BaseUrl = platformInfo.AccountsApi
                         });
 
-                    _log.Debug($"Accounts acquired for access token: {key}");
+                    _log.Debug($"Accounts acquired for access token: {accessToken}");
                     return accs;
                 }, true));
 

@@ -7,6 +7,9 @@ using QvaDev.CTraderIntegration;
 using QvaDev.CTraderIntegration.Services;
 using QvaDev.Data.Repositories;
 using QvaDev.Orchestration;
+using QvaDev.Orchestration.Services;
+using ExchangeRatesService = QvaDev.Common.Services.ExchangeRatesService;
+using IExchangeRatesService = QvaDev.Common.Services.IExchangeRatesService;
 
 namespace QvaDev.Duplicat
 {
@@ -46,6 +49,8 @@ namespace QvaDev.Duplicat
             builder.RegisterType<ConnectorFactory>().As<IConnectorFactory>();
             builder.RegisterType<TradingAccountsService>().As<ITradingAccountsService>();
             builder.RegisterType<RestService>().As<IRestService>();
+            builder.RegisterType<ExchangeRatesService>().As<IExchangeRatesService>();
+            builder.RegisterType<BalanceReportService>().As<IBalanceReportService>();
         }
     }
 }

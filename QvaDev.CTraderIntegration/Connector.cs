@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using log4net;
 using QvaDev.Common.Integration;
 using QvaDev.CTraderIntegration.Dto;
@@ -10,12 +12,19 @@ namespace QvaDev.CTraderIntegration
 {
     public class Connector : IConnector
     {
+
         private readonly ILog _log;
         private readonly ITradingAccountsService _tradingAccountsService;
         private readonly ConcurrentDictionary<string, MarketOrder> _marketOrders = new ConcurrentDictionary<string, MarketOrder>();
         private readonly CTraderClientWrapper _cTraderClientWrapper;
         private readonly AccountInfo _accountInfo;
         private long AccountId => _accountInfo?.AccountId ?? 0;
+
+        /// <summary>
+        /// The key is access token
+        /// </summary>
+        public static ConcurrentDictionary<string, Lazy<List<AccountData>>> BalanceAccounts =
+            new ConcurrentDictionary<string, Lazy<List<AccountData>>>();
 
         public string Description => _accountInfo?.Description;
         public bool IsConnected => _cTraderClientWrapper?.IsConnected == true && AccountId > 0;
@@ -44,7 +53,7 @@ namespace QvaDev.CTraderIntegration
             _log.Debug($"{_accountInfo.Description} account ({_accountInfo.AccountNumber}) disconnected");
         }
 
-        public bool Connect(AccountInfo accountInfo)
+        public bool Connect()
         {
             if (!IsConnected)
             {
@@ -91,6 +100,62 @@ namespace QvaDev.CTraderIntegration
         public long GetOpenContracts(string symbol)
         {
             return Positions.Where(p => p.Value.Symbol == symbol).Sum(p => p.Value.RealVolume);
+        }
+
+        public double GetBalance()
+        {
+            if (!IsConnected) return 0;
+
+            var accounts = BalanceAccounts.GetOrAdd(_accountInfo.AccessToken,
+                accessToken => new Lazy<List<AccountData>>(() =>
+                {
+                    var accs = _tradingAccountsService
+                        .GetAccounts(new BaseRequest
+                        {
+                            AccessToken = accessToken,
+                            BaseUrl = _cTraderClientWrapper.PlatformInfo.AccountsApi
+                        });
+
+                    _log.Debug($"Accounts acquired for access token: {accessToken}");
+                    return accs;
+                }, true));
+
+            return (double)(accounts.Value.FirstOrDefault(a => a.accountId == AccountId)?.balance ?? 0);
+        }
+
+        public double GetPnl(DateTime from)
+        {
+            if (!IsConnected) return 0;
+            Thread.Sleep(2000);
+            var deals = _tradingAccountsService.GetDeals(new DealsRequest
+            {
+                AccessToken = _accountInfo.AccessToken,
+                BaseUrl = _cTraderClientWrapper.PlatformInfo.AccountsApi,
+                AccountId = AccountId,
+                From = from
+            });
+            return (double) deals.Sum(deal => deal.GetNetProfit());
+        }
+
+        public string GetCurrency()
+        {
+            if (!IsConnected) return "";
+
+            var accounts = BalanceAccounts.GetOrAdd(_accountInfo.AccessToken,
+                accessToken => new Lazy<List<AccountData>>(() =>
+                {
+                    var accs = _tradingAccountsService
+                        .GetAccounts(new BaseRequest
+                        {
+                            AccessToken = accessToken,
+                            BaseUrl = _cTraderClientWrapper.PlatformInfo.AccountsApi
+                        });
+
+                    _log.Debug($"Accounts acquired for access token: {accessToken}");
+                    return accs;
+                }, true));
+
+            return accounts.Value.FirstOrDefault(a => a.accountId == AccountId)?.depositCurrency ?? "";
         }
 
         public void SendMarketOrderRequest(string symbol, ProtoTradeSide type, long volume, string clientOrderId, int maxRetryCount = 5, int retryPeriodInMilliseconds = 3000)
@@ -165,16 +230,16 @@ namespace QvaDev.CTraderIntegration
                 Symbol = p.SymbolName,
                 Side = p.TradeSide == ProtoTradeSide.BUY ? Sides.Buy : Sides.Sell
             };
-            var pos = Positions.AddOrUpdate(p.PositionId, id => position, (id, old) => position);
+            position = Positions.AddOrUpdate(p.PositionId, id => position, (id, old) => position);
+
+            CheckMarketOrder(p);
+            CheckCloseOrder(p, position);
 
             OnPosition?.Invoke(this, new PositionEventArgs
             {
                 Position = position,
                 Action = p.PositionStatus == ProtoOAPositionStatus.OA_POSITION_STATUS_OPEN ? PositionEventArgs.Actions.Open : PositionEventArgs.Actions.Close,
             });
-
-            CheckMarketOrder(p);
-            CheckCloseOrder(p, pos);
         }
 
         private void CheckMarketOrder(ProtoOAPosition position)

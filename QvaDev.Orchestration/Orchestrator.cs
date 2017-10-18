@@ -6,6 +6,7 @@ using log4net;
 using QvaDev.Common.Integration;
 using QvaDev.Data;
 using QvaDev.Data.Models;
+using QvaDev.Orchestration.Services;
 
 namespace QvaDev.Orchestration
 {
@@ -23,6 +24,7 @@ namespace QvaDev.Orchestration
         private readonly Func<SynchronizationContext> _synchronizationContextFactory;
         private readonly ILog _log;
         private readonly CTraderIntegration.IConnectorFactory _connectorFactory;
+        private readonly IBalanceReportService _balanceReportService;
 
         private DuplicatContext _duplicatContext;
         private bool _areCopiersActive;
@@ -32,8 +34,10 @@ namespace QvaDev.Orchestration
         public Orchestrator(
             Func<SynchronizationContext> synchronizationContextFactory,
             CTraderIntegration.IConnectorFactory connectorFactory,
+            IBalanceReportService balanceReportService,
             ILog log)
         {
+            _balanceReportService = balanceReportService;
             _synchronizationContextFactory = synchronizationContextFactory;
             _connectorFactory = connectorFactory;
             _log = log;
@@ -101,18 +105,14 @@ namespace QvaDev.Orchestration
                             },
                             new CTraderIntegration.AccountInfo
                             {
+                                AccountId = account.Id,
                                 Description = account.Description,
                                 AccountNumber = account.AccountNumber,
                                 AccessToken = account.AccessToken
                             });
                         account.Connector = connector;
                     }
-                    var connected = connector.Connect(new CTraderIntegration.AccountInfo()
-                    {
-                        Id = account.Id,
-                        Description = account.Description,
-                        AccountNumber = account.AccountNumber
-                    });
+                    var connected = connector.Connect();
                     account.State = connected
                         ? BaseAccountEntity.States.Connected
                         : BaseAccountEntity.States.Error;
@@ -179,7 +179,10 @@ namespace QvaDev.Orchestration
         {
             return Task.Factory.StartNew(() =>
             {
-                //_balanceReportService.Report(_mt4Connectors, _cTraderConnectors, from);
+                _balanceReportService.Report(
+                    _duplicatContext.Monitors.Local.FirstOrDefault(m => m.Id == _alphaMonitorId),
+                    _duplicatContext.Monitors.Local.FirstOrDefault(m => m.Id == _betaMonitorId),
+                    from);
             });
         }
 
@@ -253,6 +256,16 @@ namespace QvaDev.Orchestration
             var symbol = monitored.Symbol ?? monitored.Monitor.Symbol;
             monitored.ActualContracts = account.Connector.GetOpenContracts(symbol);
             monitored.RaisePropertyChanged(_synchronizationContext, nameof(monitored.ActualContracts));
+
+            monitored.Monitor.ActualContracts = monitored.Monitor.MonitoredAccounts
+                .Where(a => !a.IsMaster)
+                .Sum(a => a.ActualContracts);
+            monitored.Monitor.RaisePropertyChanged(_synchronizationContext, nameof(monitored.Monitor.ActualContracts));
+
+            monitored.Monitor.ExpectedContracts = monitored.Monitor.MonitoredAccounts
+                .Where(a => !a.IsMaster)
+                .Sum(a => a.ExpectedContracts);
+            monitored.Monitor.RaisePropertyChanged(_synchronizationContext, nameof(monitored.Monitor.ExpectedContracts));
         }
     }
 }

@@ -86,6 +86,25 @@ namespace QvaDev.Mt4Integration
             return Positions.Where(p => p.Value.Symbol == symbol).Sum(p => p.Value.RealVolume);
         }
 
+        public double GetBalance()
+        {
+            if (!IsConnected) return 0;
+            return QuoteClient.AccountBalance;
+        }
+
+        public double GetPnl(DateTime from)
+        {
+            if (!IsConnected) return 0;
+            return QuoteClient.DownloadOrderHistory(from, DateTime.Now.AddDays(1))
+                .Sum(o => o.Profit + o.Swap + o.Commission);
+        }
+
+        public string GetCurrency()
+        {
+            if (!IsConnected) return "";
+            return QuoteClient.Account.currency;
+        }
+
         private void OnOrderUpdate(object sender, OrderUpdateEventArgs update)
         {
             if (update.Action != UpdateAction.PositionOpen && update.Action != UpdateAction.PositionClose) return;

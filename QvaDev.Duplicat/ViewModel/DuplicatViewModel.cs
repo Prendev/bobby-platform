@@ -5,7 +5,6 @@ using System.Configuration;
 using System.Data.Entity;
 using System.Diagnostics;
 using System.Linq;
-using QvaDev.Common;
 using QvaDev.Common.Services;
 using QvaDev.Data;
 using QvaDev.Data.Models;
@@ -102,6 +101,11 @@ namespace QvaDev.Duplicat.ViewModel
                 process.StartInfo.Arguments = $"{accessUrl} --incognito";
                 process.Start();
             }
+        }
+
+        public void BalanceReportCommand(DateTime from)
+        {
+            _orchestrator.BalanceReport(from);
         }
 
         private void DuplicatViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
