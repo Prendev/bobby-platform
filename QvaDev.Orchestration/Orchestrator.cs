@@ -7,6 +7,7 @@ using QvaDev.Common.Integration;
 using QvaDev.CTraderIntegration;
 using QvaDev.Data;
 using QvaDev.Data.Models;
+using TradingAPI.MT4Server;
 using CtConnector = QvaDev.CTraderIntegration.ConnectorRetryDecorator;
 using MtConnector = QvaDev.Mt4Integration.Connector;
 
@@ -28,6 +29,8 @@ namespace QvaDev.Orchestration
 
         private DuplicatContext _duplicatContext;
         private bool _areCopiersActive;
+        private int _alphaMonitorId;
+        private int _betaMonitorId;
 
         public Orchestrator(
             Func<SynchronizationContext> synchronizationContextFactory,
@@ -41,13 +44,15 @@ namespace QvaDev.Orchestration
 
         public Task Connect(DuplicatContext duplicatContext, int alphaMonitorId, int betaMonitorId)
         {
+            _betaMonitorId = betaMonitorId;
+            _alphaMonitorId = alphaMonitorId;
             _duplicatContext = duplicatContext;
             _synchronizationContext = _synchronizationContext ?? _synchronizationContextFactory.Invoke();
             _areCopiersActive = false;
-            return Task.WhenAll(ConnectMtAccounts(alphaMonitorId, betaMonitorId), ConenctCtAccounts(alphaMonitorId, betaMonitorId));
+            return Task.WhenAll(ConnectMtAccounts(), ConenctCtAccounts());
         }
 
-        private Task ConnectMtAccounts(int alphaMonitorId, int betaMonitorId)
+        private Task ConnectMtAccounts()
         {
             var tasks = _duplicatContext.MetaTraderAccounts.AsEnumerable().Select(account =>
                 Task.Factory.StartNew(() =>
@@ -71,13 +76,13 @@ namespace QvaDev.Orchestration
                         : BaseAccountEntity.States.Error;
                     account.RaisePropertyChanged(_synchronizationContext, nameof(account.State));
 
-                    MonitorAccount(account, alphaMonitorId, betaMonitorId);
+                    MonitorAccount(account);
                 }));
 
             return Task.WhenAll(tasks);
         }
 
-        private Task ConenctCtAccounts(int alphaMonitorId, int betaMonitorId)
+        private Task ConenctCtAccounts()
         {
             var tasks = _duplicatContext.CTraderAccounts.AsEnumerable().Select(account =>
                 Task.Factory.StartNew(() =>
@@ -114,7 +119,7 @@ namespace QvaDev.Orchestration
                         : BaseAccountEntity.States.Error;
                     account.RaisePropertyChanged(_synchronizationContext, nameof(account.State));
 
-                    MonitorAccount(account, alphaMonitorId, betaMonitorId);
+                    MonitorAccount(account);
                 }));
 
             return Task.WhenAll(tasks);
@@ -170,37 +175,38 @@ namespace QvaDev.Orchestration
             _log.Info($"Copiers are started");
         }
 
-        private void MasterOnOrderUpdate(object sender, OrderEventArgs e)
+        private void MasterOnOrderUpdate(object sender, PositionEventArgs e)
         {
             if (!_areCopiersActive) return;
             Task.Factory.StartNew(() =>
             {
                 lock (sender)
                 {
-                    _log.Info($"Master {e.Action:F} {e.Side:F} signal on {e.Symbol} with open time: {e.OpenTime:o}");
+                    _log.Info($"Master {e.Action:F} {e.Position.Side:F} signal on " +
+                              $"{e.Position.Symbol} with open time: {e.Position.OpenTime:o}");
 
                     var masters = _duplicatContext.Masters.Local
-                        .Where(m => m.MetaTraderAccount.Description == e.AccountDescription);
-                    var type = e.Side == OrderEventArgs.Sides.Buy ? ProtoTradeSide.BUY : ProtoTradeSide.SELL;
+                        .Where(m => m.MetaTraderAccount.Description == e.Position.AccountDescription);
+                    var type = e.Position.Side == Sides.Buy ? ProtoTradeSide.BUY : ProtoTradeSide.SELL;
 
                     foreach (var master in masters)
                     foreach (var slave in master.Slaves)
                     {
                         var slaveConnector = (CtConnector) slave.CTraderAccount.Connector;
-                        var symbol = slave.SymbolMappings?.Any(m => m.From == e.Symbol) == true
-                            ? slave.SymbolMappings.First(m => m.From == e.Symbol).To
-                            : e.Symbol + (slave.SymbolSuffix ?? "");
+                        var symbol = slave.SymbolMappings?.Any(m => m.From == e.Position.Symbol) == true
+                            ? slave.SymbolMappings.First(m => m.From == e.Position.Symbol).To
+                            : e.Position.Symbol + (slave.SymbolSuffix ?? "");
                         foreach (var copier in slave.Copiers)
                         {
-                            var volume = (long) (100 * e.Volume * copier.CopyRatio);
-                            if (e.Action == OrderEventArgs.Actions.Open && copier.UseMarketRangeOrder)
-                                slaveConnector.SendMarketRangeOrderRequest(symbol, type, volume, e.OperPrice,
-                                    copier.SlippageInPips, $"{slave.Id}-{e.Ticket}", copier.MaxRetryCount, copier.RetryPeriodInMilliseconds);
-                            else if (e.Action == OrderEventArgs.Actions.Open && !copier.UseMarketRangeOrder)
-                                slaveConnector.SendMarketOrderRequest(symbol, type, volume, $"{slave.Id}-{e.Ticket}",
+                            var volume = (long) (100 * Math.Abs(e.Position.RealVolume) * copier.CopyRatio);
+                            if (e.Action == PositionEventArgs.Actions.Open && copier.UseMarketRangeOrder)
+                                slaveConnector.SendMarketRangeOrderRequest(symbol, type, volume, e.Position.OperPrice,
+                                    copier.SlippageInPips, $"{slave.Id}-{e.Position.Id}", copier.MaxRetryCount, copier.RetryPeriodInMilliseconds);
+                            else if (e.Action == PositionEventArgs.Actions.Open && !copier.UseMarketRangeOrder)
+                                slaveConnector.SendMarketOrderRequest(symbol, type, volume, $"{slave.Id}-{e.Position.Id}",
                                     copier.MaxRetryCount, copier.RetryPeriodInMilliseconds);
-                            else if (e.Action == OrderEventArgs.Actions.Close)
-                                slaveConnector.SendClosePositionRequests($"{slave.Id}-{e.Ticket}",
+                            else if (e.Action == PositionEventArgs.Actions.Close)
+                                slaveConnector.SendClosePositionRequests($"{slave.Id}-{e.Position.Id}",
                                     copier.MaxRetryCount, copier.RetryPeriodInMilliseconds);
                         }
                     }
@@ -208,31 +214,35 @@ namespace QvaDev.Orchestration
             });
         }
 
-        private void MonitorAccount(MetaTraderAccount account, int alphaMonitorId, int betaMonitorId)
+        private void MonitorAccount(MetaTraderAccount account)
         {
             var monitored = account.MonitoredAccounts
-                .FirstOrDefault(a => a.MonitorId == alphaMonitorId || a.MonitorId == betaMonitorId);
+                .FirstOrDefault(a => a.MonitorId == _alphaMonitorId || a.MonitorId == _betaMonitorId);
             if (monitored == null) return;
 
             var connector = account.Connector as MtConnector;
             if (connector == null) return;
 
-            var symbol = monitored.Symbol ?? monitored.Monitor.Symbol;
-
-            var symbolInfo = connector.QuoteClient.GetSymbolInfo(symbol);
-
-            monitored.ActualContracts = (long)connector.QuoteClient.GetOpenedOrders()
-                .Where(o => o.Symbol == symbol)
-                .Sum(o => o.Lots * symbolInfo.ContractSize);
+            monitored.ActualContracts = connector.GetOpenContracts(monitored.Symbol ?? monitored.Monitor.Symbol);
             monitored.RaisePropertyChanged(_synchronizationContext, nameof(monitored.ActualContracts));
+
+            connector.QuoteClient.OnOrderUpdate += QuoteClient_OnOrderUpdate;
         }
 
-        private void MonitorAccount(CTraderAccount account, int alphaMonitorId, int betaMonitorId)
+        private void QuoteClient_OnOrderUpdate(object sender, OrderUpdateEventArgs update)
+        {
+            //(long)connector.QuoteClient.GetOpenedOrders()
+            //    .Where(o => o.Symbol == symbol)
+            //    .Sum(o => o.Lots * symbolInfo.ContractSize);
+            //throw new NotImplementedException();
+        }
+
+        private void MonitorAccount(CTraderAccount account)
         {
             if (account.State != BaseAccountEntity.States.Connected) return;
 
             var monitored = account.MonitoredAccounts
-                .FirstOrDefault(a => a.MonitorId == alphaMonitorId || a.MonitorId == betaMonitorId);
+                .FirstOrDefault(a => a.MonitorId == _alphaMonitorId || a.MonitorId == _betaMonitorId);
             if (monitored == null) return;
 
             var connector = account.Connector as CtConnector;

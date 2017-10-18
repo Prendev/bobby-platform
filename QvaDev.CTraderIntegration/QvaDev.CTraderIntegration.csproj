@@ -62,9 +62,6 @@
     <Compile Include="Dto\PositionData.cs" />
     <Compile Include="Dto\AccountData.cs" />
     <Compile Include="Dto\ListResponse.cs" />
-    <Compile Include="Model\RetryOrder.cs" />
-    <Compile Include="Model\MarketOrder.cs" />
-    <Compile Include="Model\Position.cs" />
     <Compile Include="PlatformInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RestService.cs" />

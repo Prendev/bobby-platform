@@ -16,7 +16,7 @@ namespace QvaDev.CTraderIntegration
         public string Description => _accountInfo?.Description;
         public long AccountId => _accountInfo?.AccountId ?? 0;
         public bool IsConnected => _wrapper?.IsConnected == true && AccountId > 0;
-        public event OrderEventHandler OnOrder;
+        public event PositionEventHandler OnOrder;
 
         public double VolumeMultiplier => 100;
 

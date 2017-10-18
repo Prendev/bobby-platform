@@ -10,12 +10,14 @@ namespace QvaDev.Mt4Integration
     public class Connector : IConnector
     {
         private readonly ILog _log;
-        private readonly ConcurrentDictionary<string, long> _contractSizes = new ConcurrentDictionary<string, long>();
+        private readonly ConcurrentDictionary<string, SymbolInfo> _symbolInfos =
+            new ConcurrentDictionary<string, SymbolInfo>();
         private AccountInfo _accountInfo;
 
         public string Description => _accountInfo?.Description;
         public bool IsConnected => QuoteClient?.Connected == true;
-        public event OrderEventHandler OnOrder;
+        public readonly ConcurrentDictionary<int, Position> Orders = new ConcurrentDictionary<int, Position>();
+        public event PositionEventHandler OnOrder;
 
         public QuoteClient QuoteClient;
 
@@ -59,7 +61,31 @@ namespace QvaDev.Mt4Integration
             QuoteClient.OnOrderUpdate -= OnOrderUpdate;
             QuoteClient.OnOrderUpdate += OnOrderUpdate;
 
+            foreach (var o in QuoteClient.GetOpenedOrders().Where(o => o.Type == Op.Buy || o.Type == Op.Sell))
+            {
+                var symbolInfo = _symbolInfos
+                    .GetOrAdd(o.Symbol, s => QuoteClient.GetSymbolInfo(o.Symbol));
+                Orders.GetOrAdd(o.Ticket, new Position
+                {
+                    Id = o.Ticket,
+                    Lots = o.Lots,
+                    Symbol = o.Symbol,
+                    Side = o.Type == Op.Buy ? Sides.Buy : Sides.Sell,
+                    RealVolume = (long)(o.Lots * symbolInfo.ContractSize)
+                });
+            }
+
             return IsConnected;
+        }
+
+        public long GetOpenContracts(string symbol)
+        {
+            var symbolInfo = QuoteClient.GetSymbolInfo(symbol);
+
+            return (long) QuoteClient.GetOpenedOrders()
+                .Where(o => o.Symbol == symbol)
+                .Where(o => o.Type == Op.Buy || o.Type == Op.Sell)
+                .Sum(o => o.Lots * symbolInfo.ContractSize * (o.Type == Op.Buy ? 1 : -1));
         }
 
         private void OnOrderUpdate(object sender, OrderUpdateEventArgs update)
@@ -67,19 +93,26 @@ namespace QvaDev.Mt4Integration
             if (update.Action != UpdateAction.PositionOpen && update.Action != UpdateAction.PositionClose) return;
             if (update.Order.Type != Op.Buy && update.Order.Type != Op.Sell) return;
 
-            var contractSize = _contractSizes
-                .GetOrAdd(update.Order.Symbol, s => (long) QuoteClient.GetSymbolInfo(update.Order.Symbol).ContractSize);
 
-            OnOrder?.Invoke(sender, new OrderEventArgs()
+            var symbolInfo = _symbolInfos
+                .GetOrAdd(update.Order.Symbol, s => QuoteClient.GetSymbolInfo(update.Order.Symbol));
+            var position = new Position
             {
                 AccountDescription = _accountInfo.Description,
-                Ticket = update.Order.Ticket,
+                Id = update.Order.Ticket,
+                Lots = update.Order.Lots,
                 Symbol = update.Order.Symbol,
-                Side = update.Order.Type == Op.Buy ? OrderEventArgs.Sides.Buy : OrderEventArgs.Sides.Sell,
-                Action = update.Action == UpdateAction.PositionOpen ? OrderEventArgs.Actions.Open : OrderEventArgs.Actions.Close,
-                Volume = (long)(update.Order.Lots * contractSize),
+                Side = update.Order.Type == Op.Buy ? Sides.Buy : Sides.Sell,
+                Volume = (long)(update.Order.Lots * symbolInfo.ContractSize),
                 OpenTime = update.Order.OpenTime,
                 OperPrice = update.Order.OpenPrice
+            };
+            Orders.AddOrUpdate(update.Order.Ticket, t => position, (t, old) => position);
+
+            OnOrder?.Invoke(sender, new PositionEventArgs
+            {
+                Position = position,
+                Action = update.Action == UpdateAction.PositionOpen ? PositionEventArgs.Actions.Open : PositionEventArgs.Actions.Close,
             });
         }
 

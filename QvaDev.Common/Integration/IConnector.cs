@@ -5,6 +5,6 @@
         string Description { get; }
         bool IsConnected { get; }
         void Disconnect();
-        event OrderEventHandler OnOrder;
+        event PositionEventHandler OnOrder;
     }
 }

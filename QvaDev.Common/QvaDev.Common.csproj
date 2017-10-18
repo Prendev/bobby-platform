@@ -53,7 +53,11 @@
     <Compile Include="Attributes\InvisibleColumnAttribute.cs" />
     <Compile Include="Integration\BaseAccountInfo.cs" />
     <Compile Include="Integration\IConnector.cs" />
-    <Compile Include="Integration\OrderEventArgs.cs" />
+    <Compile Include="Integration\MarketOrder.cs" />
+    <Compile Include="Integration\PositionEventArgs.cs" />
+    <Compile Include="Integration\Position.cs" />
+    <Compile Include="Integration\RetryOrder.cs" />
+    <Compile Include="Integration\Sides.cs" />
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\ExchangeRatesService.cs" />

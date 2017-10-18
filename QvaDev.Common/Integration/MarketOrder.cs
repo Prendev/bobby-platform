@@ -1,9 +1,9 @@
-﻿namespace QvaDev.CTraderIntegration.Model
+﻿namespace QvaDev.Common.Integration
 {
     public class MarketOrder : RetryOrder
     {
         public string Symbol { get; set; }
-        public ProtoTradeSide Type { get; set; }
+        public Sides Side { get; set; }
         public string Comment { get; set; }
         public double Price { get; set; }
         public int SlippageInPips { get; set; }

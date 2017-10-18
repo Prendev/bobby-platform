@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace QvaDev.CTraderIntegration.Model
+namespace QvaDev.Common.Integration
 {
     public class RetryOrder
     {

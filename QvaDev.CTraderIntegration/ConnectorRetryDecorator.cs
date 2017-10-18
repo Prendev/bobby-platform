@@ -1,39 +1,25 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Linq;
 using log4net;
 using QvaDev.Common.Integration;
-using QvaDev.CTraderIntegration.Dto;
-using QvaDev.CTraderIntegration.Model;
 using QvaDev.CTraderIntegration.Services;
 
 namespace QvaDev.CTraderIntegration
 {
     public class ConnectorRetryDecorator : IConnector
     {
-        public class CtPosition
-        {
-            public long PositionId { get; set; }
-            public long Volume { get; set; }
-            public string ClientMsgId { get; set; }
-            public RetryOrder CloseOrder { get; set; }
-            public string Symbol { get; set; }
-        }
-
         private readonly ILog _log;
         private readonly ConcurrentDictionary<string, MarketOrder> _marketOrders = new ConcurrentDictionary<string, MarketOrder>();
         private readonly CTraderClientWrapper _cTraderClientWrapper;
         private readonly Connector _connector;
         private readonly AccountInfo _accountInfo;
+        private long AccountId => _accountInfo?.AccountId ?? 0;
 
         public string Description => _connector?.Description;
-        public long AccountId => _accountInfo?.AccountId ?? 0;
         public bool IsConnected => _connector?.IsConnected == true;
-        public readonly ConcurrentDictionary<long, CtPosition> Positions = new ConcurrentDictionary<long, CtPosition>();
-        public event OrderEventHandler OnOrder;
-
-        public double VolumeMultiplier => 100;
+        public readonly ConcurrentDictionary<long, Position> Positions = new ConcurrentDictionary<long, Position>();
+        public event PositionEventHandler OnOrder;
 
         public ConnectorRetryDecorator(
             AccountInfo accountInfo,
@@ -65,21 +51,22 @@ namespace QvaDev.CTraderIntegration
             _cTraderClientWrapper.CTraderClient.OnPosition += OnPosition;
             _cTraderClientWrapper.CTraderClient.OnError += OnError;
 
-            //_cTraderClient.OnOrder += OnOrder;
-            //_cTraderClient.OnLogin += OnLogin;
-            //_cTraderClient.OnTick += OnTick;
-
-            foreach (var p in GetPositions())
+            foreach (var p in _connector.GetPositions())
+            {
                 Positions.GetOrAdd(p.positionId,
-                    new CtPosition
+                    new Position
                     {
-                        PositionId = p.positionId,
+                        AccountDescription = _accountInfo.Description,
+                        Id = p.positionId,
                         Volume = p.volume,
-                        ClientMsgId = p.comment,
-                        Symbol = p.symbolName
+                        RealVolume = p.volume / 100 * (p.tradeSide == "BUY" ? 1 : -1),
+                        Comment = p.comment,
+                        Symbol = p.symbolName,
+                        Side = p.tradeSide == "BUY" ? Sides.Buy : Sides.Sell
                     });
+            }
 
-            return true;
+            return IsConnected;
         }
 
         public void SendMarketOrderRequest(string symbol, ProtoTradeSide type, long volume, string clientOrderId, int maxRetryCount = 5, int retryPeriodInMilliseconds = 3000)
@@ -88,7 +75,7 @@ namespace QvaDev.CTraderIntegration
             _marketOrders.GetOrAdd(clientMsgId, new MarketOrder
             {
                 Symbol = symbol,
-                Type = type,
+                Side = type ==  ProtoTradeSide.BUY ? Sides.Buy : Sides.Sell,
                 Volume = volume,
                 MaxRetryCount = maxRetryCount,
                 RetryPeriodInMilliseconds = retryPeriodInMilliseconds
@@ -103,7 +90,7 @@ namespace QvaDev.CTraderIntegration
             _marketOrders.GetOrAdd(clientMsgId, new MarketOrder
             {
                 Symbol = symbol,
-                Type = type,
+                Side = type == ProtoTradeSide.BUY ? Sides.Buy : Sides.Sell,
                 Volume = volume,
                 Price = price,
                 SlippageInPips = slippageInPips,
@@ -116,7 +103,7 @@ namespace QvaDev.CTraderIntegration
         public void SendClosePositionRequests(string clientOrderId, int maxRetryCount = 5, int retryPeriodInMilliseconds = 3000)
         {
             var clientMsgId = $"{AccountId}|{clientOrderId}";
-            foreach (var pos in Positions.Where(p => p.Value.ClientMsgId == clientMsgId))
+            foreach (var pos in Positions.Where(p => p.Value.Comment == clientMsgId))
                 SendClosePositionRequest(pos.Key, Math.Abs(pos.Value.Volume), maxRetryCount, retryPeriodInMilliseconds);
         }
 
@@ -124,16 +111,11 @@ namespace QvaDev.CTraderIntegration
         {
             var clientMsgId = $"{AccountId}|{positionId}";
 
-            CtPosition position;
+            Position position;
             if(Positions.TryGetValue(positionId, out position))
                 position.CloseOrder = new RetryOrder { MaxRetryCount = maxRetryCount, RetryPeriodInMilliseconds = retryPeriodInMilliseconds };
 
             _connector.SendClosePositionRequest(positionId, volume, clientMsgId);
-        }
-
-        public List<PositionData> GetPositions()
-        {
-            return _connector.GetPositions();
         }
 
         private void OnPosition(ProtoOAPosition p)
@@ -142,9 +124,17 @@ namespace QvaDev.CTraderIntegration
             if (p.PositionStatus != ProtoOAPositionStatus.OA_POSITION_STATUS_OPEN &&
                 p.PositionStatus != ProtoOAPositionStatus.OA_POSITION_STATUS_CLOSED) return;
 
-            var pos = Positions.AddOrUpdate(p.PositionId,
-                id => new CtPosition {PositionId = p.PositionId, Volume = p.Volume, ClientMsgId = p.Comment, Symbol = p.SymbolName},
-                (id, old) => new CtPosition {PositionId = p.PositionId, Volume = p.Volume, ClientMsgId = p.Comment});
+            var value = new Position
+            {
+                AccountDescription = _accountInfo.Description,
+                Id = p.PositionId,
+                Volume = p.Volume,
+                RealVolume = p.Volume * (p.TradeSide == ProtoTradeSide.BUY ? 1 : -1) / 100,
+                Comment = p.Comment,
+                Symbol = p.SymbolName,
+                Side = p.TradeSide == ProtoTradeSide.BUY ? Sides.Buy : Sides.Sell
+            };
+            var pos = Positions.AddOrUpdate(p.PositionId, id => value, (id, old) => value);
 
             CheckMarketOrder(p);
             CheckCloseOrder(p, pos);
@@ -168,7 +158,7 @@ namespace QvaDev.CTraderIntegration
             RetryMarketOrder(order, clientMsgId);
         }
 
-        private void CheckCloseOrder(ProtoOAPosition protoPos, CtPosition ctPos)
+        private void CheckCloseOrder(ProtoOAPosition protoPos, Position ctPos)
         {
             if (ctPos.Volume == 0)
             {
@@ -192,7 +182,7 @@ namespace QvaDev.CTraderIntegration
             }
 
             long positionId;
-            CtPosition ctPos;
+            Position ctPos;
             var parts = clientMsgId.Split('|');
             if (long.TryParse(parts[1], out positionId) && Positions.TryGetValue(positionId, out ctPos))
                 RetryClose(ctPos);
@@ -205,20 +195,20 @@ namespace QvaDev.CTraderIntegration
             if (DateTime.UtcNow - order.Time > new TimeSpan(0, 0, 0, 0, order.RetryPeriodInMilliseconds)) return;
 
             if (order.Price > 0)
-                _cTraderClientWrapper.CTraderClient.SendMarketRangeOrderRequest(_accountInfo.AccessToken, AccountId, order.Symbol, order.Type, order.Volume,
-                    order.Price, order.SlippageInPips, clientMsgId);
+                _cTraderClientWrapper.CTraderClient.SendMarketRangeOrderRequest(_accountInfo.AccessToken, AccountId, order.Symbol,
+                    order.Side == Sides.Buy ? ProtoTradeSide.BUY : ProtoTradeSide.SELL, order.Volume, order.Price, order.SlippageInPips, clientMsgId);
             else _cTraderClientWrapper.CTraderClient.SendMarketOrderRequest(_accountInfo.AccessToken, AccountId,
-                order.Symbol, order.Type, order.Volume, clientMsgId);
+                order.Symbol, order.Side == Sides.Buy ? ProtoTradeSide.BUY : ProtoTradeSide.SELL, order.Volume, clientMsgId);
         }
 
-        private void RetryClose(CtPosition ctPos)
+        private void RetryClose(Position ctPos)
         {
             ctPos.CloseOrder.RetryCount++;
             if (ctPos.CloseOrder.RetryCount > ctPos.CloseOrder.MaxRetryCount) return;
             if (DateTime.UtcNow - ctPos.CloseOrder.Time > new TimeSpan(0, 0, 0, 0, ctPos.CloseOrder.RetryPeriodInMilliseconds)) return;
 
             _cTraderClientWrapper.CTraderClient.SendClosePositionRequest(_accountInfo.AccessToken, AccountId,
-                ctPos.PositionId, ctPos.Volume, $"{AccountId}|{ctPos.PositionId}");
+                ctPos.Id, ctPos.Volume, $"{AccountId}|{ctPos.Id}");
         }
     }
 }
