@@ -51,6 +51,7 @@
     <Compile Include="Attributes\DisplayIndexAttribute.cs" />
     <Compile Include="Attributes\ReadOnlyColumnAttribute.cs" />
     <Compile Include="Attributes\InvisibleColumnAttribute.cs" />
+    <Compile Include="Integration\AccountTypes.cs" />
     <Compile Include="Integration\BaseAccountInfo.cs" />
     <Compile Include="Integration\IConnector.cs" />
     <Compile Include="Integration\MarketOrder.cs" />

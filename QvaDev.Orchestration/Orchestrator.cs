@@ -4,11 +4,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using log4net;
 using QvaDev.Common.Integration;
-using QvaDev.CTraderIntegration;
 using QvaDev.Data;
 using QvaDev.Data.Models;
-using TradingAPI.MT4Server;
-using MtConnector = QvaDev.Mt4Integration.Connector;
 
 namespace QvaDev.Orchestration
 {
@@ -24,7 +21,7 @@ namespace QvaDev.Orchestration
         private SynchronizationContext _synchronizationContext;
         private readonly Func<SynchronizationContext> _synchronizationContextFactory;
         private readonly ILog _log;
-        private readonly IConnectorFactory _connectorFactory;
+        private readonly CTraderIntegration.IConnectorFactory _connectorFactory;
 
         private DuplicatContext _duplicatContext;
         private bool _areCopiersActive;
@@ -33,7 +30,7 @@ namespace QvaDev.Orchestration
 
         public Orchestrator(
             Func<SynchronizationContext> synchronizationContextFactory,
-            IConnectorFactory connectorFactory,
+            CTraderIntegration.IConnectorFactory connectorFactory,
             ILog log)
         {
             _synchronizationContextFactory = synchronizationContextFactory;
@@ -57,14 +54,15 @@ namespace QvaDev.Orchestration
                 Task.Factory.StartNew(() =>
                 {
                     if (account.State == BaseAccountEntity.States.Connected) return;
-                    var connector = account.Connector as MtConnector;
+                    var connector = account.Connector as Mt4Integration.Connector;
                     if (connector == null)
                     {
-                        connector = new MtConnector(_log);
+                        connector = new Mt4Integration.Connector(_log);
                         account.Connector = connector;
                     }
                     var connected = connector.Connect(new Mt4Integration.AccountInfo()
                     {
+                        Id = account.Id,
                         Description = account.Description,
                         User = (uint) account.User,
                         Password = account.Password,
@@ -87,11 +85,11 @@ namespace QvaDev.Orchestration
                 Task.Factory.StartNew(() =>
                 {
                     if (account.State == BaseAccountEntity.States.Connected) return;
-                    var connector = account.Connector as Connector;
+                    var connector = account.Connector as CTraderIntegration.Connector;
                     if (connector == null)
                     {
-                        connector = (Connector) _connectorFactory.Create(
-                            new PlatformInfo
+                        connector = (CTraderIntegration.Connector) _connectorFactory.Create(
+                            new CTraderIntegration.PlatformInfo
                             {
                                 Description = account.CTraderPlatform.Description,
                                 AccountsApi = account.CTraderPlatform.AccountsApi,
@@ -100,7 +98,7 @@ namespace QvaDev.Orchestration
                                 Secret = account.CTraderPlatform.Secret,
                                 Playground = account.CTraderPlatform.Playground
                             },
-                            new AccountInfo
+                            new CTraderIntegration.AccountInfo
                             {
                                 Description = account.Description,
                                 AccountNumber = account.AccountNumber,
@@ -108,8 +106,9 @@ namespace QvaDev.Orchestration
                             });
                         account.Connector = connector;
                     }
-                    var connected = connector.Connect(new AccountInfo()
+                    var connected = connector.Connect(new CTraderIntegration.AccountInfo()
                     {
+                        Id = account.Id,
                         Description = account.Description,
                         AccountNumber = account.AccountNumber
                     });
@@ -185,13 +184,13 @@ namespace QvaDev.Orchestration
                               $"{e.Position.Symbol} with open time: {e.Position.OpenTime:o}");
 
                     var masters = _duplicatContext.Masters.Local
-                        .Where(m => m.MetaTraderAccount.Description == e.Position.AccountDescription);
+                        .Where(m => m.MetaTraderAccountId == e.Position.AccountId);
                     var type = e.Position.Side == Sides.Buy ? ProtoTradeSide.BUY : ProtoTradeSide.SELL;
 
                     foreach (var master in masters)
                     foreach (var slave in master.Slaves)
                     {
-                        var slaveConnector = (Connector) slave.CTraderAccount.Connector;
+                        var slaveConnector = (CTraderIntegration.Connector) slave.CTraderAccount.Connector;
                         var symbol = slave.SymbolMappings?.Any(m => m.From == e.Position.Symbol) == true
                             ? slave.SymbolMappings.First(m => m.From == e.Position.Symbol).To
                             : e.Position.Symbol + (slave.SymbolSuffix ?? "");
@@ -213,30 +212,7 @@ namespace QvaDev.Orchestration
             });
         }
 
-        private void MonitorAccount(MetaTraderAccount account)
-        {
-            var monitored = account.MonitoredAccounts
-                .FirstOrDefault(a => a.MonitorId == _alphaMonitorId || a.MonitorId == _betaMonitorId);
-            if (monitored == null) return;
-
-            var connector = account.Connector as MtConnector;
-            if (connector == null) return;
-
-            monitored.ActualContracts = connector.GetOpenContracts(monitored.Symbol ?? monitored.Monitor.Symbol);
-            monitored.RaisePropertyChanged(_synchronizationContext, nameof(monitored.ActualContracts));
-
-            connector.QuoteClient.OnOrderUpdate += QuoteClient_OnOrderUpdate;
-        }
-
-        private void QuoteClient_OnOrderUpdate(object sender, OrderUpdateEventArgs update)
-        {
-            //(long)connector.QuoteClient.GetOpenedOrders()
-            //    .Where(o => o.Symbol == symbol)
-            //    .Sum(o => o.Lots * symbolInfo.ContractSize);
-            //throw new NotImplementedException();
-        }
-
-        private void MonitorAccount(CTraderAccount account)
+        private void MonitorAccount(BaseAccountEntity account)
         {
             if (account.State != BaseAccountEntity.States.Connected) return;
 
@@ -244,15 +220,23 @@ namespace QvaDev.Orchestration
                 .FirstOrDefault(a => a.MonitorId == _alphaMonitorId || a.MonitorId == _betaMonitorId);
             if (monitored == null) return;
 
-            var connector = account.Connector as Connector;
-            if (connector == null) return;
+            var connector = account.Connector;
+            if (account.Connector == null) return;
 
             var symbol = monitored.Symbol ?? monitored.Monitor.Symbol;
 
             monitored.ActualContracts = connector.Positions
                 .Where(p => p.Value.Symbol == symbol)
-                .Sum(p => p.Value.Volume / 100);
+                .Sum(p => p.Value.RealVolume);
             monitored.RaisePropertyChanged(_synchronizationContext, nameof(monitored.ActualContracts));
+
+            connector.OnPosition -= Connector_OnPosition;
+            connector.OnPosition += Connector_OnPosition;
+        }
+
+        private void Connector_OnPosition(object sender, PositionEventArgs e)
+        {
+            throw new NotImplementedException();
         }
     }
 }

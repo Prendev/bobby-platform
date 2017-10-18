@@ -7,7 +7,7 @@ namespace QvaDev.Common.Integration
         string Description { get; }
         bool IsConnected { get; }
         ConcurrentDictionary<long, Position> Positions { get; }
-        void Disconnect();
         event PositionEventHandler OnPosition;
+        void Disconnect();
     }
 }

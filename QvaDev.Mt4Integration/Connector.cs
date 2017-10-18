@@ -68,11 +68,13 @@ namespace QvaDev.Mt4Integration
                     .GetOrAdd(o.Symbol, s => QuoteClient.GetSymbolInfo(o.Symbol));
                 Positions.GetOrAdd(o.Ticket, new Position
                 {
+                    AccountId = _accountInfo.Id,
+                    AccountType = AccountTypes.Mt4,
                     Id = o.Ticket,
                     Lots = o.Lots,
                     Symbol = o.Symbol,
                     Side = o.Type == Op.Buy ? Sides.Buy : Sides.Sell,
-                    RealVolume = (long)(o.Lots * symbolInfo.ContractSize)
+                    RealVolume = (long)(o.Lots * symbolInfo.ContractSize * (o.Type == Op.Buy ? 1 : -1))
                 });
             }
 
@@ -99,16 +101,23 @@ namespace QvaDev.Mt4Integration
                 .GetOrAdd(update.Order.Symbol, s => QuoteClient.GetSymbolInfo(update.Order.Symbol));
             var position = new Position
             {
-                AccountDescription = _accountInfo.Description,
+                AccountId = _accountInfo.Id,
+                AccountType = AccountTypes.Mt4,
                 Id = update.Order.Ticket,
                 Lots = update.Order.Lots,
                 Symbol = update.Order.Symbol,
                 Side = update.Order.Type == Op.Buy ? Sides.Buy : Sides.Sell,
-                RealVolume = (long)(update.Order.Lots * symbolInfo.ContractSize),
+                RealVolume = (long)(update.Order.Lots * symbolInfo.ContractSize * (update.Order.Type == Op.Buy ? 1 : -1)),
                 OpenTime = update.Order.OpenTime,
                 OperPrice = update.Order.OpenPrice
             };
-            Positions.AddOrUpdate(update.Order.Ticket, t => position, (t, old) => position);
+            if (update.Action == UpdateAction.PositionOpen)
+                Positions.AddOrUpdate(update.Order.Ticket, t => position, (t, old) => position);
+            else
+            {
+                Position p;
+                Positions.TryRemove(update.Order.Ticket, out p);
+            }
 
             OnPosition?.Invoke(sender, new PositionEventArgs
             {

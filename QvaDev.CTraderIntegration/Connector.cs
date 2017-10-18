@@ -74,7 +74,8 @@ namespace QvaDev.CTraderIntegration
                 Positions.GetOrAdd(p.positionId,
                     new Position
                     {
-                        AccountDescription = _accountInfo.Description,
+                        AccountId = _accountInfo.Id,
+                        AccountType = AccountTypes.Ct,
                         Id = p.positionId,
                         Volume = p.volume,
                         RealVolume = p.volume / 100 * (p.tradeSide == "BUY" ? 1 : -1),
@@ -148,9 +149,10 @@ namespace QvaDev.CTraderIntegration
             if (p.PositionStatus != ProtoOAPositionStatus.OA_POSITION_STATUS_OPEN &&
                 p.PositionStatus != ProtoOAPositionStatus.OA_POSITION_STATUS_CLOSED) return;
 
-            var value = new Position
+            var position = new Position
             {
-                AccountDescription = _accountInfo.Description,
+                AccountId = _accountInfo.Id,
+                AccountType = AccountTypes.Ct,
                 Id = p.PositionId,
                 Volume = p.Volume,
                 RealVolume = p.Volume * (p.TradeSide == ProtoTradeSide.BUY ? 1 : -1) / 100,
@@ -158,7 +160,13 @@ namespace QvaDev.CTraderIntegration
                 Symbol = p.SymbolName,
                 Side = p.TradeSide == ProtoTradeSide.BUY ? Sides.Buy : Sides.Sell
             };
-            var pos = Positions.AddOrUpdate(p.PositionId, id => value, (id, old) => value);
+            var pos = Positions.AddOrUpdate(p.PositionId, id => position, (id, old) => position);
+
+            OnPosition?.Invoke(this, new PositionEventArgs
+            {
+                Position = position,
+                Action = p.PositionStatus == ProtoOAPositionStatus.OA_POSITION_STATUS_OPEN ? PositionEventArgs.Actions.Open : PositionEventArgs.Actions.Close,
+            });
 
             CheckMarketOrder(p);
             CheckCloseOrder(p, pos);
