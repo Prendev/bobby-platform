@@ -8,7 +8,6 @@ using QvaDev.CTraderIntegration;
 using QvaDev.Data;
 using QvaDev.Data.Models;
 using TradingAPI.MT4Server;
-using CtConnector = QvaDev.CTraderIntegration.ConnectorRetryDecorator;
 using MtConnector = QvaDev.Mt4Integration.Connector;
 
 namespace QvaDev.Orchestration
@@ -88,10 +87,10 @@ namespace QvaDev.Orchestration
                 Task.Factory.StartNew(() =>
                 {
                     if (account.State == BaseAccountEntity.States.Connected) return;
-                    var connector = account.Connector as CtConnector;
+                    var connector = account.Connector as Connector;
                     if (connector == null)
                     {
-                        connector = (CtConnector) _connectorFactory.Create(
+                        connector = (Connector) _connectorFactory.Create(
                             new PlatformInfo
                             {
                                 Description = account.CTraderPlatform.Description,
@@ -167,8 +166,8 @@ namespace QvaDev.Orchestration
                             c.Slave.Master.MetaTraderAccount.State == BaseAccountEntity.States.Connected)
                 .Select(c => c.Slave.Master).Distinct())
             {
-                master.MetaTraderAccount.Connector.OnOrder -= MasterOnOrderUpdate;
-                master.MetaTraderAccount.Connector.OnOrder += MasterOnOrderUpdate;
+                master.MetaTraderAccount.Connector.OnPosition -= MasterOnOrderUpdate;
+                master.MetaTraderAccount.Connector.OnPosition += MasterOnOrderUpdate;
             }
 
             _areCopiersActive = true;
@@ -192,7 +191,7 @@ namespace QvaDev.Orchestration
                     foreach (var master in masters)
                     foreach (var slave in master.Slaves)
                     {
-                        var slaveConnector = (CtConnector) slave.CTraderAccount.Connector;
+                        var slaveConnector = (Connector) slave.CTraderAccount.Connector;
                         var symbol = slave.SymbolMappings?.Any(m => m.From == e.Position.Symbol) == true
                             ? slave.SymbolMappings.First(m => m.From == e.Position.Symbol).To
                             : e.Position.Symbol + (slave.SymbolSuffix ?? "");
@@ -245,7 +244,7 @@ namespace QvaDev.Orchestration
                 .FirstOrDefault(a => a.MonitorId == _alphaMonitorId || a.MonitorId == _betaMonitorId);
             if (monitored == null) return;
 
-            var connector = account.Connector as CtConnector;
+            var connector = account.Connector as Connector;
             if (connector == null) return;
 
             var symbol = monitored.Symbol ?? monitored.Monitor.Symbol;

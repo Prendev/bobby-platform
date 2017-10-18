@@ -61,7 +61,7 @@ namespace QvaDev.CTraderIntegration
             var cTraderClientWrapper = _cTraderClientWrappers.GetOrAdd(platformInfo.Description,
                 key => new Lazy<CTraderClientWrapper>(() => new CTraderClientWrapper(platformInfo, _log), true));
 
-            var connector = new ConnectorRetryDecorator(accountInfo, cTraderClientWrapper.Value,
+            var connector = new Connector(accountInfo, cTraderClientWrapper.Value,
                 _tradingAccountsService, _log);
 
             return connector;

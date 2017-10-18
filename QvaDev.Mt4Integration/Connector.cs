@@ -16,13 +16,14 @@ namespace QvaDev.Mt4Integration
 
         public string Description => _accountInfo?.Description;
         public bool IsConnected => QuoteClient?.Connected == true;
-        public readonly ConcurrentDictionary<int, Position> Orders = new ConcurrentDictionary<int, Position>();
-        public event PositionEventHandler OnOrder;
+        public ConcurrentDictionary<long, Position> Positions { get; }
+        public event PositionEventHandler OnPosition;
 
         public QuoteClient QuoteClient;
 
         public Connector(ILog log)
         {
+            Positions = new ConcurrentDictionary<long, Position>();
             _log = log;
         }
 
@@ -65,7 +66,7 @@ namespace QvaDev.Mt4Integration
             {
                 var symbolInfo = _symbolInfos
                     .GetOrAdd(o.Symbol, s => QuoteClient.GetSymbolInfo(o.Symbol));
-                Orders.GetOrAdd(o.Ticket, new Position
+                Positions.GetOrAdd(o.Ticket, new Position
                 {
                     Id = o.Ticket,
                     Lots = o.Lots,
@@ -103,13 +104,13 @@ namespace QvaDev.Mt4Integration
                 Lots = update.Order.Lots,
                 Symbol = update.Order.Symbol,
                 Side = update.Order.Type == Op.Buy ? Sides.Buy : Sides.Sell,
-                Volume = (long)(update.Order.Lots * symbolInfo.ContractSize),
+                RealVolume = (long)(update.Order.Lots * symbolInfo.ContractSize),
                 OpenTime = update.Order.OpenTime,
                 OperPrice = update.Order.OpenPrice
             };
-            Orders.AddOrUpdate(update.Order.Ticket, t => position, (t, old) => position);
+            Positions.AddOrUpdate(update.Order.Ticket, t => position, (t, old) => position);
 
-            OnOrder?.Invoke(sender, new PositionEventArgs
+            OnPosition?.Invoke(sender, new PositionEventArgs
             {
                 Position = position,
                 Action = update.Action == UpdateAction.PositionOpen ? PositionEventArgs.Actions.Open : PositionEventArgs.Actions.Close,

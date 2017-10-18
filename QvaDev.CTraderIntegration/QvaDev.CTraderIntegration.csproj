@@ -51,7 +51,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AccountInfo.cs" />
-    <Compile Include="ConnectorRetryDecorator.cs" />
     <Compile Include="Connector.cs" />
     <Compile Include="ConnectorFactory.cs" />
     <Compile Include="CTraderClientWrapper.cs" />

@@ -1,10 +1,13 @@
-﻿namespace QvaDev.Common.Integration
+﻿using System.Collections.Concurrent;
+
+namespace QvaDev.Common.Integration
 {
     public interface IConnector
     {
         string Description { get; }
         bool IsConnected { get; }
+        ConcurrentDictionary<long, Position> Positions { get; }
         void Disconnect();
-        event PositionEventHandler OnOrder;
+        event PositionEventHandler OnPosition;
     }
 }
