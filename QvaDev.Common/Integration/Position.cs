@@ -4,9 +4,6 @@ namespace QvaDev.Common.Integration
 {
     public class Position
     {
-        public int AccountId { get; set; }
-        public AccountTypes AccountType { get; set; }
-
         public long Id { get; set; }
         public string Symbol { get; set; }
         public Sides Side { get; set; }

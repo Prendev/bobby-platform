@@ -38,10 +38,10 @@ namespace QvaDev.CTraderIntegration
             ILog log)
         {
             _tradingAccountsService = tradingAccountsService;
-            Positions = new ConcurrentDictionary<long, Position>();
             _accountInfo = accountInfo;
             _cTraderClientWrapper = cTraderClientWrapper;
             _log = log;
+            Positions = new ConcurrentDictionary<long, Position>();
         }
 
         public void Disconnect()
@@ -49,7 +49,9 @@ namespace QvaDev.CTraderIntegration
             _cTraderClientWrapper.CTraderClient.OnPosition -= CTraderClient_OnPosition;
             _cTraderClientWrapper.CTraderClient.OnError -= OnError;
             lock (_cTraderClientWrapper.CTraderClient)
+            {
                 _cTraderClientWrapper.CTraderClient.SendUnsubscribeForTradingEventsRequest(AccountId);
+            }
             _log.Debug($"{_accountInfo.Description} account ({_accountInfo.AccountNumber}) disconnected");
         }
 
@@ -83,8 +85,6 @@ namespace QvaDev.CTraderIntegration
                 Positions.GetOrAdd(p.positionId,
                     new Position
                     {
-                        AccountId = _accountInfo.Id,
-                        AccountType = AccountTypes.Ct,
                         Id = p.positionId,
                         Volume = p.volume,
                         RealVolume = p.volume / 100 * (p.tradeSide == "BUY" ? 1 : -1),
@@ -171,7 +171,10 @@ namespace QvaDev.CTraderIntegration
             });
 
             lock (_cTraderClientWrapper.CTraderClient)
-                _cTraderClientWrapper.CTraderClient.SendMarketOrderRequest(_accountInfo.AccessToken, AccountId, symbol, type, volume, clientMsgId);
+            {
+                _cTraderClientWrapper.CTraderClient.SendMarketOrderRequest(_accountInfo.AccessToken, AccountId, symbol,
+                    type, volume, clientMsgId);
+            }
         }
 
 
@@ -190,8 +193,10 @@ namespace QvaDev.CTraderIntegration
             });
 
             lock (_cTraderClientWrapper.CTraderClient)
-                _cTraderClientWrapper.CTraderClient.SendMarketRangeOrderRequest(_accountInfo.AccessToken, AccountId, symbol, type, volume,
-                    price, slippageInPips, clientMsgId);
+            {
+                _cTraderClientWrapper.CTraderClient.SendMarketRangeOrderRequest(_accountInfo.AccessToken, AccountId,
+                    symbol, type, volume, price, slippageInPips, clientMsgId);
+            }
         }
 
         public void SendClosePositionRequests(string clientOrderId, int maxRetryCount = 5, int retryPeriodInMilliseconds = 3000)
@@ -210,7 +215,10 @@ namespace QvaDev.CTraderIntegration
                 position.CloseOrder = new RetryOrder { MaxRetryCount = maxRetryCount, RetryPeriodInMilliseconds = retryPeriodInMilliseconds };
 
             lock (_cTraderClientWrapper.CTraderClient)
-                _cTraderClientWrapper.CTraderClient.SendClosePositionRequest(_accountInfo.AccessToken, AccountId, positionId, volume, clientMsgId);
+            {
+                _cTraderClientWrapper.CTraderClient.SendClosePositionRequest(_accountInfo.AccessToken, AccountId,
+                    positionId, volume, clientMsgId);
+            }
         }
 
         private void CTraderClient_OnPosition(ProtoOAPosition p)
@@ -221,8 +229,6 @@ namespace QvaDev.CTraderIntegration
 
             var position = new Position
             {
-                AccountId = _accountInfo.Id,
-                AccountType = AccountTypes.Ct,
                 Id = p.PositionId,
                 Volume = p.Volume,
                 RealVolume = p.Volume * (p.TradeSide == ProtoTradeSide.BUY ? 1 : -1) / 100,
@@ -237,6 +243,8 @@ namespace QvaDev.CTraderIntegration
 
             OnPosition?.Invoke(this, new PositionEventArgs
             {
+                DbId = _accountInfo.DbId,
+                AccountType = AccountTypes.Ct,
                 Position = position,
                 Action = p.PositionStatus == ProtoOAPositionStatus.OA_POSITION_STATUS_OPEN ? PositionEventArgs.Actions.Open : PositionEventArgs.Actions.Close,
             });
@@ -296,11 +304,14 @@ namespace QvaDev.CTraderIntegration
             if (order.RetryCount > order.MaxRetryCount) return;
             if (DateTime.UtcNow - order.Time > new TimeSpan(0, 0, 0, 0, order.RetryPeriodInMilliseconds)) return;
 
-            if (order.Price > 0)
-                _cTraderClientWrapper.CTraderClient.SendMarketRangeOrderRequest(_accountInfo.AccessToken, AccountId, order.Symbol,
-                    order.Side == Sides.Buy ? ProtoTradeSide.BUY : ProtoTradeSide.SELL, order.Volume, order.Price, order.SlippageInPips, clientMsgId);
-            else _cTraderClientWrapper.CTraderClient.SendMarketOrderRequest(_accountInfo.AccessToken, AccountId,
-                order.Symbol, order.Side == Sides.Buy ? ProtoTradeSide.BUY : ProtoTradeSide.SELL, order.Volume, clientMsgId);
+            lock (_cTraderClientWrapper.CTraderClient)
+            {
+                if (order.Price > 0)
+                    _cTraderClientWrapper.CTraderClient.SendMarketRangeOrderRequest(_accountInfo.AccessToken, AccountId, order.Symbol,
+                        order.Side == Sides.Buy ? ProtoTradeSide.BUY : ProtoTradeSide.SELL, order.Volume, order.Price, order.SlippageInPips, clientMsgId);
+                else _cTraderClientWrapper.CTraderClient.SendMarketOrderRequest(_accountInfo.AccessToken, AccountId,
+                    order.Symbol, order.Side == Sides.Buy ? ProtoTradeSide.BUY : ProtoTradeSide.SELL, order.Volume, clientMsgId);
+            }
         }
 
         private void RetryClose(Position ctPos)
@@ -310,8 +321,11 @@ namespace QvaDev.CTraderIntegration
             if (ctPos.CloseOrder.RetryCount > ctPos.CloseOrder.MaxRetryCount) return;
             if (DateTime.UtcNow - ctPos.CloseOrder.Time > new TimeSpan(0, 0, 0, 0, ctPos.CloseOrder.RetryPeriodInMilliseconds)) return;
 
-            _cTraderClientWrapper.CTraderClient.SendClosePositionRequest(_accountInfo.AccessToken, AccountId,
-                ctPos.Id, ctPos.Volume, $"{AccountId}|{ctPos.Id}");
+            lock (_cTraderClientWrapper.CTraderClient)
+            {
+                _cTraderClientWrapper.CTraderClient.SendClosePositionRequest(_accountInfo.AccessToken, AccountId,
+                    ctPos.Id, ctPos.Volume, $"{AccountId}|{ctPos.Id}");
+            }
         }
 
         public static DateTime CTraderTimestampToDatetime(long timestamp)

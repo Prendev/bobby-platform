@@ -71,7 +71,7 @@ namespace QvaDev.Orchestration
                     }
                     var connected = connector.Connect(new Mt4Integration.AccountInfo()
                     {
-                        Id = account.Id,
+                        DbId = account.Id,
                         Description = account.Description,
                         User = (uint) account.User,
                         Password = account.Password,
@@ -109,7 +109,7 @@ namespace QvaDev.Orchestration
                             },
                             new CTraderIntegration.AccountInfo
                             {
-                                AccountId = account.Id,
+                                DbId = account.Id,
                                 Description = account.Description,
                                 AccountNumber = account.AccountNumber,
                                 AccessToken = account.AccessToken
@@ -201,7 +201,7 @@ namespace QvaDev.Orchestration
                               $"{e.Position.Symbol} with open time: {e.Position.OpenTime:o}");
 
                     var masters = _duplicatContext.Masters.Local
-                        .Where(m => m.MetaTraderAccountId == e.Position.AccountId);
+                        .Where(m => m.MetaTraderAccountId == e.DbId);
                     var type = e.Position.Side == Sides.Buy ? ProtoTradeSide.BUY : ProtoTradeSide.SELL;
 
                     foreach (var master in masters)
@@ -241,9 +241,9 @@ namespace QvaDev.Orchestration
         {
             BaseAccountEntity account = null;
             if (e.AccountType == AccountTypes.Ct)
-                account = _duplicatContext.CTraderAccounts.Local.FirstOrDefault(a => a.Id == e.Position.AccountId);
+                account = _duplicatContext.CTraderAccounts.Local.FirstOrDefault(a => a.Id == e.DbId);
             else if(e.AccountType == AccountTypes.Mt4)
-                account = _duplicatContext.MetaTraderAccounts.Local.FirstOrDefault(a => a.Id == e.Position.AccountId);
+                account = _duplicatContext.MetaTraderAccounts.Local.FirstOrDefault(a => a.Id == e.DbId);
 
             UpdateActualContracts(account);
         }

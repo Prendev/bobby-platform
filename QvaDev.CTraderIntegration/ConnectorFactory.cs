@@ -19,13 +19,13 @@ namespace QvaDev.CTraderIntegration
         /// <summary>
         /// The key is Platform's description
         /// </summary>
-        private readonly ConcurrentDictionary<string, Lazy<CTraderClientWrapper>> _cTraderClientWrappers =
+        private static readonly ConcurrentDictionary<string, Lazy<CTraderClientWrapper>> CTraderClientWrappers =
             new ConcurrentDictionary<string, Lazy<CTraderClientWrapper>>();
 
         /// <summary>
         /// The key is access token
         /// </summary>
-        private readonly ConcurrentDictionary<string, Lazy<List<AccountData>>> _accounts =
+        private static readonly ConcurrentDictionary<string, Lazy<List<AccountData>>> Accounts =
             new ConcurrentDictionary<string, Lazy<List<AccountData>>>();
 
         private readonly ILog _log;
@@ -41,7 +41,7 @@ namespace QvaDev.CTraderIntegration
 
         public IConnector Create(PlatformInfo platformInfo, AccountInfo accountInfo)
         {
-            var accounts = _accounts.GetOrAdd(accountInfo.AccessToken,
+            var accounts = Accounts.GetOrAdd(accountInfo.AccessToken,
                 accessToken => new Lazy<List<AccountData>>(() =>
                 {
                     var accs = _tradingAccountsService
@@ -58,7 +58,7 @@ namespace QvaDev.CTraderIntegration
             accountInfo.AccountId = accounts.Value
                 .FirstOrDefault(a => a.accountNumber == accountInfo.AccountNumber)?.accountId ?? 0;
 
-            var cTraderClientWrapper = _cTraderClientWrappers.GetOrAdd(platformInfo.Description,
+            var cTraderClientWrapper = CTraderClientWrappers.GetOrAdd(platformInfo.Description,
                 key => new Lazy<CTraderClientWrapper>(() => new CTraderClientWrapper(platformInfo, _log), true));
 
             var connector = new Connector(accountInfo, cTraderClientWrapper.Value,

@@ -115,7 +115,7 @@ namespace QvaDev.Duplicat.ViewModel
             else if (e.PropertyName == nameof(SelectedAlphaMonitorId))
                 _orchestrator.SelectedAlphaMonitorId = SelectedAlphaMonitorId;
             else if (e.PropertyName == nameof(SelectedBetaMonitorId))
-                _orchestrator.SelectedAlphaMonitorId = SelectedBetaMonitorId;
+                _orchestrator.SelectedBetaMonitorId = SelectedBetaMonitorId;
         }
 
         private void StateChangeCommand()

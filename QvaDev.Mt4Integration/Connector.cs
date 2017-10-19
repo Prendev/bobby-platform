@@ -68,8 +68,6 @@ namespace QvaDev.Mt4Integration
                     .GetOrAdd(o.Symbol, s => QuoteClient.GetSymbolInfo(o.Symbol));
                 Positions.GetOrAdd(o.Ticket, new Position
                 {
-                    AccountId = _accountInfo.Id,
-                    AccountType = AccountTypes.Mt4,
                     Id = o.Ticket,
                     Lots = o.Lots,
                     Symbol = o.Symbol,
@@ -113,8 +111,6 @@ namespace QvaDev.Mt4Integration
                 .GetOrAdd(update.Order.Symbol, s => QuoteClient.GetSymbolInfo(update.Order.Symbol));
             var position = new Position
             {
-                AccountId = _accountInfo.Id,
-                AccountType = AccountTypes.Mt4,
                 Id = update.Order.Ticket,
                 Lots = update.Order.Lots,
                 Symbol = update.Order.Symbol,
@@ -133,6 +129,8 @@ namespace QvaDev.Mt4Integration
 
             OnPosition?.Invoke(sender, new PositionEventArgs
             {
+                DbId = _accountInfo.DbId,
+                AccountType = AccountTypes.Mt4,
                 Position = position,
                 Action = update.Action == UpdateAction.PositionOpen ? PositionEventArgs.Actions.Open : PositionEventArgs.Actions.Close,
             });

@@ -2,7 +2,7 @@
 {
     public abstract class BaseAccountInfo
     {
-        public int Id { get; set; }
+        public int DbId { get; set; }
         public string Description { get; set; }
     }
 }
