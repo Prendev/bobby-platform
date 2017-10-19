@@ -305,6 +305,7 @@ namespace QvaDev.CTraderIntegration
 
         private void RetryClose(Position ctPos)
         {
+            if (ctPos.CloseOrder == null) return;
             ctPos.CloseOrder.RetryCount++;
             if (ctPos.CloseOrder.RetryCount > ctPos.CloseOrder.MaxRetryCount) return;
             if (DateTime.UtcNow - ctPos.CloseOrder.Time > new TimeSpan(0, 0, 0, 0, ctPos.CloseOrder.RetryPeriodInMilliseconds)) return;
