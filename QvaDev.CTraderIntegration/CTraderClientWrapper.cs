@@ -13,16 +13,16 @@ namespace QvaDev.CTraderIntegration
             PlatformInfo platformInfo,
             ILog log)
         {
-            lock (log) CTraderClient.Log = CTraderClient.Log;
-
-            CTraderClient = new CTraderClient();
             PlatformInfo = platformInfo;
-            IsConnected = CTraderClient.Connect(platformInfo.TradingHost, 5032, platformInfo.ClientId, platformInfo.Secret);
+            CTraderClient = new CTraderClient(log);
+            IsConnected = CTraderClient.Connect(platformInfo.TradingHost);
             if (!IsConnected)
             {
                 log.Error($"{platformInfo.Description} cTrader platform FAILED to connect");
                 return;
             }
+            CTraderClient.SendAuthorizationRequest(platformInfo.ClientId, platformInfo.Secret);
+
             log.Debug($"{platformInfo.Description} cTrader platform connected");
 
             log.Debug($"{platformInfo.Description} cTrader platform accounts acquired");
