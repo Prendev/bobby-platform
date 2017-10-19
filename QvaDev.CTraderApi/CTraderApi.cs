@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Net.Security;
@@ -7,38 +6,34 @@ using System.Net.Sockets;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using log4net;
 
 namespace QvaDev.CTraderApi
 {
     public class CTraderClient
     {
-        public bool ConnectShutdown
-        {
-            get => _connectShutdown;
-            set => _connectShutdown = value;
-        }
-
         private const int MaxSiz = 1000000;
 
-        public bool Debug { get; set; }
-        volatile bool _connectShutdown;
+        private readonly MessagesFactory _inMsgFactory = new MessagesFactory();
+        private readonly MessagesFactory _outMsgFactory = new MessagesFactory();
 
-        SslStream _sslStream;
-        readonly MessagesFactory _inMsgFactory = new MessagesFactory();
-        readonly MessagesFactory _outMsgFactory = new MessagesFactory();
+        private readonly ConcurrentQueue<byte[]> _writeQueue = new ConcurrentQueue<byte[]>();
+        private readonly ConcurrentQueue<byte[]> _readQueue = new ConcurrentQueue<byte[]>();
 
-        readonly ConcurrentQueue<byte[]> _writeQueue = new ConcurrentQueue<byte[]>();
-        readonly ConcurrentQueue<byte[]> _readQueue = new ConcurrentQueue<byte[]>();
-
-        readonly Thread _parseThread;
-        readonly Thread _inputThread;
-        readonly Thread _outputThread;
         private readonly ILog _log;
 
-//-------------------------------------------------------------------------------------------------
-//////////////////////////////////////////// THREADS //////////////////////////////////////////////
-//-------------------------------------------------------------------------------------------------
+        private SslStream _sslStream;
+        private Task _parseTask;
+        private Task _inputTask;
+        private Task _outputTask;
+        private CancellationTokenSource _cancellationTokenSource;
+
+        public bool Debug { get; set; }
+
+        //-------------------------------------------------------------------------------------------------
+        //////////////////////////////////////////// THREADS //////////////////////////////////////////////
+        //-------------------------------------------------------------------------------------------------
         public string GetHexadecimal(byte[] byteArray)
         {
             var hex = new StringBuilder(byteArray.Length * 2);
@@ -51,9 +46,8 @@ namespace QvaDev.CTraderApi
         // listening thread
         void Listen()
         {
-            _connectShutdown = false;
             var _length = new byte[sizeof(int)];
-            while (!_connectShutdown)
+            while (!_cancellationTokenSource.Token.IsCancellationRequested)
             {
                 try
                 {
@@ -96,8 +90,7 @@ namespace QvaDev.CTraderApi
         // sending thread
         void Transmit()
         {
-            _connectShutdown = false;
-            while (!_connectShutdown)
+            while (!_cancellationTokenSource.Token.IsCancellationRequested)
             {
                 try
                 {
@@ -124,8 +117,7 @@ namespace QvaDev.CTraderApi
         // received data parsing thread
         private void IncomingDataProcessing()
         {
-            _connectShutdown = false;
-            while (!_connectShutdown)
+            while (!_cancellationTokenSource.Token.IsCancellationRequested)
             {
                 try
                 {
@@ -151,7 +143,7 @@ namespace QvaDev.CTraderApi
             if (Debug)
                 _log.Debug($"ProcessIncomingDataStream() Message received:\n{MessagesPresentation.ToString(msg)}");
 
-            if (_connectShutdown || !msg.HasPayload)
+            if (_cancellationTokenSource.Token.IsCancellationRequested || !msg.HasPayload)
             {
                 return;
             }
@@ -308,23 +300,6 @@ namespace QvaDev.CTraderApi
         public CTraderClient(ILog log)
         {
             _log = log;
-            _parseThread = new Thread(() =>
-            {
-                Thread.CurrentThread.IsBackground = true;
-                IncomingDataProcessing();
-            });
-
-            _inputThread = new Thread(() =>
-            {
-                Thread.CurrentThread.IsBackground = true;
-                Listen();
-            });
-
-            _outputThread = new Thread(() =>
-            {
-                Thread.CurrentThread.IsBackground = true;
-                Transmit();
-            });
         }
 
 //-------------------------------------------------------------------------------------------------
@@ -339,15 +314,21 @@ namespace QvaDev.CTraderApi
 //-------------------------------------------------------------------------------------------------
         public bool Connect(string host, int port = 5032)
         {
+            _cancellationTokenSource = new CancellationTokenSource();
+            _parseTask = new Task(IncomingDataProcessing, _cancellationTokenSource.Token, TaskCreationOptions.LongRunning);
+            _inputTask = new Task(Listen, _cancellationTokenSource.Token, TaskCreationOptions.LongRunning);
+            _outputTask = new Task(Transmit, _cancellationTokenSource.Token, TaskCreationOptions.LongRunning);
+
             try
             {
                 var client = new TcpClient(host, port);
                 _sslStream = new SslStream(client.GetStream(), false, ValidateServerCertificate, null);
                 _sslStream.AuthenticateAsClient(host);
                 _sslStream.Flush();
-                _parseThread.Start();
-                _inputThread.Start();
-                _outputThread.Start();
+
+                _parseTask.Start();
+                _inputTask.Start();
+                _outputTask.Start();
             }
             catch (Exception e)
             {
@@ -355,6 +336,11 @@ namespace QvaDev.CTraderApi
                 return false;
             }
             return true;
+        }
+
+        public void Disconnect()
+        {
+            _cancellationTokenSource.Cancel();
         }
 
 //-------------------------------------------------------------------------------------------------
