@@ -14,5 +14,10 @@ namespace QvaDev.Data.Models
         public int MetaTraderPlatformId { get; set; }
         [Required]
         public MetaTraderPlatform MetaTraderPlatform { get; set; }
+
+        public override string ToString()
+        {
+            return $"{Description} ({User})";
+        }
     }
 }

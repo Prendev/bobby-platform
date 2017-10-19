@@ -88,8 +88,7 @@ namespace QvaDev.Mt4Integration
 
         public double GetBalance()
         {
-            if (!IsConnected) return 0;
-            return QuoteClient.AccountBalance;
+            return !IsConnected ? 0 : QuoteClient.AccountBalance;
         }
 
         public double GetPnl(DateTime from)
@@ -101,8 +100,7 @@ namespace QvaDev.Mt4Integration
 
         public string GetCurrency()
         {
-            if (!IsConnected) return "";
-            return QuoteClient.Account.currency;
+            return !IsConnected ? "" : QuoteClient.Account.currency;
         }
 
         private void OnOrderUpdate(object sender, OrderUpdateEventArgs update)

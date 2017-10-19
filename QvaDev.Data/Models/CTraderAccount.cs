@@ -14,5 +14,10 @@ namespace QvaDev.Data.Models
         public int CTraderPlatformId { get; set; }
         [Required]
         public CTraderPlatform CTraderPlatform { get; set; }
+
+        public override string ToString()
+        {
+            return $"{Description} ({AccountNumber})";
+        }
     }
 }

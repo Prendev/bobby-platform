@@ -8,5 +8,10 @@ namespace QvaDev.Data.Models
         [Required]
         [DisplayIndex(0)]
         public string Description { get; set; }
+
+        public override string ToString()
+        {
+            return Description;
+        }
     }
 }

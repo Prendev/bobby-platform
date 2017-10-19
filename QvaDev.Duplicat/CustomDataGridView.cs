@@ -22,7 +22,7 @@ namespace QvaDev.Duplicat
             RowPrePaint += CustomDataGridView_RowPrePaint;
         }
 
-        public void AddComboBoxColumn<T>(ObservableCollection<T> list, string displayMember = "Description") where T : class
+        public void AddComboBoxColumn<T>(ObservableCollection<T> list) where T : class
         {
             var name = typeof(T).Name;
             if (!_invisibleColumns.Contains(name))
@@ -34,7 +34,7 @@ namespace QvaDev.Duplicat
                     DataSource = list.ToBindingList(),
                     Name = $"{name}*",
                     DataPropertyName = $"{name}Id",
-                    DisplayMember = displayMember,
+                    DisplayMember = "DisplayMember",
                     ValueMember = "Id",
                     HeaderText = $"{name}*"
                 });

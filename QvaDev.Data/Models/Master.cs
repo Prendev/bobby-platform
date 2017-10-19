@@ -1,8 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using QvaDev.Common.Attributes;
-
 namespace QvaDev.Data.Models
 {
     public class Master : BaseEntity
@@ -19,8 +16,9 @@ namespace QvaDev.Data.Models
 
         public List<Slave> Slaves { get => Get(() => new List<Slave>()); set => Set(value, false); }
 
-        [NotMapped]
-        [InvisibleColumn]
-        public string Description => $"{Group?.Description} | {MetaTraderAccount?.Description}";
+        public override string ToString()
+        {
+            return $"{Group?.Description} | {MetaTraderAccount?.Description}";
+        }
     }
 }
