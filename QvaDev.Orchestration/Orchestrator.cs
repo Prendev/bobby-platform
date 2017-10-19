@@ -12,6 +12,9 @@ namespace QvaDev.Orchestration
 {
     public interface IOrchestrator
     {
+        int SelectedAlphaMonitorId { get; set; }
+        int SelectedBetaMonitorId { get; set; }
+
         Task StartCopiers(DuplicatContext duplicatContext, int alphaMonitorId, int betaMonitorId);
         Task Connect(DuplicatContext duplicatContext, int alphaMonitorId, int betaMonitorId);
         Task Disconnect();
@@ -28,8 +31,9 @@ namespace QvaDev.Orchestration
 
         private DuplicatContext _duplicatContext;
         private bool _areCopiersActive;
-        private int _alphaMonitorId;
-        private int _betaMonitorId;
+
+        public int SelectedAlphaMonitorId { get; set; }
+        public int SelectedBetaMonitorId { get; set; }
 
         public Orchestrator(
             Func<SynchronizationContext> synchronizationContextFactory,
@@ -45,8 +49,8 @@ namespace QvaDev.Orchestration
 
         public Task Connect(DuplicatContext duplicatContext, int alphaMonitorId, int betaMonitorId)
         {
-            _betaMonitorId = betaMonitorId;
-            _alphaMonitorId = alphaMonitorId;
+            SelectedBetaMonitorId = betaMonitorId;
+            SelectedAlphaMonitorId = alphaMonitorId;
             _duplicatContext = duplicatContext;
             _synchronizationContext = _synchronizationContext ?? _synchronizationContextFactory.Invoke();
             _areCopiersActive = false;
@@ -180,8 +184,8 @@ namespace QvaDev.Orchestration
             return Task.Factory.StartNew(() =>
             {
                 _balanceReportService.Report(
-                    _duplicatContext.Monitors.Local.FirstOrDefault(m => m.Id == _alphaMonitorId),
-                    _duplicatContext.Monitors.Local.FirstOrDefault(m => m.Id == _betaMonitorId),
+                    _duplicatContext.Monitors.Local.FirstOrDefault(m => m.Id == SelectedAlphaMonitorId),
+                    _duplicatContext.Monitors.Local.FirstOrDefault(m => m.Id == SelectedBetaMonitorId),
                     from);
             });
         }
@@ -250,7 +254,7 @@ namespace QvaDev.Orchestration
             if (account.State != BaseAccountEntity.States.Connected) return;
 
             var monitored = account.MonitoredAccounts
-                .FirstOrDefault(a => a.MonitorId == _alphaMonitorId || a.MonitorId == _betaMonitorId);
+                .FirstOrDefault(a => a.MonitorId == SelectedAlphaMonitorId || a.MonitorId == SelectedBetaMonitorId);
             if (monitored == null) return;
 
             var symbol = monitored.Symbol ?? monitored.Monitor.Symbol;

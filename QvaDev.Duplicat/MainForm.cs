@@ -57,6 +57,14 @@ namespace QvaDev.Duplicat
             inverseBinding.Format += (s, e) => e.Value = !(bool)e.Value;
             groupBoxMainControl.DataBindings.Add(inverseBinding);
 
+            inverseBinding = new Binding("Enabled", _viewModel, "IsLoading");
+            inverseBinding.Format += (s, e) => e.Value = !(bool)e.Value;
+            groupBoxMonitorControl.DataBindings.Add(inverseBinding);
+
+            inverseBinding = new Binding("Enabled", _viewModel, "IsDisconnect");
+            inverseBinding.Format += (s, e) => e.Value = !(bool)e.Value;
+            btnBalanceReport.DataBindings.Add(inverseBinding);
+
 
             var titleBinding = new Binding("Text", _viewModel, "IsLoading");
             titleBinding.Format += (s, e) => e.Value = (bool) e.Value ? "QvaDev.Duplicat - Loading..." : "QvaDev.Duplicat";

@@ -110,7 +110,12 @@ namespace QvaDev.Duplicat.ViewModel
 
         private void DuplicatViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(State)) StateChangeCommand();
+            if (e.PropertyName == nameof(State))
+                StateChangeCommand();
+            else if (e.PropertyName == nameof(SelectedAlphaMonitorId))
+                _orchestrator.SelectedAlphaMonitorId = SelectedAlphaMonitorId;
+            else if (e.PropertyName == nameof(SelectedBetaMonitorId))
+                _orchestrator.SelectedAlphaMonitorId = SelectedBetaMonitorId;
         }
 
         private void StateChangeCommand()

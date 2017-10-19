@@ -6,17 +6,17 @@ namespace QvaDev.Orchestration
 {
     public class CustomWorkbook : XSSFWorkbook
     {
-        private ICellStyle TextCellStyle { get; set; }
+        private ICellStyle TextCellStyle { get; }
 
-        private ICellStyle TextCellStyleWithMediumRightBorder { get; set; }
+        private ICellStyle TextCellStyleWithMediumRightBorder { get; }
 
-        private ICellStyle GeneralCellStyle { get; set; }
+        private ICellStyle GeneralCellStyle { get; }
 
-        private ICellStyle GeneralBoldCellStyle { get; set; }
+        private ICellStyle GeneralBoldCellStyle { get; }
 
-        private ICellStyle PercentageCellStyle { get; set; }
+        private ICellStyle PercentageCellStyle { get; }
 
-        private ICellStyle PercentageBoldCellStyle { get; set; }
+        private ICellStyle PercentageBoldCellStyle { get; }
 
         public CustomWorkbook(string templatePath) : base(new FileStream(templatePath, FileMode.Open, FileAccess.Read))
         {
