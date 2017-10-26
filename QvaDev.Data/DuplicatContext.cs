@@ -90,28 +90,28 @@ namespace QvaDev.Data
                 Description = "cTrader1",
                 AccountNumber = 3174636,
                 CTraderPlatform = cTraderPlatform,
-                AccessToken = "802TOtADXELJqQ9gkiYfCLbqWWMqfbLWzzMPtg9PUa8"
+                AccessToken = "sVP14Z83qW455RoXW_c2dDvoF4PiIn-5-XxFVd2kwjs"
             });
             CTraderAccounts.Add(new CTraderAccount()
             {
                 Description = "cTrader2",
                 AccountNumber = 3174645,
                 CTraderPlatform = cTraderPlatform,
-                AccessToken = "802TOtADXELJqQ9gkiYfCLbqWWMqfbLWzzMPtg9PUa8"
+                AccessToken = "sVP14Z83qW455RoXW_c2dDvoF4PiIn-5-XxFVd2kwjs"
             });
             CTraderAccounts.Add(new CTraderAccount()
             {
                 Description = "cTrader3",
                 AccountNumber = 3175387,
                 CTraderPlatform = cTraderPlatform,
-                AccessToken = "802TOtADXELJqQ9gkiYfCLbqWWMqfbLWzzMPtg9PUa8"
+                AccessToken = "sVP14Z83qW455RoXW_c2dDvoF4PiIn-5-XxFVd2kwjs"
             });
             CTraderAccounts.Add(new CTraderAccount()
             {
                 Description = "cTrader4",
                 AccountNumber = 3175388,
                 CTraderPlatform = cTraderPlatform,
-                AccessToken = "802TOtADXELJqQ9gkiYfCLbqWWMqfbLWzzMPtg9PUa8"
+                AccessToken = "sVP14Z83qW455RoXW_c2dDvoF4PiIn-5-XxFVd2kwjs"
             });
 
             Profiles.Add(new Profile() { Description = "Dummy Profile 1" });

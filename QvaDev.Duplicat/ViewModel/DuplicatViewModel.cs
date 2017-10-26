@@ -14,13 +14,6 @@ namespace QvaDev.Duplicat.ViewModel
 {
     public class DuplicatViewModel : BaseViewModel
     {
-        private enum States
-        {
-            Disconnect,
-            Connect,
-            Copy
-        }
-
         public delegate void ProfileChangedEventHandler();
         
         private DuplicatContext _duplicatContext;
@@ -42,12 +35,11 @@ namespace QvaDev.Duplicat.ViewModel
 
         public event ProfileChangedEventHandler ProfileChanged;
         
-        private States State { get => Get<States>(); set => Set(value); }
-        public bool IsDisconnect { get => State == States.Disconnect; set => State = value ? States.Disconnect : State; }
-        public bool IsConnect { get => State == States.Connect; set => State = value ? States.Connect : State; }
-        public bool IsCopy { get => State == States.Copy; set => State = value ? States.Copy : State; }
         public bool IsConfigReadonly { get => Get<bool>(); set => Set(value); }
         public bool IsLoading { get => Get<bool>(); set => Set(value); }
+        public bool IsConnected { get => Get<bool>(); set => Set(value); }
+        public bool AreCopiersStarted { get => Get<bool>(); set => Set(value); }
+        public bool AreMonitorsStarted { get => Get<bool>(); set => Set(value); }
 
         public int SelectedProfileId { get => Get<int>(); set => Set(value); }
         public int SelectedSlaveId { get => Get<int>(); set => Set(value); }
@@ -61,7 +53,6 @@ namespace QvaDev.Duplicat.ViewModel
             _xmlService = xmlService;
             _orchestrator = orchestrator;
             PropertyChanged += DuplicatViewModel_PropertyChanged;
-            IsDisconnect = true;
             LoadDataContext();
         }
 
@@ -108,28 +99,63 @@ namespace QvaDev.Duplicat.ViewModel
             _orchestrator.BalanceReport(from);
         }
 
-        private void DuplicatViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            if (e.PropertyName == nameof(State))
-                StateChangeCommand();
-            else if (e.PropertyName == nameof(SelectedAlphaMonitorId))
-                _orchestrator.SelectedAlphaMonitorId = SelectedAlphaMonitorId;
-            else if (e.PropertyName == nameof(SelectedBetaMonitorId))
-                _orchestrator.SelectedBetaMonitorId = SelectedBetaMonitorId;
-        }
-
-        private void StateChangeCommand()
+        public void StartCopiersCommand()
         {
             IsLoading = true;
             IsConfigReadonly = true;
-            if (State == States.Disconnect) _orchestrator.Disconnect()
-                .ContinueWith(prevTask => { IsLoading = false; IsConfigReadonly = false; });
-            else if (State == States.Connect) _orchestrator.Connect(_duplicatContext, SelectedAlphaMonitorId, SelectedBetaMonitorId)
-                .ContinueWith(prevTask => {
+            _orchestrator.StartCopiers(_duplicatContext, SelectedAlphaMonitorId, SelectedBetaMonitorId)
+                .ContinueWith(prevTask =>
+                {
                     IsLoading = false;
-                    IsConfigReadonly = true; });
-            else if (State == States.Copy) _orchestrator.StartCopiers(_duplicatContext, SelectedAlphaMonitorId, SelectedBetaMonitorId)
-                .ContinueWith(prevTask => { IsLoading = false; IsConfigReadonly = true; });
+                    IsConfigReadonly = true;
+                    AreCopiersStarted = true;
+                });
+        }
+        public void StopCopiersCommand()
+        {
+            _orchestrator.StopCopiers();
+            AreCopiersStarted = false;
+        }
+
+        public void StartMonitors()
+        {
+            IsLoading = true;
+            IsConfigReadonly = true;
+            _orchestrator.StartMonitors(_duplicatContext, SelectedAlphaMonitorId, SelectedBetaMonitorId)
+                .ContinueWith(prevTask =>
+                {
+                    IsLoading = false;
+                    IsConfigReadonly = true;
+                    AreMonitorsStarted = true;
+                });
+        }
+        public void StopMonitors()
+        {
+            _orchestrator.StopMonitors();
+            AreMonitorsStarted = false;
+        }
+
+        public void ConnectCommand()
+        {
+            IsLoading = true;
+            IsConfigReadonly = true;
+            _orchestrator.Connect(_duplicatContext, SelectedAlphaMonitorId, SelectedBetaMonitorId)
+                .ContinueWith(prevTask => { IsLoading = false; IsConfigReadonly = true; IsConnected = true; });
+        }
+        public void DisconnectCommand()
+        {
+            IsLoading = true;
+            IsConfigReadonly = true;
+            _orchestrator.Disconnect()
+                .ContinueWith(prevTask => { IsLoading = false; IsConfigReadonly = false; IsConnected = false; });
+        }
+
+        private void DuplicatViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(SelectedAlphaMonitorId))
+                _orchestrator.SelectedAlphaMonitorId = SelectedAlphaMonitorId;
+            else if (e.PropertyName == nameof(SelectedBetaMonitorId))
+                _orchestrator.SelectedBetaMonitorId = SelectedBetaMonitorId;
         }
 
         private void LoadDataContext()

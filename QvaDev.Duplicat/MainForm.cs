@@ -33,51 +33,50 @@ namespace QvaDev.Duplicat
         {
             _viewModel.SynchronizationContext = SynchronizationContext.Current;
 
-            dgvMtAccounts.DataBindings.Add(new Binding("ReadOnly", _viewModel, "IsConfigReadonly"));
-            dgvCtPlatforms.DataBindings.Add(new Binding("ReadOnly", _viewModel, "IsConfigReadonly"));
-            dgvCtAccounts.DataBindings.Add(new Binding("ReadOnly", _viewModel, "IsConfigReadonly"));
-            dgvProfiles.DataBindings.Add(new Binding("ReadOnly", _viewModel, "IsConfigReadonly"));
-            dgvGroups.DataBindings.Add(new Binding("ReadOnly", _viewModel, "IsConfigReadonly"));
-            dgvMasters.DataBindings.Add(new Binding("ReadOnly", _viewModel, "IsConfigReadonly"));
-            dgvSlaves.DataBindings.Add(new Binding("ReadOnly", _viewModel, "IsConfigReadonly"));
-            dgvSymbolMappings.DataBindings.Add(new Binding("ReadOnly", _viewModel, "IsConfigReadonly"));
-            dgvCopiers.DataBindings.Add(new Binding("ReadOnly", _viewModel, "IsConfigReadonly"));
-            dgvMonitors.DataBindings.Add(new Binding("ReadOnly", _viewModel, "IsConfigReadonly"));
-            dgvAlphaMasters.DataBindings.Add(new Binding("ReadOnly", _viewModel, "IsConfigReadonly"));
-            dgvAlphaAccounts.DataBindings.Add(new Binding("ReadOnly", _viewModel, "IsConfigReadonly"));
-            dgvBetaMasters.DataBindings.Add(new Binding("ReadOnly", _viewModel, "IsConfigReadonly"));
-            dgvBetaAccounts.DataBindings.Add(new Binding("ReadOnly", _viewModel, "IsConfigReadonly"));
+            dgvMtAccounts.DataBindings.Add(new Binding("ReadOnly", _viewModel, nameof(_viewModel.IsConfigReadonly)));
+            dgvCtPlatforms.DataBindings.Add(new Binding("ReadOnly", _viewModel, nameof(_viewModel.IsConfigReadonly)));
+            dgvCtAccounts.DataBindings.Add(new Binding("ReadOnly", _viewModel, nameof(_viewModel.IsConfigReadonly)));
+            dgvProfiles.DataBindings.Add(new Binding("ReadOnly", _viewModel, nameof(_viewModel.IsConfigReadonly)));
+            dgvGroups.DataBindings.Add(new Binding("ReadOnly", _viewModel, nameof(_viewModel.IsConfigReadonly)));
+            dgvMasters.DataBindings.Add(new Binding("ReadOnly", _viewModel, nameof(_viewModel.IsConfigReadonly)));
+            dgvSlaves.DataBindings.Add(new Binding("ReadOnly", _viewModel, nameof(_viewModel.IsConfigReadonly)));
+            dgvSymbolMappings.DataBindings.Add(new Binding("ReadOnly", _viewModel, nameof(_viewModel.IsConfigReadonly)));
+            dgvCopiers.DataBindings.Add(new Binding("ReadOnly", _viewModel, nameof(_viewModel.IsConfigReadonly)));
+            dgvMonitors.DataBindings.Add(new Binding("ReadOnly", _viewModel, nameof(_viewModel.IsConfigReadonly)));
+            dgvAlphaMasters.DataBindings.Add(new Binding("ReadOnly", _viewModel, nameof(_viewModel.IsConfigReadonly)));
+            dgvAlphaAccounts.DataBindings.Add(new Binding("ReadOnly", _viewModel, nameof(_viewModel.IsConfigReadonly)));
+            dgvBetaMasters.DataBindings.Add(new Binding("ReadOnly", _viewModel, nameof(_viewModel.IsConfigReadonly)));
+            dgvBetaAccounts.DataBindings.Add(new Binding("ReadOnly", _viewModel, nameof(_viewModel.IsConfigReadonly)));
 
+            AddIverseBinding(btnLoadProfile, "Enabled", nameof(_viewModel.IsConfigReadonly));
+            AddIverseBinding(gbMainControl, "Enabled", nameof(_viewModel.IsLoading));
+            AddIverseBinding(gbMonitorControl, "Enabled", nameof(_viewModel.IsLoading));
+            AddIverseBinding(gbCopierControl, "Enabled", nameof(_viewModel.IsLoading));
+            btnBalanceReport.DataBindings.Add(new Binding("Enabled", _viewModel, nameof(_viewModel.IsConnected)));
 
-            var inverseBinding = new Binding("Enabled", _viewModel, "IsConfigReadonly");
-            inverseBinding.Format += (s, e) => e.Value = !(bool)e.Value;
-            buttonLoadProfile.DataBindings.Add(inverseBinding);
+            AddIverseBinding(btnStartMonitors, "Enabled", nameof(_viewModel.AreMonitorsStarted));
+            btnStopMonitors.DataBindings.Add(new Binding("Enabled", _viewModel, nameof(_viewModel.AreMonitorsStarted)));
+            btnStartMonitors.Click += (s, e) => { _viewModel.StartMonitors(); };
+            btnStopMonitors.Click += (s, e) => { _viewModel.StopMonitors(); };
 
-            inverseBinding = new Binding("Enabled", _viewModel, "IsLoading");
-            inverseBinding.Format += (s, e) => e.Value = !(bool)e.Value;
-            groupBoxMainControl.DataBindings.Add(inverseBinding);
+            AddIverseBinding(btnStartCopiers, "Enabled", nameof(_viewModel.AreCopiersStarted));
+            btnStopCopiers.DataBindings.Add(new Binding("Enabled", _viewModel, nameof(_viewModel.AreCopiersStarted)));
+            btnStartCopiers.Click += (s, e) => { _viewModel.StartCopiersCommand(); };
+            btnStopCopiers.Click += (s, e) => { _viewModel.StopCopiersCommand(); };
 
-            inverseBinding = new Binding("Enabled", _viewModel, "IsLoading");
-            inverseBinding.Format += (s, e) => e.Value = !(bool)e.Value;
-            groupBoxMonitorControl.DataBindings.Add(inverseBinding);
-
-            inverseBinding = new Binding("Enabled", _viewModel, "IsDisconnect");
-            inverseBinding.Format += (s, e) => e.Value = !(bool)e.Value;
-            btnBalanceReport.DataBindings.Add(inverseBinding);
-
+            AddIverseBinding(btnConnect, "Enabled", nameof(_viewModel.IsConnected));
+            btnDisconnect.DataBindings.Add(new Binding("Enabled", _viewModel, nameof(_viewModel.IsConnected)));
+            btnConnect.Click += (s, e) => { _viewModel.ConnectCommand(); };
+            btnDisconnect.Click += (s, e) => { _viewModel.DisconnectCommand(); };
 
             var titleBinding = new Binding("Text", _viewModel, "IsLoading");
             titleBinding.Format += (s, e) => e.Value = (bool) e.Value ? "QvaDev.Duplicat - Loading..." : "QvaDev.Duplicat";
             DataBindings.Add(titleBinding);
 
-            rbDisconnect.DataBindings.Add(new Binding("Checked", _viewModel, "IsDisconnect", true, DataSourceUpdateMode.OnPropertyChanged, false));
-            rbConnect.DataBindings.Add(new Binding("Checked", _viewModel, "IsConnect", true, DataSourceUpdateMode.OnPropertyChanged, false));
-            rbCopy.DataBindings.Add(new Binding("Checked", _viewModel, "IsCopy", true, DataSourceUpdateMode.OnPropertyChanged, false));
-
             btnBalanceReport.Click += (s, e) => { _viewModel.BalanceReportCommand(dtpBalanceReport.Value.Date); };
-            buttonSave.Click += (s, e) => { _viewModel.SaveCommand(); };
-            buttonLoadProfile.Click += (s, e) => { _viewModel.LoadProfileCommand(dgvProfiles.GetSelectedItem<Profile>()); };
-            buttonShowSelectedSlave.Click += (s, e) =>
+            btnSave.Click += (s, e) => { _viewModel.SaveCommand(); };
+            btnLoadProfile.Click += (s, e) => { _viewModel.LoadProfileCommand(dgvProfiles.GetSelectedItem<Profile>()); };
+            btnShowSelectedSlave.Click += (s, e) =>
             {
                 _viewModel.ShowSelectedSlaveCommand(dgvSlaves.GetSelectedItem<Slave>());
                 dgvCopiers.FilterRows();
@@ -159,13 +158,13 @@ namespace QvaDev.Duplicat
             dgvBetaAccounts.RowPrePaint += (s, e) => FilterMonitoredAccountRows((DataGridView)s, false);
             btnLoadAlpha.Click += (s, e) =>
             {
-                _viewModel.SelectedAlphaMonitorId = dgvMonitors.GetSelectedItem<Data.Models.Monitor>().Id;
+                _viewModel.SelectedAlphaMonitorId = dgvMonitors.GetSelectedItem<Data.Models.Monitor>()?.Id ?? 0;
                 FilterMonitoredAccountRows(dgvAlphaMasters, true);
                 FilterMonitoredAccountRows(dgvAlphaAccounts, false);
             };
             btnLoadBeta.Click += (s, e) =>
             {
-                _viewModel.SelectedBetaMonitorId = dgvMonitors.GetSelectedItem<Data.Models.Monitor>().Id;
+                _viewModel.SelectedBetaMonitorId = dgvMonitors.GetSelectedItem<Data.Models.Monitor>()?.Id ?? 0;
                 FilterMonitoredAccountRows(dgvBetaMasters, true);
                 FilterMonitoredAccountRows(dgvBetaAccounts, false);
             };
@@ -183,6 +182,13 @@ namespace QvaDev.Duplicat
             dgvCtPlatforms.CellContentClick += DgvCtPlatforms_CellContentClick;
 
             AttachDataSources();
+        }
+
+        private void AddIverseBinding(Control control, string propertyName, string dataMember)
+        {
+            var inverseBinding = new Binding(propertyName, _viewModel, dataMember);
+            inverseBinding.Format += (s, e) => e.Value = !(bool)e.Value;
+            control.DataBindings.Add(inverseBinding);
         }
 
         private void DgvCtPlatforms_CellContentClick(object sender, DataGridViewCellEventArgs e)

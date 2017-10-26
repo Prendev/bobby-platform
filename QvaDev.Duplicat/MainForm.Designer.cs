@@ -64,7 +64,7 @@
             this.dgvBetaMasters = new QvaDev.Duplicat.CustomDataGridView();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.dgvMonitors = new QvaDev.Duplicat.CustomDataGridView();
-            this.groupBoxMonitorControl = new System.Windows.Forms.GroupBox();
+            this.gbMonitorControl = new System.Windows.Forms.GroupBox();
             this.dtpBalanceReport = new System.Windows.Forms.DateTimePicker();
             this.btnBalanceReport = new System.Windows.Forms.Button();
             this.btnLoadBeta = new System.Windows.Forms.Button();
@@ -78,13 +78,18 @@
             this.tabPageLog = new System.Windows.Forms.TabPage();
             this.textBoxLog = new System.Windows.Forms.TextBox();
             this.tlpMain = new System.Windows.Forms.TableLayoutPanel();
-            this.groupBoxMainControl = new System.Windows.Forms.GroupBox();
-            this.buttonShowSelectedSlave = new System.Windows.Forms.Button();
-            this.buttonLoadProfile = new System.Windows.Forms.Button();
-            this.rbDisconnect = new System.Windows.Forms.RadioButton();
-            this.rbConnect = new System.Windows.Forms.RadioButton();
-            this.buttonSave = new System.Windows.Forms.Button();
-            this.rbCopy = new System.Windows.Forms.RadioButton();
+            this.gbMainControl = new System.Windows.Forms.GroupBox();
+            this.btnShowSelectedSlave = new System.Windows.Forms.Button();
+            this.btnLoadProfile = new System.Windows.Forms.Button();
+            this.btnSave = new System.Windows.Forms.Button();
+            this.tlpCopierTopLeft = new System.Windows.Forms.TableLayoutPanel();
+            this.gbCopierControl = new System.Windows.Forms.GroupBox();
+            this.btnStartCopiers = new System.Windows.Forms.Button();
+            this.btnStopCopiers = new System.Windows.Forms.Button();
+            this.btnDisconnect = new System.Windows.Forms.Button();
+            this.btnConnect = new System.Windows.Forms.Button();
+            this.btnStopMonitors = new System.Windows.Forms.Button();
+            this.btnStartMonitors = new System.Windows.Forms.Button();
             this.tabControlMain.SuspendLayout();
             this.tabPageProfileAndGroup.SuspendLayout();
             this.tlpProfilesAndGroups.SuspendLayout();
@@ -121,7 +126,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.dgvBetaMasters)).BeginInit();
             this.groupBox3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvMonitors)).BeginInit();
-            this.groupBoxMonitorControl.SuspendLayout();
+            this.gbMonitorControl.SuspendLayout();
             this.groupBox12.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvAlphaAccounts)).BeginInit();
             this.groupBox13.SuspendLayout();
@@ -130,7 +135,9 @@
             ((System.ComponentModel.ISupportInitialize)(this.dgvAlphaMasters)).BeginInit();
             this.tabPageLog.SuspendLayout();
             this.tlpMain.SuspendLayout();
-            this.groupBoxMainControl.SuspendLayout();
+            this.gbMainControl.SuspendLayout();
+            this.tlpCopierTopLeft.SuspendLayout();
+            this.gbCopierControl.SuspendLayout();
             this.SuspendLayout();
             // 
             // tabControlMain
@@ -382,6 +389,7 @@
             this.tlpCopier.Controls.Add(this.tlpCopierTop, 0, 0);
             this.tlpCopier.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tlpCopier.Location = new System.Drawing.Point(3, 3);
+            this.tlpCopier.Margin = new System.Windows.Forms.Padding(0);
             this.tlpCopier.Name = "tlpCopier";
             this.tlpCopier.RowCount = 2;
             this.tlpCopier.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 70F));
@@ -418,24 +426,25 @@
             this.tlpCopierTop.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 34F));
             this.tlpCopierTop.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33F));
             this.tlpCopierTop.Controls.Add(this.groupBox11, 2, 0);
-            this.tlpCopierTop.Controls.Add(this.groupBox8, 0, 0);
             this.tlpCopierTop.Controls.Add(this.groupBox9, 1, 0);
+            this.tlpCopierTop.Controls.Add(this.tlpCopierTopLeft, 0, 0);
             this.tlpCopierTop.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tlpCopierTop.Location = new System.Drawing.Point(3, 3);
+            this.tlpCopierTop.Location = new System.Drawing.Point(0, 0);
+            this.tlpCopierTop.Margin = new System.Windows.Forms.Padding(0);
             this.tlpCopierTop.Name = "tlpCopierTop";
             this.tlpCopierTop.RowCount = 1;
             this.tlpCopierTop.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tlpCopierTop.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 326F));
-            this.tlpCopierTop.Size = new System.Drawing.Size(1026, 326);
+            this.tlpCopierTop.Size = new System.Drawing.Size(1032, 332);
             this.tlpCopierTop.TabIndex = 1;
             // 
             // groupBox11
             // 
             this.groupBox11.Controls.Add(this.dgvSymbolMappings);
             this.groupBox11.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.groupBox11.Location = new System.Drawing.Point(689, 3);
+            this.groupBox11.Location = new System.Drawing.Point(693, 3);
             this.groupBox11.Name = "groupBox11";
-            this.groupBox11.Size = new System.Drawing.Size(334, 320);
+            this.groupBox11.Size = new System.Drawing.Size(336, 326);
             this.groupBox11.TabIndex = 1;
             this.groupBox11.TabStop = false;
             this.groupBox11.Text = "Symbol mappings";
@@ -448,16 +457,16 @@
             this.dgvSymbolMappings.Location = new System.Drawing.Point(3, 16);
             this.dgvSymbolMappings.MultiSelect = false;
             this.dgvSymbolMappings.Name = "dgvSymbolMappings";
-            this.dgvSymbolMappings.Size = new System.Drawing.Size(328, 301);
+            this.dgvSymbolMappings.Size = new System.Drawing.Size(330, 307);
             this.dgvSymbolMappings.TabIndex = 0;
             // 
             // groupBox8
             // 
             this.groupBox8.Controls.Add(this.dgvMasters);
             this.groupBox8.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.groupBox8.Location = new System.Drawing.Point(3, 3);
+            this.groupBox8.Location = new System.Drawing.Point(3, 166);
             this.groupBox8.Name = "groupBox8";
-            this.groupBox8.Size = new System.Drawing.Size(332, 320);
+            this.groupBox8.Size = new System.Drawing.Size(328, 157);
             this.groupBox8.TabIndex = 0;
             this.groupBox8.TabStop = false;
             this.groupBox8.Text = "Masters";
@@ -470,16 +479,16 @@
             this.dgvMasters.Location = new System.Drawing.Point(3, 16);
             this.dgvMasters.MultiSelect = false;
             this.dgvMasters.Name = "dgvMasters";
-            this.dgvMasters.Size = new System.Drawing.Size(326, 301);
+            this.dgvMasters.Size = new System.Drawing.Size(322, 138);
             this.dgvMasters.TabIndex = 0;
             // 
             // groupBox9
             // 
             this.groupBox9.Controls.Add(this.dgvSlaves);
             this.groupBox9.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.groupBox9.Location = new System.Drawing.Point(341, 3);
+            this.groupBox9.Location = new System.Drawing.Point(343, 3);
             this.groupBox9.Name = "groupBox9";
-            this.groupBox9.Size = new System.Drawing.Size(342, 320);
+            this.groupBox9.Size = new System.Drawing.Size(344, 326);
             this.groupBox9.TabIndex = 1;
             this.groupBox9.TabStop = false;
             this.groupBox9.Text = "Slaves";
@@ -492,7 +501,7 @@
             this.dgvSlaves.Location = new System.Drawing.Point(3, 16);
             this.dgvSlaves.MultiSelect = false;
             this.dgvSlaves.Name = "dgvSlaves";
-            this.dgvSlaves.Size = new System.Drawing.Size(336, 301);
+            this.dgvSlaves.Size = new System.Drawing.Size(338, 307);
             this.dgvSlaves.TabIndex = 0;
             // 
             // tabPageMonitor
@@ -512,11 +521,11 @@
             this.tlpMonitor.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tlpMonitor.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tlpMonitor.Controls.Add(this.groupBox16, 1, 1);
-            this.tlpMonitor.Controls.Add(this.groupBox3, 0, 0);
-            this.tlpMonitor.Controls.Add(this.groupBoxMonitorControl, 1, 0);
             this.tlpMonitor.Controls.Add(this.groupBox12, 0, 2);
             this.tlpMonitor.Controls.Add(this.groupBox13, 1, 2);
             this.tlpMonitor.Controls.Add(this.groupBox15, 0, 1);
+            this.tlpMonitor.Controls.Add(this.gbMonitorControl, 0, 0);
+            this.tlpMonitor.Controls.Add(this.groupBox3, 1, 0);
             this.tlpMonitor.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tlpMonitor.Location = new System.Drawing.Point(3, 3);
             this.tlpMonitor.Name = "tlpMonitor";
@@ -554,7 +563,7 @@
             // 
             this.groupBox3.Controls.Add(this.dgvMonitors);
             this.groupBox3.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.groupBox3.Location = new System.Drawing.Point(3, 3);
+            this.groupBox3.Location = new System.Drawing.Point(519, 3);
             this.groupBox3.Name = "groupBox3";
             this.groupBox3.Size = new System.Drawing.Size(510, 144);
             this.groupBox3.TabIndex = 0;
@@ -572,31 +581,33 @@
             this.dgvMonitors.Size = new System.Drawing.Size(504, 125);
             this.dgvMonitors.TabIndex = 0;
             // 
-            // groupBoxMonitorControl
+            // gbMonitorControl
             // 
-            this.groupBoxMonitorControl.Controls.Add(this.dtpBalanceReport);
-            this.groupBoxMonitorControl.Controls.Add(this.btnBalanceReport);
-            this.groupBoxMonitorControl.Controls.Add(this.btnLoadBeta);
-            this.groupBoxMonitorControl.Controls.Add(this.btnLoadAlpha);
-            this.groupBoxMonitorControl.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.groupBoxMonitorControl.Location = new System.Drawing.Point(519, 3);
-            this.groupBoxMonitorControl.Name = "groupBoxMonitorControl";
-            this.groupBoxMonitorControl.Size = new System.Drawing.Size(510, 144);
-            this.groupBoxMonitorControl.TabIndex = 3;
-            this.groupBoxMonitorControl.TabStop = false;
-            this.groupBoxMonitorControl.Text = "Control";
+            this.gbMonitorControl.Controls.Add(this.btnStopMonitors);
+            this.gbMonitorControl.Controls.Add(this.btnStartMonitors);
+            this.gbMonitorControl.Controls.Add(this.dtpBalanceReport);
+            this.gbMonitorControl.Controls.Add(this.btnBalanceReport);
+            this.gbMonitorControl.Controls.Add(this.btnLoadBeta);
+            this.gbMonitorControl.Controls.Add(this.btnLoadAlpha);
+            this.gbMonitorControl.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.gbMonitorControl.Location = new System.Drawing.Point(3, 3);
+            this.gbMonitorControl.Name = "gbMonitorControl";
+            this.gbMonitorControl.Size = new System.Drawing.Size(510, 144);
+            this.gbMonitorControl.TabIndex = 3;
+            this.gbMonitorControl.TabStop = false;
+            this.gbMonitorControl.Text = "Control";
             // 
             // dtpBalanceReport
             // 
             this.dtpBalanceReport.Format = System.Windows.Forms.DateTimePickerFormat.Short;
-            this.dtpBalanceReport.Location = new System.Drawing.Point(162, 51);
+            this.dtpBalanceReport.Location = new System.Drawing.Point(162, 80);
             this.dtpBalanceReport.Name = "dtpBalanceReport";
             this.dtpBalanceReport.Size = new System.Drawing.Size(150, 20);
             this.dtpBalanceReport.TabIndex = 19;
             // 
             // btnBalanceReport
             // 
-            this.btnBalanceReport.Location = new System.Drawing.Point(6, 48);
+            this.btnBalanceReport.Location = new System.Drawing.Point(6, 77);
             this.btnBalanceReport.Name = "btnBalanceReport";
             this.btnBalanceReport.Size = new System.Drawing.Size(150, 23);
             this.btnBalanceReport.TabIndex = 18;
@@ -605,7 +616,7 @@
             // 
             // btnLoadBeta
             // 
-            this.btnLoadBeta.Location = new System.Drawing.Point(162, 19);
+            this.btnLoadBeta.Location = new System.Drawing.Point(162, 48);
             this.btnLoadBeta.Name = "btnLoadBeta";
             this.btnLoadBeta.Size = new System.Drawing.Size(150, 23);
             this.btnLoadBeta.TabIndex = 17;
@@ -614,7 +625,7 @@
             // 
             // btnLoadAlpha
             // 
-            this.btnLoadAlpha.Location = new System.Drawing.Point(6, 19);
+            this.btnLoadAlpha.Location = new System.Drawing.Point(6, 48);
             this.btnLoadAlpha.Name = "btnLoadAlpha";
             this.btnLoadAlpha.Size = new System.Drawing.Size(150, 23);
             this.btnLoadAlpha.TabIndex = 16;
@@ -714,7 +725,7 @@
             this.tlpMain.ColumnCount = 1;
             this.tlpMain.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tlpMain.Controls.Add(this.tabControlMain, 0, 1);
-            this.tlpMain.Controls.Add(this.groupBoxMainControl, 0, 0);
+            this.tlpMain.Controls.Add(this.gbMainControl, 0, 0);
             this.tlpMain.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tlpMain.Location = new System.Drawing.Point(0, 0);
             this.tlpMain.Name = "tlpMain";
@@ -724,83 +735,130 @@
             this.tlpMain.Size = new System.Drawing.Size(1052, 565);
             this.tlpMain.TabIndex = 1;
             // 
-            // groupBoxMainControl
+            // gbMainControl
             // 
-            this.groupBoxMainControl.Controls.Add(this.buttonShowSelectedSlave);
-            this.groupBoxMainControl.Controls.Add(this.buttonLoadProfile);
-            this.groupBoxMainControl.Controls.Add(this.rbDisconnect);
-            this.groupBoxMainControl.Controls.Add(this.rbConnect);
-            this.groupBoxMainControl.Controls.Add(this.buttonSave);
-            this.groupBoxMainControl.Controls.Add(this.rbCopy);
-            this.groupBoxMainControl.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.groupBoxMainControl.Location = new System.Drawing.Point(3, 3);
-            this.groupBoxMainControl.Name = "groupBoxMainControl";
-            this.groupBoxMainControl.Size = new System.Drawing.Size(1046, 46);
-            this.groupBoxMainControl.TabIndex = 1;
-            this.groupBoxMainControl.TabStop = false;
-            this.groupBoxMainControl.Text = "Main control panel";
+            this.gbMainControl.Controls.Add(this.btnDisconnect);
+            this.gbMainControl.Controls.Add(this.btnConnect);
+            this.gbMainControl.Controls.Add(this.btnLoadProfile);
+            this.gbMainControl.Controls.Add(this.btnSave);
+            this.gbMainControl.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.gbMainControl.Location = new System.Drawing.Point(3, 3);
+            this.gbMainControl.Name = "gbMainControl";
+            this.gbMainControl.Size = new System.Drawing.Size(1046, 46);
+            this.gbMainControl.TabIndex = 1;
+            this.gbMainControl.TabStop = false;
+            this.gbMainControl.Text = "Main control panel";
             // 
-            // buttonShowSelectedSlave
+            // btnShowSelectedSlave
             // 
-            this.buttonShowSelectedSlave.Location = new System.Drawing.Point(162, 19);
-            this.buttonShowSelectedSlave.Name = "buttonShowSelectedSlave";
-            this.buttonShowSelectedSlave.Size = new System.Drawing.Size(150, 23);
-            this.buttonShowSelectedSlave.TabIndex = 15;
-            this.buttonShowSelectedSlave.Text = "Show selected slave";
-            this.buttonShowSelectedSlave.UseVisualStyleBackColor = true;
+            this.btnShowSelectedSlave.Location = new System.Drawing.Point(6, 48);
+            this.btnShowSelectedSlave.Name = "btnShowSelectedSlave";
+            this.btnShowSelectedSlave.Size = new System.Drawing.Size(150, 23);
+            this.btnShowSelectedSlave.TabIndex = 15;
+            this.btnShowSelectedSlave.Text = "Show selected slave";
+            this.btnShowSelectedSlave.UseVisualStyleBackColor = true;
             // 
-            // buttonLoadProfile
+            // btnLoadProfile
             // 
-            this.buttonLoadProfile.Location = new System.Drawing.Point(6, 19);
-            this.buttonLoadProfile.Name = "buttonLoadProfile";
-            this.buttonLoadProfile.Size = new System.Drawing.Size(150, 23);
-            this.buttonLoadProfile.TabIndex = 14;
-            this.buttonLoadProfile.Text = "Load selected profile";
-            this.buttonLoadProfile.UseVisualStyleBackColor = true;
+            this.btnLoadProfile.Location = new System.Drawing.Point(6, 19);
+            this.btnLoadProfile.Name = "btnLoadProfile";
+            this.btnLoadProfile.Size = new System.Drawing.Size(150, 23);
+            this.btnLoadProfile.TabIndex = 14;
+            this.btnLoadProfile.Text = "Load selected profile";
+            this.btnLoadProfile.UseVisualStyleBackColor = true;
             // 
-            // rbDisconnect
+            // btnSave
             // 
-            this.rbDisconnect.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.rbDisconnect.AutoSize = true;
-            this.rbDisconnect.Checked = true;
-            this.rbDisconnect.Location = new System.Drawing.Point(835, 22);
-            this.rbDisconnect.Name = "rbDisconnect";
-            this.rbDisconnect.Size = new System.Drawing.Size(79, 17);
-            this.rbDisconnect.TabIndex = 11;
-            this.rbDisconnect.TabStop = true;
-            this.rbDisconnect.Text = "Disconnect";
-            this.rbDisconnect.UseVisualStyleBackColor = true;
+            this.btnSave.Location = new System.Drawing.Point(162, 19);
+            this.btnSave.Name = "btnSave";
+            this.btnSave.Size = new System.Drawing.Size(150, 23);
+            this.btnSave.TabIndex = 7;
+            this.btnSave.Text = "Save config changes";
+            this.btnSave.UseVisualStyleBackColor = true;
             // 
-            // rbConnect
+            // tlpCopierTopLeft
             // 
-            this.rbConnect.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.rbConnect.AutoSize = true;
-            this.rbConnect.Location = new System.Drawing.Point(920, 22);
-            this.rbConnect.Name = "rbConnect";
-            this.rbConnect.Size = new System.Drawing.Size(65, 17);
-            this.rbConnect.TabIndex = 12;
-            this.rbConnect.Text = "Connect";
-            this.rbConnect.UseVisualStyleBackColor = true;
+            this.tlpCopierTopLeft.ColumnCount = 1;
+            this.tlpCopierTopLeft.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tlpCopierTopLeft.Controls.Add(this.groupBox8, 0, 1);
+            this.tlpCopierTopLeft.Controls.Add(this.gbCopierControl, 0, 0);
+            this.tlpCopierTopLeft.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tlpCopierTopLeft.Location = new System.Drawing.Point(3, 3);
+            this.tlpCopierTopLeft.Name = "tlpCopierTopLeft";
+            this.tlpCopierTopLeft.RowCount = 2;
+            this.tlpCopierTopLeft.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tlpCopierTopLeft.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tlpCopierTopLeft.Size = new System.Drawing.Size(334, 326);
+            this.tlpCopierTopLeft.TabIndex = 2;
             // 
-            // buttonSave
+            // gbCopierControl
             // 
-            this.buttonSave.Location = new System.Drawing.Point(318, 19);
-            this.buttonSave.Name = "buttonSave";
-            this.buttonSave.Size = new System.Drawing.Size(150, 23);
-            this.buttonSave.TabIndex = 7;
-            this.buttonSave.Text = "Save config changes";
-            this.buttonSave.UseVisualStyleBackColor = true;
+            this.gbCopierControl.Controls.Add(this.btnStopCopiers);
+            this.gbCopierControl.Controls.Add(this.btnStartCopiers);
+            this.gbCopierControl.Controls.Add(this.btnShowSelectedSlave);
+            this.gbCopierControl.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.gbCopierControl.Location = new System.Drawing.Point(3, 3);
+            this.gbCopierControl.Name = "gbCopierControl";
+            this.gbCopierControl.Size = new System.Drawing.Size(328, 157);
+            this.gbCopierControl.TabIndex = 1;
+            this.gbCopierControl.TabStop = false;
+            this.gbCopierControl.Text = "Control";
             // 
-            // rbCopy
+            // btnStartCopiers
             // 
-            this.rbCopy.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.rbCopy.AutoSize = true;
-            this.rbCopy.Location = new System.Drawing.Point(991, 22);
-            this.rbCopy.Name = "rbCopy";
-            this.rbCopy.Size = new System.Drawing.Size(49, 17);
-            this.rbCopy.TabIndex = 13;
-            this.rbCopy.Text = "Copy";
-            this.rbCopy.UseVisualStyleBackColor = true;
+            this.btnStartCopiers.Location = new System.Drawing.Point(6, 19);
+            this.btnStartCopiers.Name = "btnStartCopiers";
+            this.btnStartCopiers.Size = new System.Drawing.Size(150, 23);
+            this.btnStartCopiers.TabIndex = 16;
+            this.btnStartCopiers.Text = "Start";
+            this.btnStartCopiers.UseVisualStyleBackColor = true;
+            // 
+            // btnStopCopiers
+            // 
+            this.btnStopCopiers.Location = new System.Drawing.Point(162, 19);
+            this.btnStopCopiers.Name = "btnStopCopiers";
+            this.btnStopCopiers.Size = new System.Drawing.Size(150, 23);
+            this.btnStopCopiers.TabIndex = 17;
+            this.btnStopCopiers.Text = "Stop";
+            this.btnStopCopiers.UseVisualStyleBackColor = true;
+            // 
+            // btnDisconnect
+            // 
+            this.btnDisconnect.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnDisconnect.Location = new System.Drawing.Point(890, 19);
+            this.btnDisconnect.Name = "btnDisconnect";
+            this.btnDisconnect.Size = new System.Drawing.Size(150, 23);
+            this.btnDisconnect.TabIndex = 19;
+            this.btnDisconnect.Text = "Disconnect";
+            this.btnDisconnect.UseVisualStyleBackColor = true;
+            // 
+            // btnConnect
+            // 
+            this.btnConnect.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnConnect.Location = new System.Drawing.Point(734, 19);
+            this.btnConnect.Name = "btnConnect";
+            this.btnConnect.Size = new System.Drawing.Size(150, 23);
+            this.btnConnect.TabIndex = 18;
+            this.btnConnect.Text = "Connect";
+            this.btnConnect.UseVisualStyleBackColor = true;
+            // 
+            // btnStopMonitors
+            // 
+            this.btnStopMonitors.Location = new System.Drawing.Point(162, 19);
+            this.btnStopMonitors.Name = "btnStopMonitors";
+            this.btnStopMonitors.Size = new System.Drawing.Size(150, 23);
+            this.btnStopMonitors.TabIndex = 21;
+            this.btnStopMonitors.Text = "Stop";
+            this.btnStopMonitors.UseVisualStyleBackColor = true;
+            // 
+            // btnStartMonitors
+            // 
+            this.btnStartMonitors.Location = new System.Drawing.Point(6, 19);
+            this.btnStartMonitors.Name = "btnStartMonitors";
+            this.btnStartMonitors.Size = new System.Drawing.Size(150, 23);
+            this.btnStartMonitors.TabIndex = 20;
+            this.btnStartMonitors.Text = "Start";
+            this.btnStartMonitors.UseVisualStyleBackColor = true;
             // 
             // MainForm
             // 
@@ -846,7 +904,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.dgvBetaMasters)).EndInit();
             this.groupBox3.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dgvMonitors)).EndInit();
-            this.groupBoxMonitorControl.ResumeLayout(false);
+            this.gbMonitorControl.ResumeLayout(false);
             this.groupBox12.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dgvAlphaAccounts)).EndInit();
             this.groupBox13.ResumeLayout(false);
@@ -856,8 +914,9 @@
             this.tabPageLog.ResumeLayout(false);
             this.tabPageLog.PerformLayout();
             this.tlpMain.ResumeLayout(false);
-            this.groupBoxMainControl.ResumeLayout(false);
-            this.groupBoxMainControl.PerformLayout();
+            this.gbMainControl.ResumeLayout(false);
+            this.tlpCopierTopLeft.ResumeLayout(false);
+            this.gbCopierControl.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -871,11 +930,8 @@
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.TabPage tabPageCTrader;
         private System.Windows.Forms.TableLayoutPanel tlpMain;
-        private System.Windows.Forms.GroupBox groupBoxMainControl;
-        private System.Windows.Forms.RadioButton rbDisconnect;
-        private System.Windows.Forms.RadioButton rbConnect;
-        private System.Windows.Forms.Button buttonSave;
-        private System.Windows.Forms.RadioButton rbCopy;
+        private System.Windows.Forms.GroupBox gbMainControl;
+        private System.Windows.Forms.Button btnSave;
         private System.Windows.Forms.TableLayoutPanel tlpCTrader;
         private System.Windows.Forms.GroupBox groupBox4;
         private System.Windows.Forms.GroupBox groupBox5;
@@ -903,11 +959,11 @@
         private CustomDataGridView dgvMtAccounts;
         private CustomDataGridView dgvCtPlatforms;
         private CustomDataGridView dgvCtAccounts;
-        private System.Windows.Forms.Button buttonLoadProfile;
+        private System.Windows.Forms.Button btnLoadProfile;
         private System.Windows.Forms.GroupBox groupBox10;
         private System.Windows.Forms.GroupBox groupBox11;
         private System.Windows.Forms.TableLayoutPanel tlpCopierTop;
-        private System.Windows.Forms.Button buttonShowSelectedSlave;
+        private System.Windows.Forms.Button btnShowSelectedSlave;
         private CustomDataGridView dgvCopiers;
         private CustomDataGridView dgvSymbolMappings;
         private System.Windows.Forms.TabPage tabPageLog;
@@ -917,7 +973,7 @@
         private System.Windows.Forms.GroupBox groupBox3;
         private System.Windows.Forms.GroupBox groupBox12;
         private System.Windows.Forms.GroupBox groupBox13;
-        private System.Windows.Forms.GroupBox groupBoxMonitorControl;
+        private System.Windows.Forms.GroupBox gbMonitorControl;
         private System.Windows.Forms.Button btnLoadBeta;
         private System.Windows.Forms.Button btnLoadAlpha;
         private CustomDataGridView dgvMonitors;
@@ -929,6 +985,14 @@
         private System.Windows.Forms.GroupBox groupBox15;
         private CustomDataGridView dgvBetaMasters;
         private CustomDataGridView dgvAlphaMasters;
+        private System.Windows.Forms.TableLayoutPanel tlpCopierTopLeft;
+        private System.Windows.Forms.GroupBox gbCopierControl;
+        private System.Windows.Forms.Button btnStopCopiers;
+        private System.Windows.Forms.Button btnStartCopiers;
+        private System.Windows.Forms.Button btnDisconnect;
+        private System.Windows.Forms.Button btnConnect;
+        private System.Windows.Forms.Button btnStopMonitors;
+        private System.Windows.Forms.Button btnStartMonitors;
     }
 }
 

@@ -16,6 +16,9 @@ namespace QvaDev.Orchestration
         int SelectedBetaMonitorId { get; set; }
 
         Task StartCopiers(DuplicatContext duplicatContext, int alphaMonitorId, int betaMonitorId);
+        void StopCopiers();
+        Task StartMonitors(DuplicatContext duplicatContext, int alphaMonitorId, int betaMonitorId);
+        void StopMonitors();
         Task Connect(DuplicatContext duplicatContext, int alphaMonitorId, int betaMonitorId);
         Task Disconnect();
         Task BalanceReport(DateTime from);
@@ -30,7 +33,8 @@ namespace QvaDev.Orchestration
         private readonly IBalanceReportService _balanceReportService;
 
         private DuplicatContext _duplicatContext;
-        private bool _areCopiersActive;
+        private bool _areCopiersStarted;
+        private bool _areMonitorsStarted;
 
         public int SelectedAlphaMonitorId { get; set; }
         public int SelectedBetaMonitorId { get; set; }
@@ -53,7 +57,6 @@ namespace QvaDev.Orchestration
             SelectedAlphaMonitorId = alphaMonitorId;
             _duplicatContext = duplicatContext;
             _synchronizationContext = _synchronizationContext ?? _synchronizationContextFactory.Invoke();
-            _areCopiersActive = false;
             return Task.WhenAll(ConnectMtAccounts(), ConenctCtAccounts());
         }
 
@@ -81,8 +84,6 @@ namespace QvaDev.Orchestration
                         ? BaseAccountEntity.States.Connected
                         : BaseAccountEntity.States.Error;
                     account.RaisePropertyChanged(_synchronizationContext, nameof(account.State));
-
-                    MonitorAccount(account);
                 }));
 
             return Task.WhenAll(tasks);
@@ -121,8 +122,6 @@ namespace QvaDev.Orchestration
                         ? BaseAccountEntity.States.Connected
                         : BaseAccountEntity.States.Error;
                     account.RaisePropertyChanged(_synchronizationContext, nameof(account.State));
-
-                    MonitorAccount(account);
                 }));
 
             return Task.WhenAll(tasks);
@@ -130,7 +129,8 @@ namespace QvaDev.Orchestration
 
         public Task Disconnect()
         {
-            _areCopiersActive = false;
+            _areCopiersStarted = false;
+            _areMonitorsStarted = false;
             return Task.WhenAll(DisconnectMtAccounts(), DisconnectCtAccounts());
         }
 
@@ -174,8 +174,29 @@ namespace QvaDev.Orchestration
                 master.MetaTraderAccount.Connector.OnPosition += MasterOnOrderUpdate;
             }
 
-            _areCopiersActive = true;
+            _areCopiersStarted = true;
             _log.Info($"Copiers are started");
+        }
+        public void StopCopiers()
+        {
+            _areCopiersStarted = false;
+        }
+
+        public Task StartMonitors(DuplicatContext duplicatContext, int alphaMonitorId, int betaMonitorId)
+        {
+            _areMonitorsStarted = true;
+            return Connect(duplicatContext, alphaMonitorId, betaMonitorId).ContinueWith(prevTask =>
+            {
+                var mtTasks = _duplicatContext.MetaTraderAccounts.AsEnumerable().Select(account =>
+                    Task.Factory.StartNew(() => MonitorAccount(account)));
+                var ctTasks = _duplicatContext.CTraderAccounts.AsEnumerable().Select(account =>
+                    Task.Factory.StartNew(() => MonitorAccount(account)));
+                return Task.WhenAll(Task.WhenAll(mtTasks), Task.WhenAll(ctTasks));
+            });
+        }
+        public void StopMonitors()
+        {
+            _areMonitorsStarted = false;
         }
 
 
@@ -192,7 +213,7 @@ namespace QvaDev.Orchestration
 
         private void MasterOnOrderUpdate(object sender, PositionEventArgs e)
         {
-            if (!_areCopiersActive) return;
+            if (!_areCopiersStarted) return;
             Task.Factory.StartNew(() =>
             {
                 lock (sender)
@@ -239,6 +260,7 @@ namespace QvaDev.Orchestration
 
         private void Monitor_OnPosition(object sender, PositionEventArgs e)
         {
+            if (_areMonitorsStarted) return;
             BaseAccountEntity account = null;
             if (e.AccountType == AccountTypes.Ct)
                 account = _duplicatContext.CTraderAccounts.Local.FirstOrDefault(a => a.Id == e.DbId);
