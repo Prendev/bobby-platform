@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using log4net;
@@ -10,7 +11,7 @@ namespace QvaDev.Orchestration.Services
 {
     public interface IMonitorServices
     {
-        Task Start(SynchronizationContext synchronizationContext, DuplicatContext duplicatContext, int alphaMonitorId, int betaMonitorId);
+        Task Start(DuplicatContext duplicatContext, int alphaMonitorId, int betaMonitorId);
         void Stop();
     }
 
@@ -20,22 +21,24 @@ namespace QvaDev.Orchestration.Services
         private DuplicatContext _duplicatContext;
         private readonly ILog _log;
         private SynchronizationContext _synchronizationContext;
+        private readonly Func<SynchronizationContext> _synchronizationContextFactory;
 
         public int SelectedAlphaMonitorId { get; set; }
         public int SelectedBetaMonitorId { get; set; }
 
         public MonitorServices(
+            Func<SynchronizationContext> synchronizationContextFactory,
             ILog log)
         {
+            _synchronizationContextFactory = synchronizationContextFactory;
             _log = log;
         }
 
         public Task Start(
-            SynchronizationContext synchronizationContext,
             DuplicatContext duplicatContext,
             int alphaMonitorId, int betaMonitorId)
         {
-            _synchronizationContext = synchronizationContext;
+            _synchronizationContext = _synchronizationContext ?? _synchronizationContextFactory.Invoke();
             _duplicatContext = duplicatContext;
             _areMonitorsStarted = true;
             SelectedAlphaMonitorId = alphaMonitorId;
@@ -62,7 +65,7 @@ namespace QvaDev.Orchestration.Services
 
         private void Monitor_OnPosition(object sender, PositionEventArgs e)
         {
-            if (_areMonitorsStarted) return;
+            if (!_areMonitorsStarted) return;
             BaseAccountEntity account = null;
             if (e.AccountType == AccountTypes.Ct)
                 account = _duplicatContext.CTraderAccounts.Local.FirstOrDefault(a => a.Id == e.DbId);

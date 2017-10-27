@@ -185,7 +185,7 @@ namespace QvaDev.Orchestration
 
         public Task StartMonitors(DuplicatContext duplicatContext, int alphaMonitorId, int betaMonitorId)
         {
-            return _monitorServices.Start(_synchronizationContext, duplicatContext, alphaMonitorId, betaMonitorId);
+            return _monitorServices.Start(duplicatContext, alphaMonitorId, betaMonitorId);
         }
 
         public void StopMonitors()
