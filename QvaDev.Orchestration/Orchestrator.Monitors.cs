@@ -11,6 +11,9 @@ namespace QvaDev.Orchestration
     {
         private bool _areMonitorsStarted;
 
+        public int SelectedAlphaMonitorId { get; set; }
+        public int SelectedBetaMonitorId { get; set; }
+
         public Task BalanceReport(DateTime from)
         {
             return Task.Factory.StartNew(() =>
@@ -25,7 +28,9 @@ namespace QvaDev.Orchestration
         public Task StartMonitors(DuplicatContext duplicatContext, int alphaMonitorId, int betaMonitorId)
         {
             _areMonitorsStarted = true;
-            return Connect(duplicatContext, alphaMonitorId, betaMonitorId).ContinueWith(prevTask =>
+            SelectedAlphaMonitorId = alphaMonitorId;
+            SelectedBetaMonitorId = betaMonitorId;
+            return Connect(duplicatContext).ContinueWith(prevTask =>
             {
                 var mtTasks = _duplicatContext.MetaTraderAccounts.AsEnumerable().Select(account =>
                     Task.Factory.StartNew(() => MonitorAccount(account)));

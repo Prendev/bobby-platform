@@ -13,12 +13,11 @@ namespace QvaDev.Orchestration
     {
         int SelectedAlphaMonitorId { get; set; }
         int SelectedBetaMonitorId { get; set; }
-
-        Task StartCopiers(DuplicatContext duplicatContext, int alphaMonitorId, int betaMonitorId);
+        Task StartCopiers(DuplicatContext duplicatContext);
         void StopCopiers();
         Task StartMonitors(DuplicatContext duplicatContext, int alphaMonitorId, int betaMonitorId);
         void StopMonitors();
-        Task Connect(DuplicatContext duplicatContext, int alphaMonitorId, int betaMonitorId);
+        Task Connect(DuplicatContext duplicatContext);
         Task Disconnect();
         Task BalanceReport(DateTime from);
     }
@@ -32,9 +31,6 @@ namespace QvaDev.Orchestration
         private readonly CTraderIntegration.IConnectorFactory _connectorFactory;
         private readonly IBalanceReportService _balanceReportService;
 
-        public int SelectedAlphaMonitorId { get; set; }
-        public int SelectedBetaMonitorId { get; set; }
-
         public Orchestrator(
             Func<SynchronizationContext> synchronizationContextFactory,
             CTraderIntegration.IConnectorFactory connectorFactory,
@@ -47,10 +43,8 @@ namespace QvaDev.Orchestration
             _log = log;
         }
 
-        public Task Connect(DuplicatContext duplicatContext, int alphaMonitorId, int betaMonitorId)
+        public Task Connect(DuplicatContext duplicatContext)
         {
-            SelectedBetaMonitorId = betaMonitorId;
-            SelectedAlphaMonitorId = alphaMonitorId;
             _duplicatContext = duplicatContext;
             _synchronizationContext = _synchronizationContext ?? _synchronizationContextFactory.Invoke();
             return Task.WhenAll(ConnectMtAccounts(), ConenctCtAccounts());

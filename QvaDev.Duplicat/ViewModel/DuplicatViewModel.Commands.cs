@@ -16,7 +16,7 @@ namespace QvaDev.Duplicat.ViewModel
         {
             IsLoading = true;
             IsConfigReadonly = true;
-            _orchestrator.Connect(_duplicatContext, SelectedAlphaMonitorId, SelectedBetaMonitorId)
+            _orchestrator.Connect(_duplicatContext)
                 .ContinueWith(prevTask => { IsLoading = false; IsConfigReadonly = true; IsConnected = true; });
         }
         public void DisconnectCommand()
@@ -64,7 +64,7 @@ namespace QvaDev.Duplicat.ViewModel
         {
             IsLoading = true;
             IsConfigReadonly = true;
-            _orchestrator.StartCopiers(_duplicatContext, SelectedAlphaMonitorId, SelectedBetaMonitorId)
+            _orchestrator.StartCopiers(_duplicatContext)
                 .ContinueWith(prevTask =>
                 {
                     IsLoading = false;

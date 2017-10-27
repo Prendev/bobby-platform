@@ -281,8 +281,17 @@ namespace QvaDev.Data
             TradingAccounts.Add(new TradingAccount
             {
                 Profile = Profiles.First(p => p.Description == "Dummy Profile 1"),
-                Expert = Experts.First()
+                Expert = Experts.First(),
+                MetaTraderAccount = MetaTraderAccounts.First(e => e.Id == 1),
             });
+            TradingAccounts.Add(new TradingAccount
+            {
+                Profile = Profiles.First(p => p.Description == "Dummy Profile 2"),
+                Expert = Experts.First(),
+                MetaTraderAccount = MetaTraderAccounts.First(e => e.Id == 2),
+            });
+
+            SaveChanges();
         }
     }
 }

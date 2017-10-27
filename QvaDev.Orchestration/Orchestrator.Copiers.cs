@@ -11,9 +11,9 @@ namespace QvaDev.Orchestration
     {
         private bool _areCopiersStarted;
 
-        public async Task StartCopiers(DuplicatContext duplicatContext, int alphaMonitorId, int betaMonitorId)
+        public async Task StartCopiers(DuplicatContext duplicatContext)
         {
-            await Connect(duplicatContext, alphaMonitorId, betaMonitorId);
+            await Connect(duplicatContext);
             foreach (var master in _duplicatContext.Copiers.Local
                 .Where(c => c.Slave.CTraderAccount.State == BaseAccountEntity.States.Connected &&
                             c.Slave.Master.MetaTraderAccount.State == BaseAccountEntity.States.Connected)
