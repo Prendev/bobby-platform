@@ -34,6 +34,7 @@
             this.tabPageMt4 = new System.Windows.Forms.TabPage();
             this.mtAccountsUserControl = new QvaDev.Duplicat.Views.MtAccountsUserControl();
             this.tabPageCTrader = new System.Windows.Forms.TabPage();
+            this.ctAccountsUserControl = new QvaDev.Duplicat.Views.CtAccountsUserControl();
             this.tabPageCopier = new System.Windows.Forms.TabPage();
             this.copiersUserControl = new QvaDev.Duplicat.Views.CopiersUserControl();
             this.tabPageMonitor = new System.Windows.Forms.TabPage();
@@ -46,13 +47,14 @@
             this.btnDisconnect = new System.Windows.Forms.Button();
             this.btnConnect = new System.Windows.Forms.Button();
             this.btnSave = new System.Windows.Forms.Button();
-            this.ctAccountsUserControl = new QvaDev.Duplicat.Views.CtAccountsUserControl();
+            this.expertsUserControl = new QvaDev.Duplicat.Views.ExpertsUserControl();
             this.tabControlMain.SuspendLayout();
             this.tabPageProfileAndGroup.SuspendLayout();
             this.tabPageMt4.SuspendLayout();
             this.tabPageCTrader.SuspendLayout();
             this.tabPageCopier.SuspendLayout();
             this.tabPageMonitor.SuspendLayout();
+            this.tabPageExperts.SuspendLayout();
             this.tabPageLog.SuspendLayout();
             this.tlpMain.SuspendLayout();
             this.gbControl.SuspendLayout();
@@ -123,6 +125,14 @@
             this.tabPageCTrader.Text = "cTrader accounts";
             this.tabPageCTrader.UseVisualStyleBackColor = true;
             // 
+            // ctAccountsUserControl
+            // 
+            this.ctAccountsUserControl.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.ctAccountsUserControl.Location = new System.Drawing.Point(3, 3);
+            this.ctAccountsUserControl.Name = "ctAccountsUserControl";
+            this.ctAccountsUserControl.Size = new System.Drawing.Size(1032, 475);
+            this.ctAccountsUserControl.TabIndex = 0;
+            // 
             // tabPageCopier
             // 
             this.tabPageCopier.Controls.Add(this.copiersUserControl);
@@ -163,6 +173,7 @@
             // 
             // tabPageExperts
             // 
+            this.tabPageExperts.Controls.Add(this.expertsUserControl);
             this.tabPageExperts.Location = new System.Drawing.Point(4, 22);
             this.tabPageExperts.Name = "tabPageExperts";
             this.tabPageExperts.Padding = new System.Windows.Forms.Padding(3);
@@ -250,13 +261,13 @@
             this.btnSave.Text = "Save config changes";
             this.btnSave.UseVisualStyleBackColor = true;
             // 
-            // ctAccountsUserControl
+            // expertsUserControl
             // 
-            this.ctAccountsUserControl.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.ctAccountsUserControl.Location = new System.Drawing.Point(3, 3);
-            this.ctAccountsUserControl.Name = "ctAccountsUserControl";
-            this.ctAccountsUserControl.Size = new System.Drawing.Size(1032, 475);
-            this.ctAccountsUserControl.TabIndex = 0;
+            this.expertsUserControl.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.expertsUserControl.Location = new System.Drawing.Point(3, 3);
+            this.expertsUserControl.Name = "expertsUserControl";
+            this.expertsUserControl.Size = new System.Drawing.Size(1032, 475);
+            this.expertsUserControl.TabIndex = 0;
             // 
             // MainForm
             // 
@@ -272,6 +283,7 @@
             this.tabPageCTrader.ResumeLayout(false);
             this.tabPageCopier.ResumeLayout(false);
             this.tabPageMonitor.ResumeLayout(false);
+            this.tabPageExperts.ResumeLayout(false);
             this.tabPageLog.ResumeLayout(false);
             this.tabPageLog.PerformLayout();
             this.tlpMain.ResumeLayout(false);
@@ -309,6 +321,7 @@
         private ProfilesUserControl profilesUserControl;
         private MtAccountsUserControl mtAccountsUserControl;
         private CtAccountsUserControl ctAccountsUserControl;
+        private ExpertsUserControl expertsUserControl;
     }
 }
 

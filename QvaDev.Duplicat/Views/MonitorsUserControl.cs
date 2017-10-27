@@ -121,32 +121,10 @@ namespace QvaDev.Duplicat.Views
 
         public void FilterRows()
         {
-            FilterMonitors();
             FilterMonitoredAccountRows(dgvAlphaMasters, true);
             FilterMonitoredAccountRows(dgvAlphaAccounts, false);
             FilterMonitoredAccountRows(dgvBetaMasters, true);
             FilterMonitoredAccountRows(dgvBetaAccounts, false);
-        }
-
-        private void FilterMonitors()
-        {
-            foreach (DataGridViewRow row in dgvMonitors.Rows)
-            {
-                var entity = row.DataBoundItem as Group;
-                if (entity == null) continue;
-
-                var isFiltered = entity.ProfileId != _viewModel.SelectedProfileId;
-                row.ReadOnly = isFiltered;
-                row.DefaultCellStyle.BackColor = isFiltered ? Color.LightGray : Color.White;
-
-                if (row.Visible == isFiltered)
-                {
-                    var currencyManager = (CurrencyManager)BindingContext[dgvMonitors.DataSource];
-                    currencyManager.SuspendBinding();
-                    row.Visible = !isFiltered;
-                    currencyManager.ResumeBinding();
-                }
-            }
         }
 
         private void FilterMonitoredAccountRows(DataGridView dgv, bool isMaster)

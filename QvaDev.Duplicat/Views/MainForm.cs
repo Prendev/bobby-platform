@@ -43,8 +43,7 @@ namespace QvaDev.Duplicat.Views
             btnSave.Click += (s, e) => { _viewModel.SaveCommand(); };
             tabControlMain.SelectedIndexChanged += (s, e) =>
             {
-                if (tabControlMain.SelectedTab.Name == tabPageProfileAndGroup.Name) profilesUserControl.FilterRows();
-                else if (tabControlMain.SelectedTab.Name == tabPageCopier.Name) copiersUserControl.FilterRows();
+                if (tabControlMain.SelectedTab.Name == tabPageCopier.Name) copiersUserControl.FilterRows();
                 else if (tabControlMain.SelectedTab.Name == tabPageMonitor.Name) monitorsUserControl.FilterRows();
             };
 
@@ -55,6 +54,7 @@ namespace QvaDev.Duplicat.Views
             mtAccountsUserControl.InitView(_viewModel);
             ctAccountsUserControl.InitView(_viewModel);
             monitorsUserControl.InitView(_viewModel);
+            expertsUserControl.InitView(_viewModel);
 
             AttachDataSources();
         }
@@ -66,8 +66,7 @@ namespace QvaDev.Duplicat.Views
             ctAccountsUserControl.AttachDataSources();
             copiersUserControl.AttachDataSources();
             monitorsUserControl.AttachDataSources();
-
-            profilesUserControl.FilterRows();
+            expertsUserControl.AttachDataSources();
         }
     }
 }
