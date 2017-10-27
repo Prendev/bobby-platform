@@ -32,8 +32,8 @@
             this.gbControl = new System.Windows.Forms.GroupBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.dgvTradingAccounts = new QvaDev.Duplicat.Views.CustomDataGridView();
-            this.btnStopMonitors = new System.Windows.Forms.Button();
-            this.btnStartMonitors = new System.Windows.Forms.Button();
+            this.btnStop = new System.Windows.Forms.Button();
+            this.btnStart = new System.Windows.Forms.Button();
             this.tlpMain.SuspendLayout();
             this.gbControl.SuspendLayout();
             this.groupBox1.SuspendLayout();
@@ -58,8 +58,8 @@
             // 
             // gbControl
             // 
-            this.gbControl.Controls.Add(this.btnStopMonitors);
-            this.gbControl.Controls.Add(this.btnStartMonitors);
+            this.gbControl.Controls.Add(this.btnStop);
+            this.gbControl.Controls.Add(this.btnStart);
             this.gbControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.gbControl.Location = new System.Drawing.Point(3, 3);
             this.gbControl.Name = "gbControl";
@@ -90,23 +90,23 @@
             this.dgvTradingAccounts.Size = new System.Drawing.Size(438, 275);
             this.dgvTradingAccounts.TabIndex = 0;
             // 
-            // btnStopMonitors
+            // btnStop
             // 
-            this.btnStopMonitors.Location = new System.Drawing.Point(162, 19);
-            this.btnStopMonitors.Name = "btnStopMonitors";
-            this.btnStopMonitors.Size = new System.Drawing.Size(150, 23);
-            this.btnStopMonitors.TabIndex = 23;
-            this.btnStopMonitors.Text = "Stop";
-            this.btnStopMonitors.UseVisualStyleBackColor = true;
+            this.btnStop.Location = new System.Drawing.Point(162, 19);
+            this.btnStop.Name = "btnStop";
+            this.btnStop.Size = new System.Drawing.Size(150, 23);
+            this.btnStop.TabIndex = 23;
+            this.btnStop.Text = "Stop";
+            this.btnStop.UseVisualStyleBackColor = true;
             // 
-            // btnStartMonitors
+            // btnStart
             // 
-            this.btnStartMonitors.Location = new System.Drawing.Point(6, 19);
-            this.btnStartMonitors.Name = "btnStartMonitors";
-            this.btnStartMonitors.Size = new System.Drawing.Size(150, 23);
-            this.btnStartMonitors.TabIndex = 22;
-            this.btnStartMonitors.Text = "Start";
-            this.btnStartMonitors.UseVisualStyleBackColor = true;
+            this.btnStart.Location = new System.Drawing.Point(6, 19);
+            this.btnStart.Name = "btnStart";
+            this.btnStart.Size = new System.Drawing.Size(150, 23);
+            this.btnStart.TabIndex = 22;
+            this.btnStart.Text = "Start";
+            this.btnStart.UseVisualStyleBackColor = true;
             // 
             // ExpertsUserControl
             // 
@@ -129,7 +129,7 @@
         private System.Windows.Forms.GroupBox gbControl;
         private System.Windows.Forms.GroupBox groupBox1;
         private CustomDataGridView dgvTradingAccounts;
-        private System.Windows.Forms.Button btnStopMonitors;
-        private System.Windows.Forms.Button btnStartMonitors;
+        private System.Windows.Forms.Button btnStop;
+        private System.Windows.Forms.Button btnStart;
     }
 }

@@ -18,16 +18,16 @@ namespace QvaDev.Duplicat.Views
         {
             _viewModel = viewModel;
 
+            gbControl.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsLoading), true);
+            btnStart.AddBinding("Enabled", _viewModel, nameof(_viewModel.AreCopiersStarted), true);
+            btnStop.AddBinding("Enabled", _viewModel, nameof(_viewModel.AreCopiersStarted));
             dgvMasters.AddBinding("ReadOnly", _viewModel, nameof(_viewModel.IsConfigReadonly));
             dgvSlaves.AddBinding("ReadOnly", _viewModel, nameof(_viewModel.IsConfigReadonly));
             dgvSymbolMappings.AddBinding("ReadOnly", _viewModel, nameof(_viewModel.IsConfigReadonly));
             dgvCopiers.AddBinding("ReadOnly", _viewModel, nameof(_viewModel.IsConfigReadonly));
-            gbControl.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsLoading), true);
-            btnStartCopiers.AddBinding("Enabled", _viewModel, nameof(_viewModel.AreCopiersStarted), true);
-            btnStopCopiers.AddBinding("Enabled", _viewModel, nameof(_viewModel.AreCopiersStarted));
 
-            btnStartCopiers.Click += (s, e) => { _viewModel.StartCopiersCommand(); };
-            btnStopCopiers.Click += (s, e) => { _viewModel.StopCopiersCommand(); };
+            btnStart.Click += (s, e) => { _viewModel.StartCopiersCommand(); };
+            btnStop.Click += (s, e) => { _viewModel.StopCopiersCommand(); };
 
             btnShowSelectedSlave.Click += (s, e) =>
             {

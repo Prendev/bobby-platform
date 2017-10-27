@@ -59,6 +59,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ViewModel\DuplicatViewModel.Commands.cs" />
     <Compile Include="Views\CopiersUserControl.cs">
       <SubType>UserControl</SubType>
     </Compile>

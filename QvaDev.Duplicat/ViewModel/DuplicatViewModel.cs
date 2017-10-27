@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Configuration;
 using System.Data.Entity;
-using System.Diagnostics;
 using System.Linq;
 using QvaDev.Common.Services;
 using QvaDev.Data;
@@ -12,7 +9,7 @@ using QvaDev.Orchestration;
 
 namespace QvaDev.Duplicat.ViewModel
 {
-    public class DuplicatViewModel : BaseViewModel
+    public partial class DuplicatViewModel : BaseViewModel
     {
         public delegate void ProfileChangedEventHandler();
         
@@ -42,6 +39,7 @@ namespace QvaDev.Duplicat.ViewModel
         public bool IsConnected { get => Get<bool>(); set => Set(value); }
         public bool AreCopiersStarted { get => Get<bool>(); set => Set(value); }
         public bool AreMonitorsStarted { get => Get<bool>(); set => Set(value); }
+        public bool AreExpertsStarted { get => Get<bool>(); set => Set(value); }
 
         public int SelectedProfileId { get => Get<int>(); set => Set(value); }
         public int SelectedSlaveId { get => Get<int>(); set => Set(value); }
@@ -56,100 +54,6 @@ namespace QvaDev.Duplicat.ViewModel
             _orchestrator = orchestrator;
             PropertyChanged += DuplicatViewModel_PropertyChanged;
             LoadDataContext();
-        }
-
-        public void SaveCommand()
-        {
-            _duplicatContext.SaveChanges();
-        }
-
-        public void LoadProfileCommand(Profile profile)
-        {
-            SelectedProfileId = profile?.Id ?? 0;
-            LoadDataContext();
-            ProfileChanged?.Invoke();
-        }
-
-        public void ShowSelectedSlaveCommand(Slave slave)
-        {
-            SelectedSlaveId = slave?.Id ?? 0;
-            foreach (var e in SymbolMappings) e.IsFiltered = e.SlaveId != SelectedSlaveId;
-            foreach (var e in Copiers) e.IsFiltered = e.SlaveId != SelectedSlaveId;
-        }
-
-        public void AccessNewCTraderCommand(CTraderPlatform p)
-        {
-            _xmlService.Save(CtPlatforms.ToList(), ConfigurationManager.AppSettings["CTraderPlatformsPath"]);
-
-            // Full redirect url should be added on playground
-            var redirectUri = $"{ConfigurationManager.AppSettings["CTraderRedirectBaseUrl"]}/{p.ClientId}";
-
-            var accessUrl = $"{p.AccessBaseUrl}/auth?scope=trading&" +
-                            $"client_id={p.ClientId}&" +
-                            $"redirect_uri={UrlHelper.Encode(redirectUri)}";
-
-            using (var process = new Process())
-            {
-                process.StartInfo.FileName = @"chrome.exe";
-                process.StartInfo.Arguments = $"{accessUrl} --incognito";
-                process.Start();
-            }
-        }
-
-        public void BalanceReportCommand(DateTime from)
-        {
-            _orchestrator.BalanceReport(from);
-        }
-
-        public void StartCopiersCommand()
-        {
-            IsLoading = true;
-            IsConfigReadonly = true;
-            _orchestrator.StartCopiers(_duplicatContext, SelectedAlphaMonitorId, SelectedBetaMonitorId)
-                .ContinueWith(prevTask =>
-                {
-                    IsLoading = false;
-                    IsConfigReadonly = true;
-                    AreCopiersStarted = true;
-                });
-        }
-        public void StopCopiersCommand()
-        {
-            _orchestrator.StopCopiers();
-            AreCopiersStarted = false;
-        }
-
-        public void StartMonitors()
-        {
-            IsLoading = true;
-            IsConfigReadonly = true;
-            _orchestrator.StartMonitors(_duplicatContext, SelectedAlphaMonitorId, SelectedBetaMonitorId)
-                .ContinueWith(prevTask =>
-                {
-                    IsLoading = false;
-                    IsConfigReadonly = true;
-                    AreMonitorsStarted = true;
-                });
-        }
-        public void StopMonitors()
-        {
-            _orchestrator.StopMonitors();
-            AreMonitorsStarted = false;
-        }
-
-        public void ConnectCommand()
-        {
-            IsLoading = true;
-            IsConfigReadonly = true;
-            _orchestrator.Connect(_duplicatContext, SelectedAlphaMonitorId, SelectedBetaMonitorId)
-                .ContinueWith(prevTask => { IsLoading = false; IsConfigReadonly = true; IsConnected = true; });
-        }
-        public void DisconnectCommand()
-        {
-            IsLoading = true;
-            IsConfigReadonly = true;
-            _orchestrator.Disconnect()
-                .ContinueWith(prevTask => { IsLoading = false; IsConfigReadonly = false; IsConnected = false; });
         }
 
         private void DuplicatViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)

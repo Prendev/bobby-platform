@@ -1,8 +1,5 @@
-﻿using System;
-using System.Data.Entity;
-using System.Drawing;
+﻿using System.Data.Entity;
 using System.Windows.Forms;
-using QvaDev.Data.Models;
 using QvaDev.Duplicat.ViewModel;
 
 namespace QvaDev.Duplicat.Views
@@ -21,7 +18,12 @@ namespace QvaDev.Duplicat.Views
             _viewModel = viewModel;
 
             gbControl.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsLoading), true);
+            btnStart.AddBinding("Enabled", _viewModel, nameof(_viewModel.AreExpertsStarted), true);
+            btnStop.AddBinding("Enabled", _viewModel, nameof(_viewModel.AreExpertsStarted));
             dgvTradingAccounts.AddBinding("ReadOnly", _viewModel, nameof(_viewModel.IsConfigReadonly));
+
+            btnStart.Click += (s, e) => { _viewModel.StartExpertsCommand(); };
+            btnStop.Click += (s, e) => { _viewModel.StopExpertsCommand(); };
 
             dgvTradingAccounts.DefaultValuesNeeded += (s, e) =>
             {

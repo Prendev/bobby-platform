@@ -21,17 +21,17 @@ namespace QvaDev.Duplicat.Views
             _viewModel = viewModel;
 
             gbControl.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsLoading), true);
+            btnStart.AddBinding("Enabled", _viewModel, nameof(_viewModel.AreMonitorsStarted), true);
+            btnStop.AddBinding("Enabled", _viewModel, nameof(_viewModel.AreMonitorsStarted));
             dgvMonitors.AddBinding("ReadOnly", _viewModel, nameof(_viewModel.IsConfigReadonly));
             dgvAlphaMasters.AddBinding("ReadOnly", _viewModel, nameof(_viewModel.IsConfigReadonly));
             dgvAlphaAccounts.AddBinding("ReadOnly", _viewModel, nameof(_viewModel.IsConfigReadonly));
             dgvBetaMasters.AddBinding("ReadOnly", _viewModel, nameof(_viewModel.IsConfigReadonly));
             dgvBetaAccounts.AddBinding("ReadOnly", _viewModel, nameof(_viewModel.IsConfigReadonly));
             btnBalanceReport.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsConnected));
-            btnStartMonitors.AddBinding("Enabled", _viewModel, nameof(_viewModel.AreMonitorsStarted), true);
-            btnStopMonitors.AddBinding("Enabled", _viewModel, nameof(_viewModel.AreMonitorsStarted));
 
-            btnStartMonitors.Click += (s, e) => { _viewModel.StartMonitors(); };
-            btnStopMonitors.Click += (s, e) => { _viewModel.StopMonitors(); };
+            btnStart.Click += (s, e) => { _viewModel.StartMonitorsCommand(); };
+            btnStop.Click += (s, e) => { _viewModel.StopMonitorsCommand(); };
 
             btnBalanceReport.Click += (s, e) => { _viewModel.BalanceReportCommand(dtpBalanceReport.Value.Date); };
 

@@ -40,8 +40,8 @@
             this.groupBox8 = new System.Windows.Forms.GroupBox();
             this.dgvMasters = new QvaDev.Duplicat.Views.CustomDataGridView();
             this.gbControl = new System.Windows.Forms.GroupBox();
-            this.btnStopCopiers = new System.Windows.Forms.Button();
-            this.btnStartCopiers = new System.Windows.Forms.Button();
+            this.btnStop = new System.Windows.Forms.Button();
+            this.btnStart = new System.Windows.Forms.Button();
             this.btnShowSelectedSlave = new System.Windows.Forms.Button();
             this.tlpMain.SuspendLayout();
             this.groupBox10.SuspendLayout();
@@ -197,8 +197,8 @@
             // 
             // gbControl
             // 
-            this.gbControl.Controls.Add(this.btnStopCopiers);
-            this.gbControl.Controls.Add(this.btnStartCopiers);
+            this.gbControl.Controls.Add(this.btnStop);
+            this.gbControl.Controls.Add(this.btnStart);
             this.gbControl.Controls.Add(this.btnShowSelectedSlave);
             this.gbControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.gbControl.Location = new System.Drawing.Point(3, 3);
@@ -208,23 +208,23 @@
             this.gbControl.TabStop = false;
             this.gbControl.Text = "Control";
             // 
-            // btnStopCopiers
+            // btnStop
             // 
-            this.btnStopCopiers.Location = new System.Drawing.Point(162, 19);
-            this.btnStopCopiers.Name = "btnStopCopiers";
-            this.btnStopCopiers.Size = new System.Drawing.Size(150, 23);
-            this.btnStopCopiers.TabIndex = 17;
-            this.btnStopCopiers.Text = "Stop";
-            this.btnStopCopiers.UseVisualStyleBackColor = true;
+            this.btnStop.Location = new System.Drawing.Point(162, 19);
+            this.btnStop.Name = "btnStop";
+            this.btnStop.Size = new System.Drawing.Size(150, 23);
+            this.btnStop.TabIndex = 17;
+            this.btnStop.Text = "Stop";
+            this.btnStop.UseVisualStyleBackColor = true;
             // 
-            // btnStartCopiers
+            // btnStart
             // 
-            this.btnStartCopiers.Location = new System.Drawing.Point(6, 19);
-            this.btnStartCopiers.Name = "btnStartCopiers";
-            this.btnStartCopiers.Size = new System.Drawing.Size(150, 23);
-            this.btnStartCopiers.TabIndex = 16;
-            this.btnStartCopiers.Text = "Start";
-            this.btnStartCopiers.UseVisualStyleBackColor = true;
+            this.btnStart.Location = new System.Drawing.Point(6, 19);
+            this.btnStart.Name = "btnStart";
+            this.btnStart.Size = new System.Drawing.Size(150, 23);
+            this.btnStart.TabIndex = 16;
+            this.btnStart.Text = "Start";
+            this.btnStart.UseVisualStyleBackColor = true;
             // 
             // btnShowSelectedSlave
             // 
@@ -272,8 +272,8 @@
         private System.Windows.Forms.GroupBox groupBox8;
         private CustomDataGridView dgvMasters;
         private System.Windows.Forms.GroupBox gbControl;
-        private System.Windows.Forms.Button btnStopCopiers;
-        private System.Windows.Forms.Button btnStartCopiers;
+        private System.Windows.Forms.Button btnStop;
+        private System.Windows.Forms.Button btnStart;
         private System.Windows.Forms.Button btnShowSelectedSlave;
     }
 }
