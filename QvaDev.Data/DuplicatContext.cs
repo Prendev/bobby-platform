@@ -23,6 +23,9 @@ namespace QvaDev.Data
         public DbSet<Monitor> Monitors { get; set; }
         public DbSet<MonitoredAccount> MonitoredAccounts { get; set; }
 
+        public DbSet<Expert> Experts { get; set; }
+        public DbSet<TradingAccount> TradingAccounts { get; set; }
+
         public void Init()
         {
             var exists = Database.Exists();
@@ -270,6 +273,16 @@ namespace QvaDev.Data
             });
 
             SaveChanges();
+
+            Experts.Add(new Expert { Description = "Quadro" });
+
+            SaveChanges();
+
+            TradingAccounts.Add(new TradingAccount
+            {
+                Profile = Profiles.First(p => p.Description == "Dummy Profile 1"),
+                Expert = Experts.First()
+            });
         }
     }
 }

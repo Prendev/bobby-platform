@@ -20,12 +20,12 @@ namespace QvaDev.Duplicat.Views
         {
             _viewModel = viewModel;
 
+            gbControl.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsLoading), true);
             dgvMonitors.AddBinding("ReadOnly", _viewModel, nameof(_viewModel.IsConfigReadonly));
             dgvAlphaMasters.AddBinding("ReadOnly", _viewModel, nameof(_viewModel.IsConfigReadonly));
             dgvAlphaAccounts.AddBinding("ReadOnly", _viewModel, nameof(_viewModel.IsConfigReadonly));
             dgvBetaMasters.AddBinding("ReadOnly", _viewModel, nameof(_viewModel.IsConfigReadonly));
             dgvBetaAccounts.AddBinding("ReadOnly", _viewModel, nameof(_viewModel.IsConfigReadonly));
-            gbControl.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsLoading), true);
             btnBalanceReport.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsConnected));
             btnStartMonitors.AddBinding("Enabled", _viewModel, nameof(_viewModel.AreMonitorsStarted), true);
             btnStopMonitors.AddBinding("Enabled", _viewModel, nameof(_viewModel.AreMonitorsStarted));
@@ -35,6 +35,10 @@ namespace QvaDev.Duplicat.Views
 
             btnBalanceReport.Click += (s, e) => { _viewModel.BalanceReportCommand(dtpBalanceReport.Value.Date); };
 
+            dgvMonitors.DefaultValuesNeeded += (s, e) =>
+            {
+                e.Row.Cells["ProfileId"].Value = _viewModel.SelectedProfileId;
+            };
             dgvAlphaMasters.DefaultValuesNeeded += (s, e) =>
             {
                 e.Row.Cells["MonitorId"].Value = _viewModel.SelectedAlphaMonitorId;
@@ -83,7 +87,9 @@ namespace QvaDev.Duplicat.Views
 
         public void AttachDataSources()
         {
-            dgvMonitors.AddComboBoxColumn(_viewModel.Profiles);
+            dgvMonitors.DataSource = _viewModel.Monitors.ToBindingList();
+            dgvMonitors.Columns["ProfileId"].Visible = false;
+            dgvMonitors.Columns["Profile"].Visible = false;
 
             dgvAlphaMasters.AddComboBoxColumn(_viewModel.MtAccounts);
             dgvAlphaMasters.AddComboBoxColumn(_viewModel.CtAccounts);
@@ -111,16 +117,36 @@ namespace QvaDev.Duplicat.Views
             dgvBetaAccounts.Columns["MonitorId"].Visible = false;
             dgvBetaAccounts.Columns["Monitor"].Visible = false;
             dgvBetaAccounts.Columns["IsMaster"].Visible = false;
-
-            dgvMonitors.DataSource = _viewModel.Monitors.ToBindingList();
         }
 
         public void FilterRows()
         {
+            FilterMonitors();
             FilterMonitoredAccountRows(dgvAlphaMasters, true);
             FilterMonitoredAccountRows(dgvAlphaAccounts, false);
             FilterMonitoredAccountRows(dgvBetaMasters, true);
             FilterMonitoredAccountRows(dgvBetaAccounts, false);
+        }
+
+        private void FilterMonitors()
+        {
+            foreach (DataGridViewRow row in dgvMonitors.Rows)
+            {
+                var entity = row.DataBoundItem as Group;
+                if (entity == null) continue;
+
+                var isFiltered = entity.ProfileId != _viewModel.SelectedProfileId;
+                row.ReadOnly = isFiltered;
+                row.DefaultCellStyle.BackColor = isFiltered ? Color.LightGray : Color.White;
+
+                if (row.Visible == isFiltered)
+                {
+                    var currencyManager = (CurrencyManager)BindingContext[dgvMonitors.DataSource];
+                    currencyManager.SuspendBinding();
+                    row.Visible = !isFiltered;
+                    currencyManager.ResumeBinding();
+                }
+            }
         }
 
         private void FilterMonitoredAccountRows(DataGridView dgv, bool isMaster)

@@ -161,15 +161,15 @@
             // tlpTopLeft
             // 
             this.tlpTopLeft.ColumnCount = 1;
-            this.tlpTopLeft.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tlpTopLeft.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tlpTopLeft.Controls.Add(this.groupBox8, 0, 1);
             this.tlpTopLeft.Controls.Add(this.gbControl, 0, 0);
             this.tlpTopLeft.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tlpTopLeft.Location = new System.Drawing.Point(3, 3);
             this.tlpTopLeft.Name = "tlpTopLeft";
             this.tlpTopLeft.RowCount = 2;
-            this.tlpTopLeft.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tlpTopLeft.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tlpTopLeft.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 82F));
+            this.tlpTopLeft.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tlpTopLeft.Size = new System.Drawing.Size(348, 430);
             this.tlpTopLeft.TabIndex = 2;
             // 
@@ -177,9 +177,9 @@
             // 
             this.groupBox8.Controls.Add(this.dgvMasters);
             this.groupBox8.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.groupBox8.Location = new System.Drawing.Point(3, 218);
+            this.groupBox8.Location = new System.Drawing.Point(3, 85);
             this.groupBox8.Name = "groupBox8";
-            this.groupBox8.Size = new System.Drawing.Size(342, 209);
+            this.groupBox8.Size = new System.Drawing.Size(342, 342);
             this.groupBox8.TabIndex = 0;
             this.groupBox8.TabStop = false;
             this.groupBox8.Text = "Masters";
@@ -192,7 +192,7 @@
             this.dgvMasters.Location = new System.Drawing.Point(3, 16);
             this.dgvMasters.MultiSelect = false;
             this.dgvMasters.Name = "dgvMasters";
-            this.dgvMasters.Size = new System.Drawing.Size(336, 190);
+            this.dgvMasters.Size = new System.Drawing.Size(336, 323);
             this.dgvMasters.TabIndex = 0;
             // 
             // gbControl
@@ -203,7 +203,7 @@
             this.gbControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.gbControl.Location = new System.Drawing.Point(3, 3);
             this.gbControl.Name = "gbControl";
-            this.gbControl.Size = new System.Drawing.Size(342, 209);
+            this.gbControl.Size = new System.Drawing.Size(342, 76);
             this.gbControl.TabIndex = 1;
             this.gbControl.TabStop = false;
             this.gbControl.Text = "Control";

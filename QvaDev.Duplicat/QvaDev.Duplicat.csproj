@@ -71,6 +71,12 @@
     <Compile Include="Views\CtAccountsUserControl.Designer.cs">
       <DependentUpon>CtAccountsUserControl.cs</DependentUpon>
     </Compile>
+    <Compile Include="Views\ExpertsUserControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Views\ExpertsUserControl.Designer.cs">
+      <DependentUpon>ExpertsUserControl.cs</DependentUpon>
+    </Compile>
     <Compile Include="Views\ITabUserControl.cs" />
     <Compile Include="Views\MonitorsUserControl.cs">
       <SubType>UserControl</SubType>
@@ -116,6 +122,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Views\CtAccountsUserControl.resx">
       <DependentUpon>CtAccountsUserControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\ExpertsUserControl.resx">
+      <DependentUpon>ExpertsUserControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
