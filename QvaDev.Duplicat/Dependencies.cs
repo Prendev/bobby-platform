@@ -6,6 +6,7 @@ using QvaDev.Common.Services;
 using QvaDev.CTraderIntegration;
 using QvaDev.CTraderIntegration.Services;
 using QvaDev.Data.Repositories;
+using QvaDev.Duplicat.Views;
 using QvaDev.Orchestration;
 using QvaDev.Orchestration.Services;
 using ExchangeRatesService = QvaDev.Common.Services.ExchangeRatesService;

@@ -8,7 +8,7 @@ using System.Windows.Forms;
 using QvaDev.Common.Attributes;
 using QvaDev.Data.Models;
 
-namespace QvaDev.Duplicat
+namespace QvaDev.Duplicat.Views
 {
     public class CustomDataGridView : DataGridView
     {
@@ -20,6 +20,7 @@ namespace QvaDev.Duplicat
             AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
             DataSourceChanged += CustomDataGridView_DataSourceChanged;
             RowPrePaint += CustomDataGridView_RowPrePaint;
+            DataError += DataGridView_DataError;
         }
 
         public void AddComboBoxColumn<T>(ObservableCollection<T> list) where T : class
@@ -103,6 +104,12 @@ namespace QvaDev.Duplicat
                 Columns[name].Visible = false;
             }
             FilterRows();
+        }
+
+        private void DataGridView_DataError(object sender, DataGridViewDataErrorEventArgs e)
+        {
+            if (e.Exception.Message == "DataGridViewComboBoxCell value is not valid.") return;
+            throw e.Exception;
         }
     }
 }

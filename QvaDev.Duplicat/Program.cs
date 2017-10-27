@@ -3,6 +3,7 @@ using System.IO;
 using System.Windows.Forms;
 using Autofac;
 using QvaDev.Data;
+using QvaDev.Duplicat.Views;
 
 namespace QvaDev.Duplicat
 {
