@@ -52,6 +52,8 @@ namespace QvaDev.Duplicat
             builder.RegisterType<RestService>().As<IRestService>();
             builder.RegisterType<ExchangeRatesService>().As<IExchangeRatesService>();
             builder.RegisterType<BalanceReportService>().As<IBalanceReportService>();
+            builder.RegisterType<CopierService>().As<ICopierService>();
+            builder.RegisterType<MonitorServices>().As<IMonitorServices>();
         }
     }
 }

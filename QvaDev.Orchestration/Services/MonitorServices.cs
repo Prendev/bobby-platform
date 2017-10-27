@@ -1,46 +1,53 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
+using log4net;
 using QvaDev.Common.Integration;
 using QvaDev.Data;
 using QvaDev.Data.Models;
 
-namespace QvaDev.Orchestration
+namespace QvaDev.Orchestration.Services
 {
-    public partial class Orchestrator
+    public interface IMonitorServices
+    {
+        Task Start(SynchronizationContext synchronizationContext, DuplicatContext duplicatContext, int alphaMonitorId, int betaMonitorId);
+        void Stop();
+    }
+
+    public class MonitorServices : IMonitorServices
     {
         private bool _areMonitorsStarted;
+        private DuplicatContext _duplicatContext;
+        private readonly ILog _log;
+        private SynchronizationContext _synchronizationContext;
 
         public int SelectedAlphaMonitorId { get; set; }
         public int SelectedBetaMonitorId { get; set; }
 
-        public Task BalanceReport(DateTime from)
+        public MonitorServices(
+            ILog log)
         {
-            return Task.Factory.StartNew(() =>
-            {
-                _balanceReportService.Report(
-                    _duplicatContext.Monitors.Local.FirstOrDefault(m => m.Id == SelectedAlphaMonitorId),
-                    _duplicatContext.Monitors.Local.FirstOrDefault(m => m.Id == SelectedBetaMonitorId),
-                    from);
-            });
+            _log = log;
         }
 
-        public Task StartMonitors(DuplicatContext duplicatContext, int alphaMonitorId, int betaMonitorId)
+        public Task Start(
+            SynchronizationContext synchronizationContext,
+            DuplicatContext duplicatContext,
+            int alphaMonitorId, int betaMonitorId)
         {
+            _synchronizationContext = synchronizationContext;
+            _duplicatContext = duplicatContext;
             _areMonitorsStarted = true;
             SelectedAlphaMonitorId = alphaMonitorId;
             SelectedBetaMonitorId = betaMonitorId;
-            return Connect(duplicatContext).ContinueWith(prevTask =>
-            {
-                var mtTasks = _duplicatContext.MetaTraderAccounts.AsEnumerable().Select(account =>
-                    Task.Factory.StartNew(() => MonitorAccount(account)));
-                var ctTasks = _duplicatContext.CTraderAccounts.AsEnumerable().Select(account =>
-                    Task.Factory.StartNew(() => MonitorAccount(account)));
-                return Task.WhenAll(Task.WhenAll(mtTasks), Task.WhenAll(ctTasks));
-            });
+            var mtTasks = _duplicatContext.MetaTraderAccounts.AsEnumerable().Select(account =>
+                Task.Factory.StartNew(() => MonitorAccount(account)));
+            var ctTasks = _duplicatContext.CTraderAccounts.AsEnumerable().Select(account =>
+                Task.Factory.StartNew(() => MonitorAccount(account)));
+            return Task.WhenAll(Task.WhenAll(mtTasks), Task.WhenAll(ctTasks));
         }
 
-        public void StopMonitors()
+        public void Stop()
         {
             _areMonitorsStarted = false;
         }

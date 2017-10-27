@@ -71,11 +71,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CustomWorkbook.cs" />
-    <Compile Include="Orchestrator.Copiers.cs" />
-    <Compile Include="Orchestrator.Monitors.cs" />
     <Compile Include="Orchestrator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\BalanceReportService.cs" />
+    <Compile Include="Services\CopierService.cs" />
+    <Compile Include="Services\ExpertService.cs" />
+    <Compile Include="Services\MonitorServices.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\QvaDev.Common\QvaDev.Common.csproj">

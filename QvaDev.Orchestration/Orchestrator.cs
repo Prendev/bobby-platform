@@ -22,7 +22,7 @@ namespace QvaDev.Orchestration
         Task BalanceReport(DateTime from);
     }
 
-    public partial class Orchestrator : IOrchestrator
+    public class Orchestrator : IOrchestrator
     {
         private SynchronizationContext _synchronizationContext;
         private DuplicatContext _duplicatContext;
@@ -30,13 +30,22 @@ namespace QvaDev.Orchestration
         private readonly ILog _log;
         private readonly CTraderIntegration.IConnectorFactory _connectorFactory;
         private readonly IBalanceReportService _balanceReportService;
+        private readonly ICopierService _copierService;
+        private readonly IMonitorServices _monitorServices;
+
+        public int SelectedAlphaMonitorId { get; set; }
+        public int SelectedBetaMonitorId { get; set; }
 
         public Orchestrator(
             Func<SynchronizationContext> synchronizationContextFactory,
             CTraderIntegration.IConnectorFactory connectorFactory,
             IBalanceReportService balanceReportService,
+            ICopierService copierService,
+            IMonitorServices monitorServices,
             ILog log)
         {
+            _monitorServices = monitorServices;
+            _copierService = copierService;
             _balanceReportService = balanceReportService;
             _synchronizationContextFactory = synchronizationContextFactory;
             _connectorFactory = connectorFactory;
@@ -119,8 +128,8 @@ namespace QvaDev.Orchestration
 
         public Task Disconnect()
         {
-            _areCopiersStarted = false;
-            _areMonitorsStarted = false;
+            _copierService.Stop();
+            _monitorServices.Stop();
             return Task.WhenAll(DisconnectMtAccounts(), DisconnectCtAccounts());
         }
 
@@ -150,6 +159,53 @@ namespace QvaDev.Orchestration
                 }));
 
             return Task.WhenAll(tasks);
+        }
+
+        public async Task StartCopiers(DuplicatContext duplicatContext)
+        {
+            await Connect(duplicatContext);
+            _copierService.Start(duplicatContext);
+        }
+
+        public void StopCopiers()
+        {
+            _copierService.Stop();
+        }
+
+        public Task BalanceReport(DateTime from)
+        {
+            return Task.Factory.StartNew(() =>
+            {
+                _balanceReportService.Report(
+                    _duplicatContext.Monitors.Local.FirstOrDefault(m => m.Id == SelectedAlphaMonitorId),
+                    _duplicatContext.Monitors.Local.FirstOrDefault(m => m.Id == SelectedBetaMonitorId),
+                    from);
+            });
+        }
+
+        public Task StartMonitors(DuplicatContext duplicatContext, int alphaMonitorId, int betaMonitorId)
+        {
+            return _monitorServices.Start(_synchronizationContext, duplicatContext, alphaMonitorId, betaMonitorId);
+        }
+
+        public void StopMonitors()
+        {
+            _monitorServices.Stop();
+        }
+
+        private bool _areExpertsStarted;
+
+        public async Task StartExperts(DuplicatContext duplicatContext)
+        {
+            await Connect(duplicatContext);
+
+            _areExpertsStarted = true;
+            _log.Info("Experts are started");
+        }
+
+        public void StopExperts()
+        {
+            _areExpertsStarted = false;
         }
     }
 }

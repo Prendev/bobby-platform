@@ -1,19 +1,33 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using log4net;
 using QvaDev.Common.Integration;
 using QvaDev.Data;
 using QvaDev.Data.Models;
 
-namespace QvaDev.Orchestration
+namespace QvaDev.Orchestration.Services
 {
-    public partial class Orchestrator
+    public interface ICopierService
+    {
+        void Start(DuplicatContext duplicatContext);
+        void Stop();
+    }
+
+    public class CopierService : ICopierService
     {
         private bool _areCopiersStarted;
+        private DuplicatContext _duplicatContext;
+        private readonly ILog _log;
 
-        public async Task StartCopiers(DuplicatContext duplicatContext)
+        public CopierService(ILog log)
         {
-            await Connect(duplicatContext);
+            _log = log;
+        }
+
+        public void Start(DuplicatContext duplicatContext)
+        {
+            _duplicatContext = duplicatContext;
             foreach (var master in _duplicatContext.Copiers.Local
                 .Where(c => c.Slave.CTraderAccount.State == BaseAccountEntity.States.Connected &&
                             c.Slave.Master.MetaTraderAccount.State == BaseAccountEntity.States.Connected)
@@ -27,7 +41,7 @@ namespace QvaDev.Orchestration
             _log.Info("Copiers are started");
         }
 
-        public void StopCopiers()
+        public void Stop()
         {
             _areCopiersStarted = false;
         }
