@@ -17,7 +17,7 @@ namespace QvaDev.Orchestration.Services
 
     public class MonitorServices : IMonitorServices
     {
-        private bool _areMonitorsStarted;
+        private bool _isStarted;
         private DuplicatContext _duplicatContext;
         private readonly ILog _log;
         private SynchronizationContext _synchronizationContext;
@@ -40,7 +40,7 @@ namespace QvaDev.Orchestration.Services
         {
             _synchronizationContext = _synchronizationContext ?? _synchronizationContextFactory.Invoke();
             _duplicatContext = duplicatContext;
-            _areMonitorsStarted = true;
+            _isStarted = true;
             SelectedAlphaMonitorId = alphaMonitorId;
             SelectedBetaMonitorId = betaMonitorId;
             var mtTasks = _duplicatContext.MetaTraderAccounts.AsEnumerable().Select(account =>
@@ -52,7 +52,7 @@ namespace QvaDev.Orchestration.Services
 
         public void Stop()
         {
-            _areMonitorsStarted = false;
+            _isStarted = false;
         }
 
         private void MonitorAccount(BaseAccountEntity account)
@@ -65,7 +65,7 @@ namespace QvaDev.Orchestration.Services
 
         private void Monitor_OnPosition(object sender, PositionEventArgs e)
         {
-            if (!_areMonitorsStarted) return;
+            if (!_isStarted) return;
             BaseAccountEntity account = null;
             if (e.AccountType == AccountTypes.Ct)
                 account = _duplicatContext.CTraderAccounts.Local.FirstOrDefault(a => a.Id == e.DbId);

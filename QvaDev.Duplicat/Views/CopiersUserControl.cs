@@ -32,8 +32,7 @@ namespace QvaDev.Duplicat.Views
             btnShowSelectedSlave.Click += (s, e) =>
             {
                 _viewModel.ShowSelectedSlaveCommand(dgvSlaves.GetSelectedItem<Slave>());
-                dgvCopiers.FilterRows();
-                dgvSymbolMappings.FilterRows();
+                FilterRows();
             };
 
             dgvSymbolMappings.DefaultValuesNeeded += (s, e) => { e.Row.Cells["SlaveId"].Value = _viewModel.SelectedSlaveId; };

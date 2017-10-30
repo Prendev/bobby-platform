@@ -41,6 +41,12 @@ namespace QvaDev.Duplicat.ViewModel
             foreach (var e in Copiers) e.IsFiltered = e.SlaveId != SelectedSlaveId;
         }
 
+        public void ShowExpertSetsCommand(TradingAccount tradingAccount)
+        {
+            SelectedTradingAccountId = tradingAccount?.Id ?? 0;
+            foreach (var e in ExpertSets) e.IsFiltered = e.TradingAccountId != SelectedTradingAccountId;
+        }
+
         public void AccessNewCTraderCommand(CTraderPlatform p)
         {
             _xmlService.Save(CtPlatforms.ToList(), ConfigurationManager.AppSettings["CTraderPlatformsPath"]);
@@ -102,9 +108,20 @@ namespace QvaDev.Duplicat.ViewModel
 
         public void StartExpertsCommand()
         {
+            IsLoading = true;
+            IsConfigReadonly = true;
+            _orchestrator.StartExperts(_duplicatContext)
+                .ContinueWith(prevTask =>
+                {
+                    IsLoading = false;
+                    IsConfigReadonly = true;
+                    AreExpertsStarted = true;
+                });
         }
         public void StopExpertsCommand()
         {
+            _orchestrator.StopExperts();
+            AreExpertsStarted = false;
         }
     }
 }

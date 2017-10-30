@@ -17,6 +17,8 @@ namespace QvaDev.Orchestration
         void StopCopiers();
         Task StartMonitors(DuplicatContext duplicatContext, int alphaMonitorId, int betaMonitorId);
         void StopMonitors();
+        Task StartExperts(DuplicatContext duplicatContext);
+        void StopExperts();
         Task Connect(DuplicatContext duplicatContext);
         Task Disconnect();
         Task BalanceReport(DateTime from);
@@ -32,6 +34,7 @@ namespace QvaDev.Orchestration
         private readonly IBalanceReportService _balanceReportService;
         private readonly ICopierService _copierService;
         private readonly IMonitorServices _monitorServices;
+        private readonly IExpertService _expertService;
 
         public int SelectedAlphaMonitorId { get; set; }
         public int SelectedBetaMonitorId { get; set; }
@@ -42,8 +45,10 @@ namespace QvaDev.Orchestration
             IBalanceReportService balanceReportService,
             ICopierService copierService,
             IMonitorServices monitorServices,
+            IExpertService expertService,
             ILog log)
         {
+            _expertService = expertService;
             _monitorServices = monitorServices;
             _copierService = copierService;
             _balanceReportService = balanceReportService;
@@ -128,8 +133,9 @@ namespace QvaDev.Orchestration
 
         public Task Disconnect()
         {
-            _copierService.Stop();
-            _monitorServices.Stop();
+            StopMonitors();
+            StopCopiers();
+            StopExperts();
             return Task.WhenAll(DisconnectMtAccounts(), DisconnectCtAccounts());
         }
 
@@ -193,19 +199,17 @@ namespace QvaDev.Orchestration
             _monitorServices.Stop();
         }
 
-        private bool _areExpertsStarted;
-
-        public async Task StartExperts(DuplicatContext duplicatContext)
+        public Task StartExperts(DuplicatContext duplicatContext)
         {
-            await Connect(duplicatContext);
-
-            _areExpertsStarted = true;
-            _log.Info("Experts are started");
+            return Connect(duplicatContext).ContinueWith(prevTask =>
+            {
+                _expertService.Start(duplicatContext);
+            });
         }
 
         public void StopExperts()
         {
-            _areExpertsStarted = false;
+            _expertService.Stop();
         }
     }
 }

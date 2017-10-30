@@ -25,6 +25,7 @@ namespace QvaDev.Data
 
         public DbSet<Expert> Experts { get; set; }
         public DbSet<TradingAccount> TradingAccounts { get; set; }
+        public DbSet<ExpertSet> ExpertSets { get; set; }
 
         public void Init()
         {
@@ -289,6 +290,33 @@ namespace QvaDev.Data
                 Profile = Profiles.First(p => p.Description == "Dummy Profile 2"),
                 Expert = Experts.First(),
                 MetaTraderAccount = MetaTraderAccounts.First(e => e.Id == 2),
+            });
+
+            SaveChanges();
+
+            ExpertSets.Add(new ExpertSet
+            {
+                TradingAccount = TradingAccounts.First(e => e.Id == 1),
+                Symbol1 = "EURUSD+",
+                Symbol2 = "GBPUSD+",
+            });
+            ExpertSets.Add(new ExpertSet
+            {
+                TradingAccount = TradingAccounts.First(e => e.Id == 1),
+                Symbol1 = "EURUSD+",
+                Symbol2 = "AUDUSD+",
+            });
+            ExpertSets.Add(new ExpertSet
+            {
+                TradingAccount = TradingAccounts.First(e => e.Id == 2),
+                Symbol1 = "EURUSD+",
+                Symbol2 = "GBPUSD+",
+            });
+            ExpertSets.Add(new ExpertSet
+            {
+                TradingAccount = TradingAccounts.First(e => e.Id == 2),
+                Symbol1 = "EURUSD+",
+                Symbol2 = "AUDUSD+",
             });
 
             SaveChanges();

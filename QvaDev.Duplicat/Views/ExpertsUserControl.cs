@@ -1,5 +1,6 @@
 ﻿using System.Data.Entity;
 using System.Windows.Forms;
+using QvaDev.Data.Models;
 using QvaDev.Duplicat.ViewModel;
 
 namespace QvaDev.Duplicat.Views
@@ -24,11 +25,17 @@ namespace QvaDev.Duplicat.Views
 
             btnStart.Click += (s, e) => { _viewModel.StartExpertsCommand(); };
             btnStop.Click += (s, e) => { _viewModel.StopExpertsCommand(); };
+            btnShow.Click += (s, e) =>
+            {
+                _viewModel.ShowExpertSetsCommand(dgvTradingAccounts.GetSelectedItem<TradingAccount>());
+                FilterRows();
+            };
 
             dgvTradingAccounts.DefaultValuesNeeded += (s, e) =>
             {
                 e.Row.Cells["ProfileId"].Value = _viewModel.SelectedProfileId;
             };
+            dgvExpertSets.DefaultValuesNeeded += (s, e) => { e.Row.Cells["TradingAccountId"].Value = _viewModel.SelectedTradingAccountId; };
         }
 
         public void AttachDataSources()
@@ -38,6 +45,14 @@ namespace QvaDev.Duplicat.Views
             dgvTradingAccounts.DataSource = _viewModel.TradingAccounts.ToBindingList();
             dgvTradingAccounts.Columns["ProfileId"].Visible = false;
             dgvTradingAccounts.Columns["Profile"].Visible = false;
+            dgvExpertSets.DataSource = _viewModel.ExpertSets.ToBindingList();
+            dgvExpertSets.Columns["TradingAccountId"].Visible = false;
+            dgvExpertSets.Columns["TradingAccount"].Visible = false;
+        }
+
+        public void FilterRows()
+        {
+            dgvExpertSets.FilterRows();
         }
     }
 }

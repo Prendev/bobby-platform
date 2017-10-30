@@ -16,7 +16,7 @@ namespace QvaDev.Orchestration.Services
 
     public class CopierService : ICopierService
     {
-        private bool _areCopiersStarted;
+        private bool _isStarted;
         private DuplicatContext _duplicatContext;
         private readonly ILog _log;
 
@@ -37,18 +37,18 @@ namespace QvaDev.Orchestration.Services
                 master.MetaTraderAccount.Connector.OnPosition += MasterOnOrderUpdate;
             }
 
-            _areCopiersStarted = true;
+            _isStarted = true;
             _log.Info("Copiers are started");
         }
 
         public void Stop()
         {
-            _areCopiersStarted = false;
+            _isStarted = false;
         }
 
         private void MasterOnOrderUpdate(object sender, PositionEventArgs e)
         {
-            if (!_areCopiersStarted) return;
+            if (!_isStarted) return;
             Task.Factory.StartNew(() =>
             {
                 lock (sender)

@@ -54,6 +54,7 @@ namespace QvaDev.Duplicat
             builder.RegisterType<BalanceReportService>().As<IBalanceReportService>();
             builder.RegisterType<CopierService>().As<ICopierService>();
             builder.RegisterType<MonitorServices>().As<IMonitorServices>();
+            builder.RegisterType<ExpertService>().As<IExpertService>();
         }
     }
 }

@@ -45,6 +45,7 @@ namespace QvaDev.Duplicat.Views
             {
                 if (tabControlMain.SelectedTab.Name == tabPageCopier.Name) copiersUserControl.FilterRows();
                 else if (tabControlMain.SelectedTab.Name == tabPageMonitor.Name) monitorsUserControl.FilterRows();
+                else if (tabControlMain.SelectedTab.Name == tabPageExperts.Name) expertsUserControl.FilterRows();
             };
 
             _viewModel.ProfileChanged += AttachDataSources;
