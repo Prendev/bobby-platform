@@ -9,10 +9,12 @@ namespace QvaDev.Common.Integration
         bool IsConnected { get; }
         ConcurrentDictionary<long, Position> Positions { get; }
         event PositionEventHandler OnPosition;
+        event BarHistoryEventHandler OnBarHistory;
         void Disconnect();
         long GetOpenContracts(string symbol);
         double GetBalance();
         double GetPnl(DateTime from);
         string GetCurrency();
+        int GetDigits(string symbol);
     }
 }

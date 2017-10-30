@@ -30,6 +30,7 @@ namespace QvaDev.CTraderIntegration
         public bool IsConnected => _cTraderClientWrapper?.IsConnected == true && AccountId > 0;
         public ConcurrentDictionary<long, Position> Positions { get; }
         public event PositionEventHandler OnPosition;
+        public event BarHistoryEventHandler OnBarHistory;
 
         public Connector(
             AccountInfo accountInfo,
@@ -156,6 +157,11 @@ namespace QvaDev.CTraderIntegration
                 }, true));
 
             return accounts.Value.FirstOrDefault(a => a.accountId == AccountId)?.depositCurrency ?? "";
+        }
+
+        public int GetDigits(string symbol)
+        {
+            throw new NotImplementedException();
         }
 
         public void SendMarketOrderRequest(string symbol, ProtoTradeSide type, long volume, string clientOrderId, int maxRetryCount = 5, int retryPeriodInMilliseconds = 3000)

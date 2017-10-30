@@ -1,23 +1,35 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using log4net;
 using QvaDev.Common.Integration;
 using TradingAPI.MT4Server;
+using Bar = QvaDev.Common.Integration.Bar;
 
 namespace QvaDev.Mt4Integration
 {
     public class Connector : IConnector
     {
+        public class SymbolHistory
+        {
+            public bool IsUpdating { get; set; }
+            public List<Bar> BarHistory { get; set; }
+        }
+
         private readonly ILog _log;
         private readonly ConcurrentDictionary<string, SymbolInfo> _symbolInfos =
             new ConcurrentDictionary<string, SymbolInfo>();
+        private readonly ConcurrentDictionary<string, SymbolHistory> _symbolHistories =
+            new ConcurrentDictionary<string, SymbolHistory>();
         private AccountInfo _accountInfo;
+
 
         public string Description => _accountInfo?.Description;
         public bool IsConnected => QuoteClient?.Connected == true;
         public ConcurrentDictionary<long, Position> Positions { get; }
         public event PositionEventHandler OnPosition;
+        public event BarHistoryEventHandler OnBarHistory;
 
         public QuoteClient QuoteClient;
 
@@ -64,15 +76,13 @@ namespace QvaDev.Mt4Integration
 
             foreach (var o in QuoteClient.GetOpenedOrders().Where(o => o.Type == Op.Buy || o.Type == Op.Sell))
             {
-                var symbolInfo = _symbolInfos
-                    .GetOrAdd(o.Symbol, s => QuoteClient.GetSymbolInfo(o.Symbol));
                 Positions.GetOrAdd(o.Ticket, new Position
                 {
                     Id = o.Ticket,
                     Lots = o.Lots,
                     Symbol = o.Symbol,
                     Side = o.Type == Op.Buy ? Sides.Buy : Sides.Sell,
-                    RealVolume = (long)(o.Lots * symbolInfo.ContractSize * (o.Type == Op.Buy ? 1 : -1))
+                    RealVolume = (long)(o.Lots * GetSymbolInfo(o.Symbol).ContractSize * (o.Type == Op.Buy ? 1 : -1))
                 });
             }
 
@@ -101,21 +111,74 @@ namespace QvaDev.Mt4Integration
             return !IsConnected ? "" : QuoteClient.Account.currency;
         }
 
+        public int GetDigits(string symbol)
+        {
+            return GetSymbolInfo(symbol).Digits;
+        }
+
+        public void Subscribe(List<string> symbols)
+        {
+            QuoteClient.OnQuoteHistory -= QuoteClient_OnQuoteHistory;
+            QuoteClient.OnQuoteHistory += QuoteClient_OnQuoteHistory;
+            QuoteClient.OnQuote -= QuoteClient_OnQuote;
+            QuoteClient.OnQuote += QuoteClient_OnQuote;
+
+            foreach (var symbol in symbols)
+            {
+                QuoteClient.DownloadQuoteHistory(symbol, Timeframe.M15,
+                    DateTime.UtcNow, 100);
+            }
+            QuoteClient.Subscribe(symbols.ToArray());
+        }
+
+        private void QuoteClient_OnQuote(object sender, QuoteEventArgs args)
+        {
+            SymbolHistory symbolHistory;
+            if (!_symbolHistories.TryGetValue(args.Symbol, out symbolHistory)) return;
+
+            lock (symbolHistory)
+            {
+                if (symbolHistory.IsUpdating) return;
+                if (args.Time < symbolHistory.BarHistory.Last().OpenTime.AddMinutes(15)) return;
+
+                symbolHistory.IsUpdating = true;
+                QuoteClient.DownloadQuoteHistory(args.Symbol, Timeframe.M15,
+                    DateTime.UtcNow, 100);
+            }
+        }
+
+        private void QuoteClient_OnQuoteHistory(object sender, QuoteHistoryEventArgs args)
+        {
+            var symbolHistory = new SymbolHistory
+            {
+                BarHistory = args.Bars
+                    .Select(b => new Bar
+                    {
+                        Open = b.Open,
+                        Close = b.Close,
+                        Low = b.Low,
+                        High = b.High,
+                        OpenTime = b.Time
+                    }).ToList()
+            };
+            symbolHistory = _symbolHistories.AddOrUpdate(args.Symbol, id => symbolHistory, (id, old) => symbolHistory);
+            symbolHistory.IsUpdating = false;
+            OnBarHistory?.Invoke(this,
+                new BarHistoryEventArgs {Symbol = args.Symbol, BarHistory = symbolHistory.BarHistory});
+        }
+
         private void OnOrderUpdate(object sender, OrderUpdateEventArgs update)
         {
             if (update.Action != UpdateAction.PositionOpen && update.Action != UpdateAction.PositionClose) return;
             if (update.Order.Type != Op.Buy && update.Order.Type != Op.Sell) return;
 
-
-            var symbolInfo = _symbolInfos
-                .GetOrAdd(update.Order.Symbol, s => QuoteClient.GetSymbolInfo(update.Order.Symbol));
             var position = new Position
             {
                 Id = update.Order.Ticket,
                 Lots = update.Order.Lots,
                 Symbol = update.Order.Symbol,
                 Side = update.Order.Type == Op.Buy ? Sides.Buy : Sides.Sell,
-                RealVolume = (long)(update.Order.Lots * symbolInfo.ContractSize * (update.Order.Type == Op.Buy ? 1 : -1)),
+                RealVolume = (long)(update.Order.Lots * GetSymbolInfo(update.Order.Symbol).ContractSize * (update.Order.Type == Op.Buy ? 1 : -1)),
                 OpenTime = update.Order.OpenTime,
                 OperPrice = update.Order.OpenPrice
             };
@@ -134,6 +197,11 @@ namespace QvaDev.Mt4Integration
                 Position = position,
                 Action = update.Action == UpdateAction.PositionOpen ? PositionEventArgs.Actions.Open : PositionEventArgs.Actions.Close,
             });
+        }
+
+        private SymbolInfo GetSymbolInfo(string symbol)
+        {
+            return _symbolInfos.GetOrAdd(symbol, s => QuoteClient.GetSymbolInfo(symbol));
         }
 
         private QuoteClient CreateQuoteClient(AccountInfo accountInfo, string host, int port)

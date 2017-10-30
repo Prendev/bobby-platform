@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using log4net;
+using QvaDev.Common.Integration;
 using QvaDev.Data;
 using QvaDev.Data.Models;
 
@@ -42,19 +45,53 @@ namespace QvaDev.Orchestration.Services
         private void TradeAccount(TradingAccount tradingAccount)
         {
             var connector = tradingAccount.MetaTraderAccount.Connector as Mt4Integration.Connector;
-            connector.QuoteClient.OnQuoteHistory += QuoteClient_OnQuoteHistory;
-            connector.QuoteClient.DownloadQuoteHistory("EURUSD+", TradingAPI.MT4Server.Timeframe.M15,
-                DateTime.UtcNow, 100);
-            connector.QuoteClient.Subscribe("EURUSD+");
-            connector.QuoteClient.OnQuote += QuoteClient_OnQuote;
+            if (connector == null) return;
+
+            connector.OnBarHistory -= Connector_OnBarHistory;
+            connector.OnBarHistory += Connector_OnBarHistory;
+
+            var symbols = tradingAccount.ExpertSets.Select(e => e.Symbol1)
+                .Union(tradingAccount.ExpertSets.Select(e => e.Symbol2))
+                .Distinct().ToList();
+
+            connector.Subscribe(symbols);
         }
 
-        private void QuoteClient_OnQuote(object sender, TradingAPI.MT4Server.QuoteEventArgs args)
+        private void Connector_OnBarHistory(object sender, BarHistoryEventArgs e)
         {
+            foreach (var expertSet in _duplicatContext.ExpertSets.Local)
+            {
+                lock (expertSet)
+                {
+                    if (expertSet.Symbol1 != e.Symbol && expertSet.Symbol2 != e.Symbol) continue;
+                    if (expertSet.Symbol1 == e.Symbol) expertSet.BarHistory1 = e.BarHistory;
+                    else expertSet.BarHistory2 = e.BarHistory;
+                    if (expertSet.BarHistory1?.Count > 1 || expertSet.BarHistory2?.Count > 1 != true) continue;
+                    if (expertSet.BarHistory1?.Last().OpenTime != expertSet.BarHistory2?.Last().OpenTime) continue;
+
+                    Task.Factory.StartNew(() =>
+                    {
+                        lock (expertSet)
+                        {
+                            expertSet.Quants = new List<double>();
+                            for (var i = 0; i < expertSet.BarHistory1.Count; i++)
+                            {
+                                var price1Close = MyRoundToDigits((IConnector)sender, expertSet.Symbol1, expertSet.BarHistory1[i].Close);
+                                var price2Close = MyRoundToDigits((IConnector)sender, expertSet.Symbol2, expertSet.BarHistory2[i].Close);
+                                var quant = MyRoundToDigits((IConnector)sender, expertSet.Symbol1, price2Close - expertSet.M * price1Close);
+                                expertSet.Quants.Add(quant);
+                            }
+                        }
+                    });
+                }
+            }
         }
 
-        private void QuoteClient_OnQuoteHistory(object sender, TradingAPI.MT4Server.QuoteHistoryEventArgs args)
+        private double MyRoundToDigits(IConnector connector, string symbol, double value)
         {
+            decimal dec = Convert.ToDecimal(value);
+            dec = Math.Round(dec, connector.GetDigits(symbol), MidpointRounding.AwayFromZero);
+            return Convert.ToDouble(dec);
         }
     }
 }

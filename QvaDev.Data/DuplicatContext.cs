@@ -299,24 +299,64 @@ namespace QvaDev.Data
                 TradingAccount = TradingAccounts.First(e => e.Id == 1),
                 Symbol1 = "EURUSD+",
                 Symbol2 = "GBPUSD+",
+                M = 0.6,
+                Diff = 1,
+                StochMultiplication = 15,
+                StochMultiplier1 = 3,
+                StochMultiplier2 = 6,
+                StochMultiplier3 = 12,
+                WprMultiplication = 15,
+                WprMultiplier1 = 3,
+                WprMultiplier2 = 6,
+                WprMultiplier3 = 12
             });
             ExpertSets.Add(new ExpertSet
             {
                 TradingAccount = TradingAccounts.First(e => e.Id == 1),
                 Symbol1 = "EURUSD+",
                 Symbol2 = "AUDUSD+",
+                M = 0.6,
+                Diff = 1,
+                StochMultiplication = 15,
+                StochMultiplier1 = 3,
+                StochMultiplier2 = 6,
+                StochMultiplier3 = 12,
+                WprMultiplication = 15,
+                WprMultiplier1 = 3,
+                WprMultiplier2 = 6,
+                WprMultiplier3 = 12
             });
             ExpertSets.Add(new ExpertSet
             {
                 TradingAccount = TradingAccounts.First(e => e.Id == 2),
                 Symbol1 = "EURUSD+",
                 Symbol2 = "GBPUSD+",
+                M = 0.6,
+                Diff = 1,
+                StochMultiplication = 15,
+                StochMultiplier1 = 3,
+                StochMultiplier2 = 6,
+                StochMultiplier3 = 12,
+                WprMultiplication = 15,
+                WprMultiplier1 = 3,
+                WprMultiplier2 = 6,
+                WprMultiplier3 = 12
             });
             ExpertSets.Add(new ExpertSet
             {
                 TradingAccount = TradingAccounts.First(e => e.Id == 2),
                 Symbol1 = "EURUSD+",
                 Symbol2 = "AUDUSD+",
+                M = 0.6,
+                Diff = 1,
+                StochMultiplication = 15,
+                StochMultiplier1 = 3,
+                StochMultiplier2 = 6,
+                StochMultiplier3 = 12,
+                WprMultiplication = 15,
+                WprMultiplier1 = 3,
+                WprMultiplier2 = 6,
+                WprMultiplier3 = 12
             });
 
             SaveChanges();
