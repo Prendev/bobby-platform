@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using QvaDev.Common.Integration;
-using ExpertSetWrapper = QvaDev.Experts.Quadro.Models.ExpertSetWrapper;
+using QvaDev.Experts.Quadro.Models;
 
 namespace QvaDev.Experts.Quadro.Services
 {
@@ -14,10 +14,6 @@ namespace QvaDev.Experts.Quadro.Services
     {
         public void CalculateEntries(ExpertSetWrapper expertSet)
         {
-            //Sym1MaxOrderType = OrderType.Buy;
-            //Sym2MaxOrderType = OrderType.Sell;
-            //Sym1MinOrderType = OrderType.Sell;
-            //Sym2MinOrderType = OrderType.Buy;
             CalculateEntriesForMaxAction(expertSet);
             CalculateEntriesForMinAction(expertSet);
         }
@@ -25,14 +21,14 @@ namespace QvaDev.Experts.Quadro.Services
         private void CalculateEntriesForMaxAction(ExpertSetWrapper exp)
         {
             if (exp.QuantStoAvg <= exp.StochMaxAvgOpen || !(exp.QuantWprAvg > -exp.WprMinAvgOpen)) return;
-            int numOfSym1MaxOrders = MyOrdersCount(exp, exp.Symbol1, Sides.Buy);
-            int numOfSym2MaxOrders = MyOrdersCount(exp, exp.Symbol2, Sides.Sell);
+            int numOfSym1MaxOrders = MyOrdersCount(exp, exp.Symbol1, exp.Sym1MaxOrderType);
+            int numOfSym2MaxOrders = MyOrdersCount(exp, exp.Symbol2, exp.Sym2MaxOrderType);
             if (numOfSym1MaxOrders != 0 || numOfSym2MaxOrders != 0) return;
             var initialLots = exp.InitialLots;
             double lot1 = CheckLot(initialLots[0, 1]);
             double lot2 = CheckLot(initialLots[0, 0]);
-            var openPrice1 = exp.Connector.SendMarketOrderRequest(exp.Symbol1, Sides.Buy, lot1, exp.SpreadSellMagicNumber);
-            var openPrice2 = exp.Connector.SendMarketOrderRequest(exp.Symbol2, Sides.Sell, lot2, exp.SpreadSellMagicNumber);
+            var openPrice1 = exp.Connector.SendMarketOrderRequest(exp.Symbol1, exp.Sym1MaxOrderType, lot1, exp.SpreadSellMagicNumber);
+            var openPrice2 = exp.Connector.SendMarketOrderRequest(exp.Symbol2, exp.Sym2MaxOrderType, lot2, exp.SpreadSellMagicNumber);
 
             exp.Sym1LastMaxActionPrice = openPrice1;
             exp.Sym2LastMaxActionPrice = openPrice2;
@@ -50,14 +46,14 @@ namespace QvaDev.Experts.Quadro.Services
         protected void CalculateEntriesForMinAction(ExpertSetWrapper exp)
         {
             if (exp.QuantStoAvg >= exp.StochMinAvgOpen || !(exp.QuantWprAvg < -exp.WprMaxAvgOpen)) return;
-            int numOfSym1MaxOrders = MyOrdersCount(exp, exp.Symbol1, Sides.Sell);
-            int numOfSym2MaxOrders = MyOrdersCount(exp, exp.Symbol2, Sides.Buy);
+            int numOfSym1MaxOrders = MyOrdersCount(exp, exp.Symbol1, exp.Sym1MinOrderType);
+            int numOfSym2MaxOrders = MyOrdersCount(exp, exp.Symbol2, exp.Sym2MinOrderType);
             if (numOfSym1MaxOrders != 0 || numOfSym2MaxOrders != 0) return;
             var initialLots = exp.InitialLots;
             double lot1 = CheckLot(initialLots[0, 1]);
             double lot2 = CheckLot(initialLots[0, 0]);
-            var openPrice1 = exp.Connector.SendMarketOrderRequest(exp.Symbol1, Sides.Sell, lot1, exp.SpreadBuyMagicNumber);
-            var openPrice2 = exp.Connector.SendMarketOrderRequest(exp.Symbol2, Sides.Buy, lot2, exp.SpreadBuyMagicNumber);
+            var openPrice1 = exp.Connector.SendMarketOrderRequest(exp.Symbol1, exp.Sym1MinOrderType, lot1, exp.SpreadBuyMagicNumber);
+            var openPrice2 = exp.Connector.SendMarketOrderRequest(exp.Symbol2, exp.Sym2MinOrderType, lot2, exp.SpreadBuyMagicNumber);
 
             exp.Sym1LastMinActionPrice = openPrice1;
             exp.Sym2LastMinActionPrice = openPrice2;

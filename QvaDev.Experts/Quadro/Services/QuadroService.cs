@@ -5,8 +5,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using QvaDev.Common.Integration;
 using QvaDev.Data.Models;
+using QvaDev.Experts.Quadro.Models;
 using QvaDev.Mt4Integration;
-using ExpertSetWrapper = QvaDev.Experts.Quadro.Models.ExpertSetWrapper;
 
 namespace QvaDev.Experts.Quadro.Services
 {

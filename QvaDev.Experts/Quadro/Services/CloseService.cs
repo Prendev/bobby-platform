@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using QvaDev.Common.Integration;
-using ExpertSetWrapper = QvaDev.Experts.Quadro.Models.ExpertSetWrapper;
+using QvaDev.Experts.Quadro.Models;
 
 namespace QvaDev.Experts.Quadro.Services
 {
@@ -32,7 +32,7 @@ namespace QvaDev.Experts.Quadro.Services
             if (!closeEnabled) return;
             if (side != Sides.Sell)
             {
-                //TODO CheckQuantBuyClose(exp);
+                CheckQuantBuyClose(exp);
             }
             else
             {
@@ -78,6 +78,37 @@ namespace QvaDev.Experts.Quadro.Services
                                                            (p.Value.Symbol == exp.Symbol1 && p.Value.Side == side1 ||
                                                             p.Value.Symbol == exp.Symbol2 && p.Value.Side == side2));
             return positions.Sum(p => p.Value.NetProfit);
+        }
+
+        private void CheckQuantBuyClose(ExpertSetWrapper exp)
+        {
+            //double buyAvgPrice = BuyAveragePrice();
+            //if (!exp.PartialClose)
+            //{
+            //    if (!(exp.Quants.Last() < buyAvgPrice + exp.Tp1 * exp.Connector.GetPoint(exp.Symbol1)) &&
+            //        buyAvgPrice != 0)
+            //    {
+            //        AllCloseMinSet();
+            //    }
+            //}
+            //else if (!(exp.Quants.Last() < buyAvgPrice + exp.Tp1 * exp.Connector.GetPoint(exp.Symbol1)) &&
+            //         buyAvgPrice != 0 &&
+            //         CurrentBuyState == TradeSetState.TRADE_OPENED)
+            //{
+            //    FirstMinCloseLevel();
+            //}
+            //else if (!(exp.Quants.Last() < buyAvgPrice + exp.Tp2 * exp.Connector.GetPoint(exp.Symbol1)) &&
+            //         buyAvgPrice != 0 &&
+            //         CurrentBuyState == TradeSetState.AFTER_FIRST_CLOSE)
+            //{
+            //    SecondMinCloseLevel();
+            //}
+            //else if (!(exp.Quants.Last() < buyAvgPrice + exp.Tp3 * exp.Connector.GetPoint(exp.Symbol1)) &&
+            //         buyAvgPrice != 0 &&
+            //         CurrentBuyState == TradeSetState.AFTER_SECOND_CLOSE)
+            //{
+            //    AllCloseMinSet();
+            //}
         }
     }
 }

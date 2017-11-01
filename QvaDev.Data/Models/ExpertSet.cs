@@ -6,6 +6,16 @@ namespace QvaDev.Data.Models
 {
     public class ExpertSet : BaseEntity, IFilterableEntity
     {
+        public enum Variants
+        {
+            NormalNormalBase = 1,
+            NormalNormalReversed = 2,
+            NormalInverseBase = 3,
+            NormalInverseReversed = 4,
+            InverseNormalBase = 5,
+            InverseNormalReversed = 6
+        }
+
         [Required]
         public int TradingAccountId { get; set; }
         [Required]
@@ -41,6 +51,8 @@ namespace QvaDev.Data.Models
         public int Tp1 { get; set; }
         public int Tp2 { get; set; }
         public int Tp3 { get; set; }
+
+        public Variants Variant { get; set; }
 
         [NotMapped]
         [InvisibleColumn]
