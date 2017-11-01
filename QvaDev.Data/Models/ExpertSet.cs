@@ -1,8 +1,6 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using QvaDev.Common.Attributes;
-using QvaDev.Common.Integration;
 
 namespace QvaDev.Data.Models
 {
@@ -19,6 +17,8 @@ namespace QvaDev.Data.Models
         public string Symbol2 { get; set; }
 
         public double M { get; set; }
+        public int Diff { get; set; }
+        public int Delta { get; set; }
 
         public int StochMultiplication { get; set; }
         public int StochMultiplier1 { get; set; }
@@ -30,20 +30,20 @@ namespace QvaDev.Data.Models
         public int WprMultiplier2 { get; set; }
         public int WprMultiplier3 { get; set; }
 
-        public int Diff { get; set; }
+        public int MagicNumber { get; set; }
+        public int HedgicNumber { get; set; }
+
+        public double LotSize { get; set; }
+        public bool BaseTradesForPositiveClose { get; set; }
+        public bool HedgeTradeForPositiveClose { get; set; }
+        public bool PartialClose { get; set; }
+
+        public int Tp1 { get; set; }
+        public int Tp2 { get; set; }
+        public int Tp3 { get; set; }
 
         [NotMapped]
         [InvisibleColumn]
         public bool IsFiltered { get => Get<bool>(); set => Set(value); }
-
-        [NotMapped]
-        [InvisibleColumn]
-        public List<Bar> BarHistory1 { get; set; }
-        [NotMapped]
-        [InvisibleColumn]
-        public List<Bar> BarHistory2 { get; set; }
-        [NotMapped]
-        [InvisibleColumn]
-        public List<double> Quants { get; set; }
     }
 }

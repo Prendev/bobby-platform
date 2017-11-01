@@ -7,6 +7,7 @@ using QvaDev.CTraderIntegration;
 using QvaDev.CTraderIntegration.Services;
 using QvaDev.Data.Repositories;
 using QvaDev.Duplicat.Views;
+using QvaDev.Experts.Quadro.Services;
 using QvaDev.Orchestration;
 using QvaDev.Orchestration.Services;
 using ExchangeRatesService = QvaDev.Common.Services.ExchangeRatesService;
@@ -28,6 +29,7 @@ namespace QvaDev.Duplicat
             RegisterApp(builder);
             RegisterData(builder);
             RegisterOrchestration(builder);
+            RegisterExperts(builder);
         }
 
         private static void RegisterApp(ContainerBuilder builder)
@@ -55,6 +57,13 @@ namespace QvaDev.Duplicat
             builder.RegisterType<CopierService>().As<ICopierService>();
             builder.RegisterType<MonitorServices>().As<IMonitorServices>();
             builder.RegisterType<ExpertService>().As<IExpertService>();
+        }
+
+        private static void RegisterExperts(ContainerBuilder builder)
+        {
+            builder.RegisterType<QuadroService>().As<IQuadroService>();
+            builder.RegisterType<CloseService>().As<ICloseService>();
+            builder.RegisterType<EntriesService>().As<IEntriesService>();
         }
     }
 }

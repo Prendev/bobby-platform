@@ -164,6 +164,11 @@ namespace QvaDev.CTraderIntegration
             throw new NotImplementedException();
         }
 
+        public double GetPoint(string symbol)
+        {
+            throw new NotImplementedException();
+        }
+
         public void SendMarketOrderRequest(string symbol, ProtoTradeSide type, long volume, string clientOrderId, int maxRetryCount = 5, int retryPeriodInMilliseconds = 3000)
         {
             var clientMsgId = $"{AccountId}|{clientOrderId}";

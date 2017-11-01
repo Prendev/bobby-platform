@@ -32,6 +32,7 @@ namespace QvaDev.Mt4Integration
         public event BarHistoryEventHandler OnBarHistory;
 
         public QuoteClient QuoteClient;
+        public OrderClient OrderClient;
 
         public Connector(ILog log)
         {
@@ -69,6 +70,7 @@ namespace QvaDev.Mt4Integration
 
             if (!IsConnected) return IsConnected;
 
+            OrderClient = new OrderClient(QuoteClient);
             _log.Debug($"{_accountInfo.Description} account ({_accountInfo.User}) connected");
 
             QuoteClient.OnOrderUpdate -= OnOrderUpdate;
@@ -82,11 +84,23 @@ namespace QvaDev.Mt4Integration
                     Lots = o.Lots,
                     Symbol = o.Symbol,
                     Side = o.Type == Op.Buy ? Sides.Buy : Sides.Sell,
-                    RealVolume = (long)(o.Lots * GetSymbolInfo(o.Symbol).ContractSize * (o.Type == Op.Buy ? 1 : -1))
+                    RealVolume = (long)(o.Lots * GetSymbolInfo(o.Symbol).ContractSize * (o.Type == Op.Buy ? 1 : -1)),
+                    MagicNumber = o.MagicNumber,
+                    Profit = o.Profit,
+                    Commission = o.Commission,
+                    Swap = o.Swap
                 });
             }
 
             return IsConnected;
+        }
+
+        public double SendMarketOrderRequest(string symbol, Sides side, double lots, int magicNumber)
+        {
+            var op = side == Sides.Buy ? Op.Buy : Op.Sell;
+            var price = side == Sides.Buy ? QuoteClient.GetQuote(symbol).Ask : QuoteClient.GetQuote(symbol).Bid;
+            var order = OrderClient.OrderSend(symbol, op, lots, price, 0, 0, 0, null, magicNumber, DateTime.MaxValue);
+            return order.OpenPrice;
         }
 
         public long GetOpenContracts(string symbol)
@@ -116,6 +130,11 @@ namespace QvaDev.Mt4Integration
             return GetSymbolInfo(symbol).Digits;
         }
 
+        public double GetPoint(string symbol)
+        {
+            return GetSymbolInfo(symbol).Point;
+        }
+
         public void Subscribe(List<string> symbols)
         {
             QuoteClient.OnQuoteHistory -= QuoteClient_OnQuoteHistory;
@@ -126,7 +145,7 @@ namespace QvaDev.Mt4Integration
             foreach (var symbol in symbols)
             {
                 QuoteClient.DownloadQuoteHistory(symbol, Timeframe.M15,
-                    DateTime.UtcNow, 100);
+                    DateTime.UtcNow, 200);
             }
             QuoteClient.Subscribe(symbols.ToArray());
         }
@@ -143,7 +162,7 @@ namespace QvaDev.Mt4Integration
 
                 symbolHistory.IsUpdating = true;
                 QuoteClient.DownloadQuoteHistory(args.Symbol, Timeframe.M15,
-                    DateTime.UtcNow, 100);
+                    DateTime.UtcNow, 200);
             }
         }
 
@@ -180,7 +199,11 @@ namespace QvaDev.Mt4Integration
                 Side = update.Order.Type == Op.Buy ? Sides.Buy : Sides.Sell,
                 RealVolume = (long)(update.Order.Lots * GetSymbolInfo(update.Order.Symbol).ContractSize * (update.Order.Type == Op.Buy ? 1 : -1)),
                 OpenTime = update.Order.OpenTime,
-                OperPrice = update.Order.OpenPrice
+                OperPrice = update.Order.OpenPrice,
+                MagicNumber = update.Order.MagicNumber,
+                Profit = update.Order.Profit,
+                Commission = update.Order.Commission,
+                Swap = update.Order.Swap
             };
             if (update.Action == UpdateAction.PositionOpen)
                 Positions.AddOrUpdate(update.Order.Ticket, t => position, (t, old) => position);
@@ -206,11 +229,11 @@ namespace QvaDev.Mt4Integration
 
         private QuoteClient CreateQuoteClient(AccountInfo accountInfo, string host, int port)
         {
-            var quoteClient = new QuoteClient(accountInfo.User, accountInfo.Password, host, port);
+            var client = new QuoteClient(accountInfo.User, accountInfo.Password, host, port);
 
             //quoteClient.OnDisconnect += (sender, args) => Connect(accountInfo);
 
-            return quoteClient;
+            return client;
         }
 
         private void ConnectSlaves(Server[] slaves, AccountInfo accountInfo)

@@ -31,7 +31,7 @@ namespace QvaDev.Duplicat.ViewModel
         public ObservableCollection<MonitoredAccount> MonitoredAccounts { get; private set; }
         public ObservableCollection<Expert> Experts { get; private set; }
         public ObservableCollection<TradingAccount> TradingAccounts { get; private set; }
-        public ObservableCollection<ExpertSet> ExpertSets { get; private set; }
+        public ObservableCollection<ExpertSetWrapper> ExpertSets { get; private set; }
 
         public event ProfileChangedEventHandler ProfileChanged;
         

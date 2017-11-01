@@ -95,6 +95,10 @@
       <Project>{D7DA9DD6-1BA9-45B9-9581-1D095631DF0D}</Project>
       <Name>QvaDev.Data</Name>
     </ProjectReference>
+    <ProjectReference Include="..\QvaDev.Experts\QvaDev.Experts.csproj">
+      <Project>{B9F802CB-A64A-4281-858E-E37A53FFAF7D}</Project>
+      <Name>QvaDev.Experts</Name>
+    </ProjectReference>
     <ProjectReference Include="..\QvaDev.Mt4Integration\QvaDev.Mt4Integration.csproj">
       <Project>{73a2679e-f17e-4484-8874-461d3fc895dd}</Project>
       <Name>QvaDev.Mt4Integration</Name>

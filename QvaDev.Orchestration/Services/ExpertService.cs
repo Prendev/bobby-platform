@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using log4net;
 using QvaDev.Common.Integration;
 using QvaDev.Data;
 using QvaDev.Data.Models;
+using QvaDev.Experts.Quadro.Services;
+using QvaDev.Mt4Integration;
 
 namespace QvaDev.Orchestration.Services
 {
@@ -21,10 +20,14 @@ namespace QvaDev.Orchestration.Services
     {
         private bool _isStarted;
         private readonly ILog _log;
+        private readonly IQuadroService _quadroService;
         private DuplicatContext _duplicatContext;
 
-        public ExpertService(ILog log)
+        public ExpertService(
+            IQuadroService quadroService,
+            ILog log)
         {
+            _quadroService = quadroService;
             _log = log;
         }
 
@@ -59,39 +62,11 @@ namespace QvaDev.Orchestration.Services
 
         private void Connector_OnBarHistory(object sender, BarHistoryEventArgs e)
         {
+            if (!_isStarted) return;
+            if ((e.BarHistory?.Count ?? 0) <= 1) return;
             foreach (var expertSet in _duplicatContext.ExpertSets.Local)
-            {
-                lock (expertSet)
-                {
-                    if (expertSet.Symbol1 != e.Symbol && expertSet.Symbol2 != e.Symbol) continue;
-                    if (expertSet.Symbol1 == e.Symbol) expertSet.BarHistory1 = e.BarHistory;
-                    else expertSet.BarHistory2 = e.BarHistory;
-                    if (expertSet.BarHistory1?.Count > 1 || expertSet.BarHistory2?.Count > 1 != true) continue;
-                    if (expertSet.BarHistory1?.Last().OpenTime != expertSet.BarHistory2?.Last().OpenTime) continue;
-
-                    Task.Factory.StartNew(() =>
-                    {
-                        lock (expertSet)
-                        {
-                            expertSet.Quants = new List<double>();
-                            for (var i = 0; i < expertSet.BarHistory1.Count; i++)
-                            {
-                                var price1Close = MyRoundToDigits((IConnector)sender, expertSet.Symbol1, expertSet.BarHistory1[i].Close);
-                                var price2Close = MyRoundToDigits((IConnector)sender, expertSet.Symbol2, expertSet.BarHistory2[i].Close);
-                                var quant = MyRoundToDigits((IConnector)sender, expertSet.Symbol1, price2Close - expertSet.M * price1Close);
-                                expertSet.Quants.Add(quant);
-                            }
-                        }
-                    });
-                }
-            }
+                _quadroService.OnBarHistory((Connector) sender, expertSet, e);
         }
 
-        private double MyRoundToDigits(IConnector connector, string symbol, double value)
-        {
-            decimal dec = Convert.ToDecimal(value);
-            dec = Math.Round(dec, connector.GetDigits(symbol), MidpointRounding.AwayFromZero);
-            return Convert.ToDouble(dec);
-        }
     }
 }

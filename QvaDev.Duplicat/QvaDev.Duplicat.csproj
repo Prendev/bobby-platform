@@ -178,6 +178,10 @@
       <Project>{D7DA9DD6-1BA9-45B9-9581-1D095631DF0D}</Project>
       <Name>QvaDev.Data</Name>
     </ProjectReference>
+    <ProjectReference Include="..\QvaDev.Experts\QvaDev.Experts.csproj">
+      <Project>{B9F802CB-A64A-4281-858E-E37A53FFAF7D}</Project>
+      <Name>QvaDev.Experts</Name>
+    </ProjectReference>
     <ProjectReference Include="..\QvaDev.Orchestration\QvaDev.Orchestration.csproj">
       <Project>{7FCD6735-2115-4096-B5C9-E5CD7B4A3C1C}</Project>
       <Name>QvaDev.Orchestration</Name>

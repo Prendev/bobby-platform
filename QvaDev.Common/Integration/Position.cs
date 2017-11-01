@@ -13,10 +13,17 @@ namespace QvaDev.Common.Integration
         public long RealVolume { get; set; }
 
         public string Comment { get; set; }
+        public int MagicNumber { get; set; }
 
         public DateTime OpenTime { get; set; }
         public double OperPrice { get; set; }
 
+        public double Profit { get; set; }
+        public double Swap { get; set; }
+        public double Commission { get; set; }
+
         public RetryOrder CloseOrder { get; set; }
+
+        public double NetProfit => Profit + Swap + Commission;
     }
 }
