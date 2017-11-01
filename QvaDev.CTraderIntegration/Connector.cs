@@ -12,7 +12,6 @@ namespace QvaDev.CTraderIntegration
 {
     public class Connector : IConnector
     {
-
         private readonly ILog _log;
         private readonly ITradingAccountsService _tradingAccountsService;
         private readonly ConcurrentDictionary<string, MarketOrder> _marketOrders = new ConcurrentDictionary<string, MarketOrder>();

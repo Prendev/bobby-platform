@@ -103,6 +103,14 @@ namespace QvaDev.Mt4Integration
             return order.OpenPrice;
         }
 
+        public void SendClosePositionRequests(Position position, double? lots = null)
+        {
+            var price = position.Side == Sides.Buy
+                ? QuoteClient.GetQuote(position.Symbol).Bid
+                : QuoteClient.GetQuote(position.Symbol).Ask;
+            OrderClient.OrderClose(position.Symbol, (int)position.Id, lots ?? position.Lots, price, 0);
+        }
+
         public long GetOpenContracts(string symbol)
         {
             return Positions.Where(p => p.Value.Symbol == symbol).Sum(p => p.Value.RealVolume);

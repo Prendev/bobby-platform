@@ -9,14 +9,22 @@ namespace QvaDev.Experts.Quadro.Models
 {
     public class ExpertSetWrapper
     {
+        public enum TradeSetStates
+        {
+            NoTrade,
+            TradeOpened,
+            AfterFirstClose,
+            AfterSecondClose
+        }
+
         public ExpertSet ExpertSet { get; }
 
         public ExpertSetWrapper(ExpertSet expertSet)
         {
             ExpertSet = expertSet;
             InitByVariant();
-            InitLotArray(BuyLots, ExpertSet.LotSize);
-            InitLotArray(SellLots, ExpertSet.LotSize);
+            InitBuyLotArray();
+            InitSellLotArray();
             InitLotArray(InitialLots, ExpertSet.LotSize);
         }
 
@@ -75,6 +83,9 @@ namespace QvaDev.Experts.Quadro.Models
         public double Sym2LastMaxActionPrice { get; set; }
         public double Sym2LastMinActionPrice { get; set; }
 
+        public TradeSetStates CurrentSellState = TradeSetStates.NoTrade;
+        public TradeSetStates CurrentBuyState = TradeSetStates.NoTrade;
+
         private double? CalcSto(int period)
         {
             if (Quants.Count < period) return null;
@@ -98,6 +109,15 @@ namespace QvaDev.Experts.Quadro.Models
             if (!value2.HasValue) return null;
             if (!value3.HasValue) return null;
             return (value + value1 + value2 + value3) / 4;
+        }
+
+        public void InitBuyLotArray()
+        {
+            InitLotArray(BuyLots, ExpertSet.LotSize);
+        }
+        public void InitSellLotArray()
+        {
+            InitLotArray(SellLots, ExpertSet.LotSize);
         }
 
         private void InitLotArray(double[,] lotArray, double initialLot)
