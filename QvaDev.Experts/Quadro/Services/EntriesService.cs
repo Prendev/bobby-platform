@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using QvaDev.Common.Integration;
-using QvaDev.Data.Models;
+using ExpertSetWrapper = QvaDev.Experts.Quadro.Models.ExpertSetWrapper;
 
 namespace QvaDev.Experts.Quadro.Services
 {
@@ -22,21 +22,20 @@ namespace QvaDev.Experts.Quadro.Services
             CalculateEntriesForMinAction(expertSet);
         }
 
-        private void CalculateEntriesForMaxAction(ExpertSetWrapper expertSet)
+        private void CalculateEntriesForMaxAction(ExpertSetWrapper exp)
         {
-            var connector = (Mt4Integration.Connector)expertSet.TradingAccount.MetaTraderAccount.Connector;
-            if (expertSet.QuantStoAvg <= expertSet.StochMaxAvgOpen || !(expertSet.QuantWprAvg > -expertSet.WprMinAvgOpen)) return;
-            int numOfSym1MaxOrders = MyOrdersCount(expertSet, expertSet.Symbol1, Sides.Buy);
-            int numOfSym2MaxOrders = MyOrdersCount(expertSet, expertSet.Symbol2, Sides.Sell);
+            if (exp.QuantStoAvg <= exp.StochMaxAvgOpen || !(exp.QuantWprAvg > -exp.WprMinAvgOpen)) return;
+            int numOfSym1MaxOrders = MyOrdersCount(exp, exp.Symbol1, Sides.Buy);
+            int numOfSym2MaxOrders = MyOrdersCount(exp, exp.Symbol2, Sides.Sell);
             if (numOfSym1MaxOrders != 0 || numOfSym2MaxOrders != 0) return;
-            var initialLots = expertSet.InitialLots;
+            var initialLots = exp.InitialLots;
             double lot1 = CheckLot(initialLots[0, 1]);
             double lot2 = CheckLot(initialLots[0, 0]);
-            var openPrice1 = connector.SendMarketOrderRequest(expertSet.Symbol1, Sides.Buy, lot1, expertSet.SpreadSellMagicNumber);
-            var openPrice2 = connector.SendMarketOrderRequest(expertSet.Symbol2, Sides.Sell, lot2, expertSet.SpreadSellMagicNumber);
+            var openPrice1 = exp.Connector.SendMarketOrderRequest(exp.Symbol1, Sides.Buy, lot1, exp.SpreadSellMagicNumber);
+            var openPrice2 = exp.Connector.SendMarketOrderRequest(exp.Symbol2, Sides.Sell, lot2, exp.SpreadSellMagicNumber);
 
-            expertSet.Sym1LastMaxActionPrice = openPrice1;
-            expertSet.Sym2LastMaxActionPrice = openPrice2;
+            exp.Sym1LastMaxActionPrice = openPrice1;
+            exp.Sym2LastMaxActionPrice = openPrice2;
 
             //TODO
             //Order pos1 = OpenBasePosition(Symbol1, Sym1MaxOrderType, lot1, spreadSellMagicNumber);
@@ -48,21 +47,20 @@ namespace QvaDev.Experts.Quadro.Services
             //PostOpenTradeSetOperation(Hedge.GetOrdersToOpen(), OrderType.Sell, baseOrders);
         }
 
-        protected void CalculateEntriesForMinAction(ExpertSetWrapper expertSet)
+        protected void CalculateEntriesForMinAction(ExpertSetWrapper exp)
         {
-            var connector = (Mt4Integration.Connector)expertSet.TradingAccount.MetaTraderAccount.Connector;
-            if (expertSet.QuantStoAvg >= expertSet.StochMinAvgOpen || !(expertSet.QuantWprAvg < -expertSet.WprMaxAvgOpen)) return;
-            int numOfSym1MaxOrders = MyOrdersCount(expertSet, expertSet.Symbol1, Sides.Sell);
-            int numOfSym2MaxOrders = MyOrdersCount(expertSet, expertSet.Symbol2, Sides.Buy);
+            if (exp.QuantStoAvg >= exp.StochMinAvgOpen || !(exp.QuantWprAvg < -exp.WprMaxAvgOpen)) return;
+            int numOfSym1MaxOrders = MyOrdersCount(exp, exp.Symbol1, Sides.Sell);
+            int numOfSym2MaxOrders = MyOrdersCount(exp, exp.Symbol2, Sides.Buy);
             if (numOfSym1MaxOrders != 0 || numOfSym2MaxOrders != 0) return;
-            var initialLots = expertSet.InitialLots;
+            var initialLots = exp.InitialLots;
             double lot1 = CheckLot(initialLots[0, 1]);
             double lot2 = CheckLot(initialLots[0, 0]);
-            var openPrice1 = connector.SendMarketOrderRequest(expertSet.Symbol1, Sides.Sell, lot1, expertSet.SpreadBuyMagicNumber);
-            var openPrice2 = connector.SendMarketOrderRequest(expertSet.Symbol2, Sides.Buy, lot2, expertSet.SpreadBuyMagicNumber);
+            var openPrice1 = exp.Connector.SendMarketOrderRequest(exp.Symbol1, Sides.Sell, lot1, exp.SpreadBuyMagicNumber);
+            var openPrice2 = exp.Connector.SendMarketOrderRequest(exp.Symbol2, Sides.Buy, lot2, exp.SpreadBuyMagicNumber);
 
-            expertSet.Sym1LastMinActionPrice = openPrice1;
-            expertSet.Sym2LastMinActionPrice = openPrice2;
+            exp.Sym1LastMinActionPrice = openPrice1;
+            exp.Sym2LastMinActionPrice = openPrice2;
 
             //TODO
             //Order pos1 = OpenBasePosition(Symbol1, Sym1MinOrderType, lot1, spreadBuyMagicNumber);
@@ -74,20 +72,18 @@ namespace QvaDev.Experts.Quadro.Services
             //PostOpenTradeSetOperation(Hedge.GetOrdersToOpen(), OrderType.Buy, baseOrders);
         }
 
-        public IEnumerable<Position> GetOpenOrdersList(ExpertSetWrapper expertSet, string symbol, Sides side, int magicNumber)
+        public IEnumerable<Position> GetOpenOrdersList(ExpertSetWrapper exp, string symbol, Sides side, int magicNumber)
         {
-            var connector = expertSet.TradingAccount.MetaTraderAccount.Connector;
-            return connector.Positions.Where(p => p.Value.Symbol == symbol && p.Value.Side == side &&
+            return exp.Connector.Positions.Where(p => p.Value.Symbol == symbol && p.Value.Side == side &&
                                                   p.Value.MagicNumber == magicNumber)
                 .Select(p => p.Value);
         }
 
-        public int MyOrdersCount(ExpertSetWrapper expertSet, string symbol, Sides side)
+        public int MyOrdersCount(ExpertSetWrapper exp, string symbol, Sides side)
         {
-            var connector = expertSet.TradingAccount.MetaTraderAccount.Connector;
-            return connector.Positions.Count(p => p.Value.Symbol == symbol && p.Value.Side == side &&
-                                                  (p.Value.MagicNumber == expertSet.SpreadBuyMagicNumber ||
-                                                   p.Value.MagicNumber == expertSet.SpreadSellMagicNumber));
+            return exp.Connector.Positions.Count(p => p.Value.Symbol == symbol && p.Value.Side == side &&
+                                                  (p.Value.MagicNumber == exp.SpreadBuyMagicNumber ||
+                                                   p.Value.MagicNumber == exp.SpreadSellMagicNumber));
         }
 
         public double CheckLot(double lot)

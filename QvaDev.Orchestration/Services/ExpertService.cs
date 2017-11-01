@@ -47,7 +47,7 @@ namespace QvaDev.Orchestration.Services
 
         private void TradeAccount(TradingAccount tradingAccount)
         {
-            var connector = tradingAccount.MetaTraderAccount.Connector as Mt4Integration.Connector;
+            var connector = tradingAccount.MetaTraderAccount.Connector as Connector;
             if (connector == null) return;
 
             connector.OnBarHistory -= Connector_OnBarHistory;

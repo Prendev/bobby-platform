@@ -25,7 +25,7 @@ namespace QvaDev.Data
 
         public DbSet<Expert> Experts { get; set; }
         public DbSet<TradingAccount> TradingAccounts { get; set; }
-        public DbSet<ExpertSetWrapper> ExpertSets { get; set; }
+        public DbSet<ExpertSet> ExpertSets { get; set; }
 
         public void Init()
         {
@@ -294,7 +294,7 @@ namespace QvaDev.Data
 
             SaveChanges();
 
-            ExpertSets.Add(new ExpertSetWrapper
+            ExpertSets.Add(new ExpertSet
             {
                 TradingAccount = TradingAccounts.First(e => e.Id == 1),
                 Symbol1 = "EURUSD+",
@@ -310,7 +310,7 @@ namespace QvaDev.Data
                 WprMultiplier2 = 6,
                 WprMultiplier3 = 12
             });
-            ExpertSets.Add(new ExpertSetWrapper
+            ExpertSets.Add(new ExpertSet
             {
                 TradingAccount = TradingAccounts.First(e => e.Id == 1),
                 Symbol1 = "EURUSD+",
@@ -326,7 +326,7 @@ namespace QvaDev.Data
                 WprMultiplier2 = 6,
                 WprMultiplier3 = 12
             });
-            ExpertSets.Add(new ExpertSetWrapper
+            ExpertSets.Add(new ExpertSet
             {
                 TradingAccount = TradingAccounts.First(e => e.Id == 2),
                 Symbol1 = "EURUSD+",
@@ -342,7 +342,7 @@ namespace QvaDev.Data
                 WprMultiplier2 = 6,
                 WprMultiplier3 = 12
             });
-            ExpertSets.Add(new ExpertSetWrapper
+            ExpertSets.Add(new ExpertSet
             {
                 TradingAccount = TradingAccounts.First(e => e.Id == 2),
                 Symbol1 = "EURUSD+",
