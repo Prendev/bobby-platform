@@ -52,6 +52,15 @@ namespace QvaDev.Experts.Quadro
                 .Where(p => p.Symbol == symbol && p.Side == orderType && p.MagicNumber == magicNumber)
                 .ToList();
         }
+        public static List<Position> GetOpenOrdersList(this ExpertSetWrapper exp, string symbol1, Sides orderType1,
+            string symbol2, Sides orderType2, int magicNumber)
+        {
+            return exp.Connector.Positions.Select(p => p.Value)
+                .Where(p => p.MagicNumber == magicNumber &&
+                            ((p.Symbol == symbol1 && p.Side == orderType1) ||
+                             (p.Symbol == symbol2 && p.Side == orderType2)))
+                .ToList();
+        }
 
         public static double BarQuant(this ExpertSetWrapper exp, Position p)
         {
@@ -99,6 +108,30 @@ namespace QvaDev.Experts.Quadro
         public static int GetMagicNumberBySpreadOrderType(this ExpertSetWrapper exp, Sides spreadOrderType)
         {
             return spreadOrderType != Sides.Buy ? exp.SpreadSellMagicNumber : exp.SpreadBuyMagicNumber;
+        }
+
+        public static bool IsInDeltaRange(this ExpertSetWrapper exp, Sides side)
+        {
+            bool sym1InRange;
+            bool sym2InRange;
+            var deltaRange = exp.Point;
+            if (side != Sides.Sell)
+            {
+                sym1InRange = IsInDeltaRange(exp.Sym1LastMinActionPrice, deltaRange, exp.BarHistory1.Last().Close);
+                sym2InRange = IsInDeltaRange(exp.Sym2LastMinActionPrice, deltaRange, exp.BarHistory2.Last().Close);
+            }
+            else
+            {
+                sym1InRange = IsInDeltaRange(exp.Sym1LastMaxActionPrice, deltaRange, exp.BarHistory1.Last().Close);
+                sym2InRange = IsInDeltaRange(exp.Sym2LastMaxActionPrice, deltaRange, exp.BarHistory2.Last().Close);
+            }
+            return sym1InRange | sym2InRange;
+        }
+
+        private static bool IsInDeltaRange(double price, double range, double close)
+        {
+            double diff = Math.Abs(price - close);
+            return diff < range;
         }
     }
 }

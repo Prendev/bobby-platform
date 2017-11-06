@@ -53,6 +53,12 @@ namespace QvaDev.Data.Models
         public int Tp3 { get; set; }
 
         public Variants Variant { get; set; }
+        public int MaxTradeSetCount { get; set; }
+        public int Last24HMaxOpen { get; set; }
+
+        public int ReOpenDiffChangeCount { get; set; }
+        public int ReOpenDiff { get; set; }
+        public int ReOpenDiff2 { get; set; }
 
         [NotMapped]
         [InvisibleColumn]

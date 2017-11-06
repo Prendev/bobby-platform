@@ -18,14 +18,17 @@ namespace QvaDev.Experts.Quadro.Services
     {
         private readonly ICloseService _closeService;
         private readonly IEntriesService _entriesService;
+        private readonly IReentriesService _reentriesService;
 
         private static readonly ConcurrentDictionary<int, ExpertSetWrapper> ExpertSetWrappers =
             new ConcurrentDictionary<int, ExpertSetWrapper>();
 
         public QuadroService(
             ICloseService closeService,
-            IEntriesService entriesService)
+            IEntriesService entriesService,
+            IReentriesService reentriesService)
         {
+            _reentriesService = reentriesService;
             _entriesService = entriesService;
             _closeService = closeService;
         }
@@ -71,7 +74,7 @@ namespace QvaDev.Experts.Quadro.Services
             if (isCurrentTimeEnabledForTrade)
             {
                 _closeService.CheckClose(exp);
-                //CalculateReEntries();
+                _reentriesService.CalculateReentries(exp);
                 //CheckHedgeStopByQuant();
             }
             if (isCurrentTimeEnabledForTrade && exp.TradeOpeningEnabled)

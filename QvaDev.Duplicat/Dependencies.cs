@@ -64,6 +64,7 @@ namespace QvaDev.Duplicat
             builder.RegisterType<QuadroService>().As<IQuadroService>();
             builder.RegisterType<CloseService>().As<ICloseService>();
             builder.RegisterType<EntriesService>().As<IEntriesService>();
+            builder.RegisterType<ReentriesService>().As<IReentriesService>();
         }
     }
 }

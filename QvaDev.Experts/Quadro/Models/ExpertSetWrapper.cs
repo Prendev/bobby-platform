@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using QvaDev.Common.Integration;
@@ -29,6 +30,7 @@ namespace QvaDev.Experts.Quadro.Models
         }
 
         public Connector Connector => ExpertSet.TradingAccount.MetaTraderAccount.Connector as Connector;
+        public ConcurrentDictionary<long, Position> Positions => ExpertSet.TradingAccount.MetaTraderAccount.Connector.Positions;
         public string Symbol1 => ExpertSet.Symbol1;
         public string Symbol2 => ExpertSet.Symbol2;
         public bool BaseTradesForPositiveClose => ExpertSet.BaseTradesForPositiveClose;
@@ -82,9 +84,21 @@ namespace QvaDev.Experts.Quadro.Models
         public double Sym1LastMinActionPrice { get; set; }
         public double Sym2LastMaxActionPrice { get; set; }
         public double Sym2LastMinActionPrice { get; set; }
+        public int MaxTradeSetCount => ExpertSet.MaxTradeSetCount;
+        public int Last24HMaxOpen => ExpertSet.Last24HMaxOpen;
 
         public TradeSetStates CurrentSellState = TradeSetStates.NoTrade;
         public TradeSetStates CurrentBuyState = TradeSetStates.NoTrade;
+
+        public int BuyOpenCount => ExpertSet.TradingAccount.MetaTraderAccount.Connector.Positions.Count(
+            p => p.Value.MagicNumber == SpreadBuyMagicNumber || p.Value.MagicNumber == HedgeBuyHedgicNumber);
+        public int SellOpenCount => ExpertSet.TradingAccount.MetaTraderAccount.Connector.Positions.Count(
+            p => p.Value.MagicNumber == SpreadSellMagicNumber || p.Value.MagicNumber == HedgeSellHedgicNumber);
+
+        public int ReOpenDiffChangeCount => ExpertSet.ReOpenDiffChangeCount;
+        public int ReOpenDiff => ExpertSet.ReOpenDiff;
+        public int ReOpenDiff2 => ExpertSet.ReOpenDiff2;
+        public double Point => Connector.GetPoint(Symbol1);
 
         private double? CalcSto(int period)
         {
@@ -122,29 +136,17 @@ namespace QvaDev.Experts.Quadro.Models
 
         private void InitLotArray(double[,] lotArray, double initialLot)
         {
-            lotArray[0, 0] = CheckLot(initialLot);
+            lotArray[0, 0] = initialLot.CheckLot();
             for (int i = 1; i < 120; i++)
             {
-                lotArray[i, 0] = CheckLot(lotArray[i - 1, 0] + 2 * lotArray[0, 0]);
+                lotArray[i, 0] = (lotArray[i - 1, 0] + 2 * lotArray[0, 0]).CheckLot();
             }
             for (int i = 0; i < 120; i++)
             {
-                lotArray[i, 1] = CheckLot(lotArray[i, 0] * M);
+                lotArray[i, 1] = (lotArray[i, 0] * M).CheckLot();
             }
         }
-
-        public double CheckLot(double lot)
-        {
-            decimal d = Convert.ToDecimal(lot);
-            d = Math.Round(d, 2, MidpointRounding.AwayFromZero);
-            lot = Convert.ToDouble(d);
-            if (lot < 0.01)
-            {
-                lot = 0.01;
-            }
-            return lot;
-        }
-
+        
         private void InitByVariant()
         {
             switch (ExpertSet.Variant)

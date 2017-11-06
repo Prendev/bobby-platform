@@ -47,6 +47,7 @@
     <Compile Include="Quadro\Services\CloseService.cs" />
     <Compile Include="Quadro\Services\EntriesService.cs" />
     <Compile Include="Quadro\Services\QuadroService.cs" />
+    <Compile Include="Quadro\Services\ReentriesService.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\QvaDev.Common\QvaDev.Common.csproj">
