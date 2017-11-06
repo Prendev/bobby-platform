@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Autofac.Features.Indexed;
 using QvaDev.Common.Integration;
+using QvaDev.Data.Models;
+using QvaDev.Experts.Quadro.Hedge;
 using QvaDev.Experts.Quadro.Models;
 
 namespace QvaDev.Experts.Quadro.Services
@@ -13,6 +16,13 @@ namespace QvaDev.Experts.Quadro.Services
 
     public class ReentriesService : IReentriesService
     {
+        private readonly IIndex<ExpertSet.HedgeModes, IHedgeService> _hedgeServices;
+
+        public ReentriesService(IIndex<ExpertSet.HedgeModes, IHedgeService> hedgeServices)
+        {
+            _hedgeServices = hedgeServices;
+        }
+
         public void CalculateReentries(ExpertSetWrapper exp)
         {
             bool sellReentryEnabled = !exp.IsInDeltaRange(Sides.Sell) && exp.SellOpenCount < exp.MaxTradeSetCount &&
@@ -38,8 +48,8 @@ namespace QvaDev.Experts.Quadro.Services
                         exp.Connector.SendMarketOrderRequest(exp.Symbol2, exp.Sym2MaxOrderType, lot2, exp.SpreadSellMagicNumber);
 
                     //TODO
-                    //Hedge.OnBaseTradesOpened(Sides.Sell, new[] {lot1, lot2});
-                    //List<Order> hedgeOpenOrders = Hedge.GetOrdersToOpen();
+                    var hedgeOpenOrders = _hedgeServices[exp.HedgeMode]
+                        .OnBaseTradesOpened(exp, Sides.Sell, new[] { lot1, lot2 });
                     //PostReOpenTradeSetOperation(hedgeOpenOrders, Sides.Sell, order1, order2);
                     //PostCloseHedgePositions(Sides.Sell);
                 }
@@ -63,8 +73,8 @@ namespace QvaDev.Experts.Quadro.Services
                         exp.Connector.SendMarketOrderRequest(exp.Symbol2, exp.Sym2MinOrderType, lot2, exp.SpreadBuyMagicNumber);
 
                     //TODO
-                    //Hedge.OnBaseTradesOpened(OrderType.Buy, new[] {lot1, lot2});
-                    //List<Order> hedgeOpenOrders = Hedge.GetOrdersToOpen();
+                    var hedgeOpenOrders = _hedgeServices[exp.HedgeMode]
+                        .OnBaseTradesOpened(exp, Sides.Buy, new[] { lot1, lot2 });
                     //PostReOpenTradeSetOperation(hedgeOpenOrders, Sides.Buy, order1, order2);
                     //PostCloseHedgePositions(Sides.Buy);
                 }
@@ -74,18 +84,8 @@ namespace QvaDev.Experts.Quadro.Services
         private bool EnableLast24Filter(ExpertSetWrapper exp, Sides spreadOrderType, int numOfTradePerOpen)
         {
             DateTime dateTime = exp.BarHistory1.Last().OpenTime;
-            return GetBaseOpenOrdersList(exp, spreadOrderType).Where(o => (dateTime - o.OpenTime).TotalHours >= 24)
+            return exp.GetBaseOpenOrdersList(spreadOrderType).Where(o => (dateTime - o.OpenTime).TotalHours >= 24)
                        .ToList().Count < numOfTradePerOpen * exp.Last24HMaxOpen;
-        }
-
-        private IEnumerable<Position> GetBaseOpenOrdersList(ExpertSetWrapper exp, Sides spreadOrderType)
-        {
-            var orders = spreadOrderType != Sides.Buy
-                ? exp.GetOpenOrdersList(exp.Symbol1, exp.Sym1MaxOrderType, exp.Symbol2, exp.Sym2MaxOrderType,
-                    exp.SpreadSellMagicNumber)
-                : exp.GetOpenOrdersList(exp.Symbol1, exp.Sym1MinOrderType, exp.Symbol2, exp.Sym2MinOrderType,
-                    exp.SpreadBuyMagicNumber);
-            return orders;
         }
 
         private Position LastOrder(ExpertSetWrapper exp, string symbol, Sides orderType, int magicNumber)

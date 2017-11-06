@@ -30,6 +30,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Autofac, Version=4.6.1.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
+      <HintPath>..\packages\Autofac.4.6.1\lib\net45\Autofac.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -43,6 +46,9 @@
     <Compile Include="Extensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Quadro\Extensions.cs" />
+    <Compile Include="Quadro\Hedge\IHedgeService.cs" />
+    <Compile Include="Quadro\Hedge\NoHedgeService.cs" />
+    <Compile Include="Quadro\Hedge\TwoPairHedgeService.cs" />
     <Compile Include="Quadro\Models\ExpertSetWrapper.cs" />
     <Compile Include="Quadro\Services\CloseService.cs" />
     <Compile Include="Quadro\Services\EntriesService.cs" />
@@ -62,6 +68,9 @@
       <Project>{73A2679E-F17E-4484-8874-461D3FC895DD}</Project>
       <Name>QvaDev.Mt4Integration</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

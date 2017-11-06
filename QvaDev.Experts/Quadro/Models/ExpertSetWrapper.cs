@@ -47,9 +47,13 @@ namespace QvaDev.Experts.Quadro.Models
         public int Tp2 => ExpertSet.Tp2;
         public int Tp3 => ExpertSet.Tp3;
 
+        public double ExposureShieldValue => ExpertSet.ExposureShieldValue;
+
         public List<Bar> BarHistory1 { get; set; }
         public List<Bar> BarHistory2 { get; set; }
         public List<double> Quants { get; set; }
+        public int BuyHedgeOpenCount { get; set; }
+        public int SellHedgeOpenCount { get; set; }
 
         public double? QuantSto => CalcSto(ExpertSet.StochMultiplication);
         public double? QuantSto1 => CalcSto(ExpertSet.StochMultiplication * ExpertSet.StochMultiplier1);
@@ -99,6 +103,9 @@ namespace QvaDev.Experts.Quadro.Models
         public int ReOpenDiff => ExpertSet.ReOpenDiff;
         public int ReOpenDiff2 => ExpertSet.ReOpenDiff2;
         public double Point => Connector.GetPoint(Symbol1);
+
+        public ExpertSet.HedgeModes HedgeMode => ExpertSet.HedgeMode;
+        public int HedgeStopPositionCount => ExpertSet.HedgeStopPositionCount;
 
         private double? CalcSto(int period)
         {

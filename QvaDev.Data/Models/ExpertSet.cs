@@ -16,6 +16,14 @@ namespace QvaDev.Data.Models
             InverseNormalReversed = 6
         }
 
+        public enum HedgeModes
+        {
+            NoHedge,
+            TwoPairHedge,
+            ThirdPairHedge,
+            ThreePairHedge
+        }
+
         [Required]
         public int TradingAccountId { get; set; }
         [Required]
@@ -53,12 +61,16 @@ namespace QvaDev.Data.Models
         public int Tp3 { get; set; }
 
         public Variants Variant { get; set; }
+        public HedgeModes HedgeMode { get; set; }
         public int MaxTradeSetCount { get; set; }
         public int Last24HMaxOpen { get; set; }
+        public int HedgeStopPositionCount { get; set; }
 
         public int ReOpenDiffChangeCount { get; set; }
         public int ReOpenDiff { get; set; }
         public int ReOpenDiff2 { get; set; }
+
+        public double ExposureShieldValue { get; set; }
 
         [NotMapped]
         [InvisibleColumn]

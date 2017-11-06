@@ -1,12 +1,15 @@
 ﻿using System;
+using System.Data.OleDb;
 using System.Threading;
 using Autofac;
 using log4net;
 using QvaDev.Common.Services;
 using QvaDev.CTraderIntegration;
 using QvaDev.CTraderIntegration.Services;
+using QvaDev.Data.Models;
 using QvaDev.Data.Repositories;
 using QvaDev.Duplicat.Views;
+using QvaDev.Experts.Quadro.Hedge;
 using QvaDev.Experts.Quadro.Services;
 using QvaDev.Orchestration;
 using QvaDev.Orchestration.Services;
@@ -65,6 +68,9 @@ namespace QvaDev.Duplicat
             builder.RegisterType<CloseService>().As<ICloseService>();
             builder.RegisterType<EntriesService>().As<IEntriesService>();
             builder.RegisterType<ReentriesService>().As<IReentriesService>();
+
+            builder.RegisterType<NoHedgeService>().Keyed<IHedgeService>(ExpertSet.HedgeModes.NoHedge);
+            builder.RegisterType<TwoPairHedgeService>().Keyed<IHedgeService>(ExpertSet.HedgeModes.TwoPairHedge);
         }
     }
 }

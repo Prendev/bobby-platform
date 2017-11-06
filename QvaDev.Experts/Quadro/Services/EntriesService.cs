@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Autofac.Features.Indexed;
 using QvaDev.Common.Integration;
+using QvaDev.Data.Models;
+using QvaDev.Experts.Quadro.Hedge;
 using QvaDev.Experts.Quadro.Models;
 
 namespace QvaDev.Experts.Quadro.Services
@@ -12,6 +15,13 @@ namespace QvaDev.Experts.Quadro.Services
     }
     public class EntriesService : IEntriesService
     {
+        private readonly IIndex<ExpertSet.HedgeModes, IHedgeService> _hedgeServices;
+
+        public EntriesService(IIndex<ExpertSet.HedgeModes, IHedgeService> hedgeServices)
+        {
+            _hedgeServices = hedgeServices;
+        }
+
         public void CalculateEntries(ExpertSetWrapper expertSet)
         {
             CalculateEntriesForMaxAction(expertSet);
@@ -29,18 +39,12 @@ namespace QvaDev.Experts.Quadro.Services
             double lot2 = CheckLot(initialLots[0, 0]);
             var openPrice1 = exp.Connector.SendMarketOrderRequest(exp.Symbol1, exp.Sym1MaxOrderType, lot1, exp.SpreadSellMagicNumber);
             var openPrice2 = exp.Connector.SendMarketOrderRequest(exp.Symbol2, exp.Sym2MaxOrderType, lot2, exp.SpreadSellMagicNumber);
-
+            _hedgeServices[exp.HedgeMode].OnBaseTradesOpened(exp, Sides.Sell, new[] { lot1, lot2 });
             exp.Sym1LastMaxActionPrice = openPrice1;
             exp.Sym2LastMaxActionPrice = openPrice2;
 
             //TODO
-            //Order pos1 = OpenBasePosition(Symbol1, Sym1MaxOrderType, lot1, spreadSellMagicNumber);
-            //Order pos2 = OpenBasePosition(Symbol2, Sym2MaxOrderType, lot2, spreadSellMagicNumber);
-            //List<Order> baseOrders = OrderUtil.GetOrderList(pos1, pos2);
-            //Hedge.OnBaseTradesOpened(OrderType.Sell, new[] { lot1, lot2 });
             //if (!(exposureShieldHandler?.EnableOpeningOrder(baseOrders) ?? true)) return;
-            //base.SetLastActionPrice(OrderType.Sell, Symbol1, Symbol2);
-            //PostOpenTradeSetOperation(Hedge.GetOrdersToOpen(), OrderType.Sell, baseOrders);
         }
 
         protected void CalculateEntriesForMinAction(ExpertSetWrapper exp)
@@ -54,18 +58,12 @@ namespace QvaDev.Experts.Quadro.Services
             double lot2 = CheckLot(initialLots[0, 0]);
             var openPrice1 = exp.Connector.SendMarketOrderRequest(exp.Symbol1, exp.Sym1MinOrderType, lot1, exp.SpreadBuyMagicNumber);
             var openPrice2 = exp.Connector.SendMarketOrderRequest(exp.Symbol2, exp.Sym2MinOrderType, lot2, exp.SpreadBuyMagicNumber);
-
+            _hedgeServices[exp.HedgeMode].OnBaseTradesOpened(exp, Sides.Buy, new[] {lot1, lot2});
             exp.Sym1LastMinActionPrice = openPrice1;
             exp.Sym2LastMinActionPrice = openPrice2;
 
             //TODO
-            //Order pos1 = OpenBasePosition(Symbol1, Sym1MinOrderType, lot1, spreadBuyMagicNumber);
-            //Order pos2 = OpenBasePosition(Symbol2, Sym2MinOrderType, lot2, spreadBuyMagicNumber);
-            //List<Order> baseOrders = OrderUtil.GetOrderList(pos1, pos2);
-            //Hedge.OnBaseTradesOpened(OrderType.Buy, new[] { lot1, lot2 });
             //if (!(exposureShieldHandler?.EnableOpeningOrder(baseOrders) ?? true)) return;
-            //base.SetLastActionPrice(OrderType.Buy, Symbol1, Symbol2);
-            //PostOpenTradeSetOperation(Hedge.GetOrdersToOpen(), OrderType.Buy, baseOrders);
         }
 
         public IEnumerable<Position> GetOpenOrdersList(ExpertSetWrapper exp, string symbol, Sides side, int magicNumber)

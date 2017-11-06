@@ -3,8 +3,10 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Autofac.Features.Indexed;
 using QvaDev.Common.Integration;
 using QvaDev.Data.Models;
+using QvaDev.Experts.Quadro.Hedge;
 using QvaDev.Experts.Quadro.Models;
 using QvaDev.Mt4Integration;
 
@@ -19,6 +21,7 @@ namespace QvaDev.Experts.Quadro.Services
         private readonly ICloseService _closeService;
         private readonly IEntriesService _entriesService;
         private readonly IReentriesService _reentriesService;
+        private readonly IIndex<ExpertSet.HedgeModes, IHedgeService> _hedgeServices;
 
         private static readonly ConcurrentDictionary<int, ExpertSetWrapper> ExpertSetWrappers =
             new ConcurrentDictionary<int, ExpertSetWrapper>();
@@ -26,8 +29,10 @@ namespace QvaDev.Experts.Quadro.Services
         public QuadroService(
             ICloseService closeService,
             IEntriesService entriesService,
-            IReentriesService reentriesService)
+            IReentriesService reentriesService,
+            IIndex<ExpertSet.HedgeModes, IHedgeService> hedgeServices)
         {
+            _hedgeServices = hedgeServices;
             _reentriesService = reentriesService;
             _entriesService = entriesService;
             _closeService = closeService;
@@ -75,13 +80,10 @@ namespace QvaDev.Experts.Quadro.Services
             {
                 _closeService.CheckClose(exp);
                 _reentriesService.CalculateReentries(exp);
-                //CheckHedgeStopByQuant();
+                CheckHedgeStopByQuant(exp);
             }
-            if (isCurrentTimeEnabledForTrade && exp.TradeOpeningEnabled)
-            {
-                _entriesService.CalculateEntries(exp);
-            }
-            //CheckOrdersConsistency();
+            if (!isCurrentTimeEnabledForTrade || !exp.TradeOpeningEnabled) return;
+            _entriesService.CalculateEntries(exp);
         }
 
         private bool IsCurrentTimeEnabledForTrade()
@@ -107,6 +109,26 @@ namespace QvaDev.Experts.Quadro.Services
                 second = lastTickTime.Second < 0;
             }
             return second;
+        }
+
+        private void CheckHedgeStopByQuant(ExpertSetWrapper exp)
+        {
+            if (exp.HedgeStopPositionCount < 0 || exp.HedgeMode == ExpertSet.HedgeModes.NoHedge) return;
+            if (exp.SellHedgeOpenCount > 0)
+            {
+                CheckHedgeStopByQuant(exp, Sides.Sell, barQuant => exp.Quants.Last() < barQuant);
+            }
+            if (exp.BuyHedgeOpenCount > 0)
+            {
+                CheckHedgeStopByQuant(exp, Sides.Buy, barQuant => exp.Quants.Last() > barQuant);
+            }
+        }
+
+        private void CheckHedgeStopByQuant(ExpertSetWrapper exp, Sides spreadOrderType, Predicate<double> predicate)
+        {
+            if (!predicate(exp.BarQuant(exp.GetBaseOpenOrdersList(spreadOrderType).Where(o => o.Symbol == exp.Symbol1)
+                .OrderBy(o => o.OpenTime).ToList()[exp.HedgeStopPositionCount]))) return;
+            _hedgeServices[exp.HedgeMode].OnCloseAll(exp, spreadOrderType);
         }
     }
 }

@@ -66,7 +66,6 @@ namespace QvaDev.Experts.Quadro
         {
             var orderCreationTime = p.OpenTime;
             int barIndex = exp.GetBarIndexForTime(orderCreationTime, p.Symbol);
-            //TODO check
             return barIndex >= 0 ? exp.Quants[barIndex + 1] : 0;
         }
 
@@ -108,6 +107,16 @@ namespace QvaDev.Experts.Quadro
         public static int GetMagicNumberBySpreadOrderType(this ExpertSetWrapper exp, Sides spreadOrderType)
         {
             return spreadOrderType != Sides.Buy ? exp.SpreadSellMagicNumber : exp.SpreadBuyMagicNumber;
+        }
+
+        public static IEnumerable<Position> GetBaseOpenOrdersList(this ExpertSetWrapper exp, Sides spreadOrderType)
+        {
+            var orders = spreadOrderType != Sides.Buy
+                ? exp.GetOpenOrdersList(exp.Symbol1, exp.Sym1MaxOrderType, exp.Symbol2, exp.Sym2MaxOrderType,
+                    exp.SpreadSellMagicNumber)
+                : exp.GetOpenOrdersList(exp.Symbol1, exp.Sym1MinOrderType, exp.Symbol2, exp.Sym2MinOrderType,
+                    exp.SpreadBuyMagicNumber);
+            return orders;
         }
 
         public static bool IsInDeltaRange(this ExpertSetWrapper exp, Sides side)

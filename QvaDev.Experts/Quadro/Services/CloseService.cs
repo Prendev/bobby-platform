@@ -1,6 +1,8 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
+using Autofac.Features.Indexed;
 using QvaDev.Common.Integration;
+using QvaDev.Data.Models;
+using QvaDev.Experts.Quadro.Hedge;
 using QvaDev.Experts.Quadro.Models;
 
 namespace QvaDev.Experts.Quadro.Services
@@ -12,6 +14,13 @@ namespace QvaDev.Experts.Quadro.Services
 
     public class CloseService : ICloseService
     {
+        private readonly IIndex<ExpertSet.HedgeModes, IHedgeService> _hedgeServices;
+
+        public CloseService(IIndex<ExpertSet.HedgeModes, IHedgeService> hedgeServices)
+        {
+            _hedgeServices = hedgeServices;
+        }
+
         public void CheckClose(ExpertSetWrapper expertSet)
         {
             CheckQuantClose(expertSet, Sides.Sell);
@@ -24,8 +33,7 @@ namespace QvaDev.Experts.Quadro.Services
             bool closeEnabled = true;
             if (exp.BaseTradesForPositiveClose)
             {
-                //TODO double hedgeProfit = Hedge.CalculateProfit(side);
-                double hedgeProfit = 0;
+                double hedgeProfit = _hedgeServices[exp.HedgeMode].CalculateProfit(exp, side);
                 double baseProfit = CalculateBaseOrdersProfit(exp, side);
                 closeEnabled = !exp.HedgeTradeForPositiveClose ? baseProfit > 0 : baseProfit + hedgeProfit > 0;
             }
@@ -129,12 +137,8 @@ namespace QvaDev.Experts.Quadro.Services
             int magicNumber = exp.GetMagicNumberBySpreadOrderType(spreadOrderType);
             var sym1Orders = exp.GetOpenOrdersList(exp.Symbol1, orderType1, magicNumber);
             var sym2Orders = exp.GetOpenOrdersList(exp.Symbol2, orderType2, magicNumber);
-            //base.SetLastActionPrice(spreadOrderType, symbol1, symbol2);
-            //TODO hedge
-            //Hedge.OnCloseAll(spreadOrderType);
-            //List<Order> hedgeOrders = Hedge.GetOrdersToClose();
-            //PostCloseTradeOperation(spreadOrderType, hedgeOrders, sym1Orders, sym2Orders);
-            foreach (var position in sym1Orders.Union(sym2Orders))
+            var hedgeOrders = _hedgeServices[exp.HedgeMode].OnCloseAll(exp, spreadOrderType);
+            foreach (var position in sym1Orders.Union(sym2Orders).Union(hedgeOrders))
                 exp.Connector.SendClosePositionRequests(position);
         }
 
@@ -144,11 +148,8 @@ namespace QvaDev.Experts.Quadro.Services
             int magicNumber = exp.GetMagicNumberBySpreadOrderType(spreadOrderType);
             var sym1Orders = exp.GetOpenOrdersList(exp.Symbol1, orderType1, magicNumber);
             var sym2Orders = exp.GetOpenOrdersList(exp.Symbol2, orderType2, magicNumber);
-            //base.SetLastActionPrice(spreadOrderType, symbol1, symbol2);
-            //TODO hedge
-            //Hedge.OnPartialClose(spreadOrderType, 0.5);
-            //List<Order> hedgeOrders = Hedge.GetOrdersToClose();
-            foreach (var position in sym1Orders.Union(sym2Orders))
+            var hedgeOrders = _hedgeServices[exp.HedgeMode].OnPartialClose(exp, spreadOrderType, 0.5);
+            foreach (var position in sym1Orders.Union(sym2Orders).Union(hedgeOrders))
                 exp.Connector.SendClosePositionRequests(position, (position.Lots / 2).CheckLot());
             var oldtradeSetState = spreadOrderType == Sides.Buy ? exp.CurrentBuyState : exp.CurrentSellState;
             var newTradeSetState = oldtradeSetState == ExpertSetWrapper.TradeSetStates.TradeOpened
