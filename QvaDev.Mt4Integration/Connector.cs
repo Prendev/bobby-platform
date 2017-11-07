@@ -44,6 +44,7 @@ namespace QvaDev.Mt4Integration
         {
             QuoteClient.OnOrderUpdate -= OnOrderUpdate;
             QuoteClient?.Disconnect();
+            OrderClient?.Disconnect();
             _log.Debug($"{_accountInfo.Description} account ({_accountInfo.User}) disconnected");
         }
 
@@ -71,6 +72,7 @@ namespace QvaDev.Mt4Integration
             if (!IsConnected) return IsConnected;
 
             OrderClient = new OrderClient(QuoteClient);
+            OrderClient.Connect();
             _log.Debug($"{_accountInfo.Description} account ({_accountInfo.User}) connected");
 
             QuoteClient.OnOrderUpdate -= OnOrderUpdate;
@@ -153,7 +155,7 @@ namespace QvaDev.Mt4Integration
             foreach (var symbol in symbols)
             {
                 QuoteClient.DownloadQuoteHistory(symbol, Timeframe.M15,
-                    DateTime.UtcNow, 200);
+                    DateTime.Now.AddDays(1), 200);
             }
             QuoteClient.Subscribe(symbols.ToArray());
         }
@@ -271,6 +273,7 @@ namespace QvaDev.Mt4Integration
         protected virtual void Dispose(bool disposing)
         {
             QuoteClient?.Disconnect();
+            OrderClient?.Disconnect();
         }
 
         ~Connector()

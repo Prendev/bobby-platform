@@ -43,32 +43,30 @@ namespace QvaDev.Experts.Quadro.Services
             lock (expertSet)
             {
                 var exp = ExpertSetWrappers.GetOrAdd(expertSet.Id, id => new ExpertSetWrapper(expertSet));
-                if (!IsBarsInSynchron(exp, e)) return;
-                Task.Factory.StartNew(() =>
+                if (!AreBarsInSynchron(exp, e)) return;
+                var quants = new List<double>();
+                for (var i = 0; i < exp.BarHistory1.Count; i++)
                 {
-                    lock (expertSet)
-                    {
-                        exp.Quants = new List<double>();
-                        for (var i = 0; i < exp.BarHistory1.Count; i++)
-                        {
-                            var price1Close = connector.MyRoundToDigits(expertSet.Symbol1, exp.BarHistory1[i].Close);
-                            var price2Close = connector.MyRoundToDigits(expertSet.Symbol2, exp.BarHistory2[i].Close);
-                            var quant = connector.MyRoundToDigits(expertSet.Symbol1, price2Close - expertSet.M * price1Close);
-                            exp.Quants.Add(quant);
-                            OnBar(exp);
-                        }
-                    }
-                });
+                    if (exp.BarHistory1[i].OpenTime != exp.BarHistory2[i].OpenTime) return;
+                    var price1Close = connector.MyRoundToDigits(expertSet.Symbol1, exp.BarHistory1[i].Close);
+                    var price2Close = connector.MyRoundToDigits(expertSet.Symbol2, exp.BarHistory2[i].Close);
+                    var quant = connector.MyRoundToDigits(expertSet.Symbol1, price2Close - expertSet.M * price1Close);
+                    quants.Add(quant);
+                }
+                exp.Quants = quants;
+                OnBar(exp);
             }
         }
 
-        private bool IsBarsInSynchron(ExpertSetWrapper exp, BarHistoryEventArgs e)
+        private bool AreBarsInSynchron(ExpertSetWrapper exp, BarHistoryEventArgs e)
         {
+            if (e.BarHistory.Last().OpenTime < DateTime.UtcNow.AddHours(-0.5)) return false;
             if (exp.Symbol1 != e.Symbol && exp.Symbol2 != e.Symbol) return false;
             if (exp.Symbol1 == e.Symbol) exp.BarHistory1 = e.BarHistory;
             else exp.BarHistory2 = e.BarHistory;
             if ((exp.BarHistory1?.Count ?? 0) <= 1 || (exp.BarHistory2?.Count ?? 0) <= 1) return false;
             if (exp.BarHistory1?.Last().OpenTime != exp.BarHistory2?.Last().OpenTime) return false;
+            if (exp.BarHistory1?.First().OpenTime != exp.BarHistory2?.First().OpenTime) return false;
             return true;
         }
 

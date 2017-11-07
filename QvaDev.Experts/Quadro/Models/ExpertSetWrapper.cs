@@ -60,16 +60,16 @@ namespace QvaDev.Experts.Quadro.Models
         public double? QuantSto2 => CalcSto(ExpertSet.StochMultiplication * ExpertSet.StochMultiplier2);
         public double? QuantSto3 => CalcSto(ExpertSet.StochMultiplication * ExpertSet.StochMultiplier3);
         public double? QuantStoAvg => CalcAvg(QuantSto, QuantSto1, QuantSto2, QuantSto3);
-        public double StochMinAvgOpen => ExpertSet.Diff;
-        public double StochMaxAvgOpen => 100 - ExpertSet.Diff;
+        public int StochMinAvgOpen => ExpertSet.Diff;
+        public int StochMaxAvgOpen => 100 - ExpertSet.Diff;
 
         public double? QuantWpr => CalcWpr(ExpertSet.WprMultiplication);
         public double? QuantWpr1 => CalcWpr(ExpertSet.WprMultiplication * ExpertSet.WprMultiplier1);
         public double? QuantWpr2 => CalcWpr(ExpertSet.WprMultiplication * ExpertSet.WprMultiplier2);
         public double? QuantWpr3 => CalcWpr(ExpertSet.WprMultiplication * ExpertSet.WprMultiplier3);
         public double? QuantWprAvg => CalcAvg(QuantWpr, QuantWpr1, QuantWpr2, QuantWpr3);
-        public double WprMinAvgOpen => ExpertSet.Diff;
-        public double WprMaxAvgOpen => 100 - ExpertSet.Diff;
+        public int WprMinAvgOpen => ExpertSet.Diff;
+        public int WprMaxAvgOpen => 100 - ExpertSet.Diff;
 
         public Sides Sym1MaxOrderType { get; private set; }
         public Sides Sym1MinOrderType { get; private set; }

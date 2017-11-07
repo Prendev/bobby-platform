@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Autofac.Features.Indexed;
 using QvaDev.Common.Integration;
@@ -11,7 +10,7 @@ namespace QvaDev.Experts.Quadro.Services
 {
     public interface IEntriesService
     {
-        void CalculateEntries(ExpertSetWrapper expertSet);
+        void CalculateEntries(ExpertSetWrapper exp);
     }
     public class EntriesService : IEntriesService
     {
@@ -22,48 +21,45 @@ namespace QvaDev.Experts.Quadro.Services
             _hedgeServices = hedgeServices;
         }
 
-        public void CalculateEntries(ExpertSetWrapper expertSet)
+        public void CalculateEntries(ExpertSetWrapper exp)
         {
-            CalculateEntriesForMaxAction(expertSet);
-            CalculateEntriesForMinAction(expertSet);
+            if (!exp.QuantStoAvg.HasValue || !exp.QuantWprAvg.HasValue) return;
+            CalculateEntriesForMaxAction(exp);
+            CalculateEntriesForMinAction(exp);
         }
 
         private void CalculateEntriesForMaxAction(ExpertSetWrapper exp)
         {
-            if (exp.QuantStoAvg <= exp.StochMaxAvgOpen || !(exp.QuantWprAvg > -exp.WprMinAvgOpen)) return;
-            int numOfSym1MaxOrders = MyOrdersCount(exp, exp.Symbol1, exp.Sym1MaxOrderType);
-            int numOfSym2MaxOrders = MyOrdersCount(exp, exp.Symbol2, exp.Sym2MaxOrderType);
-            if (numOfSym1MaxOrders != 0 || numOfSym2MaxOrders != 0) return;
+            if (exp.QuantStoAvg <= exp.StochMaxAvgOpen || exp.QuantWprAvg <= -exp.WprMinAvgOpen) return;
+            if (MyOrdersCount(exp, exp.Symbol1, exp.Sym1MaxOrderType) != 0) return;
+            if (MyOrdersCount(exp, exp.Symbol2, exp.Sym2MaxOrderType) != 0) return;
             var initialLots = exp.InitialLots;
-            double lot1 = CheckLot(initialLots[0, 1]);
-            double lot2 = CheckLot(initialLots[0, 0]);
-            var openPrice1 = exp.Connector.SendMarketOrderRequest(exp.Symbol1, exp.Sym1MaxOrderType, lot1, exp.SpreadSellMagicNumber);
-            var openPrice2 = exp.Connector.SendMarketOrderRequest(exp.Symbol2, exp.Sym2MaxOrderType, lot2, exp.SpreadSellMagicNumber);
-            _hedgeServices[exp.HedgeMode].OnBaseTradesOpened(exp, Sides.Sell, new[] { lot1, lot2 });
-            exp.Sym1LastMaxActionPrice = openPrice1;
-            exp.Sym2LastMaxActionPrice = openPrice2;
+            double lot1 = initialLots[0, 1].CheckLot();
+            double lot2 = initialLots[0, 0].CheckLot();
 
             //TODO
             //if (!(exposureShieldHandler?.EnableOpeningOrder(baseOrders) ?? true)) return;
+
+            exp.Sym1LastMaxActionPrice = exp.Connector.SendMarketOrderRequest(exp.Symbol1, exp.Sym1MaxOrderType, lot1, exp.SpreadSellMagicNumber);
+            exp.Sym2LastMaxActionPrice = exp.Connector.SendMarketOrderRequest(exp.Symbol2, exp.Sym2MaxOrderType, lot2, exp.SpreadSellMagicNumber);
+            _hedgeServices[exp.HedgeMode].OnBaseTradesOpened(exp, Sides.Sell, new[] { lot1, lot2 });
         }
 
         protected void CalculateEntriesForMinAction(ExpertSetWrapper exp)
         {
-            if (exp.QuantStoAvg >= exp.StochMinAvgOpen || !(exp.QuantWprAvg < -exp.WprMaxAvgOpen)) return;
-            int numOfSym1MaxOrders = MyOrdersCount(exp, exp.Symbol1, exp.Sym1MinOrderType);
-            int numOfSym2MaxOrders = MyOrdersCount(exp, exp.Symbol2, exp.Sym2MinOrderType);
-            if (numOfSym1MaxOrders != 0 || numOfSym2MaxOrders != 0) return;
+            if (exp.QuantStoAvg >= exp.StochMinAvgOpen || exp.QuantWprAvg >= -exp.WprMaxAvgOpen) return;
+            if (MyOrdersCount(exp, exp.Symbol1, exp.Sym1MinOrderType) != 0) return;
+            if (MyOrdersCount(exp, exp.Symbol2, exp.Sym2MinOrderType) != 0) return;
             var initialLots = exp.InitialLots;
-            double lot1 = CheckLot(initialLots[0, 1]);
-            double lot2 = CheckLot(initialLots[0, 0]);
-            var openPrice1 = exp.Connector.SendMarketOrderRequest(exp.Symbol1, exp.Sym1MinOrderType, lot1, exp.SpreadBuyMagicNumber);
-            var openPrice2 = exp.Connector.SendMarketOrderRequest(exp.Symbol2, exp.Sym2MinOrderType, lot2, exp.SpreadBuyMagicNumber);
-            _hedgeServices[exp.HedgeMode].OnBaseTradesOpened(exp, Sides.Buy, new[] {lot1, lot2});
-            exp.Sym1LastMinActionPrice = openPrice1;
-            exp.Sym2LastMinActionPrice = openPrice2;
+            double lot1 = initialLots[0, 1].CheckLot();
+            double lot2 = initialLots[0, 0].CheckLot();
 
             //TODO
             //if (!(exposureShieldHandler?.EnableOpeningOrder(baseOrders) ?? true)) return;
+
+            exp.Sym1LastMinActionPrice = exp.Connector.SendMarketOrderRequest(exp.Symbol1, exp.Sym1MinOrderType, lot1, exp.SpreadBuyMagicNumber);
+            exp.Sym2LastMinActionPrice = exp.Connector.SendMarketOrderRequest(exp.Symbol2, exp.Sym2MinOrderType, lot2, exp.SpreadBuyMagicNumber);
+            _hedgeServices[exp.HedgeMode].OnBaseTradesOpened(exp, Sides.Buy, new[] {lot1, lot2});
         }
 
         public IEnumerable<Position> GetOpenOrdersList(ExpertSetWrapper exp, string symbol, Sides side, int magicNumber)
@@ -73,23 +69,11 @@ namespace QvaDev.Experts.Quadro.Services
                 .Select(p => p.Value);
         }
 
-        public int MyOrdersCount(ExpertSetWrapper exp, string symbol, Sides side)
+        private int MyOrdersCount(ExpertSetWrapper exp, string symbol, Sides side)
         {
             return exp.Connector.Positions.Count(p => p.Value.Symbol == symbol && p.Value.Side == side &&
                                                   (p.Value.MagicNumber == exp.SpreadBuyMagicNumber ||
                                                    p.Value.MagicNumber == exp.SpreadSellMagicNumber));
-        }
-
-        public double CheckLot(double lot)
-        {
-            decimal d = Convert.ToDecimal(lot);
-            d = Math.Round(d, 2, MidpointRounding.AwayFromZero);
-            lot = Convert.ToDouble(d);
-            if (lot < 0.01)
-            {
-                lot = 0.01;
-            }
-            return lot;
         }
     }
 }
