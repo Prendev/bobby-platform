@@ -45,6 +45,7 @@ namespace QvaDev.Duplicat.Views
             dgvTradingAccounts.DataSource = _viewModel.TradingAccounts.ToBindingList();
             dgvTradingAccounts.Columns["ProfileId"].Visible = false;
             dgvTradingAccounts.Columns["Profile"].Visible = false;
+
             dgvExpertSets.DataSource = _viewModel.ExpertSets.ToBindingList();
             dgvExpertSets.Columns["TradingAccountId"].Visible = false;
             dgvExpertSets.Columns["TradingAccount"].Visible = false;

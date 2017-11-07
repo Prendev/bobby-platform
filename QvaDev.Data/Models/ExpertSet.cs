@@ -8,12 +8,12 @@ namespace QvaDev.Data.Models
     {
         public enum Variants
         {
-            NormalNormalBase = 1,
-            NormalNormalReversed = 2,
-            NormalInverseBase = 3,
-            NormalInverseReversed = 4,
-            InverseNormalBase = 5,
-            InverseNormalReversed = 6
+            NormalNormalBase,
+            NormalNormalReversed,
+            NormalInverseBase,
+            NormalInverseReversed,
+            InverseNormalBase,
+            InverseNormalReversed
         }
 
         public enum HedgeModes

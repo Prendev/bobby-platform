@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Data.Entity;
 using System.Drawing;
+using System.Linq;
 using System.Windows.Forms;
 using QvaDev.Common.Attributes;
 using QvaDev.Data.Models;
@@ -103,6 +104,7 @@ namespace QvaDev.Duplicat.Views
                 if (!Columns.Contains(name)) continue;
                 Columns[name].Visible = false;
             }
+            UseComboBoxForEnums();
             FilterRows();
         }
 
@@ -110,6 +112,33 @@ namespace QvaDev.Duplicat.Views
         {
             if (e.Exception.Message == "DataGridViewComboBoxCell value is not valid.") return;
             throw e.Exception;
+        }
+
+        private void UseComboBoxForEnums()
+        {
+            Columns.Cast<DataGridViewColumn>()
+                .Where(x => x.ValueType?.IsEnum == true)
+                .ToList().ForEach(x =>
+                {
+                    var c = new DataGridViewComboBoxColumn
+                    {
+                        ValueType = x.ValueType,
+                        ValueMember = "Value",
+                        DisplayMember = "Name",
+                        DataPropertyName = x.DataPropertyName,
+                        HeaderText = x.HeaderText,
+                        Name = x.Name,
+                        DataSource = Enum.GetValues(x.ValueType).Cast<object>().Select(v => new
+                        {
+                            Value = (int) v,
+                            Name = Enum.GetName(x.ValueType, v)
+                        }).ToList()
+                    };
+
+                    var index = x.Index;
+                    Columns.RemoveAt(index);
+                    Columns.Insert(index, c);
+                });
         }
     }
 }
