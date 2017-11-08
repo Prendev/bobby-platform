@@ -21,13 +21,13 @@ namespace QvaDev.Experts.Quadro
         private static double AveragePrice(this ExpertSetWrapper exp, Sides orderType1, Sides orderType2, int magicNumber)
         {
             double avgPrice = 0;
-            double[] sumLotSum2 = exp.GetSumAndLotSum(exp.Symbol1, orderType2, magicNumber);
-            double[] sumLotSum1 = exp.GetSumAndLotSum(exp.Symbol2, orderType1, magicNumber);
+            double[] sumLotSum2 = exp.GetSumAndLotSum(exp.E.Symbol1, orderType2, magicNumber);
+            double[] sumLotSum1 = exp.GetSumAndLotSum(exp.E.Symbol2, orderType1, magicNumber);
             double multiSum = sumLotSum1[0] + sumLotSum2[0];
             double lotSum = sumLotSum1[1] + sumLotSum2[1];
             if (lotSum > 0)
             {
-                avgPrice = exp.Connector.MyRoundToDigits(exp.Symbol1, multiSum / lotSum);
+                avgPrice = exp.Connector.MyRoundToDigits(exp.E.Symbol1, multiSum / lotSum);
             }
             return avgPrice;
         }
@@ -88,18 +88,18 @@ namespace QvaDev.Experts.Quadro
 
         private static List<Bar> GetHistoryBar(this ExpertSetWrapper exp, string symbol)
         {
-            if (exp.Symbol1 == symbol)
+            if (exp.E.Symbol1 == symbol)
                 return exp.BarHistory1;
-            if (exp.Symbol2 == symbol)
+            if (exp.E.Symbol2 == symbol)
                 return exp.BarHistory2;
             return null;
         }
 
         public static Bar Bar(this ExpertSetWrapper exp, string symbol, int index)
         {
-            if (exp.Symbol1 == symbol)
+            if (exp.E.Symbol1 == symbol)
                 return exp.BarHistory1[index];
-            if (exp.Symbol2 == symbol)
+            if (exp.E.Symbol2 == symbol)
                 return exp.BarHistory2[index];
             return null;
         }
@@ -112,9 +112,9 @@ namespace QvaDev.Experts.Quadro
         public static IEnumerable<Position> GetBaseOpenOrdersList(this ExpertSetWrapper exp, Sides spreadOrderType)
         {
             var orders = spreadOrderType != Sides.Buy
-                ? exp.GetOpenOrdersList(exp.Symbol1, exp.Sym1MaxOrderType, exp.Symbol2, exp.Sym2MaxOrderType,
+                ? exp.GetOpenOrdersList(exp.E.Symbol1, exp.Sym1MaxOrderType, exp.E.Symbol2, exp.Sym2MaxOrderType,
                     exp.SpreadSellMagicNumber)
-                : exp.GetOpenOrdersList(exp.Symbol1, exp.Sym1MinOrderType, exp.Symbol2, exp.Sym2MinOrderType,
+                : exp.GetOpenOrdersList(exp.E.Symbol1, exp.Sym1MinOrderType, exp.E.Symbol2, exp.Sym2MinOrderType,
                     exp.SpreadBuyMagicNumber);
             return orders;
         }

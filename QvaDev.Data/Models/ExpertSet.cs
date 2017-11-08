@@ -36,14 +36,13 @@ namespace QvaDev.Data.Models
 
         public double M { get; set; }
         public int Diff { get; set; }
+        public int Period { get; set; }
         public int Delta { get; set; }
-
-        public int StochMultiplication { get; set; }
+        
         public int StochMultiplier1 { get; set; }
         public int StochMultiplier2 { get; set; }
         public int StochMultiplier3 { get; set; }
-
-        public int WprMultiplication { get; set; }
+        
         public int WprMultiplier1 { get; set; }
         public int WprMultiplier2 { get; set; }
         public int WprMultiplier3 { get; set; }

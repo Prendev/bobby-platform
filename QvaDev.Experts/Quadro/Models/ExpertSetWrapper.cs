@@ -18,36 +18,24 @@ namespace QvaDev.Experts.Quadro.Models
             AfterSecondClose
         }
 
-        public ExpertSet ExpertSet { get; }
+        public ExpertSet E { get; }
 
         public ExpertSetWrapper(ExpertSet expertSet)
         {
-            ExpertSet = expertSet;
+            E = expertSet;
             InitByVariant();
             InitBuyLotArray();
             InitSellLotArray();
-            InitLotArray(InitialLots, ExpertSet.LotSize);
+            InitLotArray(InitialLots, E.LotSize);
         }
 
-        public Connector Connector => ExpertSet.TradingAccount.MetaTraderAccount.Connector as Connector;
-        public ConcurrentDictionary<long, Position> Positions => ExpertSet.TradingAccount.MetaTraderAccount.Connector.Positions;
-        public string Symbol1 => ExpertSet.Symbol1;
-        public string Symbol2 => ExpertSet.Symbol2;
-        public bool BaseTradesForPositiveClose => ExpertSet.BaseTradesForPositiveClose;
-        public bool HedgeTradeForPositiveClose => ExpertSet.HedgeTradeForPositiveClose;
-        public bool PartialClose => ExpertSet.PartialClose;
+        public Connector Connector => E.TradingAccount.MetaTraderAccount.Connector as Connector;
+        public ConcurrentDictionary<long, Position> Positions => E.TradingAccount.MetaTraderAccount.Connector.Positions;
 
-        public double M => ExpertSet.M;
-        public int SpreadBuyMagicNumber => ExpertSet.MagicNumber;
-        public int SpreadSellMagicNumber => ExpertSet.MagicNumber + 1;
-        public int HedgeBuyHedgicNumber => ExpertSet.HedgicNumber + 9;
-        public int HedgeSellHedgicNumber => ExpertSet.HedgicNumber + 10;
-
-        public int Tp1 => ExpertSet.Tp1;
-        public int Tp2 => ExpertSet.Tp2;
-        public int Tp3 => ExpertSet.Tp3;
-
-        public double ExposureShieldValue => ExpertSet.ExposureShieldValue;
+        public int SpreadBuyMagicNumber => E.MagicNumber;
+        public int SpreadSellMagicNumber => E.MagicNumber + 1;
+        public int HedgeBuyHedgicNumber => E.HedgicNumber + 9;
+        public int HedgeSellHedgicNumber => E.HedgicNumber + 10;
 
         public List<Bar> BarHistory1 { get; set; }
         public List<Bar> BarHistory2 { get; set; }
@@ -55,21 +43,21 @@ namespace QvaDev.Experts.Quadro.Models
         public int BuyHedgeOpenCount { get; set; }
         public int SellHedgeOpenCount { get; set; }
 
-        public double? QuantSto => CalcSto(ExpertSet.StochMultiplication);
-        public double? QuantSto1 => CalcSto(ExpertSet.StochMultiplication * ExpertSet.StochMultiplier1);
-        public double? QuantSto2 => CalcSto(ExpertSet.StochMultiplication * ExpertSet.StochMultiplier2);
-        public double? QuantSto3 => CalcSto(ExpertSet.StochMultiplication * ExpertSet.StochMultiplier3);
+        public double? QuantSto => CalcSto(E.Period);
+        public double? QuantSto1 => CalcSto(E.Period * E.StochMultiplier1);
+        public double? QuantSto2 => CalcSto(E.Period * E.StochMultiplier2);
+        public double? QuantSto3 => CalcSto(E.Period * E.StochMultiplier3);
         public double? QuantStoAvg => CalcAvg(QuantSto, QuantSto1, QuantSto2, QuantSto3);
-        public int StochMinAvgOpen => ExpertSet.Diff;
-        public int StochMaxAvgOpen => 100 - ExpertSet.Diff;
+        public int StochMinAvgOpen => E.Diff;
+        public int StochMaxAvgOpen => 100 - E.Diff;
 
-        public double? QuantWpr => CalcWpr(ExpertSet.WprMultiplication);
-        public double? QuantWpr1 => CalcWpr(ExpertSet.WprMultiplication * ExpertSet.WprMultiplier1);
-        public double? QuantWpr2 => CalcWpr(ExpertSet.WprMultiplication * ExpertSet.WprMultiplier2);
-        public double? QuantWpr3 => CalcWpr(ExpertSet.WprMultiplication * ExpertSet.WprMultiplier3);
+        public double? QuantWpr => CalcWpr(E.Period);
+        public double? QuantWpr1 => CalcWpr(E.Period * E.WprMultiplier1);
+        public double? QuantWpr2 => CalcWpr(E.Period * E.WprMultiplier2);
+        public double? QuantWpr3 => CalcWpr(E.Period * E.WprMultiplier3);
         public double? QuantWprAvg => CalcAvg(QuantWpr, QuantWpr1, QuantWpr2, QuantWpr3);
-        public int WprMinAvgOpen => ExpertSet.Diff;
-        public int WprMaxAvgOpen => 100 - ExpertSet.Diff;
+        public int WprMinAvgOpen => E.Diff;
+        public int WprMaxAvgOpen => 100 - E.Diff;
 
         public Sides Sym1MaxOrderType { get; private set; }
         public Sides Sym1MinOrderType { get; private set; }
@@ -88,24 +76,16 @@ namespace QvaDev.Experts.Quadro.Models
         public double Sym1LastMinActionPrice { get; set; }
         public double Sym2LastMaxActionPrice { get; set; }
         public double Sym2LastMinActionPrice { get; set; }
-        public int MaxTradeSetCount => ExpertSet.MaxTradeSetCount;
-        public int Last24HMaxOpen => ExpertSet.Last24HMaxOpen;
 
         public TradeSetStates CurrentSellState = TradeSetStates.NoTrade;
         public TradeSetStates CurrentBuyState = TradeSetStates.NoTrade;
 
-        public int BuyOpenCount => ExpertSet.TradingAccount.MetaTraderAccount.Connector.Positions.Count(
+        public int BuyOpenCount => E.TradingAccount.MetaTraderAccount.Connector.Positions.Count(
             p => p.Value.MagicNumber == SpreadBuyMagicNumber || p.Value.MagicNumber == HedgeBuyHedgicNumber);
-        public int SellOpenCount => ExpertSet.TradingAccount.MetaTraderAccount.Connector.Positions.Count(
+        public int SellOpenCount => E.TradingAccount.MetaTraderAccount.Connector.Positions.Count(
             p => p.Value.MagicNumber == SpreadSellMagicNumber || p.Value.MagicNumber == HedgeSellHedgicNumber);
 
-        public int ReOpenDiffChangeCount => ExpertSet.ReOpenDiffChangeCount;
-        public int ReOpenDiff => ExpertSet.ReOpenDiff;
-        public int ReOpenDiff2 => ExpertSet.ReOpenDiff2;
-        public double Point => Connector.GetPoint(Symbol1);
-
-        public ExpertSet.HedgeModes HedgeMode => ExpertSet.HedgeMode;
-        public int HedgeStopPositionCount => ExpertSet.HedgeStopPositionCount;
+        public double Point => Connector.GetPoint(E.Symbol1);
 
         private double? CalcSto(int period)
         {
@@ -134,11 +114,11 @@ namespace QvaDev.Experts.Quadro.Models
 
         public void InitBuyLotArray()
         {
-            InitLotArray(BuyLots, ExpertSet.LotSize);
+            InitLotArray(BuyLots, E.LotSize);
         }
         public void InitSellLotArray()
         {
-            InitLotArray(SellLots, ExpertSet.LotSize);
+            InitLotArray(SellLots, E.LotSize);
         }
 
         private void InitLotArray(double[,] lotArray, double initialLot)
@@ -150,13 +130,13 @@ namespace QvaDev.Experts.Quadro.Models
             }
             for (int i = 0; i < 120; i++)
             {
-                lotArray[i, 1] = (lotArray[i, 0] * M).CheckLot();
+                lotArray[i, 1] = (lotArray[i, 0] * E.M).CheckLot();
             }
         }
         
         private void InitByVariant()
         {
-            switch (ExpertSet.Variant)
+            switch (E.Variant)
             {
                 case ExpertSet.Variants.NormalNormalBase:
                 {
@@ -212,7 +192,7 @@ namespace QvaDev.Experts.Quadro.Models
                 }
                 default:
                 {
-                    throw new InvalidOperationException(string.Concat("Unknown Variant type: ", ExpertSet.Variant));
+                    throw new InvalidOperationException(string.Concat("Unknown Variant type: ", E.Variant));
                 }
             }
         }
