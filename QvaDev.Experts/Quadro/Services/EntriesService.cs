@@ -33,9 +33,8 @@ namespace QvaDev.Experts.Quadro.Services
             if (exp.QuantStoAvg <= exp.StochMaxAvgOpen || exp.QuantWprAvg <= -exp.WprMinAvgOpen) return;
             if (MyOrdersCount(exp, exp.E.Symbol1, exp.Sym1MaxOrderType) != 0) return;
             if (MyOrdersCount(exp, exp.E.Symbol2, exp.Sym2MaxOrderType) != 0) return;
-            var initialLots = exp.InitialLots;
-            double lot1 = initialLots[0, 1].CheckLot();
-            double lot2 = initialLots[0, 0].CheckLot();
+            double lot1 = exp.InitialLots[0, 1].CheckLot();
+            double lot2 = exp.InitialLots[0, 0].CheckLot();
 
             //TODO
             //if (!(exposureShieldHandler?.EnableOpeningOrder(baseOrders) ?? true)) return;
@@ -50,9 +49,8 @@ namespace QvaDev.Experts.Quadro.Services
             if (exp.QuantStoAvg >= exp.StochMinAvgOpen || exp.QuantWprAvg >= -exp.WprMaxAvgOpen) return;
             if (MyOrdersCount(exp, exp.E.Symbol1, exp.Sym1MinOrderType) != 0) return;
             if (MyOrdersCount(exp, exp.E.Symbol2, exp.Sym2MinOrderType) != 0) return;
-            var initialLots = exp.InitialLots;
-            double lot1 = initialLots[0, 1].CheckLot();
-            double lot2 = initialLots[0, 0].CheckLot();
+            double lot1 = exp.InitialLots[0, 1].CheckLot();
+            double lot2 = exp.InitialLots[0, 0].CheckLot();
 
             //TODO
             //if (!(exposureShieldHandler?.EnableOpeningOrder(baseOrders) ?? true)) return;
@@ -60,13 +58,6 @@ namespace QvaDev.Experts.Quadro.Services
             exp.Sym1LastMinActionPrice = exp.Connector.SendMarketOrderRequest(exp.E.Symbol1, exp.Sym1MinOrderType, lot1, exp.SpreadBuyMagicNumber);
             exp.Sym2LastMinActionPrice = exp.Connector.SendMarketOrderRequest(exp.E.Symbol2, exp.Sym2MinOrderType, lot2, exp.SpreadBuyMagicNumber);
             _hedgeServices[exp.E.HedgeMode].OnBaseTradesOpened(exp, Sides.Buy, new[] {lot1, lot2});
-        }
-
-        public IEnumerable<Position> GetOpenOrdersList(ExpertSetWrapper exp, string symbol, Sides side, int magicNumber)
-        {
-            return exp.Connector.Positions.Where(p => p.Value.Symbol == symbol && p.Value.Side == side &&
-                                                  p.Value.MagicNumber == magicNumber)
-                .Select(p => p.Value);
         }
 
         private int MyOrdersCount(ExpertSetWrapper exp, string symbol, Sides side)

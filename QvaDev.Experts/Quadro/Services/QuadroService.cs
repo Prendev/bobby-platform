@@ -60,6 +60,7 @@ namespace QvaDev.Experts.Quadro.Services
                     quants.Add(quant);
                 }
                 exp.Quants = quants;
+                _log.Debug($"Quants for {exp.E.Symbol1} | {exp.E.Symbol2} => {exp.Quants.AsString()}");
                 OnBar(exp);
             }
         }
@@ -90,27 +91,11 @@ namespace QvaDev.Experts.Quadro.Services
 
         private bool IsCurrentTimeEnabledForTrade()
         {
-            DateTime lastTickTime = DateTime.UtcNow;
-            bool flag = !(IsTodaySundayCorrection(lastTickTime) | (lastTickTime.DayOfWeek == DayOfWeek.Friday && lastTickTime.Hour >= 20));
-            return flag;
-        }
-
-        private bool IsTodaySundayCorrection(DateTime lastTickTime)
-        {
-            bool second;
-            if (lastTickTime.DayOfWeek != DayOfWeek.Sunday)
-            {
-                second = false;
-            }
-            else if (lastTickTime.Hour < 23 || lastTickTime.Minute < 59)
-            {
-                second = true;
-            }
-            else
-            {
-                second = lastTickTime.Second < 0;
-            }
-            return second;
+            var utcNow = DateTime.UtcNow;
+            if (utcNow.DayOfWeek == DayOfWeek.Friday && utcNow.Hour >= 20) return false;
+            if (utcNow.DayOfWeek == DayOfWeek.Saturday) return false;
+            if (utcNow.DayOfWeek == DayOfWeek.Sunday && (utcNow.Hour < 23 || utcNow.Minute < 59)) return false;
+            return true;
         }
 
         private void CheckHedgeStopByQuant(ExpertSetWrapper exp)

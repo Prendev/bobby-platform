@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using QvaDev.Common.Integration;
 using QvaDev.Experts.Quadro.Models;
 
@@ -8,6 +9,22 @@ namespace QvaDev.Experts.Quadro
 {
     public static class Extensions
     {
+        public static string AsString(this List<double> list)
+        {
+            if (list == null || !list.Any()) return "[]";
+            var sb = new StringBuilder();
+            sb.Append("[ ");
+            var first = true;
+            foreach (var item in list)
+            {
+                if (!first) sb.Append(" | ");
+                sb.Append(item);
+                first = false;
+            }
+            sb.Append(" ]");
+            return sb.ToString();
+        }
+
         public static double BuyAveragePrice(this ExpertSetWrapper exp)
         {
             return exp.AveragePrice(exp.Sym1MinOrderType, exp.Sym2MinOrderType, exp.SpreadBuyMagicNumber);
@@ -48,14 +65,14 @@ namespace QvaDev.Experts.Quadro
         public static List<Position> GetOpenOrdersList(this ExpertSetWrapper exp, string symbol, Sides orderType,
             int magicNumber)
         {
-            return exp.Connector.Positions.Select(p => p.Value)
+            return exp.Positions.Select(p => p.Value)
                 .Where(p => p.Symbol == symbol && p.Side == orderType && p.MagicNumber == magicNumber)
                 .ToList();
         }
         public static List<Position> GetOpenOrdersList(this ExpertSetWrapper exp, string symbol1, Sides orderType1,
             string symbol2, Sides orderType2, int magicNumber)
         {
-            return exp.Connector.Positions.Select(p => p.Value)
+            return exp.Positions.Select(p => p.Value)
                 .Where(p => p.MagicNumber == magicNumber &&
                             ((p.Symbol == symbol1 && p.Side == orderType1) ||
                              (p.Symbol == symbol2 && p.Side == orderType2)))
