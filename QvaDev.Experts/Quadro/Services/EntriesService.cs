@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using Autofac.Features.Indexed;
 using QvaDev.Common.Integration;
 using QvaDev.Data.Models;
@@ -23,16 +22,20 @@ namespace QvaDev.Experts.Quadro.Services
 
         public void CalculateEntries(ExpertSetWrapper exp)
         {
-            if (!exp.QuantStoAvg.HasValue || !exp.QuantWprAvg.HasValue) return;
+            if (!exp.QuantStoAvg.HasValue) return;
+            if (!exp.QuantWprAvg.HasValue) return;
+
             CalculateEntriesForMaxAction(exp);
             CalculateEntriesForMinAction(exp);
         }
 
         private void CalculateEntriesForMaxAction(ExpertSetWrapper exp)
         {
-            if (exp.QuantStoAvg <= exp.StochMaxAvgOpen || exp.QuantWprAvg <= -exp.WprMinAvgOpen) return;
+            if (exp.QuantStoAvg <= exp.StochMaxAvgOpen) return;
+            if (exp.QuantWprAvg <= -exp.WprMinAvgOpen) return;
             if (MyOrdersCount(exp, exp.E.Symbol1, exp.Sym1MaxOrderType) != 0) return;
             if (MyOrdersCount(exp, exp.E.Symbol2, exp.Sym2MaxOrderType) != 0) return;
+
             double lot1 = exp.InitialLots[0, 1].CheckLot();
             double lot2 = exp.InitialLots[0, 0].CheckLot();
 
@@ -46,9 +49,11 @@ namespace QvaDev.Experts.Quadro.Services
 
         protected void CalculateEntriesForMinAction(ExpertSetWrapper exp)
         {
-            if (exp.QuantStoAvg >= exp.StochMinAvgOpen || exp.QuantWprAvg >= -exp.WprMaxAvgOpen) return;
+            if (exp.QuantStoAvg >= exp.StochMinAvgOpen) return;
+            if (exp.QuantWprAvg >= -exp.WprMaxAvgOpen) return;
             if (MyOrdersCount(exp, exp.E.Symbol1, exp.Sym1MinOrderType) != 0) return;
             if (MyOrdersCount(exp, exp.E.Symbol2, exp.Sym2MinOrderType) != 0) return;
+
             double lot1 = exp.InitialLots[0, 1].CheckLot();
             double lot2 = exp.InitialLots[0, 0].CheckLot();
 
