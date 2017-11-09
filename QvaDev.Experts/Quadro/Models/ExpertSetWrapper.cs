@@ -72,6 +72,8 @@ namespace QvaDev.Experts.Quadro.Models
         public double[,] SellLots { get; } = new double[120, 2];
         public double[,] InitialLots { get; } = new double[120, 2];
 
+        public double DeltaRange => E.Delta * Point;
+
         public double Sym1LastMaxActionPrice { get; set; }
         public double Sym1LastMinActionPrice { get; set; }
         public double Sym2LastMaxActionPrice { get; set; }

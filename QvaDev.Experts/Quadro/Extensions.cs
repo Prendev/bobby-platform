@@ -140,18 +140,17 @@ namespace QvaDev.Experts.Quadro
         {
             bool sym1InRange;
             bool sym2InRange;
-            var deltaRange = exp.Point;
-            if (side != Sides.Sell)
+            if (side == Sides.Buy)
             {
-                sym1InRange = IsInDeltaRange(exp.Sym1LastMinActionPrice, deltaRange, exp.BarHistory1.Last().Close);
-                sym2InRange = IsInDeltaRange(exp.Sym2LastMinActionPrice, deltaRange, exp.BarHistory2.Last().Close);
+                sym1InRange = IsInDeltaRange(exp.Sym1LastMinActionPrice, exp.DeltaRange, exp.BarHistory1.Last().Close);
+                sym2InRange = IsInDeltaRange(exp.Sym2LastMinActionPrice, exp.DeltaRange, exp.BarHistory2.Last().Close);
             }
             else
             {
-                sym1InRange = IsInDeltaRange(exp.Sym1LastMaxActionPrice, deltaRange, exp.BarHistory1.Last().Close);
-                sym2InRange = IsInDeltaRange(exp.Sym2LastMaxActionPrice, deltaRange, exp.BarHistory2.Last().Close);
+                sym1InRange = IsInDeltaRange(exp.Sym1LastMaxActionPrice, exp.DeltaRange, exp.BarHistory1.Last().Close);
+                sym2InRange = IsInDeltaRange(exp.Sym2LastMaxActionPrice, exp.DeltaRange, exp.BarHistory2.Last().Close);
             }
-            return sym1InRange | sym2InRange;
+            return sym1InRange || sym2InRange;
         }
 
         private static bool IsInDeltaRange(double price, double range, double close)
