@@ -17,5 +17,6 @@ namespace QvaDev.Common.Integration
         string GetCurrency();
         int GetDigits(string symbol);
         double GetPoint(string symbol);
+        Tick GetLastTick(string symbol);
     }
 }

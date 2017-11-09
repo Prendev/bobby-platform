@@ -25,60 +25,66 @@ namespace QvaDev.Experts.Quadro.Services
 
         public void CalculateReentries(ExpertSetWrapper exp)
         {
-            bool sellReentryEnabled = !exp.IsInDeltaRange(Sides.Sell) && exp.SellOpenCount < exp.E.MaxTradeSetCount &&
-                                      EnableLast24Filter(exp, Sides.Sell, 2);
-            bool buyReentryEnabled = !exp.IsInDeltaRange(Sides.Buy) && exp.BuyOpenCount < exp.E.MaxTradeSetCount &&
-                                     EnableLast24Filter(exp, Sides.Buy, 2);
+            CalculateReentriesForSell(exp);
+            CalculateReentriesForBuy(exp);
+        }
 
-            if (sellReentryEnabled && !(exp.QuantStoAvg < exp.StochMaxAvgOpen) && exp.QuantWprAvg > -exp.WprMinAvgOpen)
-            {
-                var o1 = LastOrder(exp, exp.E.Symbol1, exp.Sym1MaxOrderType, exp.SpreadSellMagicNumber);
-                var o2 = LastOrder(exp, exp.E.Symbol2, exp.Sym2MaxOrderType, exp.SpreadSellMagicNumber);
-                int buyReopenDiff = GetReopenDiff(exp, exp.BuyOpenCount);
-                if (o1 != null && o2 != null && !(exp.Quants.Last() < exp.BarQuant(o1) + buyReopenDiff * exp.Point) &&
-                    exp.Quants.Last() >= exp.BarQuant(o2) + buyReopenDiff * exp.Point)
-                {
-                    CorrectLotArrayIfNeeded(exp, Sides.Sell);
-                    double lot1 = exp.SellLots[exp.SellOpenCount, 1].CheckLot();
-                    double lot2 = exp.SellLots[exp.SellOpenCount, 0].CheckLot();
+        private void CalculateReentriesForSell(ExpertSetWrapper exp)
+        {
+            if (exp.IsInDeltaRange(Sides.Sell)) return;
+            if (exp.QuantStoAvg < exp.StochMaxAvgOpen || exp.QuantWprAvg <= -exp.WprMinAvgOpen) return;
+            //TODO if (exp.IsInDeltaRange(Sides.Sell) || exp.SellOpenCount >= exp.E.MaxTradeSetCount || !EnableLast24Filter(exp, Sides.Sell, 2)) return;
 
-                    exp.Sym1LastMaxActionPrice =
-                        exp.Connector.SendMarketOrderRequest(exp.E.Symbol1, exp.Sym1MaxOrderType, lot1, exp.SpreadSellMagicNumber);
-                    exp.Sym2LastMaxActionPrice =
-                        exp.Connector.SendMarketOrderRequest(exp.E.Symbol2, exp.Sym2MaxOrderType, lot2, exp.SpreadSellMagicNumber);
+            var o1 = LastOrder(exp, exp.E.Symbol1, exp.Sym1MaxOrderType, exp.SpreadSellMagicNumber);
+            var o2 = LastOrder(exp, exp.E.Symbol2, exp.Sym2MaxOrderType, exp.SpreadSellMagicNumber);
+            if (o1 == null || o2 == null) return;
 
-                    //TODO
-                    var hedgeOpenOrders = _hedgeServices[exp.E.HedgeMode]
-                        .OnBaseTradesOpened(exp, Sides.Sell, new[] { lot1, lot2 });
-                    //PostReOpenTradeSetOperation(hedgeOpenOrders, Sides.Sell, order1, order2);
-                    //PostCloseHedgePositions(Sides.Sell);
-                }
-            }
-            if (buyReentryEnabled && !(exp.QuantStoAvg > exp.StochMinAvgOpen) && exp.QuantWprAvg < -exp.WprMaxAvgOpen)
-            {
-                var o1 = LastOrder(exp, exp.E.Symbol1, exp.Sym1MinOrderType, exp.SpreadBuyMagicNumber);
-                var o2 = LastOrder(exp, exp.E.Symbol2, exp.Sym2MinOrderType, exp.SpreadBuyMagicNumber);
-                int sellReopenDiff = GetReopenDiff(exp, exp.SellOpenCount);
-                if (o1 != null && o2 != null && !(exp.Quants.Last() > exp.BarQuant(o1) - sellReopenDiff * exp.Point) &&
-                    exp.Quants.Last() <= exp.BarQuant(o2) - sellReopenDiff * exp.Point)
-                {
-                    CorrectLotArrayIfNeeded(exp, Sides.Buy);
-                    double lot1 = exp.BuyLots[exp.BuyOpenCount, 1].CheckLot();
-                    double lot2 = exp.BuyLots[exp.BuyOpenCount, 0].CheckLot();
+            int buyReopenDiff = GetReopenDiff(exp, exp.BuyOpenCount);
+            if (exp.Quants.Last() < exp.BarQuant(o1) + buyReopenDiff * exp.Point) return;
+            if (exp.Quants.Last() < exp.BarQuant(o2) + buyReopenDiff * exp.Point) return;
 
+            CorrectLotArrayIfNeeded(exp, Sides.Sell);
+            double lot1 = exp.SellLots[exp.SellOpenCount, 1].CheckLot();
+            double lot2 = exp.SellLots[exp.SellOpenCount, 0].CheckLot();
 
-                    exp.Sym1LastMinActionPrice =
-                        exp.Connector.SendMarketOrderRequest(exp.E.Symbol1, exp.Sym1MinOrderType, lot1, exp.SpreadBuyMagicNumber);
-                    exp.Sym2LastMinActionPrice =
-                        exp.Connector.SendMarketOrderRequest(exp.E.Symbol2, exp.Sym2MinOrderType, lot2, exp.SpreadBuyMagicNumber);
+            exp.Connector.SendMarketOrderRequest(exp.E.Symbol1, exp.Sym1MaxOrderType, lot1, exp.SpreadSellMagicNumber);
+            exp.Connector.SendMarketOrderRequest(exp.E.Symbol2, exp.Sym2MaxOrderType, lot2, exp.SpreadSellMagicNumber);
+            exp.SetLastActionPrice(Sides.Sell);
 
-                    //TODO
-                    var hedgeOpenOrders = _hedgeServices[exp.E.HedgeMode]
-                        .OnBaseTradesOpened(exp, Sides.Buy, new[] { lot1, lot2 });
-                    //PostReOpenTradeSetOperation(hedgeOpenOrders, Sides.Buy, order1, order2);
-                    //PostCloseHedgePositions(Sides.Buy);
-                }
-            }
+            //TODO
+            var hedgeOpenOrders = _hedgeServices[exp.E.HedgeMode]
+                .OnBaseTradesOpened(exp, Sides.Sell, new[] { lot1, lot2 });
+            //PostReOpenTradeSetOperation(hedgeOpenOrders, Sides.Sell, order1, order2);
+            //PostCloseHedgePositions(Sides.Sell);
+        }
+
+        private void CalculateReentriesForBuy(ExpertSetWrapper exp)
+        {
+            if (exp.IsInDeltaRange(Sides.Buy)) return;
+            if (exp.QuantStoAvg > exp.StochMinAvgOpen || exp.QuantWprAvg >= -exp.WprMaxAvgOpen) return;
+            //TODO if (exp.BuyOpenCount >= exp.E.MaxTradeSetCount || !EnableLast24Filter(exp, Sides.Buy, 2)) return;
+
+            var o1 = LastOrder(exp, exp.E.Symbol1, exp.Sym1MinOrderType, exp.SpreadBuyMagicNumber);
+            var o2 = LastOrder(exp, exp.E.Symbol2, exp.Sym2MinOrderType, exp.SpreadBuyMagicNumber);
+            if (o1 == null || o2 == null) return;
+
+            int sellReopenDiff = GetReopenDiff(exp, exp.SellOpenCount);
+            if (exp.Quants.Last() > exp.BarQuant(o1) - sellReopenDiff * exp.Point) return;
+            if (exp.Quants.Last() > exp.BarQuant(o2) - sellReopenDiff * exp.Point) return;
+
+            CorrectLotArrayIfNeeded(exp, Sides.Buy);
+            double lot1 = exp.BuyLots[exp.BuyOpenCount, 1].CheckLot();
+            double lot2 = exp.BuyLots[exp.BuyOpenCount, 0].CheckLot();
+
+            exp.Connector.SendMarketOrderRequest(exp.E.Symbol1, exp.Sym1MinOrderType, lot1, exp.SpreadBuyMagicNumber);
+            exp.Connector.SendMarketOrderRequest(exp.E.Symbol2, exp.Sym2MinOrderType, lot2, exp.SpreadBuyMagicNumber);
+            exp.SetLastActionPrice(Sides.Buy);
+
+            //TODO
+            var hedgeOpenOrders = _hedgeServices[exp.E.HedgeMode]
+                .OnBaseTradesOpened(exp, Sides.Buy, new[] { lot1, lot2 });
+            //PostReOpenTradeSetOperation(hedgeOpenOrders, Sides.Buy, order1, order2);
+            //PostCloseHedgePositions(Sides.Buy);
         }
 
         private bool EnableLast24Filter(ExpertSetWrapper exp, Sides spreadOrderType, int numOfTradePerOpen)
@@ -119,9 +125,7 @@ namespace QvaDev.Experts.Quadro.Services
             var firstOrder = FirstOrder(exp, exp.E.Symbol1, sym1OrderType, magicNumber);
             
             if (firstOrder != null && Math.Abs(firstOrder.Lots - firstLot) >= 1E-05)
-            {
                 MultiplyLotArray(lotArray, firstOrder.Lots / firstLot);
-            }
         }
 
         private Position FirstOrder(ExpertSetWrapper exp, string symbol, Sides side, int magicNumber)

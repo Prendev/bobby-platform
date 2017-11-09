@@ -36,14 +36,15 @@ namespace QvaDev.Experts.Quadro.Services
             if (MyOrdersCount(exp, exp.E.Symbol1, exp.Sym1MaxOrderType) != 0) return;
             if (MyOrdersCount(exp, exp.E.Symbol2, exp.Sym2MaxOrderType) != 0) return;
 
-            double lot1 = exp.InitialLots[0, 1].CheckLot();
-            double lot2 = exp.InitialLots[0, 0].CheckLot();
+            double lot1 = exp.SellLots[0, 1].CheckLot();
+            double lot2 = exp.SellLots[0, 0].CheckLot();
 
             //TODO
             //if (!(exposureShieldHandler?.EnableOpeningOrder(baseOrders) ?? true)) return;
 
-            exp.Sym1LastMaxActionPrice = exp.Connector.SendMarketOrderRequest(exp.E.Symbol1, exp.Sym1MaxOrderType, lot1, exp.SpreadSellMagicNumber);
-            exp.Sym2LastMaxActionPrice = exp.Connector.SendMarketOrderRequest(exp.E.Symbol2, exp.Sym2MaxOrderType, lot2, exp.SpreadSellMagicNumber);
+            exp.SetLastActionPrice(Sides.Sell);
+            exp.Connector.SendMarketOrderRequest(exp.E.Symbol1, exp.Sym1MaxOrderType, lot1, exp.SpreadSellMagicNumber);
+            exp.Connector.SendMarketOrderRequest(exp.E.Symbol2, exp.Sym2MaxOrderType, lot2, exp.SpreadSellMagicNumber);
             _hedgeServices[exp.E.HedgeMode].OnBaseTradesOpened(exp, Sides.Sell, new[] { lot1, lot2 });
         }
 
@@ -54,14 +55,15 @@ namespace QvaDev.Experts.Quadro.Services
             if (MyOrdersCount(exp, exp.E.Symbol1, exp.Sym1MinOrderType) != 0) return;
             if (MyOrdersCount(exp, exp.E.Symbol2, exp.Sym2MinOrderType) != 0) return;
 
-            double lot1 = exp.InitialLots[0, 1].CheckLot();
-            double lot2 = exp.InitialLots[0, 0].CheckLot();
+            double lot1 = exp.BuyLots[0, 1].CheckLot();
+            double lot2 = exp.BuyLots[0, 0].CheckLot();
 
             //TODO
             //if (!(exposureShieldHandler?.EnableOpeningOrder(baseOrders) ?? true)) return;
 
-            exp.Sym1LastMinActionPrice = exp.Connector.SendMarketOrderRequest(exp.E.Symbol1, exp.Sym1MinOrderType, lot1, exp.SpreadBuyMagicNumber);
-            exp.Sym2LastMinActionPrice = exp.Connector.SendMarketOrderRequest(exp.E.Symbol2, exp.Sym2MinOrderType, lot2, exp.SpreadBuyMagicNumber);
+            exp.SetLastActionPrice(Sides.Buy);
+            exp.Connector.SendMarketOrderRequest(exp.E.Symbol1, exp.Sym1MinOrderType, lot1, exp.SpreadBuyMagicNumber);
+            exp.Connector.SendMarketOrderRequest(exp.E.Symbol2, exp.Sym2MinOrderType, lot2, exp.SpreadBuyMagicNumber);
             _hedgeServices[exp.E.HedgeMode].OnBaseTradesOpened(exp, Sides.Buy, new[] {lot1, lot2});
         }
 

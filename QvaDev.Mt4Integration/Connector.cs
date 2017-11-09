@@ -20,6 +20,8 @@ namespace QvaDev.Mt4Integration
         private readonly ILog _log;
         private readonly ConcurrentDictionary<string, SymbolInfo> _symbolInfos =
             new ConcurrentDictionary<string, SymbolInfo>();
+        private readonly ConcurrentDictionary<string, Tick> _lastTicks =
+            new ConcurrentDictionary<string, Tick>();
         private readonly ConcurrentDictionary<string, SymbolHistory> _symbolHistories =
             new ConcurrentDictionary<string, SymbolHistory>();
         private AccountInfo _accountInfo;
@@ -97,12 +99,11 @@ namespace QvaDev.Mt4Integration
             return IsConnected;
         }
 
-        public double SendMarketOrderRequest(string symbol, Sides side, double lots, int magicNumber)
+        public void SendMarketOrderRequest(string symbol, Sides side, double lots, int magicNumber)
         {
             var op = side == Sides.Buy ? Op.Buy : Op.Sell;
             var price = side == Sides.Buy ? QuoteClient.GetQuote(symbol).Ask : QuoteClient.GetQuote(symbol).Bid;
-            var order = OrderClient.OrderSend(symbol, op, lots, price, 0, 0, 0, null, magicNumber, DateTime.MaxValue);
-            return order.OpenPrice;
+            OrderClient.OrderSend(symbol, op, lots, price, 0, 0, 0, null, magicNumber, DateTime.MaxValue);
         }
 
         public void SendClosePositionRequests(Position position, double? lots = null)
@@ -145,6 +146,11 @@ namespace QvaDev.Mt4Integration
             return GetSymbolInfo(symbol).Point;
         }
 
+        public Tick GetLastTick(string symbol)
+        {
+            return _lastTicks.GetOrAdd(symbol, (Tick)null);
+        }
+
         public void Subscribe(List<Tuple<string, int>> symbols)
         {
             QuoteClient.OnQuoteHistory -= QuoteClient_OnQuoteHistory;
@@ -171,6 +177,15 @@ namespace QvaDev.Mt4Integration
 
         private void QuoteClient_OnQuote(object sender, QuoteEventArgs args)
         {
+            var tick = new Tick
+            {
+                Symbol = args.Symbol,
+                Ask = args.Ask,
+                Bid = args.Bid,
+                Time = args.Time
+            };
+            _lastTicks.AddOrUpdate(args.Symbol, key => tick, (key, old) => tick);
+
             foreach (var timeframe in (Timeframe[]) Enum.GetValues(typeof(Timeframe)))
             {
                 SymbolHistory symbolHistory;

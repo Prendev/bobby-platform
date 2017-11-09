@@ -114,14 +114,9 @@ namespace QvaDev.Experts.Quadro.Models
             return (value + value1 + value2 + value3) / 4;
         }
 
-        public void InitBuyLotArray()
-        {
-            InitLotArray(BuyLots, E.LotSize);
-        }
-        public void InitSellLotArray()
-        {
-            InitLotArray(SellLots, E.LotSize);
-        }
+        public void InitBuyLotArray() => InitLotArray(BuyLots, E.LotSize);
+
+        public void InitSellLotArray() => InitLotArray(SellLots, E.LotSize);
 
         private void InitLotArray(double[,] lotArray, double initialLot)
         {

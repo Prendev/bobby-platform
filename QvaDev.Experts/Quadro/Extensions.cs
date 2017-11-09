@@ -136,10 +136,25 @@ namespace QvaDev.Experts.Quadro
             return orders;
         }
 
+        public static void SetLastActionPrice(this ExpertSetWrapper exp, Sides side)
+        {
+            if (side == Sides.Sell)
+            {
+                exp.Sym1LastMaxActionPrice = exp.Connector.GetLastTick(exp.E.Symbol1)?.Bid ?? 0;
+                exp.Sym2LastMaxActionPrice = exp.Connector.GetLastTick(exp.E.Symbol2)?.Bid ?? 0;
+            }
+            else
+            {
+                exp.Sym1LastMinActionPrice = exp.Connector.GetLastTick(exp.E.Symbol1)?.Bid ?? 0;
+                exp.Sym2LastMinActionPrice = exp.Connector.GetLastTick(exp.E.Symbol2)?.Bid ?? 0;
+            }
+        }
+
         public static bool IsInDeltaRange(this ExpertSetWrapper exp, Sides side)
         {
             bool sym1InRange;
             bool sym2InRange;
+
             if (side == Sides.Buy)
             {
                 sym1InRange = IsInDeltaRange(exp.Sym1LastMinActionPrice, exp.DeltaRange, exp.BarHistory1.Last().Close);
