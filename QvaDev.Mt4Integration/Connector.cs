@@ -14,7 +14,7 @@ namespace QvaDev.Mt4Integration
         public class SymbolHistory
         {
             public bool IsUpdating { get; set; }
-            public List<Bar> BarHistory { get; set; }
+            public List<Bar> BarHistory { get; set; } = new List<Bar>();
         }
 
         private readonly ILog _log;
@@ -145,55 +145,73 @@ namespace QvaDev.Mt4Integration
             return GetSymbolInfo(symbol).Point;
         }
 
-        public void Subscribe(List<string> symbols)
+        public void Subscribe(List<Tuple<string, int>> symbols)
         {
             QuoteClient.OnQuoteHistory -= QuoteClient_OnQuoteHistory;
             QuoteClient.OnQuoteHistory += QuoteClient_OnQuoteHistory;
             QuoteClient.OnQuote -= QuoteClient_OnQuote;
             QuoteClient.OnQuote += QuoteClient_OnQuote;
 
-            foreach (var symbol in symbols)
+            lock (_symbolHistories)
             {
-                QuoteClient.DownloadQuoteHistory(symbol, Timeframe.M15,
-                    DateTime.Now.AddDays(1), 200);
+                foreach (var symbol in symbols)
+                {
+                    var symbolHistory = _symbolHistories.GetOrAdd(new Tuple<string, int>(symbol.Item1, symbol.Item2).ToString(), new SymbolHistory());
+                    lock (symbolHistory)
+                    {
+                        if (symbolHistory.IsUpdating) continue;
+                        symbolHistory.IsUpdating = true;
+                        QuoteClient.DownloadQuoteHistory(symbol.Item1, (Timeframe)symbol.Item2, DateTime.Now.AddDays(1), 200);
+                        if (QuoteClient.IsSubscribed(symbol.Item1)) continue;
+                        QuoteClient.Subscribe(symbol.Item1);
+                    }
+                }
             }
-            QuoteClient.Subscribe(symbols.ToArray());
         }
 
         private void QuoteClient_OnQuote(object sender, QuoteEventArgs args)
         {
-            SymbolHistory symbolHistory;
-            if (!_symbolHistories.TryGetValue(args.Symbol, out symbolHistory)) return;
-
-            lock (symbolHistory)
+            foreach (var timeframe in (Timeframe[]) Enum.GetValues(typeof(Timeframe)))
             {
-                if (symbolHistory.IsUpdating) return;
-                if (args.Time < symbolHistory.BarHistory.Last().OpenTime.AddMinutes(15)) return;
+                SymbolHistory symbolHistory;
+                if (!_symbolHistories.TryGetValue(new Tuple<string, int>(args.Symbol, (int)timeframe).ToString(), out symbolHistory)) continue;
 
-                symbolHistory.IsUpdating = true;
-                QuoteClient.DownloadQuoteHistory(args.Symbol, Timeframe.M15,
-                    DateTime.UtcNow, 200);
+                lock (symbolHistory)
+                {
+                    if (symbolHistory.IsUpdating) return;
+                    if (symbolHistory.BarHistory.Any() &&
+                        args.Time < symbolHistory.BarHistory.Last().OpenTime.AddMinutes(2 * (int) timeframe)) return;
+
+                    symbolHistory.IsUpdating = true;
+                    QuoteClient.DownloadQuoteHistory(args.Symbol, Timeframe.M15, DateTime.Now.AddDays(1), 200);
+                }
             }
         }
 
         private void QuoteClient_OnQuoteHistory(object sender, QuoteHistoryEventArgs args)
         {
-            var symbolHistory = new SymbolHistory
+            SymbolHistory symbolHistory;
+            if (!_symbolHistories.TryGetValue(new Tuple<string, int>(args.Symbol, (int)args.Timeframe).ToString(), out symbolHistory)) return;
+
+            lock (symbolHistory)
             {
-                BarHistory = args.Bars
-                    .Select(b => new Bar
-                    {
-                        Open = b.Open,
-                        Close = b.Close,
-                        Low = b.Low,
-                        High = b.High,
-                        OpenTime = b.Time
-                    }).ToList()
-            };
-            symbolHistory = _symbolHistories.AddOrUpdate(args.Symbol, id => symbolHistory, (id, old) => symbolHistory);
-            symbolHistory.IsUpdating = false;
-            OnBarHistory?.Invoke(this,
-                new BarHistoryEventArgs {Symbol = args.Symbol, BarHistory = symbolHistory.BarHistory});
+                if (!symbolHistory.BarHistory.Any() || symbolHistory.BarHistory.Last().OpenTime <
+                    args.Bars.Last().Time)
+                {
+                    symbolHistory.BarHistory = args.Bars
+                        .Select(b => new Bar
+                        {
+                            Open = b.Open,
+                            Close = b.Close,
+                            Low = b.Low,
+                            High = b.High,
+                            OpenTime = b.Time
+                        }).ToList();
+                }
+                symbolHistory.IsUpdating = false;
+                OnBarHistory?.Invoke(this,
+                    new BarHistoryEventArgs { Symbol = args.Symbol, BarHistory = symbolHistory.BarHistory });
+            }
         }
 
         private void OnOrderUpdate(object sender, OrderUpdateEventArgs update)

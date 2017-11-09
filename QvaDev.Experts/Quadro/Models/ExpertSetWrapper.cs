@@ -37,9 +37,9 @@ namespace QvaDev.Experts.Quadro.Models
         public int HedgeBuyHedgicNumber => E.HedgicNumber + 9;
         public int HedgeSellHedgicNumber => E.HedgicNumber + 10;
 
-        public List<Bar> BarHistory1 { get; set; }
-        public List<Bar> BarHistory2 { get; set; }
-        public List<double> Quants { get; set; }
+        public List<Bar> BarHistory1 { get; set; } = new List<Bar>();
+        public List<Bar> BarHistory2 { get; set; } = new List<Bar>();
+        public List<double> Quants { get; set; } = new List<double>();
         public int BuyHedgeOpenCount { get; set; }
         public int SellHedgeOpenCount { get; set; }
 

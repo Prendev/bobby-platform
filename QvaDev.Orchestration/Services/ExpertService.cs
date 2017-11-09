@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using log4net;
 using QvaDev.Common.Integration;
@@ -43,6 +44,7 @@ namespace QvaDev.Orchestration.Services
         public void Stop()
         {
             _isStarted = false;
+            _quadroService.Stop();
         }
 
         private void TradeAccount(TradingAccount tradingAccount)
@@ -53,8 +55,8 @@ namespace QvaDev.Orchestration.Services
             connector.OnBarHistory -= Connector_OnBarHistory;
             connector.OnBarHistory += Connector_OnBarHistory;
 
-            var symbols = tradingAccount.ExpertSets.Select(e => e.Symbol1)
-                .Union(tradingAccount.ExpertSets.Select(e => e.Symbol2))
+            var symbols = tradingAccount.ExpertSets.Select(e => new Tuple<string, int>(e.Symbol1, e.Period))
+                .Union(tradingAccount.ExpertSets.Select(e => new Tuple<string, int>(e.Symbol2, e.Period)))
                 .Distinct().ToList();
 
             connector.Subscribe(symbols);
@@ -63,10 +65,8 @@ namespace QvaDev.Orchestration.Services
         private void Connector_OnBarHistory(object sender, BarHistoryEventArgs e)
         {
             if (!_isStarted) return;
-            if ((e.BarHistory?.Count ?? 0) <= 1) return;
             foreach (var expertSet in _duplicatContext.ExpertSets.Local)
-                _quadroService.OnBarHistory((Connector) sender, expertSet, e);
+                Task.Factory.StartNew(() => _quadroService.OnBarHistory((Connector) sender, expertSet, e));
         }
-
     }
 }

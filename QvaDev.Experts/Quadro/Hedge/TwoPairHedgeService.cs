@@ -4,14 +4,14 @@ using QvaDev.Experts.Quadro.Models;
 
 namespace QvaDev.Experts.Quadro.Hedge
 {
-    public class TwoPairHedgeService : IHedgeService
+    public class TwoPairHedgeService : BaseHedgeService, IHedgeService
     {
         public double CalculateProfit(ExpertSetWrapper exp, Sides spreadOrderType)
         {
             throw new System.NotImplementedException();
         }
 
-        public List<Position> OnCloseAll(ExpertSetWrapper exp, Sides spreadOrderType)
+        public override List<Position> OnCloseAll(ExpertSetWrapper exp, Sides spreadOrderType)
         {
             throw new System.NotImplementedException();
         }

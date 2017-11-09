@@ -6,6 +6,7 @@ namespace QvaDev.Experts.Quadro.Hedge
 {
     public interface IHedgeService
     {
+        void CheckHedgeStopByQuant(ExpertSetWrapper exp);
         double CalculateProfit(ExpertSetWrapper exp, Sides spreadOrderType);
         List<Position> OnCloseAll(ExpertSetWrapper exp, Sides spreadOrderType);
         List<Position> OnPartialClose(ExpertSetWrapper exp, Sides spreadOrderType, double lotRatio);

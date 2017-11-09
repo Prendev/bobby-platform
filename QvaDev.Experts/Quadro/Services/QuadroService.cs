@@ -14,6 +14,7 @@ namespace QvaDev.Experts.Quadro.Services
 {
     public interface IQuadroService
     {
+        void Stop();
         void OnBarHistory(Connector connector, ExpertSet expertSet, BarHistoryEventArgs e);
     }
     public class QuadroService : IQuadroService
@@ -41,15 +42,21 @@ namespace QvaDev.Experts.Quadro.Services
             _closeService = closeService;
         }
 
+        public void Stop()
+        {
+            ExpertSetWrappers.Clear();
+        }
+
         public void OnBarHistory(Connector connector, ExpertSet expertSet, BarHistoryEventArgs e)
         {
-            if (e.BarHistory.Last().OpenTime < DateTime.UtcNow.AddMinutes(expertSet.Period)) return;
-            if (expertSet.Symbol1 != e.Symbol && expertSet.Symbol2 != e.Symbol) return;
-
             lock (expertSet)
             {
+                if (e.BarHistory.Last().OpenTime <= DateTime.UtcNow.AddMinutes(-2 * expertSet.Period)) return;
+                if (expertSet.Symbol1 != e.Symbol && expertSet.Symbol2 != e.Symbol) return;
+
                 var exp = ExpertSetWrappers.GetOrAdd(expertSet.Id, id => new ExpertSetWrapper(expertSet));
-                if (!AreBarsInSynchron(exp, e)) return;
+                if (!IsBarUpdating(exp, e)) return;
+                if (!AreBarsInSynchron(exp)) return;
                 var quants = new List<double>();
                 for (var i = 0; i < exp.BarHistory1.Count; i++)
                 {
@@ -65,27 +72,41 @@ namespace QvaDev.Experts.Quadro.Services
             }
         }
 
-        private bool AreBarsInSynchron(ExpertSetWrapper exp, BarHistoryEventArgs e)
+        private bool IsBarUpdating(ExpertSetWrapper exp, BarHistoryEventArgs e)
         {
-            if (exp.E.Symbol1 == e.Symbol) exp.BarHistory1 = e.BarHistory;
-            else exp.BarHistory2 = e.BarHistory;
-            if ((exp.BarHistory1?.Count ?? 0) <= 1 || (exp.BarHistory2?.Count ?? 0) <= 1) return false;
-            if (exp.BarHistory1?.Last().OpenTime != exp.BarHistory2?.Last().OpenTime) return false;
-            if (exp.BarHistory1?.First().OpenTime != exp.BarHistory2?.First().OpenTime) return false;
+            if (exp.E.Symbol1 == e.Symbol)
+            {
+                if (exp.BarHistory1.Any() && e.BarHistory.Last().OpenTime <= exp.BarHistory1.Last().OpenTime)
+                    return false;
+                exp.BarHistory1 = e.BarHistory;
+            }
+            else
+            {
+                if (exp.BarHistory2.Any() && e.BarHistory.Last().OpenTime <= exp.BarHistory2.Last().OpenTime)
+                    return false;
+                exp.BarHistory2 = e.BarHistory;
+            }
+            return true;
+        }
+
+        private bool AreBarsInSynchron(ExpertSetWrapper exp)
+        {
+            if (exp.BarHistory1.Count <= 1 || exp.BarHistory2.Count <= 1) return false;
+            if (exp.BarHistory1.Last().OpenTime != exp.BarHistory2.Last().OpenTime) return false;
+            if (exp.BarHistory1.First().OpenTime != exp.BarHistory2.First().OpenTime) return false;
             return true;
         }
 
 
         private void OnBar(ExpertSetWrapper exp)
         {
-            bool isCurrentTimeEnabledForTrade = IsCurrentTimeEnabledForTrade();
-            if (isCurrentTimeEnabledForTrade)
-            {
-                _closeService.CheckClose(exp);
-                _reentriesService.CalculateReentries(exp);
-                CheckHedgeStopByQuant(exp);
-            }
-            if (!isCurrentTimeEnabledForTrade || !exp.TradeOpeningEnabled) return;
+            if (!IsCurrentTimeEnabledForTrade()) return;
+
+            _closeService.CheckClose(exp);
+            _reentriesService.CalculateReentries(exp);
+            _hedgeServices[exp.E.HedgeMode].CheckHedgeStopByQuant(exp);
+
+            if (!exp.TradeOpeningEnabled) return;
             _entriesService.CalculateEntries(exp);
         }
 
@@ -96,26 +117,6 @@ namespace QvaDev.Experts.Quadro.Services
             if (utcNow.DayOfWeek == DayOfWeek.Saturday) return false;
             if (utcNow.DayOfWeek == DayOfWeek.Sunday && (utcNow.Hour < 23 || utcNow.Minute < 59)) return false;
             return true;
-        }
-
-        private void CheckHedgeStopByQuant(ExpertSetWrapper exp)
-        {
-            if (exp.E.HedgeStopPositionCount < 0 || exp.E.HedgeMode == ExpertSet.HedgeModes.NoHedge) return;
-            if (exp.SellHedgeOpenCount > 0)
-            {
-                CheckHedgeStopByQuant(exp, Sides.Sell, barQuant => exp.Quants.Last() < barQuant);
-            }
-            if (exp.BuyHedgeOpenCount > 0)
-            {
-                CheckHedgeStopByQuant(exp, Sides.Buy, barQuant => exp.Quants.Last() > barQuant);
-            }
-        }
-
-        private void CheckHedgeStopByQuant(ExpertSetWrapper exp, Sides spreadOrderType, Predicate<double> predicate)
-        {
-            if (!predicate(exp.BarQuant(exp.GetBaseOpenOrdersList(spreadOrderType).Where(o => o.Symbol == exp.E.Symbol1)
-                .OrderBy(o => o.OpenTime).ToList()[exp.E.HedgeStopPositionCount]))) return;
-            _hedgeServices[exp.E.HedgeMode].OnCloseAll(exp, spreadOrderType);
         }
     }
 }
