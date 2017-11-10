@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using QvaDev.Common.Integration;
 
 namespace QvaDev.Experts
@@ -22,6 +25,22 @@ namespace QvaDev.Experts
             decimal dec = Convert.ToDecimal(value);
             dec = Math.Round(dec, connector.GetDigits(symbol), MidpointRounding.AwayFromZero);
             return Convert.ToDouble(dec);
+        }
+
+        public static string AsString(this List<double> list)
+        {
+            if (list == null || !list.Any()) return "[]";
+            var sb = new StringBuilder();
+            sb.Append("[ ");
+            var first = true;
+            foreach (var item in list)
+            {
+                if (!first) sb.Append(" | ");
+                sb.Append(item);
+                first = false;
+            }
+            sb.Append(" ]");
+            return sb.ToString();
         }
     }
 }

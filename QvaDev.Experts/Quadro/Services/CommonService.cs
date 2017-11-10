@@ -1,45 +1,46 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using QvaDev.Common.Integration;
 using QvaDev.Experts.Quadro.Models;
 
-namespace QvaDev.Experts.Quadro
+namespace QvaDev.Experts.Quadro.Services
 {
-    public static class Extensions
+    public interface ICommonService
     {
-        public static string AsString(this List<double> list)
+        double BuyAveragePrice(ExpertSetWrapper exp);
+        double SellAveragePrice(ExpertSetWrapper exp);
+        List<Position> GetOpenOrdersList(ExpertSetWrapper exp, string symbol, Sides orderType, int magicNumber);
+        List<Position> GetOpenOrdersList(ExpertSetWrapper exp, string symbol1, Sides orderType1,
+            string symbol2, Sides orderType2, int magicNumber);
+        double BarQuant(ExpertSetWrapper exp, Position p);
+        int GetBarIndexForTime(ExpertSetWrapper exp, DateTime timeInBar, string symbol, bool exact = false);
+        Bar Bar(ExpertSetWrapper exp, string symbol, int index);
+        int GetMagicNumberBySpreadOrderType(ExpertSetWrapper exp, Sides spreadOrderType);
+        IEnumerable<Position> GetBaseOpenOrdersList(ExpertSetWrapper exp, Sides spreadOrderType);
+        void SetLastActionPrice(ExpertSetWrapper exp, Sides side);
+        bool IsInDeltaRange(ExpertSetWrapper exp, Sides side);
+    }
+
+    public class CommonService : ICommonService
+    {
+        public ICloseService CloseService;
+
+        public double BuyAveragePrice(ExpertSetWrapper exp)
         {
-            if (list == null || !list.Any()) return "[]";
-            var sb = new StringBuilder();
-            sb.Append("[ ");
-            var first = true;
-            foreach (var item in list)
-            {
-                if (!first) sb.Append(" | ");
-                sb.Append(item);
-                first = false;
-            }
-            sb.Append(" ]");
-            return sb.ToString();
+            return AveragePrice(exp, exp.Sym1MinOrderType, exp.Sym2MinOrderType, exp.SpreadBuyMagicNumber);
         }
 
-        public static double BuyAveragePrice(this ExpertSetWrapper exp)
+        public double SellAveragePrice(ExpertSetWrapper exp)
         {
-            return exp.AveragePrice(exp.Sym1MinOrderType, exp.Sym2MinOrderType, exp.SpreadBuyMagicNumber);
+            return AveragePrice(exp, exp.Sym1MaxOrderType, exp.Sym2MaxOrderType, exp.SpreadSellMagicNumber);
         }
 
-        public static double SellAveragePrice(this ExpertSetWrapper exp)
-        {
-            return exp.AveragePrice(exp.Sym1MaxOrderType, exp.Sym2MaxOrderType, exp.SpreadSellMagicNumber);
-        }
-
-        private static double AveragePrice(this ExpertSetWrapper exp, Sides orderType1, Sides orderType2, int magicNumber)
+        private double AveragePrice(ExpertSetWrapper exp, Sides orderType1, Sides orderType2, int magicNumber)
         {
             double avgPrice = 0;
-            double[] sumLotSum2 = exp.GetSumAndLotSum(exp.E.Symbol1, orderType2, magicNumber);
-            double[] sumLotSum1 = exp.GetSumAndLotSum(exp.E.Symbol2, orderType1, magicNumber);
+            double[] sumLotSum2 = GetSumAndLotSum(exp, exp.E.Symbol1, orderType2, magicNumber);
+            double[] sumLotSum1 = GetSumAndLotSum(exp, exp.E.Symbol2, orderType1, magicNumber);
             double multiSum = sumLotSum1[0] + sumLotSum2[0];
             double lotSum = sumLotSum1[1] + sumLotSum2[1];
             if (lotSum > 0)
@@ -49,27 +50,27 @@ namespace QvaDev.Experts.Quadro
             return avgPrice;
         }
 
-        private static double[] GetSumAndLotSum(this ExpertSetWrapper exp, string symbol, Sides orderType, int magicNumber)
+        private double[] GetSumAndLotSum(ExpertSetWrapper exp, string symbol, Sides orderType, int magicNumber)
         {
             double multiSum = 0;
             double lotSum = 0;
-            foreach (var p in exp.GetOpenOrdersList(symbol, orderType, magicNumber))
+            foreach (var p in GetOpenOrdersList(exp, symbol, orderType, magicNumber))
             {
-                double sellMultiplication = exp.Connector.MyRoundToDigits(p.Symbol, exp.BarQuant(p) * p.Lots);
+                double sellMultiplication = exp.Connector.MyRoundToDigits(p.Symbol, BarQuant(exp, p) * p.Lots);
                 multiSum += sellMultiplication;
                 lotSum += p.Lots;
             }
             return new[] { multiSum, lotSum };
         }
 
-        public static List<Position> GetOpenOrdersList(this ExpertSetWrapper exp, string symbol, Sides orderType,
+        public List<Position> GetOpenOrdersList(ExpertSetWrapper exp, string symbol, Sides orderType,
             int magicNumber)
         {
             return exp.Positions.Select(p => p.Value)
                 .Where(p => p.Symbol == symbol && p.Side == orderType && p.MagicNumber == magicNumber)
                 .ToList();
         }
-        public static List<Position> GetOpenOrdersList(this ExpertSetWrapper exp, string symbol1, Sides orderType1,
+        public List<Position> GetOpenOrdersList(ExpertSetWrapper exp, string symbol1, Sides orderType1,
             string symbol2, Sides orderType2, int magicNumber)
         {
             return exp.Positions.Select(p => p.Value)
@@ -79,21 +80,26 @@ namespace QvaDev.Experts.Quadro
                 .ToList();
         }
 
-        public static double BarQuant(this ExpertSetWrapper exp, Position p)
+        public double BarQuant(ExpertSetWrapper exp, Position p)
         {
-            var orderCreationTime = p.OpenTime;
-            int barIndex = exp.GetBarIndexForTime(orderCreationTime, p.Symbol);
-            return barIndex >= 0 ? exp.Quants[barIndex + 1] : 0;
+            int barIndex = GetBarIndexForTime(exp, p.OpenTime, p.Symbol);
+            if (barIndex >= 0)
+            {
+                return exp.Quants[barIndex + 1];
+            }
+            exp.ExpertDenied = true;
+            CloseService.AllCloseMin(exp);
+            CloseService.AllCloseMax(exp);
+            return 0;
         }
 
-        public static int GetBarIndexForTime(this ExpertSetWrapper exp, DateTime timeInBar, string symbol,
-            bool exact = false)
+        public int GetBarIndexForTime(ExpertSetWrapper exp, DateTime timeInBar, string symbol, bool exact = false)
         {
             int i = 0;
-            var historyBar = exp.GetHistoryBar(symbol);
+            var historyBar = GetHistoryBar(exp, symbol);
             while (i < historyBar?.Count)
             {
-                Bar bar = exp.Bar(symbol, i);
+                Bar bar = Bar(exp, symbol, i);
                 bool flag;
                 if (exact || !(timeInBar >= bar.OpenTime)) flag = exact && timeInBar == bar.OpenTime;
                 else flag = true;
@@ -103,7 +109,7 @@ namespace QvaDev.Experts.Quadro
             return -1;
         }
 
-        private static List<Bar> GetHistoryBar(this ExpertSetWrapper exp, string symbol)
+        private List<Bar> GetHistoryBar(ExpertSetWrapper exp, string symbol)
         {
             if (exp.E.Symbol1 == symbol)
                 return exp.BarHistory1;
@@ -112,31 +118,27 @@ namespace QvaDev.Experts.Quadro
             return null;
         }
 
-        public static Bar Bar(this ExpertSetWrapper exp, string symbol, int index)
+        public Bar Bar(ExpertSetWrapper exp, string symbol, int index)
         {
-            if (exp.E.Symbol1 == symbol)
-                return exp.BarHistory1[index];
-            if (exp.E.Symbol2 == symbol)
-                return exp.BarHistory2[index];
-            return null;
+            return GetHistoryBar(exp, symbol)?[index];
         }
 
-        public static int GetMagicNumberBySpreadOrderType(this ExpertSetWrapper exp, Sides spreadOrderType)
+        public int GetMagicNumberBySpreadOrderType(ExpertSetWrapper exp, Sides spreadOrderType)
         {
             return spreadOrderType != Sides.Buy ? exp.SpreadSellMagicNumber : exp.SpreadBuyMagicNumber;
         }
 
-        public static IEnumerable<Position> GetBaseOpenOrdersList(this ExpertSetWrapper exp, Sides spreadOrderType)
+        public IEnumerable<Position> GetBaseOpenOrdersList(ExpertSetWrapper exp, Sides spreadOrderType)
         {
             var orders = spreadOrderType != Sides.Buy
-                ? exp.GetOpenOrdersList(exp.E.Symbol1, exp.Sym1MaxOrderType, exp.E.Symbol2, exp.Sym2MaxOrderType,
+                ? GetOpenOrdersList(exp, exp.E.Symbol1, exp.Sym1MaxOrderType, exp.E.Symbol2, exp.Sym2MaxOrderType,
                     exp.SpreadSellMagicNumber)
-                : exp.GetOpenOrdersList(exp.E.Symbol1, exp.Sym1MinOrderType, exp.E.Symbol2, exp.Sym2MinOrderType,
+                : GetOpenOrdersList(exp, exp.E.Symbol1, exp.Sym1MinOrderType, exp.E.Symbol2, exp.Sym2MinOrderType,
                     exp.SpreadBuyMagicNumber);
             return orders;
         }
 
-        public static void SetLastActionPrice(this ExpertSetWrapper exp, Sides side)
+        public void SetLastActionPrice(ExpertSetWrapper exp, Sides side)
         {
             if (side == Sides.Sell)
             {
@@ -150,7 +152,7 @@ namespace QvaDev.Experts.Quadro
             }
         }
 
-        public static bool IsInDeltaRange(this ExpertSetWrapper exp, Sides side)
+        public bool IsInDeltaRange(ExpertSetWrapper exp, Sides side)
         {
             bool sym1InRange;
             bool sym2InRange;

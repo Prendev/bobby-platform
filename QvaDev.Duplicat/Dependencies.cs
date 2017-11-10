@@ -64,6 +64,9 @@ namespace QvaDev.Duplicat
 
         private static void RegisterExperts(ContainerBuilder builder)
         {
+            builder.RegisterType<CommonService>().As<ICommonService>()
+                .InstancePerLifetimeScope()
+                .PropertiesAutowired(PropertyWiringOptions.AllowCircularDependencies);
             builder.RegisterType<QuadroService>().As<IQuadroService>();
             builder.RegisterType<CloseService>().As<ICloseService>();
             builder.RegisterType<EntriesService>().As<IEntriesService>();

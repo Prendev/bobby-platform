@@ -22,6 +22,7 @@ namespace QvaDev.Experts.Quadro.Services
         private static readonly ConcurrentDictionary<int, ExpertSetWrapper> ExpertSetWrappers =
             new ConcurrentDictionary<int, ExpertSetWrapper>();
 
+        private readonly ICommonService _commonService;
         private readonly ICloseService _closeService;
         private readonly IEntriesService _entriesService;
         private readonly IReentriesService _reentriesService;
@@ -29,12 +30,14 @@ namespace QvaDev.Experts.Quadro.Services
         private readonly ILog _log;
 
         public QuadroService(
+            ICommonService commonService,
             ICloseService closeService,
             IEntriesService entriesService,
             IReentriesService reentriesService,
             IIndex<ExpertSet.HedgeModes, IHedgeService> hedgeServices,
             ILog log)
         {
+            _commonService = commonService;
             _log = log;
             _hedgeServices = hedgeServices;
             _reentriesService = reentriesService;
@@ -55,6 +58,7 @@ namespace QvaDev.Experts.Quadro.Services
                 if (expertSet.Symbol1 != e.Symbol && expertSet.Symbol2 != e.Symbol) return;
 
                 var exp = ExpertSetWrappers.GetOrAdd(expertSet.Id, id => new ExpertSetWrapper(expertSet));
+                if (exp.ExpertDenied) return;
                 if (!IsBarUpdating(exp, e)) return;
                 if (!AreBarsInSynchron(exp)) return;
                 var quants = new List<double>();

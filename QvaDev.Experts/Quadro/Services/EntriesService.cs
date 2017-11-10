@@ -13,10 +13,14 @@ namespace QvaDev.Experts.Quadro.Services
     }
     public class EntriesService : IEntriesService
     {
+        private readonly ICommonService _commonService;
         private readonly IIndex<ExpertSet.HedgeModes, IHedgeService> _hedgeServices;
 
-        public EntriesService(IIndex<ExpertSet.HedgeModes, IHedgeService> hedgeServices)
+        public EntriesService(
+            ICommonService commonService,
+            IIndex<ExpertSet.HedgeModes, IHedgeService> hedgeServices)
         {
+            _commonService = commonService;
             _hedgeServices = hedgeServices;
         }
 
@@ -42,7 +46,7 @@ namespace QvaDev.Experts.Quadro.Services
             //TODO
             //if (!(exposureShieldHandler?.EnableOpeningOrder(baseOrders) ?? true)) return;
 
-            exp.SetLastActionPrice(Sides.Sell);
+            _commonService.SetLastActionPrice(exp, Sides.Sell);
             exp.Connector.SendMarketOrderRequest(exp.E.Symbol1, exp.Sym1MaxOrderType, lot1, exp.SpreadSellMagicNumber);
             exp.Connector.SendMarketOrderRequest(exp.E.Symbol2, exp.Sym2MaxOrderType, lot2, exp.SpreadSellMagicNumber);
             _hedgeServices[exp.E.HedgeMode].OnBaseTradesOpened(exp, Sides.Sell, new[] { lot1, lot2 });
@@ -61,7 +65,7 @@ namespace QvaDev.Experts.Quadro.Services
             //TODO
             //if (!(exposureShieldHandler?.EnableOpeningOrder(baseOrders) ?? true)) return;
 
-            exp.SetLastActionPrice(Sides.Buy);
+            _commonService.SetLastActionPrice(exp, Sides.Buy);
             exp.Connector.SendMarketOrderRequest(exp.E.Symbol1, exp.Sym1MinOrderType, lot1, exp.SpreadBuyMagicNumber);
             exp.Connector.SendMarketOrderRequest(exp.E.Symbol2, exp.Sym2MinOrderType, lot2, exp.SpreadBuyMagicNumber);
             _hedgeServices[exp.E.HedgeMode].OnBaseTradesOpened(exp, Sides.Buy, new[] {lot1, lot2});

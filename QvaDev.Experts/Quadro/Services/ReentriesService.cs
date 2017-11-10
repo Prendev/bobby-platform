@@ -16,10 +16,14 @@ namespace QvaDev.Experts.Quadro.Services
 
     public class ReentriesService : IReentriesService
     {
+        private readonly ICommonService _commonService;
         private readonly IIndex<ExpertSet.HedgeModes, IHedgeService> _hedgeServices;
 
-        public ReentriesService(IIndex<ExpertSet.HedgeModes, IHedgeService> hedgeServices)
+        public ReentriesService(
+            ICommonService commonService,
+            IIndex<ExpertSet.HedgeModes, IHedgeService> hedgeServices)
         {
+            _commonService = commonService;
             _hedgeServices = hedgeServices;
         }
 
@@ -31,17 +35,17 @@ namespace QvaDev.Experts.Quadro.Services
 
         private void CalculateReentriesForSell(ExpertSetWrapper exp)
         {
-            if (exp.IsInDeltaRange(Sides.Sell)) return;
+            if (_commonService.IsInDeltaRange(exp, Sides.Sell)) return;
             if (exp.QuantStoAvg < exp.StochMaxAvgOpen || exp.QuantWprAvg <= -exp.WprMinAvgOpen) return;
-            //TODO if (exp.IsInDeltaRange(Sides.Sell) || exp.SellOpenCount >= exp.E.MaxTradeSetCount || !EnableLast24Filter(exp, Sides.Sell, 2)) return;
+            if (exp.SellOpenCount >= exp.E.MaxTradeSetCount || !EnableLast24Filter(exp, Sides.Sell, 2)) return;
 
             var o1 = LastOrder(exp, exp.E.Symbol1, exp.Sym1MaxOrderType, exp.SpreadSellMagicNumber);
             var o2 = LastOrder(exp, exp.E.Symbol2, exp.Sym2MaxOrderType, exp.SpreadSellMagicNumber);
             if (o1 == null || o2 == null) return;
 
             int buyReopenDiff = GetReopenDiff(exp, exp.BuyOpenCount);
-            if (exp.Quants.Last() < exp.BarQuant(o1) + buyReopenDiff * exp.Point) return;
-            if (exp.Quants.Last() < exp.BarQuant(o2) + buyReopenDiff * exp.Point) return;
+            if (exp.Quants.Last() < _commonService.BarQuant(exp, o1) + buyReopenDiff * exp.Point) return;
+            if (exp.Quants.Last() < _commonService.BarQuant(exp, o2) + buyReopenDiff * exp.Point) return;
 
             CorrectLotArrayIfNeeded(exp, Sides.Sell);
             double lot1 = exp.SellLots[exp.SellOpenCount, 1].CheckLot();
@@ -49,7 +53,7 @@ namespace QvaDev.Experts.Quadro.Services
 
             exp.Connector.SendMarketOrderRequest(exp.E.Symbol1, exp.Sym1MaxOrderType, lot1, exp.SpreadSellMagicNumber);
             exp.Connector.SendMarketOrderRequest(exp.E.Symbol2, exp.Sym2MaxOrderType, lot2, exp.SpreadSellMagicNumber);
-            exp.SetLastActionPrice(Sides.Sell);
+            _commonService.SetLastActionPrice(exp, Sides.Sell);
 
             //TODO
             var hedgeOpenOrders = _hedgeServices[exp.E.HedgeMode]
@@ -60,17 +64,17 @@ namespace QvaDev.Experts.Quadro.Services
 
         private void CalculateReentriesForBuy(ExpertSetWrapper exp)
         {
-            if (exp.IsInDeltaRange(Sides.Buy)) return;
+            if (_commonService.IsInDeltaRange(exp, Sides.Buy)) return;
             if (exp.QuantStoAvg > exp.StochMinAvgOpen || exp.QuantWprAvg >= -exp.WprMaxAvgOpen) return;
-            //TODO if (exp.BuyOpenCount >= exp.E.MaxTradeSetCount || !EnableLast24Filter(exp, Sides.Buy, 2)) return;
+            if (exp.BuyOpenCount >= exp.E.MaxTradeSetCount || !EnableLast24Filter(exp, Sides.Buy, 2)) return;
 
             var o1 = LastOrder(exp, exp.E.Symbol1, exp.Sym1MinOrderType, exp.SpreadBuyMagicNumber);
             var o2 = LastOrder(exp, exp.E.Symbol2, exp.Sym2MinOrderType, exp.SpreadBuyMagicNumber);
             if (o1 == null || o2 == null) return;
 
             int sellReopenDiff = GetReopenDiff(exp, exp.SellOpenCount);
-            if (exp.Quants.Last() > exp.BarQuant(o1) - sellReopenDiff * exp.Point) return;
-            if (exp.Quants.Last() > exp.BarQuant(o2) - sellReopenDiff * exp.Point) return;
+            if (exp.Quants.Last() > _commonService.BarQuant(exp, o1) - sellReopenDiff * exp.Point) return;
+            if (exp.Quants.Last() > _commonService.BarQuant(exp, o2) - sellReopenDiff * exp.Point) return;
 
             CorrectLotArrayIfNeeded(exp, Sides.Buy);
             double lot1 = exp.BuyLots[exp.BuyOpenCount, 1].CheckLot();
@@ -78,7 +82,7 @@ namespace QvaDev.Experts.Quadro.Services
 
             exp.Connector.SendMarketOrderRequest(exp.E.Symbol1, exp.Sym1MinOrderType, lot1, exp.SpreadBuyMagicNumber);
             exp.Connector.SendMarketOrderRequest(exp.E.Symbol2, exp.Sym2MinOrderType, lot2, exp.SpreadBuyMagicNumber);
-            exp.SetLastActionPrice(Sides.Buy);
+            _commonService.SetLastActionPrice(exp, Sides.Buy);
 
             //TODO
             var hedgeOpenOrders = _hedgeServices[exp.E.HedgeMode]
@@ -90,13 +94,13 @@ namespace QvaDev.Experts.Quadro.Services
         private bool EnableLast24Filter(ExpertSetWrapper exp, Sides spreadOrderType, int numOfTradePerOpen)
         {
             DateTime dateTime = exp.BarHistory1.Last().OpenTime;
-            return exp.GetBaseOpenOrdersList(spreadOrderType).Where(o => (dateTime - o.OpenTime).TotalHours >= 24)
+            return _commonService.GetBaseOpenOrdersList(exp, spreadOrderType).Where(o => (dateTime - o.OpenTime).TotalHours >= 24)
                        .ToList().Count < numOfTradePerOpen * exp.E.Last24HMaxOpen;
         }
 
         private Position LastOrder(ExpertSetWrapper exp, string symbol, Sides orderType, int magicNumber)
         {
-            return exp.GetOpenOrdersList(symbol, orderType, magicNumber).OrderByDescending(p => p.OpenTime).FirstOrDefault();
+            return _commonService.GetOpenOrdersList(exp, symbol, orderType, magicNumber).OrderByDescending(p => p.OpenTime).FirstOrDefault();
         }
 
         private int GetReopenDiff(ExpertSetWrapper exp, int openCount)

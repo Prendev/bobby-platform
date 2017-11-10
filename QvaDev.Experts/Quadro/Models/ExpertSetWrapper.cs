@@ -28,7 +28,7 @@ namespace QvaDev.Experts.Quadro.Models
             InitSellLotArray();
             InitLotArray(InitialLots, E.LotSize);
         }
-
+        public bool ExpertDenied { get; set; }
         public Connector Connector => E.TradingAccount.MetaTraderAccount.Connector as Connector;
         public ConcurrentDictionary<long, Position> Positions => E.TradingAccount.MetaTraderAccount.Connector.Positions;
 

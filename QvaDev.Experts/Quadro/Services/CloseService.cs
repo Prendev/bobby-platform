@@ -11,14 +11,20 @@ namespace QvaDev.Experts.Quadro.Services
     public interface ICloseService
     {
         void CheckClose(ExpertSetWrapper expertSet);
+        void AllCloseMin(ExpertSetWrapper exp);
+        void AllCloseMax(ExpertSetWrapper exp);
     }
 
     public class CloseService : ICloseService
     {
         private readonly IIndex<ExpertSet.HedgeModes, IHedgeService> _hedgeServices;
+        private readonly ICommonService _commonService;
 
-        public CloseService(IIndex<ExpertSet.HedgeModes, IHedgeService> hedgeServices)
+        public CloseService(
+            ICommonService commonService,
+            IIndex<ExpertSet.HedgeModes, IHedgeService> hedgeServices)
         {
+            _commonService = commonService;
             _hedgeServices = hedgeServices;
         }
 
@@ -30,7 +36,7 @@ namespace QvaDev.Experts.Quadro.Services
 
         private void CheckQuantClose(ExpertSetWrapper exp, Sides side)
         {
-            if (exp.IsInDeltaRange(side)) return;
+            if (_commonService.IsInDeltaRange(exp, side)) return;
             if (exp.E.BaseTradesForPositiveClose)
             {
                 double hedgeProfit = _hedgeServices[exp.E.HedgeMode].CalculateProfit(exp, side);
@@ -59,7 +65,7 @@ namespace QvaDev.Experts.Quadro.Services
 
         private void CheckQuantBuyClose(ExpertSetWrapper exp)
         {
-            double buyAvgPrice = exp.BuyAveragePrice();
+            double buyAvgPrice = _commonService.BuyAveragePrice(exp);
             if (Math.Abs(buyAvgPrice) < exp.Point) return;
             if (!exp.E.PartialClose)
             {
@@ -76,7 +82,7 @@ namespace QvaDev.Experts.Quadro.Services
 
         private void CheckQuantSellClose(ExpertSetWrapper exp)
         {
-            double sellAvgPrice = exp.SellAveragePrice();
+            double sellAvgPrice = _commonService.SellAveragePrice(exp);
             if (Math.Abs(sellAvgPrice) < exp.Point) return;
             if (!exp.E.PartialClose)
             {
@@ -91,12 +97,12 @@ namespace QvaDev.Experts.Quadro.Services
                 AllCloseMax(exp);
         }
 
-        private void AllCloseMin(ExpertSetWrapper exp)
+        public void AllCloseMin(ExpertSetWrapper exp)
         {
             AllCloseLevel(exp, exp.Sym1MinOrderType, exp.Sym2MinOrderType, Sides.Buy);
             exp.InitBuyLotArray();
         }
-        private void AllCloseMax(ExpertSetWrapper exp)
+        public void AllCloseMax(ExpertSetWrapper exp)
         {
             AllCloseLevel(exp, exp.Sym1MaxOrderType, exp.Sym2MaxOrderType, Sides.Sell);
             exp.InitSellLotArray();
@@ -104,10 +110,10 @@ namespace QvaDev.Experts.Quadro.Services
 
         private void AllCloseLevel(ExpertSetWrapper exp, Sides orderType1, Sides orderType2, Sides spreadOrderType)
         {
-            int magicNumber = exp.GetMagicNumberBySpreadOrderType(spreadOrderType);
-            var sym1Orders = exp.GetOpenOrdersList(exp.E.Symbol1, orderType1, magicNumber);
-            var sym2Orders = exp.GetOpenOrdersList(exp.E.Symbol2, orderType2, magicNumber);
-            exp.SetLastActionPrice(spreadOrderType);
+            int magicNumber = _commonService.GetMagicNumberBySpreadOrderType(exp, spreadOrderType);
+            var sym1Orders = _commonService.GetOpenOrdersList(exp, exp.E.Symbol1, orderType1, magicNumber);
+            var sym2Orders = _commonService.GetOpenOrdersList(exp, exp.E.Symbol2, orderType2, magicNumber);
+            _commonService.SetLastActionPrice(exp, spreadOrderType);
             var hedgeOrders = _hedgeServices[exp.E.HedgeMode].OnCloseAll(exp, spreadOrderType);
             foreach (var position in sym1Orders.Union(sym2Orders).Union(hedgeOrders))
                 exp.Connector.SendClosePositionRequests(position);
@@ -116,10 +122,10 @@ namespace QvaDev.Experts.Quadro.Services
         private void FirstAndSecondCloseLevel(ExpertSetWrapper exp, Sides orderType1, Sides orderType2,
             Sides spreadOrderType)
         {
-            int magicNumber = exp.GetMagicNumberBySpreadOrderType(spreadOrderType);
-            var sym1Orders = exp.GetOpenOrdersList(exp.E.Symbol1, orderType1, magicNumber);
-            var sym2Orders = exp.GetOpenOrdersList(exp.E.Symbol2, orderType2, magicNumber);
-            exp.SetLastActionPrice(spreadOrderType);
+            int magicNumber = _commonService.GetMagicNumberBySpreadOrderType(exp, spreadOrderType);
+            var sym1Orders = _commonService.GetOpenOrdersList(exp, exp.E.Symbol1, orderType1, magicNumber);
+            var sym2Orders = _commonService.GetOpenOrdersList(exp, exp.E.Symbol2, orderType2, magicNumber);
+            _commonService.SetLastActionPrice(exp, spreadOrderType);
             var hedgeOrders = _hedgeServices[exp.E.HedgeMode].OnPartialClose(exp, spreadOrderType, 0.5);
             foreach (var position in sym1Orders.Union(sym2Orders).Union(hedgeOrders))
                 exp.Connector.SendClosePositionRequests(position, (position.Lots / 2).CheckLot());

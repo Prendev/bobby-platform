@@ -1,11 +1,16 @@
 ﻿using System.Collections.Generic;
 using QvaDev.Common.Integration;
 using QvaDev.Experts.Quadro.Models;
+using QvaDev.Experts.Quadro.Services;
 
 namespace QvaDev.Experts.Quadro.Hedge
 {
     public class NoHedgeService : BaseHedgeService, IHedgeService
     {
+        public NoHedgeService(ICommonService commonService) : base(commonService)
+        {
+        }
+
         public double CalculateProfit(ExpertSetWrapper exp, Sides spreadOrderType)
         {
             return 0;
