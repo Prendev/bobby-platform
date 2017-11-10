@@ -42,5 +42,10 @@ namespace QvaDev.Experts
             sb.Append(" ]");
             return sb.ToString();
         }
+
+        public static Sides GetInverseOrder(this Sides orderType)
+        {
+            return orderType == Sides.Buy ? Sides.Sell : Sides.Buy;
+        }
     }
 }

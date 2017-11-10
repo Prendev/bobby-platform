@@ -50,6 +50,10 @@ namespace QvaDev.Data.Models
         public int MagicNumber { get; set; }
         public int HedgicNumber { get; set; }
 
+        public double HedgeRatio { get; set; }
+        public int HedgeStart { get; set; }
+        public int HedgeStop { get; set; }
+
         public double LotSize { get; set; }
         public bool BaseTradesForPositiveClose { get; set; }
         public bool HedgeTradeForPositiveClose { get; set; }

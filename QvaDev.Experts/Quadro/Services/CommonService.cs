@@ -20,6 +20,8 @@ namespace QvaDev.Experts.Quadro.Services
         IEnumerable<Position> GetBaseOpenOrdersList(ExpertSetWrapper exp, Sides spreadOrderType);
         void SetLastActionPrice(ExpertSetWrapper exp, Sides side);
         bool IsInDeltaRange(ExpertSetWrapper exp, Sides side);
+        double CalculateProfit(ExpertSetWrapper exp, int magicNumber, string symbol1, Sides orderType1, string symbol2, Sides orderType2);
+        double CalculateProfit(List<Position> orders);
     }
 
     public class CommonService : ICommonService
@@ -174,6 +176,18 @@ namespace QvaDev.Experts.Quadro.Services
         {
             double diff = Math.Abs(price - close);
             return diff < range;
+        }
+
+
+        public double CalculateProfit(ExpertSetWrapper exp, int magicNumber, string symbol1, Sides orderType1,
+            string symbol2, Sides orderType2)
+        {
+            return CalculateProfit(GetOpenOrdersList(exp, symbol1, orderType1, symbol2, orderType2, magicNumber));
+        }
+
+        public double CalculateProfit(List<Position> orders)
+        {
+            return orders.Sum(o => o.NetProfit);
         }
     }
 }

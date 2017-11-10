@@ -8,8 +8,8 @@ namespace QvaDev.Experts.Quadro.Hedge
     {
         void CheckHedgeStopByQuant(ExpertSetWrapper exp);
         double CalculateProfit(ExpertSetWrapper exp, Sides spreadOrderType);
-        List<Position> OnCloseAll(ExpertSetWrapper exp, Sides spreadOrderType);
-        List<Position> OnPartialClose(ExpertSetWrapper exp, Sides spreadOrderType, double lotRatio);
-        List<Position> OnBaseTradesOpened(ExpertSetWrapper exp, Sides spreadOrderType, double[] sourceLots);
+        void OnCloseAll(ExpertSetWrapper exp, Sides spreadOrderType);
+        void OnPartialClose(ExpertSetWrapper exp, Sides spreadOrderType, double lotRatio);
+        void OnBaseTradesOpened(ExpertSetWrapper exp, Sides spreadOrderType, double[] sourceLots);
     }
 }

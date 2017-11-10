@@ -63,8 +63,12 @@ namespace QvaDev.Experts.Quadro.Models
         public Sides Sym1MinOrderType { get; private set; }
         public Sides Sym2MaxOrderType { get; private set; }
         public Sides Sym2MinOrderType { get; private set; }
-        protected bool Sym1QuantInverse { get; private set; }
-        protected bool Sym2QuantInverse { get; private set; }
+        public bool Sym1QuantInverse { get; private set; }
+        public bool Sym2QuantInverse { get; private set; }
+        public Sides Sym1HedgeMaxOrderType => Sym1MaxOrderType.GetInverseOrder();
+        public Sides Sym1HedgeMinOrderType => Sym1MinOrderType.GetInverseOrder();
+        public Sides Sym2HedgeMaxOrderType => Sym2MaxOrderType.GetInverseOrder();
+        public Sides Sym2HedgeMinOrderType => Sym2MinOrderType.GetInverseOrder();
 
         public bool TradeOpeningEnabled { get; set; } = true;
 

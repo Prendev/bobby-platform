@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using Autofac.Features.Indexed;
 using QvaDev.Common.Integration;
@@ -54,12 +53,7 @@ namespace QvaDev.Experts.Quadro.Services
             exp.Connector.SendMarketOrderRequest(exp.E.Symbol1, exp.Sym1MaxOrderType, lot1, exp.SpreadSellMagicNumber);
             exp.Connector.SendMarketOrderRequest(exp.E.Symbol2, exp.Sym2MaxOrderType, lot2, exp.SpreadSellMagicNumber);
             _commonService.SetLastActionPrice(exp, Sides.Sell);
-
-            //TODO
-            var hedgeOpenOrders = _hedgeServices[exp.E.HedgeMode]
-                .OnBaseTradesOpened(exp, Sides.Sell, new[] { lot1, lot2 });
-            //PostReOpenTradeSetOperation(hedgeOpenOrders, Sides.Sell, order1, order2);
-            //PostCloseHedgePositions(Sides.Sell);
+            _hedgeServices[exp.E.HedgeMode].OnBaseTradesOpened(exp, Sides.Sell, new[] { lot1, lot2 });
         }
 
         private void CalculateReentriesForBuy(ExpertSetWrapper exp)
@@ -83,18 +77,13 @@ namespace QvaDev.Experts.Quadro.Services
             exp.Connector.SendMarketOrderRequest(exp.E.Symbol1, exp.Sym1MinOrderType, lot1, exp.SpreadBuyMagicNumber);
             exp.Connector.SendMarketOrderRequest(exp.E.Symbol2, exp.Sym2MinOrderType, lot2, exp.SpreadBuyMagicNumber);
             _commonService.SetLastActionPrice(exp, Sides.Buy);
-
-            //TODO
-            var hedgeOpenOrders = _hedgeServices[exp.E.HedgeMode]
-                .OnBaseTradesOpened(exp, Sides.Buy, new[] { lot1, lot2 });
-            //PostReOpenTradeSetOperation(hedgeOpenOrders, Sides.Buy, order1, order2);
-            //PostCloseHedgePositions(Sides.Buy);
+            _hedgeServices[exp.E.HedgeMode].OnBaseTradesOpened(exp, Sides.Buy, new[] { lot1, lot2 });
         }
 
         private bool EnableLast24Filter(ExpertSetWrapper exp, Sides spreadOrderType, int numOfTradePerOpen)
         {
-            DateTime dateTime = exp.BarHistory1.Last().OpenTime;
-            return _commonService.GetBaseOpenOrdersList(exp, spreadOrderType).Where(o => (dateTime - o.OpenTime).TotalHours >= 24)
+            return _commonService.GetBaseOpenOrdersList(exp, spreadOrderType)
+                       .Where(o => (exp.BarHistory1.Last().OpenTime - o.OpenTime).TotalHours >= 24)
                        .ToList().Count < numOfTradePerOpen * exp.E.Last24HMaxOpen;
         }
 
@@ -113,7 +102,7 @@ namespace QvaDev.Experts.Quadro.Services
             Sides sym1OrderType;
             double[,] lotArray;
             int magicNumber;
-            if (spreadOrderType != Sides.Sell)
+            if (spreadOrderType == Sides.Buy)
             {
                 sym1OrderType = exp.Sym1MinOrderType;
                 lotArray = exp.BuyLots;
@@ -125,6 +114,7 @@ namespace QvaDev.Experts.Quadro.Services
                 lotArray = exp.SellLots;
                 magicNumber = exp.SpreadSellMagicNumber;
             }
+
             double firstLot = lotArray[0, 1];
             var firstOrder = FirstOrder(exp, exp.E.Symbol1, sym1OrderType, magicNumber);
             
@@ -134,8 +124,8 @@ namespace QvaDev.Experts.Quadro.Services
 
         private Position FirstOrder(ExpertSetWrapper exp, string symbol, Sides side, int magicNumber)
         {
-            return exp.Connector.Positions.Where(p => p.Value.Symbol == symbol && p.Value.Side == side &&
-                                                      p.Value.MagicNumber == magicNumber)
+            return exp.Connector.Positions
+                .Where(p => p.Value.Symbol == symbol && p.Value.Side == side && p.Value.MagicNumber == magicNumber)
                 .Select(p => p.Value)
                 .OrderBy(p => p.OpenTime)
                 .FirstOrDefault();

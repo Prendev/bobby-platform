@@ -35,6 +35,6 @@ namespace QvaDev.Experts.Quadro.Hedge
             OnCloseAll(exp, spreadOrderType);
         }
 
-        public abstract List<Position> OnCloseAll(ExpertSetWrapper exp, Sides spreadOrderType);
+        public abstract void OnCloseAll(ExpertSetWrapper exp, Sides spreadOrderType);
     }
 }
