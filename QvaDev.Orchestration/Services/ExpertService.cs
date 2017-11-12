@@ -55,8 +55,8 @@ namespace QvaDev.Orchestration.Services
             connector.OnBarHistory -= Connector_OnBarHistory;
             connector.OnBarHistory += Connector_OnBarHistory;
 
-            var symbols = tradingAccount.ExpertSets.Select(e => new Tuple<string, int>(e.Symbol1, e.Period))
-                .Union(tradingAccount.ExpertSets.Select(e => new Tuple<string, int>(e.Symbol2, e.Period)))
+            var symbols = tradingAccount.ExpertSets.Select(e => new Tuple<string, int, short>(e.Symbol1, e.TimeFrame, (short)e.GetMaxBarCount()))
+                .Union(tradingAccount.ExpertSets.Select(e => new Tuple<string, int, short>(e.Symbol2, e.TimeFrame, (short)e.GetMaxBarCount())))
                 .Distinct().ToList();
 
             connector.Subscribe(symbols);

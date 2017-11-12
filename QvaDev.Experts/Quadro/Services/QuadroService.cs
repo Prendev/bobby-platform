@@ -54,7 +54,7 @@ namespace QvaDev.Experts.Quadro.Services
         {
             lock (expertSet)
             {
-                if (e.BarHistory.Last().OpenTime <= DateTime.UtcNow.AddMinutes(-2 * expertSet.Period)) return;
+                //if (e.BarHistory.Last().OpenTime <= DateTime.UtcNow.AddMinutes(-2 * expertSet.TimeFrame)) return;
                 if (expertSet.Symbol1 != e.Symbol && expertSet.Symbol2 != e.Symbol) return;
 
                 var exp = ExpertSetWrappers.GetOrAdd(expertSet.Id, id => new ExpertSetWrapper(expertSet));

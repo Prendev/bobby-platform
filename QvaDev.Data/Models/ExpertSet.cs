@@ -1,5 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
 using QvaDev.Common.Attributes;
 
 namespace QvaDev.Data.Models
@@ -20,8 +22,8 @@ namespace QvaDev.Data.Models
         {
             NoHedge,
             TwoPairHedge,
-            ThirdPairHedge,
-            ThreePairHedge
+            //ThirdPairHedge,
+            //ThreePairHedge
         }
 
         [Required]
@@ -33,6 +35,7 @@ namespace QvaDev.Data.Models
         public string Symbol1 { get; set; }
         [Required]
         public string Symbol2 { get; set; }
+        public int TimeFrame { get; set; }
 
         public double M { get; set; }
         public int Diff { get; set; }
@@ -78,5 +81,19 @@ namespace QvaDev.Data.Models
         [NotMapped]
         [InvisibleColumn]
         public bool IsFiltered { get => Get<bool>(); set => Set(value); }
+
+        public int GetMaxBarCount()
+        {
+            var barCounts = new List<int>
+            {
+                Period * StochMultiplier1,
+                Period * StochMultiplier2,
+                Period * StochMultiplier3,
+                Period * WprMultiplier1,
+                Period * WprMultiplier2,
+                Period * WprMultiplier3
+            };
+            return barCounts.Max();
+        }
     }
 }
