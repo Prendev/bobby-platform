@@ -76,6 +76,7 @@ namespace QvaDev.Duplicat.ViewModel
                     IsLoading = false;
                     IsConfigReadonly = true;
                     AreCopiersStarted = true;
+                    IsConnected = true;
                 });
         }
         public void StopCopiersCommand()
@@ -94,6 +95,7 @@ namespace QvaDev.Duplicat.ViewModel
                     IsLoading = false;
                     IsConfigReadonly = true;
                     AreMonitorsStarted = true;
+                    IsConnected = true;
                 });
         }
         public void StopMonitorsCommand()
@@ -116,6 +118,7 @@ namespace QvaDev.Duplicat.ViewModel
                     IsLoading = false;
                     IsConfigReadonly = true;
                     AreExpertsStarted = true;
+                    IsConnected = true;
                 });
         }
         public void StopExpertsCommand()

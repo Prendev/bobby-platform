@@ -16,13 +16,13 @@ namespace QvaDev.Experts.Quadro.Services
     {
         void Stop();
         void OnBarHistory(Connector connector, ExpertSet expertSet, BarHistoryEventArgs e);
+        void OnTick(Connector connector, ExpertSet expertSet, TickEventArgs e);
     }
     public class QuadroService : IQuadroService
     {
         private static readonly ConcurrentDictionary<int, ExpertSetWrapper> ExpertSetWrappers =
             new ConcurrentDictionary<int, ExpertSetWrapper>();
-
-        private readonly ICommonService _commonService;
+        
         private readonly ICloseService _closeService;
         private readonly IEntriesService _entriesService;
         private readonly IReentriesService _reentriesService;
@@ -30,14 +30,12 @@ namespace QvaDev.Experts.Quadro.Services
         private readonly ILog _log;
 
         public QuadroService(
-            ICommonService commonService,
             ICloseService closeService,
             IEntriesService entriesService,
             IReentriesService reentriesService,
             IIndex<ExpertSet.HedgeModes, IHedgeService> hedgeServices,
             ILog log)
         {
-            _commonService = commonService;
             _log = log;
             _hedgeServices = hedgeServices;
             _reentriesService = reentriesService;
@@ -50,11 +48,21 @@ namespace QvaDev.Experts.Quadro.Services
             ExpertSetWrappers.Clear();
         }
 
+        public void OnTick(Connector connector, ExpertSet expertSet, TickEventArgs e)
+        {
+            lock (expertSet)
+            {
+                var exp = ExpertSetWrappers.GetOrAdd(expertSet.Id, id => new ExpertSetWrapper(expertSet));
+                if (connector.GetFloatingProfit() < exp.E.TradeSetFloatingSwitch)
+                    exp.TradeOpeningEnabled = false;
+                _log.Debug($"Trade opening disabled for {exp.E.Symbol1} | {exp.E.Symbol2}");
+            }
+        }
+
         public void OnBarHistory(Connector connector, ExpertSet expertSet, BarHistoryEventArgs e)
         {
             lock (expertSet)
             {
-                //if (e.BarHistory.Last().OpenTime <= DateTime.UtcNow.AddMinutes(-2 * expertSet.TimeFrame)) return;
                 if (expertSet.Symbol1 != e.Symbol && expertSet.Symbol2 != e.Symbol) return;
 
                 var exp = ExpertSetWrappers.GetOrAdd(expertSet.Id, id => new ExpertSetWrapper(expertSet));
@@ -104,6 +112,7 @@ namespace QvaDev.Experts.Quadro.Services
 
         private void OnBar(ExpertSetWrapper exp)
         {
+            if (exp.BarHistory1.Last().OpenTime <= DateTime.UtcNow.AddMinutes(-2 * exp.E.TimeFrame)) return;
             if (!IsCurrentTimeEnabledForTrade()) return;
 
             _closeService.CheckClose(exp);

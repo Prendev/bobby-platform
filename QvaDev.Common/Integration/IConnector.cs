@@ -13,6 +13,7 @@ namespace QvaDev.Common.Integration
         void Disconnect();
         long GetOpenContracts(string symbol);
         double GetBalance();
+        double GetFloatingProfit();
         double GetPnl(DateTime from);
         string GetCurrency();
         int GetDigits(string symbol);

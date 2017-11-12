@@ -76,6 +76,7 @@ namespace QvaDev.Data.Models
         public int ReOpenDiff { get; set; }
         public int ReOpenDiff2 { get; set; }
 
+        public double TradeSetFloatingSwitch { get; set; }
         public double ExposureShieldValue { get; set; }
 
         [NotMapped]

@@ -310,7 +310,8 @@ namespace QvaDev.Data
                 WprMultiplier1 = 3,
                 WprMultiplier2 = 6,
                 WprMultiplier3 = 12,
-                Variant = ExpertSet.Variants.NormalNormalBase
+                Variant = ExpertSet.Variants.NormalNormalBase,
+                TradeSetFloatingSwitch = -50000
             });
             ExpertSets.Add(new ExpertSet
             {
@@ -327,7 +328,8 @@ namespace QvaDev.Data
                 WprMultiplier1 = 3,
                 WprMultiplier2 = 6,
                 WprMultiplier3 = 12,
-                Variant = ExpertSet.Variants.NormalNormalBase
+                Variant = ExpertSet.Variants.NormalNormalBase,
+                TradeSetFloatingSwitch = -50000
             });
             ExpertSets.Add(new ExpertSet
             {
@@ -344,7 +346,8 @@ namespace QvaDev.Data
                 WprMultiplier1 = 3,
                 WprMultiplier2 = 6,
                 WprMultiplier3 = 12,
-                Variant = ExpertSet.Variants.NormalNormalBase
+                Variant = ExpertSet.Variants.NormalNormalBase,
+                TradeSetFloatingSwitch = -50000
             });
             ExpertSets.Add(new ExpertSet
             {
@@ -361,7 +364,8 @@ namespace QvaDev.Data
                 WprMultiplier1 = 3,
                 WprMultiplier2 = 6,
                 WprMultiplier3 = 12,
-                Variant = ExpertSet.Variants.NormalNormalBase
+                Variant = ExpertSet.Variants.NormalNormalBase,
+                TradeSetFloatingSwitch = -50000
             });
 
             SaveChanges();

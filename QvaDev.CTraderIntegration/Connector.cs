@@ -123,6 +123,11 @@ namespace QvaDev.CTraderIntegration
             return (double)(accounts.Value.FirstOrDefault(a => a.accountId == AccountId)?.balance ?? 0);
         }
 
+        public double GetFloatingProfit()
+        {
+            throw new NotImplementedException();
+        }
+
         public double GetPnl(DateTime from)
         {
             if (!IsConnected) return 0;

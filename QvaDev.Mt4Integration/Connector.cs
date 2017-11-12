@@ -33,6 +33,7 @@ namespace QvaDev.Mt4Integration
         public ConcurrentDictionary<long, Position> Positions { get; }
         public event PositionEventHandler OnPosition;
         public event BarHistoryEventHandler OnBarHistory;
+        public event TickEventHandler OnTick;
 
         public QuoteClient QuoteClient;
         public OrderClient OrderClient;
@@ -125,6 +126,11 @@ namespace QvaDev.Mt4Integration
             return !IsConnected ? 0 : QuoteClient.AccountBalance;
         }
 
+        public double GetFloatingProfit()
+        {
+            return !IsConnected ? 0 : QuoteClient.AccountProfit;
+        }
+
         public double GetPnl(DateTime from)
         {
             if (!IsConnected) return 0;
@@ -203,6 +209,11 @@ namespace QvaDev.Mt4Integration
                     QuoteClient.DownloadQuoteHistory(args.Symbol, Timeframe.M15, DateTime.Now.AddDays(1), 1);
                 }
             }
+            OnTick?.Invoke(this,
+                new TickEventArgs
+                {
+                    Tick = new Tick {Time = args.Time, Ask = args.Ask, Bid = args.Bid, Symbol = args.Symbol}
+                });
         }
 
         private void QuoteClient_OnQuoteHistory(object sender, QuoteHistoryEventArgs args)

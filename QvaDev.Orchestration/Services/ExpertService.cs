@@ -54,12 +54,21 @@ namespace QvaDev.Orchestration.Services
 
             connector.OnBarHistory -= Connector_OnBarHistory;
             connector.OnBarHistory += Connector_OnBarHistory;
+            connector.OnTick -= Connector_OnTick;
+            connector.OnTick += Connector_OnTick;
 
             var symbols = tradingAccount.ExpertSets.Select(e => new Tuple<string, int, short>(e.Symbol1, e.TimeFrame, (short)e.GetMaxBarCount()))
                 .Union(tradingAccount.ExpertSets.Select(e => new Tuple<string, int, short>(e.Symbol2, e.TimeFrame, (short)e.GetMaxBarCount())))
                 .Distinct().ToList();
 
             connector.Subscribe(symbols);
+        }
+
+        private void Connector_OnTick(object sender, TickEventArgs e)
+        {
+            if (!_isStarted) return;
+            foreach (var expertSet in _duplicatContext.ExpertSets.Local)
+                Task.Factory.StartNew(() => _quadroService.OnTick((Connector)sender, expertSet, e));
         }
 
         private void Connector_OnBarHistory(object sender, BarHistoryEventArgs e)
