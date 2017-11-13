@@ -25,6 +25,8 @@ namespace QvaDev.Mt4Integration
             new ConcurrentDictionary<string, Tick>();
         private readonly ConcurrentDictionary<string, SymbolHistory> _symbolHistories =
             new ConcurrentDictionary<string, SymbolHistory>();
+        private readonly ConcurrentDictionary<string, Order[]> _orderHistories =
+            new ConcurrentDictionary<string, Order[]>();
         private AccountInfo _accountInfo;
 
 
@@ -94,7 +96,9 @@ namespace QvaDev.Mt4Integration
                     MagicNumber = o.MagicNumber,
                     Profit = o.Profit,
                     Commission = o.Commission,
-                    Swap = o.Swap
+                    Swap = o.Swap,
+                    OpenTime = o.OpenTime,
+                    OpenPrice = o.OpenPrice
                 });
             }
 
@@ -118,7 +122,7 @@ namespace QvaDev.Mt4Integration
 
         public long GetOpenContracts(string symbol)
         {
-            return Positions.Where(p => p.Value.Symbol == symbol).Sum(p => p.Value.RealVolume);
+            return Positions.Where(p => p.Value.Symbol == symbol && !p.Value.IsClosed).Sum(p => p.Value.RealVolume);
         }
 
         public double GetBalance()
@@ -150,12 +154,32 @@ namespace QvaDev.Mt4Integration
 
         public double GetPoint(string symbol)
         {
-            return GetSymbolInfo(symbol).Point;
+            return Math.Round(GetSymbolInfo(symbol).Point, GetSymbolInfo(symbol).Digits);
         }
 
         public Tick GetLastTick(string symbol)
         {
             return _lastTicks.GetOrAdd(symbol, (Tick)null);
+        }
+
+        public double GetLastActionPrice(string symbol, Sides side, int magicNumber)
+        {
+            var lastPos = Positions.Select(p => p.Value)
+                .Where(p => p.MagicNumber == magicNumber && p.Side == side && p.Symbol == symbol)
+                .OrderByDescending(p => p.IsClosed ? p.CloseTime : p.OpenTime)
+                .FirstOrDefault();
+
+            var opType = side == Sides.Buy ? Op.Buy : Op.Sell;
+            var orders = _orderHistories.GetOrAdd(symbol,
+                s => QuoteClient.DownloadOrderHistory(DateTime.UtcNow.AddYears(-1), DateTime.UtcNow.AddDays(1)));
+            var lastClosed = orders.LastOrDefault(o => o.MagicNumber == magicNumber && o.Type == opType && o.Symbol == symbol);
+
+            if (lastPos == null && lastClosed == null) return 0;
+            if (lastPos == null) return lastClosed.ClosePrice;
+            if (lastClosed == null) return lastPos.OpenPrice;
+            if ((lastPos.IsClosed ? lastPos.CloseTime : lastPos.OpenTime) <= lastClosed.CloseTime)
+                return lastClosed.ClosePrice;
+            return lastPos.IsClosed ? lastPos.ClosePrice : lastPos.OpenPrice;
         }
 
         public void Subscribe(List<Tuple<string, int, short>> symbols)
@@ -262,19 +286,16 @@ namespace QvaDev.Mt4Integration
                 Side = update.Order.Type == Op.Buy ? Sides.Buy : Sides.Sell,
                 RealVolume = (long)(update.Order.Lots * GetSymbolInfo(update.Order.Symbol).ContractSize * (update.Order.Type == Op.Buy ? 1 : -1)),
                 OpenTime = update.Order.OpenTime,
-                OperPrice = update.Order.OpenPrice,
+                OpenPrice = update.Order.OpenPrice,
+                CloseTime = update.Order.CloseTime,
+                ClosePrice = update.Order.ClosePrice,
+                IsClosed = update.Action == UpdateAction.PositionClose,
                 MagicNumber = update.Order.MagicNumber,
                 Profit = update.Order.Profit,
                 Commission = update.Order.Commission,
                 Swap = update.Order.Swap
             };
-            if (update.Action == UpdateAction.PositionOpen)
-                Positions.AddOrUpdate(update.Order.Ticket, t => position, (t, old) => position);
-            else
-            {
-                Position p;
-                Positions.TryRemove(update.Order.Ticket, out p);
-            }
+            Positions.AddOrUpdate(update.Order.Ticket, t => position, (t, old) => position);
 
             OnPosition?.Invoke(sender, new PositionEventArgs
             {

@@ -27,6 +27,7 @@ namespace QvaDev.Experts.Quadro.Models
             InitBuyLotArray();
             InitSellLotArray();
             InitLotArray(InitialLots, E.LotSize);
+            InitLastActionPrices();
         }
         public bool ExpertDenied { get; set; }
         public Connector Connector => E.TradingAccount.MetaTraderAccount.Connector as Connector;
@@ -194,6 +195,14 @@ namespace QvaDev.Experts.Quadro.Models
                     throw new InvalidOperationException(string.Concat("Unknown Variant type: ", E.Variant));
                 }
             }
+        }
+
+        private void InitLastActionPrices()
+        {
+            Sym1LastMinActionPrice = Connector.GetLastActionPrice(E.Symbol1, Sym1MinOrderType, SpreadBuyMagicNumber);
+            Sym2LastMinActionPrice = Connector.GetLastActionPrice(E.Symbol2, Sym2MinOrderType, SpreadBuyMagicNumber);
+            Sym1LastMaxActionPrice = Connector.GetLastActionPrice(E.Symbol1, Sym1MaxOrderType, SpreadSellMagicNumber);
+            Sym2LastMaxActionPrice = Connector.GetLastActionPrice(E.Symbol2, Sym2MaxOrderType, SpreadSellMagicNumber);
         }
     }
 }

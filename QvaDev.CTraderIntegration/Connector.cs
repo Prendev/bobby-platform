@@ -99,7 +99,7 @@ namespace QvaDev.CTraderIntegration
 
         public long GetOpenContracts(string symbol)
         {
-            return Positions.Where(p => p.Value.Symbol == symbol).Sum(p => p.Value.RealVolume);
+            return Positions.Where(p => p.Value.Symbol == symbol && !p.Value.IsClosed).Sum(p => p.Value.RealVolume);
         }
 
         public double GetBalance()
@@ -222,22 +222,18 @@ namespace QvaDev.CTraderIntegration
         public void SendClosePositionRequests(string clientOrderId, int maxRetryCount = 5, int retryPeriodInMilliseconds = 3000)
         {
             var clientMsgId = $"{AccountId}|{clientOrderId}";
-            foreach (var pos in Positions.Where(p => p.Value.Comment == clientMsgId))
-                SendClosePositionRequest(pos.Key, Math.Abs(pos.Value.Volume), maxRetryCount, retryPeriodInMilliseconds);
+            foreach (var pos in Positions.Where(p => p.Value.Comment == clientMsgId && !p.Value.IsClosed))
+                SendClosePositionRequest(pos, Math.Abs(pos.Value.Volume), maxRetryCount, retryPeriodInMilliseconds);
         }
 
-        private void SendClosePositionRequest(long positionId, long volume, int maxRetryCount = 5, int retryPeriodInMilliseconds = 3000)
+        private void SendClosePositionRequest(KeyValuePair<long, Position> pos, long volume, int maxRetryCount = 5, int retryPeriodInMilliseconds = 3000)
         {
-            var clientMsgId = $"{AccountId}|{positionId}";
-
-            Position position;
-            if(Positions.TryGetValue(positionId, out position))
-                position.CloseOrder = new RetryOrder { MaxRetryCount = maxRetryCount, RetryPeriodInMilliseconds = retryPeriodInMilliseconds };
-
+            var clientMsgId = $"{AccountId}|{pos.Key}";
+            pos.Value.CloseOrder = new RetryOrder { MaxRetryCount = maxRetryCount, RetryPeriodInMilliseconds = retryPeriodInMilliseconds };
             lock (_cTraderClientWrapper.CTraderClient)
             {
                 _cTraderClientWrapper.CTraderClient.SendClosePositionRequest(_accountInfo.AccessToken, AccountId,
-                    positionId, volume, clientMsgId);
+                    pos.Key, volume, clientMsgId);
             }
         }
 

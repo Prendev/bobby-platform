@@ -74,7 +74,7 @@ namespace QvaDev.Orchestration.Services
                 try
                 {
                     foreach (var expertSet in _duplicatContext.ExpertSets.Local)
-                        Task.Factory.StartNew(() => _quadroService.OnTick((Connector) sender, expertSet, e));
+                        Task.Factory.StartNew(() => _quadroService.OnTick((Connector) sender, expertSet));
 
                 }
                 catch (Exception ex)

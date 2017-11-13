@@ -71,7 +71,7 @@ namespace QvaDev.Orchestration.Services
                         {
                             var volume = (long)(100 * Math.Abs(e.Position.RealVolume) * copier.CopyRatio);
                             if (e.Action == PositionEventArgs.Actions.Open && copier.UseMarketRangeOrder)
-                                slaveConnector.SendMarketRangeOrderRequest(symbol, type, volume, e.Position.OperPrice,
+                                slaveConnector.SendMarketRangeOrderRequest(symbol, type, volume, e.Position.OpenPrice,
                                     copier.SlippageInPips, $"{slave.Id}-{e.Position.Id}", copier.MaxRetryCount, copier.RetryPeriodInMilliseconds);
                             else if (e.Action == PositionEventArgs.Actions.Open && !copier.UseMarketRangeOrder)
                                 slaveConnector.SendMarketOrderRequest(symbol, type, volume, $"{slave.Id}-{e.Position.Id}",

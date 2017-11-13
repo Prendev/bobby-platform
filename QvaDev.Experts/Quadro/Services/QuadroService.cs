@@ -16,7 +16,7 @@ namespace QvaDev.Experts.Quadro.Services
     {
         void Stop();
         void OnBarHistory(Connector connector, ExpertSet expertSet, BarHistoryEventArgs e);
-        void OnTick(Connector connector, ExpertSet expertSet, TickEventArgs e);
+        void OnTick(Connector connector, ExpertSet expertSet);
     }
     public class QuadroService : IQuadroService
     {
@@ -51,7 +51,7 @@ namespace QvaDev.Experts.Quadro.Services
             ExpertSetWrappers.Clear();
         }
 
-        public void OnTick(Connector connector, ExpertSet expertSet, TickEventArgs e)
+        public void OnTick(Connector connector, ExpertSet expertSet)
         {
             lock (expertSet)
             {

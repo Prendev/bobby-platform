@@ -7,6 +7,7 @@ namespace QvaDev.Common.Integration
         public long Id { get; set; }
         public string Symbol { get; set; }
         public Sides Side { get; set; }
+        public bool IsClosed { get; set; }
 
         public double Lots { get; set; }
         public long Volume { get; set; }
@@ -16,7 +17,10 @@ namespace QvaDev.Common.Integration
         public int MagicNumber { get; set; }
 
         public DateTime OpenTime { get; set; }
-        public double OperPrice { get; set; }
+        public double OpenPrice { get; set; }
+
+        public DateTime CloseTime { get; set; }
+        public double ClosePrice { get; set; }
 
         public double Profit { get; set; }
         public double Swap { get; set; }
