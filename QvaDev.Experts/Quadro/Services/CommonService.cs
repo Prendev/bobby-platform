@@ -57,8 +57,8 @@ namespace QvaDev.Experts.Quadro.Services
         private double AveragePrice(ExpertSetWrapper exp, Sides orderType1, Sides orderType2, int magicNumber)
         {
             double avgPrice = 0;
-            double[] sumLotSum2 = GetSumAndLotSum(exp, exp.E.Symbol1, orderType2, magicNumber);
-            double[] sumLotSum1 = GetSumAndLotSum(exp, exp.E.Symbol2, orderType1, magicNumber);
+            double[] sumLotSum1 = GetSumAndLotSum(exp, exp.E.Symbol1, orderType1, magicNumber);
+            double[] sumLotSum2 = GetSumAndLotSum(exp, exp.E.Symbol2, orderType2, magicNumber);
             double multiSum = sumLotSum1[0] + sumLotSum2[0];
             double lotSum = sumLotSum1[1] + sumLotSum2[1];
             if (lotSum > 0)
@@ -103,7 +103,7 @@ namespace QvaDev.Experts.Quadro.Services
             int barIndex = GetBarIndexForTime(exp, p.OpenTime, p.Symbol);
             if (barIndex >= 0)
             {
-                return exp.Quants[barIndex + 1];
+                return exp.Quants[barIndex];
             }
             exp.ExpertDenied = true;
             CloseService.AllCloseMin(exp);
@@ -117,12 +117,10 @@ namespace QvaDev.Experts.Quadro.Services
             var historyBar = GetHistoryBar(exp, symbol);
             while (i < historyBar?.Count)
             {
-                Bar bar = Bar(exp, symbol, i);
-                bool flag;
-                if (exact || !(timeInBar >= bar.OpenTime)) flag = exact && timeInBar == bar.OpenTime;
-                else flag = true;
-                if (!flag) i++;
-                else return i;
+                var bar = Bar(exp, symbol, i);
+                if (exact && timeInBar == bar.OpenTime) return i;
+                if (!exact && timeInBar <= bar.OpenTime) return i;
+                i++;
             }
             return -1;
         }

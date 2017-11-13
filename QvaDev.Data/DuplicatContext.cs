@@ -323,7 +323,8 @@ namespace QvaDev.Data
                 Last24HMaxOpen = 200,
                 ReOpenDiff = 1500,
                 ReOpenDiffChangeCount = 3,
-                ReOpenDiff2 = 2500
+                ReOpenDiff2 = 2500,
+                BaseTradesForPositiveClose = true
             });
             ExpertSets.Add(new ExpertSet
             {
@@ -353,7 +354,8 @@ namespace QvaDev.Data
                 Last24HMaxOpen = 200,
                 ReOpenDiff = 1500,
                 ReOpenDiffChangeCount = 3,
-                ReOpenDiff2 = 2500
+                ReOpenDiff2 = 2500,
+                BaseTradesForPositiveClose = true
             });
             ExpertSets.Add(new ExpertSet
             {
@@ -383,7 +385,8 @@ namespace QvaDev.Data
                 Last24HMaxOpen = 200,
                 ReOpenDiff = 1500,
                 ReOpenDiffChangeCount = 3,
-                ReOpenDiff2 = 2500
+                ReOpenDiff2 = 2500,
+                BaseTradesForPositiveClose = true
             });
             ExpertSets.Add(new ExpertSet
             {
@@ -413,7 +416,8 @@ namespace QvaDev.Data
                 Last24HMaxOpen = 200,
                 ReOpenDiff = 1500,
                 ReOpenDiffChangeCount = 3,
-                ReOpenDiff2 = 2500
+                ReOpenDiff2 = 2500,
+                BaseTradesForPositiveClose = true
             });
 
             SaveChanges();
