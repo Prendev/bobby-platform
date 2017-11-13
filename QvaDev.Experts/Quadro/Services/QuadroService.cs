@@ -22,7 +22,8 @@ namespace QvaDev.Experts.Quadro.Services
     {
         private static readonly ConcurrentDictionary<int, ExpertSetWrapper> ExpertSetWrappers =
             new ConcurrentDictionary<int, ExpertSetWrapper>();
-        
+
+        private readonly ICommonService _commonService;
         private readonly ICloseService _closeService;
         private readonly IEntriesService _entriesService;
         private readonly IReentriesService _reentriesService;
@@ -30,12 +31,14 @@ namespace QvaDev.Experts.Quadro.Services
         private readonly ILog _log;
 
         public QuadroService(
+            ICommonService commonService,
             ICloseService closeService,
             IEntriesService entriesService,
             IReentriesService reentriesService,
             IIndex<ExpertSet.HedgeModes, IHedgeService> hedgeServices,
             ILog log)
         {
+            _commonService = commonService;
             _log = log;
             _hedgeServices = hedgeServices;
             _reentriesService = reentriesService;
@@ -53,9 +56,42 @@ namespace QvaDev.Experts.Quadro.Services
             lock (expertSet)
             {
                 var exp = ExpertSetWrappers.GetOrAdd(expertSet.Id, id => new ExpertSetWrapper(expertSet));
+                if (exp.E.CloseAllBuy)
+                {
+                    _closeService.AllCloseMin(exp);
+                    exp.E.CloseAllBuy = false;
+                }
+                if (exp.E.CloseAllSell)
+                {
+                    _closeService.AllCloseMax(exp);
+                    exp.E.CloseAllSell = false;
+                }
+                if (exp.E.ProfitCloseBuy)
+                {
+                    _closeService.CheckProfitClose(exp, Sides.Buy);
+                }
+                if (exp.E.ProfitCloseSell)
+                {
+                    _closeService.CheckProfitClose(exp, Sides.Sell);
+                }
+                if (exp.E.HedgeProfitClose)
+                {
+                    _hedgeServices[exp.E.HedgeMode].CheckHedgeProfitClose(exp);
+                }
+                if (exp.E.UseTradeSetStopLoss)
+                {
+                    if (GetSumProfit(exp) < exp.E.TradeSetStopLossValue)
+                    {
+                        _closeService.AllCloseMin(exp);
+                        _closeService.AllCloseMax(exp);
+                        exp.E.TradeOpeningEnabled = false;
+                    }
+                }
                 if (connector.GetFloatingProfit() < exp.E.TradeSetFloatingSwitch)
-                    exp.TradeOpeningEnabled = false;
-                _log.Debug($"Trade opening disabled for {exp.E.Symbol1} | {exp.E.Symbol2}");
+                {
+                    exp.E.TradeOpeningEnabled = false;
+                    _log.Debug($"Trade opening disabled for {exp.E.Symbol1} | {exp.E.Symbol2}");
+                }
             }
         }
 
@@ -119,7 +155,7 @@ namespace QvaDev.Experts.Quadro.Services
             _reentriesService.CalculateReentries(exp);
             _hedgeServices[exp.E.HedgeMode].CheckHedgeStopByQuant(exp);
 
-            if (!exp.TradeOpeningEnabled) return;
+            if (!exp.E.TradeOpeningEnabled) return;
             _entriesService.CalculateEntries(exp);
         }
 
@@ -130,6 +166,14 @@ namespace QvaDev.Experts.Quadro.Services
             if (utcNow.DayOfWeek == DayOfWeek.Saturday) return false;
             if (utcNow.DayOfWeek == DayOfWeek.Sunday && (utcNow.Hour < 23 || utcNow.Minute < 59)) return false;
             return true;
+        }
+
+        private double GetSumProfit(ExpertSetWrapper exp)
+        {
+            return _commonService.CalculateBaseOrdersProfit(exp, Sides.Buy) +
+                   _commonService.CalculateBaseOrdersProfit(exp, Sides.Sell) +
+                   _hedgeServices[exp.E.HedgeMode].CalculateProfit(exp, Sides.Buy) +
+                   _hedgeServices[exp.E.HedgeMode].CalculateProfit(exp, Sides.Sell);
         }
     }
 }

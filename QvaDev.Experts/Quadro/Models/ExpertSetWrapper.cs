@@ -43,18 +43,18 @@ namespace QvaDev.Experts.Quadro.Models
         public int BuyHedgeOpenCount { get; set; }
         public int SellHedgeOpenCount { get; set; }
 
-        public double? QuantSto => CalcSto(E.Period);
-        public double? QuantSto1 => CalcSto(E.Period * E.StochMultiplier1);
-        public double? QuantSto2 => CalcSto(E.Period * E.StochMultiplier2);
-        public double? QuantSto3 => CalcSto(E.Period * E.StochMultiplier3);
+        public double? QuantSto => CalcSto(E.StochMultiplication);
+        public double? QuantSto1 => CalcSto(E.StochMultiplication * E.StochMultiplier1);
+        public double? QuantSto2 => CalcSto(E.StochMultiplication * E.StochMultiplier2);
+        public double? QuantSto3 => CalcSto(E.StochMultiplication * E.StochMultiplier3);
         public double? QuantStoAvg => CalcAvg(QuantSto, QuantSto1, QuantSto2, QuantSto3);
         public int StochMinAvgOpen => E.Diff;
         public int StochMaxAvgOpen => 100 - E.Diff;
 
-        public double? QuantWpr => CalcWpr(E.Period);
-        public double? QuantWpr1 => CalcWpr(E.Period * E.WprMultiplier1);
-        public double? QuantWpr2 => CalcWpr(E.Period * E.WprMultiplier2);
-        public double? QuantWpr3 => CalcWpr(E.Period * E.WprMultiplier3);
+        public double? QuantWpr => CalcWpr(E.WprMultiplication);
+        public double? QuantWpr1 => CalcWpr(E.WprMultiplication * E.WprMultiplier1);
+        public double? QuantWpr2 => CalcWpr(E.WprMultiplication * E.WprMultiplier2);
+        public double? QuantWpr3 => CalcWpr(E.WprMultiplication * E.WprMultiplier3);
         public double? QuantWprAvg => CalcAvg(QuantWpr, QuantWpr1, QuantWpr2, QuantWpr3);
         public int WprMinAvgOpen => E.Diff;
         public int WprMaxAvgOpen => 100 - E.Diff;
@@ -69,8 +69,6 @@ namespace QvaDev.Experts.Quadro.Models
         public Sides Sym1HedgeMinOrderType => Sym1MinOrderType.GetInverseOrder();
         public Sides Sym2HedgeMaxOrderType => Sym2MaxOrderType.GetInverseOrder();
         public Sides Sym2HedgeMinOrderType => Sym2MinOrderType.GetInverseOrder();
-
-        public bool TradeOpeningEnabled { get; set; } = true;
 
         public double[,] BuyLots { get; } = new double[120, 2];
         public double[,] SellLots { get; } = new double[120, 2];

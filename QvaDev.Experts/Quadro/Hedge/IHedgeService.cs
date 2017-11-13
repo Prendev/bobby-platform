@@ -1,11 +1,11 @@
-﻿using System.Collections.Generic;
-using QvaDev.Common.Integration;
+﻿using QvaDev.Common.Integration;
 using QvaDev.Experts.Quadro.Models;
 
 namespace QvaDev.Experts.Quadro.Hedge
 {
     public interface IHedgeService
     {
+        void CheckHedgeProfitClose(ExpertSetWrapper exp);
         void CheckHedgeStopByQuant(ExpertSetWrapper exp);
         double CalculateProfit(ExpertSetWrapper exp, Sides spreadOrderType);
         void OnCloseAll(ExpertSetWrapper exp, Sides spreadOrderType);

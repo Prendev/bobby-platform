@@ -13,6 +13,7 @@ namespace QvaDev.Experts.Quadro.Services
         void CheckClose(ExpertSetWrapper expertSet);
         void AllCloseMin(ExpertSetWrapper exp);
         void AllCloseMax(ExpertSetWrapper exp);
+        void CheckProfitClose(ExpertSetWrapper exp, Sides spreadOrderType);
     }
 
     public class CloseService : ICloseService
@@ -40,27 +41,11 @@ namespace QvaDev.Experts.Quadro.Services
             if (exp.E.BaseTradesForPositiveClose)
             {
                 double hedgeProfit = _hedgeServices[exp.E.HedgeMode].CalculateProfit(exp, side);
-                double baseProfit = CalculateBaseOrdersProfit(exp, side);
+                double baseProfit = _commonService.CalculateBaseOrdersProfit(exp, side);
                 if (baseProfit + (exp.E.HedgeTradeForPositiveClose ? hedgeProfit : 0) <= 0) return;
             }
             if (side == Sides.Buy) CheckQuantBuyClose(exp);
             else CheckQuantSellClose(exp);
-        }
-
-        private double CalculateBaseOrdersProfit(ExpertSetWrapper exp, Sides side)
-        {
-            double num = side == Sides.Sell
-                ? CalculateProfit(exp, Sides.Buy, Sides.Sell, exp.SpreadSellMagicNumber)
-                : CalculateProfit(exp, Sides.Sell, Sides.Buy, exp.SpreadBuyMagicNumber);
-            return num;
-        }
-
-        public double CalculateProfit(ExpertSetWrapper exp, Sides side1, Sides side2, int magicNumber)
-        {
-            var positions = exp.Connector.Positions.Where(p => p.Value.MagicNumber == magicNumber &&
-                                                           (p.Value.Symbol == exp.E.Symbol1 && p.Value.Side == side1 ||
-                                                            p.Value.Symbol == exp.E.Symbol2 && p.Value.Side == side2));
-            return positions.Sum(p => p.Value.NetProfit);
         }
 
         private void CheckQuantBuyClose(ExpertSetWrapper exp)
@@ -106,6 +91,21 @@ namespace QvaDev.Experts.Quadro.Services
         {
             AllCloseLevel(exp, exp.Sym1MaxOrderType, exp.Sym2MaxOrderType, Sides.Sell);
             exp.InitSellLotArray();
+        }
+
+        public void CheckProfitClose(ExpertSetWrapper exp, Sides spreadOrderType)
+        {
+            bool isBuy = spreadOrderType == Sides.Buy;
+            double num = isBuy ? exp.E.ProfitCloseValueBuy : exp.E.ProfitCloseValueSell;
+            if (!(GetCurrentProfit(exp, spreadOrderType) >= num)) return;
+            if (isBuy) AllCloseMin(exp);
+            else AllCloseMax(exp);
+        }
+
+        private double GetCurrentProfit(ExpertSetWrapper exp, Sides spreadOrderType)
+        {
+            return _commonService.CalculateBaseOrdersProfit(exp, spreadOrderType) +
+                   _hedgeServices[exp.E.HedgeMode].CalculateProfit(exp, spreadOrderType);
         }
 
         private void AllCloseLevel(ExpertSetWrapper exp, Sides orderType1, Sides orderType2, Sides spreadOrderType)

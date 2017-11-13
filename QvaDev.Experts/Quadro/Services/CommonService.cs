@@ -8,6 +8,7 @@ namespace QvaDev.Experts.Quadro.Services
 {
     public interface ICommonService
     {
+        double CalculateBaseOrdersProfit(ExpertSetWrapper exp, Sides side);
         double BuyAveragePrice(ExpertSetWrapper exp);
         double SellAveragePrice(ExpertSetWrapper exp);
         List<Position> GetOpenOrdersList(ExpertSetWrapper exp, string symbol, Sides orderType, int magicNumber);
@@ -27,6 +28,21 @@ namespace QvaDev.Experts.Quadro.Services
     public class CommonService : ICommonService
     {
         public ICloseService CloseService;
+
+        public double CalculateBaseOrdersProfit(ExpertSetWrapper exp, Sides side)
+        {
+            return side == Sides.Sell
+                ? CalculateProfit(exp, Sides.Buy, Sides.Sell, exp.SpreadSellMagicNumber)
+                : CalculateProfit(exp, Sides.Sell, Sides.Buy, exp.SpreadBuyMagicNumber);
+        }
+
+        private double CalculateProfit(ExpertSetWrapper exp, Sides side1, Sides side2, int magicNumber)
+        {
+            var positions = exp.Connector.Positions.Where(p => p.Value.MagicNumber == magicNumber &&
+                                                               (p.Value.Symbol == exp.E.Symbol1 && p.Value.Side == side1 ||
+                                                                p.Value.Symbol == exp.E.Symbol2 && p.Value.Side == side2));
+            return positions.Sum(p => p.Value.NetProfit);
+        }
 
         public double BuyAveragePrice(ExpertSetWrapper exp)
         {

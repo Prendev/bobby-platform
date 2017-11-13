@@ -10,6 +10,10 @@ namespace QvaDev.Experts.Quadro.Hedge
         {
         }
 
+        public void CheckHedgeProfitClose(ExpertSetWrapper exp)
+        {
+        }
+
         public double CalculateProfit(ExpertSetWrapper exp, Sides spreadOrderType)
         {
             return 0;
