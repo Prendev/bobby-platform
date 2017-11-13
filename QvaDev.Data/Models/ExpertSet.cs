@@ -86,7 +86,7 @@ namespace QvaDev.Data.Models
 
         [NotMapped]
         [InvisibleColumn]
-        public int TimeFrame => 15;
+        public int TimeFrame => 1;
         [NotMapped]
         [InvisibleColumn]
         public int StochMultiplication => Period;

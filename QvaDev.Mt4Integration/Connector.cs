@@ -201,12 +201,12 @@ namespace QvaDev.Mt4Integration
 
                 lock (symbolHistory)
                 {
-                    if (symbolHistory.IsUpdating) return;
+                    if (symbolHistory.IsUpdating) continue;
                     if (symbolHistory.BarHistory.Any() &&
-                        args.Time < symbolHistory.BarHistory.Last().OpenTime.AddMinutes(2 * (int) timeframe)) return;
+                        args.Time < symbolHistory.BarHistory.Last().OpenTime.AddMinutes(2 * (int) timeframe)) continue;
 
                     symbolHistory.IsUpdating = true;
-                    QuoteClient.DownloadQuoteHistory(args.Symbol, Timeframe.M15, DateTime.Now.AddDays(1), 1);
+                    QuoteClient.DownloadQuoteHistory(args.Symbol, timeframe, DateTime.Now.AddDays(1), 1);
                 }
             }
             OnTick?.Invoke(this,

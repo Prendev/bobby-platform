@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using log4net;
 using QvaDev.Common.Integration;
@@ -67,15 +68,42 @@ namespace QvaDev.Orchestration.Services
         private void Connector_OnTick(object sender, TickEventArgs e)
         {
             if (!_isStarted) return;
-            foreach (var expertSet in _duplicatContext.ExpertSets.Local)
-                Task.Factory.StartNew(() => _quadroService.OnTick((Connector)sender, expertSet, e));
+            Task.Factory.StartNew(() =>
+            {
+                //TODO
+                try
+                {
+                    foreach (var expertSet in _duplicatContext.ExpertSets.Local)
+                        Task.Factory.StartNew(() => _quadroService.OnTick((Connector) sender, expertSet, e));
+
+                }
+                catch (Exception ex)
+                {
+                    _log.Error("Connector_OnTick exception", ex);
+                    Thread.Sleep(10);
+                    Connector_OnTick(sender, e);
+                }
+            });
         }
 
         private void Connector_OnBarHistory(object sender, BarHistoryEventArgs e)
         {
             if (!_isStarted) return;
-            foreach (var expertSet in _duplicatContext.ExpertSets.Local)
-                Task.Factory.StartNew(() => _quadroService.OnBarHistory((Connector) sender, expertSet, e));
+            Task.Factory.StartNew(() =>
+            {
+                //TODO
+                try
+                {
+                    foreach (var expertSet in _duplicatContext.ExpertSets.Local)
+                        Task.Factory.StartNew(() => _quadroService.OnBarHistory((Connector)sender, expertSet, e));
+                }
+                catch (Exception ex)
+                {
+                    _log.Error("Connector_OnBarHistory exception", ex);
+                    Thread.Sleep(10);
+                    Connector_OnBarHistory(sender, e);
+                }
+            });
         }
     }
 }

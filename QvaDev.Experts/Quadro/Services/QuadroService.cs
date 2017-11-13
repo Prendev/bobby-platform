@@ -108,7 +108,6 @@ namespace QvaDev.Experts.Quadro.Services
                 var quants = new List<double>();
                 for (var i = 0; i < exp.BarHistory1.Count; i++)
                 {
-                    if (exp.BarHistory1[i].OpenTime != exp.BarHistory2[i].OpenTime) return;
                     var price1Close = connector.MyRoundToDigits(expertSet.Symbol1, exp.BarHistory1[i].Close);
                     var price2Close = connector.MyRoundToDigits(expertSet.Symbol2, exp.BarHistory2[i].Close);
                     var quant = connector.MyRoundToDigits(expertSet.Symbol1, price2Close - expertSet.M * price1Close);
@@ -126,13 +125,13 @@ namespace QvaDev.Experts.Quadro.Services
             {
                 if (exp.BarHistory1.Any() && e.BarHistory.Last().OpenTime <= exp.BarHistory1.Last().OpenTime)
                     return false;
-                exp.BarHistory1 = e.BarHistory;
+                exp.BarHistory1 = new List<Bar>(e.BarHistory);
             }
             else
             {
                 if (exp.BarHistory2.Any() && e.BarHistory.Last().OpenTime <= exp.BarHistory2.Last().OpenTime)
                     return false;
-                exp.BarHistory2 = e.BarHistory;
+                exp.BarHistory2 = new List<Bar>(e.BarHistory);
             }
             return true;
         }
@@ -140,8 +139,8 @@ namespace QvaDev.Experts.Quadro.Services
         private bool AreBarsInSynchron(ExpertSetWrapper exp)
         {
             if (exp.BarHistory1.Count <= 1 || exp.BarHistory2.Count <= 1) return false;
+            if (exp.BarHistory1.Count != exp.BarHistory2.Count) return false;
             if (exp.BarHistory1.Last().OpenTime != exp.BarHistory2.Last().OpenTime) return false;
-            if (exp.BarHistory1.First().OpenTime != exp.BarHistory2.First().OpenTime) return false;
             return true;
         }
 

@@ -327,7 +327,7 @@ namespace QvaDev.Data
             });
             ExpertSets.Add(new ExpertSet
             {
-                TradingAccount = TradingAccounts.First(e => e.Id == 1),
+                TradingAccount = TradingAccounts.First(e => e.Id == 2),
                 Symbol1 = "EURUSD+",
                 Symbol2 = "AUDUSD+",
                 Delta = 200,
