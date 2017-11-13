@@ -182,6 +182,15 @@ namespace QvaDev.Mt4Integration
             return lastPos.IsClosed ? lastPos.ClosePrice : lastPos.OpenPrice;
         }
 
+        public double CalculateProfit(int magicNumber, string symbol1, Sides side1, string symbol2, Sides side2)
+        {
+            return QuoteClient.GetOpenedOrders()
+                .Where(p => p.MagicNumber == magicNumber &&
+                            (p.Symbol == symbol1 && p.Type == (side1 == Sides.Buy ? Op.Buy : Op.Sell) ||
+                             p.Symbol == symbol2 && p.Type == (side2 == Sides.Buy ? Op.Buy : Op.Sell)))
+                .Sum(o => o.Profit + o.Commission + o.Swap);
+        }
+
         public void Subscribe(List<Tuple<string, int, short>> symbols)
         {
             QuoteClient.OnQuoteHistory -= QuoteClient_OnQuoteHistory;
@@ -244,11 +253,13 @@ namespace QvaDev.Mt4Integration
         {
             if (args.Bars?.Any() != true) return;
             if (args.Bars.First().Time < new DateTime(2000, 1, 1)) return;
+            _log.Debug($"{args.Symbol}: QuoteClient_OnQuoteHistory => {args.Bars.Count()} | {args.Bars.Last().Time}");
             SymbolHistory symbolHistory;
             if (!_symbolHistories.TryGetValue(new Tuple<string, int>(args.Symbol, (int)args.Timeframe).ToString(), out symbolHistory)) return;
 
             lock (symbolHistory)
             {
+                symbolHistory.IsUpdating = false;
                 var barHistory = args.Bars
                     .Select(b => new Bar
                     {
@@ -267,7 +278,6 @@ namespace QvaDev.Mt4Integration
                     symbolHistory.BarHistory = barHistory;
                 }
                 if (symbolHistory.BarHistory.Count < symbolHistory.BarCount) return;
-                symbolHistory.IsUpdating = false;
                 OnBarHistory?.Invoke(this,
                     new BarHistoryEventArgs { Symbol = args.Symbol, BarHistory = symbolHistory.BarHistory });
             }

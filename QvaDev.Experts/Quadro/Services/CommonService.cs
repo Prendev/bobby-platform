@@ -9,7 +9,6 @@ namespace QvaDev.Experts.Quadro.Services
 {
     public interface ICommonService
     {
-        double CalculateBaseOrdersProfit(ExpertSetWrapper exp, Sides side);
         double BuyAveragePrice(ExpertSetWrapper exp);
         double SellAveragePrice(ExpertSetWrapper exp);
         List<Position> GetOpenOrdersList(ExpertSetWrapper exp, string symbol, Sides orderType, int magicNumber);
@@ -22,8 +21,8 @@ namespace QvaDev.Experts.Quadro.Services
         IEnumerable<Position> GetBaseOpenOrdersList(ExpertSetWrapper exp, Sides spreadOrderType);
         void SetLastActionPrice(ExpertSetWrapper exp, Sides side);
         bool IsInDeltaRange(ExpertSetWrapper exp, Sides side);
-        double CalculateProfit(ExpertSetWrapper exp, int magicNumber, string symbol1, Sides orderType1, string symbol2, Sides orderType2);
-        double CalculateProfit(List<Position> orders);
+        double CalculateBaseOrdersProfit(ExpertSetWrapper exp, Sides side);
+        double CalculateProfit(ExpertSetWrapper exp, int magicNumber, Sides orderType1, Sides orderType2);
     }
 
     public class CommonService : ICommonService
@@ -36,19 +35,16 @@ namespace QvaDev.Experts.Quadro.Services
             _log = log;
         }
 
+        public double CalculateProfit(ExpertSetWrapper exp, int magicNumber, Sides orderType1, Sides orderType2)
+        {
+            return exp.Connector.CalculateProfit(magicNumber, exp.E.Symbol1, orderType1, exp.E.Symbol2, orderType2);
+        }
+
         public double CalculateBaseOrdersProfit(ExpertSetWrapper exp, Sides side)
         {
             return side == Sides.Sell
-                ? CalculateProfit(exp, Sides.Buy, Sides.Sell, exp.SpreadSellMagicNumber)
-                : CalculateProfit(exp, Sides.Sell, Sides.Buy, exp.SpreadBuyMagicNumber);
-        }
-
-        private double CalculateProfit(ExpertSetWrapper exp, Sides side1, Sides side2, int magicNumber)
-        {
-            var positions = exp.Connector.Positions.Where(p => p.Value.MagicNumber == magicNumber &&
-                                                               (p.Value.Symbol == exp.E.Symbol1 && p.Value.Side == side1 ||
-                                                                p.Value.Symbol == exp.E.Symbol2 && p.Value.Side == side2));
-            return positions.Sum(p => p.Value.NetProfit);
+                ? CalculateProfit(exp, exp.SpreadSellMagicNumber, Sides.Buy, Sides.Sell)
+                : CalculateProfit(exp, exp.SpreadBuyMagicNumber, Sides.Sell, Sides.Buy);
         }
 
         public double BuyAveragePrice(ExpertSetWrapper exp)
@@ -100,8 +96,8 @@ namespace QvaDev.Experts.Quadro.Services
         {
             return exp.Positions.Select(p => p.Value)
                 .Where(p => p.MagicNumber == magicNumber &&
-                            ((p.Symbol == symbol1 && p.Side == orderType1) ||
-                             (p.Symbol == symbol2 && p.Side == orderType2)))
+                            (p.Symbol == symbol1 && p.Side == orderType1 ||
+                             p.Symbol == symbol2 && p.Side == orderType2))
                 .ToList();
         }
 
@@ -195,18 +191,6 @@ namespace QvaDev.Experts.Quadro.Services
         {
             double diff = Math.Abs(price - close);
             return diff < range;
-        }
-
-
-        public double CalculateProfit(ExpertSetWrapper exp, int magicNumber, string symbol1, Sides orderType1,
-            string symbol2, Sides orderType2)
-        {
-            return CalculateProfit(GetOpenOrdersList(exp, symbol1, orderType1, symbol2, orderType2, magicNumber));
-        }
-
-        public double CalculateProfit(List<Position> orders)
-        {
-            return orders.Sum(o => o.NetProfit);
         }
     }
 }

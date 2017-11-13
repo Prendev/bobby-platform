@@ -46,7 +46,6 @@ namespace QvaDev.Data.Models
         public int Delta { get; set; }
 
         public int MagicNumber { get; set; }
-        public int HedgicNumber { get; set; }
 
         [NotMapped]
         [InvisibleColumn]

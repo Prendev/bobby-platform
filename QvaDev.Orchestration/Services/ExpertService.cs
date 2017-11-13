@@ -90,6 +90,7 @@ namespace QvaDev.Orchestration.Services
 
         private void Connector_OnBarHistory(object sender, BarHistoryEventArgs e)
         {
+            _log.Debug($"{e.Symbol}: Connector_OnBarHistory => {e.BarHistory.Count} | {e.BarHistory.Last().OpenTime}");
             if (!_isStarted) return;
             if (_expertSets?.Any() == false) return;
             Task.Factory.StartNew(() =>

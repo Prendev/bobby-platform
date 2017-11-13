@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Autofac.Features.Indexed;
+using log4net;
 using QvaDev.Common.Integration;
 using QvaDev.Data.Models;
 using QvaDev.Experts.Quadro.Hedge;
@@ -17,11 +18,14 @@ namespace QvaDev.Experts.Quadro.Services
     {
         private readonly ICommonService _commonService;
         private readonly IIndex<ExpertSet.HedgeModes, IHedgeService> _hedgeServices;
+        private readonly ILog _log;
 
         public ReentriesService(
+            ILog log,
             ICommonService commonService,
             IIndex<ExpertSet.HedgeModes, IHedgeService> hedgeServices)
         {
+            _log = log;
             _commonService = commonService;
             _hedgeServices = hedgeServices;
         }
@@ -45,6 +49,7 @@ namespace QvaDev.Experts.Quadro.Services
             int buyReopenDiff = GetReopenDiff(exp, exp.BuyOpenCount);
             if (exp.Quants.Last() < _commonService.BarQuant(exp, o1) + buyReopenDiff * exp.Point) return;
             if (exp.Quants.Last() < _commonService.BarQuant(exp, o2) + buyReopenDiff * exp.Point) return;
+            _log.Debug($"{exp.E.Description}: CalculateReentriesForSell => {exp.SpreadSellMagicNumber}");
 
             CorrectLotArrayIfNeeded(exp, Sides.Sell);
             double lot1 = exp.SellLots[exp.SellOpenCount, 1].CheckLot();
@@ -69,6 +74,7 @@ namespace QvaDev.Experts.Quadro.Services
             int sellReopenDiff = GetReopenDiff(exp, exp.SellOpenCount);
             if (exp.Quants.Last() > _commonService.BarQuant(exp, o1) - sellReopenDiff * exp.Point) return;
             if (exp.Quants.Last() > _commonService.BarQuant(exp, o2) - sellReopenDiff * exp.Point) return;
+            _log.Debug($"{exp.E.Description}: CalculateReentriesForBuy => {exp.SpreadBuyMagicNumber}");
 
             CorrectLotArrayIfNeeded(exp, Sides.Buy);
             double lot1 = exp.BuyLots[exp.BuyOpenCount, 1].CheckLot();

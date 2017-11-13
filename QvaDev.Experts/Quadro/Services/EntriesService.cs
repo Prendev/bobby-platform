@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using Autofac.Features.Indexed;
+using log4net;
 using QvaDev.Common.Integration;
 using QvaDev.Data.Models;
 using QvaDev.Experts.Quadro.Hedge;
@@ -15,11 +16,14 @@ namespace QvaDev.Experts.Quadro.Services
     {
         private readonly ICommonService _commonService;
         private readonly IIndex<ExpertSet.HedgeModes, IHedgeService> _hedgeServices;
+        private readonly ILog _log;
 
         public EntriesService(
+            ILog log,
             ICommonService commonService,
             IIndex<ExpertSet.HedgeModes, IHedgeService> hedgeServices)
         {
+            _log = log;
             _commonService = commonService;
             _hedgeServices = hedgeServices;
         }
@@ -39,6 +43,7 @@ namespace QvaDev.Experts.Quadro.Services
             if (exp.QuantWprAvg <= -exp.WprMinAvgOpen) return;
             if (MyOrdersCount(exp, exp.E.Symbol1, exp.Sym1MaxOrderType) != 0) return;
             if (MyOrdersCount(exp, exp.E.Symbol2, exp.Sym2MaxOrderType) != 0) return;
+            _log.Debug($"{exp.E.Description}: CalculateEntriesForMaxAction => {exp.SpreadSellMagicNumber}");
 
             double lot1 = exp.SellLots[0, 1].CheckLot();
             double lot2 = exp.SellLots[0, 0].CheckLot();
@@ -58,6 +63,7 @@ namespace QvaDev.Experts.Quadro.Services
             if (exp.QuantWprAvg >= -exp.WprMaxAvgOpen) return;
             if (MyOrdersCount(exp, exp.E.Symbol1, exp.Sym1MinOrderType) != 0) return;
             if (MyOrdersCount(exp, exp.E.Symbol2, exp.Sym2MinOrderType) != 0) return;
+            _log.Debug($"{exp.E.Description}: CalculateEntriesForMinAction => {exp.SpreadBuyMagicNumber}");
 
             double lot1 = exp.BuyLots[0, 1].CheckLot();
             double lot2 = exp.BuyLots[0, 0].CheckLot();

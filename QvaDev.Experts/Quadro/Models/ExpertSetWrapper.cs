@@ -34,8 +34,8 @@ namespace QvaDev.Experts.Quadro.Models
 
         public int SpreadBuyMagicNumber => E.MagicNumber;
         public int SpreadSellMagicNumber => E.MagicNumber + 1;
-        public int HedgeBuyHedgicNumber => E.HedgicNumber + 9;
-        public int HedgeSellHedgicNumber => E.HedgicNumber + 10;
+        public int HedgeBuyMagicNumber => E.MagicNumber + 2;
+        public int HedgeSellMagicNumber => E.MagicNumber + 3;
 
         public List<Bar> BarHistory1 { get; set; } = new List<Bar>();
         public List<Bar> BarHistory2 { get; set; } = new List<Bar>();
@@ -85,9 +85,9 @@ namespace QvaDev.Experts.Quadro.Models
         public TradeSetStates CurrentBuyState = TradeSetStates.NoTrade;
 
         public int BuyOpenCount => E.TradingAccount.MetaTraderAccount.Connector.Positions.Count(
-            p => p.Value.MagicNumber == SpreadBuyMagicNumber || p.Value.MagicNumber == HedgeBuyHedgicNumber);
+            p => p.Value.MagicNumber == SpreadBuyMagicNumber || p.Value.MagicNumber == HedgeBuyMagicNumber);
         public int SellOpenCount => E.TradingAccount.MetaTraderAccount.Connector.Positions.Count(
-            p => p.Value.MagicNumber == SpreadSellMagicNumber || p.Value.MagicNumber == HedgeSellHedgicNumber);
+            p => p.Value.MagicNumber == SpreadSellMagicNumber || p.Value.MagicNumber == HedgeSellMagicNumber);
 
         public double Point => Connector.GetPoint(E.Symbol1);
 
