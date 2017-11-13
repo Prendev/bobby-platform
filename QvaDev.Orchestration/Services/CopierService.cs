@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using log4net;
@@ -17,8 +18,8 @@ namespace QvaDev.Orchestration.Services
     public class CopierService : ICopierService
     {
         private bool _isStarted;
-        private DuplicatContext _duplicatContext;
         private readonly ILog _log;
+        private IEnumerable<Master> _masters;
 
         public CopierService(ILog log)
         {
@@ -27,8 +28,7 @@ namespace QvaDev.Orchestration.Services
 
         public void Start(DuplicatContext duplicatContext)
         {
-            _duplicatContext = duplicatContext;
-            foreach (var master in _duplicatContext.Copiers.Local
+            foreach (var master in duplicatContext.Copiers.Local
                 .Where(c => c.Slave.CTraderAccount.State == BaseAccountEntity.States.Connected &&
                             c.Slave.Master.MetaTraderAccount.State == BaseAccountEntity.States.Connected)
                 .Select(c => c.Slave.Master).Distinct())
@@ -49,6 +49,7 @@ namespace QvaDev.Orchestration.Services
         private void MasterOnOrderUpdate(object sender, PositionEventArgs e)
         {
             if (!_isStarted) return;
+            if (_masters?.Any() != true) return;
             Task.Factory.StartNew(() =>
             {
                 lock (sender)
@@ -56,8 +57,7 @@ namespace QvaDev.Orchestration.Services
                     _log.Info($"Master {e.Action:F} {e.Position.Side:F} signal on " +
                               $"{e.Position.Symbol} with open time: {e.Position.OpenTime:o}");
 
-                    var masters = _duplicatContext.Masters.Local
-                        .Where(m => m.MetaTraderAccountId == e.DbId);
+                    var masters = _masters.Where(m => m.MetaTraderAccountId == e.DbId);
                     var type = e.Position.Side == Sides.Buy ? ProtoTradeSide.BUY : ProtoTradeSide.SELL;
 
                     foreach (var master in masters)

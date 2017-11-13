@@ -27,17 +27,15 @@ namespace QvaDev.Experts
             return Convert.ToDouble(dec);
         }
 
-        public static string AsString(this List<double> list)
+        public static string AsString(this List<double> list, int count = 5)
         {
             if (list == null || !list.Any()) return "[]";
             var sb = new StringBuilder();
-            sb.Append("[ ");
-            var first = true;
-            foreach (var item in list)
+            sb.Append("[ ...");
+            foreach (var item in list.Skip(list.Count - 5))
             {
-                if (!first) sb.Append(" | ");
+                sb.Append(" | ");
                 sb.Append(item);
-                first = false;
             }
             sb.Append(" ]");
             return sb.ToString();

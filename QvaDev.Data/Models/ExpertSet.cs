@@ -6,7 +6,7 @@ using QvaDev.Common.Attributes;
 
 namespace QvaDev.Data.Models
 {
-    public class ExpertSet : BaseEntity, IFilterableEntity
+    public class ExpertSet : BaseDescriptionEntity, IFilterableEntity
     {
         public enum Variants
         {
@@ -26,6 +26,9 @@ namespace QvaDev.Data.Models
             //ThreePairHedge
         }
 
+        public bool ExpertDenied { get; set; }
+        public bool TradeOpeningEnabled { get; set; }
+
         [Required]
         public int TradingAccountId { get; set; }
         [Required]
@@ -36,6 +39,7 @@ namespace QvaDev.Data.Models
         [Required]
         public string Symbol2 { get; set; }
 
+        public double LotSize { get; set; }
         public double M { get; set; }
         public int Diff { get; set; }
         public int Period { get; set; }
@@ -44,22 +48,39 @@ namespace QvaDev.Data.Models
         public int MagicNumber { get; set; }
         public int HedgicNumber { get; set; }
 
-        public double HedgeRatio { get; set; }
-        public int HedgeStart { get; set; }
-        public int HedgeStop { get; set; }
+        [NotMapped]
+        [InvisibleColumn]
+        public double HedgeRatio => 1;
+        [NotMapped]
+        [InvisibleColumn]
+        public int HedgeStart => 1;
+        [NotMapped]
+        [InvisibleColumn]
+        public int HedgeStop => 3;
 
-        public double LotSize { get; set; }
-        public bool BaseTradesForPositiveClose { get; set; }
-        public bool HedgeTradeForPositiveClose { get; set; }
-        public bool PartialClose { get; set; }
+        [NotMapped]
+        [InvisibleColumn]
+        public bool BaseTradesForPositiveClose => true;
+        [NotMapped]
+        [InvisibleColumn]
+        public bool HedgeTradeForPositiveClose = false;
+        [NotMapped]
+        [InvisibleColumn]
+        public bool PartialClose = false;
 
         public int Tp1 { get; set; }
-        public int Tp2 { get; set; }
-        public int Tp3 { get; set; }
+        [NotMapped]
+        [InvisibleColumn]
+        public int Tp2 => 0;
+        [NotMapped]
+        [InvisibleColumn]
+        public int Tp3 => 0;
 
         public int MaxTradeSetCount { get; set; }
         public int Last24HMaxOpen { get; set; }
-        public int HedgeStopPositionCount { get; set; }
+        [NotMapped]
+        [InvisibleColumn]
+        public int HedgeStopPositionCount => 3;
 
         public int ReOpenDiff { get; set; }
         public int ReOpenDiffChangeCount { get; set; }
@@ -67,12 +88,16 @@ namespace QvaDev.Data.Models
 
         public double TradeSetFloatingSwitch { get; set; }
         //public double ExposureShieldValue { get; set; }
+        [NotMapped]
+        [InvisibleColumn]
+        public bool UseTradeSetStopLoss => false;
 
-        public bool TradeOpeningEnabled { get; set; }
+        [NotMapped]
+        [InvisibleColumn]
+        public double TradeSetStopLossValue => -50000;
+
         public bool CloseAllBuy { get; set; }
         public bool CloseAllSell { get; set; }
-        public bool UseTradeSetStopLoss { get; set; }
-        public double TradeSetStopLossValue { get; set; }
         public bool ProfitCloseBuy { get; set; }
         public double ProfitCloseValueBuy { get; set; }
         public bool ProfitCloseSell { get; set; }
@@ -84,9 +109,7 @@ namespace QvaDev.Data.Models
         public Variants Variant { get; set; }
         public HedgeModes HedgeMode { get; set; }
 
-        [NotMapped]
-        [InvisibleColumn]
-        public int TimeFrame => 1;
+        public int TimeFrame { get; set; }
         [NotMapped]
         [InvisibleColumn]
         public int StochMultiplication => Period;

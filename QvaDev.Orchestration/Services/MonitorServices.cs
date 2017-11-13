@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -18,10 +19,11 @@ namespace QvaDev.Orchestration.Services
     public class MonitorServices : IMonitorServices
     {
         private bool _isStarted;
-        private DuplicatContext _duplicatContext;
         private readonly ILog _log;
         private SynchronizationContext _synchronizationContext;
         private readonly Func<SynchronizationContext> _synchronizationContextFactory;
+        private IEnumerable<CTraderAccount> _ctAccounts;
+        private IEnumerable<MetaTraderAccount> _mtAccounts;
 
         public int SelectedAlphaMonitorId { get; set; }
         public int SelectedBetaMonitorId { get; set; }
@@ -39,14 +41,13 @@ namespace QvaDev.Orchestration.Services
             int alphaMonitorId, int betaMonitorId)
         {
             _synchronizationContext = _synchronizationContext ?? _synchronizationContextFactory.Invoke();
-            _duplicatContext = duplicatContext;
             _isStarted = true;
             SelectedAlphaMonitorId = alphaMonitorId;
             SelectedBetaMonitorId = betaMonitorId;
-            var mtTasks = _duplicatContext.MetaTraderAccounts.AsEnumerable().Select(account =>
-                Task.Factory.StartNew(() => MonitorAccount(account)));
-            var ctTasks = _duplicatContext.CTraderAccounts.AsEnumerable().Select(account =>
-                Task.Factory.StartNew(() => MonitorAccount(account)));
+            _mtAccounts = duplicatContext.MetaTraderAccounts.AsEnumerable();
+            _ctAccounts = duplicatContext.CTraderAccounts.AsEnumerable();
+            var mtTasks = _mtAccounts.Select(account => Task.Factory.StartNew(() => MonitorAccount(account)));
+            var ctTasks = _ctAccounts.Select(account => Task.Factory.StartNew(() => MonitorAccount(account)));
             return Task.WhenAll(Task.WhenAll(mtTasks), Task.WhenAll(ctTasks));
         }
 
@@ -68,9 +69,9 @@ namespace QvaDev.Orchestration.Services
             if (!_isStarted) return;
             BaseAccountEntity account = null;
             if (e.AccountType == AccountTypes.Ct)
-                account = _duplicatContext.CTraderAccounts.Local.FirstOrDefault(a => a.Id == e.DbId);
+                account = _ctAccounts?.FirstOrDefault(a => a.Id == e.DbId);
             else if (e.AccountType == AccountTypes.Mt4)
-                account = _duplicatContext.MetaTraderAccounts.Local.FirstOrDefault(a => a.Id == e.DbId);
+                account = _mtAccounts.FirstOrDefault(a => a.Id == e.DbId);
 
             UpdateActualContracts(account);
         }

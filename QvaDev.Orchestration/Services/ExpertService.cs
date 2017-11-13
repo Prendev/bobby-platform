@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -23,7 +24,7 @@ namespace QvaDev.Orchestration.Services
         private bool _isStarted;
         private readonly ILog _log;
         private readonly IQuadroService _quadroService;
-        private DuplicatContext _duplicatContext;
+        private IEnumerable<ExpertSet> _expertSets;
 
         public ExpertService(
             IQuadroService quadroService,
@@ -35,9 +36,9 @@ namespace QvaDev.Orchestration.Services
 
         public Task Start(DuplicatContext duplicatContext)
         {
-            _duplicatContext = duplicatContext;
+            _expertSets = duplicatContext.TradingAccounts.Local.SelectMany(ta => ta.ExpertSets).Distinct();
             _isStarted = true;
-            var tasks = _duplicatContext.TradingAccounts.Local.AsEnumerable().Select(account =>
+            var tasks = duplicatContext.TradingAccounts.Local.AsEnumerable().Select(account =>
                 Task.Factory.StartNew(() => TradeAccount(account)));
             return Task.WhenAll(Task.WhenAll(tasks));
         }
@@ -68,12 +69,13 @@ namespace QvaDev.Orchestration.Services
         private void Connector_OnTick(object sender, TickEventArgs e)
         {
             if (!_isStarted) return;
+            if (_expertSets?.Any() == false) return;
             Task.Factory.StartNew(() =>
             {
                 //TODO
                 try
                 {
-                    foreach (var expertSet in _duplicatContext.ExpertSets.Local)
+                    foreach (var expertSet in _expertSets)
                         Task.Factory.StartNew(() => _quadroService.OnTick((Connector) sender, expertSet));
 
                 }
@@ -89,12 +91,13 @@ namespace QvaDev.Orchestration.Services
         private void Connector_OnBarHistory(object sender, BarHistoryEventArgs e)
         {
             if (!_isStarted) return;
+            if (_expertSets?.Any() == false) return;
             Task.Factory.StartNew(() =>
             {
                 //TODO
                 try
                 {
-                    foreach (var expertSet in _duplicatContext.ExpertSets.Local)
+                    foreach (var expertSet in _expertSets)
                         Task.Factory.StartNew(() => _quadroService.OnBarHistory((Connector)sender, expertSet, e));
                 }
                 catch (Exception ex)

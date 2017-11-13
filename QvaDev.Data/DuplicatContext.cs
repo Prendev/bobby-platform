@@ -297,7 +297,9 @@ namespace QvaDev.Data
 
             ExpertSets.Add(new ExpertSet
             {
+                Description = "EU GU",
                 TradingAccount = TradingAccounts.First(e => e.Id == 1),
+                TimeFrame = 1,
                 Symbol1 = "EURUSD+",
                 Symbol2 = "GBPUSD+",
                 Delta = 200,
@@ -305,14 +307,9 @@ namespace QvaDev.Data
                 Diff = 1,
                 Period = 50,
                 Tp1 = 500,
-                HedgeRatio = 1,
-                HedgeStart = 1,
-                HedgeStop = 3,
                 MagicNumber = 1000,
                 HedgicNumber = 1500,
                 LotSize = 0.01,
-                HedgeStopPositionCount = 3,
-                TradeSetStopLossValue = -50000,
                 TradeSetFloatingSwitch = -50000,
                 TradeOpeningEnabled = true,
                 ProfitCloseValueSell = 100,
@@ -323,12 +320,13 @@ namespace QvaDev.Data
                 Last24HMaxOpen = 200,
                 ReOpenDiff = 1500,
                 ReOpenDiffChangeCount = 3,
-                ReOpenDiff2 = 2500,
-                BaseTradesForPositiveClose = true
+                ReOpenDiff2 = 2500
             });
             ExpertSets.Add(new ExpertSet
             {
+                Description = "EU AU",
                 TradingAccount = TradingAccounts.First(e => e.Id == 2),
+                TimeFrame = 1,
                 Symbol1 = "EURUSD+",
                 Symbol2 = "AUDUSD+",
                 Delta = 200,
@@ -336,14 +334,9 @@ namespace QvaDev.Data
                 Diff = 1,
                 Period = 50,
                 Tp1 = 500,
-                HedgeRatio = 1,
-                HedgeStart = 1,
-                HedgeStop = 3,
                 MagicNumber = 2000,
                 HedgicNumber = 2500,
                 LotSize = 0.01,
-                HedgeStopPositionCount = 3,
-                TradeSetStopLossValue = -50000,
                 TradeSetFloatingSwitch = -50000,
                 TradeOpeningEnabled = true,
                 ProfitCloseValueSell = 100,
@@ -355,11 +348,12 @@ namespace QvaDev.Data
                 ReOpenDiff = 1500,
                 ReOpenDiffChangeCount = 3,
                 ReOpenDiff2 = 2500,
-                BaseTradesForPositiveClose = true
             });
             ExpertSets.Add(new ExpertSet
             {
+                Description = "EU GU",
                 TradingAccount = TradingAccounts.First(e => e.Id == 2),
+                TimeFrame = 1,
                 Symbol1 = "EURUSD+",
                 Symbol2 = "GBPUSD+",
                 Delta = 200,
@@ -367,14 +361,9 @@ namespace QvaDev.Data
                 Diff = 1,
                 Period = 50,
                 Tp1 = 500,
-                HedgeRatio = 1,
-                HedgeStart = 1,
-                HedgeStop = 3,
                 MagicNumber = 3000,
                 HedgicNumber = 3500,
                 LotSize = 0.01,
-                HedgeStopPositionCount = 3,
-                TradeSetStopLossValue = -50000,
                 TradeSetFloatingSwitch = -50000,
                 TradeOpeningEnabled = true,
                 ProfitCloseValueSell = 100,
@@ -385,12 +374,13 @@ namespace QvaDev.Data
                 Last24HMaxOpen = 200,
                 ReOpenDiff = 1500,
                 ReOpenDiffChangeCount = 3,
-                ReOpenDiff2 = 2500,
-                BaseTradesForPositiveClose = true
+                ReOpenDiff2 = 2500
             });
             ExpertSets.Add(new ExpertSet
             {
+                Description = "EU AU",
                 TradingAccount = TradingAccounts.First(e => e.Id == 2),
+                TimeFrame = 1,
                 Symbol1 = "EURUSD+",
                 Symbol2 = "AUDUSD+",
                 Delta = 200,
@@ -398,14 +388,9 @@ namespace QvaDev.Data
                 Diff = 1,
                 Period = 50,
                 Tp1 = 500,
-                HedgeRatio = 1,
-                HedgeStart = 1,
-                HedgeStop = 3,
                 MagicNumber = 4000,
                 HedgicNumber = 4500,
                 LotSize = 0.01,
-                HedgeStopPositionCount = 3,
-                TradeSetStopLossValue = -50000,
                 TradeSetFloatingSwitch = -50000,
                 TradeOpeningEnabled = true,
                 ProfitCloseValueSell = 100,
@@ -416,8 +401,7 @@ namespace QvaDev.Data
                 Last24HMaxOpen = 200,
                 ReOpenDiff = 1500,
                 ReOpenDiffChangeCount = 3,
-                ReOpenDiff2 = 2500,
-                BaseTradesForPositiveClose = true
+                ReOpenDiff2 = 2500
             });
 
             SaveChanges();

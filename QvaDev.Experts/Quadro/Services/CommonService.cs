@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using log4net;
 using QvaDev.Common.Integration;
 using QvaDev.Experts.Quadro.Models;
 
@@ -28,6 +29,12 @@ namespace QvaDev.Experts.Quadro.Services
     public class CommonService : ICommonService
     {
         public ICloseService CloseService;
+        private readonly ILog _log;
+
+        public CommonService(ILog log)
+        {
+            _log = log;
+        }
 
         public double CalculateBaseOrdersProfit(ExpertSetWrapper exp, Sides side)
         {
@@ -101,11 +108,9 @@ namespace QvaDev.Experts.Quadro.Services
         public double BarQuant(ExpertSetWrapper exp, Position p)
         {
             int barIndex = GetBarIndexForTime(exp, p.OpenTime, p.Symbol);
-            if (barIndex >= 0)
-            {
-                return exp.Quants[barIndex];
-            }
-            exp.ExpertDenied = true;
+            if (barIndex >= 0) return exp.Quants[barIndex];
+            exp.E.ExpertDenied = true;
+            _log.Debug($"{exp.E.Description}: ExpertDenied");
             CloseService.AllCloseMin(exp);
             CloseService.AllCloseMax(exp);
             return 0;

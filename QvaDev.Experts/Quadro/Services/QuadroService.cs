@@ -53,9 +53,10 @@ namespace QvaDev.Experts.Quadro.Services
 
         public void OnTick(Connector connector, ExpertSet expertSet)
         {
-            lock (expertSet)
+            if (expertSet.ExpertDenied) return;
+            var exp = ExpertSetWrappers.GetOrAdd(expertSet.Id, id => new ExpertSetWrapper(expertSet));
+            lock (exp)
             {
-                var exp = ExpertSetWrappers.GetOrAdd(expertSet.Id, id => new ExpertSetWrapper(expertSet));
                 if (exp.E.CloseAllBuy)
                 {
                     _closeService.AllCloseMin(exp);
@@ -90,21 +91,21 @@ namespace QvaDev.Experts.Quadro.Services
                 if (connector.GetFloatingProfit() < exp.E.TradeSetFloatingSwitch)
                 {
                     exp.E.TradeOpeningEnabled = false;
-                    _log.Debug($"Trade opening disabled for {exp.E.Symbol1} | {exp.E.Symbol2}");
+                    _log.Debug($"{exp.E.Description}: TradeOpeningEnabled set to FALSE because of TradeSetFloatingSwitch");
                 }
             }
         }
 
         public void OnBarHistory(Connector connector, ExpertSet expertSet, BarHistoryEventArgs e)
         {
-            lock (expertSet)
+            var exp = ExpertSetWrappers.GetOrAdd(expertSet.Id, id => new ExpertSetWrapper(expertSet));
+            lock (exp)
             {
                 if (expertSet.Symbol1 != e.Symbol && expertSet.Symbol2 != e.Symbol) return;
 
-                var exp = ExpertSetWrappers.GetOrAdd(expertSet.Id, id => new ExpertSetWrapper(expertSet));
-                if (exp.ExpertDenied) return;
                 if (!IsBarUpdating(exp, e)) return;
                 if (!AreBarsInSynchron(exp)) return;
+                if (exp.E.ExpertDenied) return;
                 var quants = new List<double>();
                 for (var i = 0; i < exp.BarHistory1.Count; i++)
                 {
@@ -114,7 +115,11 @@ namespace QvaDev.Experts.Quadro.Services
                     quants.Add(quant);
                 }
                 exp.Quants = quants;
-                _log.Debug($"Quants for {exp.E.Symbol1} | {exp.E.Symbol2} => {exp.Quants.AsString()}");
+                _log.Debug($"{exp.E.Description}: quants => {exp.Quants.AsString()}");
+                _log.Debug($"{exp.E.Description}: stoch avg ({exp.E.StochMultiplication}, {exp.E.StochMultiplier1}, {exp.E.StochMultiplier2}, {exp.E.StochMultiplier3}) => " +
+                           $"({exp.QuantSto:F}, {exp.QuantSto1:F}, {exp.QuantSto2:F}, {exp.QuantSto3:F}, {exp.QuantStoAvg:F})");
+                _log.Debug($"{exp.E.Description}: wpr avg ({exp.E.WprMultiplication}, {exp.E.WprMultiplier1}, {exp.E.WprMultiplier2}, {exp.E.WprMultiplier3}) => " +
+                           $"({exp.QuantWpr:F}, {exp.QuantWpr1:F}, {exp.QuantWpr2:F}, {exp.QuantWpr3:F}, {exp.QuantWprAvg:F})");
                 OnBar(exp);
             }
         }
