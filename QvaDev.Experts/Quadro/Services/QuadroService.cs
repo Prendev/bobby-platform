@@ -105,7 +105,7 @@ namespace QvaDev.Experts.Quadro.Services
                 if (!AreBarsInSynchron(exp)) return;
                 if (exp.E.ExpertDenied) return;
                 exp.CalculateQuants();
-                _log.Debug($"{exp.E.Description}: quants ({exp.E.M}) => {exp.Quants.First():F} | stoch avg ({exp.E.StochMultiplication}) => {exp.QuantStoAvg:F}");
+                _log.Debug($"{exp.E.Description}: quants ({exp.E.M}) => {exp.Quant:F} | stoch avg ({exp.E.StochMultiplication}) => {exp.QuantStoAvg:F}");
                 OnBar(exp);
             }
         }

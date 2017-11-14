@@ -21,9 +21,9 @@ namespace QvaDev.Experts.Quadro.Hedge
         {
             if (exp.E.HedgeStopPositionCount < 0 || exp.E.HedgeMode == ExpertSet.HedgeModes.NoHedge) return;
             if (exp.SellHedgeOpenCount > 0)
-                CheckHedgeStopByQuant(exp, Sides.Sell, barQuant => exp.Quants.First() < barQuant);
+                CheckHedgeStopByQuant(exp, Sides.Sell, barQuant => exp.Quant < barQuant);
             if (exp.BuyHedgeOpenCount > 0)
-                CheckHedgeStopByQuant(exp, Sides.Buy, barQuant => exp.Quants.First() > barQuant);
+                CheckHedgeStopByQuant(exp, Sides.Buy, barQuant => exp.Quant > barQuant);
         }
 
         private void CheckHedgeStopByQuant(ExpertSetWrapper exp, Sides spreadOrderType, Predicate<double> predicate)

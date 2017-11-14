@@ -43,6 +43,8 @@ namespace QvaDev.Experts.Quadro.Models
         public int BuyHedgeOpenCount { get; set; }
         public int SellHedgeOpenCount { get; set; }
 
+
+        public double Quant => Quants.First();
         public double? QuantStoAvg { get; private set; }
         public int StochMinAvgOpen => E.Diff;
         public int StochMaxAvgOpen => 100 - E.Diff;

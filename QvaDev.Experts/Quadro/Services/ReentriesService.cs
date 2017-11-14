@@ -50,8 +50,8 @@ namespace QvaDev.Experts.Quadro.Services
             _log.Debug($"{exp.E.Description}: CalculateReentriesForForMaxAction Pre2 => {exp.SpreadSellMagicNumber}");
 
             int buyReopenDiff = GetReopenDiff(exp, exp.BuyOpenCount);
-            if (exp.Quants.First() < _commonService.BarQuant(exp, o1) + buyReopenDiff * exp.Point) return;
-            if (exp.Quants.First() < _commonService.BarQuant(exp, o2) + buyReopenDiff * exp.Point) return;
+            if (exp.Quant < _commonService.BarQuant(exp, o1) + buyReopenDiff * exp.Point) return;
+            if (exp.Quant < _commonService.BarQuant(exp, o2) + buyReopenDiff * exp.Point) return;
             _log.Debug($"{exp.E.Description}: CalculateReentriesForForMaxAction Open => {exp.SpreadSellMagicNumber}");
 
             CorrectLotArrayIfNeeded(exp, Sides.Sell);
@@ -77,8 +77,8 @@ namespace QvaDev.Experts.Quadro.Services
             _log.Debug($"{exp.E.Description}: CalculateReentriesForMinAction Pre2 => {exp.SpreadBuyMagicNumber}");
 
             int sellReopenDiff = GetReopenDiff(exp, exp.SellOpenCount);
-            if (exp.Quants.First() > _commonService.BarQuant(exp, o1) - sellReopenDiff * exp.Point) return;
-            if (exp.Quants.First() > _commonService.BarQuant(exp, o2) - sellReopenDiff * exp.Point) return;
+            if (exp.Quant > _commonService.BarQuant(exp, o1) - sellReopenDiff * exp.Point) return;
+            if (exp.Quant > _commonService.BarQuant(exp, o2) - sellReopenDiff * exp.Point) return;
             _log.Debug($"{exp.E.Description}: CalculateReentriesForMinAction Open => {exp.SpreadBuyMagicNumber}");
 
             CorrectLotArrayIfNeeded(exp, Sides.Buy);
