@@ -236,7 +236,7 @@ namespace QvaDev.Mt4Integration
                 {
                     if (symbolHistory.IsUpdating) continue;
                     if (symbolHistory.BarHistory.Any() &&
-                        args.Time < symbolHistory.BarHistory.Last().OpenTime.AddMinutes(2 * (int) timeframe)) continue;
+                        args.Time < symbolHistory.BarHistory.First().OpenTime.AddMinutes(2 * (int) timeframe)) continue;
 
                     symbolHistory.IsUpdating = true;
                     QuoteClient.DownloadQuoteHistory(args.Symbol, timeframe, DateTime.Now.AddDays(1), 1);
@@ -253,7 +253,6 @@ namespace QvaDev.Mt4Integration
         {
             if (args.Bars?.Any() != true) return;
             if (args.Bars.First().Time < new DateTime(2000, 1, 1)) return;
-            _log.Debug($"{args.Symbol}: QuoteClient_OnQuoteHistory => {args.Bars.Count()} | {args.Bars.Last().Time}");
             SymbolHistory symbolHistory;
             if (!_symbolHistories.TryGetValue(new Tuple<string, int>(args.Symbol, (int)args.Timeframe).ToString(), out symbolHistory)) return;
 
@@ -269,15 +268,9 @@ namespace QvaDev.Mt4Integration
                         High = b.High,
                         OpenTime = b.Time
                     }).ToList();
-                if (!symbolHistory.BarHistory.Any()) symbolHistory.BarHistory = barHistory;
-                else if (symbolHistory.BarHistory.Last().OpenTime < barHistory.First().OpenTime)
-                    symbolHistory.BarHistory.AddRange(barHistory);
-                else if (barHistory.Last().OpenTime < symbolHistory.BarHistory.First().OpenTime)
-                {
-                    barHistory.AddRange(symbolHistory.BarHistory);
-                    symbolHistory.BarHistory = barHistory;
-                }
-                if (symbolHistory.BarHistory.Count < symbolHistory.BarCount) return;
+                symbolHistory.BarHistory.AddRange(barHistory);
+                symbolHistory.BarHistory = symbolHistory.BarHistory.Distinct().OrderByDescending(b => b.OpenTime).ToList();
+                //_log.Debug($"{args.Symbol}: QuoteClient_OnQuoteHistory => {symbolHistory.BarHistory.Count} | {args.Bars.First().Time} | {args.Bars.Last().Time}");
                 OnBarHistory?.Invoke(this,
                     new BarHistoryEventArgs { Symbol = args.Symbol, BarHistory = symbolHistory.BarHistory });
             }

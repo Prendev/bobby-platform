@@ -101,13 +101,11 @@ namespace QvaDev.Experts.Quadro.Services
             var exp = ExpertSetWrappers.GetOrAdd(expertSet.Id, id => new ExpertSetWrapper(expertSet));
             lock (exp)
             {
-                if (expertSet.Symbol1 != e.Symbol && expertSet.Symbol2 != e.Symbol) return;
-
                 if (!IsBarUpdating(exp, e)) return;
                 if (!AreBarsInSynchron(exp)) return;
                 if (exp.E.ExpertDenied) return;
                 var quants = new List<double>();
-                for (var i = 0; i < exp.BarHistory1.Count; i++)
+                for (var i = 0; i < exp.E.GetMaxBarCount(); i++)
                 {
                     var price1Close = connector.MyRoundToDigits(expertSet.Symbol1, exp.BarHistory1[i].Close);
                     var price2Close = connector.MyRoundToDigits(expertSet.Symbol2, exp.BarHistory2[i].Close);
@@ -118,41 +116,35 @@ namespace QvaDev.Experts.Quadro.Services
                 _log.Debug($"{exp.E.Description}: quants => {exp.Quants.AsString()}");
                 _log.Debug($"{exp.E.Description}: stoch avg ({exp.E.StochMultiplication}, {exp.E.StochMultiplier1}, {exp.E.StochMultiplier2}, {exp.E.StochMultiplier3}) => " +
                            $"({exp.QuantSto:F}, {exp.QuantSto1:F}, {exp.QuantSto2:F}, {exp.QuantSto3:F}, {exp.QuantStoAvg:F})");
-                _log.Debug($"{exp.E.Description}: wpr avg ({exp.E.WprMultiplication}, {exp.E.WprMultiplier1}, {exp.E.WprMultiplier2}, {exp.E.WprMultiplier3}) => " +
-                           $"({exp.QuantWpr:F}, {exp.QuantWpr1:F}, {exp.QuantWpr2:F}, {exp.QuantWpr3:F}, {exp.QuantWprAvg:F})");
+                //_log.Debug($"{exp.E.Description}: wpr avg ({exp.E.WprMultiplication}, {exp.E.WprMultiplier1}, {exp.E.WprMultiplier2}, {exp.E.WprMultiplier3}) => " +
+                //           $"({exp.QuantWpr:F}, {exp.QuantWpr1:F}, {exp.QuantWpr2:F}, {exp.QuantWpr3:F}, {exp.QuantWprAvg:F})");
                 OnBar(exp);
             }
         }
 
         private bool IsBarUpdating(ExpertSetWrapper exp, BarHistoryEventArgs e)
         {
-            if (exp.E.Symbol1 == e.Symbol)
-            {
-                if (exp.BarHistory1.Any() && e.BarHistory.Last().OpenTime <= exp.BarHistory1.Last().OpenTime)
-                    return false;
-                exp.BarHistory1 = new List<Bar>(e.BarHistory);
-            }
-            else
-            {
-                if (exp.BarHistory2.Any() && e.BarHistory.Last().OpenTime <= exp.BarHistory2.Last().OpenTime)
-                    return false;
-                exp.BarHistory2 = new List<Bar>(e.BarHistory);
-            }
+            if (exp.E.Symbol1 != e.Symbol && exp.E.Symbol2 != e.Symbol) return false;
+            if (e.BarHistory.First().OpenTime <= DateTime.UtcNow.AddMinutes(-2 * exp.E.TimeFrame)) return false;
+            if (e.BarHistory.Count < exp.E.GetMaxBarCount()) return false;
+
+            var barHistory = exp.E.Symbol1 == e.Symbol ? exp.BarHistory1 : exp.BarHistory2;
+            if (barHistory.Any() && e.BarHistory.First().OpenTime <= barHistory.First().OpenTime) return false;
+
+            if (exp.E.Symbol1 == e.Symbol) exp.BarHistory1 = new List<Bar>(e.BarHistory);
+            else exp.BarHistory2 = new List<Bar>(e.BarHistory);
             return true;
         }
 
         private bool AreBarsInSynchron(ExpertSetWrapper exp)
         {
-            if (exp.BarHistory1.Count <= 1 || exp.BarHistory2.Count <= 1) return false;
-            if (exp.BarHistory1.Count != exp.BarHistory2.Count) return false;
-            if (exp.BarHistory1.Last().OpenTime != exp.BarHistory2.Last().OpenTime) return false;
+            if (!exp.BarHistory1.Any() || !exp.BarHistory2.Any()) return false;
+            if (exp.BarHistory1.First().OpenTime != exp.BarHistory2.First().OpenTime) return false;
             return true;
         }
 
-
         private void OnBar(ExpertSetWrapper exp)
         {
-            if (exp.BarHistory1.Last().OpenTime <= DateTime.UtcNow.AddMinutes(-2 * exp.E.TimeFrame)) return;
             if (!IsCurrentTimeEnabledForTrade()) return;
 
             _closeService.CheckClose(exp);

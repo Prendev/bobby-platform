@@ -176,13 +176,13 @@ namespace QvaDev.Experts.Quadro.Services
 
             if (side == Sides.Buy)
             {
-                sym1InRange = IsInDeltaRange(exp.Sym1LastMinActionPrice, exp.DeltaRange, exp.BarHistory1.Last().Close);
-                sym2InRange = IsInDeltaRange(exp.Sym2LastMinActionPrice, exp.DeltaRange, exp.BarHistory2.Last().Close);
+                sym1InRange = IsInDeltaRange(exp.Sym1LastMinActionPrice, exp.DeltaRange, exp.BarHistory1.First().Close);
+                sym2InRange = IsInDeltaRange(exp.Sym2LastMinActionPrice, exp.DeltaRange, exp.BarHistory2.First().Close);
             }
             else
             {
-                sym1InRange = IsInDeltaRange(exp.Sym1LastMaxActionPrice, exp.DeltaRange, exp.BarHistory1.Last().Close);
-                sym2InRange = IsInDeltaRange(exp.Sym2LastMaxActionPrice, exp.DeltaRange, exp.BarHistory2.Last().Close);
+                sym1InRange = IsInDeltaRange(exp.Sym1LastMaxActionPrice, exp.DeltaRange, exp.BarHistory1.First().Close);
+                sym2InRange = IsInDeltaRange(exp.Sym2LastMaxActionPrice, exp.DeltaRange, exp.BarHistory2.First().Close);
             }
             return sym1InRange || sym2InRange;
         }

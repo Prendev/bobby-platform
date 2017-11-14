@@ -31,13 +31,13 @@ namespace QvaDev.Experts
         {
             if (list == null || !list.Any()) return "[]";
             var sb = new StringBuilder();
-            sb.Append("[ ...");
-            foreach (var item in list.Skip(list.Count - 5))
+            sb.Append("[ ");
+            foreach (var item in list.Take(Math.Min(5, list.Count)))
             {
-                sb.Append(" | ");
                 sb.Append(item);
+                sb.Append(" | ");
             }
-            sb.Append(" ]");
+            sb.Append("... ]");
             return sb.ToString();
         }
 

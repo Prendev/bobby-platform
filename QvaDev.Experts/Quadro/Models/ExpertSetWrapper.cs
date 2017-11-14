@@ -97,7 +97,7 @@ namespace QvaDev.Experts.Quadro.Models
             var range = Quants.GetRange(Quants.Count - period, period);
             double diff = range.Max() - range.Min();
             if (diff <= -1) return null;
-            return (Quants.Last() - range.Min()) / diff * 100;
+            return (Quants.First() - range.Min()) / diff * 100;
         }
         private double? CalcWpr(int period)
         {
@@ -105,7 +105,7 @@ namespace QvaDev.Experts.Quadro.Models
             var range = Quants.GetRange(Quants.Count - period, period);
             double diff = range.Max() - range.Min();
             if (diff <= -1) return null;
-            return (range.Max() - Quants.Last()) / diff * -100;
+            return (range.Max() - Quants.First()) / diff * -100;
         }
         private double? CalcAvg(double? value, double? value1, double? value2, double? value3)
         {

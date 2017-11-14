@@ -64,11 +64,15 @@ namespace QvaDev.Orchestration.Services
             connector.OnTick -= Connector_OnTick;
             connector.OnTick += Connector_OnTick;
 
-            var symbols = tradingAccount.ExpertSets
+            var symbols1 = tradingAccount.ExpertSets
                 .Where(e => e.ShouldRun)
-                .Select(e => new Tuple<string, int, short>(e.Symbol1, e.TimeFrame, (short)e.GetMaxBarCount()))
-                .Union(tradingAccount.ExpertSets.Select(e => new Tuple<string, int, short>(e.Symbol2, e.TimeFrame, (short)e.GetMaxBarCount())))
-                .Distinct().ToList();
+                .Select(e => new Tuple<string, int, short>(e.Symbol1, e.TimeFrame, (short) e.GetMaxBarCount()));
+
+            var symbols2 = tradingAccount.ExpertSets
+                .Where(e => e.ShouldRun)
+                .Select(e => new Tuple<string, int, short>(e.Symbol2, e.TimeFrame, (short)e.GetMaxBarCount()));
+
+            var symbols = symbols1.Union(symbols2).Distinct().ToList();
 
             connector.Subscribe(symbols);
         }
@@ -97,7 +101,7 @@ namespace QvaDev.Orchestration.Services
 
         private void Connector_OnBarHistory(object sender, BarHistoryEventArgs e)
         {
-            _log.Debug($"{e.Symbol}: Connector_OnBarHistory => {e.BarHistory.Count} | {e.BarHistory.Last().OpenTime}");
+            _log.Debug($"{e.Symbol}: Connector_OnBarHistory => {e.BarHistory.Count} | {e.BarHistory.First().OpenTime}");
             if (!_isStarted) return;
             if (_expertSets?.Any() == false) return;
             Task.Factory.StartNew(() =>

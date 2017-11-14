@@ -48,6 +48,13 @@ namespace QvaDev.Data
 
             if (exists) return;
 
+            Experts.Add(new Expert { Description = "Quadro" });
+
+            SaveChanges();
+
+            InitQuadro();
+            SaveChanges();
+
             CTraderPlatforms.Add(new CTraderPlatform()
             {
                 Description = "cTrader Prod",
@@ -276,10 +283,6 @@ namespace QvaDev.Data
 
             SaveChanges();
 
-            Experts.Add(new Expert { Description = "Quadro" });
-
-            SaveChanges();
-
             TradingAccounts.Add(new TradingAccount
             {
                 Profile = Profiles.First(p => p.Description == "Dummy Profile 1"),
@@ -404,9 +407,6 @@ namespace QvaDev.Data
                 ReOpenDiff2 = 2500
             });
 
-            SaveChanges();
-
-            InitQuadro();
             SaveChanges();
         }
 
