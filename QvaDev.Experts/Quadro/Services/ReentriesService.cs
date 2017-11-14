@@ -32,24 +32,27 @@ namespace QvaDev.Experts.Quadro.Services
 
         public void CalculateReentries(ExpertSetWrapper exp)
         {
-            CalculateReentriesForSell(exp);
-            CalculateReentriesForBuy(exp);
+            if (!exp.QuantStoAvg.HasValue ||  !exp.QuantWprAvg.HasValue) return;
+            CalculateReentriesForForMaxAction(exp);
+            CalculateReentriesForMinAction(exp);
         }
 
-        private void CalculateReentriesForSell(ExpertSetWrapper exp)
+        private void CalculateReentriesForForMaxAction(ExpertSetWrapper exp)
         {
             if (_commonService.IsInDeltaRange(exp, Sides.Sell)) return;
             if (exp.QuantStoAvg < exp.StochMaxAvgOpen || exp.QuantWprAvg <= -exp.WprMinAvgOpen) return;
             if (exp.SellOpenCount >= exp.E.MaxTradeSetCount || !EnableLast24Filter(exp, Sides.Sell, 2)) return;
+            _log.Debug($"{exp.E.Description}: CalculateReentriesForForMaxAction Pre1 => {exp.SpreadSellMagicNumber}");
 
             var o1 = LastOrder(exp, exp.E.Symbol1, exp.Sym1MaxOrderType, exp.SpreadSellMagicNumber);
             var o2 = LastOrder(exp, exp.E.Symbol2, exp.Sym2MaxOrderType, exp.SpreadSellMagicNumber);
             if (o1 == null || o2 == null) return;
+            _log.Debug($"{exp.E.Description}: CalculateReentriesForForMaxAction Pre2 => {exp.SpreadSellMagicNumber}");
 
             int buyReopenDiff = GetReopenDiff(exp, exp.BuyOpenCount);
             if (exp.Quants.First() < _commonService.BarQuant(exp, o1) + buyReopenDiff * exp.Point) return;
             if (exp.Quants.First() < _commonService.BarQuant(exp, o2) + buyReopenDiff * exp.Point) return;
-            _log.Debug($"{exp.E.Description}: CalculateReentriesForSell => {exp.SpreadSellMagicNumber}");
+            _log.Debug($"{exp.E.Description}: CalculateReentriesForForMaxAction Open => {exp.SpreadSellMagicNumber}");
 
             CorrectLotArrayIfNeeded(exp, Sides.Sell);
             double lot1 = exp.SellLots[exp.SellOpenCount, 1].CheckLot();
@@ -61,20 +64,22 @@ namespace QvaDev.Experts.Quadro.Services
             _hedgeServices[exp.E.HedgeMode].OnBaseTradesOpened(exp, Sides.Sell, new[] { lot1, lot2 });
         }
 
-        private void CalculateReentriesForBuy(ExpertSetWrapper exp)
+        private void CalculateReentriesForMinAction(ExpertSetWrapper exp)
         {
             if (_commonService.IsInDeltaRange(exp, Sides.Buy)) return;
             if (exp.QuantStoAvg > exp.StochMinAvgOpen || exp.QuantWprAvg >= -exp.WprMaxAvgOpen) return;
             if (exp.BuyOpenCount >= exp.E.MaxTradeSetCount || !EnableLast24Filter(exp, Sides.Buy, 2)) return;
+            _log.Debug($"{exp.E.Description}: CalculateReentriesForMinAction Pre1 => {exp.SpreadBuyMagicNumber}");
 
             var o1 = LastOrder(exp, exp.E.Symbol1, exp.Sym1MinOrderType, exp.SpreadBuyMagicNumber);
             var o2 = LastOrder(exp, exp.E.Symbol2, exp.Sym2MinOrderType, exp.SpreadBuyMagicNumber);
             if (o1 == null || o2 == null) return;
+            _log.Debug($"{exp.E.Description}: CalculateReentriesForMinAction Pre2 => {exp.SpreadBuyMagicNumber}");
 
             int sellReopenDiff = GetReopenDiff(exp, exp.SellOpenCount);
             if (exp.Quants.First() > _commonService.BarQuant(exp, o1) - sellReopenDiff * exp.Point) return;
             if (exp.Quants.First() > _commonService.BarQuant(exp, o2) - sellReopenDiff * exp.Point) return;
-            _log.Debug($"{exp.E.Description}: CalculateReentriesForBuy => {exp.SpreadBuyMagicNumber}");
+            _log.Debug($"{exp.E.Description}: CalculateReentriesForMinAction Open => {exp.SpreadBuyMagicNumber}");
 
             CorrectLotArrayIfNeeded(exp, Sides.Buy);
             double lot1 = exp.BuyLots[exp.BuyOpenCount, 1].CheckLot();

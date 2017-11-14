@@ -104,15 +104,7 @@ namespace QvaDev.Experts.Quadro.Services
                 if (!IsBarUpdating(exp, e)) return;
                 if (!AreBarsInSynchron(exp)) return;
                 if (exp.E.ExpertDenied) return;
-                var quants = new List<double>();
-                for (var i = 0; i < exp.E.GetMaxBarCount(); i++)
-                {
-                    var price1Close = connector.MyRoundToDigits(expertSet.Symbol1, exp.BarHistory1[i].Close);
-                    var price2Close = connector.MyRoundToDigits(expertSet.Symbol2, exp.BarHistory2[i].Close);
-                    var quant = connector.MyRoundToDigits(expertSet.Symbol1, price2Close - expertSet.M * price1Close);
-                    quants.Add(quant);
-                }
-                exp.Quants = quants;
+                exp.CalculateQuants();
                 _log.Debug($"{exp.E.Description}: quants ({exp.E.M}) => {exp.Quants.First():F} | stoch avg ({exp.E.StochMultiplication}) => {exp.QuantStoAvg:F}");
                 OnBar(exp);
             }

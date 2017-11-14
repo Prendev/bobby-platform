@@ -43,19 +43,10 @@ namespace QvaDev.Experts.Quadro.Models
         public int BuyHedgeOpenCount { get; set; }
         public int SellHedgeOpenCount { get; set; }
 
-        public double? QuantSto => CalcSto(E.StochMultiplication);
-        public double? QuantSto1 => CalcSto(E.StochMultiplication * E.StochMultiplier1);
-        public double? QuantSto2 => CalcSto(E.StochMultiplication * E.StochMultiplier2);
-        public double? QuantSto3 => CalcSto(E.StochMultiplication * E.StochMultiplier3);
-        public double? QuantStoAvg => CalcAvg(QuantSto, QuantSto1, QuantSto2, QuantSto3);
+        public double? QuantStoAvg { get; private set; }
         public int StochMinAvgOpen => E.Diff;
         public int StochMaxAvgOpen => 100 - E.Diff;
-
-        public double? QuantWpr => CalcWpr(E.WprMultiplication);
-        public double? QuantWpr1 => CalcWpr(E.WprMultiplication * E.WprMultiplier1);
-        public double? QuantWpr2 => CalcWpr(E.WprMultiplication * E.WprMultiplier2);
-        public double? QuantWpr3 => CalcWpr(E.WprMultiplication * E.WprMultiplier3);
-        public double? QuantWprAvg => CalcAvg(QuantWpr, QuantWpr1, QuantWpr2, QuantWpr3);
+        public double? QuantWprAvg { get; private set; }
         public int WprMinAvgOpen => E.Diff;
         public int WprMaxAvgOpen => 100 - E.Diff;
 
@@ -91,6 +82,30 @@ namespace QvaDev.Experts.Quadro.Models
 
         public double Point => Connector.GetPoint(E.Symbol1);
 
+        public void CalculateQuants()
+        {
+            var quants = new List<double>();
+            for (var i = 0; i < E.GetMaxBarCount(); i++)
+            {
+                var price1Close = Connector.MyRoundToDigits(E.Symbol1, BarHistory1[i].Close);
+                var price2Close = Connector.MyRoundToDigits(E.Symbol2, BarHistory2[i].Close);
+                var quant = Connector.MyRoundToDigits(E.Symbol1, price2Close - E.M * price1Close);
+                quants.Add(quant);
+            }
+            Quants = quants;
+
+            double? quantSto = CalcSto(E.StochMultiplication);
+            double? quantSto1 = CalcSto(E.StochMultiplication * E.StochMultiplier1);
+            double? quantSto2 = CalcSto(E.StochMultiplication * E.StochMultiplier2);
+            double? quantSto3 = CalcSto(E.StochMultiplication * E.StochMultiplier3);
+            QuantStoAvg = CalcAvg(quantSto, quantSto1, quantSto2, quantSto3);
+
+            double? quantWpr = CalcWpr(E.WprMultiplication);
+            double? quantWpr1 = CalcWpr(E.WprMultiplication * E.WprMultiplier1);
+            double? quantWpr2 = CalcWpr(E.WprMultiplication * E.WprMultiplier2);
+            double? quantWpr3 = CalcWpr(E.WprMultiplication * E.WprMultiplier3);
+            QuantWprAvg = CalcAvg(quantWpr, quantWpr1, quantWpr2, quantWpr3);
+        }
         private double? CalcSto(int period, int index = 0)
         {
             if (Quants.Count < index + period) return null;

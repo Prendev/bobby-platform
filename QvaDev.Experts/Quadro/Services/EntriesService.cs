@@ -30,17 +30,14 @@ namespace QvaDev.Experts.Quadro.Services
 
         public void CalculateEntries(ExpertSetWrapper exp)
         {
-            if (!exp.QuantStoAvg.HasValue) return;
-            if (!exp.QuantWprAvg.HasValue) return;
-
+            if (!exp.QuantStoAvg.HasValue || !exp.QuantWprAvg.HasValue) return;
             CalculateEntriesForMaxAction(exp);
             CalculateEntriesForMinAction(exp);
         }
 
         private void CalculateEntriesForMaxAction(ExpertSetWrapper exp)
         {
-            if (exp.QuantStoAvg <= exp.StochMaxAvgOpen) return;
-            if (exp.QuantWprAvg <= -exp.WprMinAvgOpen) return;
+            if (exp.QuantStoAvg <= exp.StochMaxAvgOpen || exp.QuantWprAvg <= -exp.WprMinAvgOpen) return;
             if (MyOrdersCount(exp, exp.E.Symbol1, exp.Sym1MaxOrderType) != 0) return;
             if (MyOrdersCount(exp, exp.E.Symbol2, exp.Sym2MaxOrderType) != 0) return;
             _log.Debug($"{exp.E.Description}: CalculateEntriesForMaxAction => {exp.SpreadSellMagicNumber}");
@@ -59,8 +56,7 @@ namespace QvaDev.Experts.Quadro.Services
 
         protected void CalculateEntriesForMinAction(ExpertSetWrapper exp)
         {
-            if (exp.QuantStoAvg >= exp.StochMinAvgOpen) return;
-            if (exp.QuantWprAvg >= -exp.WprMaxAvgOpen) return;
+            if (exp.QuantStoAvg >= exp.StochMinAvgOpen || exp.QuantWprAvg >= -exp.WprMaxAvgOpen) return;
             if (MyOrdersCount(exp, exp.E.Symbol1, exp.Sym1MinOrderType) != 0) return;
             if (MyOrdersCount(exp, exp.E.Symbol2, exp.Sym2MinOrderType) != 0) return;
             _log.Debug($"{exp.E.Description}: CalculateEntriesForMinAction => {exp.SpreadBuyMagicNumber}");
@@ -79,9 +75,12 @@ namespace QvaDev.Experts.Quadro.Services
 
         private int MyOrdersCount(ExpertSetWrapper exp, string symbol, Sides side)
         {
-            return exp.Connector.Positions.Count(p => p.Value.Symbol == symbol && p.Value.Side == side &&
+            var ordersCount = exp.Connector.Positions.Count(p => p.Value.Symbol == symbol && p.Value.Side == side &&
                                                   (p.Value.MagicNumber == exp.SpreadBuyMagicNumber ||
                                                    p.Value.MagicNumber == exp.SpreadSellMagicNumber));
+            _log.Debug($"{exp.E.Description}: EntriesService.MyOrdersCount({symbol}, {side:F}) => {ordersCount}");
+
+            return ordersCount;
         }
     }
 }
