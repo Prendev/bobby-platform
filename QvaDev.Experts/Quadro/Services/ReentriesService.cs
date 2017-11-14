@@ -135,9 +135,8 @@ namespace QvaDev.Experts.Quadro.Services
 
         private Position FirstOrder(ExpertSetWrapper exp, string symbol, Sides side, int magicNumber)
         {
-            return exp.Connector.Positions
-                .Where(p => p.Value.Symbol == symbol && p.Value.Side == side && p.Value.MagicNumber == magicNumber)
-                .Select(p => p.Value)
+            return exp.OpenPositions
+                .Where(p => p.Symbol == symbol && p.Side == side && p.MagicNumber == magicNumber)
                 .OrderBy(p => p.OpenTime)
                 .FirstOrDefault();
         }

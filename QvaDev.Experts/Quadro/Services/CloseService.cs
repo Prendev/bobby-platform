@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Autofac.Features.Indexed;
+using log4net;
 using QvaDev.Common.Integration;
 using QvaDev.Data.Models;
 using QvaDev.Experts.Quadro.Hedge;
@@ -20,11 +21,14 @@ namespace QvaDev.Experts.Quadro.Services
     {
         private readonly IIndex<ExpertSet.HedgeModes, IHedgeService> _hedgeServices;
         private readonly ICommonService _commonService;
+        private readonly ILog _log;
 
         public CloseService(
+            ILog log,
             ICommonService commonService,
             IIndex<ExpertSet.HedgeModes, IHedgeService> hedgeServices)
         {
+            _log = log;
             _commonService = commonService;
             _hedgeServices = hedgeServices;
         }
@@ -43,6 +47,7 @@ namespace QvaDev.Experts.Quadro.Services
                 double hedgeProfit = _hedgeServices[exp.E.HedgeMode].CalculateProfit(exp, side);
                 double baseProfit = _commonService.CalculateBaseOrdersProfit(exp, side);
                 if (baseProfit + (exp.E.HedgeTradeForPositiveClose ? hedgeProfit : 0) <= 0) return;
+                _log.Debug($"{exp.E.Description}: CloseService.CheckQuantClose({side:F}) => hedgeProfit = {hedgeProfit} | baseProfit = {baseProfit}");
             }
             if (side == Sides.Buy) CheckQuantBuyClose(exp);
             else CheckQuantSellClose(exp);
@@ -84,11 +89,13 @@ namespace QvaDev.Experts.Quadro.Services
 
         public void AllCloseMin(ExpertSetWrapper exp)
         {
+            _log.Debug($"{exp.E.Description}: CloseService.AllCloseMin");
             AllCloseLevel(exp, exp.Sym1MinOrderType, exp.Sym2MinOrderType, Sides.Buy);
             exp.InitBuyLotArray();
         }
         public void AllCloseMax(ExpertSetWrapper exp)
         {
+            _log.Debug($"{exp.E.Description}: CloseService.AllCloseMax");
             AllCloseLevel(exp, exp.Sym1MaxOrderType, exp.Sym2MaxOrderType, Sides.Sell);
             exp.InitSellLotArray();
         }

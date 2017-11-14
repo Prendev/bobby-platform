@@ -49,6 +49,7 @@ namespace QvaDev.Experts.Quadro.Services
             //if (!(exposureShieldHandler?.EnableOpeningOrder(baseOrders) ?? true)) return;
 
             _commonService.SetLastActionPrice(exp, Sides.Sell);
+            exp.CurrentSellState = ExpertSetWrapper.TradeSetStates.TradeOpened;
             exp.Connector.SendMarketOrderRequest(exp.E.Symbol1, exp.Sym1MaxOrderType, lot1, exp.SpreadSellMagicNumber, exp.E.Description);
             exp.Connector.SendMarketOrderRequest(exp.E.Symbol2, exp.Sym2MaxOrderType, lot2, exp.SpreadSellMagicNumber, exp.E.Description);
             _hedgeServices[exp.E.HedgeMode].OnBaseTradesOpened(exp, Sides.Sell, new[] { lot1, lot2 });
@@ -68,6 +69,7 @@ namespace QvaDev.Experts.Quadro.Services
             //if (!(exposureShieldHandler?.EnableOpeningOrder(baseOrders) ?? true)) return;
 
             _commonService.SetLastActionPrice(exp, Sides.Buy);
+            exp.CurrentBuyState = ExpertSetWrapper.TradeSetStates.TradeOpened;
             exp.Connector.SendMarketOrderRequest(exp.E.Symbol1, exp.Sym1MinOrderType, lot1, exp.SpreadBuyMagicNumber, exp.E.Description);
             exp.Connector.SendMarketOrderRequest(exp.E.Symbol2, exp.Sym2MinOrderType, lot2, exp.SpreadBuyMagicNumber, exp.E.Description);
             _hedgeServices[exp.E.HedgeMode].OnBaseTradesOpened(exp, Sides.Buy, new[] {lot1, lot2});
@@ -75,9 +77,9 @@ namespace QvaDev.Experts.Quadro.Services
 
         private int MyOrdersCount(ExpertSetWrapper exp, string symbol, Sides side)
         {
-            var ordersCount = exp.Connector.Positions.Count(p => p.Value.Symbol == symbol && p.Value.Side == side &&
-                                                  (p.Value.MagicNumber == exp.SpreadBuyMagicNumber ||
-                                                   p.Value.MagicNumber == exp.SpreadSellMagicNumber));
+            var ordersCount = exp.OpenPositions
+                .Count(p => (p.MagicNumber == exp.SpreadBuyMagicNumber || p.MagicNumber == exp.SpreadSellMagicNumber) &&
+                            p.Symbol == symbol && p.Side == side);
             _log.Debug($"{exp.E.Description}: EntriesService.MyOrdersCount({symbol}, {side:F}) => {ordersCount}");
 
             return ordersCount;

@@ -87,14 +87,14 @@ namespace QvaDev.Experts.Quadro.Services
         public List<Position> GetOpenOrdersList(ExpertSetWrapper exp, string symbol, Sides orderType,
             int magicNumber)
         {
-            return exp.Positions.Select(p => p.Value)
+            return exp.OpenPositions
                 .Where(p => p.Symbol == symbol && p.Side == orderType && p.MagicNumber == magicNumber)
                 .ToList();
         }
         public List<Position> GetOpenOrdersList(ExpertSetWrapper exp, string symbol1, Sides orderType1,
             string symbol2, Sides orderType2, int magicNumber)
         {
-            return exp.Positions.Select(p => p.Value)
+            return exp.OpenPositions
                 .Where(p => p.MagicNumber == magicNumber &&
                             (p.Symbol == symbol1 && p.Side == orderType1 ||
                              p.Symbol == symbol2 && p.Side == orderType2))

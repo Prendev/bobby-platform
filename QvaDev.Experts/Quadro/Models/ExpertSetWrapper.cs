@@ -30,7 +30,8 @@ namespace QvaDev.Experts.Quadro.Models
             InitLastActionPrices();
         }
         public Connector Connector => E.TradingAccount.MetaTraderAccount.Connector as Connector;
-        public ConcurrentDictionary<long, Position> Positions => E.TradingAccount.MetaTraderAccount.Connector.Positions;
+        public IEnumerable<Position> OpenPositions => E.TradingAccount.MetaTraderAccount.Connector.Positions
+            .Select(p => p.Value).Where(p => !p.IsClosed);
 
         public int SpreadBuyMagicNumber => E.MagicNumber;
         public int SpreadSellMagicNumber => E.MagicNumber + 1;
