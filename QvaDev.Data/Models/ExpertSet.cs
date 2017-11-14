@@ -10,12 +10,12 @@ namespace QvaDev.Data.Models
     {
         public enum Variants
         {
-            NormalNormalBase,
-            NormalNormalReversed,
-            NormalInverseBase,
-            NormalInverseReversed,
-            InverseNormalBase,
-            InverseNormalReversed
+            NormalNormalBase = 1,
+            NormalNormalReversed = 2,
+            NormalInverseBase = 3,
+            NormalInverseReversed = 4,
+            InverseNormalBase = 5,
+            InverseNormalReversed = 6
         }
 
         public enum HedgeModes
@@ -25,6 +25,9 @@ namespace QvaDev.Data.Models
             //ThirdPairHedge,
             //ThreePairHedge
         }
+
+        [Required]
+        public bool ShouldRun { get; set; }
 
         public bool ExpertDenied { get; set; }
         public bool TradeOpeningEnabled { get; set; }

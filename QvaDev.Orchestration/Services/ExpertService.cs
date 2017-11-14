@@ -36,10 +36,15 @@ namespace QvaDev.Orchestration.Services
 
         public Task Start(DuplicatContext duplicatContext)
         {
-            _expertSets = duplicatContext.TradingAccounts.Local.SelectMany(ta => ta.ExpertSets).Distinct();
+            _expertSets = duplicatContext.TradingAccounts.Local
+                .SelectMany(ta => ta.ExpertSets)
+                .Where(ta => ta.ShouldRun)
+                .Distinct();
             _isStarted = true;
-            var tasks = duplicatContext.TradingAccounts.Local.AsEnumerable().Select(account =>
-                Task.Factory.StartNew(() => TradeAccount(account)));
+
+            var tasks = duplicatContext.TradingAccounts.Local.AsEnumerable()
+                .Where(a => a.ShouldTrade)
+                .Select(account => Task.Factory.StartNew(() => TradeAccount(account)));
             return Task.WhenAll(Task.WhenAll(tasks));
         }
 
@@ -59,7 +64,9 @@ namespace QvaDev.Orchestration.Services
             connector.OnTick -= Connector_OnTick;
             connector.OnTick += Connector_OnTick;
 
-            var symbols = tradingAccount.ExpertSets.Select(e => new Tuple<string, int, short>(e.Symbol1, e.TimeFrame, (short)e.GetMaxBarCount()))
+            var symbols = tradingAccount.ExpertSets
+                .Where(e => e.ShouldRun)
+                .Select(e => new Tuple<string, int, short>(e.Symbol1, e.TimeFrame, (short)e.GetMaxBarCount()))
                 .Union(tradingAccount.ExpertSets.Select(e => new Tuple<string, int, short>(e.Symbol2, e.TimeFrame, (short)e.GetMaxBarCount())))
                 .Distinct().ToList();
 

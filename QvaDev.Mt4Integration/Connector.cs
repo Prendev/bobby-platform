@@ -105,11 +105,11 @@ namespace QvaDev.Mt4Integration
             return IsConnected;
         }
 
-        public void SendMarketOrderRequest(string symbol, Sides side, double lots, int magicNumber)
+        public void SendMarketOrderRequest(string symbol, Sides side, double lots, int magicNumber, string comment = null)
         {
             var op = side == Sides.Buy ? Op.Buy : Op.Sell;
             var price = side == Sides.Buy ? QuoteClient.GetQuote(symbol).Ask : QuoteClient.GetQuote(symbol).Bid;
-            OrderClient.OrderSend(symbol, op, lots, price, 0, 0, 0, null, magicNumber, DateTime.MaxValue);
+            OrderClient.OrderSend(symbol, op, lots, price, 0, 0, 0, comment, magicNumber, DateTime.MaxValue);
         }
 
         public void SendClosePositionRequests(Position position, double? lots = null)

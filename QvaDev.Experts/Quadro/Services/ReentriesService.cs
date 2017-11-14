@@ -55,8 +55,8 @@ namespace QvaDev.Experts.Quadro.Services
             double lot1 = exp.SellLots[exp.SellOpenCount, 1].CheckLot();
             double lot2 = exp.SellLots[exp.SellOpenCount, 0].CheckLot();
 
-            exp.Connector.SendMarketOrderRequest(exp.E.Symbol1, exp.Sym1MaxOrderType, lot1, exp.SpreadSellMagicNumber);
-            exp.Connector.SendMarketOrderRequest(exp.E.Symbol2, exp.Sym2MaxOrderType, lot2, exp.SpreadSellMagicNumber);
+            exp.Connector.SendMarketOrderRequest(exp.E.Symbol1, exp.Sym1MaxOrderType, lot1, exp.SpreadSellMagicNumber, exp.E.Description);
+            exp.Connector.SendMarketOrderRequest(exp.E.Symbol2, exp.Sym2MaxOrderType, lot2, exp.SpreadSellMagicNumber, exp.E.Description);
             _commonService.SetLastActionPrice(exp, Sides.Sell);
             _hedgeServices[exp.E.HedgeMode].OnBaseTradesOpened(exp, Sides.Sell, new[] { lot1, lot2 });
         }
@@ -80,8 +80,8 @@ namespace QvaDev.Experts.Quadro.Services
             double lot1 = exp.BuyLots[exp.BuyOpenCount, 1].CheckLot();
             double lot2 = exp.BuyLots[exp.BuyOpenCount, 0].CheckLot();
 
-            exp.Connector.SendMarketOrderRequest(exp.E.Symbol1, exp.Sym1MinOrderType, lot1, exp.SpreadBuyMagicNumber);
-            exp.Connector.SendMarketOrderRequest(exp.E.Symbol2, exp.Sym2MinOrderType, lot2, exp.SpreadBuyMagicNumber);
+            exp.Connector.SendMarketOrderRequest(exp.E.Symbol1, exp.Sym1MinOrderType, lot1, exp.SpreadBuyMagicNumber, exp.E.Description);
+            exp.Connector.SendMarketOrderRequest(exp.E.Symbol2, exp.Sym2MinOrderType, lot2, exp.SpreadBuyMagicNumber, exp.E.Description);
             _commonService.SetLastActionPrice(exp, Sides.Buy);
             _hedgeServices[exp.E.HedgeMode].OnBaseTradesOpened(exp, Sides.Buy, new[] { lot1, lot2 });
         }

@@ -1,9 +1,13 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace QvaDev.Data.Models
 {
     public class TradingAccount : BaseEntity
     {
+        [Required]
+        public bool ShouldTrade { get; set; }
+
         public int ProfileId { get; set; }
         public Profile Profile { get; set; }
 

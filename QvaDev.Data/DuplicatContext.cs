@@ -80,7 +80,7 @@ namespace QvaDev.Data
                 User = 8801562,
                 Password = "k0agjjf",
                 MetaTraderPlatform = mt4Platform,
-                ShouldConnect = true
+                //ShouldConnect = true
             });
             MetaTraderAccounts.Add(new MetaTraderAccount()
             {
@@ -302,6 +302,7 @@ namespace QvaDev.Data
                 TimeFrame = 1,
                 Symbol1 = "EURUSD+",
                 Symbol2 = "GBPUSD+",
+                Variant = ExpertSet.Variants.NormalNormalBase,
                 Delta = 10,
                 M = 0.6,
                 Diff = 20,
@@ -328,6 +329,7 @@ namespace QvaDev.Data
                 TimeFrame = 1,
                 Symbol1 = "EURUSD+",
                 Symbol2 = "AUDUSD+",
+                Variant = ExpertSet.Variants.NormalNormalBase,
                 Delta = 200,
                 M = 0.6,
                 Diff = 10,
@@ -354,6 +356,7 @@ namespace QvaDev.Data
                 TimeFrame = 1,
                 Symbol1 = "EURUSD+",
                 Symbol2 = "GBPUSD+",
+                Variant = ExpertSet.Variants.NormalNormalBase,
                 Delta = 200,
                 M = 0.6,
                 Diff = 10,
@@ -380,6 +383,7 @@ namespace QvaDev.Data
                 TimeFrame = 1,
                 Symbol1 = "EURUSD+",
                 Symbol2 = "AUDUSD+",
+                Variant = ExpertSet.Variants.NormalNormalBase,
                 Delta = 200,
                 M = 0.6,
                 Diff = 10,
@@ -401,6 +405,319 @@ namespace QvaDev.Data
             });
 
             SaveChanges();
+
+            InitQuadro();
+            SaveChanges();
+        }
+
+        private void InitQuadro()
+        {
+            var mt4Platform = MetaTraderPlatforms.First(p => p.Description == "AuraFX-Demo");
+            var mt4Acccount = MetaTraderAccounts.Add(new MetaTraderAccount()
+            {
+                Description = "Quadro Account",
+                User = 8801883,
+                Password = "8bowmhv",
+                MetaTraderPlatform = mt4Platform,
+                ShouldConnect = true
+            });
+
+            var profile = Profiles.Add(new Profile { Description = "Quadro Profile" });
+            var tradingAccount = TradingAccounts
+                .Add(new TradingAccount
+                {
+                    ShouldTrade = true,
+                    Profile = profile,
+                    Expert = Experts.First(),
+                    MetaTraderAccount = mt4Acccount
+                });
+
+            ExpertSets.Add(new ExpertSet
+            {
+                ShouldRun = true,
+                TradingAccount = tradingAccount,
+                Description = "1 AU NU 3.96",
+                MagicNumber = 10,
+                TimeFrame = 15,
+                Symbol1 = "NZDUSD+",
+                Symbol2 = "AUDUSD+",
+                Variant = ExpertSet.Variants.NormalNormalBase,
+                Diff = 4,
+                Period = 50,
+                LotSize = 0.01,
+                Tp1 = 300,
+                ReOpenDiff = 1000,
+                ReOpenDiffChangeCount = 30,
+                ReOpenDiff2 = 1500,
+                Delta = 150,
+                M = 2,
+                TradeSetFloatingSwitch = -50000,
+                TradeOpeningEnabled = true,
+                HedgeProfitStop = 500,
+                HedgeLossStop = 500,
+                Last24HMaxOpen = 200,
+                MaxTradeSetCount = 600
+            });
+            ExpertSets.Add(new ExpertSet
+            {
+                ShouldRun = true,
+                TradingAccount = tradingAccount,
+                Description = "2 AN NU 4.40",
+                MagicNumber = 20,
+                TimeFrame = 15,
+                Symbol1 = "AUDNZD+",
+                Symbol2 = "NZDUSD+",
+                Variant = ExpertSet.Variants.NormalInverseBase,
+                Diff = 1,
+                Period = 75,
+                LotSize = 0.01,
+                Tp1 = 400,
+                ReOpenDiff = 1250,
+                ReOpenDiffChangeCount = 100,
+                ReOpenDiff2 = 1250,
+                Delta = 200,
+                M = 1.3,
+                TradeSetFloatingSwitch = -50000,
+                TradeOpeningEnabled = true,
+                HedgeProfitStop = 500,
+                HedgeLossStop = 500,
+                Last24HMaxOpen = 200,
+                MaxTradeSetCount = 600
+            });
+            ExpertSets.Add(new ExpertSet
+            {
+                ShouldRun = true,
+                TradingAccount = tradingAccount,
+                Description = "3 AN AU 3.93",
+                MagicNumber = 30,
+                TimeFrame = 15,
+                Symbol1 = "AUDUSD+",
+                Symbol2 = "AUDNZD+",
+                Variant = ExpertSet.Variants.NormalNormalBase,
+                Diff = 1,
+                Period = 200,
+                LotSize = 0.01,
+                Tp1 = 200,
+                ReOpenDiff = 1500,
+                ReOpenDiffChangeCount = 100,
+                ReOpenDiff2 = 1500,
+                Delta = 200,
+                M = 1.6,
+                TradeSetFloatingSwitch = -50000,
+                TradeOpeningEnabled = true,
+                HedgeProfitStop = 500,
+                HedgeLossStop = 500,
+                Last24HMaxOpen = 200,
+                MaxTradeSetCount = 600
+            });
+            ExpertSets.Add(new ExpertSet
+            {
+                ShouldRun = true,
+                TradingAccount = tradingAccount,
+                Description = "4 EA EN 3.48",
+                MagicNumber = 40,
+                TimeFrame = 15,
+                Symbol1 = "EURAUD+",
+                Symbol2 = "EURNZD+",
+                Variant = ExpertSet.Variants.NormalNormalBase,
+                Diff = 1,
+                Period = 75,
+                LotSize = 0.01,
+                Tp1 = 200,
+                ReOpenDiff = 1750,
+                ReOpenDiffChangeCount = 100,
+                ReOpenDiff2 = 1750,
+                Delta = 200,
+                M = 1.6,
+                TradeSetFloatingSwitch = -50000,
+                TradeOpeningEnabled = true,
+                HedgeProfitStop = 500,
+                HedgeLossStop = 500,
+                Last24HMaxOpen = 200,
+                MaxTradeSetCount = 600
+            });
+            ExpertSets.Add(new ExpertSet
+            {
+                ShouldRun = true,
+                TradingAccount = tradingAccount,
+                Description = "5 AN EN 3.17",
+                MagicNumber = 50,
+                TimeFrame = 15,
+                Symbol1 = "AUDNZD+",
+                Symbol2 = "EURNZD+",
+                Variant = ExpertSet.Variants.NormalNormalBase,
+                Diff = 1,
+                Period = 75,
+                LotSize = 0.01,
+                Tp1 = 400,
+                ReOpenDiff = 1250,
+                ReOpenDiffChangeCount = 100,
+                ReOpenDiff2 = 1250,
+                Delta = 200,
+                M = 0.7,
+                TradeSetFloatingSwitch = -50000,
+                TradeOpeningEnabled = true,
+                HedgeProfitStop = 500,
+                HedgeLossStop = 500,
+                Last24HMaxOpen = 200,
+                MaxTradeSetCount = 600
+            });
+            ExpertSets.Add(new ExpertSet
+            {
+                ShouldRun = true,
+                TradingAccount = tradingAccount,
+                Description = "6 EA AN 3.61",
+                MagicNumber = 60,
+                TimeFrame = 15,
+                Symbol1 = "AUDNZD+",
+                Symbol2 = "EURAUD+",
+                Variant = ExpertSet.Variants.NormalInverseBase,
+                Diff = 1,
+                Period = 75,
+                LotSize = 0.01,
+                Tp1 = 100,
+                ReOpenDiff = 1250,
+                ReOpenDiffChangeCount = 100,
+                ReOpenDiff2 = 1250,
+                Delta = 200,
+                M = 1.2,
+                TradeSetFloatingSwitch = -50000,
+                TradeOpeningEnabled = true,
+                HedgeProfitStop = 500,
+                HedgeLossStop = 500,
+                Last24HMaxOpen = 200,
+                MaxTradeSetCount = 600
+            });
+            ExpertSets.Add(new ExpertSet
+            {
+                ShouldRun = true,
+                TradingAccount = tradingAccount,
+                Description = "7 EU EA 5.55",
+                MagicNumber = 70,
+                TimeFrame = 15,
+                Symbol1 = "EURAUD+",
+                Symbol2 = "EURUSD+",
+                Variant = ExpertSet.Variants.NormalNormalBase,
+                Diff = 1,
+                Period = 50,
+                LotSize = 0.01,
+                Tp1 = 200,
+                ReOpenDiff = 1000,
+                ReOpenDiffChangeCount = 100,
+                ReOpenDiff2 = 1000,
+                Delta = 200,
+                M = 0.6,
+                TradeSetFloatingSwitch = -50000,
+                TradeOpeningEnabled = true,
+                HedgeProfitStop = 500,
+                HedgeLossStop = 500,
+                Last24HMaxOpen = 200,
+                MaxTradeSetCount = 600
+            });
+            ExpertSets.Add(new ExpertSet
+            {
+                ShouldRun = true,
+                TradingAccount = tradingAccount,
+                Description = "8 AU EU 3.36",
+                MagicNumber = 80,
+                TimeFrame = 15,
+                Symbol1 = "EURUSD+",
+                Symbol2 = "AUDUSD+",
+                Variant = ExpertSet.Variants.NormalNormalBase,
+                Diff = 1,
+                Period = 125,
+                LotSize = 0.01,
+                Tp1 = 800,
+                ReOpenDiff = 2000,
+                ReOpenDiffChangeCount = 200,
+                ReOpenDiff2 = 1500,
+                Delta = 200,
+                M = 1.4,
+                TradeSetFloatingSwitch = -50000,
+                TradeOpeningEnabled = true,
+                HedgeProfitStop = 500,
+                HedgeLossStop = 500,
+                Last24HMaxOpen = 200,
+                MaxTradeSetCount = 600
+            });
+            ExpertSets.Add(new ExpertSet
+            {
+                ShouldRun = true,
+                TradingAccount = tradingAccount,
+                Description = "9 AU EA 3.33",
+                MagicNumber = 90,
+                TimeFrame = 15,
+                Symbol1 = "AUDUSD+",
+                Symbol2 = "EURAUD+",
+                Variant = ExpertSet.Variants.NormalNormalBase,
+                Diff = 1,
+                Period = 125,
+                LotSize = 0.01,
+                Tp1 = 900,
+                ReOpenDiff = 2500,
+                ReOpenDiffChangeCount = 200,
+                ReOpenDiff2 = 2500,
+                Delta = 200,
+                M = 1.4,
+                TradeSetFloatingSwitch = -50000,
+                TradeOpeningEnabled = true,
+                HedgeProfitStop = 500,
+                HedgeLossStop = 500,
+                Last24HMaxOpen = 200,
+                MaxTradeSetCount = 600
+            });
+            ExpertSets.Add(new ExpertSet
+            {
+                ShouldRun = true,
+                TradingAccount = tradingAccount,
+                Description = "10 EU NU 4.13",
+                MagicNumber = 100,
+                TimeFrame = 15,
+                Symbol1 = "NZDUSD+",
+                Symbol2 = "EURUSD+",
+                Variant = ExpertSet.Variants.NormalNormalBase,
+                Diff = 1,
+                Period = 75,
+                LotSize = 0.01,
+                Tp1 = 500,
+                ReOpenDiff = 1750,
+                ReOpenDiffChangeCount = 200,
+                ReOpenDiff2 = 1750,
+                Delta = 200,
+                M = 1.2,
+                TradeSetFloatingSwitch = -50000,
+                TradeOpeningEnabled = true,
+                HedgeProfitStop = 500,
+                HedgeLossStop = 500,
+                Last24HMaxOpen = 200,
+                MaxTradeSetCount = 600
+            });
+            ExpertSets.Add(new ExpertSet
+            {
+                ShouldRun = true,
+                TradingAccount = tradingAccount,
+                Description = "11 EN NU 3.90",
+                MagicNumber = 110,
+                TimeFrame = 15,
+                Symbol1 = "EURNZD+",
+                Symbol2 = "NZDUSD+",
+                Variant = ExpertSet.Variants.NormalInverseBase,
+                Diff = 1,
+                Period = 75,
+                LotSize = 0.01,
+                Tp1 = 1000,
+                ReOpenDiff = 3000,
+                ReOpenDiffChangeCount = 30,
+                ReOpenDiff2 = 1500,
+                Delta = 200,
+                M = 1.5,
+                TradeSetFloatingSwitch = -50000,
+                TradeOpeningEnabled = true,
+                HedgeProfitStop = 500,
+                HedgeLossStop = 500,
+                Last24HMaxOpen = 200,
+                MaxTradeSetCount = 600
+            });
         }
     }
 }
