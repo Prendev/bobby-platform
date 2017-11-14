@@ -113,11 +113,7 @@ namespace QvaDev.Experts.Quadro.Services
                     quants.Add(quant);
                 }
                 exp.Quants = quants;
-                _log.Debug($"{exp.E.Description}: quants => {exp.Quants.AsString()}");
-                _log.Debug($"{exp.E.Description}: stoch avg ({exp.E.StochMultiplication}, {exp.E.StochMultiplier1}, {exp.E.StochMultiplier2}, {exp.E.StochMultiplier3}) => " +
-                           $"({exp.QuantSto:F}, {exp.QuantSto1:F}, {exp.QuantSto2:F}, {exp.QuantSto3:F}, {exp.QuantStoAvg:F})");
-                //_log.Debug($"{exp.E.Description}: wpr avg ({exp.E.WprMultiplication}, {exp.E.WprMultiplier1}, {exp.E.WprMultiplier2}, {exp.E.WprMultiplier3}) => " +
-                //           $"({exp.QuantWpr:F}, {exp.QuantWpr1:F}, {exp.QuantWpr2:F}, {exp.QuantWpr3:F}, {exp.QuantWprAvg:F})");
+                _log.Debug($"{exp.E.Description}: quants ({exp.E.M}) => {exp.Quants.First():F} | stoch avg ({exp.E.StochMultiplication}) => {exp.QuantStoAvg:F}");
                 OnBar(exp);
             }
         }

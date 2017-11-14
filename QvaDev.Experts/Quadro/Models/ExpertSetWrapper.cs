@@ -91,29 +91,25 @@ namespace QvaDev.Experts.Quadro.Models
 
         public double Point => Connector.GetPoint(E.Symbol1);
 
-        private double? CalcSto(int period)
+        private double? CalcSto(int period, int index = 0)
         {
-            if (Quants.Count < period) return null;
-            var range = Quants.GetRange(Quants.Count - period, period);
+            if (Quants.Count < index + period) return null;
+            var range = Quants.GetRange(index, period);
             double diff = range.Max() - range.Min();
-            if (diff <= -1) return null;
+            if (diff <= 0) return CalcSto(period, index + 1);
             return (Quants.First() - range.Min()) / diff * 100;
         }
-        private double? CalcWpr(int period)
+        private double? CalcWpr(int period, int index = 0)
         {
-            if (Quants.Count < period) return null;
-            var range = Quants.GetRange(Quants.Count - period, period);
+            if (Quants.Count < index + period) return null;
+            var range = Quants.GetRange(index, period);
             double diff = range.Max() - range.Min();
-            if (diff <= -1) return null;
+            if (diff <= 0) return CalcWpr(period, index + 1);
             return (range.Max() - Quants.First()) / diff * -100;
         }
-        private double? CalcAvg(double? value, double? value1, double? value2, double? value3)
+        private double? CalcAvg(params double?[] values)
         {
-            if (!value.HasValue) return null;
-            if (!value1.HasValue) return null;
-            if (!value2.HasValue) return null;
-            if (!value3.HasValue) return null;
-            return (value + value1 + value2 + value3) / 4;
+            return values?.Any(v => !v.HasValue) == true ? null : values?.Average();
         }
 
         public void InitBuyLotArray() => InitLotArray(BuyLots, E.LotSize);

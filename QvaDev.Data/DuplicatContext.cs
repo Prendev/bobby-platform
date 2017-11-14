@@ -301,7 +301,7 @@ namespace QvaDev.Data
             ExpertSets.Add(new ExpertSet
             {
                 Description = "EU GU",
-                TradingAccount = TradingAccounts.First(e => e.Id == 1),
+                TradingAccount = TradingAccounts.First(e => e.Id == 2),
                 TimeFrame = 1,
                 Symbol1 = "EURUSD+",
                 Symbol2 = "GBPUSD+",
@@ -328,7 +328,7 @@ namespace QvaDev.Data
             ExpertSets.Add(new ExpertSet
             {
                 Description = "EU AU",
-                TradingAccount = TradingAccounts.First(e => e.Id == 2),
+                TradingAccount = TradingAccounts.First(e => e.Id == 3),
                 TimeFrame = 1,
                 Symbol1 = "EURUSD+",
                 Symbol2 = "AUDUSD+",
@@ -351,60 +351,6 @@ namespace QvaDev.Data
                 ReOpenDiff = 1500,
                 ReOpenDiffChangeCount = 3,
                 ReOpenDiff2 = 2500,
-            });
-            ExpertSets.Add(new ExpertSet
-            {
-                Description = "EU GU",
-                TradingAccount = TradingAccounts.First(e => e.Id == 2),
-                TimeFrame = 1,
-                Symbol1 = "EURUSD+",
-                Symbol2 = "GBPUSD+",
-                Variant = ExpertSet.Variants.NormalNormalBase,
-                Delta = 200,
-                M = 0.6,
-                Diff = 10,
-                Period = 5,
-                Tp1 = 500,
-                MagicNumber = 3000,
-                LotSize = 0.01,
-                TradeSetFloatingSwitch = -50000,
-                TradeOpeningEnabled = true,
-                ProfitCloseValueSell = 100,
-                ProfitCloseValueBuy = 100,
-                HedgeProfitStop = 500,
-                HedgeLossStop = 500,
-                MaxTradeSetCount = 600,
-                Last24HMaxOpen = 200,
-                ReOpenDiff = 1500,
-                ReOpenDiffChangeCount = 3,
-                ReOpenDiff2 = 2500
-            });
-            ExpertSets.Add(new ExpertSet
-            {
-                Description = "EU AU",
-                TradingAccount = TradingAccounts.First(e => e.Id == 2),
-                TimeFrame = 1,
-                Symbol1 = "EURUSD+",
-                Symbol2 = "AUDUSD+",
-                Variant = ExpertSet.Variants.NormalNormalBase,
-                Delta = 200,
-                M = 0.6,
-                Diff = 10,
-                Period = 5,
-                Tp1 = 500,
-                MagicNumber = 4000,
-                LotSize = 0.01,
-                TradeSetFloatingSwitch = -50000,
-                TradeOpeningEnabled = true,
-                ProfitCloseValueSell = 100,
-                ProfitCloseValueBuy = 100,
-                HedgeProfitStop = 500,
-                HedgeLossStop = 500,
-                MaxTradeSetCount = 600,
-                Last24HMaxOpen = 200,
-                ReOpenDiff = 1500,
-                ReOpenDiffChangeCount = 3,
-                ReOpenDiff2 = 2500
             });
 
             SaveChanges();
