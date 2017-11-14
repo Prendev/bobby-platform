@@ -9,8 +9,6 @@ namespace QvaDev.Experts.Quadro.Services
 {
     public interface ICommonService
     {
-        double BuyAveragePrice(ExpertSetWrapper exp);
-        double SellAveragePrice(ExpertSetWrapper exp);
         List<Position> GetOpenOrdersList(ExpertSetWrapper exp, string symbol, Sides orderType, int magicNumber);
         List<Position> GetOpenOrdersList(ExpertSetWrapper exp, string symbol1, Sides orderType1,
             string symbol2, Sides orderType2, int magicNumber);
@@ -27,7 +25,6 @@ namespace QvaDev.Experts.Quadro.Services
 
     public class CommonService : ICommonService
     {
-        public ICloseService CloseService;
         private readonly ILog _log;
 
         public CommonService(ILog log)
@@ -45,43 +42,6 @@ namespace QvaDev.Experts.Quadro.Services
             return side == Sides.Sell
                 ? CalculateProfit(exp, exp.SpreadSellMagicNumber, Sides.Buy, Sides.Sell)
                 : CalculateProfit(exp, exp.SpreadBuyMagicNumber, Sides.Sell, Sides.Buy);
-        }
-
-        public double BuyAveragePrice(ExpertSetWrapper exp)
-        {
-            return AveragePrice(exp, exp.Sym1MinOrderType, exp.Sym2MinOrderType, exp.SpreadBuyMagicNumber);
-        }
-
-        public double SellAveragePrice(ExpertSetWrapper exp)
-        {
-            return AveragePrice(exp, exp.Sym1MaxOrderType, exp.Sym2MaxOrderType, exp.SpreadSellMagicNumber);
-        }
-
-        private double AveragePrice(ExpertSetWrapper exp, Sides orderType1, Sides orderType2, int magicNumber)
-        {
-            double avgPrice = 0;
-            double[] sumLotSum1 = GetSumAndLotSum(exp, exp.E.Symbol1, orderType1, magicNumber);
-            double[] sumLotSum2 = GetSumAndLotSum(exp, exp.E.Symbol2, orderType2, magicNumber);
-            double multiSum = sumLotSum1[0] + sumLotSum2[0];
-            double lotSum = sumLotSum1[1] + sumLotSum2[1];
-            if (lotSum > 0)
-            {
-                avgPrice = exp.Connector.MyRoundToDigits(exp.E.Symbol1, multiSum / lotSum);
-            }
-            return avgPrice;
-        }
-
-        private double[] GetSumAndLotSum(ExpertSetWrapper exp, string symbol, Sides orderType, int magicNumber)
-        {
-            double multiSum = 0;
-            double lotSum = 0;
-            foreach (var p in GetOpenOrdersList(exp, symbol, orderType, magicNumber))
-            {
-                double sellMultiplication = exp.Connector.MyRoundToDigits(p.Symbol, BarQuant(exp, p) * p.Lots);
-                multiSum += sellMultiplication;
-                lotSum += p.Lots;
-            }
-            return new[] { multiSum, lotSum };
         }
 
         public List<Position> GetOpenOrdersList(ExpertSetWrapper exp, string symbol, Sides orderType,
@@ -107,8 +67,6 @@ namespace QvaDev.Experts.Quadro.Services
             if (barIndex >= 0) return exp.Quants[barIndex];
             exp.E.ExpertDenied = true;
             _log.Debug($"{exp.E.Description}: ExpertDenied");
-            CloseService.AllCloseMin(exp);
-            CloseService.AllCloseMax(exp);
             return 0;
         }
 

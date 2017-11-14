@@ -53,8 +53,13 @@ namespace QvaDev.Experts.Quadro.Services
 
         public void OnTick(Connector connector, ExpertSet expertSet)
         {
-            if (expertSet.ExpertDenied) return;
             var exp = ExpertSetWrappers.GetOrAdd(expertSet.Id, id => new ExpertSetWrapper(expertSet));
+            if (expertSet.ExpertDenied)
+            {
+                _closeService.AllCloseMin(exp);
+                _closeService.AllCloseMax(exp);
+                return;
+            }
             lock (exp)
             {
                 if (exp.E.CloseAllBuy)
@@ -99,11 +104,16 @@ namespace QvaDev.Experts.Quadro.Services
         public void OnBarHistory(Connector connector, ExpertSet expertSet, BarHistoryEventArgs e)
         {
             var exp = ExpertSetWrappers.GetOrAdd(expertSet.Id, id => new ExpertSetWrapper(expertSet));
+            if (expertSet.ExpertDenied)
+            {
+                _closeService.AllCloseMin(exp);
+                _closeService.AllCloseMax(exp);
+                return;
+            }
             lock (exp)
             {
                 if (!IsBarUpdating(exp, e)) return;
                 if (!AreBarsInSynchron(exp)) return;
-                if (exp.E.ExpertDenied) return;
                 exp.CalculateQuants();
                 _log.Debug($"{exp.E.Description}: quants ({exp.E.M}) => {exp.Quant:F} | stoch avg ({exp.E.StochMultiplication}) => {exp.QuantStoAvg:F}");
                 OnBar(exp);
@@ -146,7 +156,7 @@ namespace QvaDev.Experts.Quadro.Services
         private bool IsCurrentTimeEnabledForTrade()
         {
             var utcNow = DateTime.UtcNow;
-            if (utcNow.DayOfWeek == DayOfWeek.Friday && utcNow.Hour >= 20) return false;
+            //if (utcNow.DayOfWeek == DayOfWeek.Friday && utcNow.Hour >= 20) return false;
             if (utcNow.DayOfWeek == DayOfWeek.Saturday) return false;
             if (utcNow.DayOfWeek == DayOfWeek.Sunday && (utcNow.Hour < 23 || utcNow.Minute < 59)) return false;
             return true;

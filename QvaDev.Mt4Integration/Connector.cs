@@ -13,7 +13,6 @@ namespace QvaDev.Mt4Integration
     {
         public class SymbolHistory
         {
-            public short BarCount { get; set; }
             public List<Bar> BarHistory { get; set; } = new List<Bar>();
         }
 
@@ -97,7 +96,8 @@ namespace QvaDev.Mt4Integration
                     Commission = o.Commission,
                     Swap = o.Swap,
                     OpenTime = o.OpenTime,
-                    OpenPrice = o.OpenPrice
+                    OpenPrice = o.OpenPrice,
+                    Comment = o.Comment
                 });
             }
 
@@ -116,7 +116,7 @@ namespace QvaDev.Mt4Integration
             var price = position.Side == Sides.Buy
                 ? QuoteClient.GetQuote(position.Symbol).Bid
                 : QuoteClient.GetQuote(position.Symbol).Ask;
-            OrderClient.OrderClose(position.Symbol, (int)position.Id, lots ?? position.Lots, price, 0);
+            OrderClient.OrderClose(position.Symbol, (int) position.Id, lots ?? position.Lots, price, 0);
         }
 
         public long GetOpenContracts(string symbol)
@@ -204,8 +204,7 @@ namespace QvaDev.Mt4Integration
                     var symbolHistory = _symbolHistories.GetOrAdd(new Tuple<string, int>(symbol.Item1, symbol.Item2).ToString(), new SymbolHistory());
                     lock (symbolHistory)
                     {
-                        symbolHistory.BarCount = Math.Max(symbolHistory.BarCount, symbol.Item3);
-                        QuoteClient.DownloadQuoteHistory(symbol.Item1, (Timeframe)symbol.Item2, DateTime.Now.AddDays(1), symbolHistory.BarCount);
+                        QuoteClient.DownloadQuoteHistory(symbol.Item1, (Timeframe)symbol.Item2, DateTime.Now.AddDays(1), Math.Max((short)512, symbol.Item3));
                         if (QuoteClient.IsSubscribed(symbol.Item1)) continue;
                         QuoteClient.Subscribe(symbol.Item1);
                     }
@@ -288,7 +287,8 @@ namespace QvaDev.Mt4Integration
                 MagicNumber = update.Order.MagicNumber,
                 Profit = update.Order.Profit,
                 Commission = update.Order.Commission,
-                Swap = update.Order.Swap
+                Swap = update.Order.Swap,
+                Comment = update.Order.Comment
             };
             Positions.AddOrUpdate(update.Order.Ticket, t => position, (t, old) => position);
 

@@ -70,8 +70,8 @@ namespace QvaDev.Experts.Quadro.Hedge
             double lot2 = (sourceLots[1] * exp.E.HedgeRatio).CheckLot();
             if (spreadOrderType == Sides.Sell && exp.SellOpenCount > exp.E.HedgeStart && exp.SellOpenCount < exp.E.HedgeStop - 1)
             {
-                exp.Connector.SendMarketOrderRequest(exp.E.Symbol1, exp.Sym1HedgeMaxOrderType, lot1, exp.HedgeSellMagicNumber, exp.E.Description);
-                exp.Connector.SendMarketOrderRequest(exp.E.Symbol2, exp.Sym2HedgeMaxOrderType, lot2, exp.HedgeSellMagicNumber, exp.E.Description);
+                exp.Connector.SendMarketOrderRequest(exp.E.Symbol1, exp.Sym1HedgeMaxOrderType, lot1, exp.HedgeSellMagicNumber, $"{exp.E.Description} {exp.HedgeSellMagicNumber}");
+                exp.Connector.SendMarketOrderRequest(exp.E.Symbol2, exp.Sym2HedgeMaxOrderType, lot2, exp.HedgeSellMagicNumber, $"{exp.E.Description} {exp.HedgeSellMagicNumber}");
                 exp.SellHedgeOpenCount++;
             }
             else if (spreadOrderType == Sides.Sell && exp.SellOpenCount >= exp.E.HedgeStop - 1)
@@ -80,8 +80,8 @@ namespace QvaDev.Experts.Quadro.Hedge
             }
             else if (spreadOrderType == Sides.Buy && exp.BuyOpenCount > exp.E.HedgeStart && exp.BuyOpenCount < exp.E.HedgeStop - 1)
             {
-                exp.Connector.SendMarketOrderRequest(exp.E.Symbol1, exp.Sym1HedgeMinOrderType, lot1, exp.HedgeBuyMagicNumber, exp.E.Description);
-                exp.Connector.SendMarketOrderRequest(exp.E.Symbol2, exp.Sym2HedgeMinOrderType, lot2, exp.HedgeBuyMagicNumber, exp.E.Description);
+                exp.Connector.SendMarketOrderRequest(exp.E.Symbol1, exp.Sym1HedgeMinOrderType, lot1, exp.HedgeBuyMagicNumber, $"{exp.E.Description} {exp.HedgeBuyMagicNumber}");
+                exp.Connector.SendMarketOrderRequest(exp.E.Symbol2, exp.Sym2HedgeMinOrderType, lot2, exp.HedgeBuyMagicNumber, $"{exp.E.Description} {exp.HedgeBuyMagicNumber}");
                 exp.BuyHedgeOpenCount++;
             }
             else if (spreadOrderType == Sides.Buy && exp.BuyOpenCount > exp.E.HedgeStop)

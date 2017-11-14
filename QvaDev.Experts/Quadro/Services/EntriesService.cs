@@ -50,8 +50,8 @@ namespace QvaDev.Experts.Quadro.Services
 
             _commonService.SetLastActionPrice(exp, Sides.Sell);
             exp.CurrentSellState = ExpertSetWrapper.TradeSetStates.TradeOpened;
-            exp.Connector.SendMarketOrderRequest(exp.E.Symbol1, exp.Sym1MaxOrderType, lot1, exp.SpreadSellMagicNumber, exp.E.Description);
-            exp.Connector.SendMarketOrderRequest(exp.E.Symbol2, exp.Sym2MaxOrderType, lot2, exp.SpreadSellMagicNumber, exp.E.Description);
+            exp.Connector.SendMarketOrderRequest(exp.E.Symbol1, exp.Sym1MaxOrderType, lot1, exp.SpreadSellMagicNumber, $"{exp.E.Description} {exp.SpreadSellMagicNumber}");
+            exp.Connector.SendMarketOrderRequest(exp.E.Symbol2, exp.Sym2MaxOrderType, lot2, exp.SpreadSellMagicNumber, $"{exp.E.Description} {exp.SpreadSellMagicNumber}");
             _hedgeServices[exp.E.HedgeMode].OnBaseTradesOpened(exp, Sides.Sell, new[] { lot1, lot2 });
         }
 
@@ -70,8 +70,8 @@ namespace QvaDev.Experts.Quadro.Services
 
             _commonService.SetLastActionPrice(exp, Sides.Buy);
             exp.CurrentBuyState = ExpertSetWrapper.TradeSetStates.TradeOpened;
-            exp.Connector.SendMarketOrderRequest(exp.E.Symbol1, exp.Sym1MinOrderType, lot1, exp.SpreadBuyMagicNumber, exp.E.Description);
-            exp.Connector.SendMarketOrderRequest(exp.E.Symbol2, exp.Sym2MinOrderType, lot2, exp.SpreadBuyMagicNumber, exp.E.Description);
+            exp.Connector.SendMarketOrderRequest(exp.E.Symbol1, exp.Sym1MinOrderType, lot1, exp.SpreadBuyMagicNumber, $"{exp.E.Description} {exp.SpreadBuyMagicNumber}");
+            exp.Connector.SendMarketOrderRequest(exp.E.Symbol2, exp.Sym2MinOrderType, lot2, exp.SpreadBuyMagicNumber, $"{exp.E.Description} {exp.SpreadBuyMagicNumber}");
             _hedgeServices[exp.E.HedgeMode].OnBaseTradesOpened(exp, Sides.Buy, new[] {lot1, lot2});
         }
 
@@ -80,8 +80,6 @@ namespace QvaDev.Experts.Quadro.Services
             var ordersCount = exp.OpenPositions
                 .Count(p => (p.MagicNumber == exp.SpreadBuyMagicNumber || p.MagicNumber == exp.SpreadSellMagicNumber) &&
                             p.Symbol == symbol && p.Side == side);
-            _log.Debug($"{exp.E.Description}: EntriesService.MyOrdersCount({symbol}, {side:F}) => {ordersCount}");
-
             return ordersCount;
         }
     }
