@@ -113,13 +113,13 @@ namespace QvaDev.Experts.Quadro.Services
         {
             if (side == Sides.Sell)
             {
-                exp.Sym1LastMaxActionPrice = exp.Connector.GetLastTick(exp.E.Symbol1)?.Bid ?? 0;
-                exp.Sym2LastMaxActionPrice = exp.Connector.GetLastTick(exp.E.Symbol2)?.Bid ?? 0;
+                exp.E.Sym1LastMaxActionPrice = exp.Connector.GetLastTick(exp.E.Symbol1)?.Bid ?? 0;
+                exp.E.Sym2LastMaxActionPrice = exp.Connector.GetLastTick(exp.E.Symbol2)?.Bid ?? 0;
             }
             else
             {
-                exp.Sym1LastMinActionPrice = exp.Connector.GetLastTick(exp.E.Symbol1)?.Bid ?? 0;
-                exp.Sym2LastMinActionPrice = exp.Connector.GetLastTick(exp.E.Symbol2)?.Bid ?? 0;
+                exp.E.Sym1LastMinActionPrice = exp.Connector.GetLastTick(exp.E.Symbol1)?.Bid ?? 0;
+                exp.E.Sym2LastMinActionPrice = exp.Connector.GetLastTick(exp.E.Symbol2)?.Bid ?? 0;
             }
         }
 
@@ -130,13 +130,13 @@ namespace QvaDev.Experts.Quadro.Services
 
             if (side == Sides.Buy)
             {
-                sym1InRange = IsInDeltaRange(exp.Sym1LastMinActionPrice, exp.DeltaRange, exp.BarHistory1.First().Close);
-                sym2InRange = IsInDeltaRange(exp.Sym2LastMinActionPrice, exp.DeltaRange, exp.BarHistory2.First().Close);
+                sym1InRange = IsInDeltaRange(exp.E.Sym1LastMinActionPrice, exp.DeltaRange, exp.BarHistory1.First().Close);
+                sym2InRange = IsInDeltaRange(exp.E.Sym2LastMinActionPrice, exp.DeltaRange, exp.BarHistory2.First().Close);
             }
             else
             {
-                sym1InRange = IsInDeltaRange(exp.Sym1LastMaxActionPrice, exp.DeltaRange, exp.BarHistory1.First().Close);
-                sym2InRange = IsInDeltaRange(exp.Sym2LastMaxActionPrice, exp.DeltaRange, exp.BarHistory2.First().Close);
+                sym1InRange = IsInDeltaRange(exp.E.Sym1LastMaxActionPrice, exp.DeltaRange, exp.BarHistory1.First().Close);
+                sym2InRange = IsInDeltaRange(exp.E.Sym2LastMaxActionPrice, exp.DeltaRange, exp.BarHistory2.First().Close);
             }
             return sym1InRange || sym2InRange;
         }

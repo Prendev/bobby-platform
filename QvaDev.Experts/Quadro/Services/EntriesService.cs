@@ -44,6 +44,7 @@ namespace QvaDev.Experts.Quadro.Services
             double lot1 = exp.SellLots[0, 1].CheckLot();
             double lot2 = exp.SellLots[0, 0].CheckLot();
 
+            exp.E.SellOpenCount++;
             _commonService.SetLastActionPrice(exp, Sides.Sell);
             exp.E.CurrentSellState = ExpertSet.TradeSetStates.TradeOpened;
             exp.Connector.SendMarketOrderRequest(exp.E.Symbol1, exp.Sym1MaxOrderType, lot1, exp.SpreadSellMagicNumber, $"{exp.E.Description} {exp.SpreadSellMagicNumber}");
@@ -64,6 +65,7 @@ namespace QvaDev.Experts.Quadro.Services
             double lot1 = exp.BuyLots[0, 1].CheckLot();
             double lot2 = exp.BuyLots[0, 0].CheckLot();
 
+            exp.E.BuyOpenCount++;
             _commonService.SetLastActionPrice(exp, Sides.Buy);
             exp.E.CurrentBuyState = ExpertSet.TradeSetStates.TradeOpened;
             exp.Connector.SendMarketOrderRequest(exp.E.Symbol1, exp.Sym1MinOrderType, lot1, exp.SpreadBuyMagicNumber, $"{exp.E.Description} {exp.SpreadBuyMagicNumber}");

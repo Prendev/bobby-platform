@@ -35,46 +35,48 @@ namespace QvaDev.Experts.Quadro.Services
         {
             if (_commonService.IsInDeltaRange(exp, Sides.Sell)) return;
             if (exp.QuantStoAvg < exp.StochMaxAvgOpen || exp.QuantWprAvg <= -exp.WprMinAvgOpen) return;
-            if (exp.SellOpenCount >= exp.E.MaxTradeSetCount || !EnableLast24Filter(exp, Sides.Sell, 2)) return;
+            if (exp.E.SellOpenCount >= exp.E.MaxTradeSetCount || !EnableLast24Filter(exp, Sides.Sell, 2)) return;
             var o1 = LastOrder(exp, exp.E.Symbol1, exp.Sym1MaxOrderType, exp.SpreadSellMagicNumber);
             var o2 = LastOrder(exp, exp.E.Symbol2, exp.Sym2MaxOrderType, exp.SpreadSellMagicNumber);
             if (o1 == null || o2 == null) return;
 
-            int buyReopenDiff = GetReopenDiff(exp, exp.BuyOpenCount);
+            int buyReopenDiff = GetReopenDiff(exp, exp.E.BuyOpenCount);
             if (exp.Quant < _commonService.BarQuant(exp, o1) + buyReopenDiff * exp.Point) return;
             if (exp.Quant < _commonService.BarQuant(exp, o2) + buyReopenDiff * exp.Point) return;
             _log.Debug($"{exp.E.Description}: ReentriesService.CalculateReentriesForForMaxAction => {exp.SpreadSellMagicNumber}");
 
             CorrectLotArrayIfNeeded(exp, Sides.Sell);
-            double lot1 = exp.SellLots[exp.SellOpenCount, 1].CheckLot();
-            double lot2 = exp.SellLots[exp.SellOpenCount, 0].CheckLot();
+            double lot1 = exp.SellLots[exp.E.SellOpenCount, 1].CheckLot();
+            double lot2 = exp.SellLots[exp.E.SellOpenCount, 0].CheckLot();
 
+            exp.E.SellOpenCount++;
+            _commonService.SetLastActionPrice(exp, Sides.Sell);
             exp.Connector.SendMarketOrderRequest(exp.E.Symbol1, exp.Sym1MaxOrderType, lot1, exp.SpreadSellMagicNumber, $"{exp.E.Description} {exp.SpreadSellMagicNumber}");
             exp.Connector.SendMarketOrderRequest(exp.E.Symbol2, exp.Sym2MaxOrderType, lot2, exp.SpreadSellMagicNumber, $"{exp.E.Description} {exp.SpreadSellMagicNumber}");
-            _commonService.SetLastActionPrice(exp, Sides.Sell);
         }
 
         private void CalculateReentriesForMinAction(ExpertSetWrapper exp)
         {
             if (_commonService.IsInDeltaRange(exp, Sides.Buy)) return;
             if (exp.QuantStoAvg > exp.StochMinAvgOpen || exp.QuantWprAvg >= -exp.WprMaxAvgOpen) return;
-            if (exp.BuyOpenCount >= exp.E.MaxTradeSetCount || !EnableLast24Filter(exp, Sides.Buy, 2)) return;
+            if (exp.E.BuyOpenCount >= exp.E.MaxTradeSetCount || !EnableLast24Filter(exp, Sides.Buy, 2)) return;
             var o1 = LastOrder(exp, exp.E.Symbol1, exp.Sym1MinOrderType, exp.SpreadBuyMagicNumber);
             var o2 = LastOrder(exp, exp.E.Symbol2, exp.Sym2MinOrderType, exp.SpreadBuyMagicNumber);
             if (o1 == null || o2 == null) return;
 
-            int sellReopenDiff = GetReopenDiff(exp, exp.SellOpenCount);
+            int sellReopenDiff = GetReopenDiff(exp, exp.E.SellOpenCount);
             if (exp.Quant > _commonService.BarQuant(exp, o1) - sellReopenDiff * exp.Point) return;
             if (exp.Quant > _commonService.BarQuant(exp, o2) - sellReopenDiff * exp.Point) return;
             _log.Debug($"{exp.E.Description}: ReentriesService.CalculateReentriesForMinAction => {exp.SpreadBuyMagicNumber}");
 
             CorrectLotArrayIfNeeded(exp, Sides.Buy);
-            double lot1 = exp.BuyLots[exp.BuyOpenCount, 1].CheckLot();
-            double lot2 = exp.BuyLots[exp.BuyOpenCount, 0].CheckLot();
+            double lot1 = exp.BuyLots[exp.E.BuyOpenCount, 1].CheckLot();
+            double lot2 = exp.BuyLots[exp.E.BuyOpenCount, 0].CheckLot();
 
+            exp.E.BuyOpenCount++;
+            _commonService.SetLastActionPrice(exp, Sides.Buy);
             exp.Connector.SendMarketOrderRequest(exp.E.Symbol1, exp.Sym1MinOrderType, lot1, exp.SpreadBuyMagicNumber, $"{exp.E.Description} {exp.SpreadBuyMagicNumber}");
             exp.Connector.SendMarketOrderRequest(exp.E.Symbol2, exp.Sym2MinOrderType, lot2, exp.SpreadBuyMagicNumber, $"{exp.E.Description} {exp.SpreadBuyMagicNumber}");
-            _commonService.SetLastActionPrice(exp, Sides.Buy);
         }
 
         private bool EnableLast24Filter(ExpertSetWrapper exp, Sides spreadOrderType, int numOfTradePerOpen)

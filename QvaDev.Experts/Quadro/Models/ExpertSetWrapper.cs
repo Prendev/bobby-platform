@@ -18,7 +18,6 @@ namespace QvaDev.Experts.Quadro.Models
             InitBuyLotArray();
             InitSellLotArray();
             InitLotArray(InitialLots, E.LotSize);
-            InitLastActionPrices();
         }
         public Connector Connector => E.TradingAccount.MetaTraderAccount.Connector as Connector;
 
@@ -67,15 +66,10 @@ namespace QvaDev.Experts.Quadro.Models
         public double[,] InitialLots { get; } = new double[120, 2];
 
         public double DeltaRange => E.Delta * Point;
-
-        public double Sym1LastMaxActionPrice { get; set; }
-        public double Sym1LastMinActionPrice { get; set; }
-        public double Sym2LastMaxActionPrice { get; set; }
-        public double Sym2LastMinActionPrice { get; set; }
-
-        public int BuyOpenCount => OpenPositions.Count(p => p.MagicNumber == SpreadBuyMagicNumber) / 2;
-        public int SellOpenCount => OpenPositions.Count(p => p.MagicNumber == SpreadSellMagicNumber) / 2;
         public double Point => Connector.GetPoint(E.Symbol1);
+
+        //[InvisibleColumn] public int BuyOpenCount => OpenPositions.Count(p => p.MagicNumber == SpreadBuyMagicNumber) / 2;
+        //[InvisibleColumn] public int SellOpenCount => OpenPositions.Count(p => p.MagicNumber == SpreadSellMagicNumber) / 2;
 
         public void CalculateQuants()
         {
@@ -200,14 +194,6 @@ namespace QvaDev.Experts.Quadro.Models
                     throw new InvalidOperationException(string.Concat("Unknown Variant type: ", E.Variant));
                 }
             }
-        }
-
-        private void InitLastActionPrices()
-        {
-            Sym1LastMinActionPrice = Connector.GetLastActionPrice(E.Symbol1, Sym1MinOrderType, SpreadBuyMagicNumber);
-            Sym2LastMinActionPrice = Connector.GetLastActionPrice(E.Symbol2, Sym2MinOrderType, SpreadBuyMagicNumber);
-            Sym1LastMaxActionPrice = Connector.GetLastActionPrice(E.Symbol1, Sym1MaxOrderType, SpreadSellMagicNumber);
-            Sym2LastMaxActionPrice = Connector.GetLastActionPrice(E.Symbol2, Sym2MaxOrderType, SpreadSellMagicNumber);
         }
     }
 }

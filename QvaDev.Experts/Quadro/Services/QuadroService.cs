@@ -58,6 +58,7 @@ namespace QvaDev.Experts.Quadro.Services
                     }
                     else if (exp.E.BisectingCloseBuy)
                     {
+                        _closeService.BisectingCloseMin(exp);
                         exp.E.BisectingCloseBuy = false;
                     }
                     if (exp.E.CloseAllSell)
@@ -67,6 +68,7 @@ namespace QvaDev.Experts.Quadro.Services
                     }
                     else if (exp.E.BisectingCloseSell)
                     {
+                        _closeService.BisectingCloseMax(exp);
                         exp.E.BisectingCloseSell = false;
                     }
                     if (exp.E.ProfitCloseBuy)
@@ -114,6 +116,7 @@ namespace QvaDev.Experts.Quadro.Services
             {
                 lock (exp)
                 {
+                    PreCheckOrders(exp);
                     if (!IsBarUpdating(exp, e)) return;
                     if (!AreBarsInSynchron(exp)) return;
                     exp.CalculateQuants();
@@ -131,6 +134,24 @@ namespace QvaDev.Experts.Quadro.Services
                     _closeService.AllCloseMin(exp);
                     _closeService.AllCloseMax(exp);
                 }
+            }
+        }
+
+        private void PreCheckOrders(ExpertSetWrapper exp)
+        {
+            if (exp.OpenPositions.All(p => p.MagicNumber != exp.SpreadBuyMagicNumber))
+            {
+                exp.E.BuyOpenCount = 0;
+                exp.E.CurrentBuyState = ExpertSet.TradeSetStates.NoTrade;
+                exp.E.Sym1LastMinActionPrice = 0;
+                exp.E.Sym2LastMinActionPrice = 0;
+            }
+            if (exp.OpenPositions.All(p => p.MagicNumber != exp.SpreadSellMagicNumber))
+            {
+                exp.E.SellOpenCount = 0;
+                exp.E.CurrentSellState = ExpertSet.TradeSetStates.NoTrade;
+                exp.E.Sym1LastMaxActionPrice = 0;
+                exp.E.Sym2LastMaxActionPrice = 0;
             }
         }
 
