@@ -71,14 +71,14 @@ namespace QvaDev.Data.Models
         public bool ProfitCloseSell { get; set; }
         public double ProfitCloseValueSell { get; set; }
 
-        public TradeSetStates CurrentSellState { get; set; }
         public TradeSetStates CurrentBuyState { get; set; }
         public int BuyOpenCount { get; set; }
+        public double Sym1LastMinActionPrice { get; set; }
+        public double Sym2LastMinActionPrice { get; set; }
+        public TradeSetStates CurrentSellState { get; set; }
         public int SellOpenCount { get; set; }
         public double Sym1LastMaxActionPrice { get; set; }
-        public double Sym1LastMinActionPrice { get; set; }
         public double Sym2LastMaxActionPrice { get; set; }
-        public double Sym2LastMinActionPrice { get; set; }
 
         [Required] public int TradingAccountId { get; set; }
         [Required] public TradingAccount TradingAccount { get; set; }

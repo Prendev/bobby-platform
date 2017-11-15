@@ -135,6 +135,7 @@ namespace QvaDev.Orchestration
 
         public Task Disconnect()
         {
+            _duplicatContext.SaveChanges();
             StopMonitors();
             StopCopiers();
             StopExperts();

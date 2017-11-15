@@ -84,16 +84,16 @@ namespace QvaDev.Data
             MetaTraderAccounts.Add(new MetaTraderAccount()
             {
                 Description = "Aura1",
-                User = 8801562,
-                Password = "k0agjjf",
+                User = 8801894,
+                Password = "s2shqpj",
                 MetaTraderPlatform = mt4Platform,
                 ShouldConnect = true
             });
             MetaTraderAccounts.Add(new MetaTraderAccount()
             {
                 Description = "Aura2",
-                User = 8801567,
-                Password = "4kfmvmo",
+                User = 8801895,
+                Password = "v1iaxwc",
                 MetaTraderPlatform = mt4Platform
             });
 
@@ -353,8 +353,8 @@ namespace QvaDev.Data
             var mt4Acccount = MetaTraderAccounts.Add(new MetaTraderAccount()
             {
                 Description = "Quadro Account",
-                User = 8801883,
-                Password = "8bowmhv",
+                User = 8801896,
+                Password = "dzd5hts",
                 MetaTraderPlatform = mt4Platform,
                 ShouldConnect = true
             });
