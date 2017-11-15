@@ -42,6 +42,8 @@ namespace QvaDev.Data.Models
         public string Symbol1 { get; set; }
         public string Symbol2 { get; set; }
 
+        public Variants Variant { get; set; }
+
         public int Diff { get; set; }
         public int Period { get; set; }
         public double LotSize { get; set; }
@@ -59,8 +61,6 @@ namespace QvaDev.Data.Models
         public double TradeSetFloatingSwitch { get; set; }
         public int MaxTradeSetCount { get; set; }
         public int Last24HMaxOpen { get; set; }
-
-        public Variants Variant { get; set; }
 
         public bool CloseAllBuy { get; set; }
         public bool CloseAllSell { get; set; }
