@@ -54,7 +54,7 @@ namespace QvaDev.Experts.Quadro.Services
         public void OnTick(Connector connector, ExpertSet expertSet)
         {
             var exp = ExpertSetWrappers.GetOrAdd(expertSet.Id, id => new ExpertSetWrapper(expertSet));
-            if (expertSet.ExpertDenied)
+            if (exp.E.ExpertDenied && exp.OpenPositions.Any())
             {
                 _closeService.AllCloseMin(exp);
                 _closeService.AllCloseMax(exp);
@@ -104,7 +104,7 @@ namespace QvaDev.Experts.Quadro.Services
         public void OnBarHistory(Connector connector, ExpertSet expertSet, BarHistoryEventArgs e)
         {
             var exp = ExpertSetWrappers.GetOrAdd(expertSet.Id, id => new ExpertSetWrapper(expertSet));
-            if (expertSet.ExpertDenied)
+            if (expertSet.ExpertDenied && exp.OpenPositions.Any())
             {
                 _closeService.AllCloseMin(exp);
                 _closeService.AllCloseMax(exp);
@@ -122,8 +122,7 @@ namespace QvaDev.Experts.Quadro.Services
 
         private bool IsBarUpdating(ExpertSetWrapper exp, BarHistoryEventArgs e)
         {
-            if (exp.E.Symbol1 != e.Symbol && exp.E.Symbol2 != e.Symbol) return false;
-            if (e.BarHistory.First().OpenTime <= DateTime.UtcNow.AddMinutes(-2 * exp.E.TimeFrame)) return false;
+            if (e.BarHistory.First().OpenTime <= DateTime.UtcNow.AddMinutes(-2 * (int)exp.E.TimeFrame)) return false;
             if (e.BarHistory.Count < exp.E.GetMaxBarCount()) return false;
 
             var barHistory = exp.E.Symbol1 == e.Symbol ? exp.BarHistory1 : exp.BarHistory2;
@@ -164,10 +163,9 @@ namespace QvaDev.Experts.Quadro.Services
 
         private double GetSumProfit(ExpertSetWrapper exp)
         {
-            return _commonService.CalculateBaseOrdersProfit(exp, Sides.Buy) +
-                   _commonService.CalculateBaseOrdersProfit(exp, Sides.Sell) +
-                   _hedgeServices[exp.E.HedgeMode].CalculateProfit(exp, Sides.Buy) +
-                   _hedgeServices[exp.E.HedgeMode].CalculateProfit(exp, Sides.Sell);
+            return exp.Connector.CalculateProfit(exp.E.Symbol1, exp.E.Symbol2,
+                exp.SpreadBuyMagicNumber, exp.SpreadSellMagicNumber,
+                exp.HedgeBuyMagicNumber, exp.HedgeSellMagicNumber);
         }
     }
 }

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using QvaDev.Common.Integration;
@@ -10,14 +9,6 @@ namespace QvaDev.Experts.Quadro.Models
 {
     public class ExpertSetWrapper
     {
-        public enum TradeSetStates
-        {
-            NoTrade,
-            TradeOpened,
-            AfterFirstClose,
-            AfterSecondClose
-        }
-
         public ExpertSet E { get; }
 
         public ExpertSetWrapper(ExpertSet expertSet)
@@ -30,8 +21,15 @@ namespace QvaDev.Experts.Quadro.Models
             InitLastActionPrices();
         }
         public Connector Connector => E.TradingAccount.MetaTraderAccount.Connector as Connector;
-        public IEnumerable<Position> OpenPositions => E.TradingAccount.MetaTraderAccount.Connector.Positions
-            .Select(p => p.Value).Where(p => !p.IsClosed);
+
+        public IEnumerable<Position> OpenPositions =>
+            E.TradingAccount.MetaTraderAccount.Connector.Positions.Select(p => p.Value)
+                .Where(p => p.Symbol == E.Symbol1 || p.Symbol == E.Symbol2)
+                .Where(p => p.MagicNumber == SpreadBuyMagicNumber ||
+                            p.MagicNumber == SpreadSellMagicNumber ||
+                            p.MagicNumber == HedgeBuyMagicNumber ||
+                            p.MagicNumber == HedgeSellMagicNumber)
+                .Where(p => !p.IsClosed);
 
         public int SpreadBuyMagicNumber => E.MagicNumber;
         public int SpreadSellMagicNumber => E.MagicNumber + 1;
@@ -74,9 +72,6 @@ namespace QvaDev.Experts.Quadro.Models
         public double Sym1LastMinActionPrice { get; set; }
         public double Sym2LastMaxActionPrice { get; set; }
         public double Sym2LastMinActionPrice { get; set; }
-
-        public TradeSetStates CurrentSellState = TradeSetStates.NoTrade;
-        public TradeSetStates CurrentBuyState = TradeSetStates.NoTrade;
 
         public int BuyOpenCount => E.TradingAccount.MetaTraderAccount.Connector.Positions.Count(
             p => p.Value.MagicNumber == SpreadBuyMagicNumber || p.Value.MagicNumber == HedgeBuyMagicNumber);

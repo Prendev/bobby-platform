@@ -66,11 +66,11 @@ namespace QvaDev.Orchestration.Services
 
             var symbols1 = tradingAccount.ExpertSets
                 .Where(e => e.ShouldRun)
-                .Select(e => new Tuple<string, int, short>(e.Symbol1, e.TimeFrame, (short) e.GetMaxBarCount()));
+                .Select(e => new Tuple<string, int, short>(e.Symbol1, (int)e.TimeFrame, (short) e.GetMaxBarCount()));
 
             var symbols2 = tradingAccount.ExpertSets
                 .Where(e => e.ShouldRun)
-                .Select(e => new Tuple<string, int, short>(e.Symbol2, e.TimeFrame, (short)e.GetMaxBarCount()));
+                .Select(e => new Tuple<string, int, short>(e.Symbol2, (int)e.TimeFrame, (short)e.GetMaxBarCount()));
 
             var symbols = symbols1.Union(symbols2).Distinct().ToList();
 
@@ -86,7 +86,8 @@ namespace QvaDev.Orchestration.Services
                 //TODO
                 try
                 {
-                    foreach (var expertSet in _expertSets)
+                    foreach (var expertSet in _expertSets
+                        .Where(es => es.Symbol1 == e.Tick.Symbol || es.Symbol2 == e.Tick.Symbol))
                         Task.Factory.StartNew(() => _quadroService.OnTick((Connector) sender, expertSet));
 
                 }
@@ -109,8 +110,9 @@ namespace QvaDev.Orchestration.Services
                 //TODO
                 try
                 {
-                    foreach (var expertSet in _expertSets)
-                        Task.Factory.StartNew(() => _quadroService.OnBarHistory((Connector)sender, expertSet, e));
+                    foreach (var expertSet in _expertSets
+                        .Where(es => es.Symbol1 == e.Symbol || es.Symbol2 == e.Symbol))
+                        Task.Factory.StartNew(() => _quadroService.OnBarHistory((Connector) sender, expertSet, e));
                 }
                 catch (Exception ex)
                 {

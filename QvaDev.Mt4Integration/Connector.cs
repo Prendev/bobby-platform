@@ -190,6 +190,14 @@ namespace QvaDev.Mt4Integration
                 .Sum(o => o.Profit + o.Commission + o.Swap);
         }
 
+        public double CalculateProfit(string symbol1, string symbol2, params int[] magics)
+        {
+            return QuoteClient.GetOpenedOrders()
+                .Where(p => (p.Symbol == symbol1 || p.Symbol == symbol2) &&
+                            magics?.Any(m => m == p.MagicNumber) == true)
+                .Sum(o => o.Profit + o.Commission + o.Swap);
+        }
+
         public void Subscribe(List<Tuple<string, int, short>> symbols)
         {
             QuoteClient.OnQuoteHistory -= QuoteClient_OnQuoteHistory;

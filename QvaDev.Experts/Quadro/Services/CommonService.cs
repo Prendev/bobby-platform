@@ -32,16 +32,16 @@ namespace QvaDev.Experts.Quadro.Services
             _log = log;
         }
 
-        public double CalculateProfit(ExpertSetWrapper exp, int magicNumber, Sides orderType1, Sides orderType2)
-        {
-            return exp.Connector.CalculateProfit(magicNumber, exp.E.Symbol1, orderType1, exp.E.Symbol2, orderType2);
-        }
-
         public double CalculateBaseOrdersProfit(ExpertSetWrapper exp, Sides side)
         {
             return side == Sides.Sell
-                ? CalculateProfit(exp, exp.SpreadSellMagicNumber, Sides.Buy, Sides.Sell)
-                : CalculateProfit(exp, exp.SpreadBuyMagicNumber, Sides.Sell, Sides.Buy);
+                ? CalculateProfit(exp, exp.SpreadSellMagicNumber, exp.Sym1MaxOrderType, exp.Sym2MaxOrderType)
+                : CalculateProfit(exp, exp.SpreadBuyMagicNumber, exp.Sym1MinOrderType, exp.Sym2MinOrderType);
+        }
+
+        public double CalculateProfit(ExpertSetWrapper exp, int magicNumber, Sides orderType1, Sides orderType2)
+        {
+            return exp.Connector.CalculateProfit(magicNumber, exp.E.Symbol1, orderType1, exp.E.Symbol2, orderType2);
         }
 
         public List<Position> GetOpenOrdersList(ExpertSetWrapper exp, string symbol, Sides orderType,
