@@ -13,7 +13,6 @@ namespace QvaDev.Experts.Quadro.Services
         List<Position> GetOpenOrdersList(ExpertSetWrapper exp, string symbol1, Sides orderType1,
             string symbol2, Sides orderType2, int magicNumber);
         double BarQuant(ExpertSetWrapper exp, Position p);
-        int GetBarIndexForTime(ExpertSetWrapper exp, DateTime timeInBar, string symbol, bool exact = false);
         Bar Bar(ExpertSetWrapper exp, string symbol, int index);
         int GetMagicNumberBySpreadOrderType(ExpertSetWrapper exp, Sides spreadOrderType);
         IEnumerable<Position> GetBaseOpenOrdersList(ExpertSetWrapper exp, Sides spreadOrderType);
@@ -64,13 +63,10 @@ namespace QvaDev.Experts.Quadro.Services
         public double BarQuant(ExpertSetWrapper exp, Position p)
         {
             int barIndex = GetBarIndexForTime(exp, p.OpenTime, p.Symbol);
-            if (barIndex >= 0) return exp.Quants[barIndex];
-            exp.E.ExpertDenied = true;
-            _log.Debug($"{exp.E.Description}: ExpertDenied");
-            return 0;
+            if (barIndex < 0) throw new BarNotFoundException(exp, p.Symbol, p.OpenTime);
+            return exp.Quants[barIndex];
         }
-
-        public int GetBarIndexForTime(ExpertSetWrapper exp, DateTime timeInBar, string symbol, bool exact = false)
+        private int GetBarIndexForTime(ExpertSetWrapper exp, DateTime timeInBar, string symbol, bool exact = false)
         {
             int i = 0;
             var historyBar = GetHistoryBar(exp, symbol);
@@ -78,7 +74,7 @@ namespace QvaDev.Experts.Quadro.Services
             {
                 var bar = Bar(exp, symbol, i);
                 if (exact && timeInBar == bar.OpenTime) return i;
-                if (!exact && timeInBar <= bar.OpenTime) return i;
+                if (!exact && timeInBar >= bar.OpenTime) return i;
                 i++;
             }
             return -1;

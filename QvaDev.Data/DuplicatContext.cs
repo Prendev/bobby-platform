@@ -330,7 +330,7 @@ namespace QvaDev.Data
                 Diff = 20,
                 Period = 3,
                 Tp1 = 20,
-                MagicNumber = magic * 1000,
+                MagicNumber = magic * 100,
                 LotSize = 0.01,
                 TradeSetFloatingSwitch = -50000,
                 TradeOpeningEnabled = true,

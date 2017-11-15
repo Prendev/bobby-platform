@@ -83,7 +83,7 @@ namespace QvaDev.Experts.Quadro.Models
         public void CalculateQuants()
         {
             var quants = new List<double>();
-            for (var i = 0; i < E.GetMaxBarCount(); i++)
+            for (var i = 0; i < BarHistory1.Count; i++)
             {
                 var price1Close = Connector.MyRoundToDigits(E.Symbol1, BarHistory1[i].Close);
                 var price2Close = Connector.MyRoundToDigits(E.Symbol2, BarHistory2[i].Close);

@@ -106,17 +106,31 @@ namespace QvaDev.Mt4Integration
 
         public void SendMarketOrderRequest(string symbol, Sides side, double lots, int magicNumber, string comment = null)
         {
-            var op = side == Sides.Buy ? Op.Buy : Op.Sell;
-            var price = side == Sides.Buy ? QuoteClient.GetQuote(symbol).Ask : QuoteClient.GetQuote(symbol).Bid;
-            OrderClient.OrderSend(symbol, op, lots, price, 0, 0, 0, comment, magicNumber, DateTime.MaxValue);
+            try
+            {
+                var op = side == Sides.Buy ? Op.Buy : Op.Sell;
+                var price = side == Sides.Buy ? QuoteClient.GetQuote(symbol).Ask : QuoteClient.GetQuote(symbol).Bid;
+                OrderClient.OrderSend(symbol, op, lots, price, 0, 0, 0, comment, magicNumber, DateTime.MaxValue);
+            }
+            catch (Exception e)
+            {
+                _log.Error($"Connector.SendMarketOrderRequest({symbol}, {side}, {lots}, {magicNumber}, {comment})", e);
+            }
         }
 
         public void SendClosePositionRequests(Position position, double? lots = null)
         {
-            var price = position.Side == Sides.Buy
-                ? QuoteClient.GetQuote(position.Symbol).Bid
-                : QuoteClient.GetQuote(position.Symbol).Ask;
-            OrderClient.OrderClose(position.Symbol, (int) position.Id, lots ?? position.Lots, price, 0);
+            try
+            {
+                var price = position.Side == Sides.Buy
+                    ? QuoteClient.GetQuote(position.Symbol).Bid
+                    : QuoteClient.GetQuote(position.Symbol).Ask;
+                OrderClient.OrderClose(position.Symbol, (int) position.Id, lots ?? position.Lots, price, 0);
+            }
+            catch (Exception e)
+            {
+                _log.Error($"Connector.SendClosePositionRequests({position.Id})", e);
+            }
         }
 
         public long GetOpenContracts(string symbol)
