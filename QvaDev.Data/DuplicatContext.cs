@@ -370,17 +370,35 @@ namespace QvaDev.Data
                 });
 
             var i = 1;
-            AddProdSet(ta, "1 AU NU 3.96", "NZDUSD+", "AUDUSD+", 1, 4, 50, 300, 1000, 100, 1500, 150, 2, 10 * i++);
+            AddProdSet(ta, "1 AU NU 3.96", "NZDUSD+", "AUDUSD+", 1, 4, 50, 300, 1000, 30, 1500, 150, 2, 10 * i++);
             AddProdSet(ta, "2 AN NU 4.40", "AUDNZD+", "NZDUSD+", 3, 1, 75, 400, 1250, 100, 1250, 200, 1.3, 10 * i++);
             AddProdSet(ta, "3 AN AU 3.93", "AUDUSD+", "AUDNZD+", 1, 1, 200, 300, 1500, 100, 1500, 200, 1.6, 10 * i++);
-            AddProdSet(ta, "4 EA EN 3.48", "EURAUD+", "EURNZD+", 1, 1, 75, 200, 1750, 100, 1750, 200, 1.6, 10 * i++);
+            AddProdSet(ta, "4 EA EN 3.48", "EURNZD+", "EURAUD+", 1, 1, 75, 200, 1750, 100, 1750, 200, 1.6, 10 * i++);
             AddProdSet(ta, "5 AN EN 3.17", "AUDNZD+", "EURNZD+", 1, 1, 75, 400, 1250, 100, 1250, 200, 0.7, 10 * i++);
-            AddProdSet(ta, "6 EA AN 3.61", "AUDNZD+", "EURAUD+", 3, 1, 75, 100, 1250, 100, 1250, 200, 1.2, 10 * i++);
+            AddProdSet(ta, "6 EA AN 3.61", "AUDNZD+", "EURAUD+", 3, 1, 75, 100, 1250, 100, 1250, 150, 1.2, 10 * i++);
             AddProdSet(ta, "7 EU EA 5.55", "EURAUD+", "EURUSD+", 1, 1, 50, 200, 1000, 100, 1000, 200, 0.6, 10 * i++);
             AddProdSet(ta, "8 AU EU 3.36", "EURUSD+", "AUDUSD+", 1, 1, 125, 800, 2000, 200, 1500, 200, 1.4, 10 * i++);
-            AddProdSet(ta, "9 AU EA 3.33", "AUDUSD+", "EURAUD+", 1, 1, 125, 900, 2500, 100, 2500, 200, 1.4, 10 * i++);
+            AddProdSet(ta, "9 AU EA 3.33", "EURAUD+", "AUDUSD+", 1, 1, 125, 900, 2500, 100, 2500, 200, 1.4, 10 * i++);
             AddProdSet(ta, "10 EU NU 4.13", "NZDUSD+", "EURUSD+", 1, 1, 75, 500, 1750, 100, 1750, 200, 1.2, 10 * i++);
-            AddProdSet(ta, "11 EN NU 3.90", "EURNZD+", "NZDUSD+", 1, 1, 75, 1000, 3000, 30, 1500, 200, 1.5, 10 * i++);
+            AddProdSet(ta, "11 EN NU 3.90", "EURNZD+", "NZDUSD+", 3, 1, 75, 1000, 3000, 30, 1500, 200, 1.5, 10 * i++);
+            AddProdSet(ta, "12 EN EU 4.48", "EURUSD+", "EURNZD+", 1, 1, 100, 200, 1250, 100, 1250, 200, 1.6, 10 * i++);
+            AddProdSet(ta, "13 AN NC 5.37", "AUDNZD+", "NZDCAD+", 1, 1, 75, 800, 1500, 100, 1500, 200, 1.6, 10 * i++);
+            AddProdSet(ta, "14 AC NC 3.83", "NZDCAD+", "AUDCAD+", 1, 1, 75, 700, 1750, 30, 1500, 200, 1.6, 10 * i++);
+
+            AddProdSet(ta, "16 AU UC 5.36", "AUDUSD+", "USDCAD+", 3, 1, 50, 100, 1000, 100, 1000, 150, 0.6, 10 * i++);
+            AddProdSet(ta, "17 AC UC 3.94", "AUDCAD+", "USDCAD+", 1, 1, 100, 400, 1000, 100, 1000, 200, 1.2, 10 * i++);
+            AddProdSet(ta, "18 AC AU 6.81", "AUDCAD+", "AUDUSD+", 1, 1, 50, 100, 750, 100, 750, 150, 1.9, 10 * i++);
+            AddProdSet(ta, "19 EA EC 5.44", "EURCAD+", "EURAUD+", 1, 1, 75, 600, 1250, 100, 1250, 200, 1.6, 10 * i++);
+
+
+            AddProdSet(ta, "22 EN NC 4.95", "NZDCAD+", "EURNZD+", 3, 1, 75, 300, 750, 100, 750, 150, 1.2, 10 * i++);
+            AddProdSet(ta, "23 EC NC 4.93", "EURCAD+", "NZDCAD+", 3, 1, 100, 300, 2750, 30, 1500, 200, 1.5, 10 * i++);
+            AddProdSet(ta, "24 EC EN 5.21", "EURCAD+", "EURNZD+", 1, 1, 75, 1000, 2750, 30, 1500, 200, 0.9, 10 * i++);
+            AddProdSet(ta, "25 EU UC 8.44", "USDCAD+", "EURUSD+", 3, 1, 75, 200, 1000, 30, 1000, 200, 1.2, 10 * i++);
+            AddProdSet(ta, "26 EC UC 2.37", "EURCAD+", "USDCAD+", 1, 1, 75, 500, 2750, 30, 2750, 200, 1.4, 10 * i++);
+            AddProdSet(ta, "27 EC EU 5.02", "EURCAD+", "EURUSD+", 1, 1, 50, 100, 1000, 30, 1000, 200, 1.9, 10 * i++);
+            AddProdSet(ta, "29 UC NC 4.25", "NZDCAD+", "USDCAD+", 1, 1, 25, 300, 1750, 30, 1500, 150, 1.2, 10 * i++);
+            AddProdSet(ta, "30 NC NU 2.38", "NZDCAD+", "NZDUSD+", 1, 1, 50, 300, 2250, 30, 2250, 200, 0.9, 10 * i++);
         }
 
         private void AddProdSet(TradingAccount ta, string desc, string sym1, string sym2, int varId, int diff, int per, int tp1,

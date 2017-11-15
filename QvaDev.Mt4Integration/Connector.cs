@@ -114,7 +114,7 @@ namespace QvaDev.Mt4Integration
             }
             catch (Exception e)
             {
-                _log.Error($"Connector.SendMarketOrderRequest({symbol}, {side}, {lots}, {magicNumber}, {comment})", e);
+                _log.Error($"Connector.SendMarketOrderRequest({symbol}, {side}, {lots}, {magicNumber}, {comment}) exception", e);
             }
         }
 
@@ -129,7 +129,7 @@ namespace QvaDev.Mt4Integration
             }
             catch (Exception e)
             {
-                _log.Error($"Connector.SendClosePositionRequests({position.Id})", e);
+                _log.Error($"Connector.SendClosePositionRequests({position.Id}) exception", e);
             }
         }
 
