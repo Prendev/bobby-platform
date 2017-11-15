@@ -10,6 +10,10 @@ namespace QvaDev.Experts.Quadro.Hedge
         {
         }
 
+        public void CheckHedgeStopByQuant(ExpertSetWrapper exp)
+        {
+        }
+
         public void CheckHedgeProfitClose(ExpertSetWrapper exp)
         {
         }

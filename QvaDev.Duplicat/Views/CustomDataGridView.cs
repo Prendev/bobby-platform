@@ -87,6 +87,7 @@ namespace QvaDev.Duplicat.Views
 
         private void CustomDataGridView_DataSourceChanged(object sender, EventArgs e)
         {
+            UseComboBoxForEnums();
             var genericArgs =  DataSource?.GetType().GetGenericArguments();
             if (genericArgs?.Length > 0)
             {
@@ -104,7 +105,6 @@ namespace QvaDev.Duplicat.Views
                 if (!Columns.Contains(name)) continue;
                 Columns[name].Visible = false;
             }
-            UseComboBoxForEnums();
             FilterRows();
         }
 
@@ -132,7 +132,7 @@ namespace QvaDev.Duplicat.Views
                         {
                             Value = (int) v,
                             Name = Enum.GetName(x.ValueType, v)
-                        }).ToList()
+                        }).OrderBy(v => v.Value).ToList()
                     };
 
                     var index = x.Index;

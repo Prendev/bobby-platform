@@ -34,14 +34,6 @@ namespace QvaDev.Data.Models
             InverseNormalReversed = 6
         }
 
-        public enum HedgeModes
-        {
-            NoHedge,
-            TwoPairHedge,
-            //ThirdPairHedge,
-            //ThreePairHedge
-        }
-
         public bool ShouldRun { get; set; }
         public bool ExpertDenied { get; set; }
         public bool TradeOpeningEnabled { get; set; }
@@ -57,15 +49,6 @@ namespace QvaDev.Data.Models
         public double LotSize { get; set; }
 
         public int Tp1 { get; set; }
-        [NotMapped]
-        [InvisibleColumn]
-        public bool PartialClose = false;
-        [NotMapped]
-        [InvisibleColumn]
-        public int Tp2 => 0;
-        [NotMapped]
-        [InvisibleColumn]
-        public int Tp3 => 0;
 
         public int ReOpenDiff { get; set; }
         public int ReOpenDiffChangeCount { get; set; }
@@ -80,7 +63,69 @@ namespace QvaDev.Data.Models
         public int Last24HMaxOpen { get; set; }
 
         public Variants Variant { get; set; }
-        public HedgeModes HedgeMode { get; set; }
+
+        public bool CloseAllBuy { get; set; }
+        public bool CloseAllSell { get; set; }
+        public bool BisectingCloseBuy { get; set; }
+        public bool BisectingCloseSell { get; set; }
+        public bool ProfitCloseBuy { get; set; }
+        public double ProfitCloseValueBuy { get; set; }
+        public bool ProfitCloseSell { get; set; }
+        public double ProfitCloseValueSell { get; set; }
+
+        [Required]
+        public int TradingAccountId { get; set; }
+        [Required]
+        public TradingAccount TradingAccount { get; set; }
+
+        [NotMapped]
+        [InvisibleColumn]
+        public bool IsFiltered { get => Get<bool>(); set => Set(value); }
+
+        public int GetMaxBarCount()
+        {
+            var barCounts = new List<int>
+            {
+                StochMultiplication * StochMultiplier1,
+                StochMultiplication * StochMultiplier2,
+                StochMultiplication * StochMultiplier3,
+                WprMultiplication * WprMultiplier1,
+                WprMultiplication * WprMultiplier2,
+                WprMultiplication * WprMultiplier3
+            };
+            return barCounts.Max();
+        }
+
+        #region Unused
+
+        public enum HedgeModes
+        {
+            NoHedge,
+            TwoPairHedge,
+            ThirdPairHedge,
+            ThreePairHedge
+        }
+
+        [NotMapped]
+        [InvisibleColumn]
+        public bool PartialClose = false;
+        [NotMapped]
+        [InvisibleColumn]
+        public int Tp2 => 0;
+        [NotMapped]
+        [InvisibleColumn]
+        public int Tp3 => 0;
+
+        [NotMapped]
+        [InvisibleColumn]
+        public bool HedgeProfitClose { get; set; }
+        [NotMapped]
+        [InvisibleColumn]
+        public double HedgeProfitStop { get; set; }
+        [NotMapped]
+        [InvisibleColumn]
+        public double HedgeLossStop { get; set; }
+
         [NotMapped]
         [InvisibleColumn]
         public double HedgeRatio => 1;
@@ -110,21 +155,6 @@ namespace QvaDev.Data.Models
         [InvisibleColumn]
         public double TradeSetStopLossValue => -50000;
 
-        public bool CloseAllBuy { get; set; }
-        public bool CloseAllSell { get; set; }
-        public bool ProfitCloseBuy { get; set; }
-        public double ProfitCloseValueBuy { get; set; }
-        public bool ProfitCloseSell { get; set; }
-        public double ProfitCloseValueSell { get; set; }
-        public bool HedgeProfitClose { get; set; }
-        public double HedgeProfitStop { get; set; }
-        public double HedgeLossStop { get; set; }
-
-        [Required]
-        public int TradingAccountId { get; set; }
-        [Required]
-        public TradingAccount TradingAccount { get; set; }
-
         [NotMapped]
         [InvisibleColumn]
         public int StochMultiplication => Period;
@@ -150,22 +180,6 @@ namespace QvaDev.Data.Models
         [InvisibleColumn]
         public int WprMultiplier3 => 12;
 
-        [NotMapped]
-        [InvisibleColumn]
-        public bool IsFiltered { get => Get<bool>(); set => Set(value); }
-
-        public int GetMaxBarCount()
-        {
-            var barCounts = new List<int>
-            {
-                StochMultiplication * StochMultiplier1,
-                StochMultiplication * StochMultiplier2,
-                StochMultiplication * StochMultiplier3,
-                WprMultiplication * WprMultiplier1,
-                WprMultiplication * WprMultiplier2,
-                WprMultiplication * WprMultiplier3
-            };
-            return barCounts.Max();
-        }
+        #endregion
     }
 }

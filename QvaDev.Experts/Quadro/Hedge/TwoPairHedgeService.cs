@@ -15,6 +15,15 @@ namespace QvaDev.Experts.Quadro.Hedge
             _commonService = commonService;
         }
 
+        public void CheckHedgeStopByQuant(ExpertSetWrapper exp)
+        {
+            if (exp.E.HedgeStopPositionCount < 0) return;
+            if (exp.SellHedgeOpenCount > 0)
+                CheckHedgeStopByQuant(exp, Sides.Sell, barQuant => exp.Quant < barQuant);
+            if (exp.BuyHedgeOpenCount > 0)
+                CheckHedgeStopByQuant(exp, Sides.Buy, barQuant => exp.Quant > barQuant);
+        }
+
         public void CheckHedgeProfitClose(ExpertSetWrapper exp)
         {
             CheckProfitStop(exp, Sides.Sell, CalculateProfit(exp, Sides.Sell));

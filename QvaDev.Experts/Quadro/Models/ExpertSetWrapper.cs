@@ -73,17 +73,14 @@ namespace QvaDev.Experts.Quadro.Models
         public double Sym2LastMaxActionPrice { get; set; }
         public double Sym2LastMinActionPrice { get; set; }
 
-        public int BuyOpenCount => E.TradingAccount.MetaTraderAccount.Connector.Positions.Count(
-            p => p.Value.MagicNumber == SpreadBuyMagicNumber || p.Value.MagicNumber == HedgeBuyMagicNumber);
-        public int SellOpenCount => E.TradingAccount.MetaTraderAccount.Connector.Positions.Count(
-            p => p.Value.MagicNumber == SpreadSellMagicNumber || p.Value.MagicNumber == HedgeSellMagicNumber);
-
+        public int BuyOpenCount => OpenPositions.Count(p => p.MagicNumber == SpreadBuyMagicNumber) / 2;
+        public int SellOpenCount => OpenPositions.Count(p => p.MagicNumber == SpreadSellMagicNumber) / 2;
         public double Point => Connector.GetPoint(E.Symbol1);
 
         public void CalculateQuants()
         {
             var quants = new List<double>();
-            for (var i = 0; i < BarHistory1.Count; i++)
+            for (var i = 0; i < Math.Min(BarHistory1.Count, BarHistory2.Count); i++)
             {
                 var price1Close = Connector.MyRoundToDigits(E.Symbol1, BarHistory1[i].Close);
                 var price2Close = Connector.MyRoundToDigits(E.Symbol2, BarHistory2[i].Close);

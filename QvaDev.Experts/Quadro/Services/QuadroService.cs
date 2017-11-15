@@ -2,11 +2,9 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using Autofac.Features.Indexed;
 using log4net;
 using QvaDev.Common.Integration;
 using QvaDev.Data.Models;
-using QvaDev.Experts.Quadro.Hedge;
 using QvaDev.Experts.Quadro.Models;
 using QvaDev.Mt4Integration;
 
@@ -26,18 +24,15 @@ namespace QvaDev.Experts.Quadro.Services
         private readonly ICloseService _closeService;
         private readonly IEntriesService _entriesService;
         private readonly IReentriesService _reentriesService;
-        private readonly IIndex<ExpertSet.HedgeModes, IHedgeService> _hedgeServices;
         private readonly ILog _log;
 
         public QuadroService(
             ICloseService closeService,
             IEntriesService entriesService,
             IReentriesService reentriesService,
-            IIndex<ExpertSet.HedgeModes, IHedgeService> hedgeServices,
             ILog log)
         {
             _log = log;
-            _hedgeServices = hedgeServices;
             _reentriesService = reentriesService;
             _entriesService = entriesService;
             _closeService = closeService;
@@ -61,10 +56,18 @@ namespace QvaDev.Experts.Quadro.Services
                         _closeService.AllCloseMin(exp);
                         exp.E.CloseAllBuy = false;
                     }
+                    else if (exp.E.BisectingCloseBuy)
+                    {
+                        exp.E.BisectingCloseBuy = false;
+                    }
                     if (exp.E.CloseAllSell)
                     {
                         _closeService.AllCloseMax(exp);
                         exp.E.CloseAllSell = false;
+                    }
+                    else if (exp.E.BisectingCloseSell)
+                    {
+                        exp.E.BisectingCloseSell = false;
                     }
                     if (exp.E.ProfitCloseBuy)
                     {
@@ -73,10 +76,6 @@ namespace QvaDev.Experts.Quadro.Services
                     if (exp.E.ProfitCloseSell)
                     {
                         _closeService.CheckProfitClose(exp, Sides.Sell);
-                    }
-                    if (exp.E.HedgeProfitClose)
-                    {
-                        _hedgeServices[exp.E.HedgeMode].CheckHedgeProfitClose(exp);
                     }
                     if (exp.E.UseTradeSetStopLoss)
                     {
@@ -161,7 +160,6 @@ namespace QvaDev.Experts.Quadro.Services
 
             _closeService.CheckClose(exp);
             _reentriesService.CalculateReentries(exp);
-            _hedgeServices[exp.E.HedgeMode].CheckHedgeStopByQuant(exp);
 
             if (!exp.E.TradeOpeningEnabled) return;
             _entriesService.CalculateEntries(exp);

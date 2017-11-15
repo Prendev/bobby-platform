@@ -343,7 +343,6 @@ namespace QvaDev.Data
                 ReOpenDiff = 20,
                 ReOpenDiffChangeCount = 3,
                 ReOpenDiff2 = 30,
-                HedgeMode = ExpertSet.HedgeModes.TwoPairHedge,
                 ShouldRun = true
             });
         }
@@ -394,8 +393,7 @@ namespace QvaDev.Data
                 HedgeProfitStop = 500,
                 HedgeLossStop = 500,
                 Last24HMaxOpen = 200,
-                MaxTradeSetCount = 600,
-                HedgeMode = ExpertSet.HedgeModes.TwoPairHedge
+                MaxTradeSetCount = 600
             });
             ExpertSets.Add(new ExpertSet
             {
@@ -421,8 +419,7 @@ namespace QvaDev.Data
                 HedgeProfitStop = 500,
                 HedgeLossStop = 500,
                 Last24HMaxOpen = 200,
-                MaxTradeSetCount = 600,
-                HedgeMode = ExpertSet.HedgeModes.TwoPairHedge
+                MaxTradeSetCount = 600
             });
             ExpertSets.Add(new ExpertSet
             {
@@ -448,8 +445,7 @@ namespace QvaDev.Data
                 HedgeProfitStop = 500,
                 HedgeLossStop = 500,
                 Last24HMaxOpen = 200,
-                MaxTradeSetCount = 600,
-                HedgeMode = ExpertSet.HedgeModes.TwoPairHedge
+                MaxTradeSetCount = 600
             });
             ExpertSets.Add(new ExpertSet
             {
@@ -475,8 +471,7 @@ namespace QvaDev.Data
                 HedgeProfitStop = 500,
                 HedgeLossStop = 500,
                 Last24HMaxOpen = 200,
-                MaxTradeSetCount = 600,
-                HedgeMode = ExpertSet.HedgeModes.TwoPairHedge
+                MaxTradeSetCount = 600
             });
             ExpertSets.Add(new ExpertSet
             {
@@ -502,8 +497,7 @@ namespace QvaDev.Data
                 HedgeProfitStop = 500,
                 HedgeLossStop = 500,
                 Last24HMaxOpen = 200,
-                MaxTradeSetCount = 600,
-                HedgeMode = ExpertSet.HedgeModes.TwoPairHedge
+                MaxTradeSetCount = 600
             });
             ExpertSets.Add(new ExpertSet
             {
@@ -529,8 +523,7 @@ namespace QvaDev.Data
                 HedgeProfitStop = 500,
                 HedgeLossStop = 500,
                 Last24HMaxOpen = 200,
-                MaxTradeSetCount = 600,
-                HedgeMode = ExpertSet.HedgeModes.TwoPairHedge
+                MaxTradeSetCount = 600
             });
             ExpertSets.Add(new ExpertSet
             {
@@ -556,8 +549,7 @@ namespace QvaDev.Data
                 HedgeProfitStop = 500,
                 HedgeLossStop = 500,
                 Last24HMaxOpen = 200,
-                MaxTradeSetCount = 600,
-                HedgeMode = ExpertSet.HedgeModes.TwoPairHedge
+                MaxTradeSetCount = 600
             });
             ExpertSets.Add(new ExpertSet
             {
@@ -583,8 +575,7 @@ namespace QvaDev.Data
                 HedgeProfitStop = 500,
                 HedgeLossStop = 500,
                 Last24HMaxOpen = 200,
-                MaxTradeSetCount = 600,
-                HedgeMode = ExpertSet.HedgeModes.TwoPairHedge
+                MaxTradeSetCount = 600
             });
             ExpertSets.Add(new ExpertSet
             {
@@ -610,8 +601,7 @@ namespace QvaDev.Data
                 HedgeProfitStop = 500,
                 HedgeLossStop = 500,
                 Last24HMaxOpen = 200,
-                MaxTradeSetCount = 600,
-                HedgeMode = ExpertSet.HedgeModes.TwoPairHedge
+                MaxTradeSetCount = 600
             });
             ExpertSets.Add(new ExpertSet
             {
@@ -637,8 +627,7 @@ namespace QvaDev.Data
                 HedgeProfitStop = 500,
                 HedgeLossStop = 500,
                 Last24HMaxOpen = 200,
-                MaxTradeSetCount = 600,
-                HedgeMode = ExpertSet.HedgeModes.TwoPairHedge
+                MaxTradeSetCount = 600
             });
             ExpertSets.Add(new ExpertSet
             {
@@ -664,8 +653,7 @@ namespace QvaDev.Data
                 HedgeProfitStop = 500,
                 HedgeLossStop = 500,
                 Last24HMaxOpen = 200,
-                MaxTradeSetCount = 600,
-                HedgeMode = ExpertSet.HedgeModes.TwoPairHedge
+                MaxTradeSetCount = 600
             });
         }
     }

@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Linq;
-using Autofac.Features.Indexed;
 using log4net;
 using QvaDev.Common.Integration;
-using QvaDev.Data.Models;
-using QvaDev.Experts.Quadro.Hedge;
 using QvaDev.Experts.Quadro.Models;
 
 namespace QvaDev.Experts.Quadro.Services
@@ -17,17 +14,14 @@ namespace QvaDev.Experts.Quadro.Services
     public class ReentriesService : IReentriesService
     {
         private readonly ICommonService _commonService;
-        private readonly IIndex<ExpertSet.HedgeModes, IHedgeService> _hedgeServices;
         private readonly ILog _log;
 
         public ReentriesService(
             ILog log,
-            ICommonService commonService,
-            IIndex<ExpertSet.HedgeModes, IHedgeService> hedgeServices)
+            ICommonService commonService)
         {
             _log = log;
             _commonService = commonService;
-            _hedgeServices = hedgeServices;
         }
 
         public void CalculateReentries(ExpertSetWrapper exp)
@@ -58,7 +52,6 @@ namespace QvaDev.Experts.Quadro.Services
             exp.Connector.SendMarketOrderRequest(exp.E.Symbol1, exp.Sym1MaxOrderType, lot1, exp.SpreadSellMagicNumber, $"{exp.E.Description} {exp.SpreadSellMagicNumber}");
             exp.Connector.SendMarketOrderRequest(exp.E.Symbol2, exp.Sym2MaxOrderType, lot2, exp.SpreadSellMagicNumber, $"{exp.E.Description} {exp.SpreadSellMagicNumber}");
             _commonService.SetLastActionPrice(exp, Sides.Sell);
-            _hedgeServices[exp.E.HedgeMode].OnBaseTradesOpened(exp, Sides.Sell, new[] { lot1, lot2 });
         }
 
         private void CalculateReentriesForMinAction(ExpertSetWrapper exp)
@@ -82,7 +75,6 @@ namespace QvaDev.Experts.Quadro.Services
             exp.Connector.SendMarketOrderRequest(exp.E.Symbol1, exp.Sym1MinOrderType, lot1, exp.SpreadBuyMagicNumber, $"{exp.E.Description} {exp.SpreadBuyMagicNumber}");
             exp.Connector.SendMarketOrderRequest(exp.E.Symbol2, exp.Sym2MinOrderType, lot2, exp.SpreadBuyMagicNumber, $"{exp.E.Description} {exp.SpreadBuyMagicNumber}");
             _commonService.SetLastActionPrice(exp, Sides.Buy);
-            _hedgeServices[exp.E.HedgeMode].OnBaseTradesOpened(exp, Sides.Buy, new[] { lot1, lot2 });
         }
 
         private bool EnableLast24Filter(ExpertSetWrapper exp, Sides spreadOrderType, int numOfTradePerOpen)
