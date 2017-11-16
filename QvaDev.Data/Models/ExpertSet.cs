@@ -35,7 +35,6 @@ namespace QvaDev.Data.Models
         }
 
         public bool ShouldRun { get; set; }
-        public bool ExpertDenied { get; set; }
         public bool TradeOpeningEnabled { get; set; }
 
         public TimeFrames TimeFrame { get; set; }
@@ -96,7 +95,7 @@ namespace QvaDev.Data.Models
                 WprMultiplication * WprMultiplier2,
                 WprMultiplication * WprMultiplier3
             };
-            return barCounts.Max();
+            return (int) (barCounts.Max() * 1.1);
         }
 
         #region Unused

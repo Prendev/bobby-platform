@@ -52,7 +52,7 @@
     <Compile Include="Quadro\Hedge\IHedgeService.cs" />
     <Compile Include="Quadro\Hedge\NoHedgeService.cs" />
     <Compile Include="Quadro\Hedge\TwoPairHedgeService.cs" />
-    <Compile Include="Quadro\Models\BarNotFoundException.cs" />
+    <Compile Include="Quadro\Models\BarMissingException.cs" />
     <Compile Include="Quadro\Models\ExpertSetWrapper.cs" />
     <Compile Include="Quadro\Services\CloseService.cs" />
     <Compile Include="Quadro\Services\EntriesService.cs" />

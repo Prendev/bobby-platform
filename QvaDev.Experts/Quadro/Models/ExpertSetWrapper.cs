@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using QvaDev.Common.Integration;
@@ -9,6 +10,14 @@ namespace QvaDev.Experts.Quadro.Models
 {
     public class ExpertSetWrapper
     {
+        public class BarQuant
+        {
+            public DateTime OpenTime { get; set; }
+            public Bar Bar1 { get; set; }
+            public Bar Bar2 { get; set; }
+            public double? Quant { get; set; }
+        }
+
         public ExpertSet E { get; }
 
         public ExpertSetWrapper(ExpertSet expertSet)
@@ -35,14 +44,14 @@ namespace QvaDev.Experts.Quadro.Models
         public int HedgeBuyMagicNumber => E.MagicNumber + 2;
         public int HedgeSellMagicNumber => E.MagicNumber + 3;
 
-        public List<Bar> BarHistory1 { get; set; } = new List<Bar>();
-        public List<Bar> BarHistory2 { get; set; } = new List<Bar>();
-        public List<double> Quants { get; set; } = new List<double>();
+        public SortedDictionary<DateTime, BarQuant> BarQuants { get; set; } = new SortedDictionary<DateTime, BarQuant>();
         public int BuyHedgeOpenCount { get; set; }
         public int SellHedgeOpenCount { get; set; }
 
-
-        public double Quant => Quants.First();
+        public int QuantCount => BarQuants.Count(b => b.Value.Quant.HasValue);
+        public BarQuant LatestBarQuant => BarQuants.Any()
+            ? BarQuants.LastOrDefault(b => b.Value.Quant.HasValue).Value
+            : null;
         public double? QuantStoAvg { get; private set; }
         public int StochMinAvgOpen => E.Diff;
         public int StochMaxAvgOpen => 100 - E.Diff;
@@ -68,21 +77,36 @@ namespace QvaDev.Experts.Quadro.Models
         public double DeltaRange => E.Delta * Point;
         public double Point => Connector.GetPoint(E.Symbol1);
 
+        public DateTime? BarMissingOpenTime { get; set; }
+        public DateTime LastBarOpenTime { get; set; }
+
         //[InvisibleColumn] public int BuyOpenCount => OpenPositions.Count(p => p.MagicNumber == SpreadBuyMagicNumber) / 2;
         //[InvisibleColumn] public int SellOpenCount => OpenPositions.Count(p => p.MagicNumber == SpreadSellMagicNumber) / 2;
 
-        public void CalculateQuants()
-        {
-            var quants = new List<double>();
-            for (var i = 0; i < Math.Min(BarHistory1.Count, BarHistory2.Count); i++)
-            {
-                var price1Close = Connector.MyRoundToDigits(E.Symbol1, BarHistory1[i].Close);
-                var price2Close = Connector.MyRoundToDigits(E.Symbol2, BarHistory2[i].Close);
-                var quant = Connector.MyRoundToDigits(E.Symbol1, price2Close - E.M * price1Close);
-                quants.Add(quant);
-            }
-            Quants = quants;
 
+        public void GetSpecificBars(DateTime time)
+        {
+            Connector.GetSpecificBars(time, (int)E.TimeFrame, E.Symbol1, E.Symbol2);
+        }
+
+        public void UpdateBarQuants(string symbol, ConcurrentDictionary<DateTime, Bar> barHistory)
+        {
+            foreach (var bar in barHistory.Select(b => b.Value))
+            {
+                if (!BarQuants.ContainsKey(bar.OpenTime))
+                    BarQuants[bar.OpenTime] = new BarQuant { OpenTime = bar.OpenTime };
+                var barQuant = BarQuants[bar.OpenTime];
+                if (E.Symbol1 == symbol) barQuant.Bar1 = bar;
+                else barQuant.Bar2 = bar;
+                if (barQuant.Bar1 != null && barQuant.Bar2 != null)
+                    BarQuants[bar.OpenTime].Quant =
+                        Connector.MyRoundToDigits(E.Symbol1,
+                            barQuant.Bar2.Close - E.M * barQuant.Bar1.Close);
+            }
+            CalculateIndicators();
+        }
+        private void CalculateIndicators()
+        {
             double? quantSto = CalcSto(E.StochMultiplication);
             double? quantSto1 = CalcSto(E.StochMultiplication * E.StochMultiplier1);
             double? quantSto2 = CalcSto(E.StochMultiplication * E.StochMultiplier2);
@@ -97,19 +121,25 @@ namespace QvaDev.Experts.Quadro.Models
         }
         private double? CalcSto(int period, int index = 0)
         {
-            if (Quants.Count < index + period) return null;
-            var range = Quants.GetRange(index, period);
+            if (QuantCount < index + period) return null;
+            var range = BarQuants.OrderByDescending(bq => bq.Key)
+                .Where(bq => bq.Value.Quant.HasValue)
+                .Select(bq => bq.Value.Quant.Value).ToList()
+                .GetRange(index, period);
             double diff = range.Max() - range.Min();
             if (diff <= 0) return CalcSto(period, index + 1);
-            return (Quants.First() - range.Min()) / diff * 100;
+            return (LatestBarQuant.Quant.Value - range.Min()) / diff * 100;
         }
         private double? CalcWpr(int period, int index = 0)
         {
-            if (Quants.Count < index + period) return null;
-            var range = Quants.GetRange(index, period);
+            if (QuantCount < index + period) return null;
+            var range = BarQuants.OrderByDescending(bq => bq.Key)
+                .Where(bq => bq.Value.Quant.HasValue)
+                .Select(bq => bq.Value.Quant.Value).ToList()
+                .GetRange(index, period);
             double diff = range.Max() - range.Min();
             if (diff <= 0) return CalcWpr(period, index + 1);
-            return (range.Max() - Quants.First()) / diff * -100;
+            return (range.Max() - LatestBarQuant.Quant.Value) / diff * -100;
         }
         private double? CalcAvg(params double?[] values)
         {

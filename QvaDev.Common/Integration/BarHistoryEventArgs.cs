@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Concurrent;
 
 namespace QvaDev.Common.Integration
 {
@@ -7,6 +8,6 @@ namespace QvaDev.Common.Integration
     public class BarHistoryEventArgs
     {
         public string Symbol { get; set; }
-        public List<Bar> BarHistory { get; set; }
+        public ConcurrentDictionary<DateTime, Bar> BarHistory { get; set; }
     }
 }

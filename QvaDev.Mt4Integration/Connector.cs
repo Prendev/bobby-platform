@@ -2,6 +2,8 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using log4net;
 using QvaDev.Common.Integration;
 using TradingAPI.MT4Server;
@@ -13,7 +15,7 @@ namespace QvaDev.Mt4Integration
     {
         public class SymbolHistory
         {
-            public List<Bar> BarHistory { get; set; } = new List<Bar>();
+            public ConcurrentDictionary<DateTime, Bar> BarHistory { get; set; } = new ConcurrentDictionary<DateTime, Bar>();
         }
 
         private readonly ILog _log;
@@ -226,12 +228,18 @@ namespace QvaDev.Mt4Integration
                     var symbolHistory = _symbolHistories.GetOrAdd(new Tuple<string, int>(symbol.Item1, symbol.Item2).ToString(), new SymbolHistory());
                     lock (symbolHistory)
                     {
-                        QuoteClient.DownloadQuoteHistory(symbol.Item1, (Timeframe)symbol.Item2, DateTime.Now.AddDays(1), Math.Max((short)512, symbol.Item3));
+                        GetBarHistory(symbol.Item1, (Timeframe)symbol.Item2, DateTime.Now.AddDays(1), symbol.Item3);
                         if (QuoteClient.IsSubscribed(symbol.Item1)) continue;
                         QuoteClient.Subscribe(symbol.Item1);
                     }
                 }
             }
+        }
+
+        public void GetSpecificBars(DateTime time, int timeFrame, params string[] symbols)
+        {
+            foreach (var symbol in symbols)
+                GetBarHistory(symbol, (Timeframe)timeFrame, time.AddMinutes(timeFrame), 2);
         }
 
         private void QuoteClient_OnQuote(object sender, QuoteEventArgs args)
@@ -253,8 +261,8 @@ namespace QvaDev.Mt4Integration
                 lock (symbolHistory)
                 {
                     if (symbolHistory.BarHistory.Any() &&
-                        args.Time < symbolHistory.BarHistory.First().OpenTime.AddMinutes(2 * (int) timeframe)) continue;
-                    QuoteClient.DownloadQuoteHistory(args.Symbol, timeframe, DateTime.Now.AddDays(1), 1);
+                        args.Time < symbolHistory.BarHistory.Last().Value.OpenTime.AddMinutes(2 * (int) timeframe)) continue;
+                    GetBarHistory(args.Symbol, timeframe, DateTime.Now.AddDays(1), 2);
                 }
             }
             OnTick?.Invoke(this,
@@ -262,6 +270,26 @@ namespace QvaDev.Mt4Integration
                 {
                     Tick = new Tick {Time = args.Time, Ask = args.Ask, Bid = args.Bid, Symbol = args.Symbol}
                 });
+        }
+
+        private void GetBarHistory(string symbol, Timeframe timeframe, DateTime from, short count)
+        {
+            //Task.Factory.StartNew(() =>
+            //{
+                try
+                {
+                    QuoteClient.DownloadQuoteHistory(symbol, timeframe, from, count);
+                }
+                catch (Exception e)
+                {
+                    _log.Error($"{symbol}: DownloadQuoteHistory exception => {e.Message}", e);
+                    if (e.Message == "Previous request have not sent in 10000 ms")
+                    {
+                        Thread.Sleep(new TimeSpan(0, 0, 10));
+                        GetBarHistory(symbol, timeframe, from, count);
+                    }
+                }
+            //});
         }
 
         private void QuoteClient_OnQuoteHistory(object sender, QuoteHistoryEventArgs args)
@@ -273,17 +301,15 @@ namespace QvaDev.Mt4Integration
 
             lock (symbolHistory)
             {
-                var barHistory = args.Bars
-                    .Select(b => new Bar
+                foreach (var bar in args.Bars)
+                    symbolHistory.BarHistory[bar.Time] = new Bar
                     {
-                        Open = b.Open,
-                        Close = b.Close,
-                        Low = b.Low,
-                        High = b.High,
-                        OpenTime = b.Time
-                    }).ToList();
-                symbolHistory.BarHistory.AddRange(barHistory);
-                symbolHistory.BarHistory = symbolHistory.BarHistory.Distinct().OrderByDescending(b => b.OpenTime).ToList();
+                        Open = bar.Open,
+                        Close = bar.Close,
+                        Low = bar.Low,
+                        High = bar.High,
+                        OpenTime = bar.Time
+                    };
                 OnBarHistory?.Invoke(this,
                     new BarHistoryEventArgs { Symbol = args.Symbol, BarHistory = symbolHistory.BarHistory });
             }

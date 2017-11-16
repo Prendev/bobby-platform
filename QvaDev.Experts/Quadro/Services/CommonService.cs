@@ -13,7 +13,6 @@ namespace QvaDev.Experts.Quadro.Services
         List<Position> GetOpenOrdersList(ExpertSetWrapper exp, string symbol1, Sides orderType1,
             string symbol2, Sides orderType2, int magicNumber);
         double BarQuant(ExpertSetWrapper exp, Position p);
-        Bar Bar(ExpertSetWrapper exp, string symbol, int index);
         int GetMagicNumberBySpreadOrderType(ExpertSetWrapper exp, Sides spreadOrderType);
         IEnumerable<Position> GetBaseOpenOrdersList(ExpertSetWrapper exp, Sides spreadOrderType);
         void SetLastActionPrice(ExpertSetWrapper exp, Sides side);
@@ -62,36 +61,16 @@ namespace QvaDev.Experts.Quadro.Services
 
         public double BarQuant(ExpertSetWrapper exp, Position p)
         {
-            int barIndex = GetBarIndexForTime(exp, p.OpenTime, p.Symbol);
-            if (barIndex < 0) throw new BarNotFoundException(exp, p.Symbol, p.OpenTime);
-            return exp.Quants[barIndex];
-        }
-        private int GetBarIndexForTime(ExpertSetWrapper exp, DateTime timeInBar, string symbol, bool exact = false)
-        {
-            int i = 0;
-            var historyBar = GetHistoryBar(exp, symbol);
-            while (i < historyBar?.Count)
-            {
-                var bar = Bar(exp, symbol, i);
-                if (exact && timeInBar == bar.OpenTime) return i;
-                if (!exact && timeInBar >= bar.OpenTime) return i;
-                i++;
-            }
-            return -1;
+            var dateTimeKey = RoundDown(p.OpenTime.AddMinutes(-(int)exp.E.TimeFrame), TimeSpan.FromMinutes((int) exp.E.TimeFrame));
+            if(!exp.BarQuants.ContainsKey(dateTimeKey) || !exp.BarQuants[dateTimeKey].Quant.HasValue)
+                throw new BarMissingException(dateTimeKey);
+            return exp.BarQuants[dateTimeKey].Quant.Value;
         }
 
-        private List<Bar> GetHistoryBar(ExpertSetWrapper exp, string symbol)
+        public DateTime RoundDown(DateTime dt, TimeSpan d)
         {
-            if (exp.E.Symbol1 == symbol)
-                return exp.BarHistory1;
-            if (exp.E.Symbol2 == symbol)
-                return exp.BarHistory2;
-            return null;
-        }
-
-        public Bar Bar(ExpertSetWrapper exp, string symbol, int index)
-        {
-            return GetHistoryBar(exp, symbol)?[index];
+            var delta = dt.Ticks % d.Ticks;
+            return new DateTime(dt.Ticks - delta, dt.Kind);
         }
 
         public int GetMagicNumberBySpreadOrderType(ExpertSetWrapper exp, Sides spreadOrderType)
@@ -130,13 +109,13 @@ namespace QvaDev.Experts.Quadro.Services
 
             if (side == Sides.Buy)
             {
-                sym1InRange = IsInDeltaRange(exp.E.Sym1LastMinActionPrice, exp.DeltaRange, exp.BarHistory1.First().Close);
-                sym2InRange = IsInDeltaRange(exp.E.Sym2LastMinActionPrice, exp.DeltaRange, exp.BarHistory2.First().Close);
+                sym1InRange = IsInDeltaRange(exp.E.Sym1LastMinActionPrice, exp.DeltaRange, exp.LatestBarQuant.Bar1.Close);
+                sym2InRange = IsInDeltaRange(exp.E.Sym2LastMinActionPrice, exp.DeltaRange, exp.LatestBarQuant.Bar2.Close);
             }
             else
             {
-                sym1InRange = IsInDeltaRange(exp.E.Sym1LastMaxActionPrice, exp.DeltaRange, exp.BarHistory1.First().Close);
-                sym2InRange = IsInDeltaRange(exp.E.Sym2LastMaxActionPrice, exp.DeltaRange, exp.BarHistory2.First().Close);
+                sym1InRange = IsInDeltaRange(exp.E.Sym1LastMaxActionPrice, exp.DeltaRange, exp.LatestBarQuant.Bar1.Close);
+                sym2InRange = IsInDeltaRange(exp.E.Sym2LastMaxActionPrice, exp.DeltaRange, exp.LatestBarQuant.Bar2.Close);
             }
             return sym1InRange || sym2InRange;
         }

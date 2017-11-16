@@ -41,8 +41,8 @@ namespace QvaDev.Experts.Quadro.Services
             if (o1 == null || o2 == null) return;
 
             int buyReopenDiff = GetReopenDiff(exp, exp.E.BuyOpenCount);
-            if (exp.Quant < _commonService.BarQuant(exp, o1) + buyReopenDiff * exp.Point) return;
-            if (exp.Quant < _commonService.BarQuant(exp, o2) + buyReopenDiff * exp.Point) return;
+            if (exp.LatestBarQuant.Quant < _commonService.BarQuant(exp, o1) + buyReopenDiff * exp.Point) return;
+            if (exp.LatestBarQuant.Quant < _commonService.BarQuant(exp, o2) + buyReopenDiff * exp.Point) return;
             _log.Debug($"{exp.E.Description}: ReentriesService.CalculateReentriesForForMaxAction => {exp.SpreadSellMagicNumber}");
 
             CorrectLotArrayIfNeeded(exp, Sides.Sell);
@@ -65,8 +65,8 @@ namespace QvaDev.Experts.Quadro.Services
             if (o1 == null || o2 == null) return;
 
             int sellReopenDiff = GetReopenDiff(exp, exp.E.SellOpenCount);
-            if (exp.Quant > _commonService.BarQuant(exp, o1) - sellReopenDiff * exp.Point) return;
-            if (exp.Quant > _commonService.BarQuant(exp, o2) - sellReopenDiff * exp.Point) return;
+            if (exp.LatestBarQuant.Quant > _commonService.BarQuant(exp, o1) - sellReopenDiff * exp.Point) return;
+            if (exp.LatestBarQuant.Quant > _commonService.BarQuant(exp, o2) - sellReopenDiff * exp.Point) return;
             _log.Debug($"{exp.E.Description}: ReentriesService.CalculateReentriesForMinAction => {exp.SpreadBuyMagicNumber}");
 
             CorrectLotArrayIfNeeded(exp, Sides.Buy);
@@ -82,7 +82,7 @@ namespace QvaDev.Experts.Quadro.Services
         private bool EnableLast24Filter(ExpertSetWrapper exp, Sides spreadOrderType, int numOfTradePerOpen)
         {
             return _commonService.GetBaseOpenOrdersList(exp, spreadOrderType)
-                       .Where(o => (exp.BarHistory1.First().OpenTime - o.OpenTime).TotalHours >= 24)
+                       .Where(o => (exp.LatestBarQuant.OpenTime - o.OpenTime).TotalHours >= 24)
                        .ToList().Count < numOfTradePerOpen * exp.E.Last24HMaxOpen;
         }
 

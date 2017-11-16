@@ -45,8 +45,8 @@ namespace QvaDev.Experts.Quadro.Services
 
         public void OnTick(Connector connector, ExpertSet expertSet)
         {
-            if (expertSet.ExpertDenied) return;
             var exp = ExpertSetWrappers.GetOrAdd(expertSet.Id, id => new ExpertSetWrapper(expertSet));
+            //if (exp.BarMissingOpenTime.HasValue) return;
             try
             {
                 lock (exp)
@@ -96,44 +96,37 @@ namespace QvaDev.Experts.Quadro.Services
                     }
                 }
             }
-            catch (BarNotFoundException ex)
+            catch (BarMissingException ex)
             {
+                exp.BarMissingOpenTime = ex.OpenTime;
                 _log.Debug($"{exp.E.Description}: ExpertDenied");
-                exp.E.ExpertDenied = true;
-                if (exp.OpenPositions.Any())
-                {
-                    _closeService.AllCloseMin(exp);
-                    _closeService.AllCloseMax(exp);
-                }
             }
         }
 
         public void OnBarHistory(Connector connector, ExpertSet expertSet, BarHistoryEventArgs e)
         {
-            if (expertSet.ExpertDenied) return;
             var exp = ExpertSetWrappers.GetOrAdd(expertSet.Id, id => new ExpertSetWrapper(expertSet));
             try
             {
                 lock (exp)
                 {
                     PreCheckOrders(exp);
-                    if (!IsBarUpdating(exp, e)) return;
-                    if (!AreBarsInSynchron(exp)) return;
-                    exp.CalculateQuants();
-                    _log.Debug(
-                        $"{exp.E.Description}: quants ({exp.E.M}) => {exp.Quant:F} | stoch avg ({exp.E.StochMultiplication}) => {exp.QuantStoAvg:F}");
+                    if (!CheckBarUpdate(exp, e)) return;
+                    _log.Debug($"{exp.E.Description}: quants ({exp.E.M}) => {exp.LatestBarQuant.Quant:F} " +
+                               $"| stoch avg ({exp.E.StochMultiplication}) => {exp.QuantStoAvg:F}");
                     OnBar(exp);
                 }
             }
-            catch (BarNotFoundException ex)
+            catch (BarMissingException ex)
             {
-                _log.Debug($"{exp.E.Description}: ExpertDenied");
-                exp.E.ExpertDenied = true;
-                if (exp.OpenPositions.Any())
-                {
-                    _closeService.AllCloseMin(exp);
-                    _closeService.AllCloseMax(exp);
-                }
+                exp.BarMissingOpenTime = ex.OpenTime;
+                exp.GetSpecificBars(ex.OpenTime);
+                _log.Debug($"{exp.E.Description}: BarMissing => {ex.OpenTime}");
+                //if (exp.OpenPositions.Any())
+                //{
+                //    _closeService.AllCloseMin(exp);
+                //    _closeService.AllCloseMax(exp);
+                //}
             }
         }
 
@@ -143,40 +136,37 @@ namespace QvaDev.Experts.Quadro.Services
             {
                 exp.E.BuyOpenCount = 0;
                 exp.E.CurrentBuyState = ExpertSet.TradeSetStates.NoTrade;
-                exp.E.Sym1LastMinActionPrice = 0;
-                exp.E.Sym2LastMinActionPrice = 0;
+                //exp.E.Sym1LastMinActionPrice = 0;
+                //exp.E.Sym2LastMinActionPrice = 0;
             }
             if (exp.OpenPositions.All(p => p.MagicNumber != exp.SpreadSellMagicNumber))
             {
                 exp.E.SellOpenCount = 0;
                 exp.E.CurrentSellState = ExpertSet.TradeSetStates.NoTrade;
-                exp.E.Sym1LastMaxActionPrice = 0;
-                exp.E.Sym2LastMaxActionPrice = 0;
+                //exp.E.Sym1LastMaxActionPrice = 0;
+                //exp.E.Sym2LastMaxActionPrice = 0;
             }
         }
 
-        private bool IsBarUpdating(ExpertSetWrapper exp, BarHistoryEventArgs e)
+        private bool CheckBarUpdate(ExpertSetWrapper exp, BarHistoryEventArgs e)
         {
-            if (e.BarHistory.First().OpenTime <= DateTime.UtcNow.AddMinutes(-2 * (int)exp.E.TimeFrame)) return false;
-            if (e.BarHistory.Count < exp.E.GetMaxBarCount()) return false;
-
-            var barHistory = exp.E.Symbol1 == e.Symbol ? exp.BarHistory1 : exp.BarHistory2;
-            if (barHistory.Any() && e.BarHistory.First().OpenTime <= barHistory.First().OpenTime) return false;
-
-            if (exp.E.Symbol1 == e.Symbol) exp.BarHistory1 = new List<Bar>(e.BarHistory);
-            else exp.BarHistory2 = new List<Bar>(e.BarHistory);
-            return true;
-        }
-
-        private bool AreBarsInSynchron(ExpertSetWrapper exp)
-        {
-            if (!exp.BarHistory1.Any() || !exp.BarHistory2.Any()) return false;
-            if (exp.BarHistory1.First().OpenTime != exp.BarHistory2.First().OpenTime) return false;
+            var prevCount = exp.BarQuants.Count(b => b.Value.Bar1 != null && b.Value.Bar2 != null);
+            exp.UpdateBarQuants(e.Symbol, e.BarHistory);
+            var newCount = exp.BarQuants.Count(b => b.Value.Quant.HasValue);
+            if (newCount < exp.E.GetMaxBarCount()) return false;
+            if (prevCount == newCount) return false;
+            if (exp.LatestBarQuant.OpenTime <= DateTime.UtcNow.AddMinutes(-2 * (int) exp.E.TimeFrame)) return false;
+            if (!exp.BarMissingOpenTime.HasValue) return exp.LastBarOpenTime != exp.LatestBarQuant.OpenTime;
+            if (!exp.BarQuants.ContainsKey(exp.BarMissingOpenTime.Value)) return false;
+            if (!exp.BarQuants[exp.BarMissingOpenTime.Value].Quant.HasValue) return false;
+            _log.Debug($"{exp.E.Description}: Bar found => {exp.BarMissingOpenTime.Value}");
+            exp.BarMissingOpenTime = null;
             return true;
         }
 
         private void OnBar(ExpertSetWrapper exp)
         {
+            exp.LastBarOpenTime = exp.LatestBarQuant.OpenTime;
             if (!IsCurrentTimeEnabledForTrade()) return;
 
             _closeService.CheckClose(exp);
