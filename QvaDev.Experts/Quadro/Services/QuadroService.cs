@@ -88,12 +88,6 @@ namespace QvaDev.Experts.Quadro.Services
                             exp.E.TradeOpeningEnabled = false;
                         }
                     }
-                    if (connector.GetFloatingProfit() < exp.E.TradeSetFloatingSwitch)
-                    {
-                        exp.E.TradeOpeningEnabled = false;
-                        _log.Debug(
-                            $"{exp.E.Description}: TradeOpeningEnabled set to FALSE because of TradeSetFloatingSwitch");
-                    }
                 }
             }
             catch (BarMissingException ex)

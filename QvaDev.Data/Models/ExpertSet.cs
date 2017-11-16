@@ -57,12 +57,12 @@ namespace QvaDev.Data.Models
 
         public int MagicNumber { get; set; }
 
-        public double TradeSetFloatingSwitch { get; set; }
         public int MaxTradeSetCount { get; set; }
         public int Last24HMaxOpen { get; set; }
 
         public bool CloseAllBuy { get; set; }
         public bool CloseAllSell { get; set; }
+        //TODO
         public bool BisectingCloseBuy { get; set; }
         public bool BisectingCloseSell { get; set; }
         public bool ProfitCloseBuy { get; set; }

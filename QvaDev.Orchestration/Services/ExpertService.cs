@@ -79,6 +79,13 @@ namespace QvaDev.Orchestration.Services
 
         private void Connector_OnTick(object sender, TickEventArgs e)
         {
+            //TODO
+            //if (connector.GetFloatingProfit() < exp.E.TradingAccount.TradeSetFloatingSwitch)
+            //{
+            //    exp.E.TradeOpeningEnabled = false;
+            //    _log.Debug(
+            //        $"{exp.E.Description}: TradeOpeningEnabled set to FALSE because of TradeSetFloatingSwitch");
+            //}
             if (!_isStarted) return;
             if (_expertSets?.Any() == false) return;
             Task.Factory.StartNew(() =>

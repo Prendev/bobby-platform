@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace QvaDev.Data.Models
 {
-    public class TradingAccount : BaseEntity
+    public class TradingAccount : BaseDescriptionEntity
     {
         [Required]
         public bool ShouldTrade { get; set; }
@@ -16,6 +16,8 @@ namespace QvaDev.Data.Models
 
         public int MetaTraderAccountId { get; set; }
         public MetaTraderAccount MetaTraderAccount { get; set; }
+
+        public double TradeSetFloatingSwitch { get; set; }
 
         public List<ExpertSet> ExpertSets { get => Get(() => new List<ExpertSet>()); set => Set(value, false); }
     }

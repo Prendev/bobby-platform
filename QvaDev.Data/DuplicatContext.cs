@@ -49,13 +49,23 @@ namespace QvaDev.Data
             if (exists) return;
 
             Experts.Add(new Expert { Description = "Quadro" });
-
             SaveChanges();
 
-            InitQuadro();
+            //InitQuadro();
+            //SaveChanges();
+            //InitDebug();
+            //SaveChanges();
+            Init10KSet();
             SaveChanges();
+            Init30KSet();
+            SaveChanges();
+            Init60KSet();
+            SaveChanges();
+        }
 
-            CTraderPlatforms.Add(new CTraderPlatform()
+        private void InitDebug()
+        {
+            var cTraderPlatform = CTraderPlatforms.Add(new CTraderPlatform()
             {
                 Description = "cTrader Prod",
                 AccountsApi = "https://api.spotware.com",
@@ -76,12 +86,9 @@ namespace QvaDev.Data
                 AccessBaseUrl = "https://sandbox-connect.spotware.com/apps"
             });
 
-            SaveChanges();
-
             var mt4Platform = MetaTraderPlatforms.First(p => p.Description == "AuraFX-Demo");
-            var cTraderPlatform = CTraderPlatforms.First(p => p.Description == "cTrader Prod");
 
-            MetaTraderAccounts.Add(new MetaTraderAccount()
+            var mt4Account1 = MetaTraderAccounts.Add(new MetaTraderAccount()
             {
                 Description = "Aura1",
                 User = 8801894,
@@ -89,7 +96,7 @@ namespace QvaDev.Data
                 MetaTraderPlatform = mt4Platform,
                 ShouldConnect = true
             });
-            MetaTraderAccounts.Add(new MetaTraderAccount()
+            var mt4Account2 = MetaTraderAccounts.Add(new MetaTraderAccount()
             {
                 Description = "Aura2",
                 User = 8801895,
@@ -97,28 +104,28 @@ namespace QvaDev.Data
                 MetaTraderPlatform = mt4Platform
             });
 
-            CTraderAccounts.Add(new CTraderAccount()
+            var ctAccount1 = CTraderAccounts.Add(new CTraderAccount()
             {
                 Description = "cTrader1",
                 AccountNumber = 3174636,
                 CTraderPlatform = cTraderPlatform,
                 AccessToken = "sVP14Z83qW455RoXW_c2dDvoF4PiIn-5-XxFVd2kwjs"
             });
-            CTraderAccounts.Add(new CTraderAccount()
+            var ctAccount2 = CTraderAccounts.Add(new CTraderAccount()
             {
                 Description = "cTrader2",
                 AccountNumber = 3174645,
                 CTraderPlatform = cTraderPlatform,
                 AccessToken = "sVP14Z83qW455RoXW_c2dDvoF4PiIn-5-XxFVd2kwjs"
             });
-            CTraderAccounts.Add(new CTraderAccount()
+            var ctAccount3 = CTraderAccounts.Add(new CTraderAccount()
             {
                 Description = "cTrader3",
                 AccountNumber = 3175387,
                 CTraderPlatform = cTraderPlatform,
                 AccessToken = "sVP14Z83qW455RoXW_c2dDvoF4PiIn-5-XxFVd2kwjs"
             });
-            CTraderAccounts.Add(new CTraderAccount()
+            var ctAccount4 = CTraderAccounts.Add(new CTraderAccount()
             {
                 Description = "cTrader4",
                 AccountNumber = 3175388,
@@ -126,201 +133,163 @@ namespace QvaDev.Data
                 AccessToken = "sVP14Z83qW455RoXW_c2dDvoF4PiIn-5-XxFVd2kwjs"
             });
 
-            Profiles.Add(new Profile() { Description = "Dummy Profile 1" });
-            Profiles.Add(new Profile() { Description = "Dummy Profile 2" });
+            var profile1 = Profiles.Add(new Profile() { Description = "Dummy Profile 1" });
+            var profile2 = Profiles.Add(new Profile() { Description = "Dummy Profile 2" });
 
-            SaveChanges();
+            var group1 = Groups.Add(new Group { Description = "Dummy Group 1", Profile = profile1 });
+            var group2 = Groups.Add(new Group { Description = "Dummy Group 2", Profile = profile1 });
+            Groups.Add(new Group { Description = "Dummy Group 3", Profile = profile2 });
+            Groups.Add(new Group { Description = "Dummy Group 4", Profile = profile2 });
 
-            Groups.Add(new Group() {Description = "Dummy Group 1", Profile = Profiles.First(p => p.Description == "Dummy Profile 1") });
-            Groups.Add(new Group() {Description = "Dummy Group 2", Profile = Profiles.First(p => p.Description == "Dummy Profile 1") });
-            Groups.Add(new Group() {Description = "Dummy Group 3", Profile = Profiles.First(p => p.Description == "Dummy Profile 2") });
-            Groups.Add(new Group() {Description = "Dummy Group 4", Profile = Profiles.First(p => p.Description == "Dummy Profile 2") });
+            var master1 = Masters.Add(new Master { Group = group1, MetaTraderAccount = mt4Account1 });
+            var master2 = Masters.Add(new Master { Group = group2, MetaTraderAccount = mt4Account2 });
 
-            SaveChanges();
+            var slave1 = Slaves.Add(new Slave { Master = master1, CTraderAccount = ctAccount1 });
+            var slave2 = Slaves.Add(new Slave { Master = master1, CTraderAccount = ctAccount2 });
+            var slave3 = Slaves.Add(new Slave { Master = master2, CTraderAccount = ctAccount3 });
+            var slave4 = Slaves.Add(new Slave { Master = master2, CTraderAccount = ctAccount4 });
 
-            Masters.Add(new Master
+            SymbolMappings.Add(new SymbolMapping { Slave = slave1, From = "GER30.pri", To = "GERMAN30" });
+            SymbolMappings.Add(new SymbolMapping { Slave = slave1, From = "UK100.pri", To = "UK100" });
+            SymbolMappings.Add(new SymbolMapping { Slave = slave1, From = "US30.pri", To = "US30.PRM" });
+            SymbolMappings.Add(new SymbolMapping { Slave = slave1, From = "XAUUSD.pri", To = "XAUUSD" });
+            SymbolMappings.Add(new SymbolMapping { Slave = slave1, From = "EURUSD+", To = "EURUSD" });
+            SymbolMappings.Add(new SymbolMapping { Slave = slave2, From = "GER30.ex", To = "GERMAN30" });
+            SymbolMappings.Add(new SymbolMapping { Slave = slave2, From = "UK100.ex", To = "UK100" });
+            SymbolMappings.Add(new SymbolMapping { Slave = slave2, From = "US30.ex", To = "US30.PRM" });
+            SymbolMappings.Add(new SymbolMapping { Slave = slave2, From = "XAUUSD.ex", To = "XAUUSD" });
+            SymbolMappings.Add(new SymbolMapping { Slave = slave2, From = "EURUSD+", To = "EURUSD" });
+            SymbolMappings.Add(new SymbolMapping { Slave = slave3, From = "GER30.ex", To = "GERMAN30" });
+            SymbolMappings.Add(new SymbolMapping { Slave = slave3, From = "UK100.ex", To = "UK100" });
+            SymbolMappings.Add(new SymbolMapping { Slave = slave3, From = "US30.ex", To = "US30.PRM" });
+            SymbolMappings.Add(new SymbolMapping { Slave = slave3, From = "XAUUSD.ex", To = "XAUUSD" });
+            SymbolMappings.Add(new SymbolMapping { Slave = slave3, From = "EURUSD+", To = "EURUSD" });
+            SymbolMappings.Add(new SymbolMapping { Slave = slave4, From = "GER30.ex", To = "GERMAN30" });
+            SymbolMappings.Add(new SymbolMapping { Slave = slave4, From = "UK100.ex", To = "UK100" });
+            SymbolMappings.Add(new SymbolMapping { Slave = slave4, From = "US30.ex", To = "US30.PRM" });
+            SymbolMappings.Add(new SymbolMapping { Slave = slave4, From = "XAUUSD.ex", To = "XAUUSD" });
+            SymbolMappings.Add(new SymbolMapping { Slave = slave4, From = "EURUSD+", To = "EURUSD" });
+
+            Copiers.Add(new Copier
             {
-                Group = Groups.First(a => a.Description == "Dummy Group 1"),
-                MetaTraderAccount = MetaTraderAccounts.First(a => a.Description == "Aura1")
+                Slave = slave1,
+                CopyRatio = 1,
+                UseMarketRangeOrder = true,
+                SlippageInPips = 30,
+                MaxRetryCount = 5,
+                RetryPeriodInMilliseconds = 3000
             });
-            Masters.Add(new Master
+            Copiers.Add(new Copier
             {
-                Group = Groups.First(a => a.Description == "Dummy Group 2"),
-                MetaTraderAccount = MetaTraderAccounts.First(a => a.Description == "Aura2")
+                Slave = slave2,
+                CopyRatio = 1,
+                UseMarketRangeOrder = true,
+                SlippageInPips = 30,
+                MaxRetryCount = 5,
+                RetryPeriodInMilliseconds = 3000
             });
-
-            SaveChanges();
-
-            Slaves.Add(new Slave
+            Copiers.Add(new Copier
             {
-                Master = Masters.ToList().First(),
-                CTraderAccount = CTraderAccounts.First(a => a.Description == "cTrader1")
+                Slave = slave3,
+                CopyRatio = 1,
+                UseMarketRangeOrder = true,
+                SlippageInPips = 30,
+                MaxRetryCount = 5,
+                RetryPeriodInMilliseconds = 3000
             });
-            Slaves.Add(new Slave
+            Copiers.Add(new Copier
             {
-                Master = Masters.ToList().First(),
-                CTraderAccount = CTraderAccounts.First(a => a.Description == "cTrader2")
-            });
-            Slaves.Add(new Slave
-            {
-                Master = Masters.ToList().Last(),
-                CTraderAccount = CTraderAccounts.First(a => a.Description == "cTrader3")
-            });
-            Slaves.Add(new Slave
-            {
-                Master = Masters.ToList().Last(),
-                CTraderAccount = CTraderAccounts.First(a => a.Description == "cTrader4")
-            });
-
-            SaveChanges();
-
-            var slave = Slaves.First(x => x.Id == 1);
-            SymbolMappings.Add(new SymbolMapping {Slave = slave, From = "GER30.pri", To = "GERMAN30"});
-            SymbolMappings.Add(new SymbolMapping {Slave = slave, From = "UK100.pri", To = "UK100"});
-            SymbolMappings.Add(new SymbolMapping {Slave = slave, From = "US30.pri", To = "US30.PRM"});
-            SymbolMappings.Add(new SymbolMapping {Slave = slave, From = "XAUUSD.pri", To = "XAUUSD" });
-            SymbolMappings.Add(new SymbolMapping {Slave = slave, From = "EURUSD+", To = "EURUSD" });
-
-            slave = Slaves.First(x => x.Id == 2);
-            SymbolMappings.Add(new SymbolMapping { Slave = slave, From = "GER30.ex", To = "GERMAN30" });
-            SymbolMappings.Add(new SymbolMapping { Slave = slave, From = "UK100.ex", To = "UK100" });
-            SymbolMappings.Add(new SymbolMapping { Slave = slave, From = "US30.ex", To = "US30.PRM" });
-            SymbolMappings.Add(new SymbolMapping { Slave = slave, From = "XAUUSD.ex", To = "XAUUSD" });
-            SymbolMappings.Add(new SymbolMapping { Slave = slave, From = "EURUSD+", To = "EURUSD" });
-
-            slave = Slaves.First(x => x.Id == 3);
-            SymbolMappings.Add(new SymbolMapping { Slave = slave, From = "GER30.ex", To = "GERMAN30" });
-            SymbolMappings.Add(new SymbolMapping { Slave = slave, From = "UK100.ex", To = "UK100" });
-            SymbolMappings.Add(new SymbolMapping { Slave = slave, From = "US30.ex", To = "US30.PRM" });
-            SymbolMappings.Add(new SymbolMapping { Slave = slave, From = "XAUUSD.ex", To = "XAUUSD" });
-            SymbolMappings.Add(new SymbolMapping { Slave = slave, From = "EURUSD+", To = "EURUSD" });
-
-            slave = Slaves.First(x => x.Id == 4);
-            SymbolMappings.Add(new SymbolMapping { Slave = slave, From = "GER30.ex", To = "GERMAN30" });
-            SymbolMappings.Add(new SymbolMapping { Slave = slave, From = "UK100.ex", To = "UK100" });
-            SymbolMappings.Add(new SymbolMapping { Slave = slave, From = "US30.ex", To = "US30.PRM" });
-            SymbolMappings.Add(new SymbolMapping { Slave = slave, From = "XAUUSD.ex", To = "XAUUSD" });
-            SymbolMappings.Add(new SymbolMapping { Slave = slave, From = "EURUSD+", To = "EURUSD" });
-
-            Copiers.Add(new Copier { Slave = Slaves.First(x => x.Id == 1), CopyRatio = 1, UseMarketRangeOrder = true,
-                SlippageInPips = 30, MaxRetryCount = 5, RetryPeriodInMilliseconds = 3000 });
-            Copiers.Add(new Copier { Slave = Slaves.First(x => x.Id == 2), CopyRatio = 1, UseMarketRangeOrder = true,
-                SlippageInPips = 30, MaxRetryCount = 5, RetryPeriodInMilliseconds = 3000 });
-            Copiers.Add(new Copier { Slave = Slaves.First(x => x.Id == 3), CopyRatio = 1, UseMarketRangeOrder = true,
-                SlippageInPips = 30, MaxRetryCount = 5, RetryPeriodInMilliseconds = 3000 });
-            Copiers.Add(new Copier { Slave = Slaves.First(x => x.Id == 4), CopyRatio = 1, UseMarketRangeOrder = true,
-                SlippageInPips = 30, MaxRetryCount = 5, RetryPeriodInMilliseconds = 3000 });
-
-            Monitors.Add(new Monitor
-            {
-                Description = "Side A",
-                Profile = Profiles.First(p => p.Description == "Dummy Profile 1"),
-                Symbol = "EURUSD"
-            });
-            Monitors.Add(new Monitor
-            {
-                Description = "Side B",
-                Profile = Profiles.First(p => p.Description == "Dummy Profile 1"),
-                Symbol = "EURUSD"
-            });
-            Monitors.Add(new Monitor
-            {
-                Description = "Side C",
-                Profile = Profiles.First(p => p.Description == "Dummy Profile 1"),
-                Symbol = "EURUSD"
-            });
-            Monitors.Add(new Monitor
-            {
-                Description = "Side D",
-                Profile = Profiles.First(p => p.Description == "Dummy Profile 1"),
-                Symbol = "EURUSD"
+                Slave = slave4,
+                CopyRatio = 1,
+                UseMarketRangeOrder = true,
+                SlippageInPips = 30,
+                MaxRetryCount = 5,
+                RetryPeriodInMilliseconds = 3000
             });
 
-            SaveChanges();
+            var monitor1 = Monitors.Add(new Monitor { Description = "Side A", Profile = profile1, Symbol = "EURUSD" });
+            var monitor2 = Monitors.Add(new Monitor { Description = "Side B", Profile = profile1, Symbol = "EURUSD" });
+            Monitors.Add(new Monitor { Description = "Side C", Profile = profile1, Symbol = "EURUSD" });
+            Monitors.Add(new Monitor { Description = "Side D", Profile = profile1, Symbol = "EURUSD" });
 
             MonitoredAccounts.Add(new MonitoredAccount
             {
-                CTraderAccount = CTraderAccounts.First(e => e.Id == 1),
-                Monitor = Monitors.First(e => e.Id == 1),
+                MetaTraderAccount = mt4Account1,
+                Monitor = monitor1,
+                ExpectedContracts = 1000,
+                Symbol = "EURUSD+",
+                IsMaster = true
+            });
+            MonitoredAccounts.Add(new MonitoredAccount
+            {
+                CTraderAccount = ctAccount1,
+                Monitor = monitor1,
                 ExpectedContracts = 1000
             });
             MonitoredAccounts.Add(new MonitoredAccount
             {
-                CTraderAccount = CTraderAccounts.First(e => e.Id == 2),
-                Monitor = Monitors.First(e => e.Id == 1),
+                CTraderAccount = ctAccount2,
+                Monitor = monitor1,
                 ExpectedContracts = 2000
             });
 
             MonitoredAccounts.Add(new MonitoredAccount
             {
-                MetaTraderAccount = MetaTraderAccounts.First(e => e.Id == 1),
-                Monitor = Monitors.First(e => e.Id == 1),
+                MetaTraderAccount = mt4Account2,
+                Monitor = monitor2,
                 ExpectedContracts = 1000,
                 Symbol = "EURUSD+",
                 IsMaster = true
             });
             MonitoredAccounts.Add(new MonitoredAccount
             {
-                MetaTraderAccount = MetaTraderAccounts.First(e => e.Id == 2),
-                Monitor = Monitors.First(e => e.Id == 2),
-                ExpectedContracts = 1000,
-                Symbol = "EURUSD+",
-                IsMaster = true
-            });
-
-            MonitoredAccounts.Add(new MonitoredAccount
-            {
-                CTraderAccount = CTraderAccounts.First(e => e.Id == 3),
-                Monitor = Monitors.First(e => e.Id == 2),
+                CTraderAccount = ctAccount3,
+                Monitor = monitor2,
                 ExpectedContracts = 3000
             });
             MonitoredAccounts.Add(new MonitoredAccount
             {
-                CTraderAccount = CTraderAccounts.First(e => e.Id == 4),
-                Monitor = Monitors.First(e => e.Id == 2),
+                CTraderAccount = ctAccount4,
+                Monitor = monitor2,
                 ExpectedContracts = 4000
             });
 
-            SaveChanges();
-
-            TradingAccounts.Add(new TradingAccount
+            var tAccount = TradingAccounts.Add(new TradingAccount
             {
-                Profile = Profiles.First(p => p.Description == "Dummy Profile 1"),
+                Profile = profile1,
                 Expert = Experts.First(),
-                MetaTraderAccount = MetaTraderAccounts.First(e => e.Id == 2),
-                ShouldTrade = true
+                MetaTraderAccount = mt4Account1,
+                ShouldTrade = true,
+                TradeSetFloatingSwitch = -100000
             });
             TradingAccounts.Add(new TradingAccount
             {
-                Profile = Profiles.First(p => p.Description == "Dummy Profile 2"),
+                Profile = profile2,
                 Expert = Experts.First(),
-                MetaTraderAccount = MetaTraderAccounts.First(e => e.Id == 3),
+                MetaTraderAccount = mt4Account2,
+                TradeSetFloatingSwitch = -100000
             });
-
-            SaveChanges();
 
             var i = 1;
-            AddSimpleExpertSet("NZDUSD+", "AUDUSD+", i++);
-            AddSimpleExpertSet("AUDNZD+", "NZDUSD+", i++);
-            AddSimpleExpertSet("AUDUSD+", "AUDNZD+", i++);
-            AddSimpleExpertSet("EURAUD+", "EURNZD+", i++);
-            AddSimpleExpertSet("AUDNZD+", "EURNZD+", i++);
-            AddSimpleExpertSet("AUDNZD+", "EURAUD+", i++);
-            AddSimpleExpertSet("EURAUD+", "EURUSD+", i++);
-            AddSimpleExpertSet("EURUSD+", "AUDUSD+", i++);
-            AddSimpleExpertSet("AUDUSD+", "EURAUD+", i++);
-            AddSimpleExpertSet("NZDUSD+", "EURUSD+", i++);
-            AddSimpleExpertSet("EURNZD+", "NZDUSD+", i++);
-
-            SaveChanges();
+            AddSimpleExpertSet(tAccount, "NZDUSD+", "AUDUSD+", i++);
+            AddSimpleExpertSet(tAccount, "AUDNZD+", "NZDUSD+", i++);
+            AddSimpleExpertSet(tAccount, "AUDUSD+", "AUDNZD+", i++);
+            AddSimpleExpertSet(tAccount, "EURAUD+", "EURNZD+", i++);
+            AddSimpleExpertSet(tAccount, "AUDNZD+", "EURNZD+", i++);
+            AddSimpleExpertSet(tAccount, "AUDNZD+", "EURAUD+", i++);
+            AddSimpleExpertSet(tAccount, "EURAUD+", "EURUSD+", i++);
+            AddSimpleExpertSet(tAccount, "EURUSD+", "AUDUSD+", i++);
+            AddSimpleExpertSet(tAccount, "AUDUSD+", "EURAUD+", i++);
+            AddSimpleExpertSet(tAccount, "NZDUSD+", "EURUSD+", i++);
+            AddSimpleExpertSet(tAccount, "EURNZD+", "NZDUSD+", i++);
         }
 
-        private void AddSimpleExpertSet(string symbol1, string symbol2, int magic)
+        private void AddSimpleExpertSet(TradingAccount ta, string symbol1, string symbol2, int magic)
         {
             ExpertSets.Add(new ExpertSet
             {
                 Description = $"{symbol1} {symbol2}",
-                TradingAccount = TradingAccounts.First(e => e.Id == 2),
+                TradingAccount = ta,
                 TimeFrame = ExpertSet.TimeFrames.M1,
                 Symbol1 = symbol1,
                 Symbol2 = symbol2,
@@ -332,7 +301,6 @@ namespace QvaDev.Data
                 Tp1 = 20,
                 MagicNumber = magic * 100,
                 LotSize = 0.01,
-                TradeSetFloatingSwitch = -50000,
                 TradeOpeningEnabled = true,
                 ProfitCloseValueSell = 100,
                 ProfitCloseValueBuy = 100,
@@ -366,43 +334,197 @@ namespace QvaDev.Data
                     ShouldTrade = true,
                     Profile = profile,
                     Expert = Experts.First(),
-                    MetaTraderAccount = mt4Acccount
+                    MetaTraderAccount = mt4Acccount,
+                    TradeSetFloatingSwitch = -100000
                 });
 
             var i = 1;
-            AddProdSet(ta, "01 AU NU", "NZDUSD+", "AUDUSD+", 1, 4, 50, 300, 1000, 30, 1500, 150, 2, 10 * i++);
-            AddProdSet(ta, "02 AN NU", "AUDNZD+", "NZDUSD+", 3, 1, 75, 400, 1250, 100, 1250, 200, 1.3, 10 * i++);
-            AddProdSet(ta, "03 AN AU", "AUDUSD+", "AUDNZD+", 1, 1, 200, 300, 1500, 100, 1500, 200, 1.6, 10 * i++);
-            AddProdSet(ta, "04 EA EN", "EURNZD+", "EURAUD+", 1, 1, 75, 200, 1750, 100, 1750, 200, 1.6, 10 * i++);
-            AddProdSet(ta, "05 AN EN", "AUDNZD+", "EURNZD+", 1, 1, 75, 400, 1250, 100, 1250, 200, 0.7, 10 * i++);
-            AddProdSet(ta, "06 EA AN", "AUDNZD+", "EURAUD+", 3, 1, 75, 100, 1250, 100, 1250, 150, 1.2, 10 * i++);
-            AddProdSet(ta, "07 EU EA", "EURAUD+", "EURUSD+", 1, 1, 50, 200, 1000, 100, 1000, 200, 0.6, 10 * i++);
-            AddProdSet(ta, "08 AU EU", "EURUSD+", "AUDUSD+", 1, 1, 125, 800, 2000, 200, 1500, 200, 1.4, 10 * i++);
-            AddProdSet(ta, "09 AU EA", "EURAUD+", "AUDUSD+", 1, 1, 125, 900, 2500, 100, 2500, 200, 1.4, 10 * i++);
-            AddProdSet(ta, "10 EU NU", "NZDUSD+", "EURUSD+", 1, 1, 75, 500, 1750, 100, 1750, 200, 1.2, 10 * i++);
-            AddProdSet(ta, "11 EN NU", "EURNZD+", "NZDUSD+", 3, 1, 75, 1000, 3000, 30, 1500, 200, 1.5, 10 * i++);
-            AddProdSet(ta, "12 EN EU", "EURUSD+", "EURNZD+", 1, 1, 100, 200, 1250, 100, 1250, 200, 1.6, 10 * i++);
-            AddProdSet(ta, "13 AN NC", "AUDNZD+", "NZDCAD+", 1, 1, 75, 800, 1500, 100, 1500, 200, 1.6, 10 * i++);
-            AddProdSet(ta, "14 AC NC", "NZDCAD+", "AUDCAD+", 1, 1, 75, 700, 1750, 30, 1500, 200, 1.6, 10 * i++);
+            AddProdSet(ta, "01 AU NU", "NZDUSD+", "AUDUSD+", 1, 4, 50, 0.02, 300, 1000, 30, 1500, 150, 2, 10 * i++);
+            AddProdSet(ta, "02 AN NU", "AUDNZD+", "NZDUSD+", 3, 1, 75, 0.02, 400, 1250, 100, 1250, 200, 1.3, 10 * i++);
+            AddProdSet(ta, "03 AN AU", "AUDUSD+", "AUDNZD+", 1, 1, 200, 0.02, 300, 1500, 100, 1500, 200, 1.6, 10 * i++);
+            AddProdSet(ta, "04 EA EN", "EURNZD+", "EURAUD+", 1, 1, 75, 0.02, 200, 1750, 100, 1750, 200, 1.6, 10 * i++);
+            AddProdSet(ta, "05 AN EN", "AUDNZD+", "EURNZD+", 1, 1, 75, 0.02, 400, 1250, 100, 1250, 200, 0.7, 10 * i++);
+            AddProdSet(ta, "06 EA AN", "AUDNZD+", "EURAUD+", 3, 1, 75, 0.02, 100, 1250, 100, 1250, 150, 1.2, 10 * i++);
+            AddProdSet(ta, "07 EU EA", "EURAUD+", "EURUSD+", 1, 1, 50, 0.02, 200, 1000, 100, 1000, 200, 0.6, 10 * i++);
+            AddProdSet(ta, "08 AU EU", "EURUSD+", "AUDUSD+", 1, 1, 125, 0.02, 800, 2000, 200, 1500, 200, 1.4, 10 * i++);
+            AddProdSet(ta, "09 AU EA", "EURAUD+", "AUDUSD+", 1, 1, 125, 0.02, 900, 2500, 100, 2500, 200, 1.4, 10 * i++);
+            AddProdSet(ta, "10 EU NU", "NZDUSD+", "EURUSD+", 1, 1, 75, 0.02, 500, 1750, 100, 1750, 200, 1.2, 10 * i++);
+            AddProdSet(ta, "11 EN NU", "EURNZD+", "NZDUSD+", 3, 1, 75, 0.02, 1000, 3000, 30, 1500, 200, 1.5, 10 * i++);
+            AddProdSet(ta, "12 EN EU", "EURUSD+", "EURNZD+", 1, 1, 100, 0.02, 200, 1250, 100, 1250, 200, 1.6, 10 * i++);
+            AddProdSet(ta, "13 AN NC", "AUDNZD+", "NZDCAD+", 1, 1, 75, 0.02, 800, 1500, 100, 1500, 200, 1.6, 10 * i++);
+            AddProdSet(ta, "14 AC NC", "NZDCAD+", "AUDCAD+", 1, 1, 75, 0.02, 700, 1750, 30, 1500, 200, 1.6, 10 * i++);
 
-            AddProdSet(ta, "16 AU UC", "AUDUSD+", "USDCAD+", 3, 1, 50, 100, 1000, 100, 1000, 150, 0.6, 10 * i++);
-            AddProdSet(ta, "17 AC UC", "AUDCAD+", "USDCAD+", 1, 1, 100, 400, 1000, 100, 1000, 200, 1.2, 10 * i++);
-            AddProdSet(ta, "18 AC AU", "AUDCAD+", "AUDUSD+", 1, 1, 50, 100, 750, 100, 750, 150, 1.9, 10 * i++);
-            AddProdSet(ta, "19 EA EC", "EURCAD+", "EURAUD+", 1, 1, 75, 600, 1250, 100, 1250, 200, 1.6, 10 * i++);
+            AddProdSet(ta, "16 AU UC", "AUDUSD+", "USDCAD+", 3, 1, 50, 0.02, 100, 1000, 100, 1000, 150, 0.6, 10 * i++);
+            AddProdSet(ta, "17 AC UC", "AUDCAD+", "USDCAD+", 1, 1, 100, 0.02, 400, 1000, 100, 1000, 200, 1.2, 10 * i++);
+            AddProdSet(ta, "18 AC AU", "AUDCAD+", "AUDUSD+", 1, 1, 50, 0.02, 100, 750, 100, 750, 150, 1.9, 10 * i++);
+            AddProdSet(ta, "19 EA EC", "EURCAD+", "EURAUD+", 1, 1, 75, 0.02, 600, 1250, 100, 1250, 200, 1.6, 10 * i++);
 
 
-            AddProdSet(ta, "22 EN NC", "NZDCAD+", "EURNZD+", 3, 1, 75, 300, 750, 100, 750, 150, 1.2, 10 * i++);
-            AddProdSet(ta, "23 EC NC", "EURCAD+", "NZDCAD+", 3, 1, 100, 300, 2750, 30, 1500, 200, 1.5, 10 * i++);
-            AddProdSet(ta, "24 EC EN", "EURCAD+", "EURNZD+", 1, 1, 75, 1000, 2750, 30, 1500, 200, 0.9, 10 * i++);
-            AddProdSet(ta, "25 EU UC", "USDCAD+", "EURUSD+", 3, 1, 75, 200, 1000, 30, 1000, 200, 1.2, 10 * i++);
-            AddProdSet(ta, "26 EC UC", "EURCAD+", "USDCAD+", 1, 1, 75, 500, 2750, 30, 2750, 200, 1.4, 10 * i++);
-            AddProdSet(ta, "27 EC EU", "EURCAD+", "EURUSD+", 1, 1, 50, 100, 1000, 30, 1000, 200, 1.9, 10 * i++);
-            AddProdSet(ta, "29 UC NC", "NZDCAD+", "USDCAD+", 1, 1, 25, 300, 1750, 30, 1500, 150, 1.2, 10 * i++);
-            AddProdSet(ta, "30 NC NU", "NZDCAD+", "NZDUSD+", 1, 1, 50, 300, 2250, 30, 2250, 200, 0.9, 10 * i++);
+            AddProdSet(ta, "22 EN NC", "NZDCAD+", "EURNZD+", 3, 1, 75, 0.02, 300, 750, 100, 750, 150, 1.2, 10 * i++);
+            AddProdSet(ta, "23 EC NC", "EURCAD+", "NZDCAD+", 3, 1, 100, 0.02, 300, 2750, 30, 1500, 200, 1.5, 10 * i++);
+            AddProdSet(ta, "24 EC EN", "EURCAD+", "EURNZD+", 1, 1, 75, 0.02, 1000, 2750, 30, 1500, 200, 0.9, 10 * i++);
+            AddProdSet(ta, "25 EU UC", "USDCAD+", "EURUSD+", 3, 1, 75, 0.02, 200, 1000, 30, 1000, 200, 1.2, 10 * i++);
+            AddProdSet(ta, "26 EC UC", "EURCAD+", "USDCAD+", 1, 1, 75, 0.02, 500, 2750, 30, 2750, 200, 1.4, 10 * i++);
+            AddProdSet(ta, "27 EC EU", "EURCAD+", "EURUSD+", 1, 1, 50, 0.02, 100, 1000, 30, 1000, 200, 1.9, 10 * i++);
+            AddProdSet(ta, "29 UC NC", "NZDCAD+", "USDCAD+", 1, 1, 25, 0.02, 300, 1750, 30, 1500, 150, 1.2, 10 * i++);
+            AddProdSet(ta, "30 NC NU", "NZDCAD+", "NZDUSD+", 1, 1, 50, 0.02, 300, 2250, 30, 2250, 200, 0.9, 10 * i++);
         }
 
-        private void AddProdSet(TradingAccount ta, string desc, string sym1, string sym2, int varId, int diff, int per, int tp1,
-            int reOpenDiff, int reChangeCount, int reOpenDiff2, int delta, double m, int magic)
+        private void Init10KSet()
+        {
+            var mt4Platform = MetaTraderPlatforms.First(p => p.Description == "AuraFX-Demo");
+            var mt4Acccount = MetaTraderAccounts.Add(new MetaTraderAccount()
+            {
+                Description = "Quadro 10K",
+                User = 8801909,
+                Password = "4ryypnp",
+                MetaTraderPlatform = mt4Platform,
+                ShouldConnect = true
+            });
+
+            var profile = Profiles.Add(new Profile { Description = "Quadro 10K" });
+            var ta = TradingAccounts
+                .Add(new TradingAccount
+                {
+                    ShouldTrade = true,
+                    Description = "10K",
+                    Profile = profile,
+                    Expert = Experts.First(),
+                    MetaTraderAccount = mt4Acccount,
+                    TradeSetFloatingSwitch = -2000
+                });
+
+            var i = 1;
+            AddProdSet(ta, "QVA_01_AU_NU", "NZDUSD+", "AUDUSD+", 1, 4, 50, 0.02, 300, 1000, 4, 2000, 150, 2, 5 * i++, 2, 7);
+            AddProdSet(ta, "QVA_02_AN_NU", "AUDNZD+", "NZDUSD+", 3, 1, 75, 0.04, 400, 1250, 3, 2000, 200, 1.3, 5 * i++, 2, 6);
+            AddProdSet(ta, "QVA_03_AN_AU", "AUDUSD+", "AUDNZD+", 1, 1, 200, 0.06, 200, 1500, 3, 2200, 200, 1.6, 5 * i++, 2, 5);
+            AddProdSet(ta, "QVA_04_EA_EN", "EURNZD+", "EURAUD+", 1, 1, 75, 0.04, 200, 1750, 3, 2250, 200, 1.6, 5 * i++, 2, 5);
+            AddProdSet(ta, "QVA_05_AN_EN", "AUDNZD+", "EURNZD+", 1, 1, 75, 0.02, 400, 1250, 5, 1750, 200, 0.7, 5 * i++, 2, 8);
+            AddProdSet(ta, "QVA_06_EA_AN", "AUDNZD+", "EURAUD+", 3, 1, 75, 0.02, 100, 1250, 4, 1750, 150, 1.2, 5 * i++, 2, 6);
+            AddProdSet(ta, "QVA_07_EU_EA", "EURAUD+", "EURUSD+", 1, 1, 50, 0.04, 200, 1000, 4, 2000, 200, 0.6, 5 * i++, 2, 6);
+            AddProdSet(ta, "QVA_08_AU_EU", "EURUSD+", "AUDUSD+", 1, 1, 125, 0.02, 800, 2000, 5, 3000, 200, 1.4, 5 * i++, 2, 7);
+            AddProdSet(ta, "QVA_09_AU_EA", "EURAUD+", "AUDUSD+", 1, 1, 125, 0.02, 900, 2500, 4, 3000, 200, 1.4, 5 * i++, 2, 6);
+            AddProdSet(ta, "QVA_10_EU_NU", "NZDUSD+", "EURUSD+", 1, 1, 75, 0.04, 500, 1750, 3, 2250, 200, 1.2, 5 * i++, 2, 5);
+            AddProdSet(ta, "QVA_11_EN_NU", "EURNZD+", "NZDUSD+", 3, 1, 75, 0.02, 1000, 3000, 5, 4000, 200, 1.2, 5 * i++, 2, 7);
+            AddProdSet(ta, "QVA_12_EN_EU", "EURUSD+", "EURNZD+", 1, 1, 75, 0.06, 200, 3000, 2, 4000, 200, 0.7, 5 * i++, 2, 4);
+        }
+
+        private void Init30KSet()
+        {
+            var mt4Platform = MetaTraderPlatforms.First(p => p.Description == "AuraFX-Demo");
+            var mt4Acccount = MetaTraderAccounts.Add(new MetaTraderAccount()
+            {
+                Description = "Quadro 30K",
+                User = 8801911,
+                Password = "gxqu3vh",
+                MetaTraderPlatform = mt4Platform,
+                ShouldConnect = true
+            });
+
+            var profile = Profiles.Add(new Profile { Description = "Quadro 30K" });
+            var ta = TradingAccounts
+                .Add(new TradingAccount
+                {
+                    ShouldTrade = true,
+                    Description = "30K",
+                    Profile = profile,
+                    Expert = Experts.First(),
+                    MetaTraderAccount = mt4Acccount,
+                    TradeSetFloatingSwitch = -5000
+                });
+
+            var i = 1;
+            AddProdSet(ta, "QVA_01_AU_NU", "NZDUSD+", "AUDUSD+", 1, 4, 50, 0.02, 300, 1000, 4, 2000, 150, 2, 5 * i++, 2, 7);
+            AddProdSet(ta, "QVA_02_AN_NU", "AUDNZD+", "NZDUSD+", 3, 1, 75, 0.04, 400, 1250, 3, 2000, 200, 1.3, 5 * i++, 2, 6);
+            AddProdSet(ta, "QVA_03_AN_AU", "AUDUSD+", "AUDNZD+", 1, 1, 200, 0.04, 200, 1500, 3, 2200, 200, 1.6, 5 * i++, 2, 5);
+            AddProdSet(ta, "QVA_04_EA_EN", "EURNZD+", "EURAUD+", 1, 1, 75, 0.04, 200, 1750, 3, 2250, 200, 1.6, 5 * i++, 2, 5);
+            AddProdSet(ta, "QVA_05_AN_EN", "AUDNZD+", "EURNZD+", 1, 1, 75, 0.02, 400, 1250, 5, 1750, 200, 0.7, 5 * i++, 2, 8);
+            AddProdSet(ta, "QVA_06_EA_AN", "AUDNZD+", "EURAUD+", 3, 1, 75, 0.04, 100, 1250, 4, 1750, 150, 1.2, 5 * i++, 2, 6);
+            AddProdSet(ta, "QVA_07_EU_EA", "EURAUD+", "EURUSD+", 1, 1, 50, 0.04, 200, 1000, 4, 2000, 200, 0.6, 5 * i++, 2, 6);
+            AddProdSet(ta, "QVA_08_AU_EU", "EURUSD+", "AUDUSD+", 1, 1, 125, 0.02, 800, 2000, 5, 3000, 200, 1.4, 5 * i++, 2, 7);
+            AddProdSet(ta, "QVA_09_AU_EA", "EURAUD+", "AUDUSD+", 1, 1, 125, 0.02, 900, 2500, 4, 3000, 200, 1.4, 5 * i++, 2, 6);
+            AddProdSet(ta, "QVA_10_EU_NU", "NZDUSD+", "EURUSD+", 1, 1, 75, 0.04, 500, 1750, 3, 2250, 200, 1.2, 5 * i++, 2, 5);
+            AddProdSet(ta, "QVA_11_EN_NU", "EURNZD+", "NZDUSD+", 3, 1, 75, 0.02, 1000, 3000, 5, 4000, 200, 1.2, 5 * i++, 2, 7);
+            AddProdSet(ta, "QVA_12_EN_EU", "EURUSD+", "EURNZD+", 1, 1, 75, 0.04, 200, 3000, 2, 4000, 200, 0.7, 5 * i++, 2, 4);
+            AddProdSet(ta, "QVA_13_AN_NC", "AUDNZD+", "EURNZD+", 1, 1, 75, 0.02, 800, 1500, 5, 2500, 200, 1.6, 5 * i++, 2, 7);
+            AddProdSet(ta, "QVA_14_AC_NC", "NZDCAD+", "AUDCAD+", 1, 1, 75, 0.04, 700, 1750, 4, 2750, 200, 1.6, 5 * i++, 2, 5);
+            AddProdSet(ta, "QVA_15_AC_AN", "AUDCAD+", "AUDNZD+", 1, 1, 25, 0.04, 100, 1000, 4, 2000, 150, 1.1, 5 * i++, 2, 5);
+            AddProdSet(ta, "QVA_16_AU_UC", "USDCAD+", "AUDUSD+", 1, 1, 50, 0.04, 100, 1000, 4, 2000, 150, 0.6, 5 * i++, 2, 6);
+            AddProdSet(ta, "QVA_17_AC_UC", "AUDCAD+", "USDCAD+", 1, 1, 100, 0.02, 400, 1000, 5, 2000, 150, 1.2, 5 * i++, 2, 7);
+            AddProdSet(ta, "QVA_18_AC_AU", "AUDCAD+", "AUDUSD+", 1, 1, 50, 0.02, 100, 750, 5, 1750, 150, 1.9, 5 * i++, 2, 7);
+            AddProdSet(ta, "QVA_19_EA_EC", "EURCAD+", "EURAUD+", 1, 1, 75, 0.02, 600, 1250, 5, 2250, 200, 1.6, 5 * i++, 2, 7);
+            AddProdSet(ta, "QVA_20_EC_AC", "EURCAD+", "AUDCAD+", 1, 1, 75, 0.02, 600, 2500, 4, 3500, 200, 1.5, 5 * i++, 2, 6);
+            AddProdSet(ta, "QVA_21_AC_EA", "AUDCAD+", "EURAUD+", 1, 1, 75, 0.04, 400, 1000, 4, 2000, 200, 1.4, 5 * i++, 2, 6);
+            AddProdSet(ta, "QVA_22_EN_NC", "NZDCAD+", "EURNZD+", 1, 1, 75, 0.02, 300, 750, 5, 1750, 150, 1.2, 5 * i++, 2, 8);
+            AddProdSet(ta, "QVA_23_EC_NC", "NZDCAD+", "EURCAD+", 1, 1, 100, 0.04, 300, 2750, 3, 3750, 200, 1.5, 5 * i++, 2, 5); // szarul fut élesben!!!
+            AddProdSet(ta, "QVA_24_EC_EN", "EURCAD+", "EURNZD+", 1, 1, 75, 0.02, 1000, 2750, 3, 3750, 200, 0.9, 5 * i++, 2, 5);
+            AddProdSet(ta, "QVA_25_EU_UC", "USDCAD+", "EURUSD+", 1, 1, 75, 0.02, 200, 1000, 4, 2000, 200, 1.2, 5 * i++, 2, 6);
+            AddProdSet(ta, "QVA_26_EC_UC", "EURCAD+", "USDCAD+", 1, 1, 75, 0.02, 500, 2750, 4, 3750, 200, 1.4, 5 * i++, 2, 6);
+            AddProdSet(ta, "QVA_27_EC_EU", "EURCAD+", "EURUSD+", 1, 1, 50, 0.02, 100, 1000, 5, 2000, 200, 1.9, 5 * i++, 2, 8);
+            AddProdSet(ta, "QVA_28_NU_UC", "USDCAD+", "NZDUSD+", 1, 1, 75, 0.02, 400, 2000, 3, 3000, 200, 0.8, 5 * i++, 2, 5);
+            AddProdSet(ta, "QVA_29_UC_NC", "NZDCAD+", "USDCAD+", 1, 1, 25, 0.02, 300, 1750, 4, 2750, 150, 1.2, 5 * i++, 2, 6);
+            AddProdSet(ta, "QVA_30_NC_NU", "NZDCAD+", "NZDUSD+", 1, 1, 50, 0.04, 300, 2250, 2, 3250, 200, 0.9, 5 * i++, 2, 4);
+        }
+
+        private void Init60KSet()
+        {
+            var mt4Platform = MetaTraderPlatforms.First(p => p.Description == "AuraFX-Demo");
+            var mt4Acccount = MetaTraderAccounts.Add(new MetaTraderAccount()
+            {
+                Description = "Quadro 60K",
+                User = 8801912,
+                Password = "ou1eshv",
+                MetaTraderPlatform = mt4Platform,
+                ShouldConnect = true
+            });
+
+            var profile = Profiles.Add(new Profile { Description = "Quadro 60K" });
+            var ta = TradingAccounts
+                .Add(new TradingAccount
+                {
+                    ShouldTrade = true,
+                    Description = "30K",
+                    Profile = profile,
+                    Expert = Experts.First(),
+                    MetaTraderAccount = mt4Acccount,
+                    TradeSetFloatingSwitch = -10000
+                });
+
+            var i = 1;
+            AddProdSet(ta, "QVA_01_AU_NU", "NZDUSD+", "AUDUSD+", 1, 4, 50, 0.1, 300, 1000, 4, 2000, 150, 2, 5 * i++, 2, 7);
+            AddProdSet(ta, "QVA_02_AN_NU", "AUDNZD+", "NZDUSD+", 3, 1, 75, 0.16, 400, 1250, 3, 2000, 200, 1.3, 5 * i++, 2, 6);
+            AddProdSet(ta, "QVA_03_AN_AU", "AUDUSD+", "AUDNZD+", 1, 1, 200, 0.16, 200, 1500, 3, 2200, 200, 1.6, 5 * i++, 2, 5);
+            AddProdSet(ta, "QVA_04_EA_EN", "EURNZD+", "EURAUD+", 1, 1, 75, 0.16, 200, 1750, 3, 2250, 200, 1.6, 5 * i++, 2, 5);
+            AddProdSet(ta, "QVA_05_AN_EN", "AUDNZD+", "EURNZD+", 1, 1, 75, 0.06, 400, 1250, 5, 1750, 200, 0.7, 5 * i++, 2, 8);
+            AddProdSet(ta, "QVA_06_EA_AN", "AUDNZD+", "EURAUD+", 3, 1, 75, 0.12, 100, 1250, 4, 1750, 150, 1.2, 5 * i++, 2, 6);
+            AddProdSet(ta, "QVA_07_EU_EA", "EURAUD+", "EURUSD+", 1, 1, 50, 0.14, 200, 1000, 4, 2000, 200, 0.6, 5 * i++, 2, 6);
+            AddProdSet(ta, "QVA_08_AU_EU", "EURUSD+", "AUDUSD+", 1, 1, 125, 0.06, 800, 2000, 5, 3000, 200, 1.4, 5 * i++, 2, 7);
+            AddProdSet(ta, "QVA_09_AU_EA", "EURAUD+", "AUDUSD+", 1, 1, 125, 0.06, 900, 2500, 4, 3000, 200, 1.4, 5 * i++, 2, 6);
+            AddProdSet(ta, "QVA_10_EU_NU", "NZDUSD+", "EURUSD+", 1, 1, 75, 0.1, 500, 1750, 3, 2250, 200, 1.2, 5 * i++, 2, 5);
+            AddProdSet(ta, "QVA_11_EN_NU", "EURNZD+", "NZDUSD+", 3, 1, 75, 0.06, 1000, 3000, 5, 4000, 200, 1.2, 5 * i++, 2, 7);
+            AddProdSet(ta, "QVA_12_EN_EU", "EURUSD+", "EURNZD+", 1, 1, 75, 0.12, 200, 3000, 2, 4000, 200, 0.7, 5 * i++, 2, 4);
+            AddProdSet(ta, "QVA_13_AN_NC", "AUDNZD+", "EURNZD+", 1, 1, 75, 0.06, 800, 1500, 5, 2500, 200, 1.6, 5 * i++, 2, 7);
+            AddProdSet(ta, "QVA_14_AC_NC", "NZDCAD+", "AUDCAD+", 1, 1, 75, 0.12, 700, 1750, 4, 2750, 200, 1.6, 5 * i++, 2, 5);
+            AddProdSet(ta, "QVA_15_AC_AN", "AUDCAD+", "AUDNZD+", 1, 1, 25, 0.16, 100, 1000, 4, 2000, 150, 1.1, 5 * i++, 2, 5);
+            AddProdSet(ta, "QVA_16_AU_UC", "USDCAD+", "AUDUSD+", 1, 1, 50, 0.16, 100, 1000, 4, 2000, 150, 0.6, 5 * i++, 2, 6);
+            AddProdSet(ta, "QVA_17_AC_UC", "AUDCAD+", "USDCAD+", 1, 1, 100, 0.04, 400, 1000, 5, 2000, 150, 1.2, 5 * i++, 2, 7);
+            AddProdSet(ta, "QVA_18_AC_AU", "AUDCAD+", "AUDUSD+", 1, 1, 50, 0.08, 100, 750, 5, 1750, 150, 1.9, 5 * i++, 2, 7);
+            AddProdSet(ta, "QVA_19_EA_EC", "EURCAD+", "EURAUD+", 1, 1, 75, 0.06, 600, 1250, 5, 2250, 200, 1.6, 5 * i++, 2, 7);
+            AddProdSet(ta, "QVA_20_EC_AC", "EURCAD+", "AUDCAD+", 1, 1, 75, 0.06, 600, 2500, 4, 3500, 200, 1.5, 5 * i++, 2, 6);
+            AddProdSet(ta, "QVA_21_AC_EA", "AUDCAD+", "EURAUD+", 1, 1, 75, 0.1, 400, 1000, 4, 2000, 200, 1.4, 5 * i++, 2, 6);
+            AddProdSet(ta, "QVA_22_EN_NC", "NZDCAD+", "EURNZD+", 1, 1, 75, 0.06, 300, 750, 5, 1750, 150, 1.2, 5 * i++, 2, 8);
+            AddProdSet(ta, "QVA_23_EC_NC", "NZDCAD+", "EURCAD+", 1, 1, 100, 0.12, 300, 2750, 3, 3750, 200, 1.5, 5 * i++, 2, 5); // szarul fut élesben!!!
+            AddProdSet(ta, "QVA_24_EC_EN", "EURCAD+", "EURNZD+", 1, 1, 75, 0.1, 1000, 2750, 3, 3750, 200, 0.9, 5 * i++, 2, 5);
+            AddProdSet(ta, "QVA_25_EU_UC", "USDCAD+", "EURUSD+", 1, 1, 75, 0.06, 200, 1000, 4, 2000, 200, 1.2, 5 * i++, 2, 6);
+            AddProdSet(ta, "QVA_26_EC_UC", "EURCAD+", "USDCAD+", 1, 1, 75, 0.04, 500, 2750, 4, 3750, 200, 1.4, 5 * i++, 2, 6);
+            AddProdSet(ta, "QVA_27_EC_EU", "EURCAD+", "EURUSD+", 1, 1, 50, 0.04, 100, 1000, 5, 2000, 200, 1.9, 5 * i++, 2, 8);
+            AddProdSet(ta, "QVA_28_NU_UC", "USDCAD+", "NZDUSD+", 1, 1, 75, 0.04, 400, 2000, 3, 3000, 200, 0.8, 5 * i++, 2, 5);
+            AddProdSet(ta, "QVA_29_UC_NC", "NZDCAD+", "USDCAD+", 1, 1, 25, 0.06, 300, 1750, 4, 2750, 150, 1.2, 5 * i++, 2, 6);
+            AddProdSet(ta, "QVA_30_NC_NU", "NZDCAD+", "NZDUSD+", 1, 1, 50, 0.12, 300, 2250, 2, 3250, 200, 0.9, 5 * i++, 2, 4);
+        }
+
+        private void AddProdSet(TradingAccount ta, string desc, string sym1, string sym2, int varId, int diff, int per, double lots, int tp1,
+            int reOpenDiff, int reChangeCount, int reOpenDiff2, int delta, double m, int magic, int last24 = 1000, int maxTrade = 1000)
         {
             ExpertSets.Add(new ExpertSet
             {
@@ -416,17 +538,16 @@ namespace QvaDev.Data
                 Variant = (ExpertSet.Variants)varId,
                 Diff = diff,
                 Period = per,
-                LotSize = 0.01,
+                LotSize = lots,
                 Tp1 = tp1,
                 ReOpenDiff = reOpenDiff,
                 ReOpenDiffChangeCount = reChangeCount,
                 ReOpenDiff2 = reOpenDiff2,
                 Delta = delta,
                 M = m,
-                TradeSetFloatingSwitch = -50000,
                 TradeOpeningEnabled = true,
-                MaxTradeSetCount = 1000,
-                Last24HMaxOpen = 1000
+                MaxTradeSetCount = maxTrade,
+                Last24HMaxOpen = last24
             });
         }
     }

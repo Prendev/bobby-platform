@@ -21,6 +21,9 @@ namespace QvaDev.Duplicat.ViewModel
         }
         public void DisconnectCommand()
         {
+            StopCopiersCommand();
+            StopMonitorsCommand();
+            StopExpertsCommand();
             IsLoading = true;
             IsConfigReadonly = true;
             _orchestrator.Disconnect()
