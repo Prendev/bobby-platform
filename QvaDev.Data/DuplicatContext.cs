@@ -300,7 +300,7 @@ namespace QvaDev.Data
                 Period = 3,
                 Tp1 = 20,
                 MagicNumber = magic * 100,
-                LotSize = 0.01,
+                LotSize = 0.05,
                 TradeOpeningEnabled = true,
                 ProfitCloseValueSell = 100,
                 ProfitCloseValueBuy = 100,

@@ -51,42 +51,42 @@ namespace QvaDev.Experts.Quadro.Services
             {
                 lock (exp)
                 {
+                    if (exp.E.UseTradeSetStopLoss && GetSumProfit(exp) < exp.E.TradeSetStopLossValue)
+                    {
+                        _closeService.AllCloseMin(exp);
+                        _closeService.AllCloseMax(exp);
+                        exp.E.TradeOpeningEnabled = false;
+                        return;
+                    }
+
                     if (exp.E.CloseAllBuy)
                     {
                         _closeService.AllCloseMin(exp);
                         exp.E.CloseAllBuy = false;
+                    }
+                    else if (exp.E.ProfitCloseBuy)
+                    {
+                        _closeService.CheckProfitClose(exp, Sides.Buy);
                     }
                     else if (exp.E.BisectingCloseBuy)
                     {
                         _closeService.BisectingCloseMin(exp);
                         exp.E.BisectingCloseBuy = false;
                     }
+
                     if (exp.E.CloseAllSell)
                     {
                         _closeService.AllCloseMax(exp);
                         exp.E.CloseAllSell = false;
                     }
+                    else if (exp.E.ProfitCloseSell)
+                    {
+                        _closeService.CheckProfitClose(exp, Sides.Sell);
+                    }
                     else if (exp.E.BisectingCloseSell)
                     {
                         _closeService.BisectingCloseMax(exp);
                         exp.E.BisectingCloseSell = false;
-                    }
-                    if (exp.E.ProfitCloseBuy)
-                    {
-                        _closeService.CheckProfitClose(exp, Sides.Buy);
-                    }
-                    if (exp.E.ProfitCloseSell)
-                    {
-                        _closeService.CheckProfitClose(exp, Sides.Sell);
-                    }
-                    if (exp.E.UseTradeSetStopLoss)
-                    {
-                        if (GetSumProfit(exp) < exp.E.TradeSetStopLossValue)
-                        {
-                            _closeService.AllCloseMin(exp);
-                            _closeService.AllCloseMax(exp);
-                            exp.E.TradeOpeningEnabled = false;
-                        }
                     }
                 }
             }

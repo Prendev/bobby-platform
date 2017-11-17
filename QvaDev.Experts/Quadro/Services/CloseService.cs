@@ -117,23 +117,41 @@ namespace QvaDev.Experts.Quadro.Services
             _log.Debug($"{exp.E.Description}: CloseService.AllCloseMin");
             AllCloseLevel(exp, exp.Sym1MinOrderType, exp.Sym2MinOrderType, Sides.Buy);
             exp.InitBuyLotArray();
+            exp.E.CloseAllBuy = false;
         }
         public void AllCloseMax(ExpertSetWrapper exp)
         {
             _log.Debug($"{exp.E.Description}: CloseService.AllCloseMax");
             AllCloseLevel(exp, exp.Sym1MaxOrderType, exp.Sym2MaxOrderType, Sides.Sell);
             exp.InitSellLotArray();
+            exp.E.CloseAllSell = false;
         }
 
         public void BisectingCloseMin(ExpertSetWrapper exp)
         {
-            _log.Debug($"{exp.E.Description}: CloseService.BisectingCloseMin NotImplemented");
-            //AllCloseLevel(exp, exp.Sym1MinOrderType, exp.Sym2MinOrderType, Sides.Buy);
+            _log.Debug($"{exp.E.Description}: CloseService.BisectingCloseMin");
+            BisectingClose(exp, exp.Sym1MinOrderType, exp.Sym2MinOrderType, Sides.Buy);
+            exp.E.BisectingCloseBuy = false;
         }
         public void BisectingCloseMax(ExpertSetWrapper exp)
         {
-            _log.Debug($"{exp.E.Description}: CloseService.BisectingCloseMax NotImplemented");
-            //AllCloseLevel(exp, exp.Sym1MaxOrderType, exp.Sym2MaxOrderType, Sides.Sell);
+            _log.Debug($"{exp.E.Description}: CloseService.BisectingCloseMax");
+            BisectingClose(exp, exp.Sym1MaxOrderType, exp.Sym2MaxOrderType, Sides.Sell);
+            exp.E.BisectingCloseSell = false;
+        }
+        private void BisectingClose(ExpertSetWrapper exp, Sides orderType1, Sides orderType2, Sides spreadOrderType)
+        {
+            int magicNumber = _commonService.GetMagicNumberBySpreadOrderType(exp, spreadOrderType);
+            var sym1Orders = _commonService.GetOpenOrdersList(exp, exp.E.Symbol1, orderType1, magicNumber);
+            var sym2Orders = _commonService.GetOpenOrdersList(exp, exp.E.Symbol2, orderType2, magicNumber);
+            var orders = sym1Orders.Union(sym2Orders).ToList();
+            if (orders.Count(o => o.Lots - (o.Lots / 2).CheckLot() > 0) == 1)
+            {
+                AllCloseLevel(exp, orderType1, orderType2, spreadOrderType);
+                return;
+            }
+            foreach (var position in orders)
+                exp.Connector.SendClosePositionRequests(position, (position.Lots / 2).CheckLot());
         }
 
         public void CheckProfitClose(ExpertSetWrapper exp, Sides spreadOrderType)
