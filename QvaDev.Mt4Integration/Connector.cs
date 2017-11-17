@@ -3,7 +3,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using log4net;
 using QvaDev.Common.Integration;
 using TradingAPI.MT4Server;
@@ -28,6 +27,7 @@ namespace QvaDev.Mt4Integration
         private readonly ConcurrentDictionary<string, Order[]> _orderHistories =
             new ConcurrentDictionary<string, Order[]>();
         private AccountInfo _accountInfo;
+        private List<Tuple<string, int, short>> _symbols;
 
 
         public string Description => _accountInfo?.Description;
@@ -48,6 +48,7 @@ namespace QvaDev.Mt4Integration
 
         public void Disconnect()
         {
+            QuoteClient.OnDisconnect -= QuoteClient_OnDisconnect;
             QuoteClient.OnOrderUpdate -= OnOrderUpdate;
             QuoteClient?.Disconnect();
             OrderClient?.Disconnect();
@@ -84,15 +85,20 @@ namespace QvaDev.Mt4Integration
             QuoteClient.OnOrderUpdate -= OnOrderUpdate;
             QuoteClient.OnOrderUpdate += OnOrderUpdate;
 
+            QuoteClient.OnDisconnect -= QuoteClient_OnDisconnect;
+            QuoteClient.OnDisconnect += QuoteClient_OnDisconnect;
+
+            Subscribe(_symbols);
+
             foreach (var o in QuoteClient.GetOpenedOrders().Where(o => o.Type == Op.Buy || o.Type == Op.Sell))
             {
-                Positions.GetOrAdd(o.Ticket, new Position
+                var pos = new Position
                 {
                     Id = o.Ticket,
                     Lots = o.Lots,
                     Symbol = o.Symbol,
                     Side = o.Type == Op.Buy ? Sides.Buy : Sides.Sell,
-                    RealVolume = (long)(o.Lots * GetSymbolInfo(o.Symbol).ContractSize * (o.Type == Op.Buy ? 1 : -1)),
+                    RealVolume = (long) (o.Lots * GetSymbolInfo(o.Symbol).ContractSize * (o.Type == Op.Buy ? 1 : -1)),
                     MagicNumber = o.MagicNumber,
                     Profit = o.Profit,
                     Commission = o.Commission,
@@ -100,6 +106,11 @@ namespace QvaDev.Mt4Integration
                     OpenTime = o.OpenTime,
                     OpenPrice = o.OpenPrice,
                     Comment = o.Comment
+                };
+                Positions.AddOrUpdate(o.Ticket, key => pos, (key, old) =>
+                {
+                    pos.CloseOrder = old.CloseOrder;
+                    return pos;
                 });
             }
 
@@ -216,11 +227,13 @@ namespace QvaDev.Mt4Integration
 
         public void Subscribe(List<Tuple<string, int, short>> symbols)
         {
+            _symbols = symbols;
             QuoteClient.OnQuoteHistory -= QuoteClient_OnQuoteHistory;
-            QuoteClient.OnQuoteHistory += QuoteClient_OnQuoteHistory;
             QuoteClient.OnQuote -= QuoteClient_OnQuote;
-            QuoteClient.OnQuote += QuoteClient_OnQuote;
+            if (symbols?.Any() != true) return;
 
+            QuoteClient.OnQuote += QuoteClient_OnQuote;
+            QuoteClient.OnQuoteHistory += QuoteClient_OnQuoteHistory;
             lock (_symbolHistories)
             {
                 foreach (var symbol in symbols)
@@ -312,6 +325,17 @@ namespace QvaDev.Mt4Integration
                     };
                 OnBarHistory?.Invoke(this,
                     new BarHistoryEventArgs { Symbol = args.Symbol, BarHistory = symbolHistory.BarHistory });
+            }
+        }
+
+        private void QuoteClient_OnDisconnect(object sender, DisconnectEventArgs args)
+        {
+            _log.Error($"{_accountInfo.Description} account ({_accountInfo.User}) disconnected", args.Exception);
+            while (true)
+            {
+                if (IsConnected) return;
+                if (Connect(_accountInfo)) return;
+                Thread.Sleep(new TimeSpan(0, 1, 0));
             }
         }
 

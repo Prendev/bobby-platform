@@ -22,6 +22,8 @@ namespace QvaDev.Duplicat.Views
             btnStart.AddBinding("Enabled", _viewModel, nameof(_viewModel.AreExpertsStarted), true);
             btnStop.AddBinding("Enabled", _viewModel, nameof(_viewModel.AreExpertsStarted));
             dgvTradingAccounts.AddBinding("ReadOnly", _viewModel, nameof(_viewModel.IsConfigReadonly));
+            dgvExpertSets.AddBinding("AllowUserToAddRows", _viewModel, nameof(_viewModel.IsConfigReadonly), true);
+            dgvExpertSets.AddBinding("AllowUserToDeleteRows", _viewModel, nameof(_viewModel.IsConfigReadonly), true);
 
             btnStart.Click += (s, e) => { _viewModel.StartExpertsCommand(); };
             btnStop.Click += (s, e) => { _viewModel.StopExpertsCommand(); };

@@ -9,15 +9,16 @@ namespace QvaDev.Duplicat
         //    return new SyncBindingSource<T>(list);
         //}
 
-        public static void AddBinding(this Control control, string propertyName, object dataSource, string dataMember, bool inverse = false)
+        public static void AddBinding(this Control control, string propertyName, object dataSource, string dataMember, bool inverse = false, bool oneWay = false)
         {
+            Binding binding;
             if (inverse)
             {
-                var inverseBinding = new Binding(propertyName, dataSource, dataMember);
-                inverseBinding.Format += (s, e) => e.Value = !(bool)e.Value;
-                control.DataBindings.Add(inverseBinding);
+                binding = new Binding(propertyName, dataSource, dataMember);
+                binding.Format += (s, e) => e.Value = !(bool) e.Value;
             }
-            else control.DataBindings.Add(new Binding(propertyName, dataSource, dataMember));
+            else binding = new Binding(propertyName, dataSource, dataMember);
+            control.DataBindings.Add(binding);
         }
     }
 }
