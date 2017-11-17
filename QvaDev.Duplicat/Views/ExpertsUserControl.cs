@@ -21,9 +21,17 @@ namespace QvaDev.Duplicat.Views
             gbControl.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsLoading), true);
             btnStart.AddBinding("Enabled", _viewModel, nameof(_viewModel.AreExpertsStarted), true);
             btnStop.AddBinding("Enabled", _viewModel, nameof(_viewModel.AreExpertsStarted));
-            dgvTradingAccounts.AddBinding("ReadOnly", _viewModel, nameof(_viewModel.IsConfigReadonly));
+            dgvTradingAccounts.AddBinding("AllowUserToAddRows", _viewModel, nameof(_viewModel.IsConfigReadonly), true);
+            dgvTradingAccounts.AddBinding("AllowUserToDeleteRows", _viewModel, nameof(_viewModel.IsConfigReadonly), true);
             dgvExpertSets.AddBinding("AllowUserToAddRows", _viewModel, nameof(_viewModel.IsConfigReadonly), true);
             dgvExpertSets.AddBinding("AllowUserToDeleteRows", _viewModel, nameof(_viewModel.IsConfigReadonly), true);
+            _viewModel.PropertyChanged += (s, e) =>
+            {
+                if (e.PropertyName == "IsConfigReadonly")
+                    foreach (DataGridViewColumn column in dgvTradingAccounts.Columns)
+                        column.ReadOnly = column.Name != "TradeSetFloatingSwitch";
+
+            };
 
             btnStart.Click += (s, e) => { _viewModel.StartExpertsCommand(); };
             btnStop.Click += (s, e) => { _viewModel.StopExpertsCommand(); };
