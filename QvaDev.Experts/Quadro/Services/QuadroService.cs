@@ -105,8 +105,8 @@ namespace QvaDev.Experts.Quadro.Services
                 lock (exp)
                 {
                     if (!CheckBarUpdate(exp, e)) return;
-                    _log.Debug($"{exp.E.Description}: quants ({exp.E.M}) => {exp.LatestBarQuant.Quant:F} " +
-                               $"| stoch avg ({exp.E.StochMultiplication}) => {exp.QuantStoAvg:F}");
+                    _log.Debug($"{exp.E.Description}: quants ({exp.E.M}) => {exp.LatestBarQuant.Quant:F5} " +
+                               $"| stoch avg ({exp.E.StochMultiplication}) => {exp.QuantStoAvg:F5}");
                     PreCheckOrders(exp);
                     OnBar(exp);
                 }

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using log4net;
+using QvaDev.Common;
 using QvaDev.Common.Integration;
 using TradingAPI.MT4Server;
 using Bar = QvaDev.Common.Integration.Bar;
@@ -15,6 +16,7 @@ namespace QvaDev.Mt4Integration
         public class SymbolHistory
         {
             public ConcurrentDictionary<DateTime, Bar> BarHistory { get; set; } = new ConcurrentDictionary<DateTime, Bar>();
+            public Bar LastBar => BarHistory?.OrderByDescending(b => b.Key).FirstOrDefault().Value;
         }
 
         private readonly ILog _log;
@@ -257,6 +259,29 @@ namespace QvaDev.Mt4Integration
 
         private void QuoteClient_OnQuote(object sender, QuoteEventArgs args)
         {
+            foreach (var timeframe in (Timeframe[]) Enum.GetValues(typeof(Timeframe)))
+            {
+                SymbolHistory symbolHistory;
+                if (!_symbolHistories.TryGetValue(new Tuple<string, int>(args.Symbol, (int)timeframe).ToString(), out symbolHistory)) continue;
+
+                lock (symbolHistory)
+                {
+                    var lastBar = symbolHistory.LastBar;
+                    if (lastBar != null && args.Time < lastBar.OpenTime.AddMinutes(2 * (int) timeframe)) continue;
+
+                    Tick lastTick;
+                    if (_lastTicks.TryGetValue(args.Symbol, out lastTick))
+                    {
+                        var openTime = lastTick.Time.RoundDown(TimeSpan.FromMinutes((int) timeframe));
+                        symbolHistory.BarHistory[openTime] =
+                            new Bar { OpenTime = openTime, Close = lastTick.Bid };
+                        OnBarHistory?.Invoke(this,
+                            new BarHistoryEventArgs { Symbol = args.Symbol, BarHistory = symbolHistory.BarHistory });
+                    }
+                    else GetBarHistory(args.Symbol, timeframe, DateTime.Now.AddDays(1), 1);
+                }
+            }
+
             var tick = new Tick
             {
                 Symbol = args.Symbol,
@@ -265,24 +290,7 @@ namespace QvaDev.Mt4Integration
                 Time = args.Time
             };
             _lastTicks.AddOrUpdate(args.Symbol, key => tick, (key, old) => tick);
-
-            foreach (var timeframe in (Timeframe[]) Enum.GetValues(typeof(Timeframe)))
-            {
-                SymbolHistory symbolHistory;
-                if (!_symbolHistories.TryGetValue(new Tuple<string, int>(args.Symbol, (int)timeframe).ToString(), out symbolHistory)) continue;
-
-                lock (symbolHistory)
-                {
-                    if (symbolHistory.BarHistory.Any() &&
-                        args.Time < symbolHistory.BarHistory.Last().Value.OpenTime.AddMinutes(2 * (int) timeframe)) continue;
-                    GetBarHistory(args.Symbol, timeframe, DateTime.Now.AddDays(1), 2);
-                }
-            }
-            OnTick?.Invoke(this,
-                new TickEventArgs
-                {
-                    Tick = new Tick {Time = args.Time, Ask = args.Ask, Bid = args.Bid, Symbol = args.Symbol}
-                });
+            OnTick?.Invoke(this, new TickEventArgs {Tick = tick});
         }
 
         private void GetBarHistory(string symbol, Timeframe timeframe, DateTime from, short count)
@@ -317,10 +325,7 @@ namespace QvaDev.Mt4Integration
                 foreach (var bar in args.Bars)
                     symbolHistory.BarHistory[bar.Time] = new Bar
                     {
-                        Open = bar.Open,
                         Close = bar.Close,
-                        Low = bar.Low,
-                        High = bar.High,
                         OpenTime = bar.Time
                     };
                 OnBarHistory?.Invoke(this,

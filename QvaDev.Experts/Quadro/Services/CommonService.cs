@@ -4,6 +4,7 @@ using System.Linq;
 using log4net;
 using QvaDev.Common.Integration;
 using QvaDev.Experts.Quadro.Models;
+using QvaDev.Common;
 
 namespace QvaDev.Experts.Quadro.Services
 {
@@ -61,7 +62,7 @@ namespace QvaDev.Experts.Quadro.Services
 
         public double BarQuant(ExpertSetWrapper exp, Position p)
         {
-            var dateTimeKey = RoundDown(p.OpenTime.AddMinutes(-(int)exp.E.TimeFrame), TimeSpan.FromMinutes((int) exp.E.TimeFrame));
+            var dateTimeKey = p.OpenTime.AddMinutes(-(int)exp.E.TimeFrame).RoundDown(TimeSpan.FromMinutes((int) exp.E.TimeFrame));
             if(!exp.BarQuants.ContainsKey(dateTimeKey) || !exp.BarQuants[dateTimeKey].Quant.HasValue)
                 throw new BarMissingException(dateTimeKey);
             return exp.BarQuants[dateTimeKey].Quant.Value;
