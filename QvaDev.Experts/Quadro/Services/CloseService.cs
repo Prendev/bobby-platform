@@ -80,17 +80,17 @@ namespace QvaDev.Experts.Quadro.Services
 
         private double BuyAveragePrice(ExpertSetWrapper exp)
         {
-            return AveragePrice(exp, exp.Sym1MinOrderType, exp.Sym2MinOrderType, exp.SpreadBuyMagicNumber);
+            return AveragePrice(exp, exp.Sym1MinOrderType, exp.Sym2MinOrderType);
         }
         private double SellAveragePrice(ExpertSetWrapper exp)
         {
-            return AveragePrice(exp, exp.Sym1MaxOrderType, exp.Sym2MaxOrderType, exp.SpreadSellMagicNumber);
+            return AveragePrice(exp, exp.Sym1MaxOrderType, exp.Sym2MaxOrderType);
         }
-        private double AveragePrice(ExpertSetWrapper exp, Sides orderType1, Sides orderType2, int magicNumber)
+        private double AveragePrice(ExpertSetWrapper exp, Sides orderType1, Sides orderType2)
         {
             double avgPrice = 0;
-            double[] sumLotSum1 = GetSumAndLotSum(exp, exp.E.Symbol1, orderType1, magicNumber);
-            double[] sumLotSum2 = GetSumAndLotSum(exp, exp.E.Symbol2, orderType2, magicNumber);
+            double[] sumLotSum1 = GetSumAndLotSum(exp, exp.E.Symbol1, orderType1);
+            double[] sumLotSum2 = GetSumAndLotSum(exp, exp.E.Symbol2, orderType2);
             double multiSum = sumLotSum1[0] + sumLotSum2[0];
             double lotSum = sumLotSum1[1] + sumLotSum2[1];
             if (lotSum > 0)
@@ -99,11 +99,11 @@ namespace QvaDev.Experts.Quadro.Services
             }
             return avgPrice;
         }
-        private double[] GetSumAndLotSum(ExpertSetWrapper exp, string symbol, Sides orderType, int magicNumber)
+        private double[] GetSumAndLotSum(ExpertSetWrapper exp, string symbol, Sides orderType)
         {
             double multiSum = 0;
             double lotSum = 0;
-            foreach (var p in _commonService.GetOpenOrdersList(exp, symbol, orderType, magicNumber))
+            foreach (var p in _commonService.GetOpenOrdersList(exp, symbol, orderType, exp.E.MagicNumber))
             {
                 double sellMultiplication = exp.Connector.MyRoundToDigits(p.Symbol, _commonService.BarQuant(exp, p) * p.Lots);
                 multiSum += sellMultiplication;
@@ -141,9 +141,8 @@ namespace QvaDev.Experts.Quadro.Services
         }
         private void BisectingClose(ExpertSetWrapper exp, Sides orderType1, Sides orderType2, Sides spreadOrderType)
         {
-            int magicNumber = _commonService.GetMagicNumberBySpreadOrderType(exp, spreadOrderType);
-            var sym1Orders = _commonService.GetOpenOrdersList(exp, exp.E.Symbol1, orderType1, magicNumber);
-            var sym2Orders = _commonService.GetOpenOrdersList(exp, exp.E.Symbol2, orderType2, magicNumber);
+            var sym1Orders = _commonService.GetOpenOrdersList(exp, exp.E.Symbol1, orderType1, exp.E.MagicNumber);
+            var sym2Orders = _commonService.GetOpenOrdersList(exp, exp.E.Symbol2, orderType2, exp.E.MagicNumber);
             var orders = sym1Orders.Union(sym2Orders).ToList();
             if (orders.Count(o => o.Lots - (o.Lots / 2).CheckLot() > 0) == 1)
             {
@@ -170,9 +169,8 @@ namespace QvaDev.Experts.Quadro.Services
 
         private void AllCloseLevel(ExpertSetWrapper exp, Sides orderType1, Sides orderType2, Sides spreadOrderType)
         {
-            int magicNumber = _commonService.GetMagicNumberBySpreadOrderType(exp, spreadOrderType);
-            var sym1Orders = _commonService.GetOpenOrdersList(exp, exp.E.Symbol1, orderType1, magicNumber);
-            var sym2Orders = _commonService.GetOpenOrdersList(exp, exp.E.Symbol2, orderType2, magicNumber);
+            var sym1Orders = _commonService.GetOpenOrdersList(exp, exp.E.Symbol1, orderType1, exp.E.MagicNumber);
+            var sym2Orders = _commonService.GetOpenOrdersList(exp, exp.E.Symbol2, orderType2, exp.E.MagicNumber);
             _commonService.SetLastActionPrice(exp, spreadOrderType);
             foreach (var position in sym1Orders.Union(sym2Orders))
                 exp.Connector.SendClosePositionRequests(position);
@@ -181,9 +179,8 @@ namespace QvaDev.Experts.Quadro.Services
         private void FirstAndSecondCloseLevel(ExpertSetWrapper exp, Sides orderType1, Sides orderType2,
             Sides spreadOrderType)
         {
-            int magicNumber = _commonService.GetMagicNumberBySpreadOrderType(exp, spreadOrderType);
-            var sym1Orders = _commonService.GetOpenOrdersList(exp, exp.E.Symbol1, orderType1, magicNumber);
-            var sym2Orders = _commonService.GetOpenOrdersList(exp, exp.E.Symbol2, orderType2, magicNumber);
+            var sym1Orders = _commonService.GetOpenOrdersList(exp, exp.E.Symbol1, orderType1, exp.E.MagicNumber);
+            var sym2Orders = _commonService.GetOpenOrdersList(exp, exp.E.Symbol2, orderType2, exp.E.MagicNumber);
             _commonService.SetLastActionPrice(exp, spreadOrderType);
             foreach (var position in sym1Orders.Union(sym2Orders))
                 exp.Connector.SendClosePositionRequests(position, (position.Lots / 2).CheckLot());

@@ -89,8 +89,8 @@ namespace QvaDev.Data
             var mt4Account1 = MetaTraderAccounts.Add(new MetaTraderAccount()
             {
                 Description = "Aura1",
-                User = 8801894,
-                Password = "s2shqpj",
+                User = 8801925,
+                Password = "y5uzkeb",
                 MetaTraderPlatform = mt4Platform,
                 ShouldConnect = true
             });

@@ -33,8 +33,8 @@ namespace QvaDev.Experts.Quadro.Hedge
         public double CalculateProfit(ExpertSetWrapper exp, Sides spreadOrderType)
         {
             return spreadOrderType == Sides.Buy
-                ? _commonService.CalculateProfit(exp, exp.HedgeBuyMagicNumber, exp.Sym1HedgeMinOrderType, exp.Sym2HedgeMinOrderType)
-                : _commonService.CalculateProfit(exp, exp.HedgeSellMagicNumber, exp.Sym1HedgeMaxOrderType, exp.Sym2HedgeMaxOrderType);
+                ? _commonService.CalculateProfit(exp, exp.HedgeMagicNumber, exp.Sym1HedgeMinOrderType, exp.Sym2HedgeMinOrderType)
+                : _commonService.CalculateProfit(exp, exp.HedgeMagicNumber, exp.Sym1HedgeMaxOrderType, exp.Sym2HedgeMaxOrderType);
         }
 
         private void CheckProfitStop(ExpertSetWrapper exp, Sides spreadOrderType, double profit)
@@ -79,8 +79,8 @@ namespace QvaDev.Experts.Quadro.Hedge
             double lot2 = (sourceLots[1] * exp.E.HedgeRatio).CheckLot();
             if (spreadOrderType == Sides.Sell && exp.E.SellOpenCount > exp.E.HedgeStart && exp.E.SellOpenCount < exp.E.HedgeStop - 1)
             {
-                exp.Connector.SendMarketOrderRequest(exp.E.Symbol1, exp.Sym1HedgeMaxOrderType, lot1, exp.HedgeSellMagicNumber, $"{exp.E.Description} {exp.HedgeSellMagicNumber}");
-                exp.Connector.SendMarketOrderRequest(exp.E.Symbol2, exp.Sym2HedgeMaxOrderType, lot2, exp.HedgeSellMagicNumber, $"{exp.E.Description} {exp.HedgeSellMagicNumber}");
+                exp.Connector.SendMarketOrderRequest(exp.E.Symbol1, exp.Sym1HedgeMaxOrderType, lot1, exp.HedgeMagicNumber, $"{exp.E.Description} {exp.HedgeMagicNumber}");
+                exp.Connector.SendMarketOrderRequest(exp.E.Symbol2, exp.Sym2HedgeMaxOrderType, lot2, exp.HedgeMagicNumber, $"{exp.E.Description} {exp.HedgeMagicNumber}");
                 exp.SellHedgeOpenCount++;
             }
             else if (spreadOrderType == Sides.Sell && exp.E.SellOpenCount >= exp.E.HedgeStop - 1)
@@ -89,8 +89,8 @@ namespace QvaDev.Experts.Quadro.Hedge
             }
             else if (spreadOrderType == Sides.Buy && exp.E.BuyOpenCount > exp.E.HedgeStart && exp.E.BuyOpenCount < exp.E.HedgeStop - 1)
             {
-                exp.Connector.SendMarketOrderRequest(exp.E.Symbol1, exp.Sym1HedgeMinOrderType, lot1, exp.HedgeBuyMagicNumber, $"{exp.E.Description} {exp.HedgeBuyMagicNumber}");
-                exp.Connector.SendMarketOrderRequest(exp.E.Symbol2, exp.Sym2HedgeMinOrderType, lot2, exp.HedgeBuyMagicNumber, $"{exp.E.Description} {exp.HedgeBuyMagicNumber}");
+                exp.Connector.SendMarketOrderRequest(exp.E.Symbol1, exp.Sym1HedgeMinOrderType, lot1, exp.HedgeMagicNumber, $"{exp.E.Description} {exp.HedgeMagicNumber}");
+                exp.Connector.SendMarketOrderRequest(exp.E.Symbol2, exp.Sym2HedgeMinOrderType, lot2, exp.HedgeMagicNumber, $"{exp.E.Description} {exp.HedgeMagicNumber}");
                 exp.BuyHedgeOpenCount++;
             }
             else if (spreadOrderType == Sides.Buy && exp.E.BuyOpenCount > exp.E.HedgeStop)
@@ -102,13 +102,13 @@ namespace QvaDev.Experts.Quadro.Hedge
         private List<Position> GetMaxHedgeOrders(ExpertSetWrapper exp)
         {
             return _commonService.GetOpenOrdersList(exp, exp.E.Symbol1, exp.Sym1HedgeMaxOrderType, exp.E.Symbol2,
-                exp.Sym2HedgeMaxOrderType, exp.HedgeSellMagicNumber);
+                exp.Sym2HedgeMaxOrderType, exp.HedgeMagicNumber);
         }
 
         private List<Position> GetMinHedgeOrders(ExpertSetWrapper exp)
         {
             return _commonService.GetOpenOrdersList(exp, exp.E.Symbol1, exp.Sym1HedgeMinOrderType, exp.E.Symbol2,
-                exp.Sym2HedgeMinOrderType, exp.HedgeBuyMagicNumber);
+                exp.Sym2HedgeMinOrderType, exp.HedgeMagicNumber);
         }
     }
 }

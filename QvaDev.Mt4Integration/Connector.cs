@@ -270,7 +270,7 @@ namespace QvaDev.Mt4Integration
                     if (lastBar != null && args.Time < lastBar.OpenTime.AddMinutes(2 * (int) timeframe)) continue;
 
                     Tick lastTick;
-                    if (_lastTicks.TryGetValue(args.Symbol, out lastTick))
+                    if (_lastTicks.TryGetValue(args.Symbol, out lastTick) && lastTick != null)
                     {
                         var openTime = lastTick.Time.RoundDown(TimeSpan.FromMinutes((int) timeframe));
                         symbolHistory.BarHistory[openTime] =

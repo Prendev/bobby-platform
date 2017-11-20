@@ -126,14 +126,19 @@ namespace QvaDev.Experts.Quadro.Services
 
         private void PreCheckOrders(ExpertSetWrapper exp)
         {
-            if (exp.OpenPositions.All(p => p.MagicNumber != exp.SpreadBuyMagicNumber))
+            if (!exp.OpenPositions.Any(p => p.MagicNumber == exp.E.MagicNumber &&
+                                            (p.Symbol == exp.E.Symbol1 && p.Side == exp.Sym1MinOrderType ||
+                                             p.Symbol == exp.E.Symbol2 && p.Side == exp.Sym2MinOrderType)))
             {
                 exp.E.BuyOpenCount = 0;
                 exp.E.CurrentBuyState = ExpertSet.TradeSetStates.NoTrade;
                 //exp.E.Sym1LastMinActionPrice = 0;
                 //exp.E.Sym2LastMinActionPrice = 0;
             }
-            if (exp.OpenPositions.All(p => p.MagicNumber != exp.SpreadSellMagicNumber))
+
+            if (!exp.OpenPositions.Any(p => p.MagicNumber == exp.E.MagicNumber &&
+                                            (p.Symbol == exp.E.Symbol1 && p.Side == exp.Sym1MaxOrderType ||
+                                             p.Symbol == exp.E.Symbol2 && p.Side == exp.Sym2MaxOrderType)))
             {
                 exp.E.SellOpenCount = 0;
                 exp.E.CurrentSellState = ExpertSet.TradeSetStates.NoTrade;
@@ -182,8 +187,7 @@ namespace QvaDev.Experts.Quadro.Services
         private double GetSumProfit(ExpertSetWrapper exp)
         {
             return exp.Connector.CalculateProfit(exp.E.Symbol1, exp.E.Symbol2,
-                exp.SpreadBuyMagicNumber, exp.SpreadSellMagicNumber,
-                exp.HedgeBuyMagicNumber, exp.HedgeSellMagicNumber);
+                exp.E.MagicNumber, exp.HedgeMagicNumber);
         }
     }
 }

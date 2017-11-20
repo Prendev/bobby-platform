@@ -14,7 +14,6 @@ namespace QvaDev.Experts.Quadro.Services
         List<Position> GetOpenOrdersList(ExpertSetWrapper exp, string symbol1, Sides orderType1,
             string symbol2, Sides orderType2, int magicNumber);
         double BarQuant(ExpertSetWrapper exp, Position p);
-        int GetMagicNumberBySpreadOrderType(ExpertSetWrapper exp, Sides spreadOrderType);
         IEnumerable<Position> GetBaseOpenOrdersList(ExpertSetWrapper exp, Sides spreadOrderType);
         void SetLastActionPrice(ExpertSetWrapper exp, Sides side);
         bool IsInDeltaRange(ExpertSetWrapper exp, Sides side);
@@ -34,8 +33,8 @@ namespace QvaDev.Experts.Quadro.Services
         public double CalculateBaseOrdersProfit(ExpertSetWrapper exp, Sides side)
         {
             return side == Sides.Sell
-                ? CalculateProfit(exp, exp.SpreadSellMagicNumber, exp.Sym1MaxOrderType, exp.Sym2MaxOrderType)
-                : CalculateProfit(exp, exp.SpreadBuyMagicNumber, exp.Sym1MinOrderType, exp.Sym2MinOrderType);
+                ? CalculateProfit(exp, exp.E.MagicNumber, exp.Sym1MaxOrderType, exp.Sym2MaxOrderType)
+                : CalculateProfit(exp, exp.E.MagicNumber, exp.Sym1MinOrderType, exp.Sym2MinOrderType);
         }
 
         public double CalculateProfit(ExpertSetWrapper exp, int magicNumber, Sides orderType1, Sides orderType2)
@@ -74,18 +73,13 @@ namespace QvaDev.Experts.Quadro.Services
             return new DateTime(dt.Ticks - delta, dt.Kind);
         }
 
-        public int GetMagicNumberBySpreadOrderType(ExpertSetWrapper exp, Sides spreadOrderType)
-        {
-            return spreadOrderType != Sides.Buy ? exp.SpreadSellMagicNumber : exp.SpreadBuyMagicNumber;
-        }
-
         public IEnumerable<Position> GetBaseOpenOrdersList(ExpertSetWrapper exp, Sides spreadOrderType)
         {
             var orders = spreadOrderType != Sides.Buy
                 ? GetOpenOrdersList(exp, exp.E.Symbol1, exp.Sym1MaxOrderType, exp.E.Symbol2, exp.Sym2MaxOrderType,
-                    exp.SpreadSellMagicNumber)
+                    exp.E.MagicNumber)
                 : GetOpenOrdersList(exp, exp.E.Symbol1, exp.Sym1MinOrderType, exp.E.Symbol2, exp.Sym2MinOrderType,
-                    exp.SpreadBuyMagicNumber);
+                    exp.E.MagicNumber);
             return orders;
         }
 

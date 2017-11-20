@@ -33,16 +33,11 @@ namespace QvaDev.Experts.Quadro.Models
         public IEnumerable<Position> OpenPositions =>
             E.TradingAccount.MetaTraderAccount.Connector.Positions.Select(p => p.Value)
                 .Where(p => p.Symbol == E.Symbol1 || p.Symbol == E.Symbol2)
-                .Where(p => p.MagicNumber == SpreadBuyMagicNumber ||
-                            p.MagicNumber == SpreadSellMagicNumber ||
-                            p.MagicNumber == HedgeBuyMagicNumber ||
-                            p.MagicNumber == HedgeSellMagicNumber)
+                .Where(p => p.MagicNumber == E.MagicNumber ||
+                            p.MagicNumber == HedgeMagicNumber)
                 .Where(p => !p.IsClosed);
 
-        public int SpreadBuyMagicNumber => E.MagicNumber;
-        public int SpreadSellMagicNumber => E.MagicNumber + 1;
-        public int HedgeBuyMagicNumber => E.MagicNumber + 2;
-        public int HedgeSellMagicNumber => E.MagicNumber + 3;
+        public int HedgeMagicNumber => E.MagicNumber + 2;
 
         public SortedDictionary<DateTime, BarQuant> BarQuants { get; set; } = new SortedDictionary<DateTime, BarQuant>();
         public int BuyHedgeOpenCount { get; set; }

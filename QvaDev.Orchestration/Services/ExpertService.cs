@@ -87,8 +87,8 @@ namespace QvaDev.Orchestration.Services
                 foreach (var expertSet in tradingAccount.ExpertSets)
                 {
                     expertSet.TradeOpeningEnabled = false;
-                    _log.Debug(
-                        $"{expertSet.Description}: TradeOpeningEnabled set to FALSE because of TradeSetFloatingSwitch");
+                    //_log.Debug(
+                    //    $"{expertSet.Description}: TradeOpeningEnabled set to FALSE because of TradeSetFloatingSwitch");
                 }
             }
 

@@ -36,14 +36,14 @@ namespace QvaDev.Experts.Quadro.Services
             if (_commonService.IsInDeltaRange(exp, Sides.Sell)) return;
             if (exp.QuantStoAvg < exp.StochMaxAvgOpen || exp.QuantWprAvg <= -exp.WprMinAvgOpen) return;
             if (exp.E.SellOpenCount >= exp.E.MaxTradeSetCount || !EnableLast24Filter(exp, Sides.Sell, 2)) return;
-            var o1 = LastOrder(exp, exp.E.Symbol1, exp.Sym1MaxOrderType, exp.SpreadSellMagicNumber);
-            var o2 = LastOrder(exp, exp.E.Symbol2, exp.Sym2MaxOrderType, exp.SpreadSellMagicNumber);
+            var o1 = LastOrder(exp, exp.E.Symbol1, exp.Sym1MaxOrderType);
+            var o2 = LastOrder(exp, exp.E.Symbol2, exp.Sym2MaxOrderType);
             if (o1 == null || o2 == null) return;
 
             int buyReopenDiff = GetReopenDiff(exp, exp.E.BuyOpenCount);
             if (exp.LatestBarQuant.Quant < _commonService.BarQuant(exp, o1) + buyReopenDiff * exp.Point) return;
             if (exp.LatestBarQuant.Quant < _commonService.BarQuant(exp, o2) + buyReopenDiff * exp.Point) return;
-            _log.Debug($"{exp.E.Description}: ReentriesService.CalculateReentriesForForMaxAction => {exp.SpreadSellMagicNumber}");
+            _log.Debug($"{exp.E.Description}: ReentriesService.CalculateReentriesForForMaxAction => {exp.E.MagicNumber}");
 
             CorrectLotArrayIfNeeded(exp, Sides.Sell);
             double lot1 = exp.SellLots[exp.E.SellOpenCount, 1].CheckLot();
@@ -51,8 +51,8 @@ namespace QvaDev.Experts.Quadro.Services
 
             exp.E.SellOpenCount++;
             _commonService.SetLastActionPrice(exp, Sides.Sell);
-            exp.Connector.SendMarketOrderRequest(exp.E.Symbol1, exp.Sym1MaxOrderType, lot1, exp.SpreadSellMagicNumber, $"{exp.E.Description} {exp.SpreadSellMagicNumber}");
-            exp.Connector.SendMarketOrderRequest(exp.E.Symbol2, exp.Sym2MaxOrderType, lot2, exp.SpreadSellMagicNumber, $"{exp.E.Description} {exp.SpreadSellMagicNumber}");
+            exp.Connector.SendMarketOrderRequest(exp.E.Symbol1, exp.Sym1MaxOrderType, lot1, exp.E.MagicNumber, $"{exp.E.Description} {exp.E.MagicNumber}");
+            exp.Connector.SendMarketOrderRequest(exp.E.Symbol2, exp.Sym2MaxOrderType, lot2, exp.E.MagicNumber, $"{exp.E.Description} {exp.E.MagicNumber}");
         }
 
         private void CalculateReentriesForMinAction(ExpertSetWrapper exp)
@@ -60,14 +60,14 @@ namespace QvaDev.Experts.Quadro.Services
             if (_commonService.IsInDeltaRange(exp, Sides.Buy)) return;
             if (exp.QuantStoAvg > exp.StochMinAvgOpen || exp.QuantWprAvg >= -exp.WprMaxAvgOpen) return;
             if (exp.E.BuyOpenCount >= exp.E.MaxTradeSetCount || !EnableLast24Filter(exp, Sides.Buy, 2)) return;
-            var o1 = LastOrder(exp, exp.E.Symbol1, exp.Sym1MinOrderType, exp.SpreadBuyMagicNumber);
-            var o2 = LastOrder(exp, exp.E.Symbol2, exp.Sym2MinOrderType, exp.SpreadBuyMagicNumber);
+            var o1 = LastOrder(exp, exp.E.Symbol1, exp.Sym1MinOrderType);
+            var o2 = LastOrder(exp, exp.E.Symbol2, exp.Sym2MinOrderType);
             if (o1 == null || o2 == null) return;
 
             int sellReopenDiff = GetReopenDiff(exp, exp.E.SellOpenCount);
             if (exp.LatestBarQuant.Quant > _commonService.BarQuant(exp, o1) - sellReopenDiff * exp.Point) return;
             if (exp.LatestBarQuant.Quant > _commonService.BarQuant(exp, o2) - sellReopenDiff * exp.Point) return;
-            _log.Debug($"{exp.E.Description}: ReentriesService.CalculateReentriesForMinAction => {exp.SpreadBuyMagicNumber}");
+            _log.Debug($"{exp.E.Description}: ReentriesService.CalculateReentriesForMinAction => {exp.E.MagicNumber}");
 
             CorrectLotArrayIfNeeded(exp, Sides.Buy);
             double lot1 = exp.BuyLots[exp.E.BuyOpenCount, 1].CheckLot();
@@ -75,8 +75,8 @@ namespace QvaDev.Experts.Quadro.Services
 
             exp.E.BuyOpenCount++;
             _commonService.SetLastActionPrice(exp, Sides.Buy);
-            exp.Connector.SendMarketOrderRequest(exp.E.Symbol1, exp.Sym1MinOrderType, lot1, exp.SpreadBuyMagicNumber, $"{exp.E.Description} {exp.SpreadBuyMagicNumber}");
-            exp.Connector.SendMarketOrderRequest(exp.E.Symbol2, exp.Sym2MinOrderType, lot2, exp.SpreadBuyMagicNumber, $"{exp.E.Description} {exp.SpreadBuyMagicNumber}");
+            exp.Connector.SendMarketOrderRequest(exp.E.Symbol1, exp.Sym1MinOrderType, lot1, exp.E.MagicNumber, $"{exp.E.Description} {exp.E.MagicNumber}");
+            exp.Connector.SendMarketOrderRequest(exp.E.Symbol2, exp.Sym2MinOrderType, lot2, exp.E.MagicNumber, $"{exp.E.Description} {exp.E.MagicNumber}");
         }
 
         private bool EnableLast24Filter(ExpertSetWrapper exp, Sides spreadOrderType, int numOfTradePerOpen)
@@ -86,9 +86,9 @@ namespace QvaDev.Experts.Quadro.Services
                        .ToList().Count < numOfTradePerOpen * exp.E.Last24HMaxOpen;
         }
 
-        private Position LastOrder(ExpertSetWrapper exp, string symbol, Sides orderType, int magicNumber)
+        private Position LastOrder(ExpertSetWrapper exp, string symbol, Sides orderType)
         {
-            return _commonService.GetOpenOrdersList(exp, symbol, orderType, magicNumber).OrderByDescending(p => p.OpenTime).FirstOrDefault();
+            return _commonService.GetOpenOrdersList(exp, symbol, orderType, exp.E.MagicNumber).OrderByDescending(p => p.OpenTime).FirstOrDefault();
         }
 
         private int GetReopenDiff(ExpertSetWrapper exp, int openCount)
@@ -100,22 +100,19 @@ namespace QvaDev.Experts.Quadro.Services
         {
             Sides sym1OrderType;
             double[,] lotArray;
-            int magicNumber;
             if (spreadOrderType == Sides.Buy)
             {
                 sym1OrderType = exp.Sym1MinOrderType;
                 lotArray = exp.BuyLots;
-                magicNumber = exp.SpreadBuyMagicNumber;
             }
             else
             {
                 sym1OrderType = exp.Sym1MaxOrderType;
                 lotArray = exp.SellLots;
-                magicNumber = exp.SpreadSellMagicNumber;
             }
 
             double firstLot = lotArray[0, 1];
-            var firstOrder = FirstOrder(exp, exp.E.Symbol1, sym1OrderType, magicNumber);
+            var firstOrder = FirstOrder(exp, exp.E.Symbol1, sym1OrderType, exp.E.MagicNumber);
             
             if (firstOrder != null && Math.Abs(firstOrder.Lots - firstLot) >= 1E-05)
                 MultiplyLotArray(lotArray, firstOrder.Lots / firstLot);
