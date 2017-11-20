@@ -177,7 +177,17 @@ namespace QvaDev.Duplicat.ViewModel
         }
         public void BalanceReportCommand(DateTime from, DateTime to)
         {
-            _orchestrator.BalanceReport(from, to);
+            using (var sfd = new SaveFileDialog
+            {
+                Filter = "Excel file (*.xlsx)|*.xlsx",
+                FilterIndex = 1,
+                RestoreDirectory = true,
+                InitialDirectory = AppDomain.CurrentDomain.GetData("DataDirectory").ToString()
+            })
+            {
+                if (sfd.ShowDialog() != DialogResult.OK) return;
+                _orchestrator.BalanceReport(from, to, sfd.FileName);
+            }
         }
 
         public void StartExpertsCommand()

@@ -14,7 +14,7 @@ namespace QvaDev.Orchestration.Services
 {
     public interface IBalanceReportService
     {
-        void Report(Monitor alphaMonitor, Monitor betaMonitor, DateTime from, DateTime to);
+        void Report(Monitor alphaMonitor, Monitor betaMonitor, DateTime from, DateTime to, string reportPath);
     }
 
     public class BalanceReportService : IBalanceReportService
@@ -41,7 +41,7 @@ namespace QvaDev.Orchestration.Services
             _exchangeRatesService = exchangeRatesService;
         }
 
-        public void Report(Monitor alphaMonitor, Monitor betaMonitor, DateTime from, DateTime to)
+        public void Report(Monitor alphaMonitor, Monitor betaMonitor, DateTime from, DateTime to, string reportPath)
         {
             _log.Debug("Balance report is in progress...");
             CTraderIntegration.Connector.BalanceAccounts = new ConcurrentDictionary<string, Lazy<List<AccountData>>>();
@@ -76,17 +76,11 @@ namespace QvaDev.Orchestration.Services
             }
 
             var rates = _exchangeRatesService.GetRates(ConfigurationManager.AppSettings["OpenExchangeRatesAppId"]);
-
             var sideA = balances.Where(b => b.AccountGroup == BalanceReportData.AccountGroups.Alpha).OrderBy(b => b.Account);
             var sideB = balances.Where(b => b.AccountGroup == BalanceReportData.AccountGroups.Beta).OrderBy(b => b.Account);
             var sideAlphaSum = sideA.Sum(b => ConvertToBaseCurrency(b, rates));
             var sideBetaSum = sideB.Sum(b => ConvertToBaseCurrency(b, rates));
-
             var templatePath = $@"{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}\Templates\BalanceReport.xlsx";
-            //var reportPath = string.IsNullOrWhiteSpace(_config.ReportFolder)
-            //    ? Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) : _config.ReportFolder;
-            var reportPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            reportPath = $@"{reportPath}\BalanceReport_{DateTime.UtcNow:yyyyMMdd}.xlsx";
 
             using (var stream = new FileStream(reportPath, FileMode.OpenOrCreate, FileAccess.ReadWrite))
             {
