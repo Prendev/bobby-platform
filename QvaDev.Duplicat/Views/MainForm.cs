@@ -41,6 +41,8 @@ namespace QvaDev.Duplicat.Views
             DataBindings.Add(titleBinding);
 
             btnSave.Click += (s, e) => { _viewModel.SaveCommand(); };
+            btnBackup.Click += (s, e) => { _viewModel.BackupCommand(); };
+            btnRestore.Click += (s, e) => { _viewModel.RestoreCommand(); };
             tabControlMain.SelectedIndexChanged += (s, e) =>
             {
                 if (tabControlMain.SelectedTab.Name == tabPageCopier.Name) copiersUserControl.FilterRows();

@@ -2,6 +2,8 @@
 using System.Configuration;
 using System.Diagnostics;
 using System.Linq;
+using System.Windows.Forms;
+using QvaDev.Data;
 using QvaDev.Data.Models;
 
 namespace QvaDev.Duplicat.ViewModel
@@ -12,6 +14,57 @@ namespace QvaDev.Duplicat.ViewModel
         {
             _duplicatContext.SaveChanges();
         }
+
+        public void BackupCommand()
+        {
+            using (var sfd = new SaveFileDialog
+            {
+                Filter = "Backup file (*.bak)|*.bak",
+                FilterIndex = 1,
+                RestoreDirectory = true,
+                InitialDirectory = AppDomain.CurrentDomain.GetData("DataDirectory").ToString()
+            })
+            {
+                if (sfd.ShowDialog() != DialogResult.OK) return;
+                var backupPath = sfd.FileName;
+
+                using (var context = new DuplicatContext())
+                {
+                    var dbName = context.Database.SqlQuery<string>("SELECT DB_NAME()").First();
+                    string sqlCommand =
+                        $"BACKUP DATABASE {dbName} TO  DISK = N'{backupPath}'";
+                    context.Database.ExecuteSqlCommand(System.Data.Entity.TransactionalBehavior.DoNotEnsureTransaction, sqlCommand);
+                    _log.Debug($"Database ({dbName}) backup is ready at {backupPath}");
+                }
+            }
+        }
+
+        public void RestoreCommand()
+        {
+            _log.Debug($"Database restore is not yet implemented!!!");
+            return;
+            using (var sfd = new OpenFileDialog
+            {
+                Filter = "Backup file (*.bak)|*.bak",
+                FilterIndex = 1,
+                RestoreDirectory = true,
+                InitialDirectory = AppDomain.CurrentDomain.GetData("DataDirectory").ToString()
+            })
+            {
+                if (sfd.ShowDialog() != DialogResult.OK) return;
+                var backupPath = sfd.FileName;
+
+                using (var context = new DuplicatContext())
+                {
+                    var dbName = context.Database.SqlQuery<string>("SELECT DB_NAME()").First();
+                    string sqlCommand =
+                        $"RESTORE DATABASE {dbName} TO  DISK = N'{backupPath}'";
+                    context.Database.ExecuteSqlCommand(System.Data.Entity.TransactionalBehavior.DoNotEnsureTransaction, sqlCommand);
+                    _log.Debug($"Database ({dbName}) restore is ready from {backupPath}");
+                }
+            }
+        }
+
         public void ConnectCommand()
         {
             IsLoading = true;

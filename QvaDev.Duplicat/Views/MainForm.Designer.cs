@@ -30,15 +30,10 @@
         {
             this.tabControlMain = new System.Windows.Forms.TabControl();
             this.tabPageProfileAndGroup = new System.Windows.Forms.TabPage();
-            this.profilesUserControl = new QvaDev.Duplicat.Views.ProfilesUserControl();
             this.tabPageMt4 = new System.Windows.Forms.TabPage();
-            this.mtAccountsUserControl = new QvaDev.Duplicat.Views.MtAccountsUserControl();
             this.tabPageCTrader = new System.Windows.Forms.TabPage();
-            this.ctAccountsUserControl = new QvaDev.Duplicat.Views.CtAccountsUserControl();
             this.tabPageCopier = new System.Windows.Forms.TabPage();
-            this.copiersUserControl = new QvaDev.Duplicat.Views.CopiersUserControl();
             this.tabPageMonitor = new System.Windows.Forms.TabPage();
-            this.monitorsUserControl = new QvaDev.Duplicat.Views.MonitorsUserControl();
             this.tabPageExperts = new System.Windows.Forms.TabPage();
             this.tabPageLog = new System.Windows.Forms.TabPage();
             this.textBoxLog = new System.Windows.Forms.TextBox();
@@ -47,7 +42,14 @@
             this.btnDisconnect = new System.Windows.Forms.Button();
             this.btnConnect = new System.Windows.Forms.Button();
             this.btnSave = new System.Windows.Forms.Button();
+            this.btnBackup = new System.Windows.Forms.Button();
+            this.profilesUserControl = new QvaDev.Duplicat.Views.ProfilesUserControl();
+            this.mtAccountsUserControl = new QvaDev.Duplicat.Views.MtAccountsUserControl();
+            this.ctAccountsUserControl = new QvaDev.Duplicat.Views.CtAccountsUserControl();
+            this.copiersUserControl = new QvaDev.Duplicat.Views.CopiersUserControl();
+            this.monitorsUserControl = new QvaDev.Duplicat.Views.MonitorsUserControl();
             this.expertsUserControl = new QvaDev.Duplicat.Views.ExpertsUserControl();
+            this.btnRestore = new System.Windows.Forms.Button();
             this.tabControlMain.SuspendLayout();
             this.tabPageProfileAndGroup.SuspendLayout();
             this.tabPageMt4.SuspendLayout();
@@ -87,14 +89,6 @@
             this.tabPageProfileAndGroup.Text = "Profiles and Groups";
             this.tabPageProfileAndGroup.UseVisualStyleBackColor = true;
             // 
-            // profilesUserControl
-            // 
-            this.profilesUserControl.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.profilesUserControl.Location = new System.Drawing.Point(3, 3);
-            this.profilesUserControl.Name = "profilesUserControl";
-            this.profilesUserControl.Size = new System.Drawing.Size(1032, 475);
-            this.profilesUserControl.TabIndex = 0;
-            // 
             // tabPageMt4
             // 
             this.tabPageMt4.Controls.Add(this.mtAccountsUserControl);
@@ -105,14 +99,6 @@
             this.tabPageMt4.TabIndex = 1;
             this.tabPageMt4.Text = "MT4 accounts";
             this.tabPageMt4.UseVisualStyleBackColor = true;
-            // 
-            // mtAccountsUserControl
-            // 
-            this.mtAccountsUserControl.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.mtAccountsUserControl.Location = new System.Drawing.Point(3, 3);
-            this.mtAccountsUserControl.Name = "mtAccountsUserControl";
-            this.mtAccountsUserControl.Size = new System.Drawing.Size(1032, 475);
-            this.mtAccountsUserControl.TabIndex = 0;
             // 
             // tabPageCTrader
             // 
@@ -125,14 +111,6 @@
             this.tabPageCTrader.Text = "cTrader accounts";
             this.tabPageCTrader.UseVisualStyleBackColor = true;
             // 
-            // ctAccountsUserControl
-            // 
-            this.ctAccountsUserControl.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.ctAccountsUserControl.Location = new System.Drawing.Point(3, 3);
-            this.ctAccountsUserControl.Name = "ctAccountsUserControl";
-            this.ctAccountsUserControl.Size = new System.Drawing.Size(1032, 475);
-            this.ctAccountsUserControl.TabIndex = 0;
-            // 
             // tabPageCopier
             // 
             this.tabPageCopier.Controls.Add(this.copiersUserControl);
@@ -144,14 +122,6 @@
             this.tabPageCopier.Text = "Copiers";
             this.tabPageCopier.UseVisualStyleBackColor = true;
             // 
-            // copiersUserControl
-            // 
-            this.copiersUserControl.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.copiersUserControl.Location = new System.Drawing.Point(3, 3);
-            this.copiersUserControl.Name = "copiersUserControl";
-            this.copiersUserControl.Size = new System.Drawing.Size(1032, 475);
-            this.copiersUserControl.TabIndex = 0;
-            // 
             // tabPageMonitor
             // 
             this.tabPageMonitor.Controls.Add(this.monitorsUserControl);
@@ -162,14 +132,6 @@
             this.tabPageMonitor.TabIndex = 5;
             this.tabPageMonitor.Text = "Monitors";
             this.tabPageMonitor.UseVisualStyleBackColor = true;
-            // 
-            // monitorsUserControl
-            // 
-            this.monitorsUserControl.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.monitorsUserControl.Location = new System.Drawing.Point(3, 3);
-            this.monitorsUserControl.Name = "monitorsUserControl";
-            this.monitorsUserControl.Size = new System.Drawing.Size(1032, 475);
-            this.monitorsUserControl.TabIndex = 0;
             // 
             // tabPageExperts
             // 
@@ -221,6 +183,8 @@
             // 
             // gbControl
             // 
+            this.gbControl.Controls.Add(this.btnRestore);
+            this.gbControl.Controls.Add(this.btnBackup);
             this.gbControl.Controls.Add(this.btnDisconnect);
             this.gbControl.Controls.Add(this.btnConnect);
             this.gbControl.Controls.Add(this.btnSave);
@@ -261,6 +225,55 @@
             this.btnSave.Text = "Save config changes";
             this.btnSave.UseVisualStyleBackColor = true;
             // 
+            // btnBackup
+            // 
+            this.btnBackup.Location = new System.Drawing.Point(165, 19);
+            this.btnBackup.Name = "btnBackup";
+            this.btnBackup.Size = new System.Drawing.Size(150, 23);
+            this.btnBackup.TabIndex = 20;
+            this.btnBackup.Text = "Backup database";
+            this.btnBackup.UseVisualStyleBackColor = true;
+            // 
+            // profilesUserControl
+            // 
+            this.profilesUserControl.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.profilesUserControl.Location = new System.Drawing.Point(3, 3);
+            this.profilesUserControl.Name = "profilesUserControl";
+            this.profilesUserControl.Size = new System.Drawing.Size(1032, 475);
+            this.profilesUserControl.TabIndex = 0;
+            // 
+            // mtAccountsUserControl
+            // 
+            this.mtAccountsUserControl.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.mtAccountsUserControl.Location = new System.Drawing.Point(3, 3);
+            this.mtAccountsUserControl.Name = "mtAccountsUserControl";
+            this.mtAccountsUserControl.Size = new System.Drawing.Size(1032, 475);
+            this.mtAccountsUserControl.TabIndex = 0;
+            // 
+            // ctAccountsUserControl
+            // 
+            this.ctAccountsUserControl.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.ctAccountsUserControl.Location = new System.Drawing.Point(3, 3);
+            this.ctAccountsUserControl.Name = "ctAccountsUserControl";
+            this.ctAccountsUserControl.Size = new System.Drawing.Size(1032, 475);
+            this.ctAccountsUserControl.TabIndex = 0;
+            // 
+            // copiersUserControl
+            // 
+            this.copiersUserControl.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.copiersUserControl.Location = new System.Drawing.Point(3, 3);
+            this.copiersUserControl.Name = "copiersUserControl";
+            this.copiersUserControl.Size = new System.Drawing.Size(1032, 475);
+            this.copiersUserControl.TabIndex = 0;
+            // 
+            // monitorsUserControl
+            // 
+            this.monitorsUserControl.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.monitorsUserControl.Location = new System.Drawing.Point(3, 3);
+            this.monitorsUserControl.Name = "monitorsUserControl";
+            this.monitorsUserControl.Size = new System.Drawing.Size(1032, 475);
+            this.monitorsUserControl.TabIndex = 0;
+            // 
             // expertsUserControl
             // 
             this.expertsUserControl.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -268,6 +281,15 @@
             this.expertsUserControl.Name = "expertsUserControl";
             this.expertsUserControl.Size = new System.Drawing.Size(1032, 475);
             this.expertsUserControl.TabIndex = 0;
+            // 
+            // btnRestore
+            // 
+            this.btnRestore.Location = new System.Drawing.Point(321, 19);
+            this.btnRestore.Name = "btnRestore";
+            this.btnRestore.Size = new System.Drawing.Size(150, 23);
+            this.btnRestore.TabIndex = 21;
+            this.btnRestore.Text = "Restore database";
+            this.btnRestore.UseVisualStyleBackColor = true;
             // 
             // MainForm
             // 
@@ -322,6 +344,8 @@
         private MtAccountsUserControl mtAccountsUserControl;
         private CtAccountsUserControl ctAccountsUserControl;
         private ExpertsUserControl expertsUserControl;
+        private System.Windows.Forms.Button btnBackup;
+        private System.Windows.Forms.Button btnRestore;
     }
 }
 

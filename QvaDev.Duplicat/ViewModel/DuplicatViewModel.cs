@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Data.Entity;
 using System.Linq;
+using log4net;
 using QvaDev.Common.Services;
 using QvaDev.Data;
 using QvaDev.Data.Models;
@@ -16,6 +17,7 @@ namespace QvaDev.Duplicat.ViewModel
         private DuplicatContext _duplicatContext;
         private readonly IOrchestrator _orchestrator;
         private readonly IXmlService _xmlService;
+        private readonly ILog _log;
 
         public ObservableCollection<MetaTraderPlatform> MtPlatforms { get; private set;  }
         public ObservableCollection<CTraderPlatform> CtPlatforms { get; private set; }
@@ -49,9 +51,11 @@ namespace QvaDev.Duplicat.ViewModel
         public int SelectedTradingAccountId { get => Get<int>(); set => Set(value); }
 
         public DuplicatViewModel(
+            ILog log,
             IOrchestrator orchestrator,
             IXmlService xmlService)
         {
+            _log = log;
             _xmlService = xmlService;
             _orchestrator = orchestrator;
             PropertyChanged += DuplicatViewModel_PropertyChanged;
