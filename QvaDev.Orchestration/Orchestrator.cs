@@ -21,7 +21,7 @@ namespace QvaDev.Orchestration
         void StopExperts();
         Task Connect(DuplicatContext duplicatContext);
         Task Disconnect();
-        Task BalanceReport(DateTime from);
+        Task BalanceReport(DateTime from, DateTime to);
     }
 
     public class Orchestrator : IOrchestrator
@@ -181,14 +181,14 @@ namespace QvaDev.Orchestration
             _copierService.Stop();
         }
 
-        public Task BalanceReport(DateTime from)
+        public Task BalanceReport(DateTime from, DateTime to)
         {
             return Task.Factory.StartNew(() =>
             {
                 _balanceReportService.Report(
                     _duplicatContext.Monitors.Local.FirstOrDefault(m => m.Id == SelectedAlphaMonitorId),
                     _duplicatContext.Monitors.Local.FirstOrDefault(m => m.Id == SelectedBetaMonitorId),
-                    from);
+                    from, to);
             });
         }
 

@@ -163,7 +163,7 @@ namespace QvaDev.Mt4Integration
             return !IsConnected ? 0 : QuoteClient.AccountProfit;
         }
 
-        public double GetPnl(DateTime from)
+        public double GetPnl(DateTime from, DateTime to)
         {
             if (!IsConnected) return 0;
             return QuoteClient.DownloadOrderHistory(from, DateTime.Now.AddDays(1))

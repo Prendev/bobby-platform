@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.Data.Entity;
 using System.Drawing;
 using System.Windows.Forms;
@@ -33,7 +34,7 @@ namespace QvaDev.Duplicat.Views
             btnStart.Click += (s, e) => { _viewModel.StartMonitorsCommand(); };
             btnStop.Click += (s, e) => { _viewModel.StopMonitorsCommand(); };
 
-            btnBalanceReport.Click += (s, e) => { _viewModel.BalanceReportCommand(dtpBalanceReport.Value.Date); };
+            btnBalanceReport.Click += (s, e) => { _viewModel.BalanceReportCommand(dtpFrom.Value.Date, dtpTo.Value.Date); };
 
             dgvMonitors.DefaultValuesNeeded += (s, e) =>
             {
@@ -83,6 +84,8 @@ namespace QvaDev.Duplicat.Views
                 FilterMonitoredAccountRows(dgvBetaMasters, true);
                 FilterMonitoredAccountRows(dgvBetaAccounts, false);
             };
+            dtpFrom.Value = DateTime.UtcNow.Date.AddDays(-7);
+            dtpTo.Value = DateTime.UtcNow.Date;
         }
 
         public void AttachDataSources()

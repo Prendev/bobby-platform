@@ -9,7 +9,7 @@ namespace QvaDev.CTraderIntegration
 {
     public interface IRestService
     {
-        T Get<T>(string resource, string accessToken, string baseUrl, long fromTimestamp = 0) where T : new();
+        T Get<T>(string resource, string accessToken, string baseUrl, long fromTimestamp = 0, long toTimestamp = 0) where T : new();
         Task<T> GetAsync<T>(string resource, string accessToken, string baseUrl) where T : new();
     }
 
@@ -24,7 +24,8 @@ namespace QvaDev.CTraderIntegration
             _log = log;
         }
 
-        public T Get<T>(string resource, string accessToken, string baseUrl, long fromTimestamp = 0) where T : new()
+        public T Get<T>(string resource, string accessToken, string baseUrl,
+            long fromTimestamp = 0, long toTimestamp = 0) where T : new()
         {
             var request = new RestRequest
             {
@@ -34,6 +35,7 @@ namespace QvaDev.CTraderIntegration
             if (fromTimestamp > 0)
             {
                 request.AddQueryParameter("fromTimestamp", fromTimestamp.ToString());
+                request.AddQueryParameter("toTimestamp", toTimestamp.ToString());
                 request.AddQueryParameter("limit ", 750.ToString());
             }
             return Execute<T>(request, baseUrl);

@@ -106,9 +106,9 @@ namespace QvaDev.Duplicat.ViewModel
             _orchestrator.StopMonitors();
             AreMonitorsStarted = false;
         }
-        public void BalanceReportCommand(DateTime from)
+        public void BalanceReportCommand(DateTime from, DateTime to)
         {
-            _orchestrator.BalanceReport(from);
+            _orchestrator.BalanceReport(from, to);
         }
 
         public void StartExpertsCommand()

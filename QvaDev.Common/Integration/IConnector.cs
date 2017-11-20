@@ -14,7 +14,7 @@ namespace QvaDev.Common.Integration
         long GetOpenContracts(string symbol);
         double GetBalance();
         double GetFloatingProfit();
-        double GetPnl(DateTime from);
+        double GetPnl(DateTime from, DateTime to);
         string GetCurrency();
         int GetDigits(string symbol);
         double GetPoint(string symbol);

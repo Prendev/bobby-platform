@@ -46,7 +46,8 @@ namespace QvaDev.CTraderIntegration.Services
         {
             return _restService.Get<ListResponse<DealData>>(
                 $"connect/tradingaccounts/{request.AccountId}/deals",
-                request.AccessToken, request.BaseUrl, ConvertToUnixTimestamp(request.From)).data;
+                request.AccessToken, request.BaseUrl,
+                ConvertToUnixTimestamp(request.From), ConvertToUnixTimestamp(request.To)).data;
         }
 
         private long ConvertToUnixTimestamp(DateTime date)

@@ -14,7 +14,7 @@ namespace QvaDev.Orchestration.Services
 {
     public interface IBalanceReportService
     {
-        void Report(Monitor alphaMonitor, Monitor betaMonitor, DateTime from);
+        void Report(Monitor alphaMonitor, Monitor betaMonitor, DateTime from, DateTime to);
     }
 
     public class BalanceReportService : IBalanceReportService
@@ -41,7 +41,7 @@ namespace QvaDev.Orchestration.Services
             _exchangeRatesService = exchangeRatesService;
         }
 
-        public void Report(Monitor alphaMonitor, Monitor betaMonitor, DateTime from)
+        public void Report(Monitor alphaMonitor, Monitor betaMonitor, DateTime from, DateTime to)
         {
             _log.Debug("Balance report is in progress...");
             CTraderIntegration.Connector.BalanceAccounts = new ConcurrentDictionary<string, Lazy<List<AccountData>>>();
@@ -56,7 +56,7 @@ namespace QvaDev.Orchestration.Services
                     AccountGroup = BalanceReportData.AccountGroups.Alpha,
                     Account = monitoredAccount.CTraderAccount?.AccountNumber ?? monitoredAccount.MetaTraderAccount?.User ?? 0,
                     Balance = connector?.GetBalance() ?? 0,
-                    Pnl = connector?.GetPnl(from) ?? 0,
+                    Pnl = connector?.GetPnl(from, to) ?? 0,
                     Currency = connector?.GetCurrency() ?? ""
                 });
             }
@@ -70,7 +70,7 @@ namespace QvaDev.Orchestration.Services
                     AccountGroup = BalanceReportData.AccountGroups.Beta,
                     Account = monitoredAccount.CTraderAccount?.AccountNumber ?? monitoredAccount.MetaTraderAccount?.User ?? 0,
                     Balance = connector?.GetBalance() ?? 0,
-                    Pnl = connector?.GetPnl(from) ?? 0,
+                    Pnl = connector?.GetPnl(from, to) ?? 0,
                     Currency = connector?.GetCurrency() ?? ""
                 });
             }

@@ -128,7 +128,7 @@ namespace QvaDev.CTraderIntegration
             throw new NotImplementedException();
         }
 
-        public double GetPnl(DateTime from)
+        public double GetPnl(DateTime from, DateTime to)
         {
             if (!IsConnected) return 0;
             Thread.Sleep(2000);
@@ -137,7 +137,8 @@ namespace QvaDev.CTraderIntegration
                 AccessToken = _accountInfo.AccessToken,
                 BaseUrl = _cTraderClientWrapper.PlatformInfo.AccountsApi,
                 AccountId = AccountId,
-                From = from
+                From = from,
+                To = to
             });
             return (double) deals.Sum(deal => deal.GetNetProfit());
         }

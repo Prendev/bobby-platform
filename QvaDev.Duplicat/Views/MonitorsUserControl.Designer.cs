@@ -40,12 +40,13 @@
             this.gbControl = new System.Windows.Forms.GroupBox();
             this.btnStop = new System.Windows.Forms.Button();
             this.btnStart = new System.Windows.Forms.Button();
-            this.dtpBalanceReport = new System.Windows.Forms.DateTimePicker();
+            this.dtpFrom = new System.Windows.Forms.DateTimePicker();
             this.btnBalanceReport = new System.Windows.Forms.Button();
             this.btnLoadBeta = new System.Windows.Forms.Button();
             this.btnLoadAlpha = new System.Windows.Forms.Button();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.dgvMonitors = new QvaDev.Duplicat.Views.CustomDataGridView();
+            this.dtpTo = new System.Windows.Forms.DateTimePicker();
             this.tlpMain.SuspendLayout();
             this.groupBox16.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvBetaMasters)).BeginInit();
@@ -172,9 +173,10 @@
             // 
             // gbControl
             // 
+            this.gbControl.Controls.Add(this.dtpTo);
             this.gbControl.Controls.Add(this.btnStop);
             this.gbControl.Controls.Add(this.btnStart);
-            this.gbControl.Controls.Add(this.dtpBalanceReport);
+            this.gbControl.Controls.Add(this.dtpFrom);
             this.gbControl.Controls.Add(this.btnBalanceReport);
             this.gbControl.Controls.Add(this.btnLoadBeta);
             this.gbControl.Controls.Add(this.btnLoadAlpha);
@@ -204,13 +206,13 @@
             this.btnStart.Text = "Start";
             this.btnStart.UseVisualStyleBackColor = true;
             // 
-            // dtpBalanceReport
+            // dtpFrom
             // 
-            this.dtpBalanceReport.Format = System.Windows.Forms.DateTimePickerFormat.Short;
-            this.dtpBalanceReport.Location = new System.Drawing.Point(162, 80);
-            this.dtpBalanceReport.Name = "dtpBalanceReport";
-            this.dtpBalanceReport.Size = new System.Drawing.Size(150, 20);
-            this.dtpBalanceReport.TabIndex = 19;
+            this.dtpFrom.Format = System.Windows.Forms.DateTimePickerFormat.Short;
+            this.dtpFrom.Location = new System.Drawing.Point(162, 80);
+            this.dtpFrom.Name = "dtpFrom";
+            this.dtpFrom.Size = new System.Drawing.Size(150, 20);
+            this.dtpFrom.TabIndex = 19;
             // 
             // btnBalanceReport
             // 
@@ -261,6 +263,14 @@
             this.dgvMonitors.Size = new System.Drawing.Size(480, 125);
             this.dgvMonitors.TabIndex = 0;
             // 
+            // dtpTo
+            // 
+            this.dtpTo.Format = System.Windows.Forms.DateTimePickerFormat.Short;
+            this.dtpTo.Location = new System.Drawing.Point(162, 106);
+            this.dtpTo.Name = "dtpTo";
+            this.dtpTo.Size = new System.Drawing.Size(150, 20);
+            this.dtpTo.TabIndex = 22;
+            // 
             // MonitorsUserControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -298,11 +308,12 @@
         private System.Windows.Forms.GroupBox gbControl;
         private System.Windows.Forms.Button btnStop;
         private System.Windows.Forms.Button btnStart;
-        private System.Windows.Forms.DateTimePicker dtpBalanceReport;
+        private System.Windows.Forms.DateTimePicker dtpFrom;
         private System.Windows.Forms.Button btnBalanceReport;
         private System.Windows.Forms.Button btnLoadBeta;
         private System.Windows.Forms.Button btnLoadAlpha;
         private System.Windows.Forms.GroupBox groupBox3;
         private CustomDataGridView dgvMonitors;
+        private System.Windows.Forms.DateTimePicker dtpTo;
     }
 }

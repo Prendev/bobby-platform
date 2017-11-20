@@ -173,7 +173,7 @@ namespace QvaDev.Experts.Quadro.Services
         private bool IsCurrentTimeEnabledForTrade()
         {
             var utcNow = DateTime.UtcNow;
-            //if (utcNow.DayOfWeek == DayOfWeek.Friday && utcNow.Hour >= 20) return false;
+            if (utcNow.DayOfWeek == DayOfWeek.Friday && utcNow.Hour >= 20) return false;
             if (utcNow.DayOfWeek == DayOfWeek.Saturday) return false;
             if (utcNow.DayOfWeek == DayOfWeek.Sunday && (utcNow.Hour < 23 || utcNow.Minute < 59)) return false;
             return true;
