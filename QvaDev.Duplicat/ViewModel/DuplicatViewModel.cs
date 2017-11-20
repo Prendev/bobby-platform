@@ -12,7 +12,7 @@ namespace QvaDev.Duplicat.ViewModel
 {
     public partial class DuplicatViewModel : BaseViewModel
     {
-        public delegate void ProfileChangedEventHandler();
+        public delegate void DataContextChangedEventHandler();
         
         private DuplicatContext _duplicatContext;
         private readonly IOrchestrator _orchestrator;
@@ -35,7 +35,7 @@ namespace QvaDev.Duplicat.ViewModel
         public ObservableCollection<TradingAccount> TradingAccounts { get; private set; }
         public ObservableCollection<ExpertSet> ExpertSets { get; private set; }
 
-        public event ProfileChangedEventHandler ProfileChanged;
+        public event DataContextChangedEventHandler DataContextChanged;
         
         public bool IsConfigReadonly { get => Get<bool>(); set => Set(value); }
         public bool IsLoading { get => Get<bool>(); set => Set(value); }

@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Configuration;
+using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using QvaDev.Data;
 using QvaDev.Data.Models;
@@ -41,8 +43,6 @@ namespace QvaDev.Duplicat.ViewModel
 
         public void RestoreCommand()
         {
-            _log.Debug($"Database restore is not yet implemented!!!");
-            return;
             using (var sfd = new OpenFileDialog
             {
                 Filter = "Backup file (*.bak)|*.bak",
@@ -52,16 +52,32 @@ namespace QvaDev.Duplicat.ViewModel
             })
             {
                 if (sfd.ShowDialog() != DialogResult.OK) return;
+                IsLoading = true;
+                IsConfigReadonly = true;
                 var backupPath = sfd.FileName;
-
-                using (var context = new DuplicatContext())
+                var dbName = _duplicatContext.Database.SqlQuery<string>("SELECT DB_NAME()").First();
+                Task.Factory.StartNew(() =>
                 {
-                    var dbName = context.Database.SqlQuery<string>("SELECT DB_NAME()").First();
-                    string sqlCommand =
-                        $"RESTORE DATABASE {dbName} TO  DISK = N'{backupPath}'";
-                    context.Database.ExecuteSqlCommand(System.Data.Entity.TransactionalBehavior.DoNotEnsureTransaction, sqlCommand);
-                    _log.Debug($"Database ({dbName}) restore is ready from {backupPath}");
-                }
+                    using (var conn = new SqlConnection(ConfigurationManager.AppSettings["MasterConnectionString"]))
+                    {
+                        conn.Open();
+                        _duplicatContext.Dispose();
+                        new SqlCommand($"ALTER DATABASE {dbName} SET SINGLE_USER WITH ROLLBACK IMMEDIATE", conn)
+                            .ExecuteNonQuery();
+                        new SqlCommand($"RESTORE DATABASE {dbName} FROM DISK = N'{backupPath}' WITH REPLACE", conn)
+                            .ExecuteNonQuery();
+                        _log.Debug($"Database ({dbName}) restore is ready from {backupPath}");
+                    }
+                }).ContinueWith(prevTask =>
+                {
+                    SynchronizationContext.Post(o =>
+                    {
+                        IsLoading = false;
+                        IsConfigReadonly = false;
+                        LoadDataContext();
+                        DataContextChanged?.Invoke();
+                    }, null);
+                });
             }
         }
 
@@ -87,7 +103,7 @@ namespace QvaDev.Duplicat.ViewModel
         {
             SelectedProfileId = profile?.Id ?? 0;
             LoadDataContext();
-            ProfileChanged?.Invoke();
+            DataContextChanged?.Invoke();
         }
 
         public void ShowSelectedSlaveCommand(Slave slave)

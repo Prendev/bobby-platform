@@ -1,5 +1,4 @@
 ﻿using System.Data.Entity;
-using System.Drawing;
 using System.Windows.Forms;
 using QvaDev.Data.Models;
 using QvaDev.Duplicat.ViewModel;

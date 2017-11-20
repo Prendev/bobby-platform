@@ -29,6 +29,7 @@ namespace QvaDev.Duplicat.Views
         {
             _viewModel.SynchronizationContext = SynchronizationContext.Current;
 
+            btnRestore.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsConfigReadonly), true);
             gbControl.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsLoading), true);
             btnConnect.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsConnected), true);
             btnDisconnect.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsConnected));
@@ -50,7 +51,7 @@ namespace QvaDev.Duplicat.Views
                 else if (tabControlMain.SelectedTab.Name == tabPageExperts.Name) expertsUserControl.FilterRows();
             };
 
-            _viewModel.ProfileChanged += AttachDataSources;
+            _viewModel.DataContextChanged += AttachDataSources;
 
             profilesUserControl.InitView(_viewModel);
             copiersUserControl.InitView(_viewModel);
