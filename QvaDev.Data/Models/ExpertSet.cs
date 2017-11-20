@@ -60,20 +60,21 @@ namespace QvaDev.Data.Models
         public int MaxTradeSetCount { get; set; }
         public int Last24HMaxOpen { get; set; }
 
-        public bool CloseAllBuy { get; set; }
-        public bool CloseAllSell { get; set; }
-        //TODO
-        public bool BisectingCloseBuy { get; set; }
-        public bool BisectingCloseSell { get; set; }
+        [NotMapped] public bool CloseAllBuy { get; set; }
+        [NotMapped] public bool CloseAllSell { get; set; }
+        [NotMapped] public bool BisectingCloseBuy { get; set; }
+        [NotMapped] public bool BisectingCloseSell { get; set; }
         public bool ProfitCloseBuy { get; set; }
         public double ProfitCloseValueBuy { get; set; }
         public bool ProfitCloseSell { get; set; }
         public double ProfitCloseValueSell { get; set; }
 
+        [NotMapped] public bool SyncBuyState { get; set; }
         public TradeSetStates CurrentBuyState { get; set; }
         public int BuyOpenCount { get; set; }
         public double Sym1LastMinActionPrice { get; set; }
         public double Sym2LastMinActionPrice { get; set; }
+        [NotMapped] public bool SyncSellState { get; set; }
         public TradeSetStates CurrentSellState { get; set; }
         public int SellOpenCount { get; set; }
         public double Sym1LastMaxActionPrice { get; set; }

@@ -51,6 +51,7 @@ namespace QvaDev.Experts.Quadro.Services
             {
                 lock (exp)
                 {
+
                     if (exp.E.UseTradeSetStopLoss && GetSumProfit(exp) < exp.E.TradeSetStopLossValue)
                     {
                         _closeService.AllCloseMin(exp);
@@ -59,6 +60,17 @@ namespace QvaDev.Experts.Quadro.Services
                         return;
                     }
 
+                    if (exp.E.SyncBuyState)
+                    {
+                        var sym1Count = exp.OpenPositions.Count(p => p.MagicNumber == exp.E.MagicNumber && p.Symbol == exp.E.Symbol1 && p.Side == exp.Sym1MinOrderType);
+                        var sym2Count = exp.OpenPositions.Count(p => p.MagicNumber == exp.E.MagicNumber && p.Symbol == exp.E.Symbol2 && p.Side == exp.Sym2MinOrderType);
+                        exp.E.BuyOpenCount = Math.Max(sym1Count, sym2Count);
+                        exp.E.Sym1LastMinActionPrice = exp.Connector.GetLastActionPrice(exp.E.Symbol1, exp.Sym1MinOrderType, exp.E.MagicNumber);
+                        exp.E.Sym2LastMinActionPrice = exp.Connector.GetLastActionPrice(exp.E.Symbol2, exp.Sym2MinOrderType, exp.E.MagicNumber);
+                        if (exp.E.CurrentBuyState == ExpertSet.TradeSetStates.NoTrade && exp.E.BuyOpenCount > 0)
+                            exp.E.CurrentBuyState = ExpertSet.TradeSetStates.TradeOpened;
+                        exp.E.SyncBuyState = false;
+                    }
                     if (exp.E.CloseAllBuy)
                     {
                         _closeService.AllCloseMin(exp);
@@ -74,6 +86,17 @@ namespace QvaDev.Experts.Quadro.Services
                         exp.E.BisectingCloseBuy = false;
                     }
 
+                    if (exp.E.SyncSellState)
+                    {
+                        var sym1Count = exp.OpenPositions.Count(p => p.MagicNumber == exp.E.MagicNumber && p.Symbol == exp.E.Symbol1 && p.Side == exp.Sym1MaxOrderType);
+                        var sym2Count = exp.OpenPositions.Count(p => p.MagicNumber == exp.E.MagicNumber && p.Symbol == exp.E.Symbol2 && p.Side == exp.Sym2MaxOrderType);
+                        exp.E.Sym1LastMaxActionPrice = exp.Connector.GetLastActionPrice(exp.E.Symbol1, exp.Sym1MaxOrderType, exp.E.MagicNumber);
+                        exp.E.Sym2LastMaxActionPrice = exp.Connector.GetLastActionPrice(exp.E.Symbol2, exp.Sym2MaxOrderType, exp.E.MagicNumber);
+                        exp.E.SellOpenCount = Math.Max(sym1Count, sym2Count);
+                        if (exp.E.CurrentSellState == ExpertSet.TradeSetStates.NoTrade && exp.E.SellOpenCount > 0)
+                            exp.E.CurrentSellState = ExpertSet.TradeSetStates.TradeOpened;
+                        exp.E.SyncSellState = false;
+                    }
                     if (exp.E.CloseAllSell)
                     {
                         _closeService.AllCloseMax(exp);

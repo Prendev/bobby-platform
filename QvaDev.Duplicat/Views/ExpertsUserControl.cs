@@ -29,7 +29,8 @@ namespace QvaDev.Duplicat.Views
             {
                 if (e.PropertyName == "IsConfigReadonly")
                     foreach (DataGridViewColumn column in dgvTradingAccounts.Columns)
-                        column.ReadOnly = column.Name != "TradeSetFloatingSwitch";
+                        column.ReadOnly = column.Name != "TradeSetFloatingSwitch" && column.Name != "CloseAll" &&
+                                          column.Name != "BisectingClose" && column.Name != "SyncStates";
 
             };
 

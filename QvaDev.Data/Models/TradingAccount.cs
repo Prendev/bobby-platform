@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace QvaDev.Data.Models
 {
@@ -18,6 +19,9 @@ namespace QvaDev.Data.Models
         public MetaTraderAccount MetaTraderAccount { get; set; }
 
         public double TradeSetFloatingSwitch { get; set; }
+        [NotMapped] public bool CloseAll { get; set; }
+        [NotMapped] public bool BisectingClose { get; set; }
+        [NotMapped] public bool SyncStates { get; set; }
 
         public List<ExpertSet> ExpertSets { get => Get(() => new List<ExpertSet>()); set => Set(value, false); }
     }

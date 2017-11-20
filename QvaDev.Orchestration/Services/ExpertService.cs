@@ -80,16 +80,33 @@ namespace QvaDev.Orchestration.Services
             if (!_isStarted) return;
             if (_tradingAccounts == null || !_tradingAccounts.Any()) return;
 
-            var pnl = ((Connector)sender).GetFloatingProfit();
+            var connector = (Connector) sender;
+            var pnl = connector.GetFloatingProfit();
             foreach (var tradingAccount in _tradingAccounts)
             {
-                if (pnl >= tradingAccount.TradeSetFloatingSwitch) continue;
                 foreach (var expertSet in tradingAccount.ExpertSets)
                 {
-                    expertSet.TradeOpeningEnabled = false;
-                    //_log.Debug(
-                    //    $"{expertSet.Description}: TradeOpeningEnabled set to FALSE because of TradeSetFloatingSwitch");
+                    if (tradingAccount.SyncStates)
+                    {
+                        expertSet.SyncSellState = true;
+                        expertSet.SyncBuyState = true;
+                    }
+                    if (tradingAccount.CloseAll)
+                    {
+                        expertSet.CloseAllBuy = true;
+                        expertSet.CloseAllSell = true;
+                    }
+                    if (tradingAccount.BisectingClose)
+                    {
+                        expertSet.BisectingCloseBuy = true;
+                        expertSet.BisectingCloseSell = true;
+                    }
+                    if (pnl < tradingAccount.TradeSetFloatingSwitch)
+                        expertSet.TradeOpeningEnabled = false;
                 }
+                tradingAccount.CloseAll = false;
+                tradingAccount.BisectingClose = false;
+                tradingAccount.SyncStates = false;
             }
 
             Task.Factory.StartNew(() =>

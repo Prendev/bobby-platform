@@ -26,11 +26,9 @@ namespace QvaDev.Mt4Integration
             new ConcurrentDictionary<string, Tick>();
         private readonly ConcurrentDictionary<string, SymbolHistory> _symbolHistories =
             new ConcurrentDictionary<string, SymbolHistory>();
-        private readonly ConcurrentDictionary<string, Order[]> _orderHistories =
-            new ConcurrentDictionary<string, Order[]>();
         private AccountInfo _accountInfo;
         private List<Tuple<string, int, short>> _symbols;
-
+        private IEnumerable<Order> _orderHistory;
 
         public string Description => _accountInfo?.Description;
         public bool IsConnected => QuoteClient?.Connected == true;
@@ -198,9 +196,10 @@ namespace QvaDev.Mt4Integration
                 .FirstOrDefault();
 
             var opType = side == Sides.Buy ? Op.Buy : Op.Sell;
-            var orders = _orderHistories.GetOrAdd(symbol,
-                s => QuoteClient.DownloadOrderHistory(DateTime.UtcNow.AddYears(-1), DateTime.UtcNow.AddDays(1)));
-            var lastClosed = orders.LastOrDefault(o => o.MagicNumber == magicNumber && o.Type == opType && o.Symbol == symbol);
+            _orderHistory = _orderHistory ?? QuoteClient
+                                .DownloadOrderHistory(DateTime.UtcNow.AddYears(-1), DateTime.UtcNow.AddDays(1))
+                                .OrderByDescending(o => o.CloseTime).ToList();
+            var lastClosed = _orderHistory.FirstOrDefault(o => o.MagicNumber == magicNumber && o.Type == opType && o.Symbol == symbol);
 
             if (lastPos == null && lastClosed == null) return 0;
             if (lastPos == null) return lastClosed.ClosePrice;
