@@ -116,7 +116,7 @@ namespace QvaDev.Experts.Quadro.Services
             catch (BarMissingException ex)
             {
                 exp.BarMissingOpenTime = ex.OpenTime;
-                _log.Debug($"{exp.E.Description}: ExpertDenied");
+                _log.Info($"{exp.E.Description}: ExpertDenied");
             }
         }
 
@@ -138,7 +138,7 @@ namespace QvaDev.Experts.Quadro.Services
             {
                 exp.BarMissingOpenTime = ex.OpenTime;
                 exp.GetSpecificBars(ex.OpenTime);
-                _log.Debug($"{exp.E.Description}: BarMissing => {ex.OpenTime}");
+                _log.Info($"{exp.E.Description}: BarMissing => {ex.OpenTime}");
                 //if (exp.OpenPositions.Any())
                 //{
                 //    _closeService.AllCloseMin(exp);
@@ -181,7 +181,7 @@ namespace QvaDev.Experts.Quadro.Services
             if (!exp.BarMissingOpenTime.HasValue) return exp.LastBarOpenTime != exp.LatestBarQuant.OpenTime;
             if (!exp.BarQuants.ContainsKey(exp.BarMissingOpenTime.Value)) return false;
             if (!exp.BarQuants[exp.BarMissingOpenTime.Value].Quant.HasValue) return false;
-            _log.Debug($"{exp.E.Description}: Bar found => {exp.BarMissingOpenTime.Value}");
+            _log.Info($"{exp.E.Description}: Bar found => {exp.BarMissingOpenTime.Value}");
             exp.BarMissingOpenTime = null;
             return true;
         }

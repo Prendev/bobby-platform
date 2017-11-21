@@ -39,7 +39,7 @@ namespace QvaDev.Experts.Quadro.Services
                     exp.E.CurrentSellState = ExpertSet.TradeSetStates.TradeOpened;
                 return;
             }
-            _log.Debug($"{exp.E.Description}: EntriesService.CalculateEntriesForMaxAction => {exp.E.MagicNumber}");
+            _log.Info($"{exp.E.Description}: EntriesService.CalculateEntriesForMaxAction => {exp.E.MagicNumber}");
 
             double lot1 = exp.SellLots[0, 1].CheckLot();
             double lot2 = exp.SellLots[0, 0].CheckLot();
@@ -60,7 +60,7 @@ namespace QvaDev.Experts.Quadro.Services
                     exp.E.CurrentBuyState = ExpertSet.TradeSetStates.TradeOpened;
                 return;
             }
-            _log.Debug($"{exp.E.Description}: EntriesService.CalculateEntriesForMinAction => {exp.E.MagicNumber}");
+            _log.Info($"{exp.E.Description}: EntriesService.CalculateEntriesForMinAction => {exp.E.MagicNumber}");
 
             double lot1 = exp.BuyLots[0, 1].CheckLot();
             double lot2 = exp.BuyLots[0, 0].CheckLot();
