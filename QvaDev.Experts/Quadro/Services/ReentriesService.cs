@@ -27,11 +27,11 @@ namespace QvaDev.Experts.Quadro.Services
         public void CalculateReentries(ExpertSetWrapper exp)
         {
             if (!exp.QuantStoAvg.HasValue ||  !exp.QuantWprAvg.HasValue) return;
-            CalculateReentriesForForMaxAction(exp);
+            CalculateReentriesForMaxAction(exp);
             CalculateReentriesForMinAction(exp);
         }
 
-        private void CalculateReentriesForForMaxAction(ExpertSetWrapper exp)
+        private void CalculateReentriesForMaxAction(ExpertSetWrapper exp)
         {
             if (_commonService.IsInDeltaRange(exp, Sides.Sell)) return;
             if (exp.QuantStoAvg < exp.StochMaxAvgOpen || exp.QuantWprAvg <= -exp.WprMinAvgOpen) return;
@@ -40,10 +40,10 @@ namespace QvaDev.Experts.Quadro.Services
             var o2 = LastOrder(exp, exp.E.Symbol2, exp.Sym2MaxOrderType);
             if (o1 == null || o2 == null) return;
 
-            int buyReopenDiff = GetReopenDiff(exp, exp.E.BuyOpenCount);
-            if (exp.LatestBarQuant.Quant < _commonService.BarQuant(exp, o1) + buyReopenDiff * exp.Point) return;
-            if (exp.LatestBarQuant.Quant < _commonService.BarQuant(exp, o2) + buyReopenDiff * exp.Point) return;
-            _log.Debug($"{exp.E.Description}: ReentriesService.CalculateReentriesForForMaxAction => {exp.E.MagicNumber}");
+            int reopenDiff = GetReopenDiff(exp, exp.E.BuyOpenCount);
+            if (exp.LatestBarQuant.Quant < _commonService.BarQuant(exp, o1) + reopenDiff * exp.Point) return;
+            if (exp.LatestBarQuant.Quant < _commonService.BarQuant(exp, o2) + reopenDiff * exp.Point) return;
+            _log.Debug($"{exp.E.Description}: ReentriesService.CalculateReentriesForMaxAction => {exp.E.MagicNumber}");
 
             CorrectLotArrayIfNeeded(exp, Sides.Sell);
             double lot1 = exp.SellLots[exp.E.SellOpenCount, 1].CheckLot();
@@ -64,9 +64,9 @@ namespace QvaDev.Experts.Quadro.Services
             var o2 = LastOrder(exp, exp.E.Symbol2, exp.Sym2MinOrderType);
             if (o1 == null || o2 == null) return;
 
-            int sellReopenDiff = GetReopenDiff(exp, exp.E.SellOpenCount);
-            if (exp.LatestBarQuant.Quant > _commonService.BarQuant(exp, o1) - sellReopenDiff * exp.Point) return;
-            if (exp.LatestBarQuant.Quant > _commonService.BarQuant(exp, o2) - sellReopenDiff * exp.Point) return;
+            int reopenDiff = GetReopenDiff(exp, exp.E.SellOpenCount);
+            if (exp.LatestBarQuant.Quant > _commonService.BarQuant(exp, o1) - reopenDiff * exp.Point) return;
+            if (exp.LatestBarQuant.Quant > _commonService.BarQuant(exp, o2) - reopenDiff * exp.Point) return;
             _log.Debug($"{exp.E.Description}: ReentriesService.CalculateReentriesForMinAction => {exp.E.MagicNumber}");
 
             CorrectLotArrayIfNeeded(exp, Sides.Buy);
@@ -82,7 +82,7 @@ namespace QvaDev.Experts.Quadro.Services
         private bool EnableLast24Filter(ExpertSetWrapper exp, Sides spreadOrderType, int numOfTradePerOpen)
         {
             return _commonService.GetBaseOpenOrdersList(exp, spreadOrderType)
-                       .Where(o => (exp.LatestBarQuant.OpenTime - o.OpenTime).TotalHours >= 24)
+                       .Where(o => (exp.LatestBarQuant.OpenTime.AddMinutes((int)exp.E.TimeFrame) - o.OpenTime).TotalHours <= 24)
                        .ToList().Count < numOfTradePerOpen * exp.E.Last24HMaxOpen;
         }
 

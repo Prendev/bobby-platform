@@ -141,15 +141,13 @@ namespace QvaDev.Experts.Quadro.Services
         }
         private void BisectingClose(ExpertSetWrapper exp, Sides orderType1, Sides orderType2, Sides spreadOrderType)
         {
-            var sym1Orders = _commonService.GetOpenOrdersList(exp, exp.E.Symbol1, orderType1, exp.E.MagicNumber);
-            var sym2Orders = _commonService.GetOpenOrdersList(exp, exp.E.Symbol2, orderType2, exp.E.MagicNumber);
-            var orders = sym1Orders.Union(sym2Orders).ToList();
-            if (orders.Count(o => o.Lots - (o.Lots / 2).CheckLot() > 0) == 1)
+            var positions = _commonService.GetOpenOrdersList(exp, exp.E.Symbol1, orderType1, exp.E.Symbol2, orderType2, exp.E.MagicNumber);
+            if (positions.Count(o => o.Lots - (o.Lots / 2).CheckLot() > 0) == 1)
             {
                 AllCloseLevel(exp, orderType1, orderType2, spreadOrderType);
                 return;
             }
-            foreach (var position in orders)
+            foreach (var position in positions)
                 exp.Connector.SendClosePositionRequests(position, (position.Lots / 2).CheckLot());
         }
 
@@ -169,10 +167,9 @@ namespace QvaDev.Experts.Quadro.Services
 
         private void AllCloseLevel(ExpertSetWrapper exp, Sides orderType1, Sides orderType2, Sides spreadOrderType)
         {
-            var sym1Orders = _commonService.GetOpenOrdersList(exp, exp.E.Symbol1, orderType1, exp.E.MagicNumber);
-            var sym2Orders = _commonService.GetOpenOrdersList(exp, exp.E.Symbol2, orderType2, exp.E.MagicNumber);
+            var positions = _commonService.GetOpenOrdersList(exp, exp.E.Symbol1, orderType1, exp.E.Symbol2, orderType2, exp.E.MagicNumber);
             _commonService.SetLastActionPrice(exp, spreadOrderType);
-            foreach (var position in sym1Orders.Union(sym2Orders))
+            foreach (var position in positions)
                 exp.Connector.SendClosePositionRequests(position);
         }
 

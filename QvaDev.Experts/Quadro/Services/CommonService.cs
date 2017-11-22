@@ -75,7 +75,7 @@ namespace QvaDev.Experts.Quadro.Services
 
         public IEnumerable<Position> GetBaseOpenOrdersList(ExpertSetWrapper exp, Sides spreadOrderType)
         {
-            var orders = spreadOrderType != Sides.Buy
+            var orders = spreadOrderType == Sides.Sell
                 ? GetOpenOrdersList(exp, exp.E.Symbol1, exp.Sym1MaxOrderType, exp.E.Symbol2, exp.Sym2MaxOrderType,
                     exp.E.MagicNumber)
                 : GetOpenOrdersList(exp, exp.E.Symbol1, exp.Sym1MinOrderType, exp.E.Symbol2, exp.Sym2MinOrderType,
