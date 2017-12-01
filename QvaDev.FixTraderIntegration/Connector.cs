@@ -35,14 +35,18 @@ namespace QvaDev.FixTraderIntegration
             {
                 var ipAddress = IPAddress.Parse(accountInfo.IpAddress);
                 var commandSocket = new IPEndPoint(ipAddress, accountInfo.CommandSocketPort);
-                var eventSocket = new IPEndPoint(ipAddress, accountInfo.CommandSocketPort);
+                var eventSocket = new IPEndPoint(ipAddress, accountInfo.EventsSocketPort);
 
                 _commandSocket = new Socket(ipAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
                 _eventsSocket = new Socket(ipAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
                 _commandSocket.Connect(commandSocket);
                 _eventsSocket.Connect(eventSocket);
 
-                if (_commandSocket.Connected && _eventsSocket.Connected) return true;
+                if (_commandSocket.Connected && _eventsSocket.Connected)
+                {
+                    //SendMarketOrderRequest("EURUSD", Sides.Buy, 0.1, "alma");
+                    return true;
+                }
                 Disconnect();
             }
             catch (Exception e)
@@ -54,8 +58,12 @@ namespace QvaDev.FixTraderIntegration
 
         public void Disconnect()
         {
-            _commandSocket?.Disconnect(false);
-            _eventsSocket?.Disconnect(false);
+            try
+            {
+                _commandSocket?.Disconnect(false);
+                _eventsSocket?.Disconnect(false);
+            }
+            catch { }
         }
 
         public void SendMarketOrderRequest(string symbol, Sides side, double lots, string comment = null)
