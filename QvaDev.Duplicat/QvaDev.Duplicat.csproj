@@ -106,6 +106,12 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="ViewModel\DuplicatViewModel.cs" />
+    <Compile Include="Views\FtAccountsUserControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Views\FtAccountsUserControl.Designer.cs">
+      <DependentUpon>FtAccountsUserControl.cs</DependentUpon>
+    </Compile>
     <Compile Include="Views\MtAccountsUserControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -142,6 +148,9 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="Views\FtAccountsUserControl.resx">
+      <DependentUpon>FtAccountsUserControl.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Views\MtAccountsUserControl.resx">
       <DependentUpon>MtAccountsUserControl.cs</DependentUpon>
     </EmbeddedResource>

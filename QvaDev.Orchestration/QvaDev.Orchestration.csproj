@@ -99,6 +99,10 @@
       <Project>{B9F802CB-A64A-4281-858E-E37A53FFAF7D}</Project>
       <Name>QvaDev.Experts</Name>
     </ProjectReference>
+    <ProjectReference Include="..\QvaDev.FixTraderIntegration\QvaDev.FixTraderIntegration.csproj">
+      <Project>{b37fe0b3-e551-444e-b8e4-b42b7aa45002}</Project>
+      <Name>QvaDev.FixTraderIntegration</Name>
+    </ProjectReference>
     <ProjectReference Include="..\QvaDev.Mt4Integration\QvaDev.Mt4Integration.csproj">
       <Project>{73a2679e-f17e-4484-8874-461d3fc895dd}</Project>
       <Name>QvaDev.Mt4Integration</Name>

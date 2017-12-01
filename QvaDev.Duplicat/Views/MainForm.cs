@@ -57,6 +57,7 @@ namespace QvaDev.Duplicat.Views
             copiersUserControl.InitView(_viewModel);
             mtAccountsUserControl.InitView(_viewModel);
             ctAccountsUserControl.InitView(_viewModel);
+            ftAccountsUserControl.InitView(_viewModel);
             monitorsUserControl.InitView(_viewModel);
             expertsUserControl.InitView(_viewModel);
 
@@ -68,6 +69,7 @@ namespace QvaDev.Duplicat.Views
             profilesUserControl.AttachDataSources();
             mtAccountsUserControl.AttachDataSources();
             ctAccountsUserControl.AttachDataSources();
+            ftAccountsUserControl.AttachDataSources();
             copiersUserControl.AttachDataSources();
             monitorsUserControl.AttachDataSources();
             expertsUserControl.AttachDataSources();

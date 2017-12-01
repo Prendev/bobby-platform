@@ -11,6 +11,7 @@ namespace QvaDev.Data
         public DbSet<CTraderPlatform> CTraderPlatforms { get; set; }
         public DbSet<MetaTraderAccount> MetaTraderAccounts { get; set; }
         public DbSet<CTraderAccount> CTraderAccounts { get; set; }
+        public DbSet<FixTraderAccount> FixTraderAccounts { get; set; }
 
         public DbSet<Profile> Profiles { get; set; }
         public DbSet<Group> Groups { get; set; }
@@ -63,6 +64,14 @@ namespace QvaDev.Data
 
         private void InitDebug()
         {
+            FixTraderAccounts.Add(new FixTraderAccount
+            {
+                Description = "FIX Trader priorfx",
+                IpAddress = "192.81.110.211",
+                CommandSocketPort = 9001,
+                EventsSocketPort = 9002
+            });
+
             var cTraderPlatform = CTraderPlatforms.Add(new CTraderPlatform()
             {
                 Description = "cTrader Prod",

@@ -23,6 +23,7 @@ namespace QvaDev.Duplicat.ViewModel
         public ObservableCollection<CTraderPlatform> CtPlatforms { get; private set; }
         public ObservableCollection<MetaTraderAccount> MtAccounts { get; private set; }
         public ObservableCollection<CTraderAccount> CtAccounts { get; private set; }
+        public ObservableCollection<FixTraderAccount> FtAccounts { get; private set; }
         public ObservableCollection<Profile> Profiles { get; private set; }
         public ObservableCollection<Group> Groups { get; private set; }
         public ObservableCollection<Master> Masters { get; private set; }
@@ -79,6 +80,7 @@ namespace QvaDev.Duplicat.ViewModel
             _duplicatContext.CTraderPlatforms.Load();
             _duplicatContext.MetaTraderAccounts.Load();
             _duplicatContext.CTraderAccounts.Load();
+            _duplicatContext.FixTraderAccounts.Load();
             _duplicatContext.Profiles.Load();
             _duplicatContext.Groups.Where(e => e.ProfileId == SelectedProfileId).Load();
             _duplicatContext.Masters.Where(e => e.Group.ProfileId == SelectedProfileId).Load();
@@ -95,6 +97,7 @@ namespace QvaDev.Duplicat.ViewModel
             CtPlatforms = _duplicatContext.CTraderPlatforms.Local;
             MtAccounts = _duplicatContext.MetaTraderAccounts.Local;
             CtAccounts = _duplicatContext.CTraderAccounts.Local;
+            FtAccounts = _duplicatContext.FixTraderAccounts.Local;
             Profiles = _duplicatContext.Profiles.Local;
             Groups = _duplicatContext.Groups.Local;
             Masters = _duplicatContext.Masters.Local;

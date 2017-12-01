@@ -61,7 +61,7 @@ namespace QvaDev.Orchestration
         {
             _duplicatContext = duplicatContext;
             _synchronizationContext = _synchronizationContext ?? _synchronizationContextFactory.Invoke();
-            return Task.WhenAll(ConnectMtAccounts(), ConenctCtAccounts());
+            return Task.WhenAll(ConnectMtAccounts(), ConenctCtAccounts(), ConnectFtAccounts());
         }
 
         private Task ConnectMtAccounts()
@@ -133,13 +133,42 @@ namespace QvaDev.Orchestration
             return Task.WhenAll(tasks);
         }
 
+        private Task ConnectFtAccounts()
+        {
+            var tasks = _duplicatContext.FixTraderAccounts.AsEnumerable().Select(account =>
+                Task.Factory.StartNew(() =>
+                {
+                    if (!account.ShouldConnect) return;
+                    if (account.State == BaseAccountEntity.States.Connected) return;
+                    var connector = account.Connector as FixTraderIntegration.Connector;
+                    if (connector == null)
+                    {
+                        connector = new FixTraderIntegration.Connector(_log);
+                        account.Connector = connector;
+                    }
+                    var connected = connector.Connect(new FixTraderIntegration.AccountInfo
+                    {
+                        Description = account.Description,
+                        IpAddress = account.IpAddress,
+                        CommandSocketPort = account.CommandSocketPort,
+                        EventsSocketPort = account.EventsSocketPort
+                    });
+                    account.State = connected
+                        ? BaseAccountEntity.States.Connected
+                        : BaseAccountEntity.States.Error;
+                    account.RaisePropertyChanged(_synchronizationContext, nameof(account.State));
+                }));
+
+            return Task.WhenAll(tasks);
+        }
+
         public Task Disconnect()
         {
             _duplicatContext.SaveChanges();
             StopMonitors();
             StopCopiers();
             StopExperts();
-            return Task.WhenAll(DisconnectMtAccounts(), DisconnectCtAccounts());
+            return Task.WhenAll(DisconnectMtAccounts(), DisconnectCtAccounts(), DisconnectFtAccounts());
         }
 
         private Task DisconnectMtAccounts()
@@ -159,6 +188,20 @@ namespace QvaDev.Orchestration
         private Task DisconnectCtAccounts()
         {
             var tasks = _duplicatContext.CTraderAccounts.AsEnumerable().Select(account =>
+                Task.Factory.StartNew(() =>
+                {
+                    if (account.State == BaseAccountEntity.States.Disconnected) return;
+                    account.Connector.Disconnect();
+                    account.State = BaseAccountEntity.States.Disconnected;
+                    account.RaisePropertyChanged(_synchronizationContext, nameof(account.State));
+                }));
+
+            return Task.WhenAll(tasks);
+        }
+
+        private Task DisconnectFtAccounts()
+        {
+            var tasks = _duplicatContext.FixTraderAccounts.AsEnumerable().Select(account =>
                 Task.Factory.StartNew(() =>
                 {
                     if (account.State == BaseAccountEntity.States.Disconnected) return;
