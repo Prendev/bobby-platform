@@ -5,11 +5,11 @@ using QvaDev.Duplicat.ViewModel;
 
 namespace QvaDev.Duplicat.Views
 {
-    public partial class ExpertsUserControl : UserControl, ITabUserControl
+    public partial class QuadroUserControl : UserControl, ITabUserControl
     {
         private DuplicatViewModel _viewModel;
 
-        public ExpertsUserControl()
+        public QuadroUserControl()
         {
             InitializeComponent();
         }
@@ -57,7 +57,7 @@ namespace QvaDev.Duplicat.Views
             dgvTradingAccounts.Columns["ProfileId"].Visible = false;
             dgvTradingAccounts.Columns["Profile"].Visible = false;
 
-            dgvExpertSets.DataSource = _viewModel.ExpertSets.ToBindingList();
+            dgvExpertSets.DataSource = _viewModel.QuadroSets.ToBindingList();
             dgvExpertSets.Columns["TradingAccountId"].Visible = false;
             dgvExpertSets.Columns["TradingAccount"].Visible = false;
         }

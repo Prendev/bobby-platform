@@ -69,8 +69,8 @@ namespace QvaDev.Duplicat
             builder.RegisterType<EntriesService>().As<IEntriesService>();
             builder.RegisterType<ReentriesService>().As<IReentriesService>();
 
-            //builder.RegisterType<NoHedgeService>().Keyed<IHedgeService>(ExpertSet.HedgeModes.NoHedge);
-            //builder.RegisterType<TwoPairHedgeService>().Keyed<IHedgeService>(ExpertSet.HedgeModes.TwoPairHedge);
+            //builder.RegisterType<NoHedgeService>().Keyed<IHedgeService>(QuadroSet.HedgeModes.NoHedge);
+            //builder.RegisterType<TwoPairHedgeService>().Keyed<IHedgeService>(QuadroSet.HedgeModes.TwoPairHedge);
         }
     }
 }

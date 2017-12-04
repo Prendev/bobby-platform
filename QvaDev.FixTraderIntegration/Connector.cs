@@ -44,7 +44,7 @@ namespace QvaDev.FixTraderIntegration
 
                 if (_commandSocket.Connected && _eventsSocket.Connected)
                 {
-                    //SendMarketOrderRequest("EURUSD", Sides.Buy, 0.1, "alma");
+                    SendMarketOrderRequest("EURUSD", Sides.Buy, 0.1, "alma");
                     return true;
                 }
                 Disconnect();
@@ -60,8 +60,8 @@ namespace QvaDev.FixTraderIntegration
         {
             try
             {
-                _commandSocket?.Disconnect(false);
-                _eventsSocket?.Disconnect(false);
+                _commandSocket?.Dispose();
+                _eventsSocket?.Dispose();
             }
             catch { }
         }
@@ -130,6 +130,22 @@ namespace QvaDev.FixTraderIntegration
         public Tick GetLastTick(string symbol)
         {
             throw new NotImplementedException();
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            Disconnect();
+        }
+
+        ~Connector()
+        {
+            Dispose(false);
         }
     }
 }

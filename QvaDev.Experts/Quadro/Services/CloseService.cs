@@ -53,11 +53,11 @@ namespace QvaDev.Experts.Quadro.Services
                 if (exp.LatestBarQuant.Quant >= buyAvgPrice + exp.E.Tp1 * exp.Point)
                     AllCloseMin(exp);
             }
-            else if (exp.E.CurrentBuyState == ExpertSet.TradeSetStates.TradeOpened && exp.LatestBarQuant.Quant >= buyAvgPrice + exp.E.Tp1 * exp.Point)
+            else if (exp.E.CurrentBuyState == QuadroSet.TradeSetStates.TradeOpened && exp.LatestBarQuant.Quant >= buyAvgPrice + exp.E.Tp1 * exp.Point)
                 FirstAndSecondCloseLevel(exp, exp.Sym1MinOrderType, exp.Sym2MinOrderType, Sides.Buy);
-            else if (exp.E.CurrentBuyState == ExpertSet.TradeSetStates.AfterFirstClose && exp.LatestBarQuant.Quant >= buyAvgPrice + exp.E.Tp2 * exp.Point)
+            else if (exp.E.CurrentBuyState == QuadroSet.TradeSetStates.AfterFirstClose && exp.LatestBarQuant.Quant >= buyAvgPrice + exp.E.Tp2 * exp.Point)
                 FirstAndSecondCloseLevel(exp, exp.Sym1MinOrderType, exp.Sym2MinOrderType, Sides.Buy);
-            else if (exp.E.CurrentBuyState == ExpertSet.TradeSetStates.AfterSecondClose && exp.LatestBarQuant.Quant >= buyAvgPrice + exp.E.Tp3 * exp.Point)
+            else if (exp.E.CurrentBuyState == QuadroSet.TradeSetStates.AfterSecondClose && exp.LatestBarQuant.Quant >= buyAvgPrice + exp.E.Tp3 * exp.Point)
                 AllCloseMin(exp);
         }
 
@@ -70,11 +70,11 @@ namespace QvaDev.Experts.Quadro.Services
                 if (exp.LatestBarQuant.Quant <= sellAvgPrice - exp.E.Tp1 * exp.Point)
                     AllCloseMax(exp);
             }
-            else if (exp.E.CurrentBuyState == ExpertSet.TradeSetStates.TradeOpened && exp.LatestBarQuant.Quant <= sellAvgPrice - exp.E.Tp1 * exp.Point)
+            else if (exp.E.CurrentBuyState == QuadroSet.TradeSetStates.TradeOpened && exp.LatestBarQuant.Quant <= sellAvgPrice - exp.E.Tp1 * exp.Point)
                 FirstAndSecondCloseLevel(exp, exp.Sym1MaxOrderType, exp.Sym2MaxOrderType, Sides.Sell);
-            else if (exp.E.CurrentBuyState == ExpertSet.TradeSetStates.AfterFirstClose && exp.LatestBarQuant.Quant <= sellAvgPrice - exp.E.Tp2 * exp.Point)
+            else if (exp.E.CurrentBuyState == QuadroSet.TradeSetStates.AfterFirstClose && exp.LatestBarQuant.Quant <= sellAvgPrice - exp.E.Tp2 * exp.Point)
                 FirstAndSecondCloseLevel(exp, exp.Sym1MaxOrderType, exp.Sym2MaxOrderType, Sides.Sell);
-            else if (exp.E.CurrentBuyState == ExpertSet.TradeSetStates.AfterSecondClose && exp.LatestBarQuant.Quant <= sellAvgPrice - exp.E.Tp3 * exp.Point)
+            else if (exp.E.CurrentBuyState == QuadroSet.TradeSetStates.AfterSecondClose && exp.LatestBarQuant.Quant <= sellAvgPrice - exp.E.Tp3 * exp.Point)
                 AllCloseMax(exp);
         }
 
@@ -182,9 +182,9 @@ namespace QvaDev.Experts.Quadro.Services
             foreach (var position in sym1Orders.Union(sym2Orders))
                 exp.Connector.SendClosePositionRequests(position, (position.Lots / 2).CheckLot());
             var oldtradeSetState = spreadOrderType == Sides.Buy ? exp.E.CurrentBuyState : exp.E.CurrentSellState;
-            var newTradeSetState = oldtradeSetState == ExpertSet.TradeSetStates.TradeOpened
-                ? ExpertSet.TradeSetStates.AfterFirstClose
-                : ExpertSet.TradeSetStates.AfterSecondClose;
+            var newTradeSetState = oldtradeSetState == QuadroSet.TradeSetStates.TradeOpened
+                ? QuadroSet.TradeSetStates.AfterFirstClose
+                : QuadroSet.TradeSetStates.AfterSecondClose;
             if (spreadOrderType == Sides.Buy) exp.E.CurrentBuyState = newTradeSetState;
             if (spreadOrderType == Sides.Sell) exp.E.CurrentSellState = newTradeSetState;
         }

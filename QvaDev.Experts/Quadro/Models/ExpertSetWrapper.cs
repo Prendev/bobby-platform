@@ -18,11 +18,11 @@ namespace QvaDev.Experts.Quadro.Models
             public double? Quant { get; set; }
         }
 
-        public ExpertSet E { get; }
+        public QuadroSet E { get; }
 
-        public ExpertSetWrapper(ExpertSet expertSet)
+        public ExpertSetWrapper(QuadroSet quadroSet)
         {
-            E = expertSet;
+            E = quadroSet;
             InitByVariant();
             InitBuyLotArray();
             InitSellLotArray();
@@ -162,7 +162,7 @@ namespace QvaDev.Experts.Quadro.Models
         {
             switch (E.Variant)
             {
-                case ExpertSet.Variants.NormalNormalBase:
+                case QuadroSet.Variants.NormalNormalBase:
                 {
                     Sym1MaxOrderType = Sides.Buy;
                     Sym2MaxOrderType = Sides.Sell;
@@ -170,7 +170,7 @@ namespace QvaDev.Experts.Quadro.Models
                     Sym2MinOrderType = Sides.Buy;
                     break;
                 }
-                case ExpertSet.Variants.NormalNormalReversed:
+                case QuadroSet.Variants.NormalNormalReversed:
                 {
                     Sym1MaxOrderType = Sides.Sell;
                     Sym2MaxOrderType = Sides.Buy;
@@ -178,7 +178,7 @@ namespace QvaDev.Experts.Quadro.Models
                     Sym2MinOrderType = Sides.Sell;
                     break;
                 }
-                case ExpertSet.Variants.NormalInverseBase:
+                case QuadroSet.Variants.NormalInverseBase:
                 {
                     Sym1MaxOrderType = Sides.Buy;
                     Sym2MaxOrderType = Sides.Buy;
@@ -187,7 +187,7 @@ namespace QvaDev.Experts.Quadro.Models
                     Sym2QuantInverse = true;
                     break;
                 }
-                case ExpertSet.Variants.NormalInverseReversed:
+                case QuadroSet.Variants.NormalInverseReversed:
                 {
                     Sym1MaxOrderType = Sides.Sell;
                     Sym2MaxOrderType = Sides.Sell;
@@ -196,7 +196,7 @@ namespace QvaDev.Experts.Quadro.Models
                     Sym2QuantInverse = true;
                     break;
                 }
-                case ExpertSet.Variants.InverseNormalBase:
+                case QuadroSet.Variants.InverseNormalBase:
                 {
                     Sym1MaxOrderType = Sides.Buy;
                     Sym2MaxOrderType = Sides.Buy;
@@ -205,7 +205,7 @@ namespace QvaDev.Experts.Quadro.Models
                     Sym1QuantInverse = true;
                     break;
                 }
-                case ExpertSet.Variants.InverseNormalReversed:
+                case QuadroSet.Variants.InverseNormalReversed:
                 {
                     Sym1MaxOrderType = Sides.Sell;
                     Sym2MaxOrderType = Sides.Sell;

@@ -41,8 +41,9 @@
             this.copiersUserControl = new QvaDev.Duplicat.Views.CopiersUserControl();
             this.tabPageMonitor = new System.Windows.Forms.TabPage();
             this.monitorsUserControl = new QvaDev.Duplicat.Views.MonitorsUserControl();
-            this.tabPageExperts = new System.Windows.Forms.TabPage();
-            this.expertsUserControl = new QvaDev.Duplicat.Views.ExpertsUserControl();
+            this.tabPageQuadro = new System.Windows.Forms.TabPage();
+            this.expertsUserControl = new QvaDev.Duplicat.Views.QuadroUserControl();
+            this.tabPagePush = new System.Windows.Forms.TabPage();
             this.tabPageLog = new System.Windows.Forms.TabPage();
             this.textBoxLog = new System.Windows.Forms.TextBox();
             this.tlpMain = new System.Windows.Forms.TableLayoutPanel();
@@ -59,7 +60,7 @@
             this.tabPageFtAccount.SuspendLayout();
             this.tabPageCopier.SuspendLayout();
             this.tabPageMonitor.SuspendLayout();
-            this.tabPageExperts.SuspendLayout();
+            this.tabPageQuadro.SuspendLayout();
             this.tabPageLog.SuspendLayout();
             this.tlpMain.SuspendLayout();
             this.gbControl.SuspendLayout();
@@ -73,7 +74,8 @@
             this.tabControlMain.Controls.Add(this.tabPageFtAccount);
             this.tabControlMain.Controls.Add(this.tabPageCopier);
             this.tabControlMain.Controls.Add(this.tabPageMonitor);
-            this.tabControlMain.Controls.Add(this.tabPageExperts);
+            this.tabControlMain.Controls.Add(this.tabPagePush);
+            this.tabControlMain.Controls.Add(this.tabPageQuadro);
             this.tabControlMain.Controls.Add(this.tabPageLog);
             this.tabControlMain.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tabControlMain.Location = new System.Drawing.Point(3, 55);
@@ -195,16 +197,16 @@
             this.monitorsUserControl.Size = new System.Drawing.Size(1032, 475);
             this.monitorsUserControl.TabIndex = 0;
             // 
-            // tabPageExperts
+            // tabPageQuadro
             // 
-            this.tabPageExperts.Controls.Add(this.expertsUserControl);
-            this.tabPageExperts.Location = new System.Drawing.Point(4, 22);
-            this.tabPageExperts.Name = "tabPageExperts";
-            this.tabPageExperts.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPageExperts.Size = new System.Drawing.Size(1038, 481);
-            this.tabPageExperts.TabIndex = 6;
-            this.tabPageExperts.Text = "Experts";
-            this.tabPageExperts.UseVisualStyleBackColor = true;
+            this.tabPageQuadro.Controls.Add(this.expertsUserControl);
+            this.tabPageQuadro.Location = new System.Drawing.Point(4, 22);
+            this.tabPageQuadro.Name = "tabPageQuadro";
+            this.tabPageQuadro.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPageQuadro.Size = new System.Drawing.Size(1038, 481);
+            this.tabPageQuadro.TabIndex = 6;
+            this.tabPageQuadro.Text = "Quadro";
+            this.tabPageQuadro.UseVisualStyleBackColor = true;
             // 
             // expertsUserControl
             // 
@@ -213,6 +215,16 @@
             this.expertsUserControl.Name = "expertsUserControl";
             this.expertsUserControl.Size = new System.Drawing.Size(1032, 475);
             this.expertsUserControl.TabIndex = 0;
+            // 
+            // tabPagePush
+            // 
+            this.tabPagePush.Location = new System.Drawing.Point(4, 22);
+            this.tabPagePush.Name = "tabPagePush";
+            this.tabPagePush.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPagePush.Size = new System.Drawing.Size(1038, 481);
+            this.tabPagePush.TabIndex = 8;
+            this.tabPagePush.Text = "Pushing";
+            this.tabPagePush.UseVisualStyleBackColor = true;
             // 
             // tabPageLog
             // 
@@ -328,7 +340,7 @@
             this.tabPageFtAccount.ResumeLayout(false);
             this.tabPageCopier.ResumeLayout(false);
             this.tabPageMonitor.ResumeLayout(false);
-            this.tabPageExperts.ResumeLayout(false);
+            this.tabPageQuadro.ResumeLayout(false);
             this.tabPageLog.ResumeLayout(false);
             this.tabPageLog.PerformLayout();
             this.tlpMain.ResumeLayout(false);
@@ -360,17 +372,18 @@
         private System.Windows.Forms.TabPage tabPageMonitor;
         private System.Windows.Forms.Button btnDisconnect;
         private System.Windows.Forms.Button btnConnect;
-        private System.Windows.Forms.TabPage tabPageExperts;
+        private System.Windows.Forms.TabPage tabPageQuadro;
         private CopiersUserControl copiersUserControl;
         private MonitorsUserControl monitorsUserControl;
         private ProfilesUserControl profilesUserControl;
         private MtAccountsUserControl mtAccountsUserControl;
         private CtAccountsUserControl ctAccountsUserControl;
-        private ExpertsUserControl expertsUserControl;
+        private QuadroUserControl expertsUserControl;
         private System.Windows.Forms.Button btnBackup;
         private System.Windows.Forms.Button btnRestore;
         private System.Windows.Forms.TabPage tabPageFtAccount;
         private FtAccountsUserControl ftAccountsUserControl;
+        private System.Windows.Forms.TabPage tabPagePush;
     }
 }
 

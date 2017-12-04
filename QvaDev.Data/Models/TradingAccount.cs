@@ -23,6 +23,6 @@ namespace QvaDev.Data.Models
         [NotMapped] public bool BisectingClose { get; set; }
         [NotMapped] public bool SyncStates { get; set; }
 
-        public List<ExpertSet> ExpertSets { get => Get(() => new List<ExpertSet>()); set => Set(value, false); }
+        public List<QuadroSet> ExpertSets { get => Get(() => new List<QuadroSet>()); set => Set(value, false); }
     }
 }

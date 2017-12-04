@@ -13,8 +13,8 @@ namespace QvaDev.Experts.Quadro.Services
     public interface IQuadroService
     {
         void Stop();
-        void OnBarHistory(Connector connector, ExpertSet expertSet, BarHistoryEventArgs e);
-        void OnTick(Connector connector, ExpertSet expertSet);
+        void OnBarHistory(Connector connector, QuadroSet quadroSet, BarHistoryEventArgs e);
+        void OnTick(Connector connector, QuadroSet quadroSet);
     }
     public class QuadroService : IQuadroService
     {
@@ -43,9 +43,9 @@ namespace QvaDev.Experts.Quadro.Services
             ExpertSetWrappers.Clear();
         }
 
-        public void OnTick(Connector connector, ExpertSet expertSet)
+        public void OnTick(Connector connector, QuadroSet quadroSet)
         {
-            var exp = ExpertSetWrappers.GetOrAdd(expertSet.Id, id => new ExpertSetWrapper(expertSet));
+            var exp = ExpertSetWrappers.GetOrAdd(quadroSet.Id, id => new ExpertSetWrapper(quadroSet));
             //if (exp.BarMissingOpenTime.HasValue) return;
             try
             {
@@ -67,8 +67,8 @@ namespace QvaDev.Experts.Quadro.Services
                         exp.E.BuyOpenCount = Math.Max(sym1Count, sym2Count);
                         exp.E.Sym1LastMinActionPrice = exp.Connector.GetLastActionPrice(exp.E.Symbol1, exp.Sym1MinOrderType, exp.E.MagicNumber);
                         exp.E.Sym2LastMinActionPrice = exp.Connector.GetLastActionPrice(exp.E.Symbol2, exp.Sym2MinOrderType, exp.E.MagicNumber);
-                        if (exp.E.CurrentBuyState == ExpertSet.TradeSetStates.NoTrade && exp.E.BuyOpenCount > 0)
-                            exp.E.CurrentBuyState = ExpertSet.TradeSetStates.TradeOpened;
+                        if (exp.E.CurrentBuyState == QuadroSet.TradeSetStates.NoTrade && exp.E.BuyOpenCount > 0)
+                            exp.E.CurrentBuyState = QuadroSet.TradeSetStates.TradeOpened;
                         exp.E.SyncBuyState = false;
                     }
                     if (exp.E.CloseAllBuy) _closeService.AllCloseMin(exp);
@@ -82,8 +82,8 @@ namespace QvaDev.Experts.Quadro.Services
                         exp.E.Sym1LastMaxActionPrice = exp.Connector.GetLastActionPrice(exp.E.Symbol1, exp.Sym1MaxOrderType, exp.E.MagicNumber);
                         exp.E.Sym2LastMaxActionPrice = exp.Connector.GetLastActionPrice(exp.E.Symbol2, exp.Sym2MaxOrderType, exp.E.MagicNumber);
                         exp.E.SellOpenCount = Math.Max(sym1Count, sym2Count);
-                        if (exp.E.CurrentSellState == ExpertSet.TradeSetStates.NoTrade && exp.E.SellOpenCount > 0)
-                            exp.E.CurrentSellState = ExpertSet.TradeSetStates.TradeOpened;
+                        if (exp.E.CurrentSellState == QuadroSet.TradeSetStates.NoTrade && exp.E.SellOpenCount > 0)
+                            exp.E.CurrentSellState = QuadroSet.TradeSetStates.TradeOpened;
                         exp.E.SyncSellState = false;
                     }
                     if (exp.E.CloseAllSell) _closeService.AllCloseMax(exp);
@@ -98,9 +98,9 @@ namespace QvaDev.Experts.Quadro.Services
             }
         }
 
-        public void OnBarHistory(Connector connector, ExpertSet expertSet, BarHistoryEventArgs e)
+        public void OnBarHistory(Connector connector, QuadroSet quadroSet, BarHistoryEventArgs e)
         {
-            var exp = ExpertSetWrappers.GetOrAdd(expertSet.Id, id => new ExpertSetWrapper(expertSet));
+            var exp = ExpertSetWrappers.GetOrAdd(quadroSet.Id, id => new ExpertSetWrapper(quadroSet));
             try
             {
                 lock (exp)
@@ -132,7 +132,7 @@ namespace QvaDev.Experts.Quadro.Services
                                              p.Symbol == exp.E.Symbol2 && p.Side == exp.Sym2MinOrderType)))
             {
                 exp.E.BuyOpenCount = 0;
-                exp.E.CurrentBuyState = ExpertSet.TradeSetStates.NoTrade;
+                exp.E.CurrentBuyState = QuadroSet.TradeSetStates.NoTrade;
                 //exp.E.Sym1LastMinActionPrice = 0;
                 //exp.E.Sym2LastMinActionPrice = 0;
             }
@@ -142,7 +142,7 @@ namespace QvaDev.Experts.Quadro.Services
                                              p.Symbol == exp.E.Symbol2 && p.Side == exp.Sym2MaxOrderType)))
             {
                 exp.E.SellOpenCount = 0;
-                exp.E.CurrentSellState = ExpertSet.TradeSetStates.NoTrade;
+                exp.E.CurrentSellState = QuadroSet.TradeSetStates.NoTrade;
                 //exp.E.Sym1LastMaxActionPrice = 0;
                 //exp.E.Sym2LastMaxActionPrice = 0;
             }

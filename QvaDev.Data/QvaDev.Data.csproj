@@ -63,7 +63,8 @@
     <Compile Include="Models\CTraderAccount.cs" />
     <Compile Include="Models\CTraderPlatform.cs" />
     <Compile Include="Models\Expert.cs" />
-    <Compile Include="Models\ExpertSet.cs" />
+    <Compile Include="Models\Pushing.cs" />
+    <Compile Include="Models\QuadroSet.cs" />
     <Compile Include="Models\FixTraderAccount.cs" />
     <Compile Include="Models\IFilterableEntity.cs" />
     <Compile Include="Models\Monitor.cs" />

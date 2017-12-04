@@ -6,7 +6,7 @@ using QvaDev.Common.Attributes;
 
 namespace QvaDev.Data.Models
 {
-    public class ExpertSet : BaseDescriptionEntity, IFilterableEntity
+    public class QuadroSet : BaseDescriptionEntity, IFilterableEntity
     {
         public enum TradeSetStates
         {

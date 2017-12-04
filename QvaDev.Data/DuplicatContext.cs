@@ -23,10 +23,11 @@ namespace QvaDev.Data
 
         public DbSet<Monitor> Monitors { get; set; }
         public DbSet<MonitoredAccount> MonitoredAccounts { get; set; }
+        public DbSet<Pushing> Pushings { get; set; }
 
         public DbSet<Expert> Experts { get; set; }
         public DbSet<TradingAccount> TradingAccounts { get; set; }
-        public DbSet<ExpertSet> ExpertSets { get; set; }
+        public DbSet<QuadroSet> QuadroSets { get; set; }
 
         public void Init()
         {
@@ -44,13 +45,17 @@ namespace QvaDev.Data
                         SrvFilePath = $"Mt4SrvFiles\\{srv}.srv"
                     });
                 }
+
+                if (!Experts.Any(e => e.Description == "Quadro"))
+                    Experts.Add(new Expert { Description = "Quadro" });
+                //if (!Experts.Any(e => e.Description == "Pushing"))
+                //    Experts.Add(new Expert { Description = "Pushing" });
+
+                SaveChanges();
             }
             catch  { }
 
             if (exists) return;
-
-            Experts.Add(new Expert { Description = "Quadro" });
-            SaveChanges();
 
             InitDebug();
             SaveChanges();
@@ -64,14 +69,6 @@ namespace QvaDev.Data
 
         private void InitDebug()
         {
-            FixTraderAccounts.Add(new FixTraderAccount
-            {
-                Description = "FIX Trader priorfx",
-                IpAddress = "192.81.110.211",
-                CommandSocketPort = 9001,
-                EventsSocketPort = 9002
-            });
-
             var cTraderPlatform = CTraderPlatforms.Add(new CTraderPlatform()
             {
                 Description = "cTrader Prod",
@@ -100,8 +97,7 @@ namespace QvaDev.Data
                 Description = "Aura1",
                 User = 8801929,
                 Password = "7btmtdh",
-                MetaTraderPlatform = mt4Platform,
-                ShouldConnect = true
+                MetaTraderPlatform = mt4Platform
             });
             var mt4Account2 = MetaTraderAccounts.Add(new MetaTraderAccount()
             {
@@ -261,6 +257,22 @@ namespace QvaDev.Data
                 ExpectedContracts = 4000
             });
 
+
+            var ftAccount = FixTraderAccounts.Add(new FixTraderAccount
+            {
+                Description = "FIX Trader priorfx",
+                IpAddress = "192.81.110.211",
+                CommandSocketPort = 9001,
+                EventsSocketPort = 9002,
+                ShouldConnect = true
+            });
+            Pushings.Add(new Pushing
+            {
+                Profile = profile1,
+                FixTraderAccount = ftAccount,
+                Description = "Pushing stuff"
+            });
+
             var tAccount = TradingAccounts.Add(new TradingAccount
             {
                 Description = "TTA1",
@@ -295,14 +307,14 @@ namespace QvaDev.Data
 
         private void AddSimpleExpertSet(TradingAccount ta, string symbol1, string symbol2, int magic)
         {
-            ExpertSets.Add(new ExpertSet
+            QuadroSets.Add(new QuadroSet
             {
                 Description = $"{symbol1} {symbol2}",
                 TradingAccount = ta,
-                TimeFrame = ExpertSet.TimeFrames.M1,
+                TimeFrame = QuadroSet.TimeFrames.M1,
                 Symbol1 = symbol1,
                 Symbol2 = symbol2,
-                Variant = ExpertSet.Variants.NormalNormalBase,
+                Variant = QuadroSet.Variants.NormalNormalBase,
                 Delta = 10,
                 M = 0.6,
                 Diff = 20,
@@ -333,7 +345,6 @@ namespace QvaDev.Data
                 User = 8801927,
                 Password = "eey3pca",
                 MetaTraderPlatform = mt4Platform,
-                ShouldConnect = true
             });
 
             var profile = Profiles.Add(new Profile { Description = "Quadro 10K" });
@@ -372,7 +383,6 @@ namespace QvaDev.Data
                 User = 8801928,
                 Password = "4ouvpcu",
                 MetaTraderPlatform = mt4Platform,
-                ShouldConnect = true
             });
 
             var profile = Profiles.Add(new Profile { Description = "Quadro 30K" });
@@ -428,8 +438,7 @@ namespace QvaDev.Data
                 Description = "Quadro 60K",
                 User = 8801912,
                 Password = "ou1eshv",
-                MetaTraderPlatform = mt4Platform,
-                ShouldConnect = true
+                MetaTraderPlatform = mt4Platform
             });
 
             var profile = Profiles.Add(new Profile { Description = "Quadro 60K" });
@@ -480,16 +489,16 @@ namespace QvaDev.Data
         private void AddProdSet(TradingAccount ta, string desc, string sym1, string sym2, int varId, int diff, int per, double lots, int tp1,
             int reOpenDiff, int reChangeCount, int reOpenDiff2, int delta, double m, int magic, int last24 = 1000, int maxTrade = 1000)
         {
-            ExpertSets.Add(new ExpertSet
+            QuadroSets.Add(new QuadroSet
             {
                 ShouldRun = true,
                 TradingAccount = ta,
                 Description = desc,
                 MagicNumber = magic,
-                TimeFrame = ExpertSet.TimeFrames.M15,
+                TimeFrame = QuadroSet.TimeFrames.M15,
                 Symbol1 = sym1,
                 Symbol2 = sym2,
-                Variant = (ExpertSet.Variants)varId,
+                Variant = (QuadroSet.Variants)varId,
                 Diff = diff,
                 Period = per,
                 LotSize = lots,

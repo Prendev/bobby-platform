@@ -35,8 +35,8 @@ namespace QvaDev.Experts.Quadro.Services
             if (exp.QuantStoAvg <= exp.StochMaxAvgOpen || exp.QuantWprAvg <= -exp.WprMinAvgOpen) return;
             if (MyOrdersCount(exp, exp.Sym1MaxOrderType, exp.Sym2MaxOrderType) != 0)
             {
-                if (exp.E.CurrentSellState == ExpertSet.TradeSetStates.NoTrade)
-                    exp.E.CurrentSellState = ExpertSet.TradeSetStates.TradeOpened;
+                if (exp.E.CurrentSellState == QuadroSet.TradeSetStates.NoTrade)
+                    exp.E.CurrentSellState = QuadroSet.TradeSetStates.TradeOpened;
                 return;
             }
             _log.Info($"{exp.E.Description}: EntriesService.CalculateEntriesForMaxAction => {exp.E.MagicNumber}");
@@ -46,7 +46,7 @@ namespace QvaDev.Experts.Quadro.Services
 
             exp.E.SellOpenCount++;
             _commonService.SetLastActionPrice(exp, Sides.Sell);
-            exp.E.CurrentSellState = ExpertSet.TradeSetStates.TradeOpened;
+            exp.E.CurrentSellState = QuadroSet.TradeSetStates.TradeOpened;
             exp.Connector.SendMarketOrderRequest(exp.E.Symbol1, exp.Sym1MaxOrderType, lot1, exp.E.MagicNumber, $"{exp.E.Description} {exp.E.MagicNumber}");
             exp.Connector.SendMarketOrderRequest(exp.E.Symbol2, exp.Sym2MaxOrderType, lot2, exp.E.MagicNumber, $"{exp.E.Description} {exp.E.MagicNumber}");
         }
@@ -56,8 +56,8 @@ namespace QvaDev.Experts.Quadro.Services
             if (exp.QuantStoAvg >= exp.StochMinAvgOpen || exp.QuantWprAvg >= -exp.WprMaxAvgOpen) return;
             if (MyOrdersCount(exp, exp.Sym1MinOrderType, exp.Sym2MinOrderType) != 0)
             {
-                if (exp.E.CurrentBuyState == ExpertSet.TradeSetStates.NoTrade)
-                    exp.E.CurrentBuyState = ExpertSet.TradeSetStates.TradeOpened;
+                if (exp.E.CurrentBuyState == QuadroSet.TradeSetStates.NoTrade)
+                    exp.E.CurrentBuyState = QuadroSet.TradeSetStates.TradeOpened;
                 return;
             }
             _log.Info($"{exp.E.Description}: EntriesService.CalculateEntriesForMinAction => {exp.E.MagicNumber}");
@@ -67,7 +67,7 @@ namespace QvaDev.Experts.Quadro.Services
 
             exp.E.BuyOpenCount++;
             _commonService.SetLastActionPrice(exp, Sides.Buy);
-            exp.E.CurrentBuyState = ExpertSet.TradeSetStates.TradeOpened;
+            exp.E.CurrentBuyState = QuadroSet.TradeSetStates.TradeOpened;
             exp.Connector.SendMarketOrderRequest(exp.E.Symbol1, exp.Sym1MinOrderType, lot1, exp.E.MagicNumber, $"{exp.E.Description} {exp.E.MagicNumber}");
             exp.Connector.SendMarketOrderRequest(exp.E.Symbol2, exp.Sym2MinOrderType, lot2, exp.E.MagicNumber, $"{exp.E.Description} {exp.E.MagicNumber}");
         }

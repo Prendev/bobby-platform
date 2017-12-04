@@ -116,7 +116,7 @@ namespace QvaDev.Duplicat.ViewModel
         public void ShowExpertSetsCommand(TradingAccount tradingAccount)
         {
             SelectedTradingAccountId = tradingAccount?.Id ?? 0;
-            foreach (var e in ExpertSets) e.IsFiltered = e.TradingAccountId != SelectedTradingAccountId;
+            foreach (var e in QuadroSets) e.IsFiltered = e.TradingAccountId != SelectedTradingAccountId;
         }
 
         public void AccessNewCTraderCommand(CTraderPlatform p)

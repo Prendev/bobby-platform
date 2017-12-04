@@ -34,7 +34,7 @@ namespace QvaDev.Duplicat.ViewModel
         public ObservableCollection<MonitoredAccount> MonitoredAccounts { get; private set; }
         public ObservableCollection<Expert> Experts { get; private set; }
         public ObservableCollection<TradingAccount> TradingAccounts { get; private set; }
-        public ObservableCollection<ExpertSet> ExpertSets { get; private set; }
+        public ObservableCollection<QuadroSet> QuadroSets { get; private set; }
 
         public event DataContextChangedEventHandler DataContextChanged;
         
@@ -91,7 +91,7 @@ namespace QvaDev.Duplicat.ViewModel
             _duplicatContext.MonitoredAccounts.Where(e => e.Monitor.ProfileId == SelectedProfileId).Load();
             _duplicatContext.Experts.Load();
             _duplicatContext.TradingAccounts.Where(e => e.ProfileId == SelectedProfileId).Load();
-            _duplicatContext.ExpertSets.Where(e => e.TradingAccount.ProfileId == SelectedProfileId).Load();
+            _duplicatContext.QuadroSets.Where(e => e.TradingAccount.ProfileId == SelectedProfileId).Load();
 
             MtPlatforms = _duplicatContext.MetaTraderPlatforms.Local;
             CtPlatforms = _duplicatContext.CTraderPlatforms.Local;
@@ -108,11 +108,11 @@ namespace QvaDev.Duplicat.ViewModel
             MonitoredAccounts = _duplicatContext.MonitoredAccounts.Local;
             Experts = _duplicatContext.Experts.Local;
             TradingAccounts = _duplicatContext.TradingAccounts.Local;
-            ExpertSets = _duplicatContext.ExpertSets.Local;
+            QuadroSets = _duplicatContext.QuadroSets.Local;
 
             foreach (var e in SymbolMappings) e.IsFiltered = e.SlaveId != SelectedSlaveId;
             foreach (var e in Copiers) e.IsFiltered = e.SlaveId != SelectedSlaveId;
-            foreach (var e in ExpertSets) e.IsFiltered = e.TradingAccountId != SelectedTradingAccountId;
+            foreach (var e in QuadroSets) e.IsFiltered = e.TradingAccountId != SelectedTradingAccountId;
         }
     }
 }
