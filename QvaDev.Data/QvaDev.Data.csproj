@@ -64,6 +64,7 @@
     <Compile Include="Models\CTraderPlatform.cs" />
     <Compile Include="Models\Expert.cs" />
     <Compile Include="Models\Pushing.cs" />
+    <Compile Include="Models\PushingDetail.cs" />
     <Compile Include="Models\QuadroSet.cs" />
     <Compile Include="Models\FixTraderAccount.cs" />
     <Compile Include="Models\IFilterableEntity.cs" />
@@ -89,6 +90,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Mt4SrvFiles\AuraFX-NY Live.srv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Mt4SrvFiles\BlackwellGlobal1-Demo5.srv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Mt4SrvFiles\CoreSpreads-DemoBravo.srv">

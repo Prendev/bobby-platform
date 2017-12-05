@@ -33,6 +33,7 @@ namespace QvaDev.Duplicat.ViewModel
         public ObservableCollection<Monitor> Monitors { get; private set; }
         public ObservableCollection<MonitoredAccount> MonitoredAccounts { get; private set; }
         public ObservableCollection<Pushing> Pushings { get; private set; }
+        public ObservableCollection<PushingDetail> PushingDetails { get; private set; }
         public ObservableCollection<Expert> Experts { get; private set; }
         public ObservableCollection<TradingAccount> TradingAccounts { get; private set; }
         public ObservableCollection<QuadroSet> QuadroSets { get; private set; }
@@ -51,6 +52,7 @@ namespace QvaDev.Duplicat.ViewModel
         public int SelectedAlphaMonitorId { get => Get<int>(); set => Set(value); }
         public int SelectedBetaMonitorId { get => Get<int>(); set => Set(value); }
         public int SelectedTradingAccountId { get => Get<int>(); set => Set(value); }
+        public int SelectedPushingDetailId { get => Get<int>(); set => Set(value); }
 
         public DuplicatViewModel(
             ILog log,
@@ -91,6 +93,7 @@ namespace QvaDev.Duplicat.ViewModel
             _duplicatContext.Monitors.Where(e => e.ProfileId == SelectedProfileId).Load();
             _duplicatContext.MonitoredAccounts.Where(e => e.Monitor.ProfileId == SelectedProfileId).Load();
             _duplicatContext.Pushings.Where(e => e.ProfileId == SelectedProfileId).Load();
+            _duplicatContext.Pushings.Where(e => e.ProfileId == SelectedProfileId).Select(e => e.PushingDetail).Load();
             _duplicatContext.Experts.Load();
             _duplicatContext.TradingAccounts.Where(e => e.ProfileId == SelectedProfileId).Load();
             _duplicatContext.QuadroSets.Where(e => e.TradingAccount.ProfileId == SelectedProfileId).Load();
@@ -109,6 +112,7 @@ namespace QvaDev.Duplicat.ViewModel
             Monitors = _duplicatContext.Monitors.Local;
             MonitoredAccounts = _duplicatContext.MonitoredAccounts.Local;
             Pushings = _duplicatContext.Pushings.Local;
+            PushingDetails = _duplicatContext.PushingDetails.Local;
             Experts = _duplicatContext.Experts.Local;
             TradingAccounts = _duplicatContext.TradingAccounts.Local;
             QuadroSets = _duplicatContext.QuadroSets.Local;
@@ -116,6 +120,7 @@ namespace QvaDev.Duplicat.ViewModel
             foreach (var e in SymbolMappings) e.IsFiltered = e.SlaveId != SelectedSlaveId;
             foreach (var e in Copiers) e.IsFiltered = e.SlaveId != SelectedSlaveId;
             foreach (var e in QuadroSets) e.IsFiltered = e.TradingAccountId != SelectedTradingAccountId;
+            foreach (var e in PushingDetails) e.IsFiltered = e.Id != SelectedPushingDetailId;
         }
     }
 }

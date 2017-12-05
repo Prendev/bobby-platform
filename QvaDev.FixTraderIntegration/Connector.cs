@@ -31,13 +31,6 @@ namespace QvaDev.FixTraderIntegration
             _accountInfo = accountInfo;
             try
             {
-                //_commandClient = new TcpClient
-                //{
-                //    SendTimeout = 10000,
-                //    ReceiveTimeout = 10000,
-                //    ExclusiveAddressUse = true
-                //};
-                //_commandClient.Connect(accountInfo.IpAddress, accountInfo.CommandSocketPort);
                 _commandClient = new TcpClient(accountInfo.IpAddress, accountInfo.CommandSocketPort);
                 _eventsClient = new TcpClient(accountInfo.IpAddress, accountInfo.EventsSocketPort);
 

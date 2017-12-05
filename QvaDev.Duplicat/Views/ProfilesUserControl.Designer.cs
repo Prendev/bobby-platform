@@ -35,7 +35,7 @@
             this.dgvGroups = new QvaDev.Duplicat.Views.CustomDataGridView();
             this.tlpLeft = new System.Windows.Forms.TableLayoutPanel();
             this.gbControl = new System.Windows.Forms.GroupBox();
-            this.btnLoadProfile = new System.Windows.Forms.Button();
+            this.btnLoad = new System.Windows.Forms.Button();
             this.tlpMain.SuspendLayout();
             this.groupBox6.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvProfiles)).BeginInit();
@@ -122,7 +122,7 @@
             // 
             // gbControl
             // 
-            this.gbControl.Controls.Add(this.btnLoadProfile);
+            this.gbControl.Controls.Add(this.btnLoad);
             this.gbControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.gbControl.Location = new System.Drawing.Point(3, 3);
             this.gbControl.Name = "gbControl";
@@ -131,14 +131,14 @@
             this.gbControl.TabStop = false;
             this.gbControl.Text = "Control";
             // 
-            // btnLoadProfile
+            // btnLoad
             // 
-            this.btnLoadProfile.Location = new System.Drawing.Point(6, 19);
-            this.btnLoadProfile.Name = "btnLoadProfile";
-            this.btnLoadProfile.Size = new System.Drawing.Size(150, 23);
-            this.btnLoadProfile.TabIndex = 15;
-            this.btnLoadProfile.Text = "Load selected profile";
-            this.btnLoadProfile.UseVisualStyleBackColor = true;
+            this.btnLoad.Location = new System.Drawing.Point(6, 19);
+            this.btnLoad.Name = "btnLoad";
+            this.btnLoad.Size = new System.Drawing.Size(150, 23);
+            this.btnLoad.TabIndex = 15;
+            this.btnLoad.Text = "Load selected profile";
+            this.btnLoad.UseVisualStyleBackColor = true;
             // 
             // ProfilesUserControl
             // 
@@ -167,6 +167,6 @@
         private CustomDataGridView dgvGroups;
         private System.Windows.Forms.TableLayoutPanel tlpLeft;
         private System.Windows.Forms.GroupBox gbControl;
-        private System.Windows.Forms.Button btnLoadProfile;
+        private System.Windows.Forms.Button btnLoad;
     }
 }

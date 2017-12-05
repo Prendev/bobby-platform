@@ -61,11 +61,11 @@ namespace QvaDev.Orchestration.Services
             connector.OnTick -= Connector_OnTick;
             connector.OnTick += Connector_OnTick;
 
-            var symbols1 = tradingAccount.ExpertSets
+            var symbols1 = tradingAccount.QuadroSets
                 .Where(e => e.ShouldRun)
                 .Select(e => new Tuple<string, int, short>(e.Symbol1, (int)e.TimeFrame, (short) e.GetMaxBarCount()));
 
-            var symbols2 = tradingAccount.ExpertSets
+            var symbols2 = tradingAccount.QuadroSets
                 .Where(e => e.ShouldRun)
                 .Select(e => new Tuple<string, int, short>(e.Symbol2, (int)e.TimeFrame, (short)e.GetMaxBarCount()));
 
@@ -84,7 +84,7 @@ namespace QvaDev.Orchestration.Services
             var pnl = connector.GetFloatingProfit();
             foreach (var tradingAccount in _tradingAccounts)
             {
-                foreach (var expertSet in tradingAccount.ExpertSets)
+                foreach (var expertSet in tradingAccount.QuadroSets)
                 {
                     if (tradingAccount.SyncStates)
                     {
@@ -114,7 +114,7 @@ namespace QvaDev.Orchestration.Services
                 //TODO
                 try
                 {
-                    foreach (var expertSet in _tradingAccounts.SelectMany(ta => ta.ExpertSets)
+                    foreach (var expertSet in _tradingAccounts.SelectMany(ta => ta.QuadroSets)
                         .Where(es => es.ShouldRun && (es.Symbol1 == e.Tick.Symbol || es.Symbol2 == e.Tick.Symbol)))
                         Task.Factory.StartNew(() => _quadroService.OnTick((Connector) sender, expertSet));
 
@@ -138,7 +138,7 @@ namespace QvaDev.Orchestration.Services
                 //TODO
                 try
                 {
-                    foreach (var expertSet in _tradingAccounts.SelectMany(ta => ta.ExpertSets)
+                    foreach (var expertSet in _tradingAccounts.SelectMany(ta => ta.QuadroSets)
                         .Where(es => es.ShouldRun && (es.Symbol1 == e.Symbol || es.Symbol2 == e.Symbol)))
                         Task.Factory.StartNew(() => _quadroService.OnBarHistory((Connector) sender, expertSet, e));
                 }

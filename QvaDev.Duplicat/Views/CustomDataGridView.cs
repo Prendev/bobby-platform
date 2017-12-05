@@ -24,14 +24,15 @@ namespace QvaDev.Duplicat.Views
             DataError += DataGridView_DataError;
         }
 
-        public void AddComboBoxColumn<T>(ObservableCollection<T> list) where T : class
+        public void AddComboBoxColumn<T>(ObservableCollection<T> list, string name = null) where T : class
         {
-            var name = typeof(T).Name;
+            name = name ?? typeof(T).Name;
             if (!_invisibleColumns.Contains(name))
                 _invisibleColumns.Add(name);
 
             if (!Columns.Contains($"{name}*"))
-                Columns.Add(new DataGridViewComboBoxColumn()
+            {
+                var column = new DataGridViewComboBoxColumn()
                 {
                     DataSource = list.ToBindingList(),
                     Name = $"{name}*",
@@ -39,7 +40,9 @@ namespace QvaDev.Duplicat.Views
                     DisplayMember = "DisplayMember",
                     ValueMember = "Id",
                     HeaderText = $"{name}*"
-                });
+                };
+                Columns.Add(column);
+            }
             else if (Columns[$"{name}*"] is DataGridViewComboBoxColumn)
                 ((DataGridViewComboBoxColumn)Columns[$"{name}*"]).DataSource = list.ToBindingList();
         }

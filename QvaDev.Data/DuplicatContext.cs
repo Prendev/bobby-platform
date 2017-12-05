@@ -24,6 +24,7 @@ namespace QvaDev.Data
         public DbSet<Monitor> Monitors { get; set; }
         public DbSet<MonitoredAccount> MonitoredAccounts { get; set; }
         public DbSet<Pushing> Pushings { get; set; }
+        public DbSet<PushingDetail> PushingDetails { get; set; }
 
         public DbSet<Expert> Experts { get; set; }
         public DbSet<TradingAccount> TradingAccounts { get; set; }
@@ -58,6 +59,8 @@ namespace QvaDev.Data
             if (exists) return;
 
             InitDebug();
+            SaveChanges();
+            InitPushing();
             SaveChanges();
             Init10KSet();
             SaveChanges();
@@ -257,22 +260,6 @@ namespace QvaDev.Data
                 ExpectedContracts = 4000
             });
 
-
-            var ftAccount = FixTraderAccounts.Add(new FixTraderAccount
-            {
-                Description = "FIX Trader priorfx",
-                IpAddress = "192.81.110.211",
-                CommandSocketPort = 9001,
-                EventsSocketPort = 9002,
-                ShouldConnect = true
-            });
-            Pushings.Add(new Pushing
-            {
-                Profile = profile1,
-                FixTraderAccount = ftAccount,
-                Description = "Pushing stuff"
-            });
-
             var tAccount = TradingAccounts.Add(new TradingAccount
             {
                 Description = "TTA1",
@@ -333,6 +320,72 @@ namespace QvaDev.Data
                 ReOpenDiffChangeCount = 3,
                 ReOpenDiff2 = 30,
                 ShouldRun = true
+            });
+        }
+
+        private void InitPushing()
+        {
+            var profile1 = Profiles.First(p => p.Description == "Dummy Profile 1");
+            var mt4Platform = MetaTraderPlatforms.First(p => p.Description == "BlackwellGlobal1-Demo5");
+
+            var alphaMaster = MetaTraderAccounts.Add(new MetaTraderAccount()
+            {
+                Description = "Alpha Master",
+                User = 518841,
+                Password = "ri3eyef",
+                MetaTraderPlatform = mt4Platform,
+                ShouldConnect = true
+            });
+            var betaMaster = MetaTraderAccounts.Add(new MetaTraderAccount()
+            {
+                Description = "Beta Master",
+                User = 518842,
+                Password = "4hjyebx",
+                MetaTraderPlatform = mt4Platform,
+                ShouldConnect = true
+            });
+            var hedgeAccount = MetaTraderAccounts.Add(new MetaTraderAccount()
+            {
+                Description = "Hedge Account",
+                User = 518843,
+                Password = "ofkw7co",
+                MetaTraderPlatform = mt4Platform,
+                ShouldConnect = true
+            });
+
+            var ftAccount = FixTraderAccounts.Add(new FixTraderAccount
+            {
+                Description = "FIX Trader priorfx",
+                IpAddress = "192.81.110.211",
+                CommandSocketPort = 9001,
+                EventsSocketPort = 9002,
+                ShouldConnect = true
+            });
+
+            Pushings.Add(new Pushing
+            {
+                Profile = profile1,
+                FutureAccount = ftAccount,
+                FutureSymbol = "EURUSD",
+                Description = "Pushing stuff",
+                AlphaMaster = alphaMaster,
+                AlphaSymbol = "EURUSD",
+                BetaMaster = betaMaster,
+                BetaSymbol = "EURUSD",
+                HedgeAccount = hedgeAccount,
+                HedgeSymbol = "EURUSD",
+                PushingDetail = new PushingDetail
+                {
+                    SmallContractSize = 1,
+                    BigContractSize = 2,
+                    BigPercentage = 70,
+                    MinIntervalInMs = 50,
+                    MaxIntervalInMs = 100,
+                    MasterLots = 10,
+                    HedgeLots = 20,
+                    OpenSignalContractLimit = 180,
+                    SlippageContractLimit = 20,
+                }
             });
         }
 

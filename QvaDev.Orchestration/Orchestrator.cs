@@ -261,7 +261,7 @@ namespace QvaDev.Orchestration
 
         public void TestMarketOrder(Pushing pushing)
         {
-            var connector = (FixTraderIntegration.Connector)pushing.FixTraderAccount.Connector;
+            var connector = (FixTraderIntegration.Connector)pushing.FutureAccount.Connector;
             connector.SendMarketOrderRequest("EURUSD", Common.Integration.Sides.Buy, 1, "1234");
         }
     }
