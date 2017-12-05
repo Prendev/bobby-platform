@@ -208,5 +208,10 @@ namespace QvaDev.Duplicat.ViewModel
             _orchestrator.StopExperts();
             AreExpertsStarted = false;
         }
+
+        public void TestMarketOrderCommand(Pushing pushing)
+        {
+            _orchestrator.TestMarketOrder(pushing);
+        }
     }
 }

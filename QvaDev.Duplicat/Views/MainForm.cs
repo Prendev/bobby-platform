@@ -48,7 +48,7 @@ namespace QvaDev.Duplicat.Views
             {
                 if (tabControlMain.SelectedTab.Name == tabPageCopier.Name) copiersUserControl.FilterRows();
                 else if (tabControlMain.SelectedTab.Name == tabPageMonitor.Name) monitorsUserControl.FilterRows();
-                else if (tabControlMain.SelectedTab.Name == tabPageQuadro.Name) expertsUserControl.FilterRows();
+                else if (tabControlMain.SelectedTab.Name == tabPageQuadro.Name) quadroUserControl.FilterRows();
             };
 
             _viewModel.DataContextChanged += AttachDataSources;
@@ -59,7 +59,8 @@ namespace QvaDev.Duplicat.Views
             ctAccountsUserControl.InitView(_viewModel);
             ftAccountsUserControl.InitView(_viewModel);
             monitorsUserControl.InitView(_viewModel);
-            expertsUserControl.InitView(_viewModel);
+            pushingUserControl.InitView(_viewModel);
+            quadroUserControl.InitView(_viewModel);
 
             AttachDataSources();
         }
@@ -72,7 +73,9 @@ namespace QvaDev.Duplicat.Views
             ftAccountsUserControl.AttachDataSources();
             copiersUserControl.AttachDataSources();
             monitorsUserControl.AttachDataSources();
-            expertsUserControl.AttachDataSources();
+            monitorsUserControl.AttachDataSources();
+            pushingUserControl.AttachDataSources();
+            quadroUserControl.AttachDataSources();
         }
     }
 }

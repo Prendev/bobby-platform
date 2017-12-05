@@ -72,6 +72,12 @@
     <Compile Include="Views\CtAccountsUserControl.Designer.cs">
       <DependentUpon>CtAccountsUserControl.cs</DependentUpon>
     </Compile>
+    <Compile Include="Views\PushingUserControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Views\PushingUserControl.Designer.cs">
+      <DependentUpon>PushingUserControl.cs</DependentUpon>
+    </Compile>
     <Compile Include="Views\QuadroUserControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -129,6 +135,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Views\CtAccountsUserControl.resx">
       <DependentUpon>CtAccountsUserControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\PushingUserControl.resx">
+      <DependentUpon>PushingUserControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\QuadroUserControl.resx">
       <DependentUpon>QuadroUserControl.cs</DependentUpon>

@@ -32,6 +32,7 @@ namespace QvaDev.Duplicat.ViewModel
         public ObservableCollection<Copier> Copiers { get; private set; }
         public ObservableCollection<Monitor> Monitors { get; private set; }
         public ObservableCollection<MonitoredAccount> MonitoredAccounts { get; private set; }
+        public ObservableCollection<Pushing> Pushings { get; private set; }
         public ObservableCollection<Expert> Experts { get; private set; }
         public ObservableCollection<TradingAccount> TradingAccounts { get; private set; }
         public ObservableCollection<QuadroSet> QuadroSets { get; private set; }
@@ -89,6 +90,7 @@ namespace QvaDev.Duplicat.ViewModel
             _duplicatContext.SymbolMappings.Where(e => e.Slave.Master.Group.ProfileId == SelectedProfileId).Load();
             _duplicatContext.Monitors.Where(e => e.ProfileId == SelectedProfileId).Load();
             _duplicatContext.MonitoredAccounts.Where(e => e.Monitor.ProfileId == SelectedProfileId).Load();
+            _duplicatContext.Pushings.Where(e => e.ProfileId == SelectedProfileId).Load();
             _duplicatContext.Experts.Load();
             _duplicatContext.TradingAccounts.Where(e => e.ProfileId == SelectedProfileId).Load();
             _duplicatContext.QuadroSets.Where(e => e.TradingAccount.ProfileId == SelectedProfileId).Load();
@@ -106,6 +108,7 @@ namespace QvaDev.Duplicat.ViewModel
             Copiers = _duplicatContext.Copiers.Local;
             Monitors = _duplicatContext.Monitors.Local;
             MonitoredAccounts = _duplicatContext.MonitoredAccounts.Local;
+            Pushings = _duplicatContext.Pushings.Local;
             Experts = _duplicatContext.Experts.Local;
             TradingAccounts = _duplicatContext.TradingAccounts.Local;
             QuadroSets = _duplicatContext.QuadroSets.Local;

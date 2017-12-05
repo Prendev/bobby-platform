@@ -22,6 +22,7 @@ namespace QvaDev.Orchestration
         Task Connect(DuplicatContext duplicatContext);
         Task Disconnect();
         Task BalanceReport(DateTime from, DateTime to, string reportPath);
+        void TestMarketOrder(Pushing pushing);
     }
 
     public class Orchestrator : IOrchestrator
@@ -256,6 +257,12 @@ namespace QvaDev.Orchestration
         public void StopExperts()
         {
             _expertService.Stop();
+        }
+
+        public void TestMarketOrder(Pushing pushing)
+        {
+            var connector = (FixTraderIntegration.Connector)pushing.FixTraderAccount.Connector;
+            connector.SendMarketOrderRequest("EURUSD", Common.Integration.Sides.Buy, 1, "1234");
         }
     }
 }

@@ -1,24 +1,22 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using log4net;
 using QvaDev.Common.Integration;
-using System.Linq;
 
 namespace QvaDev.FixTraderIntegration
 {
     public class Connector : IConnector
     {
-        private Socket _commandSocket;
-        private Socket _eventsSocket;
+        private TcpClient _commandClient;
+        private TcpClient _eventsClient;
         private AccountInfo _accountInfo;
         private readonly ILog _log;
 
         public string Description => _accountInfo.Description;
-        public bool IsConnected => _commandSocket?.Connected == true && _eventsSocket?.Connected == true;
+        public bool IsConnected => _commandClient?.Connected == true;
         public ConcurrentDictionary<long, Position> Positions { get; }
         public event PositionEventHandler OnPosition;
         public event BarHistoryEventHandler OnBarHistory;
@@ -33,18 +31,18 @@ namespace QvaDev.FixTraderIntegration
             _accountInfo = accountInfo;
             try
             {
-                var ipAddress = IPAddress.Parse(accountInfo.IpAddress);
-                var commandSocket = new IPEndPoint(ipAddress, accountInfo.CommandSocketPort);
-                var eventSocket = new IPEndPoint(ipAddress, accountInfo.EventsSocketPort);
+                //_commandClient = new TcpClient
+                //{
+                //    SendTimeout = 10000,
+                //    ReceiveTimeout = 10000,
+                //    ExclusiveAddressUse = true
+                //};
+                //_commandClient.Connect(accountInfo.IpAddress, accountInfo.CommandSocketPort);
+                _commandClient = new TcpClient(accountInfo.IpAddress, accountInfo.CommandSocketPort);
+                _eventsClient = new TcpClient(accountInfo.IpAddress, accountInfo.EventsSocketPort);
 
-                _commandSocket = new Socket(ipAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-                _eventsSocket = new Socket(ipAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-                _commandSocket.Connect(commandSocket);
-                _eventsSocket.Connect(eventSocket);
-
-                if (_commandSocket.Connected && _eventsSocket.Connected)
+                if (IsConnected)
                 {
-                    SendMarketOrderRequest("EURUSD", Sides.Buy, 0.1, "alma");
                     return true;
                 }
                 Disconnect();
@@ -60,8 +58,8 @@ namespace QvaDev.FixTraderIntegration
         {
             try
             {
-                _commandSocket?.Dispose();
-                _eventsSocket?.Dispose();
+                _commandClient?.Dispose();
+                _eventsClient?.Dispose();
             }
             catch { }
         }
@@ -80,11 +78,12 @@ namespace QvaDev.FixTraderIntegration
                 $"114={unix}",
             };
 
-            byte[] msg = Encoding.ASCII.GetBytes(string.Join("|", tags));
-
             try
             {
-                _commandSocket.Send(msg);
+                var ns = _commandClient.GetStream();
+                var encoder = new ASCIIEncoding();
+                byte[] buffer = encoder.GetBytes($"|{string.Join("|", tags)}\n");
+                ns.Write(buffer, 0, buffer.Length);
             }
             catch (Exception e)
             {
