@@ -21,8 +21,23 @@ namespace QvaDev.Duplicat.Views
             _viewModel = viewModel;
 
             gbControl.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsLoading), true);
+            gbPushing.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsPushingEnabled));
+            btnLoad.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsConnected), true);
             dgvPushings.AddBinding("AllowUserToAddRows", _viewModel, nameof(_viewModel.IsConfigReadonly), true);
             dgvPushings.AddBinding("AllowUserToDeleteRows", _viewModel, nameof(_viewModel.IsConfigReadonly), true);
+
+            btnBuyBeta.AddBinding<DuplicatViewModel.PushingStates>("Enabled", _viewModel,
+                nameof(_viewModel.PushingState), p => p == DuplicatViewModel.PushingStates.NotRunning);
+            btnSellBeta.AddBinding<DuplicatViewModel.PushingStates>("Enabled", _viewModel,
+                nameof(_viewModel.PushingState), p => p == DuplicatViewModel.PushingStates.NotRunning);
+            btnOpenPanic.AddBinding<DuplicatViewModel.PushingStates>("Enabled", _viewModel,
+                nameof(_viewModel.PushingState), p => p == DuplicatViewModel.PushingStates.OpeningBeta);
+            btnCloseLong.AddBinding<DuplicatViewModel.PushingStates>("Enabled", _viewModel,
+                nameof(_viewModel.PushingState), p => p == DuplicatViewModel.PushingStates.AlphaOpened);
+            btnCloseShort.AddBinding<DuplicatViewModel.PushingStates>("Enabled", _viewModel,
+                nameof(_viewModel.PushingState), p => p == DuplicatViewModel.PushingStates.AlphaOpened);
+            btnClosePanic.AddBinding<DuplicatViewModel.PushingStates>("Enabled", _viewModel,
+                nameof(_viewModel.PushingState), p => p == DuplicatViewModel.PushingStates.ClosingFirst);
 
             dgvPushings.DefaultValuesNeeded += (s, e) =>
             {

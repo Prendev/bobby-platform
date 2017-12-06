@@ -12,6 +12,14 @@ namespace QvaDev.Duplicat.ViewModel
 {
     public partial class DuplicatViewModel : BaseViewModel
     {
+        public enum PushingStates
+        {
+            NotRunning,
+            OpeningBeta,
+            AlphaOpened,
+            ClosingFirst
+        }
+
         public delegate void DataContextChangedEventHandler();
         
         private DuplicatContext _duplicatContext;
@@ -46,6 +54,8 @@ namespace QvaDev.Duplicat.ViewModel
         public bool AreCopiersStarted { get => Get<bool>(); set => Set(value); }
         public bool AreMonitorsStarted { get => Get<bool>(); set => Set(value); }
         public bool AreExpertsStarted { get => Get<bool>(); set => Set(value); }
+        public bool IsPushingEnabled { get => Get<bool>(); set => Set(value); }
+        public PushingStates PushingState { get => Get<PushingStates>(); set => Set(value); }
 
         public int SelectedProfileId { get => Get<int>(); set => Set(value); }
         public int SelectedSlaveId { get => Get<int>(); set => Set(value); }
@@ -72,6 +82,8 @@ namespace QvaDev.Duplicat.ViewModel
                 _orchestrator.SelectedAlphaMonitorId = SelectedAlphaMonitorId;
             else if (e.PropertyName == nameof(SelectedBetaMonitorId))
                 _orchestrator.SelectedBetaMonitorId = SelectedBetaMonitorId;
+            else if (e.PropertyName == nameof(IsConnected) || e.PropertyName == nameof(SelectedPushingDetailId))
+                IsPushingEnabled = IsConnected && SelectedPushingDetailId > 0;
         }
 
         private void LoadDataContext()

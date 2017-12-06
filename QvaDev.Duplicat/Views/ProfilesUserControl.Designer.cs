@@ -29,19 +29,19 @@
         private void InitializeComponent()
         {
             this.tlpMain = new System.Windows.Forms.TableLayoutPanel();
-            this.groupBox6 = new System.Windows.Forms.GroupBox();
-            this.dgvProfiles = new QvaDev.Duplicat.Views.CustomDataGridView();
             this.groupBox7 = new System.Windows.Forms.GroupBox();
             this.dgvGroups = new QvaDev.Duplicat.Views.CustomDataGridView();
             this.tlpLeft = new System.Windows.Forms.TableLayoutPanel();
+            this.groupBox6 = new System.Windows.Forms.GroupBox();
+            this.dgvProfiles = new QvaDev.Duplicat.Views.CustomDataGridView();
             this.gbControl = new System.Windows.Forms.GroupBox();
             this.btnLoad = new System.Windows.Forms.Button();
             this.tlpMain.SuspendLayout();
-            this.groupBox6.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dgvProfiles)).BeginInit();
             this.groupBox7.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvGroups)).BeginInit();
             this.tlpLeft.SuspendLayout();
+            this.groupBox6.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvProfiles)).BeginInit();
             this.gbControl.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -60,28 +60,6 @@
             this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 475F));
             this.tlpMain.Size = new System.Drawing.Size(938, 605);
             this.tlpMain.TabIndex = 1;
-            // 
-            // groupBox6
-            // 
-            this.groupBox6.Controls.Add(this.dgvProfiles);
-            this.groupBox6.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.groupBox6.Location = new System.Drawing.Point(3, 55);
-            this.groupBox6.Name = "groupBox6";
-            this.groupBox6.Size = new System.Drawing.Size(457, 541);
-            this.groupBox6.TabIndex = 0;
-            this.groupBox6.TabStop = false;
-            this.groupBox6.Text = "Profiles (account settings are independent)";
-            // 
-            // dgvProfiles
-            // 
-            this.dgvProfiles.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
-            this.dgvProfiles.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgvProfiles.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dgvProfiles.Location = new System.Drawing.Point(3, 16);
-            this.dgvProfiles.MultiSelect = false;
-            this.dgvProfiles.Name = "dgvProfiles";
-            this.dgvProfiles.Size = new System.Drawing.Size(451, 522);
-            this.dgvProfiles.TabIndex = 0;
             // 
             // groupBox7
             // 
@@ -120,6 +98,28 @@
             this.tlpLeft.Size = new System.Drawing.Size(463, 599);
             this.tlpLeft.TabIndex = 2;
             // 
+            // groupBox6
+            // 
+            this.groupBox6.Controls.Add(this.dgvProfiles);
+            this.groupBox6.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.groupBox6.Location = new System.Drawing.Point(3, 55);
+            this.groupBox6.Name = "groupBox6";
+            this.groupBox6.Size = new System.Drawing.Size(457, 541);
+            this.groupBox6.TabIndex = 0;
+            this.groupBox6.TabStop = false;
+            this.groupBox6.Text = "Profiles (account settings are independent)";
+            // 
+            // dgvProfiles
+            // 
+            this.dgvProfiles.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
+            this.dgvProfiles.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgvProfiles.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dgvProfiles.Location = new System.Drawing.Point(3, 16);
+            this.dgvProfiles.MultiSelect = false;
+            this.dgvProfiles.Name = "dgvProfiles";
+            this.dgvProfiles.Size = new System.Drawing.Size(451, 522);
+            this.dgvProfiles.TabIndex = 0;
+            // 
             // gbControl
             // 
             this.gbControl.Controls.Add(this.btnLoad);
@@ -148,11 +148,11 @@
             this.Name = "ProfilesUserControl";
             this.Size = new System.Drawing.Size(938, 605);
             this.tlpMain.ResumeLayout(false);
-            this.groupBox6.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.dgvProfiles)).EndInit();
             this.groupBox7.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dgvGroups)).EndInit();
             this.tlpLeft.ResumeLayout(false);
+            this.groupBox6.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.dgvProfiles)).EndInit();
             this.gbControl.ResumeLayout(false);
             this.ResumeLayout(false);
 

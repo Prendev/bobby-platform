@@ -1,4 +1,5 @@
-﻿using System.Windows.Forms;
+﻿using System;
+using System.Windows.Forms;
 
 namespace QvaDev.Duplicat
 {
@@ -9,15 +10,17 @@ namespace QvaDev.Duplicat
         //    return new SyncBindingSource<T>(list);
         //}
 
-        public static void AddBinding(this Control control, string propertyName, object dataSource, string dataMember, bool inverse = false, bool oneWay = false)
+        public static void AddBinding(this Control control, string propertyName, object dataSource, string dataMember, bool inverse = false)
         {
-            Binding binding;
-            if (inverse)
-            {
-                binding = new Binding(propertyName, dataSource, dataMember);
-                binding.Format += (s, e) => e.Value = !(bool) e.Value;
-            }
-            else binding = new Binding(propertyName, dataSource, dataMember);
+            var binding = new Binding(propertyName, dataSource, dataMember);
+            if (inverse) binding.Format += (s, e) => e.Value = !(bool)e.Value;
+            control.DataBindings.Add(binding);
+        }
+
+        public static void AddBinding<T>(this Control control, string propertyName, object dataSource, string dataMember, Func<T, bool> format)
+        {
+            var binding = new Binding(propertyName, dataSource, dataMember);
+            binding.Format += (s, e) => e.Value = format((T)e.Value);
             control.DataBindings.Add(binding);
         }
     }

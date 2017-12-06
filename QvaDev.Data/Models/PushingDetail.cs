@@ -10,6 +10,7 @@ namespace QvaDev.Data.Models
         public int SmallContractSize { get; set; }
         public int BigContractSize { get; set; }
         public int BigPercentage { get; set; }
+        public int FutureDelayInMs { get; set; }
         public int MinIntervalInMs { get; set; }
         public int MaxIntervalInMs { get; set; }
         public int OpenSignalContractLimit { get; set; }
