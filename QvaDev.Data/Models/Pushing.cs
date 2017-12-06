@@ -1,5 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using QvaDev.Common.Attributes;
+using QvaDev.Common.Integration;
 
 namespace QvaDev.Data.Models
 {
@@ -27,5 +29,11 @@ namespace QvaDev.Data.Models
 
         [InvisibleColumn] public int PushingDetailId { get; set; }
         [InvisibleColumn] public PushingDetail PushingDetail { get; set; }
+
+        [NotMapped] [InvisibleColumn] public Sides BetaOpenSide { get; set; }
+        [NotMapped] [InvisibleColumn] public Sides FirstCloseSide { get; set; }
+        [NotMapped] [InvisibleColumn] public bool IsHedgeClose { get; set; } = true;
+        [NotMapped] [InvisibleColumn] public Position AlphaPosition { get; set; }
+        [NotMapped] [InvisibleColumn] public Position BetaPosition { get; set; }
     }
 }

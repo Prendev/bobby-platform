@@ -22,6 +22,7 @@ namespace QvaDev.Duplicat.Views
 
             gbControl.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsLoading), true);
             gbPushing.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsPushingEnabled));
+            dgvPushingDetail.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsPushingEnabled), true);
             btnLoad.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsConnected), true);
             dgvPushings.AddBinding("AllowUserToAddRows", _viewModel, nameof(_viewModel.IsConfigReadonly), true);
             dgvPushings.AddBinding("AllowUserToDeleteRows", _viewModel, nameof(_viewModel.IsConfigReadonly), true);
@@ -48,17 +49,20 @@ namespace QvaDev.Duplicat.Views
             btnTestMarketOrder.Click += (s, e) => { _viewModel.PushingTestMarketOrderCommand(dgvPushings.GetSelectedItem<Pushing>()); };
             btnBuyBeta.Click += (s, e) => { _viewModel.PushingBuyBetaCommand(dgvPushings.GetSelectedItem<Pushing>()); };
             btnSellBeta.Click += (s, e) => { _viewModel.PushingSellBetaCommand(dgvPushings.GetSelectedItem<Pushing>()); };
-            btnOpenPanic.Click += (s, e) => { _viewModel.PushingOpenPanic(dgvPushings.GetSelectedItem<Pushing>()); };
+            btnOpenPanic.Click += (s, e) => { _viewModel.PushingOpenPanicCommand(dgvPushings.GetSelectedItem<Pushing>()); };
             btnCloseLong.Click += (s, e) => { _viewModel.PushingCloseLongCommand(dgvPushings.GetSelectedItem<Pushing>()); };
             btnCloseShort.Click += (s, e) => { _viewModel.PushingCloseShortCommand(dgvPushings.GetSelectedItem<Pushing>()); };
             btnClosePanic.Click += (s, e) => { _viewModel.PushingClosePanicCommand(dgvPushings.GetSelectedItem<Pushing>()); };
 
             dgvPushingDetail.DataSourceChanged += (s, e) => FilterRows();
-            dgvPushingDetail.SelectionChanged += (s, e) => FilterRows();
-            dgvPushingDetail.RowPrePaint += (s, e) => FilterRows();
+            //dgvPushingDetail.SelectionChanged += (s, e) => FilterRows();
+            //dgvPushingDetail.RowPrePaint += (s, e) => FilterRows();
             btnLoad.Click += (s, e) =>
             {
-                _viewModel.ShowPushingCommand(dgvPushings.GetSelectedItem<Pushing>());
+                var pushing = dgvPushings.GetSelectedItem<Pushing>();
+                _viewModel.ShowPushingCommand(pushing);
+                cbHedge.DataBindings.Clear();
+                cbHedge.DataBindings.Add("Checked", pushing, "IsHedgeClose");
                 FilterRows();
             };
         }

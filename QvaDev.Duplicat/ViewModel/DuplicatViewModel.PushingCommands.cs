@@ -17,30 +17,44 @@ namespace QvaDev.Duplicat.ViewModel
         public void PushingBuyBetaCommand(Pushing pushing)
         {
             PushingState = PushingStates.OpeningBeta;
+            pushing.BetaOpenSide = Common.Integration.Sides.Buy;
+            _orchestrator.PushingOpenSeq(pushing);
+            PushingState = PushingStates.AlphaOpened;
         }
 
         public void PushingSellBetaCommand(Pushing pushing)
         {
             PushingState = PushingStates.OpeningBeta;
+            pushing.BetaOpenSide = Common.Integration.Sides.Sell;
+            _orchestrator.PushingOpenSeq(pushing);
+            PushingState = PushingStates.AlphaOpened;
         }
 
-        public void PushingOpenPanic(Pushing pushing)
+        public void PushingOpenPanicCommand(Pushing pushing)
         {
+            _orchestrator.PushingOpenPanic(pushing);
             PushingState = PushingStates.AlphaOpened;
         }
 
         public void PushingCloseLongCommand(Pushing pushing)
         {
             PushingState = PushingStates.ClosingFirst;
+            pushing.FirstCloseSide = Common.Integration.Sides.Buy;
+            _orchestrator.PushingCloseSeq(pushing);
+            PushingState = PushingStates.NotRunning;
         }
 
         public void PushingCloseShortCommand(Pushing pushing)
         {
             PushingState = PushingStates.ClosingFirst;
+            pushing.FirstCloseSide = Common.Integration.Sides.Sell;
+            _orchestrator.PushingCloseSeq(pushing);
+            PushingState = PushingStates.NotRunning;
         }
 
         public void PushingClosePanicCommand(Pushing pushing)
         {
+            _orchestrator.PushingClosePanic(pushing);
             PushingState = PushingStates.NotRunning;
         }
     }

@@ -379,13 +379,14 @@ namespace QvaDev.Data
                     SmallContractSize = 1,
                     BigContractSize = 2,
                     BigPercentage = 70,
-                    FutureDelayInMs = 50,
+                    FutureOpenDelayInMs = 50,
+                    FutureCloseDelayInMs = 200,
                     MinIntervalInMs = 50,
                     MaxIntervalInMs = 100,
-                    MasterLots = 10,
-                    HedgeLots = 20,
-                    OpenSignalContractLimit = 180,
-                    SlippageContractLimit = 20,
+                    MasterLots = 1,
+                    HedgeLots = 2,
+                    MasterSignalContractLimit = 30,
+                    SlippageContractLimit = 5,
                 }
             });
         }

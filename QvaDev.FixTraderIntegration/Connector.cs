@@ -84,6 +84,31 @@ namespace QvaDev.FixTraderIntegration
             }
         }
 
+        public void OrderMultipleCloseBy(string symbol)
+        {
+            long unix = (long)(DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, 0)).TotalSeconds;
+            var tags = new List<string>
+            {
+                $"1=6",
+                $"103={symbol}",
+                $"104={0}",
+                $"112={3}",
+                $"114={unix}",
+            };
+
+            try
+            {
+                var ns = _commandClient.GetStream();
+                var encoder = new ASCIIEncoding();
+                byte[] buffer = encoder.GetBytes($"|{string.Join("|", tags)}\n");
+                ns.Write(buffer, 0, buffer.Length);
+            }
+            catch (Exception e)
+            {
+                _log.Error($"Connector.OrderMultipleCloseBy({symbol}) exception", e);
+            }
+        }
+
         public long GetOpenContracts(string symbol)
         {
             throw new NotImplementedException();

@@ -57,6 +57,7 @@ namespace QvaDev.Duplicat
             builder.RegisterType<CopierService>().As<ICopierService>();
             builder.RegisterType<MonitorServices>().As<IMonitorServices>();
             builder.RegisterType<ExpertService>().As<IExpertService>();
+            builder.RegisterType<PushingService>().As<IPushingService>();
         }
 
         private static void RegisterExperts(ContainerBuilder builder)

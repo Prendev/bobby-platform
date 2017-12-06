@@ -117,18 +117,33 @@ namespace QvaDev.Mt4Integration
             return IsConnected;
         }
 
-        public void SendMarketOrderRequest(string symbol, Sides side, double lots, int magicNumber, string comment = null)
+        public Position SendMarketOrderRequest(string symbol, Sides side, double lots, int magicNumber, string comment = null)
         {
             try
             {
                 var op = side == Sides.Buy ? Op.Buy : Op.Sell;
-                var price = side == Sides.Buy ? QuoteClient.GetQuote(symbol).Ask : QuoteClient.GetQuote(symbol).Bid;
-                OrderClient.OrderSend(symbol, op, lots, price, 0, 0, 0, comment, magicNumber, DateTime.MaxValue);
+                var o = OrderClient.OrderSend(symbol, op, lots, 0, 0, 0, 0, comment, magicNumber, DateTime.MaxValue);
+                return new Position
+                {
+                    Id = o.Ticket,
+                    Lots = o.Lots,
+                    Symbol = o.Symbol,
+                    Side = o.Type == Op.Buy ? Sides.Buy : Sides.Sell,
+                    RealVolume = (long)(o.Lots * GetSymbolInfo(o.Symbol).ContractSize * (o.Type == Op.Buy ? 1 : -1)),
+                    MagicNumber = o.MagicNumber,
+                    Profit = o.Profit,
+                    Commission = o.Commission,
+                    Swap = o.Swap,
+                    OpenTime = o.OpenTime,
+                    OpenPrice = o.OpenPrice,
+                    Comment = o.Comment
+                };
             }
             catch (Exception e)
             {
                 _log.Error($"Connector.SendMarketOrderRequest({symbol}, {side}, {lots}, {magicNumber}, {comment}) exception", e);
             }
+            return null;
         }
 
         public void SendClosePositionRequests(Position position, double? lots = null)

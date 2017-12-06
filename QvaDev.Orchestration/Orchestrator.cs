@@ -22,7 +22,12 @@ namespace QvaDev.Orchestration
         Task Connect(DuplicatContext duplicatContext);
         Task Disconnect();
         Task BalanceReport(DateTime from, DateTime to, string reportPath);
+
         void TestMarketOrder(Pushing pushing);
+        void PushingOpenSeq(Pushing pushing);
+        void PushingOpenPanic(Pushing pushing);
+        void PushingCloseSeq(Pushing pushing);
+        void PushingClosePanic(Pushing pushing);
     }
 
     public class Orchestrator : IOrchestrator
@@ -36,6 +41,7 @@ namespace QvaDev.Orchestration
         private readonly ICopierService _copierService;
         private readonly IMonitorServices _monitorServices;
         private readonly IExpertService _expertService;
+        private readonly IPushingService _pushingService;
 
         public int SelectedAlphaMonitorId { get; set; }
         public int SelectedBetaMonitorId { get; set; }
@@ -47,8 +53,10 @@ namespace QvaDev.Orchestration
             ICopierService copierService,
             IMonitorServices monitorServices,
             IExpertService expertService,
+            IPushingService pushingService,
             ILog log)
         {
+            _pushingService = pushingService;
             _expertService = expertService;
             _monitorServices = monitorServices;
             _copierService = copierService;
@@ -263,6 +271,24 @@ namespace QvaDev.Orchestration
         {
             var connector = (FixTraderIntegration.Connector)pushing.FutureAccount.Connector;
             connector.SendMarketOrderRequest("EURUSD", Common.Integration.Sides.Buy, 1, "1234");
+        }
+
+        public void PushingOpenSeq(Pushing pushing)
+        {
+            _pushingService.OpenSeq(pushing);
+        }
+
+        public void PushingOpenPanic(Pushing pushing)
+        {
+        }
+
+        public void PushingCloseSeq(Pushing pushing)
+        {
+            _pushingService.CloseSeq(pushing);
+        }
+
+        public void PushingClosePanic(Pushing pushing)
+        {
         }
     }
 }
