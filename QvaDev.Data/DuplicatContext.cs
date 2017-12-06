@@ -385,8 +385,9 @@ namespace QvaDev.Data
                     MaxIntervalInMs = 100,
                     MasterLots = 1,
                     HedgeLots = 2,
-                    MasterSignalContractLimit = 30,
-                    SlippageContractLimit = 5,
+                    HedgeSignalContractLimit = 150,
+                    MasterSignalContractLimit = 170,
+                    FullContractSize = 200
                 }
             });
         }

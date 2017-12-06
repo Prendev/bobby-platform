@@ -14,8 +14,9 @@ namespace QvaDev.Data.Models
         public int FutureCloseDelayInMs { get; set; }
         public int MinIntervalInMs { get; set; }
         public int MaxIntervalInMs { get; set; }
+        public int HedgeSignalContractLimit { get; set; }
         public int MasterSignalContractLimit { get; set; }
-        public int SlippageContractLimit { get; set; }
+        public int FullContractSize { get; set; }
         public double MasterLots { get; set; }
         public double HedgeLots { get; set; }
 

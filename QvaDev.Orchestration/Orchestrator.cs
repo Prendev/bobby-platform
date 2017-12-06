@@ -24,10 +24,9 @@ namespace QvaDev.Orchestration
         Task BalanceReport(DateTime from, DateTime to, string reportPath);
 
         void TestMarketOrder(Pushing pushing);
-        void PushingOpenSeq(Pushing pushing);
-        void PushingOpenPanic(Pushing pushing);
-        void PushingCloseSeq(Pushing pushing);
-        void PushingClosePanic(Pushing pushing);
+        Task PushingOpenSeq(Pushing pushing);
+        Task PushingCloseSeq(Pushing pushing);
+        void PushingPanic(Pushing pushing);
     }
 
     public class Orchestrator : IOrchestrator
@@ -273,22 +272,25 @@ namespace QvaDev.Orchestration
             connector.SendMarketOrderRequest("EURUSD", Common.Integration.Sides.Buy, 1, "1234");
         }
 
-        public void PushingOpenSeq(Pushing pushing)
+        public Task PushingOpenSeq(Pushing pushing)
         {
-            _pushingService.OpenSeq(pushing);
+            return Task.Factory.StartNew(() =>
+            {
+                _pushingService.OpenSeq(pushing);
+            });
         }
 
-        public void PushingOpenPanic(Pushing pushing)
+        public Task PushingCloseSeq(Pushing pushing)
         {
+            return Task.Factory.StartNew(() =>
+            {
+                _pushingService.CloseSeq(pushing);
+            });
         }
 
-        public void PushingCloseSeq(Pushing pushing)
+        public void PushingPanic(Pushing pushing)
         {
-            _pushingService.CloseSeq(pushing);
-        }
-
-        public void PushingClosePanic(Pushing pushing)
-        {
+            pushing.InPanic = true;
         }
     }
 }

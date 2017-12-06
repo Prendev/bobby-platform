@@ -35,5 +35,6 @@ namespace QvaDev.Data.Models
         [NotMapped] [InvisibleColumn] public bool IsHedgeClose { get; set; } = true;
         [NotMapped] [InvisibleColumn] public Position AlphaPosition { get; set; }
         [NotMapped] [InvisibleColumn] public Position BetaPosition { get; set; }
+        [NotMapped] [InvisibleColumn] public bool InPanic { get; set; }
     }
 }

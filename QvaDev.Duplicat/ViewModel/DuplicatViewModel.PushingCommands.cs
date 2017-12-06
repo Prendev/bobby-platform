@@ -18,44 +18,38 @@ namespace QvaDev.Duplicat.ViewModel
         {
             PushingState = PushingStates.OpeningBeta;
             pushing.BetaOpenSide = Common.Integration.Sides.Buy;
-            _orchestrator.PushingOpenSeq(pushing);
-            PushingState = PushingStates.AlphaOpened;
+            _orchestrator.PushingOpenSeq(pushing)
+                .ContinueWith(prevTask => PushingState = PushingStates.AlphaOpened);
         }
 
         public void PushingSellBetaCommand(Pushing pushing)
         {
             PushingState = PushingStates.OpeningBeta;
             pushing.BetaOpenSide = Common.Integration.Sides.Sell;
-            _orchestrator.PushingOpenSeq(pushing);
-            PushingState = PushingStates.AlphaOpened;
-        }
+            _orchestrator.PushingOpenSeq(pushing)
+                .ContinueWith(prevTask => PushingState = PushingStates.AlphaOpened);
 
-        public void PushingOpenPanicCommand(Pushing pushing)
-        {
-            _orchestrator.PushingOpenPanic(pushing);
-            PushingState = PushingStates.AlphaOpened;
         }
 
         public void PushingCloseLongCommand(Pushing pushing)
         {
             PushingState = PushingStates.ClosingFirst;
             pushing.FirstCloseSide = Common.Integration.Sides.Buy;
-            _orchestrator.PushingCloseSeq(pushing);
-            PushingState = PushingStates.NotRunning;
+            _orchestrator.PushingCloseSeq(pushing)
+                .ContinueWith(prevTask => PushingState = PushingStates.NotRunning);
         }
 
         public void PushingCloseShortCommand(Pushing pushing)
         {
             PushingState = PushingStates.ClosingFirst;
             pushing.FirstCloseSide = Common.Integration.Sides.Sell;
-            _orchestrator.PushingCloseSeq(pushing);
-            PushingState = PushingStates.NotRunning;
+            _orchestrator.PushingCloseSeq(pushing)
+                .ContinueWith(prevTask => PushingState = PushingStates.NotRunning);
         }
 
-        public void PushingClosePanicCommand(Pushing pushing)
+        public void PushingPanicCommand(Pushing pushing)
         {
-            _orchestrator.PushingClosePanic(pushing);
-            PushingState = PushingStates.NotRunning;
+            _orchestrator.PushingPanic(pushing);
         }
     }
 }

@@ -49,10 +49,10 @@ namespace QvaDev.Duplicat.Views
             btnTestMarketOrder.Click += (s, e) => { _viewModel.PushingTestMarketOrderCommand(dgvPushings.GetSelectedItem<Pushing>()); };
             btnBuyBeta.Click += (s, e) => { _viewModel.PushingBuyBetaCommand(dgvPushings.GetSelectedItem<Pushing>()); };
             btnSellBeta.Click += (s, e) => { _viewModel.PushingSellBetaCommand(dgvPushings.GetSelectedItem<Pushing>()); };
-            btnOpenPanic.Click += (s, e) => { _viewModel.PushingOpenPanicCommand(dgvPushings.GetSelectedItem<Pushing>()); };
+            btnOpenPanic.Click += (s, e) => { _viewModel.PushingPanicCommand(dgvPushings.GetSelectedItem<Pushing>()); };
             btnCloseLong.Click += (s, e) => { _viewModel.PushingCloseLongCommand(dgvPushings.GetSelectedItem<Pushing>()); };
             btnCloseShort.Click += (s, e) => { _viewModel.PushingCloseShortCommand(dgvPushings.GetSelectedItem<Pushing>()); };
-            btnClosePanic.Click += (s, e) => { _viewModel.PushingClosePanicCommand(dgvPushings.GetSelectedItem<Pushing>()); };
+            btnClosePanic.Click += (s, e) => { _viewModel.PushingPanicCommand(dgvPushings.GetSelectedItem<Pushing>()); };
 
             dgvPushingDetail.DataSourceChanged += (s, e) => FilterRows();
             //dgvPushingDetail.SelectionChanged += (s, e) => FilterRows();

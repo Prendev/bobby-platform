@@ -16,7 +16,7 @@ namespace QvaDev.FixTraderIntegration
         private readonly ILog _log;
 
         public string Description => _accountInfo.Description;
-        public bool IsConnected => _commandClient?.Connected == true;
+        public bool IsConnected => _commandClient?.Connected == true && _eventsClient?.Connected == true;
         public ConcurrentDictionary<long, Position> Positions { get; }
         public event PositionEventHandler OnPosition;
         public event BarHistoryEventHandler OnBarHistory;
@@ -73,10 +73,27 @@ namespace QvaDev.FixTraderIntegration
 
             try
             {
-                var ns = _commandClient.GetStream();
+                byte[] buffer;
+                NetworkStream ns;
+
+                //if (_eventsClient.ReceiveBufferSize > 0)
+                //{
+                //    buffer = new byte[_eventsClient.ReceiveBufferSize];
+                //    ns.Read(buffer, 0, _eventsClient.ReceiveBufferSize);
+                //    string msg = Encoding.ASCII.GetString(buffer);
+                //}
+
+                ns = _commandClient.GetStream();
                 var encoder = new ASCIIEncoding();
-                byte[] buffer = encoder.GetBytes($"|{string.Join("|", tags)}\n");
+                buffer = encoder.GetBytes($"|{string.Join("|", tags)}\n");
                 ns.Write(buffer, 0, buffer.Length);
+
+                //if (_eventsClient.ReceiveBufferSize > 0)
+                //{
+                //    buffer = new byte[_eventsClient.ReceiveBufferSize];
+                //    ns.Read(buffer, 0, _eventsClient.ReceiveBufferSize);
+                //    string msg = Encoding.ASCII.GetString(buffer);
+                //}
             }
             catch (Exception e)
             {
