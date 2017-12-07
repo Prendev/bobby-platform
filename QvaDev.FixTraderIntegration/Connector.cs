@@ -1,8 +1,12 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using log4net;
 using QvaDev.Common.Integration;
 
@@ -10,8 +14,17 @@ namespace QvaDev.FixTraderIntegration
 {
     public class Connector : IConnector
     {
+        public class SymbolInfo
+        {
+            public double SumLots;
+            public double Ask;
+            public double Bid;
+        }
+
         private TcpClient _commandClient;
         private TcpClient _eventsClient;
+        private Task _receiverTask;
+        private CancellationTokenSource _cancellationTokenSource;
         private AccountInfo _accountInfo;
         private readonly ILog _log;
 
@@ -20,6 +33,9 @@ namespace QvaDev.FixTraderIntegration
         public ConcurrentDictionary<long, Position> Positions { get; }
         public event PositionEventHandler OnPosition;
         public event BarHistoryEventHandler OnBarHistory;
+
+        public ConcurrentDictionary<string, SymbolInfo> SymbolInfos { get; set; } =
+            new ConcurrentDictionary<string, SymbolInfo>();
 
         public Connector(ILog log)
         {
@@ -33,9 +49,12 @@ namespace QvaDev.FixTraderIntegration
             {
                 _commandClient = new TcpClient(accountInfo.IpAddress, accountInfo.CommandSocketPort);
                 _eventsClient = new TcpClient(accountInfo.IpAddress, accountInfo.EventsSocketPort);
+                _cancellationTokenSource = new CancellationTokenSource();
+                _receiverTask = new Task(Receive, _cancellationTokenSource.Token, TaskCreationOptions.LongRunning);
 
                 if (IsConnected)
                 {
+                    _receiverTask.Start();
                     return true;
                 }
                 Disconnect();
@@ -47,12 +66,71 @@ namespace QvaDev.FixTraderIntegration
             return false;
         }
 
+        private void Receive()
+        {
+            var ns = _eventsClient.GetStream();
+            byte[] inStream = new byte[1024];
+            while (!_cancellationTokenSource.Token.IsCancellationRequested)
+            {
+                try
+                {
+                    Thread.Sleep(1);
+                    int count = ns.Read(inStream, 0, inStream.Length);
+                    string text = Encoding.ASCII.GetString(inStream, 0, count);
+                    if (string.IsNullOrWhiteSpace(text)) continue;
+
+                    var messages = text.Split(new [] { "||" }, StringSplitOptions.None)
+                        .Where(m => m.StartsWith("1=6|103=") || m.StartsWith("1=2|200="));
+
+                    foreach (var message in messages)
+                    {
+                        var tags = message.Trim('|').Split('|');
+                        var commandType = tags.First(t => t.StartsWith("1")).Split('=').Last();
+                        if (commandType == "2")
+                        {
+                            var symbol = tags.First(t => t.StartsWith("200")).Split('=').Last();
+                            var bid = double.Parse(tags.First(t => t.StartsWith("201")).Split('=').Last(),
+                                CultureInfo.InvariantCulture);
+                            var ask = double.Parse(tags.First(t => t.StartsWith("202")).Split('=').Last(),
+                                CultureInfo.InvariantCulture);
+
+                            SymbolInfos.AddOrUpdate(symbol, new SymbolInfo { Bid = bid, Ask = ask },
+                                (key, oldValue) =>
+                                {
+                                    oldValue.Bid = bid;
+                                    oldValue.Ask = ask;
+                                    return oldValue;
+                                });
+                        }
+                        else if (commandType == "6")
+                        {
+                            var symbol = tags.First(t => t.StartsWith("103")).Split('=').Last();
+                            var sumLots = double.Parse(tags.First(t => t.StartsWith("104")).Split('=').Last(),
+                                CultureInfo.InvariantCulture);
+
+                            SymbolInfos.AddOrUpdate(symbol, new SymbolInfo { SumLots = sumLots },
+                                (key, oldValue) =>
+                                {
+                                    oldValue.SumLots = sumLots;
+                                    return oldValue;
+                                });
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    _log.Error($"Connector.RunReceiver exception", e);
+                }
+            }
+        }
+
         public void Disconnect()
         {
             try
             {
                 _commandClient?.Dispose();
                 _eventsClient?.Dispose();
+                _cancellationTokenSource.Cancel();
             }
             catch { }
         }
@@ -73,27 +151,16 @@ namespace QvaDev.FixTraderIntegration
 
             try
             {
-                byte[] buffer;
-                NetworkStream ns;
+                var sumLots = SymbolInfos.GetOrAdd(symbol, new SymbolInfo()).SumLots;
 
-                //if (_eventsClient.ReceiveBufferSize > 0)
-                //{
-                //    buffer = new byte[_eventsClient.ReceiveBufferSize];
-                //    ns.Read(buffer, 0, _eventsClient.ReceiveBufferSize);
-                //    string msg = Encoding.ASCII.GetString(buffer);
-                //}
-
-                ns = _commandClient.GetStream();
+                var ns = _commandClient.GetStream();
                 var encoder = new ASCIIEncoding();
-                buffer = encoder.GetBytes($"|{string.Join("|", tags)}\n");
+                var buffer = encoder.GetBytes($"|{string.Join("|", tags)}\n");
                 ns.Write(buffer, 0, buffer.Length);
 
-                //if (_eventsClient.ReceiveBufferSize > 0)
-                //{
-                //    buffer = new byte[_eventsClient.ReceiveBufferSize];
-                //    ns.Read(buffer, 0, _eventsClient.ReceiveBufferSize);
-                //    string msg = Encoding.ASCII.GetString(buffer);
-                //}
+                int limit = 0;
+                while (sumLots == SymbolInfos.GetOrAdd(symbol, new SymbolInfo()).SumLots && limit++ < 50)
+                    Thread.Sleep(1);
             }
             catch (Exception e)
             {
@@ -124,6 +191,11 @@ namespace QvaDev.FixTraderIntegration
             {
                 _log.Error($"Connector.OrderMultipleCloseBy({symbol}) exception", e);
             }
+        }
+
+        public SymbolInfo GetSymbolInfo(string symbol)
+        {
+            return SymbolInfos.GetOrAdd(symbol, new SymbolInfo());
         }
 
         public long GetOpenContracts(string symbol)

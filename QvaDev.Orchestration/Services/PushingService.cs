@@ -38,11 +38,12 @@ namespace QvaDev.Orchestration.Services
                 sumOfFutureContracts += contractSize;
                 Thread.Sleep(rnd.Next(pd.MinIntervalInMs, pd.MaxIntervalInMs));
                 // Rush
-                if (!pushing.InPanic) continue;
+                if (!pushing.InPanic && !PriceLimitReached(pushing, pushing.BetaOpenSide)) continue;
                 sumOfFutureContracts = Math.Max(pd.MasterSignalContractLimit, sumOfFutureContracts);
                 pushing.InPanic = false;
             }
             pushing.AlphaPosition = alphaConnector.SendMarketOrderRequest(pushing.BetaSymbol, InvSide(pushing.BetaOpenSide), pd.MasterLots, 1);
+            pd.PriceLimit = null;
 
             // Build a little more futures
             while (sumOfFutureContracts < pd.FullContractSize)
@@ -57,7 +58,6 @@ namespace QvaDev.Orchestration.Services
                 pushing.InPanic = false;
             }
             // Close futures
-            Thread.Sleep(pd.FutureCloseDelayInMs);
             futureConnector.OrderMultipleCloseBy(pushing.FutureSymbol);
         }
 
@@ -88,11 +88,12 @@ namespace QvaDev.Orchestration.Services
                 sumOfFutureContracts += contractSize;
                 Thread.Sleep(rnd.Next(pd.MinIntervalInMs, pd.MaxIntervalInMs));
                 // Rush
-                if (!pushing.InPanic) continue;
+                if (!pushing.InPanic && !PriceLimitReached(pushing, pushing.FirstCloseSide)) continue;
                 sumOfFutureContracts = Math.Max(pd.HedgeSignalContractLimit, sumOfFutureContracts);
                 pushing.InPanic = false;
             }
             if (pushing.IsHedgeClose) hedgeConnector.SendMarketOrderRequest(pushing.HedgeSymbol, InvSide(pushing.FirstCloseSide), pd.HedgeLots, 1);
+            pd.PriceLimit = null;
 
             // Build up futures for second side
             while (sumOfFutureContracts < pd.MasterSignalContractLimit)
@@ -122,8 +123,20 @@ namespace QvaDev.Orchestration.Services
             }
             // Close futures if not hedging
             if (pushing.IsHedgeClose) return;
-            Thread.Sleep(pd.FutureCloseDelayInMs);
             futureConnector.OrderMultipleCloseBy(pushing.FutureSymbol);
+        }
+
+        private bool PriceLimitReached(Pushing pushing, Sides side)
+        {
+            var pd = pushing.PushingDetail;
+            if (!pd.PriceLimit.HasValue) return false;
+
+            var futureConnector = (FtConnector)pushing.FutureAccount.Connector;
+            var symbolInfo = futureConnector.GetSymbolInfo(pushing.FutureSymbol);
+
+            if (symbolInfo.Ask > 0 && side == Sides.Buy && symbolInfo.Ask >= pd.PriceLimit.Value) return true;
+            if (symbolInfo.Bid > 0 && side == Sides.Sell && symbolInfo.Bid <= pd.PriceLimit.Value) return true;
+            return false;
         }
 
         private Sides InvSide(Sides side)

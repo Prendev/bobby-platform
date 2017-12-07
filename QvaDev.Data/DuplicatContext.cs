@@ -380,7 +380,6 @@ namespace QvaDev.Data
                     BigContractSize = 2,
                     BigPercentage = 70,
                     FutureOpenDelayInMs = 50,
-                    FutureCloseDelayInMs = 200,
                     MinIntervalInMs = 50,
                     MaxIntervalInMs = 100,
                     MasterLots = 1,

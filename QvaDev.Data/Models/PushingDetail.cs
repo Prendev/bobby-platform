@@ -6,12 +6,11 @@ namespace QvaDev.Data.Models
     public class PushingDetail : BaseEntity, IFilterableEntity
     {
         [NotMapped]
-        public double? LimitPrice { get; set; }
+        public double? PriceLimit { get => Get<double?>(); set => Set(value); }
         public int SmallContractSize { get; set; }
         public int BigContractSize { get; set; }
         public int BigPercentage { get; set; }
         public int FutureOpenDelayInMs { get; set; }
-        public int FutureCloseDelayInMs { get; set; }
         public int MinIntervalInMs { get; set; }
         public int MaxIntervalInMs { get; set; }
         public int HedgeSignalContractLimit { get; set; }

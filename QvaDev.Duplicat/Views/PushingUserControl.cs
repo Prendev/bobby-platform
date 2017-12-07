@@ -22,10 +22,18 @@ namespace QvaDev.Duplicat.Views
 
             gbControl.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsLoading), true);
             gbPushing.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsPushingEnabled));
-            dgvPushingDetail.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsPushingEnabled), true);
+            //dgvPushingDetail.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsPushingEnabled), true);
             btnLoad.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsConnected), true);
             dgvPushings.AddBinding("AllowUserToAddRows", _viewModel, nameof(_viewModel.IsConfigReadonly), true);
             dgvPushings.AddBinding("AllowUserToDeleteRows", _viewModel, nameof(_viewModel.IsConfigReadonly), true);
+
+            //_viewModel.PropertyChanged += (s, e) =>
+            //{
+            //    if (e.PropertyName == "IsPushingEnabled")
+            //        foreach (DataGridViewColumn column in dgvPushingDetail.Columns)
+            //            column.ReadOnly = _viewModel.IsPushingEnabled && column.Name != "PriceLimit";
+
+            //};
 
             btnBuyBeta.AddBinding<DuplicatViewModel.PushingStates>("Enabled", _viewModel,
                 nameof(_viewModel.PushingState), p => p == DuplicatViewModel.PushingStates.NotRunning);
