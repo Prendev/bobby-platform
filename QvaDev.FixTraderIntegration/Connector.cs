@@ -16,7 +16,7 @@ namespace QvaDev.FixTraderIntegration
     {
         public class SymbolInfo
         {
-            public double SumLots;
+            public double SumContracts;
             public double Ask;
             public double Bid;
         }
@@ -108,10 +108,10 @@ namespace QvaDev.FixTraderIntegration
                             var sumLots = double.Parse(tags.First(t => t.StartsWith("104")).Split('=').Last(),
                                 CultureInfo.InvariantCulture);
 
-                            SymbolInfos.AddOrUpdate(symbol, new SymbolInfo { SumLots = sumLots },
+                            SymbolInfos.AddOrUpdate(symbol, new SymbolInfo { SumContracts = sumLots },
                                 (key, oldValue) =>
                                 {
-                                    oldValue.SumLots = sumLots;
+                                    oldValue.SumContracts = sumLots;
                                     return oldValue;
                                 });
                         }
@@ -151,7 +151,7 @@ namespace QvaDev.FixTraderIntegration
 
             try
             {
-                var sumLots = SymbolInfos.GetOrAdd(symbol, new SymbolInfo()).SumLots;
+                var sumLots = SymbolInfos.GetOrAdd(symbol, new SymbolInfo()).SumContracts;
 
                 var ns = _commandClient.GetStream();
                 var encoder = new ASCIIEncoding();
@@ -159,7 +159,7 @@ namespace QvaDev.FixTraderIntegration
                 ns.Write(buffer, 0, buffer.Length);
 
                 int limit = 0;
-                while (sumLots == SymbolInfos.GetOrAdd(symbol, new SymbolInfo()).SumLots && limit++ < 50)
+                while (sumLots == SymbolInfos.GetOrAdd(symbol, new SymbolInfo()).SumContracts && limit++ < 1000)
                     Thread.Sleep(1);
             }
             catch (Exception e)

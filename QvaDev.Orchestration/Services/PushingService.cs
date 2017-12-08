@@ -30,31 +30,30 @@ namespace QvaDev.Orchestration.Services
             Thread.Sleep(pushing.PushingDetail.FutureOpenDelayInMs);
 
             // Build up futures for second side
-            int sumOfFutureContracts = 0;
-            while (sumOfFutureContracts < pd.MasterSignalContractLimit)
+            double startContractSize = GetSumContracts(futureConnector, pushing.FutureSymbol);
+            double contractsNeeded = pd.FullContractSize + pd.MasterSignalContractLimit;
+            while (GetSumContracts(futureConnector, pushing.FutureSymbol) - startContractSize < contractsNeeded)
             {
                 var contractSize = rnd.Next(0, 100) > pd.BigPercentage ? pd.SmallContractSize : pd.BigContractSize;
                 futureConnector.SendMarketOrderRequest(pushing.FutureSymbol, pushing.BetaOpenSide, contractSize);
-                sumOfFutureContracts += contractSize;
                 Thread.Sleep(rnd.Next(pd.MinIntervalInMs, pd.MaxIntervalInMs));
                 // Rush
                 if (!pushing.InPanic && !PriceLimitReached(pushing, pushing.BetaOpenSide)) continue;
-                sumOfFutureContracts = Math.Max(pd.MasterSignalContractLimit, sumOfFutureContracts);
                 pushing.InPanic = false;
             }
             pushing.AlphaPosition = alphaConnector.SendMarketOrderRequest(pushing.BetaSymbol, InvSide(pushing.BetaOpenSide), pd.MasterLots, 1);
             pd.PriceLimit = null;
 
             // Build a little more futures
-            while (sumOfFutureContracts < pd.FullContractSize)
+            startContractSize = GetSumContracts(futureConnector, pushing.FutureSymbol);
+            contractsNeeded = -pd.MasterSignalContractLimit;
+            while (GetSumContracts(futureConnector, pushing.FutureSymbol) - startContractSize < contractsNeeded)
             {
                 var contractSize = rnd.Next(0, 100) > pd.BigPercentage ? pd.SmallContractSize : pd.BigContractSize;
                 futureConnector.SendMarketOrderRequest(pushing.FutureSymbol, pushing.BetaOpenSide, contractSize);
-                sumOfFutureContracts += contractSize;
                 Thread.Sleep(rnd.Next(pd.MinIntervalInMs, pd.MaxIntervalInMs));
                 // Rush
                 if (!pushing.InPanic) continue;
-                sumOfFutureContracts = Math.Max(pd.FullContractSize, sumOfFutureContracts);
                 pushing.InPanic = false;
             }
             // Close futures
@@ -80,45 +79,49 @@ namespace QvaDev.Orchestration.Services
             Thread.Sleep(pushing.PushingDetail.FutureOpenDelayInMs);
 
             // Build up futures for hedge
-            int sumOfFutureContracts = 0;
-            while (pushing.IsHedgeClose && sumOfFutureContracts < pd.HedgeSignalContractLimit)
+            double startContractSize = GetSumContracts(futureConnector, pushing.FutureSymbol);
+            double contractsNeeded = pd.FullContractSize + pd.MasterSignalContractLimit;
+            if (pushing.IsHedgeClose)
             {
-                var contractSize = rnd.Next(0, 100) > pd.BigPercentage ? pd.SmallContractSize : pd.BigContractSize;
-                futureConnector.SendMarketOrderRequest(pushing.FutureSymbol, pushing.FirstCloseSide, contractSize);
-                sumOfFutureContracts += contractSize;
-                Thread.Sleep(rnd.Next(pd.MinIntervalInMs, pd.MaxIntervalInMs));
-                // Rush
-                if (!pushing.InPanic && !PriceLimitReached(pushing, pushing.FirstCloseSide)) continue;
-                sumOfFutureContracts = Math.Max(pd.HedgeSignalContractLimit, sumOfFutureContracts);
-                pushing.InPanic = false;
+                contractsNeeded += pd.HedgeSignalContractLimit;
+                while (GetSumContracts(futureConnector, pushing.FutureSymbol) - startContractSize < contractsNeeded)
+                {
+                    var contractSize = rnd.Next(0, 100) > pd.BigPercentage ? pd.SmallContractSize : pd.BigContractSize;
+                    futureConnector.SendMarketOrderRequest(pushing.FutureSymbol, pushing.FirstCloseSide, contractSize);
+                    Thread.Sleep(rnd.Next(pd.MinIntervalInMs, pd.MaxIntervalInMs));
+                    // Rush
+                    if (!pushing.InPanic && !PriceLimitReached(pushing, pushing.FirstCloseSide)) continue;
+                    pushing.InPanic = false;
+                }
+                hedgeConnector.SendMarketOrderRequest(pushing.HedgeSymbol, InvSide(pushing.FirstCloseSide), pd.HedgeLots, 1);
+                pd.PriceLimit = null;
+                contractsNeeded = -pd.HedgeSignalContractLimit;
             }
-            if (pushing.IsHedgeClose) hedgeConnector.SendMarketOrderRequest(pushing.HedgeSymbol, InvSide(pushing.FirstCloseSide), pd.HedgeLots, 1);
-            pd.PriceLimit = null;
 
             // Build up futures for second side
-            while (sumOfFutureContracts < pd.MasterSignalContractLimit)
+            startContractSize = GetSumContracts(futureConnector, pushing.FutureSymbol);
+            while (GetSumContracts(futureConnector, pushing.FutureSymbol) - startContractSize < contractsNeeded)
             {
                 var contractSize = rnd.Next(0, 100) > pd.BigPercentage ? pd.SmallContractSize : pd.BigContractSize;
                 futureConnector.SendMarketOrderRequest(pushing.FutureSymbol, pushing.FirstCloseSide, contractSize);
-                sumOfFutureContracts += contractSize;
                 Thread.Sleep(rnd.Next(pd.MinIntervalInMs, pd.MaxIntervalInMs));
                 // Rush
                 if (!pushing.InPanic) continue;
-                sumOfFutureContracts = Math.Max(pd.MasterSignalContractLimit, sumOfFutureContracts);
                 pushing.InPanic = false;
             }
             secondConnector.SendClosePositionRequests(secondPos);
+            pd.PriceLimit = null;
 
             // Build a little more
-            while (sumOfFutureContracts < pd.FullContractSize)
+            startContractSize = GetSumContracts(futureConnector, pushing.FutureSymbol);
+            contractsNeeded = -pd.MasterSignalContractLimit;
+            while (GetSumContracts(futureConnector, pushing.FutureSymbol) - startContractSize < contractsNeeded)
             {
                 var contractSize = rnd.Next(0, 100) > pd.BigPercentage ? pd.SmallContractSize : pd.BigContractSize;
                 futureConnector.SendMarketOrderRequest(pushing.FutureSymbol, pushing.FirstCloseSide, contractSize);
-                sumOfFutureContracts += contractSize;
                 Thread.Sleep(rnd.Next(pd.MinIntervalInMs, pd.MaxIntervalInMs));
                 // Rush
                 if (!pushing.InPanic) continue;
-                sumOfFutureContracts = Math.Max(pd.FullContractSize, sumOfFutureContracts);
                 pushing.InPanic = false;
             }
             // Close futures if not hedging
@@ -142,6 +145,11 @@ namespace QvaDev.Orchestration.Services
         private Sides InvSide(Sides side)
         {
             return side == Sides.Buy ? Sides.Sell : Sides.Buy;
+        }
+
+        private double GetSumContracts(FtConnector connector, string symbol)
+        {
+            return Math.Abs(connector.GetSymbolInfo(symbol).SumContracts);
         }
     }
 }
