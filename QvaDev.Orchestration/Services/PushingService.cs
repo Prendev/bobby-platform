@@ -40,6 +40,7 @@ namespace QvaDev.Orchestration.Services
                 // Rush
                 if (!pushing.InPanic && !PriceLimitReached(pushing, pushing.BetaOpenSide)) continue;
                 pushing.InPanic = false;
+                break;
             }
             pushing.AlphaPosition = alphaConnector.SendMarketOrderRequest(pushing.BetaSymbol, InvSide(pushing.BetaOpenSide), pd.MasterLots, 1);
             pd.PriceLimit = null;
@@ -55,6 +56,7 @@ namespace QvaDev.Orchestration.Services
                 // Rush
                 if (!pushing.InPanic) continue;
                 pushing.InPanic = false;
+                break;
             }
             // Close futures
             futureConnector.OrderMultipleCloseBy(pushing.FutureSymbol);
@@ -92,6 +94,7 @@ namespace QvaDev.Orchestration.Services
                     // Rush
                     if (!pushing.InPanic && !PriceLimitReached(pushing, pushing.FirstCloseSide)) continue;
                     pushing.InPanic = false;
+                    break;
                 }
                 hedgeConnector.SendMarketOrderRequest(pushing.HedgeSymbol, InvSide(pushing.FirstCloseSide), pd.HedgeLots, 1);
                 pd.PriceLimit = null;
@@ -108,6 +111,7 @@ namespace QvaDev.Orchestration.Services
                 // Rush
                 if (!pushing.InPanic) continue;
                 pushing.InPanic = false;
+                break;
             }
             secondConnector.SendClosePositionRequests(secondPos);
             pd.PriceLimit = null;
@@ -123,6 +127,7 @@ namespace QvaDev.Orchestration.Services
                 // Rush
                 if (!pushing.InPanic) continue;
                 pushing.InPanic = false;
+                break;
             }
             // Close futures if not hedging
             if (pushing.IsHedgeClose) return;

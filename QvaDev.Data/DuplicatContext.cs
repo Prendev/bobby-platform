@@ -1,4 +1,5 @@
-﻿using System.Data.Entity;
+﻿using System.Configuration;
+using System.Data.Entity;
 using System.IO;
 using System.Linq;
 using QvaDev.Data.Models;
@@ -57,6 +58,8 @@ namespace QvaDev.Data
             catch  { }
 
             if (exists) return;
+            bool create;
+            if (bool.TryParse(ConfigurationManager.AppSettings["ShouldCreateDemoDatabase"], out create) && !create) return;
 
             InitDebug();
             SaveChanges();

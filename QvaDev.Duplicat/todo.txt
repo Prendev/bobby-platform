@@ -12,3 +12,6 @@ C:\Windows\System32\inetsrv\config
         <processModel identityType="ApplicationPoolIdentity" loadUserProfile="true" setProfileEnvironment="false" />
     </applicationPoolDefaults>
 </applicationPools>
+
+LocalDB
+https://www.microsoft.com/en-us/download/details.aspx?id=42299

@@ -15,6 +15,7 @@ namespace QvaDev.Duplicat.ViewModel
         public void SaveCommand()
         {
             _duplicatContext.SaveChanges();
+            _log.Debug($"Database is saved");
         }
 
         public void BackupCommand()
