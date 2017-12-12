@@ -31,7 +31,8 @@ namespace QvaDev.Orchestration.Services
             var accounts = duplicatContext.MetaTraderAccounts.ToList().Where(
                     a => a.ShouldConnect && a.Connector != null && a.Connector.IsConnected);
             var tasks = accounts.Select(account => Task.Factory.StartNew(() => Export(account)));
-            return Task.WhenAll(Task.WhenAll(tasks));
+            return Task.WhenAll(Task.WhenAll(tasks)).ContinueWith(prevTask =>
+                _log.Debug("Order history export is READY!"));
         }
 
         private void Export(MetaTraderAccount account)
@@ -45,37 +46,35 @@ namespace QvaDev.Orchestration.Services
                 var wb = new CustomWorkbook(templatePath);
                 var sheet = wb.GetSheetAt(0);
 
-                //{
-                //    var row = sheet.GetRow(1) ?? sheet.CreateRow(1);
-                //    wb.CreateGeneralCell(row, 2, sideAlphaSum);
-                //    wb.CreateTextCellWithThichRigthBorder(row, 3, "USD");
-                //    wb.CreateGeneralCell(row, 6, sideBetaSum);
-                //    wb.CreateTextCellWithThichRigthBorder(row, 7, "USD");
-                //}
+                var orders = connector.QuoteClient.DownloadOrderHistory(DateTime.Now.AddYears(-5), DateTime.Now.AddDays(1));
+                var r = 0;
+                foreach (var order in orders)
+                {
+                    if (order.Type != TradingAPI.MT4Server.Op.Buy &&
+                        order.Type != TradingAPI.MT4Server.Op.Sell) continue;
 
-                //for (var i = 0; i < sideA.Count(); i++)
-                //{
-                //    var b = sideA.ElementAt(i);
-                //    var row = sheet.GetRow(i + 3) ?? sheet.CreateRow(i + 3);
-                //    wb.CreateTextCell(row, 0, b.Account.ToString());
-                //    wb.CreateGeneralCell(row, 1, b.Balance);
-                //    wb.CreateGeneralCell(row, 2, b.Pnl);
-                //    wb.CreateTextCellWithThichRigthBorder(row, 3, b.Currency);
-                //}
+                    var c = 0;
+                    var row = sheet.GetRow(++r) ?? sheet.CreateRow(r);
 
-                //for (var i = 0; i < sideB.Count(); i++)
-                //{
-                //    var b = sideB.ElementAt(i);
-                //    var row = sheet.GetRow(i + 3) ?? sheet.CreateRow(i + 3);
-                //    wb.CreateTextCell(row, 4, b.Account.ToString());
-                //    wb.CreateGeneralCell(row, 5, b.Balance);
-                //    wb.CreateGeneralCell(row, 6, b.Pnl);
-                //    wb.CreateTextCellWithThichRigthBorder(row, 7, b.Currency);
-                //}
+                    wb.CreateDateCell(row, c++, order.CloseTime.Date);
+                    wb.CreateCell(row, c++, order.Commission + order.Swap + order.Profit);
+                    wb.CreateCell(row, c++, order.Ticket);
+                    wb.CreateCell(row, c++, order.OpenTime);
+                    wb.CreateTextCell(row, c++, order.Type.ToString("F").ToLower());
+                    wb.CreateCell(row, c++, order.Lots);
+                    wb.CreateTextCell(row, c++, order.Symbol);
+                    wb.CreateCell(row, c++, order.OpenPrice);
+                    wb.CreateCell(row, c++, order.StopLoss);
+                    wb.CreateCell(row, c++, order.TakeProfit);
+                    wb.CreateCell(row, c++, order.CloseTime);
+                    wb.CreateCell(row, c++, order.ClosePrice);
+                    wb.CreateCell(row, c++, order.Commission);
+                    wb.CreateCell(row, c++, order.Swap);
+                    wb.CreateCell(row, c++, order.Profit);
+                }
 
                 wb.Write(stream);
             }
-            _log.Debug("Order history export is READY!");
         }
     }
 }

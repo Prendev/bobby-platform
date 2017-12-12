@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
 
@@ -17,6 +18,10 @@ namespace QvaDev.Orchestration
         private ICellStyle PercentageCellStyle { get; }
 
         private ICellStyle PercentageBoldCellStyle { get; }
+
+        private ICellStyle DateTimeCellStyle { get; }
+
+        private ICellStyle DateCellStyle { get; }
 
         public CustomWorkbook(string templatePath) : base(new FileStream(templatePath, FileMode.Open, FileAccess.Read))
         {
@@ -61,6 +66,20 @@ namespace QvaDev.Orchestration
             PercentageBoldCellStyle.Alignment = HorizontalAlignment.Center;
             PercentageBoldCellStyle.VerticalAlignment = VerticalAlignment.Center;
             PercentageBoldCellStyle.SetFont(boldFont);
+
+            var dateTimeFormat = CreateDataFormat().GetFormat("yyyy.MM.dd HH:mm");
+            DateTimeCellStyle = CreateCellStyle();
+            DateTimeCellStyle.Alignment = HorizontalAlignment.Center;
+            DateTimeCellStyle.VerticalAlignment = VerticalAlignment.Center;
+            DateTimeCellStyle.SetFont(defaultFont);
+            DateTimeCellStyle.DataFormat = dateTimeFormat;
+
+            var dateFormat = CreateDataFormat().GetFormat("yyyy.MM.dd");
+            DateCellStyle = CreateCellStyle();
+            DateCellStyle.Alignment = HorizontalAlignment.Center;
+            DateCellStyle.VerticalAlignment = VerticalAlignment.Center;
+            DateCellStyle.SetFont(defaultFont);
+            DateCellStyle.DataFormat = dateFormat;
         }
 
         public void CreateTextCell(IRow row, int column, string value)
@@ -77,7 +96,7 @@ namespace QvaDev.Orchestration
             cell.SetCellValue(value);
         }
 
-        public void CreateGeneralCell(IRow row, int column, double? value)
+        public void CreateCell(IRow row, int column, double? value)
         {
             var cell = row.CreateCell(column);
             cell.CellStyle = GeneralCellStyle;
@@ -91,7 +110,7 @@ namespace QvaDev.Orchestration
             if (value.HasValue) cell.SetCellValue(value.Value);
         }
 
-        public void CreateGeneralCell(IRow row, int column, decimal? value)
+        public void CreateCell(IRow row, int column, decimal? value)
         {
             var cell = row.CreateCell(column);
             cell.CellStyle = GeneralCellStyle;
@@ -124,6 +143,27 @@ namespace QvaDev.Orchestration
             var cell = row.CreateCell(column);
             cell.CellStyle = GeneralCellStyle;
             cell.SetCellValue(value);
+        }
+
+        public void CreateCell(IRow row, int column, long? value)
+        {
+            var cell = row.CreateCell(column);
+            cell.CellStyle = GeneralCellStyle;
+            if (value.HasValue) cell.SetCellValue(value.Value);
+        }
+
+        public void CreateCell(IRow row, int column, DateTime? value)
+        {
+            var cell = row.CreateCell(column);
+            cell.CellStyle = DateTimeCellStyle;
+            if (value.HasValue) cell.SetCellValue(value.Value);
+        }
+
+        public void CreateDateCell(IRow row, int column, DateTime? value)
+        {
+            var cell = row.CreateCell(column);
+            cell.CellStyle = DateCellStyle;
+            if (value.HasValue) cell.SetCellValue(value.Value);
         }
     }
 }

@@ -89,9 +89,9 @@ namespace QvaDev.Orchestration.Services
 
                 {
                     var row = sheet.GetRow(1) ?? sheet.CreateRow(1);
-                    wb.CreateGeneralCell(row, 2, sideAlphaSum);
+                    wb.CreateCell(row, 2, sideAlphaSum);
                     wb.CreateTextCellWithThichRigthBorder(row, 3, "USD");
-                    wb.CreateGeneralCell(row, 6, sideBetaSum);
+                    wb.CreateCell(row, 6, sideBetaSum);
                     wb.CreateTextCellWithThichRigthBorder(row, 7, "USD");
                 }
 
@@ -100,8 +100,8 @@ namespace QvaDev.Orchestration.Services
                     var b = sideA.ElementAt(i);
                     var row = sheet.GetRow(i + 3) ?? sheet.CreateRow(i + 3);
                     wb.CreateTextCell(row, 0, b.Account.ToString());
-                    wb.CreateGeneralCell(row, 1, b.Balance);
-                    wb.CreateGeneralCell(row, 2, b.Pnl);
+                    wb.CreateCell(row, 1, b.Balance);
+                    wb.CreateCell(row, 2, b.Pnl);
                     wb.CreateTextCellWithThichRigthBorder(row, 3, b.Currency);
                 }
 
@@ -110,8 +110,8 @@ namespace QvaDev.Orchestration.Services
                     var b = sideB.ElementAt(i);
                     var row = sheet.GetRow(i + 3) ?? sheet.CreateRow(i + 3);
                     wb.CreateTextCell(row, 4, b.Account.ToString());
-                    wb.CreateGeneralCell(row, 5, b.Balance);
-                    wb.CreateGeneralCell(row, 6, b.Pnl);
+                    wb.CreateCell(row, 5, b.Balance);
+                    wb.CreateCell(row, 6, b.Pnl);
                     wb.CreateTextCellWithThichRigthBorder(row, 7, b.Currency);
                 }
 
