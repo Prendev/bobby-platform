@@ -209,5 +209,13 @@ namespace QvaDev.Duplicat.ViewModel
             _orchestrator.StopExperts();
             AreExpertsStarted = false;
         }
+
+        public void OrderHistoryExportCommand()
+        {
+            IsLoading = true;
+            IsConfigReadonly = true;
+            _orchestrator.OrderHistoryExport(_duplicatContext)
+                .ContinueWith(prevTask => { IsLoading = false; IsConfigReadonly = true; IsConnected = true; });
+        }
     }
 }

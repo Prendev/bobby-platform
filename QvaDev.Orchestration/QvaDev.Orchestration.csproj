@@ -78,6 +78,7 @@
     <Compile Include="Services\ExpertService.cs" />
     <Compile Include="Services\MonitorServices.cs" />
     <Compile Include="Services\PushingService.cs" />
+    <Compile Include="Services\ReportService.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\QvaDev.Common\QvaDev.Common.csproj">

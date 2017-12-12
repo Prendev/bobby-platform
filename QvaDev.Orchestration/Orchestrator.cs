@@ -22,6 +22,7 @@ namespace QvaDev.Orchestration
         Task Connect(DuplicatContext duplicatContext);
         Task Disconnect();
         Task BalanceReport(DateTime from, DateTime to, string reportPath);
+        Task OrderHistoryExport(DuplicatContext duplicatContext);
 
         void TestMarketOrder(Pushing pushing);
         Task PushingOpenSeq(Pushing pushing);
@@ -41,6 +42,7 @@ namespace QvaDev.Orchestration
         private readonly IMonitorServices _monitorServices;
         private readonly IExpertService _expertService;
         private readonly IPushingService _pushingService;
+        private readonly IReportService _reportService;
 
         public int SelectedAlphaMonitorId { get; set; }
         public int SelectedBetaMonitorId { get; set; }
@@ -53,8 +55,10 @@ namespace QvaDev.Orchestration
             IMonitorServices monitorServices,
             IExpertService expertService,
             IPushingService pushingService,
+            IReportService reportService,
             ILog log)
         {
+            _reportService = reportService;
             _pushingService = pushingService;
             _expertService = expertService;
             _monitorServices = monitorServices;
@@ -291,6 +295,14 @@ namespace QvaDev.Orchestration
         public void PushingPanic(Pushing pushing)
         {
             pushing.InPanic = true;
+        }
+
+        public Task OrderHistoryExport(DuplicatContext duplicatContext)
+        {
+            return Connect(duplicatContext).ContinueWith(prevTask =>
+            {
+                _reportService.OrderHistoryExport(duplicatContext);
+            });
         }
     }
 }

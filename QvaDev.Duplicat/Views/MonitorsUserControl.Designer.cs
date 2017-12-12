@@ -38,6 +38,7 @@
             this.groupBox15 = new System.Windows.Forms.GroupBox();
             this.dgvAlphaMasters = new QvaDev.Duplicat.Views.CustomDataGridView();
             this.gbControl = new System.Windows.Forms.GroupBox();
+            this.dtpTo = new System.Windows.Forms.DateTimePicker();
             this.btnStop = new System.Windows.Forms.Button();
             this.btnStart = new System.Windows.Forms.Button();
             this.dtpFrom = new System.Windows.Forms.DateTimePicker();
@@ -46,7 +47,6 @@
             this.btnLoadAlpha = new System.Windows.Forms.Button();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.dgvMonitors = new QvaDev.Duplicat.Views.CustomDataGridView();
-            this.dtpTo = new System.Windows.Forms.DateTimePicker();
             this.tlpMain.SuspendLayout();
             this.groupBox16.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvBetaMasters)).BeginInit();
@@ -188,6 +188,14 @@
             this.gbControl.TabStop = false;
             this.gbControl.Text = "Control";
             // 
+            // dtpTo
+            // 
+            this.dtpTo.Format = System.Windows.Forms.DateTimePickerFormat.Short;
+            this.dtpTo.Location = new System.Drawing.Point(162, 106);
+            this.dtpTo.Name = "dtpTo";
+            this.dtpTo.Size = new System.Drawing.Size(150, 20);
+            this.dtpTo.TabIndex = 22;
+            // 
             // btnStop
             // 
             this.btnStop.Location = new System.Drawing.Point(162, 19);
@@ -262,14 +270,6 @@
             this.dgvMonitors.Name = "dgvMonitors";
             this.dgvMonitors.Size = new System.Drawing.Size(480, 125);
             this.dgvMonitors.TabIndex = 0;
-            // 
-            // dtpTo
-            // 
-            this.dtpTo.Format = System.Windows.Forms.DateTimePickerFormat.Short;
-            this.dtpTo.Location = new System.Drawing.Point(162, 106);
-            this.dtpTo.Name = "dtpTo";
-            this.dtpTo.Size = new System.Drawing.Size(150, 20);
-            this.dtpTo.TabIndex = 22;
             // 
             // MonitorsUserControl
             // 
