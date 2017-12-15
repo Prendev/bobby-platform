@@ -44,18 +44,25 @@ namespace QvaDev.CTraderIntegration
             var accounts = Accounts.GetOrAdd(accountInfo.AccessToken,
                 accessToken => new Lazy<List<AccountData>>(() =>
                 {
-                    var accs = _tradingAccountsService
-                        .GetAccounts(new BaseRequest
-                        {
-                            AccessToken = accountInfo.AccessToken,
-                            BaseUrl = platformInfo.AccountsApi
-                        });
-
+                    try
+                    {
+                        var accs = _tradingAccountsService
+                            .GetAccounts(new BaseRequest
+                            {
+                                AccessToken = accountInfo.AccessToken,
+                                BaseUrl = platformInfo.AccountsApi
+                            });
+                        return accs;
+                    }
+                    catch (Exception e)
+                    {
+                        _log.Error("Get accounts exception", e);
+                    }
                     _log.Debug($"Accounts acquired for access token: {accessToken}");
-                    return accs;
+                    return null;
                 }, true));
 
-            accountInfo.AccountId = accounts.Value
+            accountInfo.AccountId = accounts.Value?
                 .FirstOrDefault(a => a.accountNumber == accountInfo.AccountNumber)?.accountId ?? 0;
 
             var cTraderClientWrapper = CTraderClientWrappers.GetOrAdd(platformInfo.Description,
