@@ -26,6 +26,9 @@ namespace QvaDev.Data.Models
         [Required]
         public int RetryPeriodInMilliseconds { get; set; }
 
+        [Required]
+        public int DelayInMilliseconds { get; set; }
+
         [NotMapped]
         [InvisibleColumn]
         public bool IsFiltered { get => Get<bool>(); set => Set(value); }

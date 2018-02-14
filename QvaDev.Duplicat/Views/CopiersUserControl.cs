@@ -51,6 +51,7 @@ namespace QvaDev.Duplicat.Views
             dgvMasters.AddComboBoxColumn(_viewModel.Groups);
             dgvMasters.AddComboBoxColumn(_viewModel.MtAccounts);
             dgvSlaves.AddComboBoxColumn(_viewModel.Masters);
+            dgvSlaves.AddComboBoxColumn(_viewModel.MtAccounts);
             dgvSlaves.AddComboBoxColumn(_viewModel.CtAccounts);
 
             dgvMasters.DataSource = _viewModel.Masters.ToBindingList();

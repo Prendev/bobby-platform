@@ -116,6 +116,9 @@
     <None Include="Mt4SrvFiles\CoreSpreads-DemoBravo.srv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="Mt4SrvFiles\LMAX-DemoUK.srv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="Mt4SrvFiles\OANDA-v20 Practice.srv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

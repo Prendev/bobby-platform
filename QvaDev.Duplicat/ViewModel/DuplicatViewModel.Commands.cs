@@ -14,8 +14,15 @@ namespace QvaDev.Duplicat.ViewModel
     {
         public void SaveCommand()
         {
-            _duplicatContext.SaveChanges();
-            _log.Debug($"Database is saved");
+            try
+            {
+                _duplicatContext.SaveChanges();
+                _log.Debug($"Database is saved");
+            }
+            catch (Exception e)
+            {
+                _log.Error("Database save ERROR!!!", e);
+            }
         }
 
         public void BackupCommand()
@@ -103,6 +110,7 @@ namespace QvaDev.Duplicat.ViewModel
         public void LoadProfileCommand(Profile profile)
         {
             SelectedProfileId = profile?.Id ?? 0;
+            SelectedProfileDesc = profile?.Description;
             LoadDataContext();
             DataContextChanged?.Invoke();
         }

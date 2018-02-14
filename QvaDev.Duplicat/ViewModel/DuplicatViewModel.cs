@@ -57,6 +57,7 @@ namespace QvaDev.Duplicat.ViewModel
         public bool IsPushingEnabled { get => Get<bool>(); set => Set(value); }
         public PushingStates PushingState { get => Get<PushingStates>(); set => Set(value); }
 
+        public string SelectedProfileDesc { get => Get<string>(); set => Set(value ?? ""); }
         public int SelectedProfileId { get => Get<int>(); set => Set(value); }
         public int SelectedSlaveId { get => Get<int>(); set => Set(value); }
         public int SelectedAlphaMonitorId { get => Get<int>(); set => Set(value); }

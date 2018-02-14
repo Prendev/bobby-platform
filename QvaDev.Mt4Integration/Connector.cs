@@ -161,6 +161,12 @@ namespace QvaDev.Mt4Integration
             }
         }
 
+        public void SendClosePositionRequests(string comment)
+        {
+            foreach (var pos in Positions.Where(p => p.Value.Comment == comment && !p.Value.IsClosed))
+                SendClosePositionRequests(pos.Value);
+        }
+
         public long GetOpenContracts(string symbol)
         {
             return Positions.Where(p => p.Value.Symbol == symbol && !p.Value.IsClosed).Sum(p => p.Value.RealVolume);
@@ -191,6 +197,11 @@ namespace QvaDev.Mt4Integration
         public int GetDigits(string symbol)
         {
             return GetSymbolInfo(symbol).Digits;
+        }
+
+        public double GetContractSize(string symbol)
+        {
+            return GetSymbolInfo(symbol).ContractSize;
         }
 
         public double GetPoint(string symbol)

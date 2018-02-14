@@ -34,6 +34,12 @@ namespace QvaDev.Duplicat.Views
             btnConnect.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsConnected), true);
             btnDisconnect.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsConnected));
 
+            tabPageCopier.AddBinding<int>("Enabled", _viewModel, nameof(_viewModel.SelectedProfileId), p => p > 0);
+            tabPageMonitor.AddBinding<int>("Enabled", _viewModel, nameof(_viewModel.SelectedProfileId), p => p > 0);
+            tabPagePush.AddBinding<int>("Enabled", _viewModel, nameof(_viewModel.SelectedProfileId), p => p > 0);
+            tabPageQuadro.AddBinding<int>("Enabled", _viewModel, nameof(_viewModel.SelectedProfileId), p => p > 0);
+            labelProfile.AddBinding("Text", _viewModel, nameof(_viewModel.SelectedProfileDesc));
+
             btnConnect.Click += (s, e) => { _viewModel.ConnectCommand(); };
             btnDisconnect.Click += (s, e) => { _viewModel.DisconnectCommand(); };
 

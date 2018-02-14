@@ -41,7 +41,7 @@ namespace QvaDev.Orchestration.Services
             _isStarted = true;
 
             var tasks = _tradingAccounts.Select(account => Task.Factory.StartNew(() => TradeAccount(account)));
-            return Task.WhenAll(Task.WhenAll(tasks));
+            return Task.WhenAll(tasks);
         }
 
         public void Stop()

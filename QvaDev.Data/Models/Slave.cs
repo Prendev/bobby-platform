@@ -10,10 +10,11 @@ namespace QvaDev.Data.Models
         [Required]
         public Master Master { get; set; }
 
-        [Required]
-        public int CTraderAccountId { get; set; }
-        [Required]
+        public int? CTraderAccountId { get; set; }
         public CTraderAccount CTraderAccount { get; set; }
+
+        public int? MetaTraderAccountId { get; set; }
+        public MetaTraderAccount MetaTraderAccount { get; set; }
 
         public string SymbolSuffix { get; set; }
 
