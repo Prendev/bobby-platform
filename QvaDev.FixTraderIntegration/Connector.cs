@@ -146,7 +146,7 @@ namespace QvaDev.FixTraderIntegration
 				$"103={symbol}",
 				$"104={lots}",
 				$"114={unix}",
-				$"115=4",
+				$"115=0",
 			};
 			if (!string.IsNullOrWhiteSpace(comment)) tags.Insert(1, $"100={comment}");
 
