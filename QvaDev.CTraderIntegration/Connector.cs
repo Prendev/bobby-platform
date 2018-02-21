@@ -132,6 +132,7 @@ namespace QvaDev.CTraderIntegration
         {
             if (!IsConnected) return 0;
             Thread.Sleep(2000);
+
             var deals = _tradingAccountsService.GetDeals(new DealsRequest
             {
                 AccessToken = _accountInfo.AccessToken,
@@ -140,6 +141,7 @@ namespace QvaDev.CTraderIntegration
                 From = from,
                 To = to
             });
+
             return (double) deals.Sum(deal => deal.GetNetProfit());
         }
 

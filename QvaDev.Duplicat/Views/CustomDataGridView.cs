@@ -112,9 +112,10 @@ namespace QvaDev.Duplicat.Views
         }
 
         private void DataGridView_DataError(object sender, DataGridViewDataErrorEventArgs e)
-        {
-            if (e.Exception.Message == "DataGridViewComboBoxCell value is not valid.") return;
-            throw e.Exception;
+		{
+			if (e.Exception.Message == "DataGridViewComboBoxCell value is not valid.") return;
+			if (e.Exception.Message == "DataGridViewComboBoxCell értéke érvénytelen.") return;
+			throw e.Exception;
         }
 
         private void UseComboBoxForEnums()

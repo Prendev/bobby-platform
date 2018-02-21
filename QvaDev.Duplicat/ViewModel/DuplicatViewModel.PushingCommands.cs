@@ -7,8 +7,14 @@ namespace QvaDev.Duplicat.ViewModel
         public void PushingTestMarketOrderCommand(Pushing pushing)
         {
             _orchestrator.TestMarketOrder(pushing);
-        }
-        public void ShowPushingCommand(Pushing pushing)
+		}
+
+		public void PushingTestLimitOrderCommand(Pushing pushing)
+		{
+			_orchestrator.TestLimitOrder(pushing);
+		}
+
+		public void ShowPushingCommand(Pushing pushing)
         {
             SelectedPushingDetailId = pushing?.PushingDetailId ?? 0;
             foreach (var e in PushingDetails) e.IsFiltered = e.Id != SelectedPushingDetailId;

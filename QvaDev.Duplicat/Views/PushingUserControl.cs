@@ -55,7 +55,8 @@ namespace QvaDev.Duplicat.Views
             };
 
             btnTestMarketOrder.Click += (s, e) => { _viewModel.PushingTestMarketOrderCommand(dgvPushings.GetSelectedItem<Pushing>()); };
-            btnBuyBeta.Click += (s, e) => { _viewModel.PushingBuyBetaCommand(dgvPushings.GetSelectedItem<Pushing>()); };
+			btnTestLimitOrder.Click += (s, e) => { _viewModel.PushingTestLimitOrderCommand(dgvPushings.GetSelectedItem<Pushing>()); };
+			btnBuyBeta.Click += (s, e) => { _viewModel.PushingBuyBetaCommand(dgvPushings.GetSelectedItem<Pushing>()); };
             btnSellBeta.Click += (s, e) => { _viewModel.PushingSellBetaCommand(dgvPushings.GetSelectedItem<Pushing>()); };
             btnOpenPanic.Click += (s, e) => { _viewModel.PushingPanicCommand(dgvPushings.GetSelectedItem<Pushing>()); };
             btnCloseLong.Click += (s, e) => { _viewModel.PushingCloseLongCommand(dgvPushings.GetSelectedItem<Pushing>()); };

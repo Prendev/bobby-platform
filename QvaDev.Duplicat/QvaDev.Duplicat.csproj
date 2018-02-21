@@ -21,7 +21,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>true</Prefer32Bit>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -211,7 +211,7 @@
       <Name>QvaDev.Common</Name>
     </ProjectReference>
     <ProjectReference Include="..\QvaDev.CTraderIntegration\QvaDev.CTraderIntegration.csproj">
-      <Project>{5B92788F-AF48-4709-A539-BBA2822A06B7}</Project>
+      <Project>{5b92788f-af48-4709-a539-bba2822a06b7}</Project>
       <Name>QvaDev.CTraderIntegration</Name>
     </ProjectReference>
     <ProjectReference Include="..\QvaDev.Data\QvaDev.Data.csproj">

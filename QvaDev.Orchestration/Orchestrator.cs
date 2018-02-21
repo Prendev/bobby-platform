@@ -25,7 +25,8 @@ namespace QvaDev.Orchestration
         Task OrderHistoryExport(DuplicatContext duplicatContext);
 
         void TestMarketOrder(Pushing pushing);
-        Task PushingOpenSeq(Pushing pushing);
+		void TestLimitOrder(Pushing pushing);
+		Task PushingOpenSeq(Pushing pushing);
         Task PushingCloseSeq(Pushing pushing);
         void PushingPanic(Pushing pushing);
     }
@@ -273,10 +274,15 @@ namespace QvaDev.Orchestration
         public void TestMarketOrder(Pushing pushing)
         {
             var connector = (FixTraderIntegration.Connector)pushing.FutureAccount.Connector;
-            connector.SendMarketOrderRequest("EURUSD", Common.Integration.Sides.Buy, 1, "1234");
-        }
+            connector.SendMarketOrderRequest(pushing.FutureSymbol, Common.Integration.Sides.Buy, pushing.PushingDetail.SmallContractSize);
+		}
+		public void TestLimitOrder(Pushing pushing)
+		{
+			var connector = (FixTraderIntegration.Connector)pushing.FutureAccount.Connector;
+			connector.SendLimitOrderRequest(pushing.FutureSymbol, Common.Integration.Sides.Buy, pushing.PushingDetail.SmallContractSize);
+		}
 
-        public Task PushingOpenSeq(Pushing pushing)
+		public Task PushingOpenSeq(Pushing pushing)
         {
             return Task.Factory.StartNew(() =>
             {
