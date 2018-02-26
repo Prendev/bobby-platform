@@ -75,9 +75,10 @@ namespace QvaDev.Orchestration.Services
             var secondConnector = pushing.BetaOpenSide == pushing.FirstCloseSide ? alphaConnector : betaConnector;
             var firstPos = pushing.BetaOpenSide == pushing.FirstCloseSide ? pushing.BetaPosition : pushing.AlphaPosition;
             var secondPos = pushing.BetaOpenSide == pushing.FirstCloseSide ? pushing.AlphaPosition : pushing.BetaPosition;
+			var futureSide = InvSide(pushing.FirstCloseSide);
 
-            // Close first side and wait a bit
-            firstConnector.SendClosePositionRequests(firstPos);
+			// Close first side and wait a bit
+			firstConnector.SendClosePositionRequests(firstPos);
             Thread.Sleep(pushing.PushingDetail.FutureOpenDelayInMs);
 
             // Build up futures for hedge
@@ -89,14 +90,14 @@ namespace QvaDev.Orchestration.Services
                 while (GetSumContracts(futureConnector, pushing.FutureSymbol) - startContractSize < contractsNeeded)
                 {
                     var contractSize = rnd.Next(0, 100) > pd.BigPercentage ? pd.SmallContractSize : pd.BigContractSize;
-                    futureConnector.SendMarketOrderRequest(pushing.FutureSymbol, pushing.FirstCloseSide, contractSize);
+                    futureConnector.SendMarketOrderRequest(pushing.FutureSymbol, futureSide, contractSize);
                     Thread.Sleep(rnd.Next(pd.MinIntervalInMs, pd.MaxIntervalInMs));
                     // Rush
-                    if (!pushing.InPanic && !PriceLimitReached(pushing, pushing.FirstCloseSide)) continue;
+                    if (!pushing.InPanic && !PriceLimitReached(pushing, futureSide)) continue;
                     pushing.InPanic = false;
                     break;
                 }
-                hedgeConnector.SendMarketOrderRequest(pushing.HedgeSymbol, InvSide(pushing.FirstCloseSide), pd.HedgeLots, 1);
+                hedgeConnector.SendMarketOrderRequest(pushing.HedgeSymbol, pushing.FirstCloseSide, pd.HedgeLots, 1);
                 pd.PriceLimit = null;
                 contractsNeeded = -pd.HedgeSignalContractLimit;
             }
@@ -106,7 +107,7 @@ namespace QvaDev.Orchestration.Services
             while (GetSumContracts(futureConnector, pushing.FutureSymbol) - startContractSize < contractsNeeded)
             {
                 var contractSize = rnd.Next(0, 100) > pd.BigPercentage ? pd.SmallContractSize : pd.BigContractSize;
-                futureConnector.SendMarketOrderRequest(pushing.FutureSymbol, pushing.FirstCloseSide, contractSize);
+                futureConnector.SendMarketOrderRequest(pushing.FutureSymbol, futureSide, contractSize);
                 Thread.Sleep(rnd.Next(pd.MinIntervalInMs, pd.MaxIntervalInMs));
                 // Rush
                 if (!pushing.InPanic) continue;
@@ -122,7 +123,7 @@ namespace QvaDev.Orchestration.Services
             while (GetSumContracts(futureConnector, pushing.FutureSymbol) - startContractSize < contractsNeeded)
             {
                 var contractSize = rnd.Next(0, 100) > pd.BigPercentage ? pd.SmallContractSize : pd.BigContractSize;
-                futureConnector.SendMarketOrderRequest(pushing.FutureSymbol, pushing.FirstCloseSide, contractSize);
+                futureConnector.SendMarketOrderRequest(pushing.FutureSymbol, futureSide, contractSize);
                 Thread.Sleep(rnd.Next(pd.MinIntervalInMs, pd.MaxIntervalInMs));
                 // Rush
                 if (!pushing.InPanic) continue;
