@@ -112,8 +112,10 @@ namespace QvaDev.Orchestration.Services
             var tasks = slave.Copiers.Select(copier => Task.Factory.StartNew(() =>
             {
                 if (copier.DelayInMilliseconds > 0) Thread.Sleep(copier.DelayInMilliseconds);
-                var lots = Math.Abs(e.Position.RealVolume) / slaveConnector.GetContractSize(symbol) *
-                           (double) copier.CopyRatio;
+				// TODO
+				//var lots = Math.Abs(e.Position.RealVolume) / slaveConnector.GetContractSize(symbol) *
+				//           (double) copier.CopyRatio;
+				var lots = e.Position.Lots;
                 if (e.Action == PositionEventArgs.Actions.Open)
                     slaveConnector.SendMarketOrderRequest(symbol, e.Position.Side, lots, e.Position.MagicNumber,
                         $"{slave.Id}-{e.Position.Id}");
