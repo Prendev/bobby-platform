@@ -14,18 +14,30 @@ namespace QvaDev.Duplicat.ViewModel
     {
         public void SaveCommand()
         {
+			SaveState = SaveStates.Default;
             try
             {
                 _duplicatContext.SaveChanges();
                 _log.Debug($"Database is saved");
-            }
+				SaveState = SaveStates.Success;
+			}
             catch (Exception e)
             {
                 _log.Error("Database save ERROR!!!", e);
-            }
-        }
+				SaveState = SaveStates.Error;
+			}
+			var timer = new System.Timers.Timer(5000);
+			timer.AutoReset = false;
+			timer.Elapsed += (s, e) => SynchronizationContext.Post(o => SaveState = SaveStates.Default, null);
+			timer.Start();
+		}
 
-        public void BackupCommand()
+		private void Timer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+		{
+			throw new NotImplementedException();
+		}
+
+		public void BackupCommand()
         {
             using (var sfd = new SaveFileDialog
             {

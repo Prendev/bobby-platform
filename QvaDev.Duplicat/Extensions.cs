@@ -22,6 +22,13 @@ namespace QvaDev.Duplicat
             var binding = new Binding(propertyName, dataSource, dataMember);
             binding.Format += (s, e) => e.Value = format((T)e.Value);
             control.DataBindings.Add(binding);
-        }
-    }
+		}
+
+		public static void AddBinding<T, TResult>(this Control control, string propertyName, object dataSource, string dataMember, Func<T, TResult> format)
+		{
+			var binding = new Binding(propertyName, dataSource, dataMember);
+			binding.Format += (s, e) => e.Value = format((T)e.Value);
+			control.DataBindings.Add(binding);
+		}
+	}
 }

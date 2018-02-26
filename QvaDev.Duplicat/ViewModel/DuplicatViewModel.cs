@@ -18,9 +18,16 @@ namespace QvaDev.Duplicat.ViewModel
             OpeningBeta,
             AlphaOpened,
             ClosingFirst
-        }
+		}
 
-        public delegate void DataContextChangedEventHandler();
+		public enum SaveStates
+		{
+			Default,
+			Error,
+			Success
+		}
+
+		public delegate void DataContextChangedEventHandler();
         
         private DuplicatContext _duplicatContext;
         private readonly IOrchestrator _orchestrator;
@@ -56,8 +63,9 @@ namespace QvaDev.Duplicat.ViewModel
         public bool AreExpertsStarted { get => Get<bool>(); set => Set(value); }
         public bool IsPushingEnabled { get => Get<bool>(); set => Set(value); }
         public PushingStates PushingState { get => Get<PushingStates>(); set => Set(value); }
+		public SaveStates SaveState { get => Get<SaveStates>(); set => Set(value); }
 
-        public string SelectedProfileDesc { get => Get<string>(); set => Set(value ?? ""); }
+		public string SelectedProfileDesc { get => Get<string>(); set => Set(value ?? ""); }
         public int SelectedProfileId { get => Get<int>(); set => Set(value); }
         public int SelectedSlaveId { get => Get<int>(); set => Set(value); }
         public int SelectedAlphaMonitorId { get => Get<int>(); set => Set(value); }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Drawing;
 using System.Threading;
 using System.Windows.Forms;
 using QvaDev.Duplicat.ViewModel;
@@ -33,8 +34,12 @@ namespace QvaDev.Duplicat.Views
             gbControl.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsLoading), true);
             btnConnect.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsConnected), true);
             btnDisconnect.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsConnected));
+			btnSave.AddBinding<DuplicatViewModel.SaveStates, Color>("ForeColor", _viewModel,
+				nameof(_viewModel.SaveState), s => s == DuplicatViewModel.SaveStates.Error ? Color.DarkRed : s == DuplicatViewModel.SaveStates.Success ? Color.DarkGreen : Color.Black);
+			btnSave.AddBinding<DuplicatViewModel.SaveStates, string>("Text", _viewModel,
+				nameof(_viewModel.SaveState), s => s == DuplicatViewModel.SaveStates.Error ? "ERROR" : s == DuplicatViewModel.SaveStates.Success ? "SUCCESS" : "Save config changes");
 
-            tabPageCopier.AddBinding<int>("Enabled", _viewModel, nameof(_viewModel.SelectedProfileId), p => p > 0);
+			tabPageCopier.AddBinding<int>("Enabled", _viewModel, nameof(_viewModel.SelectedProfileId), p => p > 0);
             tabPageMonitor.AddBinding<int>("Enabled", _viewModel, nameof(_viewModel.SelectedProfileId), p => p > 0);
             tabPagePush.AddBinding<int>("Enabled", _viewModel, nameof(_viewModel.SelectedProfileId), p => p > 0);
             tabPageQuadro.AddBinding<int>("Enabled", _viewModel, nameof(_viewModel.SelectedProfileId), p => p > 0);
