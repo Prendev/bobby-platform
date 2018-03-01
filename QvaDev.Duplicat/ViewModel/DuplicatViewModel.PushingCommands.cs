@@ -20,37 +20,30 @@ namespace QvaDev.Duplicat.ViewModel
             foreach (var e in PushingDetails) e.IsFiltered = e.Id != SelectedPushingDetailId;
         }
 
-        public void PushingBuyBetaCommand(Pushing pushing)
+        public async void PushingOpenCommand(Pushing pushing, Common.Integration.Sides side)
         {
-            PushingState = PushingStates.OpeningBeta;
-            pushing.BetaOpenSide = Common.Integration.Sides.Buy;
-            _orchestrator.PushingOpenSeq(pushing)
-                .ContinueWith(prevTask => PushingState = PushingStates.AlphaOpened);
+            PushingState = PushingStates.Busy;
+            pushing.BetaOpenSide = side;
+			await _orchestrator.OpeningBeta(pushing);
+			PushingState = PushingStates.AfterOpeningBeta;
+			await _orchestrator.OpeningAlpha(pushing);
+			PushingState = PushingStates.AfterOpeningAlpha;
+			await _orchestrator.OpeningFinish(pushing);
+			PushingState = PushingStates.BeforeClosing;
         }
 
-        public void PushingSellBetaCommand(Pushing pushing)
-        {
-            PushingState = PushingStates.OpeningBeta;
-            pushing.BetaOpenSide = Common.Integration.Sides.Sell;
-            _orchestrator.PushingOpenSeq(pushing)
-                .ContinueWith(prevTask => PushingState = PushingStates.AlphaOpened);
-
-        }
-
-        public void PushingCloseLongCommand(Pushing pushing)
-        {
-            PushingState = PushingStates.ClosingFirst;
-            pushing.FirstCloseSide = Common.Integration.Sides.Buy;
-            _orchestrator.PushingCloseSeq(pushing)
-                .ContinueWith(prevTask => PushingState = PushingStates.NotRunning);
-        }
-
-        public void PushingCloseShortCommand(Pushing pushing)
-        {
-            PushingState = PushingStates.ClosingFirst;
-            pushing.FirstCloseSide = Common.Integration.Sides.Sell;
-            _orchestrator.PushingCloseSeq(pushing)
-                .ContinueWith(prevTask => PushingState = PushingStates.NotRunning);
+        public async void PushingCloseCommand(Pushing pushing, Common.Integration.Sides side)
+		{
+			PushingState = PushingStates.Busy;
+			pushing.BetaOpenSide = side;
+			await _orchestrator.ClosingFirst(pushing);
+			PushingState = PushingStates.AfterClosingFirst;
+			await _orchestrator.OpeningHedge(pushing);
+			PushingState = PushingStates.AfterOpeningHedge;
+			await _orchestrator.ClosingSecond(pushing);
+			PushingState = PushingStates.AfterClosingSecond;
+			await _orchestrator.ClosingFinish(pushing);
+			PushingState = PushingStates.NotRunning;
         }
 
         public void PushingPanicCommand(Pushing pushing)

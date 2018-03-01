@@ -85,7 +85,7 @@
 			this.tabControlMain.Location = new System.Drawing.Point(3, 55);
 			this.tabControlMain.Name = "tabControlMain";
 			this.tabControlMain.SelectedIndex = 0;
-			this.tabControlMain.Size = new System.Drawing.Size(1046, 507);
+			this.tabControlMain.Size = new System.Drawing.Size(1009, 620);
 			this.tabControlMain.TabIndex = 0;
 			// 
 			// tabPageProfileAndGroup
@@ -207,7 +207,7 @@
 			this.tabPagePush.Location = new System.Drawing.Point(4, 22);
 			this.tabPagePush.Name = "tabPagePush";
 			this.tabPagePush.Padding = new System.Windows.Forms.Padding(3);
-			this.tabPagePush.Size = new System.Drawing.Size(1038, 481);
+			this.tabPagePush.Size = new System.Drawing.Size(1001, 594);
 			this.tabPagePush.TabIndex = 8;
 			this.tabPagePush.Text = "Pushing";
 			this.tabPagePush.UseVisualStyleBackColor = true;
@@ -217,7 +217,7 @@
 			this.pushingUserControl.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.pushingUserControl.Location = new System.Drawing.Point(3, 3);
 			this.pushingUserControl.Name = "pushingUserControl";
-			this.pushingUserControl.Size = new System.Drawing.Size(1032, 475);
+			this.pushingUserControl.Size = new System.Drawing.Size(995, 588);
 			this.pushingUserControl.TabIndex = 0;
 			// 
 			// tabPageQuadro
@@ -273,7 +273,7 @@
 			this.tlpMain.RowCount = 2;
 			this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 52F));
 			this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-			this.tlpMain.Size = new System.Drawing.Size(1052, 565);
+			this.tlpMain.Size = new System.Drawing.Size(1015, 678);
 			this.tlpMain.TabIndex = 1;
 			// 
 			// gbControl
@@ -288,7 +288,7 @@
 			this.gbControl.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.gbControl.Location = new System.Drawing.Point(3, 3);
 			this.gbControl.Name = "gbControl";
-			this.gbControl.Size = new System.Drawing.Size(1046, 46);
+			this.gbControl.Size = new System.Drawing.Size(1009, 46);
 			this.gbControl.TabIndex = 1;
 			this.gbControl.TabStop = false;
 			this.gbControl.Text = "Main control panel";
@@ -333,7 +333,7 @@
 			// btnDisconnect
 			// 
 			this.btnDisconnect.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.btnDisconnect.Location = new System.Drawing.Point(890, 19);
+			this.btnDisconnect.Location = new System.Drawing.Point(853, 19);
 			this.btnDisconnect.Name = "btnDisconnect";
 			this.btnDisconnect.Size = new System.Drawing.Size(150, 23);
 			this.btnDisconnect.TabIndex = 19;
@@ -343,7 +343,7 @@
 			// btnConnect
 			// 
 			this.btnConnect.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.btnConnect.Location = new System.Drawing.Point(734, 19);
+			this.btnConnect.Location = new System.Drawing.Point(697, 19);
 			this.btnConnect.Name = "btnConnect";
 			this.btnConnect.Size = new System.Drawing.Size(150, 23);
 			this.btnConnect.TabIndex = 18;
@@ -363,7 +363,7 @@
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(1052, 565);
+			this.ClientSize = new System.Drawing.Size(1015, 678);
 			this.Controls.Add(this.tlpMain);
 			this.Name = "MainForm";
 			this.Text = "QvaDev.Duplicat";

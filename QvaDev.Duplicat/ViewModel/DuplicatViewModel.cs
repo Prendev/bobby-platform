@@ -15,9 +15,13 @@ namespace QvaDev.Duplicat.ViewModel
         public enum PushingStates
         {
             NotRunning,
-            OpeningBeta,
-            AlphaOpened,
-            ClosingFirst
+            AfterOpeningBeta,
+			AfterOpeningAlpha,
+			BeforeClosing,
+            AfterClosingFirst,
+			AfterOpeningHedge,
+			AfterClosingSecond,
+			Busy
 		}
 
 		public enum SaveStates
@@ -87,12 +91,19 @@ namespace QvaDev.Duplicat.ViewModel
 
         private void DuplicatViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(SelectedAlphaMonitorId))
-                _orchestrator.SelectedAlphaMonitorId = SelectedAlphaMonitorId;
-            else if (e.PropertyName == nameof(SelectedBetaMonitorId))
-                _orchestrator.SelectedBetaMonitorId = SelectedBetaMonitorId;
-            else if (e.PropertyName == nameof(IsConnected) || e.PropertyName == nameof(SelectedPushingDetailId))
-                IsPushingEnabled = IsConnected && SelectedPushingDetailId > 0;
+			if (e.PropertyName == nameof(SelectedAlphaMonitorId))
+				_orchestrator.SelectedAlphaMonitorId = SelectedAlphaMonitorId;
+			else if (e.PropertyName == nameof(SelectedBetaMonitorId))
+				_orchestrator.SelectedBetaMonitorId = SelectedBetaMonitorId;
+			else if (e.PropertyName == nameof(IsConnected) || e.PropertyName == nameof(SelectedPushingDetailId))
+			{
+				var pushing = Pushings.FirstOrDefault(p => p.PushingDetailId == SelectedPushingDetailId);
+				IsPushingEnabled = IsConnected && SelectedPushingDetailId > 0 &&
+					pushing?.FutureAccount?.Connector?.IsConnected == true &&
+					pushing?.AlphaMaster?.Connector?.IsConnected == true &&
+					pushing?.BetaMaster?.Connector?.IsConnected == true &&
+					pushing?.HedgeAccount?.Connector?.IsConnected == true;
+			}
         }
 
         private void LoadDataContext()

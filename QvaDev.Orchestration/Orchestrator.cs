@@ -24,10 +24,19 @@ namespace QvaDev.Orchestration
         Task BalanceReport(DateTime from, DateTime to, string reportPath);
         Task OrderHistoryExport(DuplicatContext duplicatContext);
 
+
         void TestMarketOrder(Pushing pushing);
 		void TestLimitOrder(Pushing pushing);
-		Task PushingOpenSeq(Pushing pushing);
-        Task PushingCloseSeq(Pushing pushing);
+
+		Task OpeningBeta(Pushing pushing);
+		Task OpeningAlpha(Pushing pushing);
+		Task OpeningFinish(Pushing pushing);
+
+		Task ClosingFirst(Pushing pushing);
+		Task OpeningHedge(Pushing pushing);
+		Task ClosingSecond(Pushing pushing);
+		Task ClosingFinish(Pushing pushing);
+
         void PushingPanic(Pushing pushing);
     }
 
@@ -282,21 +291,49 @@ namespace QvaDev.Orchestration
 			connector.SendLimitOrderRequest(pushing.FutureSymbol, Common.Integration.Sides.Buy, pushing.PushingDetail.SmallContractSize);
 		}
 
-		public Task PushingOpenSeq(Pushing pushing)
-        {
-            return Task.Factory.StartNew(() =>
-            {
-                _pushingService.OpenSeq(pushing);
-            });
-        }
+		public Task OpeningBeta(Pushing pushing)
+		{
+			pushing.InPanic = false;
+			return Task.Run(() => _pushingService.OpeningBeta(pushing));
+		}
 
-        public Task PushingCloseSeq(Pushing pushing)
-        {
-            return Task.Factory.StartNew(() =>
-            {
-                _pushingService.CloseSeq(pushing);
-            });
-        }
+		public Task OpeningAlpha(Pushing pushing)
+		{
+			pushing.InPanic = false;
+			return Task.Run(() => _pushingService.OpeningAlpha(pushing));
+		}
+
+		public Task OpeningFinish(Pushing pushing)
+		{
+			pushing.PushingDetail.PriceLimit = null;
+			pushing.InPanic = false;
+			return Task.Run(() => _pushingService.OpeningFinish(pushing));
+		}
+
+		public Task ClosingFirst(Pushing pushing)
+		{
+			pushing.InPanic = false;
+			return Task.Run(() => _pushingService.ClosingFirst(pushing));
+		}
+
+		public Task OpeningHedge(Pushing pushing)
+		{
+			pushing.InPanic = false;
+			return Task.Run(() => _pushingService.OpeningHedge(pushing));
+		}
+
+		public Task ClosingSecond(Pushing pushing)
+		{
+			pushing.InPanic = false;
+			return Task.Run(() => _pushingService.ClosingSecond(pushing));
+		}
+
+		public Task ClosingFinish(Pushing pushing)
+		{
+			pushing.PushingDetail.PriceLimit = null;
+			pushing.InPanic = false;
+			return Task.Run(() => _pushingService.ClosingFinish(pushing));
+		}
 
         public void PushingPanic(Pushing pushing)
         {
