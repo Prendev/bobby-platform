@@ -30,6 +30,9 @@
         {
 			this.tlpMain = new System.Windows.Forms.TableLayoutPanel();
 			this.gbPushing = new System.Windows.Forms.GroupBox();
+			this.label7 = new System.Windows.Forms.Label();
+			this.label6 = new System.Windows.Forms.Label();
+			this.label5 = new System.Windows.Forms.Label();
 			this.btnRushClose = new System.Windows.Forms.Button();
 			this.btnRushCloseFinish = new System.Windows.Forms.Button();
 			this.btnRushOpenFinish = new System.Windows.Forms.Button();
@@ -41,27 +44,24 @@
 			this.label2 = new System.Windows.Forms.Label();
 			this.label1 = new System.Windows.Forms.Label();
 			this.cbHedge = new System.Windows.Forms.CheckBox();
-			this.btnCloseShort = new System.Windows.Forms.Button();
-			this.btnCloseLong = new System.Windows.Forms.Button();
+			this.btnCloseShortBuyFutures = new System.Windows.Forms.Button();
+			this.btnCloseLongSellFutures = new System.Windows.Forms.Button();
 			this.btnSellBeta = new System.Windows.Forms.Button();
 			this.btnBuyBeta = new System.Windows.Forms.Button();
 			this.btnTestMarketOrder = new System.Windows.Forms.Button();
 			this.groupBox2 = new System.Windows.Forms.GroupBox();
+			this.dgvPushingDetail = new QvaDev.Duplicat.Views.CustomDataGridView();
 			this.groupBox1 = new System.Windows.Forms.GroupBox();
+			this.dgvPushings = new QvaDev.Duplicat.Views.CustomDataGridView();
 			this.gbControl = new System.Windows.Forms.GroupBox();
 			this.btnLoad = new System.Windows.Forms.Button();
-			this.dgvPushingDetail = new QvaDev.Duplicat.Views.CustomDataGridView();
-			this.dgvPushings = new QvaDev.Duplicat.Views.CustomDataGridView();
-			this.label5 = new System.Windows.Forms.Label();
-			this.label6 = new System.Windows.Forms.Label();
-			this.label7 = new System.Windows.Forms.Label();
 			this.tlpMain.SuspendLayout();
 			this.gbPushing.SuspendLayout();
 			this.groupBox2.SuspendLayout();
-			this.groupBox1.SuspendLayout();
-			this.gbControl.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.dgvPushingDetail)).BeginInit();
+			this.groupBox1.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.dgvPushings)).BeginInit();
+			this.gbControl.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// tlpMain
@@ -99,8 +99,8 @@
 			this.gbPushing.Controls.Add(this.label2);
 			this.gbPushing.Controls.Add(this.label1);
 			this.gbPushing.Controls.Add(this.cbHedge);
-			this.gbPushing.Controls.Add(this.btnCloseShort);
-			this.gbPushing.Controls.Add(this.btnCloseLong);
+			this.gbPushing.Controls.Add(this.btnCloseShortBuyFutures);
+			this.gbPushing.Controls.Add(this.btnCloseLongSellFutures);
 			this.gbPushing.Controls.Add(this.btnSellBeta);
 			this.gbPushing.Controls.Add(this.btnBuyBeta);
 			this.gbPushing.Controls.Add(this.btnTestMarketOrder);
@@ -110,6 +110,33 @@
 			this.gbPushing.Size = new System.Drawing.Size(911, 338);
 			this.gbPushing.TabIndex = 0;
 			this.gbPushing.TabStop = false;
+			// 
+			// label7
+			// 
+			this.label7.AutoSize = true;
+			this.label7.Location = new System.Drawing.Point(318, 42);
+			this.label7.Name = "label7";
+			this.label7.Size = new System.Drawing.Size(323, 13);
+			this.label7.TabIndex = 45;
+			this.label7.Text = "If cannot click check if every accounts are connected successfully";
+			// 
+			// label6
+			// 
+			this.label6.AutoSize = true;
+			this.label6.Location = new System.Drawing.Point(318, 29);
+			this.label6.Name = "label6";
+			this.label6.Size = new System.Drawing.Size(313, 13);
+			this.label6.TabIndex = 44;
+			this.label6.Text = "HedgeSignalContractLimit is relative to MasterSignalContractLimit";
+			// 
+			// label5
+			// 
+			this.label5.AutoSize = true;
+			this.label5.Location = new System.Drawing.Point(318, 16);
+			this.label5.Name = "label5";
+			this.label5.Size = new System.Drawing.Size(267, 13);
+			this.label5.TabIndex = 43;
+			this.label5.Text = "MasterSignalContractLimit is relative to FullContractSize";
 			// 
 			// btnRushClose
 			// 
@@ -213,23 +240,23 @@
 			this.cbHedge.Text = "Hedge";
 			this.cbHedge.UseVisualStyleBackColor = true;
 			// 
-			// btnCloseShort
+			// btnCloseShortBuyFutures
 			// 
-			this.btnCloseShort.Location = new System.Drawing.Point(6, 207);
-			this.btnCloseShort.Name = "btnCloseShort";
-			this.btnCloseShort.Size = new System.Drawing.Size(150, 52);
-			this.btnCloseShort.TabIndex = 31;
-			this.btnCloseShort.Text = "Close short\r\nBuy futures";
-			this.btnCloseShort.UseVisualStyleBackColor = true;
+			this.btnCloseShortBuyFutures.Location = new System.Drawing.Point(6, 207);
+			this.btnCloseShortBuyFutures.Name = "btnCloseShortBuyFutures";
+			this.btnCloseShortBuyFutures.Size = new System.Drawing.Size(150, 52);
+			this.btnCloseShortBuyFutures.TabIndex = 31;
+			this.btnCloseShortBuyFutures.Text = "Close short\r\nBuy futures";
+			this.btnCloseShortBuyFutures.UseVisualStyleBackColor = true;
 			// 
-			// btnCloseLong
+			// btnCloseLongSellFutures
 			// 
-			this.btnCloseLong.Location = new System.Drawing.Point(6, 265);
-			this.btnCloseLong.Name = "btnCloseLong";
-			this.btnCloseLong.Size = new System.Drawing.Size(150, 52);
-			this.btnCloseLong.TabIndex = 30;
-			this.btnCloseLong.Text = "Close long\r\nSell futures\r\n";
-			this.btnCloseLong.UseVisualStyleBackColor = true;
+			this.btnCloseLongSellFutures.Location = new System.Drawing.Point(6, 265);
+			this.btnCloseLongSellFutures.Name = "btnCloseLongSellFutures";
+			this.btnCloseLongSellFutures.Size = new System.Drawing.Size(150, 52);
+			this.btnCloseLongSellFutures.TabIndex = 30;
+			this.btnCloseLongSellFutures.Text = "Close long\r\nSell futures\r\n";
+			this.btnCloseLongSellFutures.UseVisualStyleBackColor = true;
 			// 
 			// btnSellBeta
 			// 
@@ -269,6 +296,19 @@
 			this.groupBox2.TabStop = false;
 			this.groupBox2.Text = "Detail";
 			// 
+			// dgvPushingDetail
+			// 
+			this.dgvPushingDetail.AllowUserToAddRows = false;
+			this.dgvPushingDetail.AllowUserToDeleteRows = false;
+			this.dgvPushingDetail.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
+			this.dgvPushingDetail.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+			this.dgvPushingDetail.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.dgvPushingDetail.Location = new System.Drawing.Point(3, 16);
+			this.dgvPushingDetail.MultiSelect = false;
+			this.dgvPushingDetail.Name = "dgvPushingDetail";
+			this.dgvPushingDetail.Size = new System.Drawing.Size(905, 75);
+			this.dgvPushingDetail.TabIndex = 0;
+			// 
 			// groupBox1
 			// 
 			this.groupBox1.Controls.Add(this.dgvPushings);
@@ -279,6 +319,17 @@
 			this.groupBox1.TabIndex = 1;
 			this.groupBox1.TabStop = false;
 			this.groupBox1.Text = "Pushings";
+			// 
+			// dgvPushings
+			// 
+			this.dgvPushings.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
+			this.dgvPushings.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+			this.dgvPushings.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.dgvPushings.Location = new System.Drawing.Point(3, 16);
+			this.dgvPushings.MultiSelect = false;
+			this.dgvPushings.Name = "dgvPushings";
+			this.dgvPushings.Size = new System.Drawing.Size(905, 75);
+			this.dgvPushings.TabIndex = 0;
 			// 
 			// gbControl
 			// 
@@ -300,57 +351,6 @@
 			this.btnLoad.Text = "Load selected pushing";
 			this.btnLoad.UseVisualStyleBackColor = true;
 			// 
-			// dgvPushingDetail
-			// 
-			this.dgvPushingDetail.AllowUserToAddRows = false;
-			this.dgvPushingDetail.AllowUserToDeleteRows = false;
-			this.dgvPushingDetail.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
-			this.dgvPushingDetail.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-			this.dgvPushingDetail.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.dgvPushingDetail.Location = new System.Drawing.Point(3, 16);
-			this.dgvPushingDetail.MultiSelect = false;
-			this.dgvPushingDetail.Name = "dgvPushingDetail";
-			this.dgvPushingDetail.Size = new System.Drawing.Size(905, 75);
-			this.dgvPushingDetail.TabIndex = 0;
-			// 
-			// dgvPushings
-			// 
-			this.dgvPushings.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
-			this.dgvPushings.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-			this.dgvPushings.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.dgvPushings.Location = new System.Drawing.Point(3, 16);
-			this.dgvPushings.MultiSelect = false;
-			this.dgvPushings.Name = "dgvPushings";
-			this.dgvPushings.Size = new System.Drawing.Size(905, 75);
-			this.dgvPushings.TabIndex = 0;
-			// 
-			// label5
-			// 
-			this.label5.AutoSize = true;
-			this.label5.Location = new System.Drawing.Point(318, 16);
-			this.label5.Name = "label5";
-			this.label5.Size = new System.Drawing.Size(267, 13);
-			this.label5.TabIndex = 43;
-			this.label5.Text = "MasterSignalContractLimit is relative to FullContractSize";
-			// 
-			// label6
-			// 
-			this.label6.AutoSize = true;
-			this.label6.Location = new System.Drawing.Point(318, 29);
-			this.label6.Name = "label6";
-			this.label6.Size = new System.Drawing.Size(313, 13);
-			this.label6.TabIndex = 44;
-			this.label6.Text = "HedgeSignalContractLimit is relative to MasterSignalContractLimit";
-			// 
-			// label7
-			// 
-			this.label7.AutoSize = true;
-			this.label7.Location = new System.Drawing.Point(318, 42);
-			this.label7.Name = "label7";
-			this.label7.Size = new System.Drawing.Size(323, 13);
-			this.label7.TabIndex = 45;
-			this.label7.Text = "If cannot click check if every accounts are connected successfully";
-			// 
 			// PushingUserControl
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -362,10 +362,10 @@
 			this.gbPushing.ResumeLayout(false);
 			this.gbPushing.PerformLayout();
 			this.groupBox2.ResumeLayout(false);
-			this.groupBox1.ResumeLayout(false);
-			this.gbControl.ResumeLayout(false);
 			((System.ComponentModel.ISupportInitialize)(this.dgvPushingDetail)).EndInit();
+			this.groupBox1.ResumeLayout(false);
 			((System.ComponentModel.ISupportInitialize)(this.dgvPushings)).EndInit();
+			this.gbControl.ResumeLayout(false);
 			this.ResumeLayout(false);
 
         }
@@ -387,8 +387,8 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.CheckBox cbHedge;
-        private System.Windows.Forms.Button btnCloseShort;
-        private System.Windows.Forms.Button btnCloseLong;
+        private System.Windows.Forms.Button btnCloseShortBuyFutures;
+        private System.Windows.Forms.Button btnCloseLongSellFutures;
         private System.Windows.Forms.Button btnSellBeta;
         private System.Windows.Forms.Button btnBuyBeta;
         private System.Windows.Forms.GroupBox gbControl;

@@ -20,10 +20,10 @@ namespace QvaDev.Duplicat.ViewModel
             foreach (var e in PushingDetails) e.IsFiltered = e.Id != SelectedPushingDetailId;
         }
 
-        public async void PushingOpenCommand(Pushing pushing, Common.Integration.Sides side)
+        public async void PushingOpenCommand(Pushing pushing, Common.Integration.Sides firstBetaOpenSide)
         {
             PushingState = PushingStates.Busy;
-            pushing.BetaOpenSide = side;
+            pushing.BetaOpenSide = firstBetaOpenSide;
 			await _orchestrator.OpeningBeta(pushing);
 			PushingState = PushingStates.AfterOpeningBeta;
 			await _orchestrator.OpeningAlpha(pushing);
@@ -32,10 +32,10 @@ namespace QvaDev.Duplicat.ViewModel
 			PushingState = PushingStates.BeforeClosing;
         }
 
-        public async void PushingCloseCommand(Pushing pushing, Common.Integration.Sides side)
+        public async void PushingCloseCommand(Pushing pushing, Common.Integration.Sides firstCloseSide)
 		{
 			PushingState = PushingStates.Busy;
-			pushing.BetaOpenSide = side;
+			pushing.FirstCloseSide = firstCloseSide;
 			await _orchestrator.ClosingFirst(pushing);
 			PushingState = PushingStates.AfterClosingFirst;
 			await _orchestrator.OpeningHedge(pushing);
