@@ -236,6 +236,25 @@ namespace QvaDev.Duplicat.ViewModel
             IsConfigReadonly = true;
             _orchestrator.OrderHistoryExport(_duplicatContext)
                 .ContinueWith(prevTask => { IsLoading = false; IsConfigReadonly = true; IsConnected = true; });
-        }
-    }
+		}
+
+		public void StartTickersCommand()
+		{
+			IsLoading = true;
+			IsConfigReadonly = true;
+			_orchestrator.StartCopiers(_duplicatContext)
+				.ContinueWith(prevTask =>
+				{
+					IsLoading = false;
+					IsConfigReadonly = true;
+					AreTickersStarted = true;
+					IsConnected = true;
+				});
+		}
+		public void StopTickersCommand()
+		{
+			_orchestrator.StopCopiers();
+			AreTickersStarted = false;
+		}
+	}
 }

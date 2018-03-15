@@ -43,7 +43,8 @@ namespace QvaDev.Duplicat.Views
             tabPageMonitor.AddBinding<int>("Enabled", _viewModel, nameof(_viewModel.SelectedProfileId), p => p > 0);
             tabPagePush.AddBinding<int>("Enabled", _viewModel, nameof(_viewModel.SelectedProfileId), p => p > 0);
             tabPageQuadro.AddBinding<int>("Enabled", _viewModel, nameof(_viewModel.SelectedProfileId), p => p > 0);
-            labelProfile.AddBinding("Text", _viewModel, nameof(_viewModel.SelectedProfileDesc));
+			tabPageTicker.AddBinding<int>("Enabled", _viewModel, nameof(_viewModel.SelectedProfileId), p => p > 0);
+			labelProfile.AddBinding("Text", _viewModel, nameof(_viewModel.SelectedProfileDesc));
 
             btnConnect.Click += (s, e) => { _viewModel.ConnectCommand(); };
             btnDisconnect.Click += (s, e) => { _viewModel.DisconnectCommand(); };
@@ -73,8 +74,9 @@ namespace QvaDev.Duplicat.Views
             monitorsUserControl.InitView(_viewModel);
             pushingUserControl.InitView(_viewModel);
             quadroUserControl.InitView(_viewModel);
+			tickersUserControl.InitView(_viewModel);
 
-            AttachDataSources();
+			AttachDataSources();
         }
 
         private void AttachDataSources()
@@ -88,6 +90,7 @@ namespace QvaDev.Duplicat.Views
             monitorsUserControl.AttachDataSources();
             pushingUserControl.AttachDataSources();
             quadroUserControl.AttachDataSources();
-        }
+			tickersUserControl.AttachDataSources();
+		}
     }
 }

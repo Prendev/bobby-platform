@@ -31,7 +31,9 @@ namespace QvaDev.Data
         public DbSet<TradingAccount> TradingAccounts { get; set; }
         public DbSet<QuadroSet> QuadroSets { get; set; }
 
-        public void Init()
+		public DbSet<Ticker> Tickers { get; set; }
+
+		public void Init()
         {
             var exists = Database.Exists();
             if (!exists) Database.Create();

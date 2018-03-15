@@ -152,6 +152,12 @@
     <Compile Include="Views\ProfilesUserControl.Designer.cs">
       <DependentUpon>ProfilesUserControl.cs</DependentUpon>
     </Compile>
+    <Compile Include="Views\TickersUserControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Views\TickersUserControl.Designer.cs">
+      <DependentUpon>TickersUserControl.cs</DependentUpon>
+    </Compile>
     <EmbeddedResource Include="Views\CopiersUserControl.resx">
       <DependentUpon>CopiersUserControl.cs</DependentUpon>
     </EmbeddedResource>
@@ -187,6 +193,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Views\ProfilesUserControl.resx">
       <DependentUpon>ProfilesUserControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\TickersUserControl.resx">
+      <DependentUpon>TickersUserControl.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="log4net.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
