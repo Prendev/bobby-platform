@@ -8,13 +8,16 @@ namespace QvaDev.Data.Models
 		[InvisibleColumn] public int ProfileId { get; set; }
 		[InvisibleColumn] public Profile Profile { get; set; }
 
-        public int? MetaTraderAccountId { get; set; }
-        public MetaTraderAccount MetaTraderAccount { get; set; }
-
-		public int? FixTraderAccountId { get; set; }
+		public int FixTraderAccountId { get; set; }
 		public FixTraderAccount FixTraderAccount { get; set; }
 
 		[Required]
-		public string Symbol { get; set; }
-    }
+		public string FtSymbol { get; set; }
+
+		public int MetaTraderAccountId { get; set; }
+        public MetaTraderAccount MetaTraderAccount { get; set; }
+
+		[Required]
+		public string MtSymbol { get; set; }
+	}
 }

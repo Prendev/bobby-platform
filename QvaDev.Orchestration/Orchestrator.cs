@@ -194,6 +194,7 @@ namespace QvaDev.Orchestration
             StopMonitors();
             StopCopiers();
             StopExperts();
+			StopTickers();
             return Task.WhenAll(DisconnectMtAccounts(), DisconnectCtAccounts(), DisconnectFtAccounts());
         }
 

@@ -27,6 +27,15 @@ namespace QvaDev.Orchestration.Services
 			public double Bid { get; set; }
 		}
 
+		public class CsvRowPair
+		{
+			public string Time { get; set; }
+			public double FtAsk { get; set; }
+			public double FtBid { get; set; }
+			public double MtAsk { get; set; }
+			public double MtBid { get; set; }
+		}
+
 		private bool _isStarted;
         private readonly ILog _log;
         private IEnumerable<Ticker> _tickers;
@@ -51,9 +60,9 @@ namespace QvaDev.Orchestration.Services
 					var connector = (MtConnector)ticker.MetaTraderAccount.Connector;
 					connector.OnTick -= Connector_OnTick;
 					connector.OnTick += Connector_OnTick;
-					connector.Subscribe(new List<Tuple<string, int, short>> { new Tuple<string, int, short>(ticker.Symbol, 1, 1) });
+					connector.Subscribe(new List<Tuple<string, int, short>> { new Tuple<string, int, short>(ticker.MtSymbol, 1, 1) });
 				}
-				else if (ticker.FixTraderAccount != null)
+				if (ticker.FixTraderAccount != null)
 				{
 					var connector = (FtConnector)ticker.FixTraderAccount.Connector;
 					connector.OnTick -= Connector_OnTick;
@@ -77,6 +86,24 @@ namespace QvaDev.Orchestration.Services
 		{
 			var connector = (IConnector)sender;
 			WriteCsv(GetCsvFile(connector.Description, e.Tick.Symbol), new CsvRow { Time = e.Tick.Time.ToString("yyyy.MM.dd hh:mm:ss.fff"), Ask = e.Tick.Ask, Bid = e.Tick.Bid });
+
+			foreach (var ticker in _tickers)
+			{
+				if (ticker.FtSymbol != e.Tick.Symbol) continue;
+				if (ticker.FixTraderAccount?.Connector != connector) continue;
+				if (ticker.MetaTraderAccount?.Connector?.IsConnected != true) continue;
+
+				var mtConnector = (MtConnector)ticker.MetaTraderAccount.Connector;
+				var mtTick = mtConnector.GetLastTick(ticker.MtSymbol);
+				WriteCsv(GetCsvFile($"{connector.Description}_{mtConnector.Description}", e.Tick.Symbol), new CsvRowPair
+				{
+					Time = e.Tick.Time.ToString("yyyy.MM.dd hh:mm:ss.fff"),
+					FtAsk = e.Tick.Ask,
+					FtBid = e.Tick.Bid,
+					MtAsk = mtTick.Ask,
+					MtBid = mtTick.Bid
+				});
+			}
 		}
 
 		private string GetCsvFile(string id, string symbol)
