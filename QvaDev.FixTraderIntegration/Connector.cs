@@ -33,6 +33,7 @@ namespace QvaDev.FixTraderIntegration
 		public ConcurrentDictionary<long, Position> Positions { get; }
 		public event PositionEventHandler OnPosition;
 		public event BarHistoryEventHandler OnBarHistory;
+		public event TickEventHandler OnTick;
 
 		public ConcurrentDictionary<string, SymbolInfo> SymbolInfos { get; set; } =
 			new ConcurrentDictionary<string, SymbolInfo>();
@@ -101,6 +102,17 @@ namespace QvaDev.FixTraderIntegration
 									oldValue.Ask = ask;
 									return oldValue;
 								});
+
+							OnTick?.Invoke(this, new TickEventArgs
+							{
+								Tick = new Tick
+								{
+									Symbol = symbol,
+									Ask = ask,
+									Bid = bid,
+									Time = DateTime.UtcNow
+								}
+							});
 						}
 						else if (commandType == "6")
 						{

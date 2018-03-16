@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -30,7 +31,10 @@ namespace QvaDev.Orchestration.Services
         private readonly ILog _log;
         private IEnumerable<Ticker> _tickers;
 
-        public TickerService(ILog log)
+		private readonly ConcurrentDictionary<string, CsvHelper.CsvWriter> _csvWriters =
+			new ConcurrentDictionary<string, CsvHelper.CsvWriter>();
+
+		public TickerService(ILog log)
         {
             _log = log;
         }
@@ -51,6 +55,9 @@ namespace QvaDev.Orchestration.Services
 				}
 				else if (ticker.FixTraderAccount != null)
 				{
+					var connector = (FtConnector)ticker.FixTraderAccount.Connector;
+					connector.OnTick -= Connector_OnTick;
+					connector.OnTick += Connector_OnTick;
 				}
             }
 
@@ -59,19 +66,32 @@ namespace QvaDev.Orchestration.Services
         }
 
 		public void Stop()
-        {
-            _isStarted = false;
-		}
-
-		private string GetCsvFile(MtConnector connector, string symbol)
 		{
-			return $"{connector.GetUser()}_{symbol}_{DateTime.UtcNow.Date:yyyyMMdd}.csv";
+			foreach (var csvWriter in _csvWriters)
+				csvWriter.Value.Dispose();
+			_csvWriters.Clear();
+			_isStarted = false;
 		}
 
 		private void Connector_OnTick(object sender, TickEventArgs e)
 		{
-			var connector = (MtConnector)sender;
-			connector.WriteCsv(GetCsvFile(connector, e.Tick.Symbol), new CsvRow { Time = e.Tick.Time.ToString("yyyy.MM.dd hh:mm:ss.fff"), Ask = e.Tick.Ask, Bid = e.Tick.Bid });
+			var connector = (IConnector)sender;
+			WriteCsv(GetCsvFile(connector.Description, e.Tick.Symbol), new CsvRow { Time = e.Tick.Time.ToString("yyyy.MM.dd hh:mm:ss.fff"), Ask = e.Tick.Ask, Bid = e.Tick.Bid });
+		}
+
+		private string GetCsvFile(string id, string symbol)
+		{
+			return $"{id}_{symbol}_{DateTime.UtcNow.Date:yyyyMMdd}.csv";
+		}
+
+		private void WriteCsv<T>(string file, T obj)
+		{
+			var writer = _csvWriters.GetOrAdd(file, key => new CsvHelper.CsvWriter(new StreamWriter(file, true)));
+			lock (writer)
+			{
+				writer.WriteRecord(obj);
+				writer.NextRecord();
+			}
 		}
 	}
 }
