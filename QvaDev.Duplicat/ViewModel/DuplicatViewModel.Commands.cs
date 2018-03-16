@@ -242,7 +242,7 @@ namespace QvaDev.Duplicat.ViewModel
 		{
 			IsLoading = true;
 			IsConfigReadonly = true;
-			_orchestrator.StartCopiers(_duplicatContext)
+			_orchestrator.StartTickers(_duplicatContext)
 				.ContinueWith(prevTask =>
 				{
 					IsLoading = false;
@@ -253,7 +253,7 @@ namespace QvaDev.Duplicat.ViewModel
 		}
 		public void StopTickersCommand()
 		{
-			_orchestrator.StopCopiers();
+			_orchestrator.StopTickers();
 			AreTickersStarted = false;
 		}
 	}

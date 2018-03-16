@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using log4net;
@@ -26,7 +27,9 @@ namespace QvaDev.Mt4Integration
             new ConcurrentDictionary<string, Tick>();
         private readonly ConcurrentDictionary<string, SymbolHistory> _symbolHistories =
             new ConcurrentDictionary<string, SymbolHistory>();
-        private AccountInfo _accountInfo;
+		private readonly ConcurrentDictionary<string, CsvHelper.CsvWriter> _csvWriters =
+			new ConcurrentDictionary<string, CsvHelper.CsvWriter>();
+		private AccountInfo _accountInfo;
         private List<Tuple<string, int, short>> _symbols;
         private IEnumerable<Order> _orderHistory;
 
@@ -40,7 +43,7 @@ namespace QvaDev.Mt4Integration
         public QuoteClient QuoteClient;
         public OrderClient OrderClient;
 
-        public Connector(ILog log)
+		public Connector(ILog log)
         {
             Positions = new ConcurrentDictionary<long, Position>();
             _log = log;
@@ -53,7 +56,10 @@ namespace QvaDev.Mt4Integration
             QuoteClient?.Disconnect();
             OrderClient?.Disconnect();
             _log.Debug($"{_accountInfo.Description} account ({_accountInfo.User}) disconnected");
-        }
+			foreach (var csvWriter in _csvWriters)
+				csvWriter.Value.Dispose();
+			_csvWriters.Clear();
+		}
 
 
         public bool Connect(AccountInfo accountInfo)
@@ -252,7 +258,7 @@ namespace QvaDev.Mt4Integration
                 .Sum(o => o.Profit + o.Commission + o.Swap);
         }
 
-        public void Subscribe(List<Tuple<string, int, short>> symbols)
+		public void Subscribe(List<Tuple<string, int, short>> symbols)
         {
             _symbols = symbols;
             QuoteClient.OnQuoteHistory -= QuoteClient_OnQuoteHistory;
@@ -281,6 +287,21 @@ namespace QvaDev.Mt4Integration
             foreach (var symbol in symbols)
                 GetBarHistory(symbol, (Timeframe)timeFrame, time.AddMinutes(timeFrame), 2);
         }
+
+		public uint GetUser()
+		{
+			return _accountInfo.User;
+		}
+
+		public void WriteCsv<T>(string file, T obj)
+		{
+			var writer = _csvWriters.GetOrAdd(file, key => new CsvHelper.CsvWriter(new StreamWriter(file, true)));
+			lock(writer)
+			{
+				writer.WriteRecord(obj);
+				writer.NextRecord();
+			}
+		}
 
         private void QuoteClient_OnQuote(object sender, QuoteEventArgs args)
         {
