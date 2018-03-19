@@ -36,12 +36,30 @@ namespace QvaDev.Orchestration.Services
 			public double MtBid { get; set; }
 		}
 
+		public class Writer
+		{
+			public StreamWriter StreamWriter { get; set; }
+			public CsvHelper.CsvWriter CsvWriter { get; set; }
+
+			public Writer(string file)
+			{
+				StreamWriter = new StreamWriter(file, true);
+				CsvWriter = new CsvHelper.CsvWriter(StreamWriter);
+			}
+
+			public void Disconnect()
+			{
+				StreamWriter.Close();
+				CsvWriter.Dispose();
+			}
+		}
+
 		private bool _isStarted;
         private readonly ILog _log;
         private IEnumerable<Ticker> _tickers;
 
-		private readonly ConcurrentDictionary<string, CsvHelper.CsvWriter> _csvWriters =
-			new ConcurrentDictionary<string, CsvHelper.CsvWriter>();
+		private readonly ConcurrentDictionary<string, Writer> _csvWriters =
+			new ConcurrentDictionary<string, Writer>();
 
 		public TickerService(ILog log)
         {
@@ -76,14 +94,15 @@ namespace QvaDev.Orchestration.Services
 
 		public void Stop()
 		{
-			foreach (var csvWriter in _csvWriters)
-				csvWriter.Value.Dispose();
-			_csvWriters.Clear();
 			_isStarted = false;
+			foreach (var csvWriter in _csvWriters)
+				csvWriter.Value.Disconnect();
+			_csvWriters.Clear();
 		}
 
 		private void Connector_OnTick(object sender, TickEventArgs e)
 		{
+			if (!_isStarted) return;
 			var connector = (IConnector)sender;
 			WriteCsv(GetCsvFile(connector.Description, e.Tick.Symbol), new CsvRow { Time = e.Tick.Time.ToString("yyyy.MM.dd hh:mm:ss.fff"), Ask = e.Tick.Ask, Bid = e.Tick.Bid });
 
@@ -113,11 +132,11 @@ namespace QvaDev.Orchestration.Services
 
 		private void WriteCsv<T>(string file, T obj)
 		{
-			var writer = _csvWriters.GetOrAdd(file, key => new CsvHelper.CsvWriter(new StreamWriter(file, true)));
+			var writer = _csvWriters.GetOrAdd(file, key => new Writer(file));
 			lock (writer)
 			{
-				writer.WriteRecord(obj);
-				writer.NextRecord();
+				writer.CsvWriter.WriteRecord(obj);
+				writer.CsvWriter.NextRecord();
 			}
 		}
 	}
