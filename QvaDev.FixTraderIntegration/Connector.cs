@@ -27,6 +27,8 @@ namespace QvaDev.FixTraderIntegration
 		private CancellationTokenSource _cancellationTokenSource;
 		private AccountInfo _accountInfo;
 		private readonly ILog _log;
+		private readonly ConcurrentDictionary<string, Tick> _lastTicks =
+			new ConcurrentDictionary<string, Tick>();
 
 		public string Description => _accountInfo.Description;
 		public bool IsConnected => _commandClient?.Connected == true && _eventsClient?.Connected == true;
@@ -103,16 +105,15 @@ namespace QvaDev.FixTraderIntegration
 									return oldValue;
 								});
 
-							OnTick?.Invoke(this, new TickEventArgs
+							var tick = new Tick
 							{
-								Tick = new Tick
-								{
-									Symbol = symbol,
-									Ask = ask,
-									Bid = bid,
-									Time = DateTime.UtcNow
-								}
-							});
+								Symbol = symbol,
+								Ask = ask,
+								Bid = bid,
+								Time = DateTime.UtcNow
+							};
+							_lastTicks.AddOrUpdate(symbol, key => tick, (key, old) => tick);
+							OnTick?.Invoke(this, new TickEventArgs { Tick = tick });
 						}
 						else if (commandType == "6")
 						{
@@ -285,7 +286,7 @@ namespace QvaDev.FixTraderIntegration
 
 		public Tick GetLastTick(string symbol)
 		{
-			throw new NotImplementedException();
+			return _lastTicks.GetOrAdd(symbol, (Tick)null);
 		}
 
 		public void Dispose()

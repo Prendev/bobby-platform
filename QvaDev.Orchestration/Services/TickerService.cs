@@ -30,10 +30,10 @@ namespace QvaDev.Orchestration.Services
 		public class CsvRowPair
 		{
 			public string Time { get; set; }
-			public double FtAsk { get; set; }
-			public double FtBid { get; set; }
-			public double MtAsk { get; set; }
-			public double MtBid { get; set; }
+			public double Ask { get; set; }
+			public double Bid { get; set; }
+			public double PairAsk { get; set; }
+			public double PairBid { get; set; }
 		}
 
 		public class Writer
@@ -69,26 +69,26 @@ namespace QvaDev.Orchestration.Services
         public void Start(DuplicatContext duplicatContext)
         {
 			_tickers = duplicatContext.Tickers.Local
-				.Where(c => c.MetaTraderAccount?.State == BaseAccountEntity.States.Connected ||
-							c.FixTraderAccount?.State == BaseAccountEntity.States.Connected);
-            foreach (var ticker in _tickers)
+				.Where(c => c.FixTraderAccount?.State == BaseAccountEntity.States.Connected &&
+							(c.PairMetaTraderAccount?.State == BaseAccountEntity.States.Connected ||
+							c.PairFixTraderAccount?.State == BaseAccountEntity.States.Connected));
+
+			foreach (var ticker in _tickers)
             {
-				if (ticker.MetaTraderAccount != null)
+				if (ticker.PairMetaTraderAccount?.Connector?.IsConnected == true)
 				{
-					var connector = (MtConnector)ticker.MetaTraderAccount.Connector;
-					connector.OnTick -= Connector_OnTick;
-					connector.OnTick += Connector_OnTick;
-					connector.Subscribe(new List<Tuple<string, int, short>> { new Tuple<string, int, short>(ticker.MtSymbol, 1, 1) });
-				}
-				if (ticker.FixTraderAccount != null)
-				{
-					var connector = (FtConnector)ticker.FixTraderAccount.Connector;
-					connector.OnTick -= Connector_OnTick;
-					connector.OnTick += Connector_OnTick;
+					var connector = (MtConnector)ticker.PairMetaTraderAccount.Connector;
+					connector.Subscribe(new List<Tuple<string, int, short>> { new Tuple<string, int, short>(ticker.PairSymbol, 1, 1) });
 				}
             }
 
-            _isStarted = true;
+			foreach (var ft in _tickers.Select(t => t.FixTraderAccount).Distinct())
+			{
+				ft.Connector.OnTick -= Connector_OnTick;
+				ft.Connector.OnTick += Connector_OnTick;
+			}
+
+			_isStarted = true;
             _log.Info("Tickers are started");
         }
 
@@ -104,23 +104,26 @@ namespace QvaDev.Orchestration.Services
 		{
 			if (!_isStarted) return;
 			var connector = (IConnector)sender;
-			WriteCsv(GetCsvFile(connector.Description, e.Tick.Symbol), new CsvRow { Time = e.Tick.Time.ToString("yyyy.MM.dd hh:mm:ss.fff"), Ask = e.Tick.Ask, Bid = e.Tick.Bid });
+			//WriteCsv(GetCsvFile(connector.Description, e.Tick.Symbol), new CsvRow { Time = e.Tick.Time.ToString("yyyy.MM.dd hh:mm:ss.fff"), Ask = e.Tick.Ask, Bid = e.Tick.Bid });
 
 			foreach (var ticker in _tickers)
 			{
-				if (ticker.FtSymbol != e.Tick.Symbol) continue;
+				if (ticker.Symbol != e.Tick.Symbol) continue;
 				if (ticker.FixTraderAccount?.Connector != connector) continue;
-				if (ticker.MetaTraderAccount?.Connector?.IsConnected != true) continue;
 
-				var mtConnector = (MtConnector)ticker.MetaTraderAccount.Connector;
-				var mtTick = mtConnector.GetLastTick(ticker.MtSymbol);
-				WriteCsv(GetCsvFile($"{connector.Description}_{mtConnector.Description}", e.Tick.Symbol), new CsvRowPair
+				Tick lastTick = null;
+				if(ticker.PairMetaTraderAccount?.Connector?.IsConnected == true)
+					lastTick = ticker.PairMetaTraderAccount.Connector.GetLastTick(ticker.PairSymbol);
+				else if(ticker.PairFixTraderAccount?.Connector?.IsConnected == true)
+					lastTick = ticker.PairFixTraderAccount.Connector.GetLastTick(ticker.PairSymbol);
+
+				WriteCsv(GetCsvFile(connector.Description, e.Tick.Symbol), new CsvRowPair
 				{
 					Time = e.Tick.Time.ToString("yyyy.MM.dd hh:mm:ss.fff"),
-					FtAsk = e.Tick.Ask,
-					FtBid = e.Tick.Bid,
-					MtAsk = mtTick.Ask,
-					MtBid = mtTick.Bid
+					Ask = e.Tick.Ask,
+					Bid = e.Tick.Bid,
+					PairAsk = lastTick?.Ask ?? 0,
+					PairBid = lastTick?.Bid ?? 0
 				});
 			}
 		}

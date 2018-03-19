@@ -12,12 +12,15 @@ namespace QvaDev.Data.Models
 		public FixTraderAccount FixTraderAccount { get; set; }
 
 		[Required]
-		public string FtSymbol { get; set; }
+		public string Symbol { get; set; }
 
-		public int MetaTraderAccountId { get; set; }
-        public MetaTraderAccount MetaTraderAccount { get; set; }
+		public int? PairMetaTraderAccountId { get; set; }
+        public MetaTraderAccount PairMetaTraderAccount { get; set; }
+
+		public int? PairFixTraderAccountId { get; set; }
+		public FixTraderAccount PairFixTraderAccount { get; set; }
 
 		[Required]
-		public string MtSymbol { get; set; }
+		public string PairSymbol { get; set; }
 	}
 }
