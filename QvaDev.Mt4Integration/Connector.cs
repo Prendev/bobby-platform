@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Threading;
 using log4net;
 using QvaDev.Common;
@@ -62,20 +63,25 @@ namespace QvaDev.Mt4Integration
             _accountInfo = accountInfo;
 
             Server[] slaves = null;
-            try
-            {
-                var srv = QuoteClient.LoadSrv(_accountInfo.Srv, out slaves);
-                QuoteClient = CreateQuoteClient(_accountInfo, srv.Host, srv.Port);
-                QuoteClient.Connect();
-            }
-            catch (Exception e)
-            {
-                _log.Error($"{_accountInfo.Description} account ({_accountInfo.User}) FAILED to connect", e);
-            }
-            finally
-            {
-                if(!IsConnected) ConnectSlaves(slaves, _accountInfo);
-            }
+			try
+			{
+				if (Uri.TryCreate($"http://{_accountInfo.Srv}", UriKind.Absolute, out Uri ip))
+					QuoteClient = CreateQuoteClient(_accountInfo, ip.Host, ip.Port);
+				else
+				{
+					var srv = QuoteClient.LoadSrv(_accountInfo.Srv, out slaves);
+					QuoteClient = CreateQuoteClient(_accountInfo, srv.Host, srv.Port);
+				}
+				QuoteClient.Connect();
+			}
+			catch (Exception e)
+			{
+				_log.Error($"{_accountInfo.Description} account ({_accountInfo.User}) FAILED to connect", e);
+			}
+			finally
+			{
+				if (!IsConnected) ConnectSlaves(slaves, _accountInfo);
+			}
 
             if (!IsConnected) return IsConnected;
 
@@ -420,7 +426,8 @@ namespace QvaDev.Mt4Integration
 
         private void ConnectSlaves(Server[] slaves, AccountInfo accountInfo)
         {
-            if (slaves?.Any() != true) return;
+			if (Uri.TryCreate($"http://{_accountInfo.Srv}", UriKind.Absolute, out Uri ip)) return;
+			if (slaves?.Any() != true) return;
             foreach (var srv in slaves)
             {
                 try
