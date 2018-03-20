@@ -117,16 +117,43 @@
     <None Include="Mt4SrvFiles\CoreSpreads-DemoBravo.srv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="Mt4SrvFiles\Equiti-Live.srv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Mt4SrvFiles\GKFX-Live-2.srv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Mt4SrvFiles\ICMarkets-Live10.srv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Mt4SrvFiles\IFMTrade-Live.srv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="Mt4SrvFiles\LMAX-DemoUK.srv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="Mt4SrvFiles\LMAX-LiveUK.srv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="Mt4SrvFiles\OANDA-v20 Practice.srv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Mt4SrvFiles\PriceMarkets-Live2.srv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Mt4SrvFiles\PriorFX-Demo.srv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Mt4SrvFiles\RegalCoreMarkets-Demo.srv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Mt4SrvFiles\TrioMarkets-Live Server.srv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Mt4SrvFiles\XM.COM-Real 17.srv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Mt4SrvFiles\Z.comTradeUKLtd-Live-UK.srv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="packages.config" />
