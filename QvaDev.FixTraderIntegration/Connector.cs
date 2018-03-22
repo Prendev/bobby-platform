@@ -78,6 +78,14 @@ namespace QvaDev.FixTraderIntegration
 				try
 				{
 					Thread.Sleep(1);
+					if(!IsConnected)
+					{
+						Thread.Sleep(1000);
+						if (!_commandClient.Connected) _commandClient.Connect(_accountInfo.IpAddress, _accountInfo.CommandSocketPort);
+						if (!_eventsClient.Connected) _eventsClient.Connect(_accountInfo.IpAddress, _accountInfo.EventsSocketPort);
+						continue;
+					}
+
 					int count = ns.Read(inStream, 0, inStream.Length);
 					string text = Encoding.ASCII.GetString(inStream, 0, count);
 					if (string.IsNullOrWhiteSpace(text)) continue;

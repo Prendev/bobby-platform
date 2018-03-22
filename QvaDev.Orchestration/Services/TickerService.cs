@@ -112,14 +112,21 @@ namespace QvaDev.Orchestration.Services
 				if (ticker.FixTraderAccount?.Connector != connector) continue;
 
 				Tick lastTick = null;
+				string pair = "";
 				if(ticker.PairMetaTraderAccount?.Connector?.IsConnected == true)
-					lastTick = ticker.PairMetaTraderAccount.Connector.GetLastTick(ticker.PairSymbol);
-				else if(ticker.PairFixTraderAccount?.Connector?.IsConnected == true)
-					lastTick = ticker.PairFixTraderAccount.Connector.GetLastTick(ticker.PairSymbol);
-
-				WriteCsv(GetCsvFile(connector.Description, e.Tick.Symbol), new CsvRowPair
 				{
-					Time = e.Tick.Time.ToString("yyyy.MM.dd hh:mm:ss.fff"),
+					lastTick = ticker.PairMetaTraderAccount.Connector.GetLastTick(ticker.PairSymbol);
+					pair = ticker.PairMetaTraderAccount.Connector.Description;
+				}
+				else if(ticker.PairFixTraderAccount?.Connector?.IsConnected == true)
+				{
+					lastTick = ticker.PairFixTraderAccount.Connector.GetLastTick(ticker.PairSymbol);
+					pair = ticker.PairFixTraderAccount.Connector.Description;
+				}
+
+				WriteCsv(GetCsvFile($"{connector.Description}_{pair}", e.Tick.Symbol), new CsvRowPair
+				{
+					Time = e.Tick.Time.ToString("yyyy.MM.dd HH:mm:ss.fff"),
 					Ask = e.Tick.Ask,
 					Bid = e.Tick.Bid,
 					PairAsk = lastTick?.Ask ?? 0,

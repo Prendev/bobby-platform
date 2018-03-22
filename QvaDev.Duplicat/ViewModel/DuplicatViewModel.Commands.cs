@@ -113,6 +113,7 @@ namespace QvaDev.Duplicat.ViewModel
             StopCopiersCommand();
             StopMonitorsCommand();
             StopExpertsCommand();
+			StopTickersCommand();
             IsLoading = true;
             IsConfigReadonly = true;
             _orchestrator.Disconnect()
