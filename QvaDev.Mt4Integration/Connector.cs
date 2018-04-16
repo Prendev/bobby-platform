@@ -153,9 +153,8 @@ namespace QvaDev.Mt4Integration
 				if (maxRetryCount <= 0) return null;
 
 				Thread.Sleep(retryPeriodInMilliseconds);
-				SendMarketOrderRequest(symbol, side, lots, magicNumber, comment, --maxRetryCount, retryPeriodInMilliseconds);
+				return SendMarketOrderRequest(symbol, side, lots, magicNumber, comment, --maxRetryCount, retryPeriodInMilliseconds);
 			}
-            return null;
         }
 
 		public Position SendMarketOrderRequest(string symbol, Sides side, double lots, int magicNumber, string comment)
@@ -163,7 +162,7 @@ namespace QvaDev.Mt4Integration
 			return SendMarketOrderRequest(symbol, side, lots, magicNumber, comment, 0, 0);
 		}
 
-		public void SendClosePositionRequests(Position position, double? lots, int maxRetryCount, int retryPeriodInMilliseconds)
+		public bool SendClosePositionRequests(Position position, double? lots, int maxRetryCount, int retryPeriodInMilliseconds)
         {
             try
 			{
@@ -173,26 +172,28 @@ namespace QvaDev.Mt4Integration
 				_log.Info($"{_accountInfo.Description} account ({_accountInfo.User}) OrderClient.OrderClose started...");
 				OrderClient.OrderClose(position.Symbol, (int) position.Id, lots ?? position.Lots, price, 0);
 				_log.Info($"{_accountInfo.Description} account ({_accountInfo.User}) OrderClient.OrderClose is successful");
+				return true;
 			}
             catch (Exception e)
             {
                 _log.Error($"Connector.SendClosePositionRequests({position.Id}) exception", e);
-				if (maxRetryCount <= 0) return;
+				if (maxRetryCount <= 0) return false;
 
 				Thread.Sleep(retryPeriodInMilliseconds);
-				SendClosePositionRequests(position, lots, --maxRetryCount, retryPeriodInMilliseconds);
+				return SendClosePositionRequests(position, lots, --maxRetryCount, retryPeriodInMilliseconds);
 			}
         }
 
-        public void SendClosePositionRequests(string comment, int maxRetryCount , int retryPeriodInMilliseconds)
+        public bool SendClosePositionRequests(string comment, int maxRetryCount , int retryPeriodInMilliseconds)
         {
             foreach (var pos in Positions.Where(p => p.Value.Comment == comment && !p.Value.IsClosed))
-                SendClosePositionRequests(pos.Value, null, maxRetryCount, retryPeriodInMilliseconds);
+                return SendClosePositionRequests(pos.Value, null, maxRetryCount, retryPeriodInMilliseconds);
+			return true;
 		}
 
-		public void SendClosePositionRequests(Position position, double? lots = null)
+		public bool SendClosePositionRequests(Position position, double? lots = null)
 		{
-			SendClosePositionRequests(position, lots, 0, 0);
+			return SendClosePositionRequests(position, lots, 0, 0);
 		}
 
 		public long GetOpenContracts(string symbol)

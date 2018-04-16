@@ -24,11 +24,16 @@ namespace QvaDev.Orchestration.Services
         public void OpeningBeta(Pushing pushing)
         {
             var betaConnector = (MtConnector)pushing.BetaMaster.Connector;
-            
-            // Open first side and wait a bit
-            pushing.BetaPosition = betaConnector.SendMarketOrderRequest(pushing.BetaSymbol, pushing.BetaOpenSide, pushing.PushingDetail.MasterLots, 0,
+			// Open first side and wait a bit
+			pushing.BetaPosition = betaConnector.SendMarketOrderRequest(pushing.BetaSymbol, pushing.BetaOpenSide, pushing.PushingDetail.MasterLots, 0,
 				null, pushing.PushingDetail.MaxRetryCount, pushing.PushingDetail.RetryPeriodInMilliseconds);
-            Thread.Sleep(pushing.PushingDetail.FutureOpenDelayInMs);
+
+			if (pushing.BetaPosition == null)
+			{
+				throw new Exception("PushingService.OpeningBeta failed!!!");
+			}
+
+			Thread.Sleep(pushing.PushingDetail.FutureOpenDelayInMs);
 		}
 
 		public void OpeningAlpha(Pushing pushing)
@@ -52,6 +57,11 @@ namespace QvaDev.Orchestration.Services
 			}
 			pushing.AlphaPosition = alphaConnector.SendMarketOrderRequest(pushing.BetaSymbol, InvSide(pushing.BetaOpenSide), pd.MasterLots, 0,
 				null, pushing.PushingDetail.MaxRetryCount, pushing.PushingDetail.RetryPeriodInMilliseconds);
+
+			if (pushing.AlphaPosition == null)
+			{
+				throw new Exception("PushingService.OpeningAlpha failed!!!");
+			}
 		}
 
 		public void OpeningFinish(Pushing pushing)

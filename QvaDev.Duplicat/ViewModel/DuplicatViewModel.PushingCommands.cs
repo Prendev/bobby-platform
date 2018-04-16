@@ -1,4 +1,5 @@
 ﻿using QvaDev.Data.Models;
+using System;
 
 namespace QvaDev.Duplicat.ViewModel
 {
@@ -22,14 +23,21 @@ namespace QvaDev.Duplicat.ViewModel
 
         public async void PushingOpenCommand(Pushing pushing, Common.Integration.Sides firstBetaOpenSide)
         {
-            PushingState = PushingStates.Busy;
-            pushing.BetaOpenSide = firstBetaOpenSide;
-			await _orchestrator.OpeningBeta(pushing);
-			PushingState = PushingStates.AfterOpeningBeta;
-			await _orchestrator.OpeningAlpha(pushing);
-			PushingState = PushingStates.AfterOpeningAlpha;
-			await _orchestrator.OpeningFinish(pushing);
-			PushingState = PushingStates.BeforeClosing;
+			try
+			{
+				PushingState = PushingStates.Busy;
+				pushing.BetaOpenSide = firstBetaOpenSide;
+				await _orchestrator.OpeningBeta(pushing);
+				PushingState = PushingStates.AfterOpeningBeta;
+				await _orchestrator.OpeningAlpha(pushing);
+				PushingState = PushingStates.AfterOpeningAlpha;
+				await _orchestrator.OpeningFinish(pushing);
+				PushingState = PushingStates.BeforeClosing;
+			}
+			catch (Exception e)
+			{
+				PushingState = PushingStates.Busy;
+			}
         }
 
         public async void PushingCloseCommand(Pushing pushing, Common.Integration.Sides firstCloseSide)

@@ -61,7 +61,7 @@ namespace QvaDev.Duplicat
                 if (loggingEvent.LoggerName.Contains("NHibernate"))
                     return;
                 var msg = string.Concat(
-                    $"{loggingEvent.TimeStamp} [{loggingEvent.ThreadName}] {loggingEvent.RenderedMessage}", "\r\n");
+                    $"{loggingEvent.TimeStamp:yyyy-MM-dd HH:mm:ss,fff} [{loggingEvent.ThreadName}] {loggingEvent.RenderedMessage}", "\r\n");
 
                 lock (_lockObj)
                 {
