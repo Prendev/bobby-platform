@@ -126,8 +126,8 @@ namespace QvaDev.Mt4Integration
 			string comment, int maxRetryCount, int retryPeriodInMilliseconds)
         {
             try
-            {
-                var op = side == Sides.Buy ? Op.Buy : Op.Sell;
+			{
+				var op = side == Sides.Buy ? Op.Buy : Op.Sell;
 				_log.Info($"{_accountInfo.Description} account ({_accountInfo.User}) OrderClient.OrderSend started...");
 				var o = OrderClient.OrderSend(symbol, op, lots, 0, 0, 0, 0, comment, magicNumber, DateTime.MaxValue);
 				_log.Info($"{_accountInfo.Description} account ({_accountInfo.User}) OrderClient.OrderSend is successful");
@@ -166,8 +166,8 @@ namespace QvaDev.Mt4Integration
 		public void SendClosePositionRequests(Position position, double? lots, int maxRetryCount, int retryPeriodInMilliseconds)
         {
             try
-            {
-                var price = position.Side == Sides.Buy
+			{
+				var price = position.Side == Sides.Buy
                     ? QuoteClient.GetQuote(position.Symbol).Bid
                     : QuoteClient.GetQuote(position.Symbol).Ask;
 				_log.Info($"{_accountInfo.Description} account ({_accountInfo.User}) OrderClient.OrderClose started...");

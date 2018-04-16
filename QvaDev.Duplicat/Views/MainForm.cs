@@ -19,7 +19,11 @@ namespace QvaDev.Duplicat.Views
             Load += MainForm_Load;
             InitializeComponent();
             TextBoxAppender.ConfigureTextBoxAppender(textBoxLog);
-        }
+
+			tabControlMain.TabPages.Remove(tabPageCTrader);
+			tabControlMain.TabPages.Remove(tabPageMonitor);
+			tabControlMain.TabPages.Remove(tabPageQuadro);
+		}
 
         private void MainForm_Load(object sender, EventArgs e)
         {
