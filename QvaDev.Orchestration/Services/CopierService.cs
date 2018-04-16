@@ -96,7 +96,7 @@ namespace QvaDev.Orchestration.Services
                 else if (e.Action == PositionEventArgs.Actions.Close)
                     slaveConnector.SendClosePositionRequests($"{slave.Id}-{e.Position.Id}",
                         copier.MaxRetryCount, copier.RetryPeriodInMilliseconds);
-            }));
+            }, TaskCreationOptions.LongRunning));
             return Task.WhenAll(tasks);
         }
 
@@ -121,7 +121,7 @@ namespace QvaDev.Orchestration.Services
                         $"{slave.Id}-{e.Position.Id}");
                 else if (e.Action == PositionEventArgs.Actions.Close)
                     slaveConnector.SendClosePositionRequests($"{slave.Id}-{e.Position.Id}");
-            }));
+            }, TaskCreationOptions.LongRunning));
             return Task.WhenAll(tasks);
         }
     }

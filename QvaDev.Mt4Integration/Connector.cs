@@ -122,8 +122,10 @@ namespace QvaDev.Mt4Integration
             try
             {
                 var op = side == Sides.Buy ? Op.Buy : Op.Sell;
-                var o = OrderClient.OrderSend(symbol, op, lots, 0, 0, 0, 0, comment, magicNumber, DateTime.MaxValue);
-                return new Position
+				_log.Info($"{_accountInfo.Description} account ({_accountInfo.User}) OrderClient.OrderSend started...");
+				var o = OrderClient.OrderSend(symbol, op, lots, 0, 0, 0, 0, comment, magicNumber, DateTime.MaxValue);
+				_log.Info($"{_accountInfo.Description} account ({_accountInfo.User}) OrderClient.OrderSend is successful");
+				return new Position
                 {
                     Id = o.Ticket,
                     Lots = o.Lots,
@@ -153,8 +155,10 @@ namespace QvaDev.Mt4Integration
                 var price = position.Side == Sides.Buy
                     ? QuoteClient.GetQuote(position.Symbol).Bid
                     : QuoteClient.GetQuote(position.Symbol).Ask;
-                OrderClient.OrderClose(position.Symbol, (int) position.Id, lots ?? position.Lots, price, 0);
-            }
+				_log.Info($"{_accountInfo.Description} account ({_accountInfo.User}) OrderClient.OrderClose started...");
+				OrderClient.OrderClose(position.Symbol, (int) position.Id, lots ?? position.Lots, price, 0);
+				_log.Info($"{_accountInfo.Description} account ({_accountInfo.User}) OrderClient.OrderClose is successful");
+			}
             catch (Exception e)
             {
                 _log.Error($"Connector.SendClosePositionRequests({position.Id}) exception", e);
