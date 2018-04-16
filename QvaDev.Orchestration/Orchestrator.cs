@@ -19,7 +19,9 @@ namespace QvaDev.Orchestration
         void StopMonitors();
         Task StartExperts(DuplicatContext duplicatContext);
         void StopExperts();
-        Task Connect(DuplicatContext duplicatContext);
+		Task StartTickers(DuplicatContext duplicatContext);
+		void StopTickers();
+		Task Connect(DuplicatContext duplicatContext);
         Task Disconnect();
         Task BalanceReport(DateTime from, DateTime to, string reportPath);
         Task OrderHistoryExport(DuplicatContext duplicatContext);
@@ -53,8 +55,9 @@ namespace QvaDev.Orchestration
         private readonly IExpertService _expertService;
         private readonly IPushingService _pushingService;
         private readonly IReportService _reportService;
+		private readonly ITickerService _tickerService;
 
-        public int SelectedAlphaMonitorId { get; set; }
+		public int SelectedAlphaMonitorId { get; set; }
         public int SelectedBetaMonitorId { get; set; }
 
         public Orchestrator(
@@ -66,9 +69,10 @@ namespace QvaDev.Orchestration
             IExpertService expertService,
             IPushingService pushingService,
             IReportService reportService,
-            ILog log)
+			ITickerService tickerService,
+			ILog log)
         {
-            _reportService = reportService;
+			_tickerService = tickerService;
             _pushingService = pushingService;
             _expertService = expertService;
             _monitorServices = monitorServices;
@@ -190,6 +194,7 @@ namespace QvaDev.Orchestration
             StopMonitors();
             StopCopiers();
             StopExperts();
+			StopTickers();
             return Task.WhenAll(DisconnectMtAccounts(), DisconnectCtAccounts(), DisconnectFtAccounts());
         }
 
@@ -346,6 +351,17 @@ namespace QvaDev.Orchestration
             {
                 _reportService.OrderHistoryExport(duplicatContext);
             });
-        }
-    }
+		}
+
+		public async Task StartTickers(DuplicatContext duplicatContext)
+		{
+			await Connect(duplicatContext);
+			_tickerService.Start(duplicatContext);
+		}
+
+		public void StopTickers()
+		{
+			_tickerService.Stop();
+		}
+	}
 }

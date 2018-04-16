@@ -74,11 +74,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DuplicatContext.cs" />
-    <Compile Include="Migrations\201802260842471_Init.cs" />
-    <Compile Include="Migrations\201802260842471_Init.Designer.cs">
-      <DependentUpon>201802260842471_Init.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\BaseAccountEntity.cs" />
     <Compile Include="Models\BaseEntity.cs" />
     <Compile Include="Models\BaseDescriptionEntity.cs" />
@@ -93,6 +88,7 @@
     <Compile Include="Models\IFilterableEntity.cs" />
     <Compile Include="Models\Monitor.cs" />
     <Compile Include="Models\MonitoredAccount.cs" />
+    <Compile Include="Models\Ticker.cs" />
     <Compile Include="Models\Slave.cs" />
     <Compile Include="Models\MetaTraderPlatform.cs" />
     <Compile Include="Models\MetaTraderAccount.cs" />
@@ -121,16 +117,43 @@
     <None Include="Mt4SrvFiles\CoreSpreads-DemoBravo.srv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="Mt4SrvFiles\Equiti-Live.srv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Mt4SrvFiles\GKFX-Live-2.srv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Mt4SrvFiles\ICMarkets-Live10.srv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Mt4SrvFiles\IFMTrade-Live.srv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="Mt4SrvFiles\LMAX-DemoUK.srv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="Mt4SrvFiles\LMAX-LiveUK.srv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="Mt4SrvFiles\OANDA-v20 Practice.srv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Mt4SrvFiles\PriceMarkets-Live2.srv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Mt4SrvFiles\PriorFX-Demo.srv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Mt4SrvFiles\RegalCoreMarkets-Demo.srv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Mt4SrvFiles\TrioMarkets-Live Server.srv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Mt4SrvFiles\XM.COM-Real 17.srv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Mt4SrvFiles\Z.comTradeUKLtd-Live-UK.srv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="packages.config" />
@@ -140,11 +163,6 @@
       <Project>{10A3EF89-12BB-4D00-9950-36BFED281B91}</Project>
       <Name>QvaDev.Common</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Migrations\201802260842471_Init.resx">
-      <DependentUpon>201802260842471_Init.cs</DependentUpon>
-    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

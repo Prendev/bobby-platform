@@ -18,7 +18,8 @@ namespace QvaDev.Duplicat.Views
             _viewModel = viewModel;
 
             dgvMtAccounts.AddBinding("ReadOnly", _viewModel, nameof(_viewModel.IsConfigReadonly));
-            gbControl.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsLoading), true);
+			dgvMtPlatforms.AddBinding("ReadOnly", _viewModel, nameof(_viewModel.IsConfigReadonly));
+			gbControl.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsLoading), true);
             //gbControl.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsConnected));
 
             btnExport.Click += (s, e) => { _viewModel.OrderHistoryExportCommand(); };

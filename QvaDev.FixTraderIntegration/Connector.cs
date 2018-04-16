@@ -27,12 +27,15 @@ namespace QvaDev.FixTraderIntegration
 		private CancellationTokenSource _cancellationTokenSource;
 		private AccountInfo _accountInfo;
 		private readonly ILog _log;
+		private readonly ConcurrentDictionary<string, Tick> _lastTicks =
+			new ConcurrentDictionary<string, Tick>();
 
 		public string Description => _accountInfo.Description;
 		public bool IsConnected => _commandClient?.Connected == true && _eventsClient?.Connected == true;
 		public ConcurrentDictionary<long, Position> Positions { get; }
 		public event PositionEventHandler OnPosition;
 		public event BarHistoryEventHandler OnBarHistory;
+		public event TickEventHandler OnTick;
 
 		public ConcurrentDictionary<string, SymbolInfo> SymbolInfos { get; set; } =
 			new ConcurrentDictionary<string, SymbolInfo>();
@@ -75,6 +78,14 @@ namespace QvaDev.FixTraderIntegration
 				try
 				{
 					Thread.Sleep(1);
+					if(!IsConnected)
+					{
+						Thread.Sleep(1000);
+						if (!_commandClient.Connected) _commandClient.Connect(_accountInfo.IpAddress, _accountInfo.CommandSocketPort);
+						if (!_eventsClient.Connected) _eventsClient.Connect(_accountInfo.IpAddress, _accountInfo.EventsSocketPort);
+						continue;
+					}
+
 					int count = ns.Read(inStream, 0, inStream.Length);
 					string text = Encoding.ASCII.GetString(inStream, 0, count);
 					if (string.IsNullOrWhiteSpace(text)) continue;
@@ -101,6 +112,16 @@ namespace QvaDev.FixTraderIntegration
 									oldValue.Ask = ask;
 									return oldValue;
 								});
+
+							var tick = new Tick
+							{
+								Symbol = symbol,
+								Ask = ask,
+								Bid = bid,
+								Time = DateTime.UtcNow
+							};
+							_lastTicks.AddOrUpdate(symbol, key => tick, (key, old) => tick);
+							OnTick?.Invoke(this, new TickEventArgs { Tick = tick });
 						}
 						else if (commandType == "6")
 						{
@@ -273,7 +294,7 @@ namespace QvaDev.FixTraderIntegration
 
 		public Tick GetLastTick(string symbol)
 		{
-			throw new NotImplementedException();
+			return _lastTicks.GetOrAdd(symbol, (Tick)null);
 		}
 
 		public void Dispose()

@@ -10,7 +10,8 @@ namespace QvaDev.Common.Integration
         ConcurrentDictionary<long, Position> Positions { get; }
         event PositionEventHandler OnPosition;
         event BarHistoryEventHandler OnBarHistory;
-        void Disconnect();
+		event TickEventHandler OnTick;
+		void Disconnect();
         long GetOpenContracts(string symbol);
         double GetBalance();
         double GetFloatingProfit();

@@ -26,7 +26,7 @@ namespace QvaDev.Mt4Integration
             new ConcurrentDictionary<string, Tick>();
         private readonly ConcurrentDictionary<string, SymbolHistory> _symbolHistories =
             new ConcurrentDictionary<string, SymbolHistory>();
-        private AccountInfo _accountInfo;
+		private AccountInfo _accountInfo;
         private List<Tuple<string, int, short>> _symbols;
         private IEnumerable<Order> _orderHistory;
 
@@ -40,7 +40,7 @@ namespace QvaDev.Mt4Integration
         public QuoteClient QuoteClient;
         public OrderClient OrderClient;
 
-        public Connector(ILog log)
+		public Connector(ILog log)
         {
             Positions = new ConcurrentDictionary<long, Position>();
             _log = log;
@@ -53,7 +53,7 @@ namespace QvaDev.Mt4Integration
             QuoteClient?.Disconnect();
             OrderClient?.Disconnect();
             _log.Debug($"{_accountInfo.Description} account ({_accountInfo.User}) disconnected");
-        }
+		}
 
 
         public bool Connect(AccountInfo accountInfo)
@@ -61,20 +61,25 @@ namespace QvaDev.Mt4Integration
             _accountInfo = accountInfo;
 
             Server[] slaves = null;
-            try
-            {
-                var srv = QuoteClient.LoadSrv(_accountInfo.Srv, out slaves);
-                QuoteClient = CreateQuoteClient(_accountInfo, srv.Host, srv.Port);
-                QuoteClient.Connect();
-            }
-            catch (Exception e)
-            {
-                _log.Error($"{_accountInfo.Description} account ({_accountInfo.User}) FAILED to connect", e);
-            }
-            finally
-            {
-                if(!IsConnected) ConnectSlaves(slaves, _accountInfo);
-            }
+			try
+			{
+				if (Uri.TryCreate($"http://{_accountInfo.Srv}", UriKind.Absolute, out Uri ip))
+					QuoteClient = CreateQuoteClient(_accountInfo, ip.Host, ip.Port);
+				else
+				{
+					var srv = QuoteClient.LoadSrv(_accountInfo.Srv, out slaves);
+					QuoteClient = CreateQuoteClient(_accountInfo, srv.Host, srv.Port);
+				}
+				QuoteClient.Connect();
+			}
+			catch (Exception e)
+			{
+				_log.Error($"{_accountInfo.Description} account ({_accountInfo.User}) FAILED to connect", e);
+			}
+			finally
+			{
+				if (!IsConnected) ConnectSlaves(slaves, _accountInfo);
+			}
 
             if (!IsConnected) return IsConnected;
 
@@ -275,7 +280,7 @@ namespace QvaDev.Mt4Integration
                 .Sum(o => o.Profit + o.Commission + o.Swap);
         }
 
-        public void Subscribe(List<Tuple<string, int, short>> symbols)
+		public void Subscribe(List<Tuple<string, int, short>> symbols)
         {
             _symbols = symbols;
             QuoteClient.OnQuoteHistory -= QuoteClient_OnQuoteHistory;
@@ -442,7 +447,8 @@ namespace QvaDev.Mt4Integration
 
         private void ConnectSlaves(Server[] slaves, AccountInfo accountInfo)
         {
-            if (slaves?.Any() != true) return;
+			if (Uri.TryCreate($"http://{_accountInfo.Srv}", UriKind.Absolute, out Uri ip)) return;
+			if (slaves?.Any() != true) return;
             foreach (var srv in slaves)
             {
                 try
