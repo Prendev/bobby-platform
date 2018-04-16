@@ -117,7 +117,8 @@ namespace QvaDev.Mt4Integration
             return IsConnected;
         }
 
-        public Position SendMarketOrderRequest(string symbol, Sides side, double lots, int magicNumber, string comment = null)
+		public Position SendMarketOrderRequest(string symbol, Sides side, double lots, int magicNumber,
+			string comment, int maxRetryCount, int retryPeriodInMilliseconds)
         {
             try
             {
@@ -144,11 +145,20 @@ namespace QvaDev.Mt4Integration
             catch (Exception e)
             {
                 _log.Error($"Connector.SendMarketOrderRequest({symbol}, {side}, {lots}, {magicNumber}, {comment}) exception", e);
-            }
+				if (maxRetryCount <= 0) return null;
+
+				Thread.Sleep(retryPeriodInMilliseconds);
+				SendMarketOrderRequest(symbol, side, lots, magicNumber, comment, --maxRetryCount, retryPeriodInMilliseconds);
+			}
             return null;
         }
 
-        public void SendClosePositionRequests(Position position, double? lots = null)
+		public Position SendMarketOrderRequest(string symbol, Sides side, double lots, int magicNumber, string comment)
+		{
+			return SendMarketOrderRequest(symbol, side, lots, magicNumber, comment, 0, 0);
+		}
+
+		public void SendClosePositionRequests(Position position, double? lots, int maxRetryCount, int retryPeriodInMilliseconds)
         {
             try
             {
@@ -162,16 +172,25 @@ namespace QvaDev.Mt4Integration
             catch (Exception e)
             {
                 _log.Error($"Connector.SendClosePositionRequests({position.Id}) exception", e);
-            }
+				if (maxRetryCount <= 0) return;
+
+				Thread.Sleep(retryPeriodInMilliseconds);
+				SendClosePositionRequests(position, lots, --maxRetryCount, retryPeriodInMilliseconds);
+			}
         }
 
-        public void SendClosePositionRequests(string comment)
+        public void SendClosePositionRequests(string comment, int maxRetryCount , int retryPeriodInMilliseconds)
         {
             foreach (var pos in Positions.Where(p => p.Value.Comment == comment && !p.Value.IsClosed))
-                SendClosePositionRequests(pos.Value);
-        }
+                SendClosePositionRequests(pos.Value, null, maxRetryCount, retryPeriodInMilliseconds);
+		}
 
-        public long GetOpenContracts(string symbol)
+		public void SendClosePositionRequests(Position position, double? lots = null)
+		{
+			SendClosePositionRequests(position, lots, 0, 0);
+		}
+
+		public long GetOpenContracts(string symbol)
         {
             return Positions.Where(p => p.Value.Symbol == symbol && !p.Value.IsClosed).Sum(p => p.Value.RealVolume);
         }

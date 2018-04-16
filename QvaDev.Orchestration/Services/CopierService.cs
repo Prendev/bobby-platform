@@ -118,9 +118,9 @@ namespace QvaDev.Orchestration.Services
 				var lots = e.Position.Lots;
                 if (e.Action == PositionEventArgs.Actions.Open)
                     slaveConnector.SendMarketOrderRequest(symbol, e.Position.Side, lots, e.Position.MagicNumber,
-                        $"{slave.Id}-{e.Position.Id}");
+                        $"{slave.Id}-{e.Position.Id}", copier.MaxRetryCount, copier.RetryPeriodInMilliseconds);
                 else if (e.Action == PositionEventArgs.Actions.Close)
-                    slaveConnector.SendClosePositionRequests($"{slave.Id}-{e.Position.Id}");
+                    slaveConnector.SendClosePositionRequests($"{slave.Id}-{e.Position.Id}", copier.MaxRetryCount, copier.RetryPeriodInMilliseconds);
             }, TaskCreationOptions.LongRunning));
             return Task.WhenAll(tasks);
         }

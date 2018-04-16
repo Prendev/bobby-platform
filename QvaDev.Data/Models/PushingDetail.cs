@@ -18,7 +18,9 @@ namespace QvaDev.Data.Models
         public int FullContractSize { get; set; }
         public double MasterLots { get; set; }
         public double HedgeLots { get; set; }
+		public int MaxRetryCount { get; set; }
+		public int RetryPeriodInMilliseconds { get; set; }
 
-        [NotMapped] [InvisibleColumn] public bool IsFiltered { get => Get<bool>(); set => Set(value); }
+		[NotMapped] [InvisibleColumn] public bool IsFiltered { get => Get<bool>(); set => Set(value); }
     }
 }

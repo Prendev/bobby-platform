@@ -26,8 +26,8 @@ namespace QvaDev.Orchestration.Services
             var betaConnector = (MtConnector)pushing.BetaMaster.Connector;
             
             // Open first side and wait a bit
-            pushing.BetaPosition = betaConnector.SendMarketOrderRequest(pushing.BetaSymbol, pushing.BetaOpenSide,
-				pushing.PushingDetail.MasterLots, 0);
+            pushing.BetaPosition = betaConnector.SendMarketOrderRequest(pushing.BetaSymbol, pushing.BetaOpenSide, pushing.PushingDetail.MasterLots, 0,
+				null, pushing.PushingDetail.MaxRetryCount, pushing.PushingDetail.RetryPeriodInMilliseconds);
             Thread.Sleep(pushing.PushingDetail.FutureOpenDelayInMs);
 		}
 
@@ -50,7 +50,8 @@ namespace QvaDev.Orchestration.Services
 				// Rush
 				if (pushing.InPanic || PriceLimitReached(pushing, pushing.BetaOpenSide)) break;
 			}
-			pushing.AlphaPosition = alphaConnector.SendMarketOrderRequest(pushing.BetaSymbol, InvSide(pushing.BetaOpenSide), pd.MasterLots, 0);
+			pushing.AlphaPosition = alphaConnector.SendMarketOrderRequest(pushing.BetaSymbol, InvSide(pushing.BetaOpenSide), pd.MasterLots, 0,
+				null, pushing.PushingDetail.MaxRetryCount, pushing.PushingDetail.RetryPeriodInMilliseconds);
 		}
 
 		public void OpeningFinish(Pushing pushing)
@@ -89,7 +90,7 @@ namespace QvaDev.Orchestration.Services
 			var firstPos = pushing.BetaOpenSide == pushing.FirstCloseSide ? pushing.BetaPosition : pushing.AlphaPosition;
 
 			// Close first side and wait a bit
-			firstConnector.SendClosePositionRequests(firstPos);
+			firstConnector.SendClosePositionRequests(firstPos, null, pushing.PushingDetail.MaxRetryCount, pushing.PushingDetail.RetryPeriodInMilliseconds);
 			Thread.Sleep(pushing.PushingDetail.FutureOpenDelayInMs);
 		}
 
@@ -115,7 +116,8 @@ namespace QvaDev.Orchestration.Services
 				// Rush
 				if (pushing.InPanic || PriceLimitReached(pushing, futureSide)) break;
 			}
-			hedgeConnector.SendMarketOrderRequest(pushing.HedgeSymbol, pushing.FirstCloseSide, pd.HedgeLots, 0);
+			hedgeConnector.SendMarketOrderRequest(pushing.HedgeSymbol, pushing.FirstCloseSide, pd.HedgeLots, 0,
+				null, pushing.PushingDetail.MaxRetryCount, pushing.PushingDetail.RetryPeriodInMilliseconds);
 		}
 
 		public void ClosingSecond(Pushing pushing)
@@ -143,7 +145,7 @@ namespace QvaDev.Orchestration.Services
 				// Rush
 				if (pushing.InPanic || PriceLimitReached(pushing, futureSide)) break;
 			}
-			secondConnector.SendClosePositionRequests(secondPos);
+			secondConnector.SendClosePositionRequests(secondPos, null, pushing.PushingDetail.MaxRetryCount, pushing.PushingDetail.RetryPeriodInMilliseconds);
 		}
 
 		public void ClosingFinish(Pushing pushing)
