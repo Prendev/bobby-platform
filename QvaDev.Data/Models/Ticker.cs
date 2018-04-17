@@ -8,11 +8,13 @@ namespace QvaDev.Data.Models
 		[InvisibleColumn] public int ProfileId { get; set; }
 		[InvisibleColumn] public Profile Profile { get; set; }
 
-		public int FixTraderAccountId { get; set; }
-		public FixTraderAccount FixTraderAccount { get; set; }
+		public int? MainMetaTraderAccountId { get; set; }
+		public MetaTraderAccount MainMetaTraderAccount { get; set; }
 
-		[Required]
-		public string Symbol { get; set; }
+		public int? MainFixTraderAccountId { get; set; }
+		public FixTraderAccount MainFixTraderAccount { get; set; }
+
+		public string MainSymbol { get; set; }
 
 		public int? PairMetaTraderAccountId { get; set; }
         public MetaTraderAccount PairMetaTraderAccount { get; set; }
@@ -20,7 +22,6 @@ namespace QvaDev.Data.Models
 		public int? PairFixTraderAccountId { get; set; }
 		public FixTraderAccount PairFixTraderAccount { get; set; }
 
-		[Required]
 		public string PairSymbol { get; set; }
 	}
 }
