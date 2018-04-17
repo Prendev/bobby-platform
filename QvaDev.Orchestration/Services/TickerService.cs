@@ -7,7 +7,6 @@ using log4net;
 using QvaDev.Common.Integration;
 using QvaDev.Data;
 using QvaDev.Data.Models;
-using FtConnector = QvaDev.FixTraderIntegration.Connector;
 using MtConnector = QvaDev.Mt4Integration.Connector;
 
 namespace QvaDev.Orchestration.Services
@@ -38,6 +37,7 @@ namespace QvaDev.Orchestration.Services
 
 		public class Writer
 		{
+			public DateTime LastFlush { get; set; }
 			public StreamWriter StreamWriter { get; set; }
 			public CsvHelper.CsvWriter CsvWriter { get; set; }
 
@@ -152,16 +152,20 @@ namespace QvaDev.Orchestration.Services
 
 		private string GetCsvFile(string id, string symbol)
 		{
-			return $"{id}_{symbol}_{DateTime.UtcNow.Date:yyyyMMdd}.csv";
+			return $"Tickers/{id}_{symbol}_{DateTime.UtcNow.Date:yyyyMMdd}.csv";
 		}
 
 		private void WriteCsv<T>(string file, T obj)
 		{
+			new FileInfo(file).Directory.Create();
 			var writer = _csvWriters.GetOrAdd(file, key => new Writer(file));
 			lock (writer)
 			{
 				writer.CsvWriter.WriteRecord(obj);
 				writer.CsvWriter.NextRecord();
+				if (DateTime.UtcNow - writer.LastFlush < new TimeSpan(0, 1, 0)) return;
+				writer.StreamWriter.Flush();
+				writer.LastFlush = DateTime.UtcNow;
 			}
 		}
 	}
