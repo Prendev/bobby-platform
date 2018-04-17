@@ -22,8 +22,8 @@ namespace QvaDev.Orchestration.Services
     public class PushingService : IPushingService
     {
         public void OpeningBeta(Pushing pushing)
-        {
-            var betaConnector = (MtConnector)pushing.BetaMaster.Connector;
+		{
+			var betaConnector = (MtConnector)pushing.BetaMaster.Connector;
 			// Open first side and wait a bit
 			pushing.BetaPosition = betaConnector.SendMarketOrderRequest(pushing.BetaSymbol, pushing.BetaOpenSide, pushing.PushingDetail.MasterLots, 0,
 				null, pushing.PushingDetail.MaxRetryCount, pushing.PushingDetail.RetryPeriodInMilliseconds);

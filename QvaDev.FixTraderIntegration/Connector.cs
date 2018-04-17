@@ -77,7 +77,7 @@ namespace QvaDev.FixTraderIntegration
 			{
 				try
 				{
-					Thread.Sleep(1);
+					Thread.Sleep(5);
 					if(!IsConnected)
 					{
 						Thread.Sleep(1000);

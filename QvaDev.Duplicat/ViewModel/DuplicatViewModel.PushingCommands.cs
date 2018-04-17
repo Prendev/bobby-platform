@@ -1,5 +1,6 @@
 ﻿using QvaDev.Data.Models;
 using System;
+using System.Windows.Forms;
 
 namespace QvaDev.Duplicat.ViewModel
 {
@@ -22,23 +23,43 @@ namespace QvaDev.Duplicat.ViewModel
         }
 
         public async void PushingOpenCommand(Pushing pushing, Common.Integration.Sides firstBetaOpenSide)
-        {
+		{
+			PushingState = PushingStates.Busy;
+			pushing.BetaOpenSide = firstBetaOpenSide;
+
 			try
 			{
-				PushingState = PushingStates.Busy;
-				pushing.BetaOpenSide = firstBetaOpenSide;
 				await _orchestrator.OpeningBeta(pushing);
-				PushingState = PushingStates.AfterOpeningBeta;
-				await _orchestrator.OpeningAlpha(pushing);
-				PushingState = PushingStates.AfterOpeningAlpha;
-				await _orchestrator.OpeningFinish(pushing);
-				PushingState = PushingStates.BeforeClosing;
 			}
 			catch (Exception e)
 			{
-				PushingState = PushingStates.Busy;
+				PushingState = PushingStates.NotRunning;
+				MessageBox.Show(e.Message, "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
+				return;
 			}
-        }
+
+			PushingState = PushingStates.AfterOpeningBeta;
+
+			try
+			{
+				await _orchestrator.OpeningAlpha(pushing);
+			}
+			catch (Exception e)
+			{
+				PushingState = PushingStates.AfterOpeningAlpha;
+				await _orchestrator.OpeningFinish(pushing);
+				PushingState = PushingStates.Busy;
+				await _orchestrator.ClosingFirst(pushing);
+
+				PushingState = PushingStates.NotRunning;
+				MessageBox.Show(e.Message, "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
+				return;
+			}
+
+			PushingState = PushingStates.AfterOpeningAlpha;
+			await _orchestrator.OpeningFinish(pushing);
+			PushingState = PushingStates.BeforeClosing;
+		}
 
         public async void PushingCloseCommand(Pushing pushing, Common.Integration.Sides firstCloseSide)
 		{
