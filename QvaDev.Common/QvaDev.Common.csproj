@@ -85,6 +85,8 @@
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\ExchangeRatesService.cs" />
+    <Compile Include="Services\RndService.cs" />
+    <Compile Include="Services\ThreadService.cs" />
     <Compile Include="Services\XmlService.cs" />
     <Compile Include="UnexpectedStatusCodeException.cs" />
   </ItemGroup>

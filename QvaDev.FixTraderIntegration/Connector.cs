@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Net.Sockets;
@@ -12,15 +13,22 @@ using QvaDev.Common.Integration;
 
 namespace QvaDev.FixTraderIntegration
 {
+	public class SymbolInfo
+	{
+		public double SumContracts;
+		public double Ask;
+		public double Bid;
+	}
+
+	public interface IConnector : Common.Integration.IConnector
+	{
+		double SendMarketOrderRequest(string symbol, Sides side, double lots, string comment = null);
+		void OrderMultipleCloseBy(string symbol);
+		SymbolInfo GetSymbolInfo(string symbol);
+	}
+    
 	public class Connector : IConnector
 	{
-		public class SymbolInfo
-		{
-			public double SumContracts;
-			public double Ask;
-			public double Bid;
-		}
-
 		private TcpClient _commandClient;
 		private TcpClient _eventsClient;
 		private Task _receiverTask;
@@ -156,7 +164,7 @@ namespace QvaDev.FixTraderIntegration
 			catch { }
 		}
 
-		public void SendMarketOrderRequest(string symbol, Sides side, double lots, string comment = null)
+		public double SendMarketOrderRequest(string symbol, Sides side, double lots, string comment = null)
 		{
 			long unix = (long)(DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, 0)).TotalSeconds;
 			var tags = new List<string>
@@ -180,13 +188,21 @@ namespace QvaDev.FixTraderIntegration
 				var buffer = encoder.GetBytes($"|{string.Join("|", tags)}|\n");
 				ns.Write(buffer, 0, buffer.Length);
 
-				int limit = 0;
-				while (sumLots == SymbolInfos.GetOrAdd(symbol, new SymbolInfo()).SumContracts && limit++ < 1000)
-					Thread.Sleep(1);
+				var stopwatch = new Stopwatch();
+				stopwatch.Start();
+				var diff = SymbolInfos.GetOrAdd(symbol, new SymbolInfo()).SumContracts - sumLots;
+				while (diff == 0 && stopwatch.ElapsedMilliseconds < 1000)
+				{
+					Thread.Sleep(5);
+					diff = SymbolInfos.GetOrAdd(symbol, new SymbolInfo()).SumContracts - sumLots;
+				}
+
+				return diff;
 			}
 			catch (Exception e)
 			{
 				_log.Error($"Connector.SendMarketOrderRequest({symbol}, {side}, {lots}, {comment}) exception", e);
+				return 0;
 			}
 		}
 

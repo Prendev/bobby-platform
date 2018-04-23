@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27130.2027
+VisualStudioVersion = 15.0.27130.2036
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QvaDev.CTraderApi", "QvaDev.CTraderApi\QvaDev.CTraderApi.csproj", "{866039F3-42FF-4D42-A85E-F91CEF04F3DF}"
 EndProject
@@ -22,6 +22,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QvaDev.Experts", "QvaDev.Experts\QvaDev.Experts.csproj", "{B9F802CB-A64A-4281-858E-E37A53FFAF7D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QvaDev.FixTraderIntegration", "QvaDev.FixTraderIntegration\QvaDev.FixTraderIntegration.csproj", "{E3002184-B948-49EE-B313-3167948C3F97}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{7B041DAD-24DD-429E-B1DE-71573E267EA6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QvaDev.OrchestrationTests", "QvaDev.OrchestrationTests\QvaDev.OrchestrationTests.csproj", "{BB763038-2989-4643-AE5E-1A1FAA2053AF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -111,9 +115,20 @@ Global
 		{E3002184-B948-49EE-B313-3167948C3F97}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E3002184-B948-49EE-B313-3167948C3F97}.Release|x64.ActiveCfg = Release|Any CPU
 		{E3002184-B948-49EE-B313-3167948C3F97}.Release|x64.Build.0 = Release|Any CPU
+		{BB763038-2989-4643-AE5E-1A1FAA2053AF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BB763038-2989-4643-AE5E-1A1FAA2053AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BB763038-2989-4643-AE5E-1A1FAA2053AF}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{BB763038-2989-4643-AE5E-1A1FAA2053AF}.Debug|x64.Build.0 = Debug|Any CPU
+		{BB763038-2989-4643-AE5E-1A1FAA2053AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BB763038-2989-4643-AE5E-1A1FAA2053AF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BB763038-2989-4643-AE5E-1A1FAA2053AF}.Release|x64.ActiveCfg = Release|Any CPU
+		{BB763038-2989-4643-AE5E-1A1FAA2053AF}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{BB763038-2989-4643-AE5E-1A1FAA2053AF} = {7B041DAD-24DD-429E-B1DE-71573E267EA6}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C1C28357-86B5-47FD-924D-863DA2531C4D}

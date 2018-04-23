@@ -26,15 +26,10 @@ namespace QvaDev.Duplicat.ViewModel
                 _log.Error("Database save ERROR!!!", e);
 				SaveState = SaveStates.Error;
 			}
-			var timer = new System.Timers.Timer(5000);
-			timer.AutoReset = false;
-			timer.Elapsed += (s, e) => SynchronizationContext.Post(o => SaveState = SaveStates.Default, null);
-			timer.Start();
-		}
 
-		private void Timer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
-		{
-			throw new NotImplementedException();
+	        var timer = new System.Timers.Timer(5000) {AutoReset = false};
+	        timer.Elapsed += (s, e) => SynchronizationContext.Post(o => SaveState = SaveStates.Default, null);
+			timer.Start();
 		}
 
 		public void BackupCommand()

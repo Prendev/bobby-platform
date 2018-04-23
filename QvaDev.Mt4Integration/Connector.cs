@@ -11,6 +11,14 @@ using Bar = QvaDev.Common.Integration.Bar;
 
 namespace QvaDev.Mt4Integration
 {
+	public interface IConnector : Common.Integration.IConnector
+	{
+		Position SendMarketOrderRequest(string symbol, Sides side, double lots, int magicNumber,
+			string comment, int maxRetryCount, int retryPeriodInMilliseconds);
+
+		bool SendClosePositionRequests(Position position, double? lots, int maxRetryCount, int retryPeriodInMilliseconds);
+	}
+
     public class Connector : IConnector
     {
         public class SymbolHistory
