@@ -5,7 +5,7 @@ using QvaDev.Data.Models;
 using FtConnector = QvaDev.FixTraderIntegration.IConnector;
 using MtConnector = QvaDev.Mt4Integration.IConnector;
 
-namespace QvaDev.Orchestration.Services
+namespace QvaDev.Orchestration.Services.Strategies
 {
     public interface IPushingService
     {

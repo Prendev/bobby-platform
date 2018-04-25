@@ -33,6 +33,8 @@ namespace QvaDev.Data
 
 		public DbSet<Ticker> Tickers { get; set; }
 
+	    public DbSet<StratDealingArb> StratDealingArbs { get; set; }
+
 		public void Init()
         {
             var exists = Database.Exists();

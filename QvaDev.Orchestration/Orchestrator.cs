@@ -6,6 +6,7 @@ using log4net;
 using QvaDev.Data;
 using QvaDev.Data.Models;
 using QvaDev.Orchestration.Services;
+using QvaDev.Orchestration.Services.Strategies;
 
 namespace QvaDev.Orchestration
 {
@@ -52,7 +53,7 @@ namespace QvaDev.Orchestration
         private readonly IBalanceReportService _balanceReportService;
         private readonly ICopierService _copierService;
         private readonly IMonitorServices _monitorServices;
-        private readonly IExpertService _expertService;
+        private readonly IFrpService _frpService;
         private readonly IPushingService _pushingService;
         private readonly IReportService _reportService;
 		private readonly ITickerService _tickerService;
@@ -66,7 +67,7 @@ namespace QvaDev.Orchestration
             IBalanceReportService balanceReportService,
             ICopierService copierService,
             IMonitorServices monitorServices,
-            IExpertService expertService,
+            IFrpService frpService,
             IPushingService pushingService,
             IReportService reportService,
 			ITickerService tickerService,
@@ -74,7 +75,7 @@ namespace QvaDev.Orchestration
         {
 			_tickerService = tickerService;
             _pushingService = pushingService;
-            _expertService = expertService;
+            _frpService = frpService;
             _monitorServices = monitorServices;
             _copierService = copierService;
             _balanceReportService = balanceReportService;
@@ -276,13 +277,13 @@ namespace QvaDev.Orchestration
         {
             return Connect(duplicatContext).ContinueWith(prevTask =>
             {
-                _expertService.Start(duplicatContext);
+                _frpService.Start(duplicatContext);
             });
         }
 
         public void StopExperts()
         {
-            _expertService.Stop();
+            _frpService.Stop();
         }
 
         public void TestMarketOrder(Pushing pushing)

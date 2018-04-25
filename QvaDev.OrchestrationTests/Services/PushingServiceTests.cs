@@ -6,6 +6,7 @@ using QvaDev.Common.Services;
 using QvaDev.Data.Models;
 using QvaDev.FixTraderIntegration;
 using QvaDev.Orchestration.Services;
+using QvaDev.Orchestration.Services.Strategies;
 using FtConnector = QvaDev.FixTraderIntegration.IConnector;
 using MtConnector = QvaDev.Mt4Integration.IConnector;
 

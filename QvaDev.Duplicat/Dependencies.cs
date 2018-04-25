@@ -10,6 +10,7 @@ using QvaDev.Duplicat.Views;
 using QvaDev.Experts.Quadro.Services;
 using QvaDev.Orchestration;
 using QvaDev.Orchestration.Services;
+using QvaDev.Orchestration.Services.Strategies;
 using ExchangeRatesService = QvaDev.Common.Services.ExchangeRatesService;
 using IExchangeRatesService = QvaDev.Common.Services.IExchangeRatesService;
 
@@ -64,7 +65,7 @@ namespace QvaDev.Duplicat
             builder.RegisterType<BalanceReportService>().As<IBalanceReportService>();
             builder.RegisterType<CopierService>().As<ICopierService>();
             builder.RegisterType<MonitorServices>().As<IMonitorServices>();
-            builder.RegisterType<ExpertService>().As<IExpertService>();
+            builder.RegisterType<FrpService>().As<IFrpService>();
             builder.RegisterType<PushingService>().As<IPushingService>();
             builder.RegisterType<ReportService>().As<IReportService>();
 			builder.RegisterType<TickerService>().As<ITickerService>();

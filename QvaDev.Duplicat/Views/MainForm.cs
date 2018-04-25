@@ -78,6 +78,7 @@ namespace QvaDev.Duplicat.Views
             monitorsUserControl.InitView(_viewModel);
             pushingUserControl.InitView(_viewModel);
             quadroUserControl.InitView(_viewModel);
+	        strategiesUserControl.InitView(_viewModel);
 			tickersUserControl.InitView(_viewModel);
 
 			AttachDataSources();
@@ -94,6 +95,7 @@ namespace QvaDev.Duplicat.Views
             monitorsUserControl.AttachDataSources();
             pushingUserControl.AttachDataSources();
             quadroUserControl.AttachDataSources();
+	        strategiesUserControl.AttachDataSources();
 			tickersUserControl.AttachDataSources();
 		}
     }

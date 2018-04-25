@@ -95,11 +95,12 @@
     <Compile Include="Orchestrator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\BalanceReportService.cs" />
+    <Compile Include="Services\Strategies\DealingArbService.cs" />
     <Compile Include="Services\TickerService.cs" />
     <Compile Include="Services\CopierService.cs" />
-    <Compile Include="Services\ExpertService.cs" />
+    <Compile Include="Services\Strategies\ExpertService.cs" />
     <Compile Include="Services\MonitorServices.cs" />
-    <Compile Include="Services\PushingService.cs" />
+    <Compile Include="Services\Strategies\PushingService.cs" />
     <Compile Include="Services\ReportService.cs" />
   </ItemGroup>
   <ItemGroup>
