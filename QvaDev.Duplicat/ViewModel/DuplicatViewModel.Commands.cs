@@ -109,7 +109,8 @@ namespace QvaDev.Duplicat.ViewModel
             StopMonitorsCommand();
             StopExpertsCommand();
 			StopTickersCommand();
-            IsLoading = true;
+	        StopStrategiesCommand();
+			IsLoading = true;
             IsConfigReadonly = true;
             _orchestrator.Disconnect()
                 .ContinueWith(prevTask => { IsLoading = false; IsConfigReadonly = false; IsConnected = false; });
@@ -252,5 +253,23 @@ namespace QvaDev.Duplicat.ViewModel
 			_orchestrator.StopTickers();
 			AreTickersStarted = false;
 		}
+	    public void StartStrategiesCommand()
+	    {
+		    IsLoading = true;
+		    IsConfigReadonly = true;
+		    _orchestrator.StartStrategies(_duplicatContext)
+			    .ContinueWith(prevTask =>
+			    {
+				    IsLoading = false;
+				    IsConfigReadonly = true;
+				    AreStrategiesStarted = true;
+				    IsConnected = true;
+			    });
+	    }
+	    public void StopStrategiesCommand()
+	    {
+		    _orchestrator.StopStrategies();
+		    AreStrategiesStarted = false;
+	    }
 	}
 }

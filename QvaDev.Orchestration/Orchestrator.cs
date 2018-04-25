@@ -41,7 +41,10 @@ namespace QvaDev.Orchestration
 		Task ClosingFinish(Pushing pushing);
 
         void PushingPanic(Pushing pushing);
-    }
+
+	    Task StartStrategies(DuplicatContext duplicatContext);
+	    void StopStrategies();
+	}
 
     public class Orchestrator : IOrchestrator
     {
@@ -57,8 +60,9 @@ namespace QvaDev.Orchestration
         private readonly IPushingService _pushingService;
         private readonly IReportService _reportService;
 		private readonly ITickerService _tickerService;
+	    private readonly IStrategiesService _strategiesService;
 
-		public int SelectedAlphaMonitorId { get; set; }
+	    public int SelectedAlphaMonitorId { get; set; }
         public int SelectedBetaMonitorId { get; set; }
 
         public Orchestrator(
@@ -71,9 +75,11 @@ namespace QvaDev.Orchestration
             IPushingService pushingService,
             IReportService reportService,
 			ITickerService tickerService,
+            IStrategiesService strategiesService,
 			ILog log)
         {
-			_tickerService = tickerService;
+	        _strategiesService = strategiesService;
+	        _tickerService = tickerService;
             _pushingService = pushingService;
             _frpService = frpService;
             _monitorServices = monitorServices;
@@ -192,11 +198,7 @@ namespace QvaDev.Orchestration
         public Task Disconnect()
         {
             _duplicatContext.SaveChanges();
-            StopMonitors();
-            StopCopiers();
-            StopExperts();
-			StopTickers();
-            return Task.WhenAll(DisconnectMtAccounts(), DisconnectCtAccounts(), DisconnectFtAccounts());
+			return Task.WhenAll(DisconnectMtAccounts(), DisconnectCtAccounts(), DisconnectFtAccounts());
         }
 
         private Task DisconnectMtAccounts()
@@ -346,7 +348,18 @@ namespace QvaDev.Orchestration
             pushing.InPanic = true;
         }
 
-        public Task OrderHistoryExport(DuplicatContext duplicatContext)
+	    public async Task StartStrategies(DuplicatContext duplicatContext)
+		{
+			await Connect(duplicatContext);
+			_strategiesService.Start(duplicatContext);
+		}
+
+	    public void StopStrategies()
+	    {
+		    _strategiesService.Stop();
+		}
+
+	    public Task OrderHistoryExport(DuplicatContext duplicatContext)
         {
             return Connect(duplicatContext).ContinueWith(prevTask =>
             {

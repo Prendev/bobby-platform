@@ -22,6 +22,9 @@ namespace QvaDev.Duplicat.Views
 			btnStop.AddBinding("Enabled", _viewModel, nameof(_viewModel.AreStrategiesStarted));
 
 			dgvDealingArb.DefaultValuesNeeded += (s, e) => e.Row.Cells["ProfileId"].Value = _viewModel.SelectedProfileId;
+
+			btnStart.Click += (s, e) => { _viewModel.StartStrategiesCommand(); };
+			btnStop.Click += (s, e) => { _viewModel.StopStrategiesCommand(); };
 		}
 
 		public void AttachDataSources()
