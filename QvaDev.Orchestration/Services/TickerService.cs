@@ -69,8 +69,8 @@ namespace QvaDev.Orchestration.Services
         public void Start(DuplicatContext duplicatContext)
         {
 			_tickers = duplicatContext.Tickers.Local
-				.Where(c => (c.MainMetaTraderAccount?.State == BaseAccountEntity.States.Connected ||
-							c.MainFixTraderAccount?.State == BaseAccountEntity.States.Connected));
+				.Where(c => c.MainMetaTraderAccount?.State == BaseAccountEntity.States.Connected ||
+							c.MainFixTraderAccount?.State == BaseAccountEntity.States.Connected).ToList();
 
 			foreach (var ticker in _tickers)
             {

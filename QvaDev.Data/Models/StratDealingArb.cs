@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using QvaDev.Common.Attributes;
 
 namespace QvaDev.Data.Models
 {
@@ -11,8 +12,10 @@ namespace QvaDev.Data.Models
 		public int ContractSize { get; set; }
 		public double Lots { get; set; }
 
-		public double SignalDiff { get; set; }
-		public double Target { get; set; }
+		public double SignalDiffInPip { get; set; }
+		public double SignalStepInPip { get; set; }
+		public double TargetInPip { get; set; }
+		public double PipSize { get; set; }
 
 		public int MinOpenTimeInMinutes { get; set; }
 
@@ -29,5 +32,10 @@ namespace QvaDev.Data.Models
 		public MetaTraderAccount MtAccount { get; set; }
 		[Required]
 		public string MtSymbol { get; set; }
+
+		public int MagicNumber { get; set; }
+
+		public int MaxRetryCount { get; set; }
+		public int RetryPeriodInMilliseconds { get; set; }
 	}
 }
