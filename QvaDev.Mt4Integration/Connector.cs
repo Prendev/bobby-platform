@@ -284,6 +284,7 @@ namespace QvaDev.Mt4Integration
 		public void Subscribe(List<Tuple<string, int, short>> symbols)
         {
             _symbols = symbols;
+
             QuoteClient.OnQuoteHistory -= QuoteClient_OnQuoteHistory;
             QuoteClient.OnQuote -= QuoteClient_OnQuote;
             if (symbols?.Any() != true) return;
@@ -293,17 +294,34 @@ namespace QvaDev.Mt4Integration
             lock (_symbolHistories)
             {
                 foreach (var symbol in symbols)
-                {
-                    var symbolHistory = _symbolHistories.GetOrAdd(new Tuple<string, int>(symbol.Item1, symbol.Item2).ToString(), new SymbolHistory());
-                    lock (symbolHistory)
-                    {
-                        GetBarHistory(symbol.Item1, (Timeframe)symbol.Item2, DateTime.Now.AddDays(1), symbol.Item3);
-                        if (QuoteClient.IsSubscribed(symbol.Item1)) continue;
-                        QuoteClient.Subscribe(symbol.Item1);
-                    }
-                }
+				{
+					if (symbol.Item1 != null) Subscribe(symbol);
+					else
+					{
+						var allSymbols = QuoteClient.Symbols.Select(s => new Tuple<string, int, short>(s, symbol.Item2, symbol.Item3));
+						foreach (var s in allSymbols) Subscribe(s, false);
+					}
+				}
             }
         }
+
+	    private void Subscribe(Tuple<string, int, short> symbol, bool check = true)
+	    {
+		    if (check && QuoteClient.Symbols.All(s => s != symbol.Item1))
+		    {
+			    _log.Error($"{_accountInfo.Description} account ({_accountInfo.User}) Subscribe error, symbol {symbol.Item1} not existing!!!");
+			    return;
+		    }
+
+		    var symbolHistory = _symbolHistories.GetOrAdd(new Tuple<string, int>(symbol.Item1, symbol.Item2).ToString(), new SymbolHistory());
+		    lock (symbolHistory)
+		    {
+			    GetBarHistory(symbol.Item1, (Timeframe)symbol.Item2, DateTime.Now.AddDays(1), symbol.Item3);
+			    if (QuoteClient.IsSubscribed(symbol.Item1)) return;
+
+			    QuoteClient.Subscribe(symbol.Item1);
+		    }
+		}
 
         public void GetSpecificBars(DateTime time, int timeFrame, params string[] symbols)
         {

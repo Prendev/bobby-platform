@@ -115,7 +115,7 @@ namespace QvaDev.Orchestration.Services
 			if (!_isStarted) return;
 			var connector = (IConnector)sender;
 
-			if (_tickers.Any(t => t.MainSymbol == e.Tick.Symbol))
+			if (_tickers.Any(t => t.MainSymbol == e.Tick.Symbol || t.MainSymbol == null))
 				WriteCsv(GetCsvFile(connector.Description, e.Tick.Symbol),
 					new CsvRow { Time = e.Tick.Time.ToString("yyyy.MM.dd hh:mm:ss.fff"), Ask = e.Tick.Ask, Bid = e.Tick.Bid });
 
