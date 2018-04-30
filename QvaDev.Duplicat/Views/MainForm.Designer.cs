@@ -46,6 +46,7 @@
 			this.tabPageQuadro = new System.Windows.Forms.TabPage();
 			this.quadroUserControl = new QvaDev.Duplicat.Views.QuadroUserControl();
 			this.tabPageTicker = new System.Windows.Forms.TabPage();
+			this.tickersUserControl = new QvaDev.Duplicat.Views.TickersUserControl();
 			this.tabPageLog = new System.Windows.Forms.TabPage();
 			this.textBoxLog = new System.Windows.Forms.TextBox();
 			this.tlpMain = new System.Windows.Forms.TableLayoutPanel();
@@ -57,7 +58,8 @@
 			this.btnDisconnect = new System.Windows.Forms.Button();
 			this.btnConnect = new System.Windows.Forms.Button();
 			this.btnSave = new System.Windows.Forms.Button();
-			this.tickersUserControl = new QvaDev.Duplicat.Views.TickersUserControl();
+			this.tabPageStrategies = new System.Windows.Forms.TabPage();
+			this.strategiesUserControl = new QvaDev.Duplicat.Views.StrategiesUserControl();
 			this.tabControlMain.SuspendLayout();
 			this.tabPageProfileAndGroup.SuspendLayout();
 			this.tabPageMt4.SuspendLayout();
@@ -71,6 +73,7 @@
 			this.tabPageLog.SuspendLayout();
 			this.tlpMain.SuspendLayout();
 			this.gbControl.SuspendLayout();
+			this.tabPageStrategies.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// tabControlMain
@@ -83,6 +86,7 @@
 			this.tabControlMain.Controls.Add(this.tabPageMonitor);
 			this.tabControlMain.Controls.Add(this.tabPagePush);
 			this.tabControlMain.Controls.Add(this.tabPageQuadro);
+			this.tabControlMain.Controls.Add(this.tabPageStrategies);
 			this.tabControlMain.Controls.Add(this.tabPageTicker);
 			this.tabControlMain.Controls.Add(this.tabPageLog);
 			this.tabControlMain.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -270,6 +274,14 @@
 			this.tabPageTicker.Text = "Tickers";
 			this.tabPageTicker.UseVisualStyleBackColor = true;
 			// 
+			// tickersUserControl
+			// 
+			this.tickersUserControl.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.tickersUserControl.Location = new System.Drawing.Point(0, 0);
+			this.tickersUserControl.Name = "tickersUserControl";
+			this.tickersUserControl.Size = new System.Drawing.Size(1337, 733);
+			this.tickersUserControl.TabIndex = 0;
+			// 
 			// tabPageLog
 			// 
 			this.tabPageLog.Controls.Add(this.textBoxLog);
@@ -402,13 +414,24 @@
 			this.btnSave.Text = "Save config changes";
 			this.btnSave.UseVisualStyleBackColor = true;
 			// 
-			// tickersUserControl
+			// tabPageStrategies
 			// 
-			this.tickersUserControl.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.tickersUserControl.Location = new System.Drawing.Point(0, 0);
-			this.tickersUserControl.Name = "tickersUserControl";
-			this.tickersUserControl.Size = new System.Drawing.Size(1337, 733);
-			this.tickersUserControl.TabIndex = 0;
+			this.tabPageStrategies.Controls.Add(this.strategiesUserControl);
+			this.tabPageStrategies.Location = new System.Drawing.Point(4, 25);
+			this.tabPageStrategies.Name = "tabPageStrategies";
+			this.tabPageStrategies.Padding = new System.Windows.Forms.Padding(3);
+			this.tabPageStrategies.Size = new System.Drawing.Size(1337, 733);
+			this.tabPageStrategies.TabIndex = 10;
+			this.tabPageStrategies.Text = "Strategies";
+			this.tabPageStrategies.UseVisualStyleBackColor = true;
+			// 
+			// strategiesUserControl
+			// 
+			this.strategiesUserControl.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.strategiesUserControl.Location = new System.Drawing.Point(3, 3);
+			this.strategiesUserControl.Name = "strategiesUserControl";
+			this.strategiesUserControl.Size = new System.Drawing.Size(1331, 727);
+			this.strategiesUserControl.TabIndex = 0;
 			// 
 			// MainForm
 			// 
@@ -434,6 +457,7 @@
 			this.tlpMain.ResumeLayout(false);
 			this.gbControl.ResumeLayout(false);
 			this.gbControl.PerformLayout();
+			this.tabPageStrategies.ResumeLayout(false);
 			this.ResumeLayout(false);
 
         }
@@ -478,6 +502,8 @@
         private System.Windows.Forms.Label label1;
 		private System.Windows.Forms.TabPage tabPageTicker;
 		private TickersUserControl tickersUserControl;
+		private System.Windows.Forms.TabPage tabPageStrategies;
+		private StrategiesUserControl strategiesUserControl;
 	}
 }
 

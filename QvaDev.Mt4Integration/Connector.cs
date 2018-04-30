@@ -11,6 +11,14 @@ using Bar = QvaDev.Common.Integration.Bar;
 
 namespace QvaDev.Mt4Integration
 {
+	public interface IConnector : Common.Integration.IConnector
+	{
+		Position SendMarketOrderRequest(string symbol, Sides side, double lots, int magicNumber,
+			string comment, int maxRetryCount, int retryPeriodInMilliseconds);
+
+		bool SendClosePositionRequests(Position position, double? lots, int maxRetryCount, int retryPeriodInMilliseconds);
+	}
+
     public class Connector : IConnector
     {
         public class SymbolHistory
@@ -30,14 +38,15 @@ namespace QvaDev.Mt4Integration
         private List<Tuple<string, int, short>> _symbols;
         private IEnumerable<Order> _orderHistory;
 
-        public string Description => _accountInfo?.Description;
+	    public DateTime? ServerTime => QuoteClient?.ServerTime;
+		public string Description => _accountInfo?.Description;
         public bool IsConnected => QuoteClient?.Connected == true;
         public ConcurrentDictionary<long, Position> Positions { get; }
         public event PositionEventHandler OnPosition;
         public event BarHistoryEventHandler OnBarHistory;
         public event TickEventHandler OnTick;
 
-        public QuoteClient QuoteClient;
+		public QuoteClient QuoteClient;
         public OrderClient OrderClient;
 
 		public Connector(ILog log)
@@ -187,9 +196,16 @@ namespace QvaDev.Mt4Integration
         public bool SendClosePositionRequests(string comment, int maxRetryCount , int retryPeriodInMilliseconds)
         {
             foreach (var pos in Positions.Where(p => p.Value.Comment == comment && !p.Value.IsClosed))
-                return SendClosePositionRequests(pos.Value, null, maxRetryCount, retryPeriodInMilliseconds);
+                SendClosePositionRequests(pos.Value, null, maxRetryCount, retryPeriodInMilliseconds);
 			return true;
 		}
+
+	    public bool SendClosePositionRequests(List<Position> positions, int maxRetryCount, int retryPeriodInMilliseconds)
+	    {
+		    foreach (var pos in positions)
+			    SendClosePositionRequests(pos, null, maxRetryCount, retryPeriodInMilliseconds);
+		    return true;
+	    }
 
 		public bool SendClosePositionRequests(Position position, double? lots = null)
 		{

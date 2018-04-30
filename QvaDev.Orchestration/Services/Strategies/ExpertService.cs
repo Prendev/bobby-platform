@@ -10,23 +10,23 @@ using QvaDev.Data.Models;
 using QvaDev.Experts.Quadro.Services;
 using QvaDev.Mt4Integration;
 
-namespace QvaDev.Orchestration.Services
+namespace QvaDev.Orchestration.Services.Strategies
 {
 
-    public interface IExpertService
+    public interface IFrpService
     {
         Task Start(DuplicatContext duplicatContext);
         void Stop();
     }
 
-    public class ExpertService : IExpertService
+    public class FrpService : IFrpService
     {
         private bool _isStarted;
         private readonly ILog _log;
         private readonly IQuadroService _quadroService;
         private IEnumerable<TradingAccount> _tradingAccounts;
 
-        public ExpertService(
+        public FrpService(
             IQuadroService quadroService,
             ILog log)
         {

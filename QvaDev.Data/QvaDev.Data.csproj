@@ -88,6 +88,7 @@
     <Compile Include="Models\IFilterableEntity.cs" />
     <Compile Include="Models\Monitor.cs" />
     <Compile Include="Models\MonitoredAccount.cs" />
+    <Compile Include="Models\StratDealingArb.cs" />
     <Compile Include="Models\Ticker.cs" />
     <Compile Include="Models\Slave.cs" />
     <Compile Include="Models\MetaTraderPlatform.cs" />

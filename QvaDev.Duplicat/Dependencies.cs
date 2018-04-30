@@ -10,6 +10,7 @@ using QvaDev.Duplicat.Views;
 using QvaDev.Experts.Quadro.Services;
 using QvaDev.Orchestration;
 using QvaDev.Orchestration.Services;
+using QvaDev.Orchestration.Services.Strategies;
 using ExchangeRatesService = QvaDev.Common.Services.ExchangeRatesService;
 using IExchangeRatesService = QvaDev.Common.Services.IExchangeRatesService;
 
@@ -27,6 +28,7 @@ namespace QvaDev.Duplicat
         private static void Register(ContainerBuilder builder)
         {
             RegisterApp(builder);
+	        RegisterCommon(builder);
             RegisterData(builder);
             RegisterOrchestration(builder);
             RegisterExperts(builder);
@@ -38,9 +40,17 @@ namespace QvaDev.Duplicat
             builder.RegisterType<MainForm>().AsSelf().InstancePerLifetimeScope();
             builder.RegisterType<ViewModel.DuplicatViewModel>().AsSelf().InstancePerLifetimeScope();
             builder.Register((c, p) => new Func<SynchronizationContext>(() => SynchronizationContext.Current));
-        }
+		}
 
-        private static void RegisterData(ContainerBuilder builder)
+	    private static void RegisterCommon(ContainerBuilder builder)
+		{
+			builder.RegisterType<RndService>().As<IRndService>();
+			builder.RegisterType<ThreadService>().As<IThreadService>();
+			builder.RegisterType<XmlService>().As<IXmlService>();
+		    builder.RegisterType<ExchangeRatesService>().As<IExchangeRatesService>();
+		}
+
+		private static void RegisterData(ContainerBuilder builder)
         {
             builder.RegisterType<MetaTraderPlatformRepository>().As<IMetaTraderPlatformRepository>();
             builder.RegisterType<XmlService>().As<IXmlService>();
@@ -52,14 +62,14 @@ namespace QvaDev.Duplicat
             builder.RegisterType<ConnectorFactory>().As<IConnectorFactory>();
             builder.RegisterType<TradingAccountsService>().As<ITradingAccountsService>();
             builder.RegisterType<RestService>().As<IRestService>();
-            builder.RegisterType<ExchangeRatesService>().As<IExchangeRatesService>();
             builder.RegisterType<BalanceReportService>().As<IBalanceReportService>();
             builder.RegisterType<CopierService>().As<ICopierService>();
             builder.RegisterType<MonitorServices>().As<IMonitorServices>();
-            builder.RegisterType<ExpertService>().As<IExpertService>();
+            builder.RegisterType<FrpService>().As<IFrpService>();
             builder.RegisterType<PushingService>().As<IPushingService>();
             builder.RegisterType<ReportService>().As<IReportService>();
 			builder.RegisterType<TickerService>().As<ITickerService>();
+			builder.RegisterType<StrategiesService>().As<IStrategiesService>();
 		}
 
         private static void RegisterExperts(ContainerBuilder builder)
