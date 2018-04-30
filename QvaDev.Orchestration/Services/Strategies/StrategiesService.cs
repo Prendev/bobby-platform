@@ -109,8 +109,8 @@ namespace QvaDev.Orchestration.Services.Strategies
 			    (mtPositions.Count == 0 || mtPositions.First().Side == Sides.Sell)) // Future long
 			{
 				if(!OpenMtPosition(arb, Sides.Sell))
-
 					_log.Error($"{arb.Description} arb failed to open MT4 short!!!");
+
 				ftConnector.SendMarketOrderRequest(arb.FtSymbol, Sides.Buy, arb.ContractSize, ftTick.Ask.ToString("F2"));
 				_log.Info($"{arb.Description} arb MT4 short, FT long opened!!!");
 			}
@@ -129,10 +129,11 @@ namespace QvaDev.Orchestration.Services.Strategies
 		{
 			var diffInPip = arb.SignalDiffInPip;
 			if (mtPositions.Count == 0) return diffInPip;
-
 			var lastPos = mtPositions.Last();
+
 			if (lastPos.Side == Sides.Sell) // Future long
 				diffInPip = (lastPos.OpenPrice - Double.Parse(lastPos.Comment)) / arb.PipSize + mtPositions.Count * arb.SignalStepInPip;
+
 			else if (lastPos.Side == Sides.Buy) // Future short
 				diffInPip = (Double.Parse(lastPos.Comment) - lastPos.OpenPrice) / arb.PipSize + mtPositions.Count * arb.SignalStepInPip;
 
@@ -144,7 +145,6 @@ namespace QvaDev.Orchestration.Services.Strategies
 			if (!mtPositions.Any()) return;
 			var ftConnector = (FtConnector)arb.FtAccount.Connector;
 			var mtConnector = (MtConnector)arb.MtAccount.Connector;
-
 			var ftTick = ftConnector.GetLastTick(arb.FtSymbol);
 			var mtTick = mtConnector.GetLastTick(arb.MtSymbol);
 
