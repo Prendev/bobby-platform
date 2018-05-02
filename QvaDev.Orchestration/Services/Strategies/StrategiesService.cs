@@ -5,10 +5,10 @@ using log4net;
 using QvaDev.Common.Integration;
 using QvaDev.Data;
 using QvaDev.Data.Models;
-using QvaDev.FixTraderIntegration;
 using IConnector = QvaDev.Common.Integration.IConnector;
 using FtConnector = QvaDev.FixTraderIntegration.Connector;
 using MtConnector = QvaDev.Mt4Integration.Connector;
+using System.Threading.Tasks;
 
 namespace QvaDev.Orchestration.Services.Strategies
 {
@@ -65,30 +65,36 @@ namespace QvaDev.Orchestration.Services.Strategies
 		private void Connector_OnTick(object sender, TickEventArgs e)
 		{
 			if (!_isStarted) return;
-			var connector = (IConnector) sender;
+			var connector = (IConnector)sender;
 
 			foreach (var arb in _arbs)
 			{
-				var ftConnector = (FtConnector)arb.FtAccount.Connector;
-				var mtConnector = (MtConnector)arb.MtAccount.Connector;
-				if (ftConnector == connector && arb.FtSymbol != e.Tick.Symbol) continue;
-				if (mtConnector == connector && arb.MtSymbol != e.Tick.Symbol) continue;
+				Task.Factory.StartNew(() =>
+				{
+					var ftConnector = (FtConnector)arb.FtAccount.Connector;
+					var mtConnector = (MtConnector)arb.MtAccount.Connector;
+					if (ftConnector == connector && arb.FtSymbol != e.Tick.Symbol) return;
+					if (mtConnector == connector && arb.MtSymbol != e.Tick.Symbol) return;
 
-				var ftTick = ftConnector.GetLastTick(arb.FtSymbol);
-				var mtTick = mtConnector.GetLastTick(arb.MtSymbol);
+					var ftTick = ftConnector.GetLastTick(arb.FtSymbol);
+					var mtTick = mtConnector.GetLastTick(arb.MtSymbol);
 
-				if (ftTick == null || mtTick == null) continue;
-				if (ftTick.Ask == 0 || ftTick.Bid == 0 || mtTick.Ask == 0 || mtTick.Bid == 0) continue;
-				if (DateTime.UtcNow - ftTick.Time > new TimeSpan(0, 1, 0)) continue;
-				if (DateTime.UtcNow - mtTick.Time > new TimeSpan(0, 1, 0)) continue;
+					if (ftTick == null || mtTick == null) return;
+					if (ftTick.Ask == 0 || ftTick.Bid == 0 || mtTick.Ask == 0 || mtTick.Bid == 0) return;
+					if (DateTime.UtcNow - ftTick.Time > new TimeSpan(0, 1, 0)) return;
+					if (DateTime.UtcNow - mtTick.Time > new TimeSpan(0, 1, 0)) return;
 
-				var mtPositions = mtConnector.Positions
-					.Where(p => p.Value.MagicNumber == arb.MagicNumber && p.Value.Symbol == arb.MtSymbol && !p.Value.IsClosed)
-					.Select(p => p.Value)
-					.ToList();
+					var mtPositions = mtConnector.Positions
+						.Where(p => p.Value.MagicNumber == arb.MagicNumber && p.Value.Symbol == arb.MtSymbol && !p.Value.IsClosed)
+						.Select(p => p.Value)
+						.ToList();
 
-				CheckOpen(arb, mtPositions);
-				CheckClose(arb, mtPositions);
+					lock (arb)
+					{
+						CheckOpen(arb, mtPositions);
+						CheckClose(arb, mtPositions);
+					}
+				});
 			}
 		}
 
@@ -108,19 +114,39 @@ namespace QvaDev.Orchestration.Services.Strategies
 			if ((mtTick.Bid - ftTick.Ask) / arb.PipSize > diffInPip &&
 			    (mtPositions.Count == 0 || mtPositions.First().Side == Sides.Sell)) // Future long
 			{
-				if(!OpenMtPosition(arb, Sides.Sell))
+				var pos = OpenMtPosition(arb, Sides.Sell, ftTick.Ask.ToString("F2"));
+				if (pos == null)
+				{
 					_log.Error($"{arb.Description} arb failed to open MT4 short!!!");
+					return;
+				}
 
-				ftConnector.SendMarketOrderRequest(arb.FtSymbol, Sides.Buy, arb.ContractSize, ftTick.Ask.ToString("F2"));
+				var opened = ftConnector.SendMarketOrderRequest(arb.FtSymbol, Sides.Buy, arb.ContractSize);
+				if (opened == 0)
+				{
+					mtConnector.SendClosePositionRequests(pos, null, arb.MaxRetryCount, arb.RetryPeriodInMilliseconds);
+					_log.Error($"{arb.Description} arb failed to open FT long!!!");
+					return;
+				}
 				_log.Info($"{arb.Description} arb MT4 short, FT long opened!!!");
 			}
 			else if ((ftTick.Bid - mtTick.Ask) / arb.PipSize > diffInPip &&
 				(mtPositions.Count == 0 || mtPositions.First().Side == Sides.Buy)) // Future short
 			{
-				if (!OpenMtPosition(arb, Sides.Buy))
+				var pos = OpenMtPosition(arb, Sides.Buy, ftTick.Bid.ToString("F2"));
+				if (pos == null)
+				{
 					_log.Error($"{arb.Description} arb failed to open MT4 long!!!");
+					return;
+				}
 
-				ftConnector.SendMarketOrderRequest(arb.FtSymbol, Sides.Sell, arb.ContractSize, ftTick.Bid.ToString("F2"));
+				var opened = ftConnector.SendMarketOrderRequest(arb.FtSymbol, Sides.Sell, arb.ContractSize);
+				if (opened == 0)
+				{
+					mtConnector.SendClosePositionRequests(pos, null, arb.MaxRetryCount, arb.RetryPeriodInMilliseconds);
+					_log.Error($"{arb.Description} arb failed to open FT short!!!");
+					return;
+				}
 				_log.Info($"{arb.Description} arb MT4 long, FT short opened!!!");
 			}
 		}
@@ -130,6 +156,7 @@ namespace QvaDev.Orchestration.Services.Strategies
 			var diffInPip = arb.SignalDiffInPip;
 			if (mtPositions.Count == 0) return diffInPip;
 			var lastPos = mtPositions.Last();
+			if (!Double.TryParse(lastPos.Comment, out var d)) return 0;
 
 			if (lastPos.Side == Sides.Sell) // Future long
 				diffInPip = (lastPos.OpenPrice - Double.Parse(lastPos.Comment)) / arb.PipSize + mtPositions.Count * arb.SignalStepInPip;
@@ -149,7 +176,7 @@ namespace QvaDev.Orchestration.Services.Strategies
 			var mtTick = mtConnector.GetLastTick(arb.MtSymbol);
 
 			// Close if not enough future contracts
-			if (ftConnector.GetOpenContracts(arb.FtSymbol) < arb.ContractSize * mtPositions.Count)
+			if (Math.Abs(ftConnector.GetSymbolInfo(arb.FtSymbol).SumContracts) < arb.ContractSize * mtPositions.Count)
 			{
 				mtConnector.SendClosePositionRequests(mtPositions, arb.MaxRetryCount, arb.RetryPeriodInMilliseconds);
 				_log.Error($"{arb.Description} arb mismatching sides close, not enough futures!!!");
@@ -183,11 +210,10 @@ namespace QvaDev.Orchestration.Services.Strategies
 			return 0;
 		}
 
-		private bool OpenMtPosition(StratDealingArb arb, Sides side)
+		private Position OpenMtPosition(StratDealingArb arb, Sides side, string comment)
 		{
 			var mtConnector = (MtConnector)arb.MtAccount.Connector;
-			var pos = mtConnector.SendMarketOrderRequest(arb.MtSymbol, side, arb.Lots, arb.MagicNumber, null, arb.MaxRetryCount, arb.RetryPeriodInMilliseconds);
-			return pos != null;
+			return mtConnector.SendMarketOrderRequest(arb.MtSymbol, side, arb.Lots, arb.MagicNumber, comment, arb.MaxRetryCount, arb.RetryPeriodInMilliseconds);
 		}
 	}
 }
