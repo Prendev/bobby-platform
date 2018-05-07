@@ -389,8 +389,9 @@ namespace QvaDev.Data
                     FutureOpenDelayInMs = 50,
                     MinIntervalInMs = 50,
                     MaxIntervalInMs = 100,
-                    MasterLots = 1,
-                    HedgeLots = 2,
+                    AlphaLots = 1,
+	                BetaLots = 1,
+					HedgeLots = 2,
                     HedgeSignalContractLimit = -20,
                     MasterSignalContractLimit = -30,
                     FullContractSize = 200

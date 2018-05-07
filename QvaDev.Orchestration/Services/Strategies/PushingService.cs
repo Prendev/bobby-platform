@@ -36,7 +36,7 @@ namespace QvaDev.Orchestration.Services.Strategies
 		{
 			var betaConnector = (MtConnector)pushing.BetaMaster.Connector;
 			// Open first side and wait a bit
-			pushing.BetaPosition = betaConnector.SendMarketOrderRequest(pushing.BetaSymbol, pushing.BetaOpenSide, pushing.PushingDetail.MasterLots, 0,
+			pushing.BetaPosition = betaConnector.SendMarketOrderRequest(pushing.BetaSymbol, pushing.BetaOpenSide, pushing.PushingDetail.BetaLots, 0,
 				null, pushing.PushingDetail.MaxRetryCount, pushing.PushingDetail.RetryPeriodInMilliseconds);
 
 			if (pushing.BetaPosition == null)
@@ -64,7 +64,7 @@ namespace QvaDev.Orchestration.Services.Strategies
 				// Rush
 				if (pushing.InPanic || PriceLimitReached(pushing, pushing.BetaOpenSide)) break;
 			}
-			pushing.AlphaPosition = alphaConnector.SendMarketOrderRequest(pushing.AlphaSymbol, InvSide(pushing.BetaOpenSide), pd.MasterLots, 0,
+			pushing.AlphaPosition = alphaConnector.SendMarketOrderRequest(pushing.AlphaSymbol, InvSide(pushing.BetaOpenSide), pd.AlphaLots, 0,
 				null, pushing.PushingDetail.MaxRetryCount, pushing.PushingDetail.RetryPeriodInMilliseconds);
 
 			if (pushing.AlphaPosition == null)

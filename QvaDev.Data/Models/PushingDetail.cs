@@ -16,8 +16,9 @@ namespace QvaDev.Data.Models
         public int HedgeSignalContractLimit { get; set; }
         public int MasterSignalContractLimit { get; set; }
         public int FullContractSize { get; set; }
-        public double MasterLots { get; set; }
-        public double HedgeLots { get; set; }
+        public double AlphaLots { get; set; }
+	    public double BetaLots { get; set; }
+		public double HedgeLots { get; set; }
 		public int MaxRetryCount { get; set; }
 		public int RetryPeriodInMilliseconds { get; set; }
 

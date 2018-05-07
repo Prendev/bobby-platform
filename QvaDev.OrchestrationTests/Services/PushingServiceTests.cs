@@ -5,7 +5,6 @@ using QvaDev.Common.Integration;
 using QvaDev.Common.Services;
 using QvaDev.Data.Models;
 using QvaDev.FixTraderIntegration;
-using QvaDev.Orchestration.Services;
 using QvaDev.Orchestration.Services.Strategies;
 using FtConnector = QvaDev.FixTraderIntegration.IConnector;
 using MtConnector = QvaDev.Mt4Integration.IConnector;
@@ -67,7 +66,7 @@ namespace QvaDev.OrchestrationTests.Services
 			PushingService.OpeningBeta(pushing);
 
 			// Assert
-			BetaConnectorMock.Verify(m => m.SendMarketOrderRequest("betaDummySymbol", Sides.Sell, 0.123, 0, null, 7, 123), Times.Once);
+			BetaConnectorMock.Verify(m => m.SendMarketOrderRequest("betaDummySymbol", Sides.Sell, 0.345, 0, null, 7, 123), Times.Once);
 			ThreadServiceMock.Verify(m => m.Sleep(4321), Times.Once);
 		}
 
@@ -329,7 +328,8 @@ namespace QvaDev.OrchestrationTests.Services
 				HedgeAccount = new MetaTraderAccount() { Connector = HedgeConnectorMock.Object },
 				PushingDetail = new PushingDetail()
 				{
-					MasterLots = 0.123,
+					AlphaLots = 0.123,
+					BetaLots = 0.345,
 					MaxRetryCount = 7,
 					RetryPeriodInMilliseconds = 123,
 					FutureOpenDelayInMs = 4321,
