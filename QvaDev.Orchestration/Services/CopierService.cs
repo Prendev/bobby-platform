@@ -85,8 +85,10 @@ namespace QvaDev.Orchestration.Services
                 : e.Position.Symbol + (slave.SymbolSuffix ?? "");
 
             var tasks = slave.Copiers.Select(copier => Task.Factory.StartNew(() =>
-            {
-                var volume = (long)(100 * Math.Abs(e.Position.RealVolume) * copier.CopyRatio);
+			{
+				if (copier.DelayInMilliseconds > 0) Thread.Sleep(copier.DelayInMilliseconds);
+
+				var volume = (long)(100 * Math.Abs(e.Position.RealVolume) * copier.CopyRatio);
                 if (e.Action == PositionEventArgs.Actions.Open && copier.UseMarketRangeOrder)
                     slaveConnector.SendMarketRangeOrderRequest(symbol, type, volume, e.Position.OpenPrice,
                         copier.SlippageInPips, $"{slave.Id}-{e.Position.Id}", copier.MaxRetryCount, copier.RetryPeriodInMilliseconds);
@@ -96,6 +98,7 @@ namespace QvaDev.Orchestration.Services
                 else if (e.Action == PositionEventArgs.Actions.Close)
                     slaveConnector.SendClosePositionRequests($"{slave.Id}-{e.Position.Id}",
                         copier.MaxRetryCount, copier.RetryPeriodInMilliseconds);
+
             }, TaskCreationOptions.LongRunning));
             return Task.WhenAll(tasks);
         }

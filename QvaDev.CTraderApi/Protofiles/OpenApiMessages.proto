@@ -1,10 +1,12 @@
 option java_multiple_files = true;
+
 option java_generate_equals_and_hash = true;
+
 option java_package = "com.xtrader.protocol.proto.openapi";
+
 option java_outer_classname = "ContainerOpenApiMessages";
 
 import "OpenApiModelMessages.proto";
-import "CommonModelMessages.proto";
 
 //+------------------------------------------------------------------+
 //|                  Open Trading API Messages                       |
@@ -93,6 +95,7 @@ message ProtoOACreateOrderReq {
     optional int64 positionId = 18;
     optional ProtoTimeInForce timeInForce = 19;
     optional string clientOrderId = 20;
+    optional int32 slippageInPoints = 21;
 }
 
 /** Cancel pending order request*/
@@ -200,4 +203,16 @@ message ProtoOASpotEvent {
     optional double askPrice = 5;
     repeated ProtoOATrendbar trendbar = 6;
     required int64 timestamp = 7;
+}
+
+/** Open API Ping request */
+message ProtoOAPingReq {
+    optional ProtoOAPayloadType payloadType = 1 [default = OA_PING_REQ];
+    required int64 timestamp = 2;
+}
+
+/** Open API Ping response */
+message ProtoOAPingRes {
+    optional ProtoOAPayloadType payloadType = 1 [default = OA_PING_RES];
+    required int64 timestamp = 2;
 }

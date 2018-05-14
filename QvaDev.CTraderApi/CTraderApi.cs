@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using log4net;
+using SocketException = System.Net.Sockets.SocketException;
 
 namespace QvaDev.CTraderApi
 {
@@ -24,17 +25,32 @@ namespace QvaDev.CTraderApi
         private readonly ILog _log;
 
         private SslStream _sslStream;
-        private Task _parseTask;
+	    private Task _pingTask;
+		private Task _parseTask;
         private Task _inputTask;
         private Task _outputTask;
-        private CancellationTokenSource _cancellationTokenSource;
+		private CancellationTokenSource _cancellationTokenSource;
+	    private ConnectionDetails _connectionDetails;
 
-        public bool Debug { get; set; }
+	    public bool Debug { get; set; }
 
-        //-------------------------------------------------------------------------------------------------
-        //////////////////////////////////////////// THREADS //////////////////////////////////////////////
-        //-------------------------------------------------------------------------------------------------
-        public string GetHexadecimal(byte[] byteArray)
+//-------------------------------------------------------------------------------------------------
+//////////////////////////////////////////// THREADS //////////////////////////////////////////////
+//-------------------------------------------------------------------------------------------------
+		// pinging thread
+	    void Ping(object state)
+		{
+			Thread.Sleep(20000);
+			var token = (CancellationToken)state;
+			while (!token.IsCancellationRequested)
+			{
+			    Thread.Sleep(5000);
+				SendHearthbeatRequest();
+		    }
+	    }
+
+//-------------------------------------------------------------------------------------------------
+		public string GetHexadecimal(byte[] byteArray)
         {
             var hex = new StringBuilder(byteArray.Length * 2);
             foreach (var b in byteArray)
@@ -44,80 +60,82 @@ namespace QvaDev.CTraderApi
 
 //-------------------------------------------------------------------------------------------------
         // listening thread
-        void Listen()
+        void Listen(object state)
         {
-            var _length = new byte[sizeof(int)];
-            while (!_cancellationTokenSource.Token.IsCancellationRequested)
-            {
-                try
-                {
-                    Thread.Sleep(1);
+	        var token = (CancellationToken) state;
+            var lengthMessage = new byte[sizeof(int)];
+			while (!token.IsCancellationRequested)
+			{
+				try
+				{
+					Thread.Sleep(1);
 
-                    int readBytes = 0;
-                    do
-                    {
-                        Thread.Sleep(1);
-                        readBytes += _sslStream.Read(_length, readBytes, _length.Length - readBytes);
-                    } while (readBytes < _length.Length);
+					var readBytes = 0;
+					while (readBytes < lengthMessage.Length)
+					{
+						Thread.Sleep(1);
+						readBytes += _sslStream.Read(lengthMessage, readBytes, lengthMessage.Length - readBytes);
+					}
 
-                    int length = BitConverter.ToInt32(_length.Reverse().ToArray(), 0);
-                    if (length <= 0)
-                        continue;
+					var length = BitConverter.ToInt32(lengthMessage.Reverse().ToArray(), 0);
+					if (length <= 0) continue;
+					if (length > MaxSiz) throw new IndexOutOfRangeException();
 
-                    if (length > MaxSiz)
-                        throw new IndexOutOfRangeException();
+					if (Debug) _log.Debug($"Data received: {GetHexadecimal(lengthMessage)}");
 
-                    byte[] message = new byte[length];
-                    if (Debug) _log.Debug($"Data received: {GetHexadecimal(_length)}");
-                    readBytes = 0;
-                    do
-                    {
-                        Thread.Sleep(1);
-                        readBytes += _sslStream.Read(message, readBytes, message.Length - readBytes);
-                    } while (readBytes < length);
-                    if (Debug) _log.Debug($"Data received: {GetHexadecimal(message)}");
+					var dataMessage = new byte[length];
+					readBytes = 0;
+					while (readBytes < length)
+					{
+						Thread.Sleep(1);
+						readBytes += _sslStream.Read(dataMessage, readBytes, dataMessage.Length - readBytes);
+					}
 
-                    _readQueue.Enqueue(message);
-                }
-                catch (Exception e)
-                {
-                    _log.Error("Listener throws exception: {0}", e);
-                }
-            }
-        }
+					if (Debug) _log.Debug($"Data received: {GetHexadecimal(dataMessage)}");
+
+					_readQueue.Enqueue(dataMessage);
+				}
+				catch (Exception e)
+				{
+					_log.Error("Listener throws exception: {0}", e);
+					Reconnect();
+				}
+			}
+		}
 
 //-------------------------------------------------------------------------------------------------
         // sending thread
-        void Transmit()
-        {
-            while (!_cancellationTokenSource.Token.IsCancellationRequested)
+        void Transmit(object state)
+		{
+			var token = (CancellationToken)state;
+			while (!token.IsCancellationRequested)
             {
                 try
                 {
                     Thread.Sleep(1);
+                    if (!_writeQueue.TryDequeue(out var dataMessage)) continue;
 
-                    byte[] message;
-                    if (!_writeQueue.TryDequeue(out message)) continue;
+                    var lengthMessage = BitConverter.GetBytes(dataMessage.Length).Reverse().ToArray();
+                    _sslStream.Write(lengthMessage);
+                    _sslStream.Write(dataMessage);
 
-                    byte[] length = BitConverter.GetBytes(message.Length).Reverse().ToArray();
-
-                    _sslStream.Write(length);
-                    if (Debug) _log.Debug($"Data sent: {GetHexadecimal(length)}");
-                    _sslStream.Write(message);
-                    if (Debug) _log.Debug($"Data sent: {GetHexadecimal(message)}");
+	                if (Debug) _log.Debug($"Data sent: {GetHexadecimal(lengthMessage)}");
+					if (Debug) _log.Debug($"Data sent: {GetHexadecimal(dataMessage)}");
                 }
                 catch (Exception e)
                 {
                     _log.Error("Transmitter throws exception: {0}", e);
+	                Reconnect();
                 }
             }
         }
 
 //-------------------------------------------------------------------------------------------------
         // received data parsing thread
-        private void IncomingDataProcessing()
-        {
-            while (!_cancellationTokenSource.Token.IsCancellationRequested)
+        private void IncomingDataProcessing(object state)
+		{
+			var token = (CancellationToken)state;
+			while (!token.IsCancellationRequested)
             {
                 try
                 {
@@ -296,6 +314,14 @@ namespace QvaDev.CTraderApi
         }
 
 //-------------------------------------------------------------------------------------------------
+        public void SendHearthbeatRequest(string clientMsgId = null)
+        {
+            var msg = _outMsgFactory.CreateHeartbeatEvent(clientMsgId);
+            if (Debug)
+                _log.Debug($"SendHearthbeatRequest() Message to be send:\n{MessagesPresentation.ToString(msg)}");
+            _writeQueue.Enqueue(msg.ToByteArray());
+        }
+//-------------------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------------------
         public CTraderClient(ILog log)
         {
@@ -312,37 +338,54 @@ namespace QvaDev.CTraderApi
         }
 
 //-------------------------------------------------------------------------------------------------
-        public bool Connect(string host, int port = 5032)
+        public bool Connect(ConnectionDetails cd)
         {
-            _cancellationTokenSource = new CancellationTokenSource();
-            _parseTask = new Task(IncomingDataProcessing, _cancellationTokenSource.Token, TaskCreationOptions.LongRunning);
-            _inputTask = new Task(Listen, _cancellationTokenSource.Token, TaskCreationOptions.LongRunning);
-            _outputTask = new Task(Transmit, _cancellationTokenSource.Token, TaskCreationOptions.LongRunning);
+	        _connectionDetails = cd;
+	        _cancellationTokenSource = new CancellationTokenSource();
+			_pingTask = new Task(Ping, _cancellationTokenSource.Token, _cancellationTokenSource.Token,
+				TaskCreationOptions.LongRunning);
+			_parseTask = new Task(IncomingDataProcessing, _cancellationTokenSource.Token, _cancellationTokenSource.Token,
+		        TaskCreationOptions.LongRunning);
+	        _inputTask = new Task(Listen, _cancellationTokenSource.Token, _cancellationTokenSource.Token,
+		        TaskCreationOptions.LongRunning);
+	        _outputTask = new Task(Transmit, _cancellationTokenSource.Token, _cancellationTokenSource.Token,
+		        TaskCreationOptions.LongRunning);
 
             try
             {
-                var client = new TcpClient(host, port);
+                var client = new TcpClient(cd.TradingHost, cd.Port);
                 _sslStream = new SslStream(client.GetStream(), false, ValidateServerCertificate, null);
-                _sslStream.AuthenticateAsClient(host);
+                _sslStream.AuthenticateAsClient(cd.TradingHost);
                 _sslStream.Flush();
 
-                _parseTask.Start();
+	            _pingTask.Start();
+				_parseTask.Start();
                 _inputTask.Start();
                 _outputTask.Start();
-            }
+
+	            SendAuthorizationRequest(cd.ClientId, cd.Secret);
+			}
             catch (Exception e)
             {
                 if (Debug) _log.Error("Establishing SSL connection error: {0}", e);
                 return false;
-            }
-            return true;
+			}
+	        _log.Debug($"{cd.Description} cTrader platform connected");
+			return true;
         }
 
         public void Disconnect()
         {
             _cancellationTokenSource.Cancel();
-        }
+		}
 
-//-------------------------------------------------------------------------------------------------
-    }
+		public void Reconnect()
+		{
+			_log.Debug($"{_connectionDetails.Description} cTrader platform reconnect...");
+			Disconnect();
+			Connect(_connectionDetails);
+		}
+
+		//-------------------------------------------------------------------------------------------------
+	}
 }

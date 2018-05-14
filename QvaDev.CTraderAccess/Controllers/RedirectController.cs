@@ -33,7 +33,7 @@ namespace QvaDev.CTraderAccess.Controllers
             var platforms = new List<CTraderPlatform>();
             try
             {
-                var fullPath = System.Web.Hosting.HostingEnvironment.MapPath(@"~/cTraderPlatforms.xml");
+                var fullPath = System.Web.Hosting.HostingEnvironment.MapPath(@"~/Config/cTraderPlatforms.xml");
                 var xmlService = new XmlService(null);
                 platforms = xmlService.DeserializeXmlFile<List<CTraderPlatform>>(fullPath);
             }

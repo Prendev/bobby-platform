@@ -15,17 +15,13 @@ namespace QvaDev.CTraderIntegration
         {
             PlatformInfo = platformInfo;
             CTraderClient = new CTraderClient(log);
-            IsConnected = CTraderClient.Connect(platformInfo.TradingHost);
-            if (!IsConnected)
-            {
-                log.Error($"{platformInfo.Description} cTrader platform FAILED to connect");
-                return;
-            }
-            CTraderClient.SendAuthorizationRequest(platformInfo.ClientId, platformInfo.Secret);
-
-            log.Debug($"{platformInfo.Description} cTrader platform connected");
-
-            log.Debug($"{platformInfo.Description} cTrader platform accounts acquired");
+	        IsConnected = CTraderClient.Connect(new ConnectionDetails()
+	        {
+		        Description = platformInfo.Description,
+		        ClientId = platformInfo.ClientId,
+		        TradingHost = platformInfo.TradingHost,
+		        Secret = platformInfo.Secret
+	        });
         }
     }
 }

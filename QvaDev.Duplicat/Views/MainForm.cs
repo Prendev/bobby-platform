@@ -20,7 +20,6 @@ namespace QvaDev.Duplicat.Views
             InitializeComponent();
             TextBoxAppender.ConfigureTextBoxAppender(textBoxLog);
 
-			tabControlMain.TabPages.Remove(tabPageCTrader);
 			tabControlMain.TabPages.Remove(tabPageMonitor);
 			tabControlMain.TabPages.Remove(tabPageQuadro);
 		}

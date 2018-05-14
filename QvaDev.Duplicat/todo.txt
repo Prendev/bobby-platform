@@ -15,3 +15,7 @@ C:\Windows\System32\inetsrv\config
 
 LocalDB
 https://www.microsoft.com/en-us/download/details.aspx?id=42299
+
+Put CTraderAccess under IIS
+C:\inetpub\wwwroot\QvaDev.CTraderAccess
+Full Access to IIS_IUSRS

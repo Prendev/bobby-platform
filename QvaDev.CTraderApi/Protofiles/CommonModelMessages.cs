@@ -40,9 +40,12 @@ public static partial class CommonModelMessages {
           "TElEX1JFUVVFU1QQAxISCg5XUk9OR19QQVNTV09SRBAEEhEKDVRJTUVPVVRf", 
           "RVJST1IQBRIUChBFTlRJVFlfTk9UX0ZPVU5EEAYSFgoSQ0FOVF9ST1VURV9S", 
           "RVFVRVNUEAcSEgoORlJBTUVfVE9PX0xPTkcQCBIRCg1NQVJLRVRfQ0xPU0VE", 
-          "EAkSGwoXQ09OQ1VSUkVOVF9NT0RJRklDQVRJT04QCkJNCihjb20ueHRyYWRl", 
-          "ci5wcm90b2NvbC5wcm90by5jb21tb25zLm1vZGVsQhxDb250YWluZXJDb21t", 
-        "b25Nb2RlbE1lc3NhZ2VzUAGgAQE="));
+          "EAkSGwoXQ09OQ1VSUkVOVF9NT0RJRklDQVRJT04QCiojCg5Qcm90b1RyYWRl", 
+          "U2lkZRIHCgNCVVkQARIICgRTRUxMEAIqIgoOUHJvdG9RdW90ZVR5cGUSBwoD", 
+          "QklEEAESBwoDQVNLEAIqVQoQUHJvdG9UaW1lSW5Gb3JjZRISCg5HT09EX1RJ", 
+          "TExfREFURRABEhQKEEdPT0RfVElMTF9DQU5DRUwQAhIXChNJTU1FRElBVEVf", 
+          "T1JfQ0FOQ0VMEANCTQooY29tLnh0cmFkZXIucHJvdG9jb2wucHJvdG8uY29t", 
+        "bW9ucy5tb2RlbEIcQ29udGFpbmVyQ29tbW9uTW9kZWxNZXNzYWdlc1ABoAEB"));
     pbd::FileDescriptor.InternalDescriptorAssigner assigner = delegate(pbd::FileDescriptor root) {
       descriptor = root;
       internal__static_ProtoIntRange__Descriptor = Descriptor.MessageTypes[0];
@@ -86,6 +89,22 @@ public enum ProtoErrorCode {
   MARKET_CLOSED = 9,
   CONCURRENT_MODIFICATION = 10,
 }
+
+//public enum ProtoTradeSide {
+//  BUY = 1,
+//  SELL = 2,
+//}
+
+//public enum ProtoQuoteType {
+//  BID = 1,
+//  ASK = 2,
+//}
+
+//public enum ProtoTimeInForce {
+//  GOOD_TILL_DATE = 1,
+//  GOOD_TILL_CANCEL = 2,
+//  IMMEDIATE_OR_CANCEL = 3,
+//}
 
 #endregion
 
