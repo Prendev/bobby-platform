@@ -16,7 +16,10 @@ namespace QvaDev.Data.Models
         public int? MetaTraderAccountId { get; set; }
         public MetaTraderAccount MetaTraderAccount { get; set; }
 
-        public string SymbolSuffix { get; set; }
+	    public int? FixTraderAccountId { get; set; }
+	    public FixTraderAccount FixTraderAccount { get; set; }
+
+		public string SymbolSuffix { get; set; }
 
         public List<SymbolMapping> SymbolMappings { get => Get(() => new List<SymbolMapping>()); set => Set(value, false); }
         public List<Copier> Copiers { get => Get(() => new List<Copier>()); set => Set(value, false); }

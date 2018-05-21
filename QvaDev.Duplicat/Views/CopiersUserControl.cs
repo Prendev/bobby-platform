@@ -53,8 +53,9 @@ namespace QvaDev.Duplicat.Views
             dgvSlaves.AddComboBoxColumn(_viewModel.Masters);
             dgvSlaves.AddComboBoxColumn(_viewModel.MtAccounts);
             dgvSlaves.AddComboBoxColumn(_viewModel.CtAccounts);
+	        dgvSlaves.AddComboBoxColumn(_viewModel.FtAccounts);
 
-            dgvMasters.DataSource = _viewModel.Masters.ToBindingList();
+			dgvMasters.DataSource = _viewModel.Masters.ToBindingList();
             dgvSlaves.DataSource = _viewModel.Slaves.ToBindingList();
 
             dgvSymbolMappings.DataSource = _viewModel.SymbolMappings.ToBindingList();

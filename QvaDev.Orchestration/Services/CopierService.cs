@@ -32,7 +32,8 @@ namespace QvaDev.Orchestration.Services
             _masters = duplicatContext.Copiers.Local
                 .Where(c => c.Slave.Master.MetaTraderAccount.State == BaseAccountEntity.States.Connected)
                 .Where(c => c.Slave.CTraderAccount?.State == BaseAccountEntity.States.Connected ||
-                            c.Slave.MetaTraderAccount?.State == BaseAccountEntity.States.Connected)
+                            c.Slave.MetaTraderAccount?.State == BaseAccountEntity.States.Connected ||
+                            c.Slave.FixTraderAccount?.State == BaseAccountEntity.States.Connected)
                 .Select(c => c.Slave.Master).Distinct();
             foreach (var master in _masters)
             {
@@ -71,10 +72,34 @@ namespace QvaDev.Orchestration.Services
         {
             if (slave.MetaTraderAccount != null) return CopyToMtAccount(e, slave);
             if (slave.CTraderAccount != null) return CopyToCtAccount(e, slave);
-            return Task.FromResult(0);
-        }
+	        if (slave.FixTraderAccount != null) return CopyToFtAccount(e, slave);
+			return Task.FromResult(0);
+		}
 
-        private Task CopyToCtAccount(PositionEventArgs e, Slave slave)
+	    private Task CopyToFtAccount(PositionEventArgs e, Slave slave)
+	    {
+		    var slaveConnector = slave.FixTraderAccount?.Connector as FixTraderIntegration.Connector;
+		    if (slaveConnector == null) return Task.FromResult(0);
+
+		    var symbol = slave.SymbolMappings?.Any(m => m.From == e.Position.Symbol) == true
+			    ? slave.SymbolMappings.First(m => m.From == e.Position.Symbol).To
+			    : e.Position.Symbol + (slave.SymbolSuffix ?? "");
+
+		    var tasks = slave.Copiers.Select(copier => Task.Factory.StartNew(() =>
+		    {
+			    if (copier.DelayInMilliseconds > 0) Thread.Sleep(copier.DelayInMilliseconds);
+
+			    var lots = Math.Abs(e.Position.Lots) * (double) copier.CopyRatio;
+				if (e.Action == PositionEventArgs.Actions.Open)
+					slaveConnector.SendMarketOrderRequest(symbol, e.Position.Side, lots, $"{slave.Id}-{e.Position.Id}");
+				else if (e.Action == PositionEventArgs.Actions.Close)
+					slaveConnector.OrderMultipleCloseBy(symbol);
+
+			}, TaskCreationOptions.LongRunning));
+		    return Task.WhenAll(tasks);
+	    }
+
+		private Task CopyToCtAccount(PositionEventArgs e, Slave slave)
         {
             var slaveConnector = slave.CTraderAccount?.Connector as CTraderIntegration.Connector;
             if (slaveConnector == null) return Task.FromResult(0);
