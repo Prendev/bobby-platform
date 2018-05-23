@@ -206,13 +206,12 @@ namespace QvaDev.FixTraderIntegration
 			}
 		}
 
-		public void SendLimitOrderRequest(string symbol, Sides side, double lots, string comment = null)
+		public void SendLimitOrderRequest(string symbol, Sides side, double lots, double slippage, string comment = null)
 		{
 			try
 			{
 				long unix = (long)(DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, 0)).TotalSeconds;
 				var symbolInfo = SymbolInfos.GetOrAdd(symbol, new SymbolInfo());
-				var sumLots = symbolInfo.SumContracts;
 				var price = side == Sides.Buy ? symbolInfo.Ask : symbolInfo.Bid;
 
 				var tags = new List<string>
@@ -223,6 +222,7 @@ namespace QvaDev.FixTraderIntegration
 					$"103={symbol}",
 					$"104={lots}",
 					$"107={price.ToString(CultureInfo.InvariantCulture)}",
+					$"109={slippage}",
 					$"114={unix}",
 					$"115=4",
 				};
@@ -232,10 +232,6 @@ namespace QvaDev.FixTraderIntegration
 				var encoder = new ASCIIEncoding();
 				var buffer = encoder.GetBytes($"|{string.Join("|", tags)}|\n");
 				ns.Write(buffer, 0, buffer.Length);
-
-				int limit = 0;
-				while (sumLots == SymbolInfos.GetOrAdd(symbol, new SymbolInfo()).SumContracts && limit++ < 1000)
-					Thread.Sleep(1);
 			}
 			catch (Exception e)
 			{

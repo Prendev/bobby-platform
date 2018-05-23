@@ -90,7 +90,9 @@ namespace QvaDev.Orchestration.Services
 			    if (copier.DelayInMilliseconds > 0) Thread.Sleep(copier.DelayInMilliseconds);
 
 			    var lots = Math.Abs(e.Position.Lots) * (double) copier.CopyRatio;
-				if (e.Action == PositionEventArgs.Actions.Open)
+			    if (e.Action == PositionEventArgs.Actions.Open && copier.UseMarketRangeOrder)
+				    slaveConnector.SendLimitOrderRequest(symbol, e.Position.Side, lots, copier.SlippageInPips, $"{slave.Id}-{e.Position.Id}");
+				else if (e.Action == PositionEventArgs.Actions.Open && !copier.UseMarketRangeOrder)
 					slaveConnector.SendMarketOrderRequest(symbol, e.Position.Side, lots, $"{slave.Id}-{e.Position.Id}");
 				else if (e.Action == PositionEventArgs.Actions.Close)
 					slaveConnector.OrderMultipleCloseBy(symbol);

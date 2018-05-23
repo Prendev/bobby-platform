@@ -190,7 +190,7 @@ namespace QvaDev.Data
                 UseMarketRangeOrder = true,
                 SlippageInPips = 30,
                 MaxRetryCount = 5,
-                RetryPeriodInMilliseconds = 3000
+                RetryPeriodInMilliseconds = 25
             });
             Copiers.Add(new Copier
             {

@@ -296,7 +296,7 @@ namespace QvaDev.Orchestration
 		public void TestLimitOrder(Pushing pushing)
 		{
 			var connector = (FixTraderIntegration.Connector)pushing.FutureAccount.Connector;
-			connector.SendLimitOrderRequest(pushing.FutureSymbol, Common.Integration.Sides.Buy, pushing.PushingDetail.SmallContractSize);
+			connector.SendLimitOrderRequest(pushing.FutureSymbol, Common.Integration.Sides.Buy, pushing.PushingDetail.SmallContractSize, 0);
 		}
 
 		public Task OpeningBeta(Pushing pushing)

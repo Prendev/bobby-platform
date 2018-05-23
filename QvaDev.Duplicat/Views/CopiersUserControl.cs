@@ -42,7 +42,7 @@ namespace QvaDev.Duplicat.Views
                 e.Row.Cells["UseMarketRangeOrder"].Value = true;
                 e.Row.Cells["SlippageInPips"].Value = 1;
                 e.Row.Cells["MaxRetryCount"].Value = 5;
-                e.Row.Cells["RetryPeriodInMilliseconds"].Value = 3000;
+                e.Row.Cells["RetryPeriodInMilliseconds"].Value = 25;
             };
         }
 
