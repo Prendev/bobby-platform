@@ -44,12 +44,12 @@ namespace QvaDev.Duplicat.ViewModel
         public ObservableCollection<CTraderAccount> CtAccounts { get; private set; }
         public ObservableCollection<FixTraderAccount> FtAccounts { get; private set; }
         public ObservableCollection<Profile> Profiles { get; private set; }
-        public ObservableCollection<Group> Groups { get; private set; }
         public ObservableCollection<Master> Masters { get; private set; }
         public ObservableCollection<Slave> Slaves { get; private set; }
         public ObservableCollection<SymbolMapping> SymbolMappings { get; private set; }
         public ObservableCollection<Copier> Copiers { get; private set; }
-        public ObservableCollection<Monitor> Monitors { get; private set; }
+	    public ObservableCollection<FixApiCopier> FixApiCopiers { get; private set; }
+		public ObservableCollection<Monitor> Monitors { get; private set; }
         public ObservableCollection<MonitoredAccount> MonitoredAccounts { get; private set; }
         public ObservableCollection<Pushing> Pushings { get; private set; }
         public ObservableCollection<PushingDetail> PushingDetails { get; private set; }
@@ -121,11 +121,10 @@ namespace QvaDev.Duplicat.ViewModel
             _duplicatContext.CTraderAccounts.Load();
             _duplicatContext.FixTraderAccounts.Load();
             _duplicatContext.Profiles.Load();
-            _duplicatContext.Groups.Where(e => e.ProfileId == SelectedProfileId).Load();
-            _duplicatContext.Masters.Where(e => e.Group.ProfileId == SelectedProfileId).Load();
-            _duplicatContext.Slaves.Where(e => e.Master.Group.ProfileId == SelectedProfileId).Load();
-            _duplicatContext.Copiers.Where(e => e.Slave.Master.Group.ProfileId == SelectedProfileId).Load();
-            _duplicatContext.SymbolMappings.Where(e => e.Slave.Master.Group.ProfileId == SelectedProfileId).Load();
+            _duplicatContext.Masters.Where(e => e.ProfileId == SelectedProfileId).Load();
+            _duplicatContext.Slaves.Where(e => e.Master.ProfileId == SelectedProfileId).Load();
+            _duplicatContext.Copiers.Where(e => e.Slave.Master.ProfileId == SelectedProfileId).Load();
+            _duplicatContext.SymbolMappings.Where(e => e.Slave.Master.ProfileId == SelectedProfileId).Load();
             _duplicatContext.Monitors.Where(e => e.ProfileId == SelectedProfileId).Load();
             _duplicatContext.MonitoredAccounts.Where(e => e.Monitor.ProfileId == SelectedProfileId).Load();
             _duplicatContext.Pushings.Where(e => e.ProfileId == SelectedProfileId).Load();
@@ -142,12 +141,12 @@ namespace QvaDev.Duplicat.ViewModel
             CtAccounts = _duplicatContext.CTraderAccounts.Local;
             FtAccounts = _duplicatContext.FixTraderAccounts.Local;
             Profiles = _duplicatContext.Profiles.Local;
-            Groups = _duplicatContext.Groups.Local;
             Masters = _duplicatContext.Masters.Local;
             Slaves = _duplicatContext.Slaves.Local;
             SymbolMappings = _duplicatContext.SymbolMappings.Local;
             Copiers = _duplicatContext.Copiers.Local;
-            Monitors = _duplicatContext.Monitors.Local;
+	        FixApiCopiers = _duplicatContext.FixApiCopiers.Local;
+			Monitors = _duplicatContext.Monitors.Local;
             MonitoredAccounts = _duplicatContext.MonitoredAccounts.Local;
             Pushings = _duplicatContext.Pushings.Local;
             PushingDetails = _duplicatContext.PushingDetails.Local;
@@ -159,7 +158,8 @@ namespace QvaDev.Duplicat.ViewModel
 
 			foreach (var e in SymbolMappings) e.IsFiltered = e.SlaveId != SelectedSlaveId;
             foreach (var e in Copiers) e.IsFiltered = e.SlaveId != SelectedSlaveId;
-            foreach (var e in QuadroSets) e.IsFiltered = e.TradingAccountId != SelectedTradingAccountId;
+	        foreach (var e in FixApiCopiers) e.IsFiltered = e.SlaveId != SelectedSlaveId;
+			foreach (var e in QuadroSets) e.IsFiltered = e.TradingAccountId != SelectedTradingAccountId;
             foreach (var e in PushingDetails) e.IsFiltered = e.Id != SelectedPushingDetailId;
         }
     }

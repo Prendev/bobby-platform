@@ -15,12 +15,12 @@ namespace QvaDev.Data
         public DbSet<FixTraderAccount> FixTraderAccounts { get; set; }
 
         public DbSet<Profile> Profiles { get; set; }
-        public DbSet<Group> Groups { get; set; }
         public DbSet<Master> Masters { get; set; }
         public DbSet<Slave> Slaves { get; set; }
 
         public DbSet<Copier> Copiers { get; set; }
-        public DbSet<SymbolMapping> SymbolMappings { get; set; }
+	    public DbSet<FixApiCopier> FixApiCopiers { get; set; }
+		public DbSet<SymbolMapping> SymbolMappings { get; set; }
 
         public DbSet<Monitor> Monitors { get; set; }
         public DbSet<MonitoredAccount> MonitoredAccounts { get; set; }
@@ -149,13 +149,8 @@ namespace QvaDev.Data
             var profile1 = Profiles.Add(new Profile() { Description = "Dummy Profile 1" });
             var profile2 = Profiles.Add(new Profile() { Description = "Dummy Profile 2" });
 
-            var group1 = Groups.Add(new Group { Description = "Dummy Group 1", Profile = profile1 });
-            var group2 = Groups.Add(new Group { Description = "Dummy Group 2", Profile = profile1 });
-            Groups.Add(new Group { Description = "Dummy Group 3", Profile = profile2 });
-            Groups.Add(new Group { Description = "Dummy Group 4", Profile = profile2 });
-
-            var master1 = Masters.Add(new Master { Group = group1, MetaTraderAccount = mt4Account1 });
-            var master2 = Masters.Add(new Master { Group = group2, MetaTraderAccount = mt4Account2 });
+            var master1 = Masters.Add(new Master { Profile = profile1, MetaTraderAccount = mt4Account1 });
+            var master2 = Masters.Add(new Master { Profile = profile2, MetaTraderAccount = mt4Account2 });
 
             var slave1 = Slaves.Add(new Slave { Master = master1, CTraderAccount = ctAccount1 });
             var slave2 = Slaves.Add(new Slave { Master = master1, CTraderAccount = ctAccount2 });

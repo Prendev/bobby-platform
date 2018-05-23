@@ -1,12 +1,14 @@
 ﻿using System.Collections.Generic;
+using QvaDev.Common.Attributes;
 
 namespace QvaDev.Data.Models
 {
     public class Master : BaseEntity
-    {
-        public int GroupId { get; set; }
-        public Group Group { get; set; }
+	{
+		[InvisibleColumn] public int ProfileId { get; set; }
+		[InvisibleColumn] public Profile Profile { get; set; }
 
+		public bool Run { get; set; }
         public int MetaTraderAccountId { get; set; }
         public MetaTraderAccount MetaTraderAccount { get; set; }
 
@@ -14,7 +16,7 @@ namespace QvaDev.Data.Models
 
         public override string ToString()
         {
-            return $"{Group?.Description} | {MetaTraderAccount?.Description}";
+            return $"{MetaTraderAccount?.Description}";
         }
     }
 }

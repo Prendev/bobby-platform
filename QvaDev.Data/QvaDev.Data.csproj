@@ -77,6 +77,7 @@
     <Compile Include="Models\BaseAccountEntity.cs" />
     <Compile Include="Models\BaseEntity.cs" />
     <Compile Include="Models\BaseDescriptionEntity.cs" />
+    <Compile Include="Models\FixApiCopier.cs" />
     <Compile Include="Models\Copier.cs" />
     <Compile Include="Models\CTraderAccount.cs" />
     <Compile Include="Models\CTraderPlatform.cs" />
@@ -93,7 +94,6 @@
     <Compile Include="Models\Slave.cs" />
     <Compile Include="Models\MetaTraderPlatform.cs" />
     <Compile Include="Models\MetaTraderAccount.cs" />
-    <Compile Include="Models\Group.cs" />
     <Compile Include="Models\Master.cs" />
     <Compile Include="Models\Profile.cs" />
     <Compile Include="Models\SymbolMapping.cs" />

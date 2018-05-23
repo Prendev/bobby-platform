@@ -129,7 +129,8 @@ namespace QvaDev.Duplicat.ViewModel
             SelectedSlaveId = slave?.Id ?? 0;
             foreach (var e in SymbolMappings) e.IsFiltered = e.SlaveId != SelectedSlaveId;
             foreach (var e in Copiers) e.IsFiltered = e.SlaveId != SelectedSlaveId;
-        }
+	        foreach (var e in FixApiCopiers) e.IsFiltered = e.SlaveId != SelectedSlaveId;
+		}
 
         public void ShowExpertSetsCommand(TradingAccount tradingAccount)
         {

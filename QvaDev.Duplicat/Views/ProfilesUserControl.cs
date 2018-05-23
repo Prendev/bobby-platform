@@ -21,13 +21,6 @@ namespace QvaDev.Duplicat.Views
             btnLoad.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsConfigReadonly), true);
             gbControl.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsLoading), true);
             dgvProfiles.AddBinding("ReadOnly", _viewModel, nameof(_viewModel.IsConfigReadonly));
-            dgvGroups.AddBinding("ReadOnly", _viewModel, nameof(_viewModel.IsConfigReadonly));
-
-
-            dgvGroups.DefaultValuesNeeded += (s, e) =>
-            {
-                e.Row.Cells["ProfileId"].Value = _viewModel.SelectedProfileId;
-            };
 
             btnLoad.Click += (s, e) =>
             {
@@ -38,9 +31,6 @@ namespace QvaDev.Duplicat.Views
         public void AttachDataSources()
         {
             dgvProfiles.DataSource = _viewModel.Profiles.ToBindingList();
-            dgvGroups.DataSource = _viewModel.Groups.ToBindingList();
-            dgvGroups.Columns["ProfileId"].Visible = false;
-            dgvGroups.Columns["Profile"].Visible = false;
         }
     }
 }

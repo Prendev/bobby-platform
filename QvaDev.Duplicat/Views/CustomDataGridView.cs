@@ -30,8 +30,9 @@ namespace QvaDev.Duplicat.Views
             if (!_invisibleColumns.Contains(name))
                 _invisibleColumns.Add(name);
 
-            if (!Columns.Contains($"{name}*"))
-            {
+			if (!Columns.Contains($"{name}*"))
+			{
+				var index = Columns[name]?.DisplayIndex ?? 0;
                 var column = new DataGridViewComboBoxColumn()
                 {
                     DataSource = list.ToBindingList(),
@@ -39,12 +40,17 @@ namespace QvaDev.Duplicat.Views
                     DataPropertyName = $"{name}Id",
                     DisplayMember = "DisplayMember",
                     ValueMember = "Id",
-                    HeaderText = $"{name}*"
+                    HeaderText = $"{name}*",
+					DisplayIndex = index
                 };
                 Columns.Add(column);
             }
             else if (Columns[$"{name}*"] is DataGridViewComboBoxColumn)
-                ((DataGridViewComboBoxColumn)Columns[$"{name}*"]).DataSource = list.ToBindingList();
+			{
+				var column = (DataGridViewComboBoxColumn) Columns[$"{name}*"];
+				column.DataSource = list.ToBindingList();
+				column.DisplayIndex = Columns[name]?.DisplayIndex ?? 0;
+			}
         }
 
         public T GetSelectedItem<T>() where T : class
