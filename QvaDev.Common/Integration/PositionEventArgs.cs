@@ -14,5 +14,5 @@
         public Actions Action { get; set; }
         public AccountTypes AccountType { get; set; }
         public int DbId { get; set; }
-    }
+	}
 }

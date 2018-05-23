@@ -193,7 +193,7 @@ namespace QvaDev.FixTraderIntegration
 				var diff = SymbolInfos.GetOrAdd(symbol, new SymbolInfo()).SumContracts - sumLots;
 				while (diff == 0 && stopwatch.ElapsedMilliseconds < 1000)
 				{
-					Thread.Sleep(5);
+					Thread.Sleep(1);
 					diff = SymbolInfos.GetOrAdd(symbol, new SymbolInfo()).SumContracts - sumLots;
 				}
 
@@ -232,6 +232,57 @@ namespace QvaDev.FixTraderIntegration
 				var encoder = new ASCIIEncoding();
 				var buffer = encoder.GetBytes($"|{string.Join("|", tags)}|\n");
 				ns.Write(buffer, 0, buffer.Length);
+			}
+			catch (Exception e)
+			{
+				_log.Error($"Connector.SendLimitOrderRequest({symbol}, {side}, {lots}, {comment}) exception", e);
+			}
+		}
+
+		public void SendAggressiveOrderRequest(string symbol, Sides side, double lots, double price, double slippage,
+			int burstPeriodInMilliseconds, int maxRetryCount, int retryPeriodInMilliseconds, string comment = null)
+		{
+			try
+			{
+				var unix = (long)(DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, 0)).TotalSeconds;
+				var expDate = DateTime.UtcNow.AddMilliseconds(burstPeriodInMilliseconds)
+					.ToString("yyyyMMdd-HH:mm:ss", CultureInfo.InvariantCulture);
+				var symbolInfo = SymbolInfos.GetOrAdd(symbol, new SymbolInfo());
+
+				var stopwatch = new Stopwatch();
+				stopwatch.Start();
+
+				var contractsNeeded = symbolInfo.SumContracts + lots;
+				while (symbolInfo.SumContracts < contractsNeeded && maxRetryCount-- > 0 &&
+				       stopwatch.ElapsedMilliseconds < burstPeriodInMilliseconds)
+				{
+					var em = stopwatch.ElapsedMilliseconds;
+					var sumLots = symbolInfo.SumContracts;
+					var diff = contractsNeeded - sumLots;
+
+					var tags = new List<string>
+					{
+						$"1=1",
+						$"101=2",
+						$"102={(side == Sides.Buy ? 0 : 1)}",
+						$"103={symbol}",
+						$"104={diff}",
+						$"107={price.ToString(CultureInfo.InvariantCulture)}",
+						$"109={slippage}",
+						$"114={unix}",
+						$"115=3",
+						$"116={expDate}"
+					};
+					if (!string.IsNullOrWhiteSpace(comment)) tags.Insert(1, $"100={comment}");
+
+					var ns = _commandClient.GetStream();
+					var encoder = new ASCIIEncoding();
+					var buffer = encoder.GetBytes($"|{string.Join("|", tags)}|\n");
+					ns.Write(buffer, 0, buffer.Length);
+
+					while (symbolInfo.SumContracts == sumLots && stopwatch.ElapsedMilliseconds < em + retryPeriodInMilliseconds)
+						Thread.Sleep(1);
+				}
 			}
 			catch (Exception e)
 			{

@@ -53,17 +53,16 @@ namespace QvaDev.Orchestration.Services
         private void MasterOnOrderUpdate(object sender, PositionEventArgs e)
         {
             if (!_isStarted) return;
-            if (_masters?.Any() != true) return;
-            Task.Factory.StartNew(() =>
+			Task.Factory.StartNew(() =>
             {
                 lock (sender)
                 {
                     _log.Info($"Master {e.Action:F} {e.Position.Side:F} signal on " +
                               $"{e.Position.Symbol} with open time: {e.Position.OpenTime:o}");
 
-                    var masters = _masters.Where(m => m.MetaTraderAccountId == e.DbId);
-
-                    Task.WhenAll(masters.SelectMany(m => m.Slaves).Select(slave => CopyToAccount(e, slave))).Wait();
+	                var slaves = _masters.Where(m => m.Run && m.MetaTraderAccountId == e.DbId)
+		                .SelectMany(m => m.Slaves).Where(s => s.Run);
+					Task.WhenAll(slaves.Select(slave => CopyToAccount(e, slave))).Wait();
                 }
             });
         }
@@ -85,14 +84,15 @@ namespace QvaDev.Orchestration.Services
 			    ? slave.SymbolMappings.First(m => m.From == e.Position.Symbol).To
 			    : e.Position.Symbol + (slave.SymbolSuffix ?? "");
 
-		    var tasks = slave.Copiers.Select(copier => Task.Factory.StartNew(() =>
+		    var tasks = slave.FixApiCopiers.Where(s => s.Run).Select(copier => Task.Factory.StartNew(() =>
 		    {
 			    if (copier.DelayInMilliseconds > 0) Thread.Sleep(copier.DelayInMilliseconds);
 
 			    var lots = Math.Abs(e.Position.Lots) * (double) copier.CopyRatio;
-			    if (e.Action == PositionEventArgs.Actions.Open && copier.UseMarketRangeOrder)
-				    slaveConnector.SendLimitOrderRequest(symbol, e.Position.Side, lots, copier.SlippageInPips, $"{slave.Id}-{e.Position.Id}");
-				else if (e.Action == PositionEventArgs.Actions.Open && !copier.UseMarketRangeOrder)
+			    if (e.Action == PositionEventArgs.Actions.Open && copier.OrderType == FixApiCopier.OrderTypes.Aggressive)
+				    slaveConnector.SendAggressiveOrderRequest(symbol, e.Position.Side, lots, e.Position.OpenPrice, copier.Slippage,
+					    copier.BurstPeriodInMilliseconds, copier.MaxRetryCount, copier.RetryPeriodInMilliseconds, $"{slave.Id}-{e.Position.Id}");
+				else if (e.Action == PositionEventArgs.Actions.Open && copier.OrderType == FixApiCopier.OrderTypes.Market)
 					slaveConnector.SendMarketOrderRequest(symbol, e.Position.Side, lots, $"{slave.Id}-{e.Position.Id}");
 				else if (e.Action == PositionEventArgs.Actions.Close)
 					slaveConnector.OrderMultipleCloseBy(symbol);
@@ -111,7 +111,7 @@ namespace QvaDev.Orchestration.Services
                 ? slave.SymbolMappings.First(m => m.From == e.Position.Symbol).To
                 : e.Position.Symbol + (slave.SymbolSuffix ?? "");
 
-            var tasks = slave.Copiers.Select(copier => Task.Factory.StartNew(() =>
+            var tasks = slave.Copiers.Where(s => s.Run).Select(copier => Task.Factory.StartNew(() =>
 			{
 				if (copier.DelayInMilliseconds > 0) Thread.Sleep(copier.DelayInMilliseconds);
 
@@ -139,7 +139,7 @@ namespace QvaDev.Orchestration.Services
                 ? slave.SymbolMappings.First(m => m.From == e.Position.Symbol).To
                 : e.Position.Symbol + (slave.SymbolSuffix ?? "");
 
-            var tasks = slave.Copiers.Select(copier => Task.Factory.StartNew(() =>
+            var tasks = slave.Copiers.Where(s => s.Run).Select(copier => Task.Factory.StartNew(() =>
             {
                 if (copier.DelayInMilliseconds > 0) Thread.Sleep(copier.DelayInMilliseconds);
 				// TODO

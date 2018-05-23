@@ -437,7 +437,7 @@ namespace QvaDev.Mt4Integration
             if (update.Action != UpdateAction.PositionOpen && update.Action != UpdateAction.PositionClose) return;
             if (update.Order.Type != Op.Buy && update.Order.Type != Op.Sell) return;
 
-            var position = new Position
+			var position = new Position
             {
                 Id = update.Order.Ticket,
                 Lots = update.Order.Lots,
@@ -463,7 +463,7 @@ namespace QvaDev.Mt4Integration
                 AccountType = AccountTypes.Mt4,
                 Position = position,
                 Action = update.Action == UpdateAction.PositionOpen ? PositionEventArgs.Actions.Open : PositionEventArgs.Actions.Close,
-            });
+			});
         }
 
         private SymbolInfo GetSymbolInfo(string symbol)

@@ -8,7 +8,7 @@ namespace QvaDev.Data.Models
 		public enum OrderTypes
 		{
 			Market,
-			Agressive
+			Aggressive
 		}
 
 		[InvisibleColumn] public int SlaveId { get; set; }
