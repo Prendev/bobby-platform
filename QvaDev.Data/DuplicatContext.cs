@@ -182,7 +182,6 @@ namespace QvaDev.Data
             {
                 Slave = slave1,
                 CopyRatio = 1,
-                UseMarketRangeOrder = true,
                 SlippageInPips = 30,
                 MaxRetryCount = 5,
                 RetryPeriodInMilliseconds = 25
@@ -191,7 +190,6 @@ namespace QvaDev.Data
             {
                 Slave = slave2,
                 CopyRatio = 1,
-                UseMarketRangeOrder = true,
                 SlippageInPips = 30,
                 MaxRetryCount = 5,
                 RetryPeriodInMilliseconds = 3000
@@ -200,7 +198,6 @@ namespace QvaDev.Data
             {
                 Slave = slave3,
                 CopyRatio = 1,
-                UseMarketRangeOrder = true,
                 SlippageInPips = 30,
                 MaxRetryCount = 5,
                 RetryPeriodInMilliseconds = 3000
@@ -209,7 +206,6 @@ namespace QvaDev.Data
             {
                 Slave = slave4,
                 CopyRatio = 1,
-                UseMarketRangeOrder = true,
                 SlippageInPips = 30,
                 MaxRetryCount = 5,
                 RetryPeriodInMilliseconds = 3000
@@ -336,7 +332,7 @@ namespace QvaDev.Data
                 User = 518841,
                 Password = "ri3eyef",
                 MetaTraderPlatform = mt4Platform,
-                ShouldConnect = true
+                Run = true
             });
             var betaMaster = MetaTraderAccounts.Add(new MetaTraderAccount()
             {
@@ -344,7 +340,7 @@ namespace QvaDev.Data
                 User = 518842,
                 Password = "4hjyebx",
                 MetaTraderPlatform = mt4Platform,
-                ShouldConnect = true
+                Run = true
             });
             var hedgeAccount = MetaTraderAccounts.Add(new MetaTraderAccount()
             {
@@ -352,7 +348,7 @@ namespace QvaDev.Data
                 User = 518843,
                 Password = "ofkw7co",
                 MetaTraderPlatform = mt4Platform,
-                ShouldConnect = true
+                Run = true
             });
 
             var ftAccount = FixTraderAccounts.Add(new FixTraderAccount
@@ -361,7 +357,7 @@ namespace QvaDev.Data
                 IpAddress = "192.81.110.211",
                 CommandSocketPort = 9001,
                 EventsSocketPort = 9002,
-                ShouldConnect = true
+                Run = true
             });
 
             Pushings.Add(new Pushing

@@ -16,17 +16,22 @@ namespace QvaDev.Data.Models
             Error
         }
 
-        [Required]
-        public bool ShouldConnect { get; set; }
+	    [DisplayIndex(0)]
+		public bool Run { get; set; }
 
-        public List<MonitoredAccount> MonitoredAccounts { get => Get(() => new List<MonitoredAccount>()); set => Set(value, false); }
+	    [Required]
+	    [DisplayIndex(1)]
+	    public new string Description { get; set; }
 
-        [NotMapped]
-        [InvisibleColumn]
-        public IConnector Connector { get; set; }
+		public List<MonitoredAccount> MonitoredAccounts { get => Get(() => new List<MonitoredAccount>()); set => Set(value, false); }
 
-        [NotMapped]
-        [ReadOnly(true)]
-        public States State { get; set; }
-    }
+        [NotMapped] [InvisibleColumn] public IConnector Connector { get; set; }
+
+        [NotMapped] [ReadOnly(true)] public States State { get; set; }
+
+	    public override string ToString()
+	    {
+		    return Description;
+	    }
+	}
 }

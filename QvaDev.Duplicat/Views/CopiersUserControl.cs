@@ -51,7 +51,6 @@ namespace QvaDev.Duplicat.Views
             dgvCopiers.DefaultValuesNeeded += (s, e) =>
             {
                 e.Row.Cells["SlaveId"].Value = _viewModel.SelectedSlaveId;
-                e.Row.Cells["UseMarketRangeOrder"].Value = false;
                 e.Row.Cells["SlippageInPips"].Value = 1;
                 e.Row.Cells["MaxRetryCount"].Value = 5;
                 e.Row.Cells["RetryPeriodInMilliseconds"].Value = 25;

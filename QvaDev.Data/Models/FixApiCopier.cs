@@ -5,7 +5,7 @@ namespace QvaDev.Data.Models
 {
     public class FixApiCopier : BaseEntity, IFilterableEntity
 	{
-		public enum OrderTypes
+		public enum FixApiOrderTypes
 		{
 			Market,
 			Aggressive
@@ -16,7 +16,7 @@ namespace QvaDev.Data.Models
 
 		public bool Run { get; set; }
 		public decimal CopyRatio { get; set; }
-        public OrderTypes OrderType { get; set; }
+        public FixApiOrderTypes OrderType { get; set; }
         public double Slippage { get; set; }
 		public int BurstPeriodInMilliseconds { get; set; }
 		public int DelayInMilliseconds { get; set; }

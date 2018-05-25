@@ -124,7 +124,8 @@ namespace QvaDev.Duplicat.ViewModel
             _duplicatContext.Masters.Where(e => e.ProfileId == SelectedProfileId).Load();
             _duplicatContext.Slaves.Where(e => e.Master.ProfileId == SelectedProfileId).Load();
             _duplicatContext.Copiers.Where(e => e.Slave.Master.ProfileId == SelectedProfileId).Load();
-            _duplicatContext.SymbolMappings.Where(e => e.Slave.Master.ProfileId == SelectedProfileId).Load();
+	        _duplicatContext.FixApiCopiers.Where(e => e.Slave.Master.ProfileId == SelectedProfileId).Load();
+			_duplicatContext.SymbolMappings.Where(e => e.Slave.Master.ProfileId == SelectedProfileId).Load();
             _duplicatContext.Monitors.Where(e => e.ProfileId == SelectedProfileId).Load();
             _duplicatContext.MonitoredAccounts.Where(e => e.Monitor.ProfileId == SelectedProfileId).Load();
             _duplicatContext.Pushings.Where(e => e.ProfileId == SelectedProfileId).Load();

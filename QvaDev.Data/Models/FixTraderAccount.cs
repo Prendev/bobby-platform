@@ -8,5 +8,5 @@ namespace QvaDev.Data.Models
         public string IpAddress { get; set; }
         public int CommandSocketPort { get; set; }
         public int EventsSocketPort { get; set; }
-    }
+	}
 }

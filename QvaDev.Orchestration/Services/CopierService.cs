@@ -29,13 +29,20 @@ namespace QvaDev.Orchestration.Services
 
         public void Start(DuplicatContext duplicatContext)
         {
-            _masters = duplicatContext.Copiers.Local
+			var copiers = duplicatContext.Copiers.Local
                 .Where(c => c.Slave.Master.MetaTraderAccount.State == BaseAccountEntity.States.Connected)
                 .Where(c => c.Slave.CTraderAccount?.State == BaseAccountEntity.States.Connected ||
-                            c.Slave.MetaTraderAccount?.State == BaseAccountEntity.States.Connected ||
-                            c.Slave.FixTraderAccount?.State == BaseAccountEntity.States.Connected)
-                .Select(c => c.Slave.Master).Distinct();
-            foreach (var master in _masters)
+                            c.Slave.MetaTraderAccount?.State == BaseAccountEntity.States.Connected)
+                .Select(c => c.Slave.Master);
+
+	        var fixApiCopiers = duplicatContext.FixApiCopiers.Local
+		        .Where(c => c.Slave.Master.MetaTraderAccount.State == BaseAccountEntity.States.Connected)
+		        .Where(c => c.Slave.FixTraderAccount?.State == BaseAccountEntity.States.Connected)
+		        .Select(c => c.Slave.Master);
+
+	        _masters = copiers.Union(fixApiCopiers).Distinct();
+
+			foreach (var master in _masters)
             {
                 master.MetaTraderAccount.Connector.OnPosition -= MasterOnOrderUpdate;
                 master.MetaTraderAccount.Connector.OnPosition += MasterOnOrderUpdate;
@@ -89,10 +96,10 @@ namespace QvaDev.Orchestration.Services
 			    if (copier.DelayInMilliseconds > 0) Thread.Sleep(copier.DelayInMilliseconds);
 
 			    var lots = Math.Abs(e.Position.Lots) * (double) copier.CopyRatio;
-			    if (e.Action == PositionEventArgs.Actions.Open && copier.OrderType == FixApiCopier.OrderTypes.Aggressive)
+			    if (e.Action == PositionEventArgs.Actions.Open && copier.OrderType == FixApiCopier.FixApiOrderTypes.Aggressive)
 				    slaveConnector.SendAggressiveOrderRequest(symbol, e.Position.Side, lots, e.Position.OpenPrice, copier.Slippage,
 					    copier.BurstPeriodInMilliseconds, copier.MaxRetryCount, copier.RetryPeriodInMilliseconds, $"{slave.Id}-{e.Position.Id}");
-				else if (e.Action == PositionEventArgs.Actions.Open && copier.OrderType == FixApiCopier.OrderTypes.Market)
+				else if (e.Action == PositionEventArgs.Actions.Open && copier.OrderType == FixApiCopier.FixApiOrderTypes.Market)
 					slaveConnector.SendMarketOrderRequest(symbol, e.Position.Side, lots, $"{slave.Id}-{e.Position.Id}");
 				else if (e.Action == PositionEventArgs.Actions.Close)
 					slaveConnector.OrderMultipleCloseBy(symbol);
@@ -116,10 +123,10 @@ namespace QvaDev.Orchestration.Services
 				if (copier.DelayInMilliseconds > 0) Thread.Sleep(copier.DelayInMilliseconds);
 
 				var volume = (long)(100 * Math.Abs(e.Position.RealVolume) * copier.CopyRatio);
-                if (e.Action == PositionEventArgs.Actions.Open && copier.UseMarketRangeOrder)
+                if (e.Action == PositionEventArgs.Actions.Open && copier.OrderType == Copier.CopierOrderTypes.MarketRange)
                     slaveConnector.SendMarketRangeOrderRequest(symbol, type, volume, e.Position.OpenPrice,
                         copier.SlippageInPips, $"{slave.Id}-{e.Position.Id}", copier.MaxRetryCount, copier.RetryPeriodInMilliseconds);
-                else if (e.Action == PositionEventArgs.Actions.Open && !copier.UseMarketRangeOrder)
+                else if (e.Action == PositionEventArgs.Actions.Open && copier.OrderType == Copier.CopierOrderTypes.Market)
                     slaveConnector.SendMarketOrderRequest(symbol, type, volume, $"{slave.Id}-{e.Position.Id}",
                         copier.MaxRetryCount, copier.RetryPeriodInMilliseconds);
                 else if (e.Action == PositionEventArgs.Actions.Close)

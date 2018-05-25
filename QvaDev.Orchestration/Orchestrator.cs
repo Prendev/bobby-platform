@@ -102,7 +102,7 @@ namespace QvaDev.Orchestration
             var tasks = _duplicatContext.MetaTraderAccounts.AsEnumerable().Select(account =>
                 Task.Factory.StartNew(() =>
                 {
-                    if (!account.ShouldConnect) return;
+                    if (!account.Run) return;
                     if (account.State == BaseAccountEntity.States.Connected) return;
                     var connector = account.Connector as Mt4Integration.Connector;
                     if (connector == null)
@@ -132,7 +132,7 @@ namespace QvaDev.Orchestration
             var tasks = _duplicatContext.CTraderAccounts.AsEnumerable().Select(account =>
                 Task.Factory.StartNew(() =>
                 {
-                    if (!account.ShouldConnect) return;
+                    if (!account.Run) return;
                     if (account.State == BaseAccountEntity.States.Connected) return;
                     var connector = account.Connector as CTraderIntegration.Connector;
                     if (connector == null)
@@ -171,7 +171,7 @@ namespace QvaDev.Orchestration
             var tasks = _duplicatContext.FixTraderAccounts.AsEnumerable().Select(account =>
                 Task.Factory.StartNew(() =>
                 {
-                    if (!account.ShouldConnect) return;
+                    if (!account.Run) return;
                     if (account.State == BaseAccountEntity.States.Connected) return;
                     var connector = account.Connector as FixTraderIntegration.Connector;
                     if (connector == null)

@@ -245,19 +245,17 @@ namespace QvaDev.FixTraderIntegration
 			try
 			{
 				var unix = (long)(DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, 0)).TotalSeconds;
-				var expDate = DateTime.UtcNow.AddMilliseconds(burstPeriodInMilliseconds)
-					.ToString("yyyyMMdd-HH:mm:ss", CultureInfo.InvariantCulture);
 				var symbolInfo = SymbolInfos.GetOrAdd(symbol, new SymbolInfo());
 
 				var stopwatch = new Stopwatch();
 				stopwatch.Start();
 
-				var contractsNeeded = symbolInfo.SumContracts + lots;
-				while (symbolInfo.SumContracts < contractsNeeded && maxRetryCount-- > 0 &&
+				var contractsNeeded = symbolInfo.SumContracts * (side == Sides.Buy ? 1 : -1) + lots;
+				while (symbolInfo.SumContracts * (side == Sides.Buy ? 1 : -1) < contractsNeeded && maxRetryCount-- > 0 &&
 				       stopwatch.ElapsedMilliseconds < burstPeriodInMilliseconds)
 				{
-					var em = stopwatch.ElapsedMilliseconds;
-					var sumLots = symbolInfo.SumContracts;
+					var expDate = DateTime.UtcNow.AddMilliseconds(retryPeriodInMilliseconds);
+					var sumLots = symbolInfo.SumContracts * (side == Sides.Buy ? 1 : -1);
 					var diff = contractsNeeded - sumLots;
 
 					var tags = new List<string>
@@ -271,16 +269,16 @@ namespace QvaDev.FixTraderIntegration
 						$"109={slippage}",
 						$"114={unix}",
 						$"115=3",
-						$"116={expDate}"
+						$"116={expDate.ToString("yyyyMMdd-HH:mm:ss", CultureInfo.InvariantCulture)}"
 					};
-					if (!string.IsNullOrWhiteSpace(comment)) tags.Insert(1, $"100={comment}");
+					//if (!string.IsNullOrWhiteSpace(comment)) tags.Insert(1, $"100={comment}");
 
 					var ns = _commandClient.GetStream();
 					var encoder = new ASCIIEncoding();
 					var buffer = encoder.GetBytes($"|{string.Join("|", tags)}|\n");
 					ns.Write(buffer, 0, buffer.Length);
 
-					while (symbolInfo.SumContracts == sumLots && stopwatch.ElapsedMilliseconds < em + retryPeriodInMilliseconds)
+					while (symbolInfo.SumContracts == sumLots && DateTime.UtcNow < expDate)
 						Thread.Sleep(1);
 				}
 			}
