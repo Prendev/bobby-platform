@@ -1,6 +1,9 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Diagnostics;
 using QvaDev.Common.Attributes;
+using QvaDev.Common.Integration;
 
 namespace QvaDev.Data.Models
 {
@@ -12,10 +15,11 @@ namespace QvaDev.Data.Models
 		public int ContractSize { get; set; }
 		public double Lots { get; set; }
 
+		public int MaxNumberOfPositions { get; set; }
+
 		public double SignalDiffInPip { get; set; }
 		public double SignalStepInPip { get; set; }
 		public double TargetInPip { get; set; }
-		public double PipSize { get; set; }
 
 		public int MinOpenTimeInMinutes { get; set; }
 
@@ -33,9 +37,18 @@ namespace QvaDev.Data.Models
 		[Required]
 		public string MtSymbol { get; set; }
 
+		public double? ShiftInPip { get; set; }
+		public TimeSpan ShiftCalcInterval { get; set; }
+
+		public double PipSize { get; set; }
 		public int MagicNumber { get; set; }
 
 		public int MaxRetryCount { get; set; }
 		public int RetryPeriodInMilliseconds { get; set; }
+
+		[NotMapped] [InvisibleColumn] public int ShiftTickCount { get; set; }
+		[NotMapped] [InvisibleColumn] public double ShiftDiffSumInPip { get; set; }
+		[NotMapped] [InvisibleColumn] public Stopwatch ShiftCalcStopwatch { get; set; }
+
 	}
 }

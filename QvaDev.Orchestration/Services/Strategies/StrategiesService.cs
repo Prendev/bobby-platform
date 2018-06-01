@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using log4net;
 using QvaDev.Common.Integration;
@@ -84,13 +85,15 @@ namespace QvaDev.Orchestration.Services.Strategies
 					if (DateTime.UtcNow - ftTick.Time > new TimeSpan(0, 1, 0)) return;
 					if (DateTime.UtcNow - mtTick.Time > new TimeSpan(0, 1, 0)) return;
 
-					var mtPositions = mtConnector.Positions
-						.Where(p => p.Value.MagicNumber == arb.MagicNumber && p.Value.Symbol == arb.MtSymbol && !p.Value.IsClosed)
-						.Select(p => p.Value)
-						.ToList();
-
 					lock (arb)
 					{
+						if(IsShiftCalculating(arb, ftTick, mtTick)) return;
+
+						var mtPositions = mtConnector.Positions
+							.Where(p => p.Value.MagicNumber == arb.MagicNumber && p.Value.Symbol == arb.MtSymbol && !p.Value.IsClosed)
+							.Select(p => p.Value)
+							.ToList();
+
 						CheckOpen(arb, mtPositions);
 						CheckClose(arb, mtPositions);
 					}
@@ -98,20 +101,52 @@ namespace QvaDev.Orchestration.Services.Strategies
 			}
 		}
 
+		private bool IsShiftCalculating(StratDealingArb arb, Tick ftTick, Tick mtTick)
+		{
+			if (arb.ShiftInPip.HasValue) return false;
+
+			if (arb.ShiftCalcStopwatch?.IsRunning != true)
+			{
+				arb.ShiftCalcStopwatch = arb.ShiftCalcStopwatch ?? new Stopwatch();
+				arb.ShiftCalcStopwatch.Start();
+				arb.ShiftTickCount = 0;
+				arb.ShiftDiffSumInPip = 0;
+			}
+
+			if (arb.ShiftCalcStopwatch.Elapsed < arb.ShiftCalcInterval)
+			{
+				arb.ShiftTickCount++;
+				arb.ShiftDiffSumInPip += ((mtTick.Ask + mtTick.Bid) / 2 - (ftTick.Ask + ftTick.Bid) / 2) / arb.PipSize;
+			}
+			else if (arb.ShiftTickCount == 0)
+			{
+				arb.ShiftCalcStopwatch.Restart();
+			}
+			else
+			{
+				arb.ShiftCalcStopwatch.Stop();
+				arb.ShiftInPip = arb.ShiftDiffSumInPip / arb.ShiftTickCount;
+				return false;
+			}
+
+			return true;
+		}
+
 		private void CheckOpen(StratDealingArb arb, List<Position> mtPositions)
 		{
 			if (DateTime.UtcNow.TimeOfDay < arb.EarliestOpenTime) return;
 			if (DateTime.UtcNow.TimeOfDay > arb.LatestOpenTime) return;
+			if (mtPositions.Count >= arb.MaxNumberOfPositions) return;
 
-			var ftConnector = (FtConnector)arb.FtAccount.Connector;
-			var mtConnector = (MtConnector)arb.MtAccount.Connector;
+			var ftConnector = (FtConnector) arb.FtAccount.Connector;
+			var mtConnector = (MtConnector) arb.MtAccount.Connector;
 
 			var ftTick = ftConnector.GetLastTick(arb.FtSymbol);
 			var mtTick = mtConnector.GetLastTick(arb.MtSymbol);
 
 			var diffInPip = GetDiffInPip(arb, mtPositions);
 
-			if ((mtTick.Bid - ftTick.Ask) / arb.PipSize > diffInPip &&
+			if (((mtTick.Bid - arb.ShiftInPip * arb.PipSize) - ftTick.Ask) / arb.PipSize > diffInPip &&
 			    (mtPositions.Count == 0 || mtPositions.First().Side == Sides.Sell)) // Future long
 			{
 				var pos = OpenMtPosition(arb, Sides.Sell, ftTick.Ask.ToString("F2"));
@@ -128,10 +163,11 @@ namespace QvaDev.Orchestration.Services.Strategies
 					_log.Error($"{arb.Description} arb failed to open FT long!!!");
 					return;
 				}
+
 				_log.Info($"{arb.Description} arb MT4 short, FT long opened!!!");
 			}
-			else if ((ftTick.Bid - mtTick.Ask) / arb.PipSize > diffInPip &&
-				(mtPositions.Count == 0 || mtPositions.First().Side == Sides.Buy)) // Future short
+			else if ((ftTick.Bid - (mtTick.Ask - arb.ShiftInPip * arb.PipSize)) / arb.PipSize > diffInPip &&
+			         (mtPositions.Count == 0 || mtPositions.First().Side == Sides.Buy)) // Future short
 			{
 				var pos = OpenMtPosition(arb, Sides.Buy, ftTick.Bid.ToString("F2"));
 				if (pos == null)
@@ -147,6 +183,7 @@ namespace QvaDev.Orchestration.Services.Strategies
 					_log.Error($"{arb.Description} arb failed to open FT short!!!");
 					return;
 				}
+
 				_log.Info($"{arb.Description} arb MT4 long, FT short opened!!!");
 			}
 		}
@@ -193,14 +230,9 @@ namespace QvaDev.Orchestration.Services.Strategies
 				if (netPip < arb.TargetInPip) continue;
 
 				mtConnector.SendClosePositionRequests(pos, null, arb.MaxRetryCount, arb.RetryPeriodInMilliseconds);
-				ftConnector.SendMarketOrderRequest(arb.FtSymbol, InvSide(pos.Side), arb.ContractSize);
+				ftConnector.SendMarketOrderRequest(arb.FtSymbol, pos.Side, arb.ContractSize);
 				_log.Info($"{arb.Description} arb closing!!!");
 			}
-		}
-
-		private Sides InvSide(Sides side)
-		{
-			return side == Sides.Buy ? Sides.Sell : Sides.Buy;
 		}
 
 		private double CalculateNetPip(Position pos, Tick ftTick, Tick mtTick)

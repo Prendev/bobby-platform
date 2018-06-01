@@ -58,8 +58,8 @@ namespace QvaDev.Mt4Integration
         public void Disconnect()
         {
             QuoteClient.OnDisconnect -= QuoteClient_OnDisconnect;
-            QuoteClient.OnOrderUpdate -= OnOrderUpdate;
-            QuoteClient?.Disconnect();
+            QuoteClient.OnOrderUpdate -= QuoteClient_OnOrderUpdate;
+			QuoteClient?.Disconnect();
             OrderClient?.Disconnect();
             _log.Debug($"{_accountInfo.Description} account ({_accountInfo.User}) disconnected");
 		}
@@ -96,8 +96,8 @@ namespace QvaDev.Mt4Integration
             OrderClient.Connect();
             _log.Debug($"{_accountInfo.Description} account ({_accountInfo.User}) connected");
 
-            QuoteClient.OnOrderUpdate -= OnOrderUpdate;
-            QuoteClient.OnOrderUpdate += OnOrderUpdate;
+            QuoteClient.OnOrderUpdate -= QuoteClient_OnOrderUpdate;
+            QuoteClient.OnOrderUpdate += QuoteClient_OnOrderUpdate;
 
             QuoteClient.OnDisconnect -= QuoteClient_OnDisconnect;
             QuoteClient.OnDisconnect += QuoteClient_OnDisconnect;
@@ -140,22 +140,34 @@ namespace QvaDev.Mt4Integration
 				_log.Info($"{_accountInfo.Description} account ({_accountInfo.User}) OrderClient.OrderSend started...");
 				var o = OrderClient.OrderSend(symbol, op, lots, 0, 0, 0, 0, comment, magicNumber, DateTime.MaxValue);
 				_log.Info($"{_accountInfo.Description} account ({_accountInfo.User}) OrderClient.OrderSend is successful");
-				return new Position
-                {
-                    Id = o.Ticket,
-                    Lots = o.Lots,
-                    Symbol = o.Symbol,
-                    Side = o.Type == Op.Buy ? Sides.Buy : Sides.Sell,
-                    RealVolume = (long)(o.Lots * GetSymbolInfo(o.Symbol).ContractSize * (o.Type == Op.Buy ? 1 : -1)),
-                    MagicNumber = o.MagicNumber,
-                    Profit = o.Profit,
-                    Commission = o.Commission,
-                    Swap = o.Swap,
-                    OpenTime = o.OpenTime,
-                    OpenPrice = o.OpenPrice,
-                    Comment = o.Comment
-                };
-            }
+
+				var position = new Position
+				{
+					Id = o.Ticket,
+					Lots = o.Lots,
+					Symbol = o.Symbol,
+					Side = o.Type == Op.Buy ? Sides.Buy : Sides.Sell,
+					RealVolume = (long)(o.Lots * GetSymbolInfo(o.Symbol).ContractSize * (o.Type == Op.Buy ? 1 : -1)),
+					MagicNumber = o.MagicNumber,
+					Profit = o.Profit,
+					Commission = o.Commission,
+					Swap = o.Swap,
+					OpenTime = o.OpenTime,
+					OpenPrice = o.OpenPrice,
+					Comment = o.Comment
+				};
+				Positions.AddOrUpdate(position.Id, t => position, (t, old) => position);
+
+				OnPosition?.Invoke(this, new PositionEventArgs
+				{
+					DbId = _accountInfo.DbId,
+					AccountType = AccountTypes.Mt4,
+					Position = position,
+					Action = PositionEventArgs.Actions.Open,
+				});
+
+				return position;
+			}
             catch (Exception e)
             {
                 _log.Error($"Connector.SendMarketOrderRequest({symbol}, {side}, {lots}, {magicNumber}, {comment}) exception", e);
@@ -432,7 +444,7 @@ namespace QvaDev.Mt4Integration
             }
         }
 
-        private void OnOrderUpdate(object sender, OrderUpdateEventArgs update)
+        private void QuoteClient_OnOrderUpdate(object sender, OrderUpdateEventArgs update)
         {
             if (update.Action != UpdateAction.PositionOpen && update.Action != UpdateAction.PositionClose) return;
             if (update.Order.Type != Op.Buy && update.Order.Type != Op.Sell) return;
@@ -466,7 +478,7 @@ namespace QvaDev.Mt4Integration
 			});
         }
 
-        private SymbolInfo GetSymbolInfo(string symbol)
+		private SymbolInfo GetSymbolInfo(string symbol)
         {
             return _symbolInfos.GetOrAdd(symbol, s => QuoteClient.GetSymbolInfo(symbol));
         }
