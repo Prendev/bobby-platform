@@ -70,6 +70,7 @@ namespace QvaDev.Duplicat.Views
             btnRushHedge.Click += (s, e) => { _viewModel.PushingPanicCommand(dgvPushings.GetSelectedItem<Pushing>()); };
 			btnRushClose.Click += (s, e) => { _viewModel.PushingPanicCommand(dgvPushings.GetSelectedItem<Pushing>()); };
 			btnRushCloseFinish.Click += (s, e) => { _viewModel.PushingPanicCommand(dgvPushings.GetSelectedItem<Pushing>()); };
+			btnReset.Click += (s, e) => { _viewModel.PushingResetCommand(); };
 
 			dgvPushingDetail.DataSourceChanged += (s, e) => FilterRows();
             btnLoad.Click += (s, e) =>

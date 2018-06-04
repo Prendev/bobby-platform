@@ -57,6 +57,7 @@
 			this.btnLoad = new System.Windows.Forms.Button();
 			this.btnStopCopiers = new System.Windows.Forms.Button();
 			this.btnStartCopiers = new System.Windows.Forms.Button();
+			this.btnReset = new System.Windows.Forms.Button();
 			this.tlpMain.SuspendLayout();
 			this.gbPushing.SuspendLayout();
 			this.groupBox2.SuspendLayout();
@@ -88,6 +89,7 @@
 			// 
 			// gbPushing
 			// 
+			this.gbPushing.Controls.Add(this.btnReset);
 			this.gbPushing.Controls.Add(this.label7);
 			this.gbPushing.Controls.Add(this.label6);
 			this.gbPushing.Controls.Add(this.label5);
@@ -119,7 +121,7 @@
 			// label7
 			// 
 			this.label7.AutoSize = true;
-			this.label7.Location = new System.Drawing.Point(424, 52);
+			this.label7.Location = new System.Drawing.Point(631, 55);
 			this.label7.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.label7.Name = "label7";
 			this.label7.Size = new System.Drawing.Size(420, 17);
@@ -129,7 +131,7 @@
 			// label6
 			// 
 			this.label6.AutoSize = true;
-			this.label6.Location = new System.Drawing.Point(424, 36);
+			this.label6.Location = new System.Drawing.Point(631, 39);
 			this.label6.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.label6.Name = "label6";
 			this.label6.Size = new System.Drawing.Size(419, 17);
@@ -139,7 +141,7 @@
 			// label5
 			// 
 			this.label5.AutoSize = true;
-			this.label5.Location = new System.Drawing.Point(424, 20);
+			this.label5.Location = new System.Drawing.Point(631, 23);
 			this.label5.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.label5.Name = "label5";
 			this.label5.Size = new System.Drawing.Size(358, 17);
@@ -406,6 +408,16 @@
 			this.btnStartCopiers.Text = "Start copiers";
 			this.btnStartCopiers.UseVisualStyleBackColor = true;
 			// 
+			// btnReset
+			// 
+			this.btnReset.Location = new System.Drawing.Point(423, 23);
+			this.btnReset.Margin = new System.Windows.Forms.Padding(4);
+			this.btnReset.Name = "btnReset";
+			this.btnReset.Size = new System.Drawing.Size(200, 28);
+			this.btnReset.TabIndex = 46;
+			this.btnReset.Text = "Reset";
+			this.btnReset.UseVisualStyleBackColor = true;
+			// 
 			// PushingUserControl
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -457,5 +469,6 @@
 		private System.Windows.Forms.Label label7;
 		private System.Windows.Forms.Button btnStopCopiers;
 		private System.Windows.Forms.Button btnStartCopiers;
+		private System.Windows.Forms.Button btnReset;
 	}
 }

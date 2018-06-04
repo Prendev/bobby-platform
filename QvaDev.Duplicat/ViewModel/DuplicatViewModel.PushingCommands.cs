@@ -78,6 +78,11 @@ namespace QvaDev.Duplicat.ViewModel
         public void PushingPanicCommand(Pushing pushing)
         {
             _orchestrator.PushingPanic(pushing);
-        }
-    }
+		}
+
+		public void PushingResetCommand()
+		{
+			PushingState = PushingStates.NotRunning;
+		}
+	}
 }
