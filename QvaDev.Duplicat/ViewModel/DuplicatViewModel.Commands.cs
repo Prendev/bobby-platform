@@ -103,22 +103,46 @@ namespace QvaDev.Duplicat.ViewModel
             }
         }
 
-        public void ConnectCommand()
+		public async void QuickStartCommand()
+		{
+			IsLoading = true;
+			IsConfigReadonly = true;
+
+			await _orchestrator.Connect(_duplicatContext);
+			await _orchestrator.StartCopiers(_duplicatContext);
+			await _orchestrator.StartTickers(_duplicatContext);
+			await _orchestrator.StartStrategies(_duplicatContext);
+
+			AreCopiersStarted = true;
+			AreTickersStarted = true;
+			AreStrategiesStarted = true;
+			IsLoading = false;
+			IsConfigReadonly = true;
+			IsConnected = true;
+		}
+		public async void ConnectCommand()
         {
             IsLoading = true;
             IsConfigReadonly = true;
-            _orchestrator.Connect(_duplicatContext)
-                .ContinueWith(prevTask => { IsLoading = false; IsConfigReadonly = true; IsConnected = true; });
+			await _orchestrator.Connect(_duplicatContext);
+
+			IsLoading = false;
+			IsConfigReadonly = true;
+			IsConnected = true;
         }
-        public void DisconnectCommand()
+		public async void DisconnectCommand()
         {
             StopCopiersCommand();
 			StopTickersCommand();
 	        StopStrategiesCommand();
+
 			IsLoading = true;
             IsConfigReadonly = true;
-            _orchestrator.Disconnect()
-                .ContinueWith(prevTask => { IsLoading = false; IsConfigReadonly = false; IsConnected = false; });
+			await _orchestrator.Disconnect();
+
+			IsLoading = false;
+			IsConfigReadonly = false;
+			IsConnected = false;
         }
 
         public void LoadProfileCommand(Profile profile)
@@ -156,18 +180,16 @@ namespace QvaDev.Duplicat.ViewModel
             }
         }
 
-        public void StartCopiersCommand()
+        public async void StartCopiersCommand()
         {
             IsLoading = true;
             IsConfigReadonly = true;
-            _orchestrator.StartCopiers(_duplicatContext)
-                .ContinueWith(prevTask =>
-                {
-                    IsLoading = false;
-                    IsConfigReadonly = true;
-                    AreCopiersStarted = true;
-                    IsConnected = true;
-                });
+			await _orchestrator.StartCopiers(_duplicatContext);
+
+            IsLoading = false;
+            IsConfigReadonly = true;
+            AreCopiersStarted = true;
+            IsConnected = true;
         }
         public void StopCopiersCommand()
         {
@@ -175,45 +197,44 @@ namespace QvaDev.Duplicat.ViewModel
             AreCopiersStarted = false;
         }
 
-        public void OrderHistoryExportCommand()
+        public async void OrderHistoryExportCommand()
         {
             IsLoading = true;
             IsConfigReadonly = true;
-            _orchestrator.OrderHistoryExport(_duplicatContext)
-                .ContinueWith(prevTask => { IsLoading = false; IsConfigReadonly = true; IsConnected = true; });
+			await _orchestrator.OrderHistoryExport(_duplicatContext);
+
+			IsLoading = false;
+			IsConfigReadonly = true;
+			IsConnected = true;
 		}
 
-		public void StartTickersCommand()
+		public async void StartTickersCommand()
 		{
 			IsLoading = true;
 			IsConfigReadonly = true;
-			_orchestrator.StartTickers(_duplicatContext)
-				.ContinueWith(prevTask =>
-				{
-					IsLoading = false;
-					IsConfigReadonly = true;
-					AreTickersStarted = true;
-					IsConnected = true;
-				});
+			await _orchestrator.StartTickers(_duplicatContext);
+
+			IsLoading = false;
+			IsConfigReadonly = true;
+			AreTickersStarted = true;
+			IsConnected = true;
 		}
 		public void StopTickersCommand()
 		{
 			_orchestrator.StopTickers();
 			AreTickersStarted = false;
 		}
-	    public void StartStrategiesCommand()
+	    public async void StartStrategiesCommand()
 	    {
 		    IsLoading = true;
 		    IsConfigReadonly = true;
-		    _orchestrator.StartStrategies(_duplicatContext)
-			    .ContinueWith(prevTask =>
-			    {
-				    IsLoading = false;
-				    IsConfigReadonly = true;
-				    AreStrategiesStarted = true;
-				    IsConnected = true;
-			    });
-	    }
+			await _orchestrator.StartStrategies(_duplicatContext);
+
+			IsLoading = false;
+			IsConfigReadonly = true;
+			AreStrategiesStarted = true;
+			IsConnected = true;
+		}
 	    public void StopStrategiesCommand()
 	    {
 		    _orchestrator.StopStrategies();

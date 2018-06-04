@@ -22,11 +22,13 @@ namespace QvaDev.Duplicat.Views
 
             gbControl.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsLoading), true);
             gbPushing.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsPushingEnabled));
-            btnLoad.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsConnected), true);
+            //btnLoad.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsConnected), true);
             dgvPushings.AddBinding("AllowUserToAddRows", _viewModel, nameof(_viewModel.IsConfigReadonly), true);
             dgvPushings.AddBinding("AllowUserToDeleteRows", _viewModel, nameof(_viewModel.IsConfigReadonly), true);
+			btnStartCopiers.AddBinding("Enabled", _viewModel, nameof(_viewModel.AreCopiersStarted), true);
+			btnStopCopiers.AddBinding("Enabled", _viewModel, nameof(_viewModel.AreCopiersStarted));
 
-            btnBuyBeta.AddBinding<DuplicatViewModel.PushingStates>("Enabled", _viewModel,
+			btnBuyBeta.AddBinding<DuplicatViewModel.PushingStates>("Enabled", _viewModel,
                 nameof(_viewModel.PushingState), p => p == DuplicatViewModel.PushingStates.NotRunning);
             btnSellBeta.AddBinding<DuplicatViewModel.PushingStates>("Enabled", _viewModel,
                 nameof(_viewModel.PushingState), p => p == DuplicatViewModel.PushingStates.NotRunning);
@@ -52,7 +54,10 @@ namespace QvaDev.Duplicat.Views
                 e.Row.Cells["PushingDetail"].Value = new PushingDetail();
             };
 
-            btnTestMarketOrder.Click += (s, e) => { _viewModel.PushingTestMarketOrderCommand(dgvPushings.GetSelectedItem<Pushing>()); };
+			btnStartCopiers.Click += (s, e) => { _viewModel.StartCopiersCommand(); };
+			btnStopCopiers.Click += (s, e) => { _viewModel.StopCopiersCommand(); };
+
+			btnTestMarketOrder.Click += (s, e) => { _viewModel.PushingTestMarketOrderCommand(dgvPushings.GetSelectedItem<Pushing>()); };
 			btnTestLimitOrder.Click += (s, e) => { _viewModel.PushingTestLimitOrderCommand(dgvPushings.GetSelectedItem<Pushing>()); };
 
 			btnBuyBeta.Click += (s, e) => { _viewModel.PushingOpenCommand(dgvPushings.GetSelectedItem<Pushing>(), Common.Integration.Sides.Buy); };

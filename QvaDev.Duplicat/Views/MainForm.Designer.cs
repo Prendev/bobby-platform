@@ -56,6 +56,7 @@
 			this.pushingUserControl = new QvaDev.Duplicat.Views.PushingUserControl();
 			this.strategiesUserControl = new QvaDev.Duplicat.Views.StrategiesUserControl();
 			this.tickersUserControl = new QvaDev.Duplicat.Views.TickersUserControl();
+			this.btnQuickStart = new System.Windows.Forms.Button();
 			this.tabControlMain.SuspendLayout();
 			this.tabPageProfiles.SuspendLayout();
 			this.tabPageMt4.SuspendLayout();
@@ -86,7 +87,7 @@
 			this.tabControlMain.Margin = new System.Windows.Forms.Padding(4);
 			this.tabControlMain.Name = "tabControlMain";
 			this.tabControlMain.SelectedIndex = 0;
-			this.tabControlMain.Size = new System.Drawing.Size(1345, 762);
+			this.tabControlMain.Size = new System.Drawing.Size(1493, 762);
 			this.tabControlMain.TabIndex = 0;
 			// 
 			// tabPageProfiles
@@ -96,7 +97,7 @@
 			this.tabPageProfiles.Margin = new System.Windows.Forms.Padding(4);
 			this.tabPageProfiles.Name = "tabPageProfiles";
 			this.tabPageProfiles.Padding = new System.Windows.Forms.Padding(4);
-			this.tabPageProfiles.Size = new System.Drawing.Size(1337, 733);
+			this.tabPageProfiles.Size = new System.Drawing.Size(1485, 733);
 			this.tabPageProfiles.TabIndex = 3;
 			this.tabPageProfiles.Text = "Profiles";
 			this.tabPageProfiles.UseVisualStyleBackColor = true;
@@ -218,11 +219,12 @@
 			this.tlpMain.RowCount = 2;
 			this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 64F));
 			this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-			this.tlpMain.Size = new System.Drawing.Size(1353, 834);
+			this.tlpMain.Size = new System.Drawing.Size(1501, 834);
 			this.tlpMain.TabIndex = 1;
 			// 
 			// gbControl
 			// 
+			this.gbControl.Controls.Add(this.btnQuickStart);
 			this.gbControl.Controls.Add(this.labelProfile);
 			this.gbControl.Controls.Add(this.label1);
 			this.gbControl.Controls.Add(this.btnRestore);
@@ -235,7 +237,7 @@
 			this.gbControl.Margin = new System.Windows.Forms.Padding(4);
 			this.gbControl.Name = "gbControl";
 			this.gbControl.Padding = new System.Windows.Forms.Padding(4);
-			this.gbControl.Size = new System.Drawing.Size(1345, 56);
+			this.gbControl.Size = new System.Drawing.Size(1493, 56);
 			this.gbControl.TabIndex = 1;
 			this.gbControl.TabStop = false;
 			this.gbControl.Text = "Main control panel";
@@ -284,7 +286,7 @@
 			// btnDisconnect
 			// 
 			this.btnDisconnect.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.btnDisconnect.Location = new System.Drawing.Point(1137, 23);
+			this.btnDisconnect.Location = new System.Drawing.Point(1285, 23);
 			this.btnDisconnect.Margin = new System.Windows.Forms.Padding(4);
 			this.btnDisconnect.Name = "btnDisconnect";
 			this.btnDisconnect.Size = new System.Drawing.Size(200, 28);
@@ -295,7 +297,7 @@
 			// btnConnect
 			// 
 			this.btnConnect.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.btnConnect.Location = new System.Drawing.Point(929, 23);
+			this.btnConnect.Location = new System.Drawing.Point(1077, 23);
 			this.btnConnect.Margin = new System.Windows.Forms.Padding(4);
 			this.btnConnect.Name = "btnConnect";
 			this.btnConnect.Size = new System.Drawing.Size(200, 28);
@@ -319,7 +321,7 @@
 			this.profilesUserControl.Location = new System.Drawing.Point(4, 4);
 			this.profilesUserControl.Margin = new System.Windows.Forms.Padding(5);
 			this.profilesUserControl.Name = "profilesUserControl";
-			this.profilesUserControl.Size = new System.Drawing.Size(1329, 725);
+			this.profilesUserControl.Size = new System.Drawing.Size(1477, 725);
 			this.profilesUserControl.TabIndex = 0;
 			// 
 			// mtAccountsUserControl
@@ -383,11 +385,22 @@
 			this.tickersUserControl.Size = new System.Drawing.Size(1337, 733);
 			this.tickersUserControl.TabIndex = 0;
 			// 
+			// btnQuickStart
+			// 
+			this.btnQuickStart.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.btnQuickStart.Location = new System.Drawing.Point(869, 23);
+			this.btnQuickStart.Margin = new System.Windows.Forms.Padding(4);
+			this.btnQuickStart.Name = "btnQuickStart";
+			this.btnQuickStart.Size = new System.Drawing.Size(200, 28);
+			this.btnQuickStart.TabIndex = 24;
+			this.btnQuickStart.Text = "Quick start";
+			this.btnQuickStart.UseVisualStyleBackColor = true;
+			// 
 			// MainForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(1353, 834);
+			this.ClientSize = new System.Drawing.Size(1501, 834);
 			this.Controls.Add(this.tlpMain);
 			this.Margin = new System.Windows.Forms.Padding(4);
 			this.Name = "MainForm";
@@ -448,6 +461,7 @@
 		private TickersUserControl tickersUserControl;
 		private System.Windows.Forms.TabPage tabPageStrategies;
 		private StrategiesUserControl strategiesUserControl;
+		private System.Windows.Forms.Button btnQuickStart;
 	}
 }
 

@@ -44,7 +44,8 @@ namespace QvaDev.Duplicat.Views
 			tabPageTicker.AddBinding<int>("Enabled", _viewModel, nameof(_viewModel.SelectedProfileId), p => p > 0);
 			labelProfile.AddBinding("Text", _viewModel, nameof(_viewModel.SelectedProfileDesc));
 
-            btnConnect.Click += (s, e) => { _viewModel.ConnectCommand(); };
+			btnQuickStart.Click += (s, e) => { _viewModel.QuickStartCommand(); };
+			btnConnect.Click += (s, e) => { _viewModel.ConnectCommand(); };
             btnDisconnect.Click += (s, e) => { _viewModel.DisconnectCommand(); };
 
             var titleBinding = new Binding("Text", _viewModel, "IsLoading");

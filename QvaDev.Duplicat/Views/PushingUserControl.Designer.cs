@@ -55,6 +55,8 @@
 			this.dgvPushings = new QvaDev.Duplicat.Views.CustomDataGridView();
 			this.gbControl = new System.Windows.Forms.GroupBox();
 			this.btnLoad = new System.Windows.Forms.Button();
+			this.btnStopCopiers = new System.Windows.Forms.Button();
+			this.btnStartCopiers = new System.Windows.Forms.Button();
 			this.tlpMain.SuspendLayout();
 			this.gbPushing.SuspendLayout();
 			this.groupBox2.SuspendLayout();
@@ -74,7 +76,7 @@
 			this.tlpMain.Controls.Add(this.gbControl, 0, 0);
 			this.tlpMain.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.tlpMain.Location = new System.Drawing.Point(0, 0);
-			this.tlpMain.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+			this.tlpMain.Margin = new System.Windows.Forms.Padding(4);
 			this.tlpMain.Name = "tlpMain";
 			this.tlpMain.RowCount = 4;
 			this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 64F));
@@ -107,9 +109,9 @@
 			this.gbPushing.Controls.Add(this.btnTestMarketOrder);
 			this.gbPushing.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.gbPushing.Location = new System.Drawing.Point(4, 314);
-			this.gbPushing.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+			this.gbPushing.Margin = new System.Windows.Forms.Padding(4);
 			this.gbPushing.Name = "gbPushing";
-			this.gbPushing.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+			this.gbPushing.Padding = new System.Windows.Forms.Padding(4);
 			this.gbPushing.Size = new System.Drawing.Size(1215, 416);
 			this.gbPushing.TabIndex = 0;
 			this.gbPushing.TabStop = false;
@@ -147,7 +149,7 @@
 			// btnRushClose
 			// 
 			this.btnRushClose.Location = new System.Drawing.Point(424, 255);
-			this.btnRushClose.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+			this.btnRushClose.Margin = new System.Windows.Forms.Padding(4);
 			this.btnRushClose.Name = "btnRushClose";
 			this.btnRushClose.Size = new System.Drawing.Size(200, 135);
 			this.btnRushClose.TabIndex = 42;
@@ -157,7 +159,7 @@
 			// btnRushCloseFinish
 			// 
 			this.btnRushCloseFinish.Location = new System.Drawing.Point(632, 255);
-			this.btnRushCloseFinish.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+			this.btnRushCloseFinish.Margin = new System.Windows.Forms.Padding(4);
 			this.btnRushCloseFinish.Name = "btnRushCloseFinish";
 			this.btnRushCloseFinish.Size = new System.Drawing.Size(200, 135);
 			this.btnRushCloseFinish.TabIndex = 41;
@@ -167,7 +169,7 @@
 			// btnRushOpenFinish
 			// 
 			this.btnRushOpenFinish.Location = new System.Drawing.Point(424, 82);
-			this.btnRushOpenFinish.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+			this.btnRushOpenFinish.Margin = new System.Windows.Forms.Padding(4);
 			this.btnRushOpenFinish.Name = "btnRushOpenFinish";
 			this.btnRushOpenFinish.Size = new System.Drawing.Size(200, 135);
 			this.btnRushOpenFinish.TabIndex = 40;
@@ -177,7 +179,7 @@
 			// btnTestLimitOrder
 			// 
 			this.btnTestLimitOrder.Location = new System.Drawing.Point(216, 23);
-			this.btnTestLimitOrder.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+			this.btnTestLimitOrder.Margin = new System.Windows.Forms.Padding(4);
 			this.btnTestLimitOrder.Name = "btnTestLimitOrder";
 			this.btnTestLimitOrder.Size = new System.Drawing.Size(200, 28);
 			this.btnTestLimitOrder.TabIndex = 39;
@@ -197,7 +199,7 @@
 			// btnRushHedge
 			// 
 			this.btnRushHedge.Location = new System.Drawing.Point(216, 255);
-			this.btnRushHedge.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+			this.btnRushHedge.Margin = new System.Windows.Forms.Padding(4);
 			this.btnRushHedge.Name = "btnRushHedge";
 			this.btnRushHedge.Size = new System.Drawing.Size(200, 135);
 			this.btnRushHedge.TabIndex = 37;
@@ -217,7 +219,7 @@
 			// btnRushOpen
 			// 
 			this.btnRushOpen.Location = new System.Drawing.Point(216, 82);
-			this.btnRushOpen.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+			this.btnRushOpen.Margin = new System.Windows.Forms.Padding(4);
 			this.btnRushOpen.Name = "btnRushOpen";
 			this.btnRushOpen.Size = new System.Drawing.Size(200, 135);
 			this.btnRushOpen.TabIndex = 35;
@@ -250,7 +252,7 @@
 			this.cbHedge.Checked = true;
 			this.cbHedge.CheckState = System.Windows.Forms.CheckState.Checked;
 			this.cbHedge.Location = new System.Drawing.Point(131, 234);
-			this.cbHedge.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+			this.cbHedge.Margin = new System.Windows.Forms.Padding(4);
 			this.cbHedge.Name = "cbHedge";
 			this.cbHedge.Size = new System.Drawing.Size(72, 21);
 			this.cbHedge.TabIndex = 32;
@@ -260,7 +262,7 @@
 			// btnCloseShortBuyFutures
 			// 
 			this.btnCloseShortBuyFutures.Location = new System.Drawing.Point(8, 255);
-			this.btnCloseShortBuyFutures.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+			this.btnCloseShortBuyFutures.Margin = new System.Windows.Forms.Padding(4);
 			this.btnCloseShortBuyFutures.Name = "btnCloseShortBuyFutures";
 			this.btnCloseShortBuyFutures.Size = new System.Drawing.Size(200, 64);
 			this.btnCloseShortBuyFutures.TabIndex = 31;
@@ -270,7 +272,7 @@
 			// btnCloseLongSellFutures
 			// 
 			this.btnCloseLongSellFutures.Location = new System.Drawing.Point(8, 326);
-			this.btnCloseLongSellFutures.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+			this.btnCloseLongSellFutures.Margin = new System.Windows.Forms.Padding(4);
 			this.btnCloseLongSellFutures.Name = "btnCloseLongSellFutures";
 			this.btnCloseLongSellFutures.Size = new System.Drawing.Size(200, 64);
 			this.btnCloseLongSellFutures.TabIndex = 30;
@@ -280,7 +282,7 @@
 			// btnSellBeta
 			// 
 			this.btnSellBeta.Location = new System.Drawing.Point(8, 154);
-			this.btnSellBeta.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+			this.btnSellBeta.Margin = new System.Windows.Forms.Padding(4);
 			this.btnSellBeta.Name = "btnSellBeta";
 			this.btnSellBeta.Size = new System.Drawing.Size(200, 64);
 			this.btnSellBeta.TabIndex = 29;
@@ -290,7 +292,7 @@
 			// btnBuyBeta
 			// 
 			this.btnBuyBeta.Location = new System.Drawing.Point(8, 82);
-			this.btnBuyBeta.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+			this.btnBuyBeta.Margin = new System.Windows.Forms.Padding(4);
 			this.btnBuyBeta.Name = "btnBuyBeta";
 			this.btnBuyBeta.Size = new System.Drawing.Size(200, 64);
 			this.btnBuyBeta.TabIndex = 28;
@@ -300,7 +302,7 @@
 			// btnTestMarketOrder
 			// 
 			this.btnTestMarketOrder.Location = new System.Drawing.Point(8, 23);
-			this.btnTestMarketOrder.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+			this.btnTestMarketOrder.Margin = new System.Windows.Forms.Padding(4);
 			this.btnTestMarketOrder.Name = "btnTestMarketOrder";
 			this.btnTestMarketOrder.Size = new System.Drawing.Size(200, 28);
 			this.btnTestMarketOrder.TabIndex = 23;
@@ -312,9 +314,9 @@
 			this.groupBox2.Controls.Add(this.dgvPushingDetail);
 			this.groupBox2.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.groupBox2.Location = new System.Drawing.Point(4, 191);
-			this.groupBox2.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+			this.groupBox2.Margin = new System.Windows.Forms.Padding(4);
 			this.groupBox2.Name = "groupBox2";
-			this.groupBox2.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+			this.groupBox2.Padding = new System.Windows.Forms.Padding(4);
 			this.groupBox2.Size = new System.Drawing.Size(1215, 115);
 			this.groupBox2.TabIndex = 2;
 			this.groupBox2.TabStop = false;
@@ -328,7 +330,7 @@
 			this.dgvPushingDetail.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
 			this.dgvPushingDetail.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.dgvPushingDetail.Location = new System.Drawing.Point(4, 19);
-			this.dgvPushingDetail.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+			this.dgvPushingDetail.Margin = new System.Windows.Forms.Padding(4);
 			this.dgvPushingDetail.MultiSelect = false;
 			this.dgvPushingDetail.Name = "dgvPushingDetail";
 			this.dgvPushingDetail.Size = new System.Drawing.Size(1207, 92);
@@ -339,9 +341,9 @@
 			this.groupBox1.Controls.Add(this.dgvPushings);
 			this.groupBox1.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.groupBox1.Location = new System.Drawing.Point(4, 68);
-			this.groupBox1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+			this.groupBox1.Margin = new System.Windows.Forms.Padding(4);
 			this.groupBox1.Name = "groupBox1";
-			this.groupBox1.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+			this.groupBox1.Padding = new System.Windows.Forms.Padding(4);
 			this.groupBox1.Size = new System.Drawing.Size(1215, 115);
 			this.groupBox1.TabIndex = 1;
 			this.groupBox1.TabStop = false;
@@ -353,7 +355,7 @@
 			this.dgvPushings.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
 			this.dgvPushings.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.dgvPushings.Location = new System.Drawing.Point(4, 19);
-			this.dgvPushings.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+			this.dgvPushings.Margin = new System.Windows.Forms.Padding(4);
 			this.dgvPushings.MultiSelect = false;
 			this.dgvPushings.Name = "dgvPushings";
 			this.dgvPushings.Size = new System.Drawing.Size(1207, 92);
@@ -361,12 +363,14 @@
 			// 
 			// gbControl
 			// 
+			this.gbControl.Controls.Add(this.btnStopCopiers);
+			this.gbControl.Controls.Add(this.btnStartCopiers);
 			this.gbControl.Controls.Add(this.btnLoad);
 			this.gbControl.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.gbControl.Location = new System.Drawing.Point(4, 4);
-			this.gbControl.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+			this.gbControl.Margin = new System.Windows.Forms.Padding(4);
 			this.gbControl.Name = "gbControl";
-			this.gbControl.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+			this.gbControl.Padding = new System.Windows.Forms.Padding(4);
 			this.gbControl.Size = new System.Drawing.Size(1215, 56);
 			this.gbControl.TabIndex = 3;
 			this.gbControl.TabStop = false;
@@ -375,19 +379,39 @@
 			// btnLoad
 			// 
 			this.btnLoad.Location = new System.Drawing.Point(8, 23);
-			this.btnLoad.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+			this.btnLoad.Margin = new System.Windows.Forms.Padding(4);
 			this.btnLoad.Name = "btnLoad";
 			this.btnLoad.Size = new System.Drawing.Size(200, 28);
 			this.btnLoad.TabIndex = 24;
 			this.btnLoad.Text = "Load selected pushing";
 			this.btnLoad.UseVisualStyleBackColor = true;
 			// 
+			// btnStopCopiers
+			// 
+			this.btnStopCopiers.Location = new System.Drawing.Point(423, 23);
+			this.btnStopCopiers.Margin = new System.Windows.Forms.Padding(4);
+			this.btnStopCopiers.Name = "btnStopCopiers";
+			this.btnStopCopiers.Size = new System.Drawing.Size(200, 28);
+			this.btnStopCopiers.TabIndex = 26;
+			this.btnStopCopiers.Text = "Stop copiers";
+			this.btnStopCopiers.UseVisualStyleBackColor = true;
+			// 
+			// btnStartCopiers
+			// 
+			this.btnStartCopiers.Location = new System.Drawing.Point(215, 23);
+			this.btnStartCopiers.Margin = new System.Windows.Forms.Padding(4);
+			this.btnStartCopiers.Name = "btnStartCopiers";
+			this.btnStartCopiers.Size = new System.Drawing.Size(200, 28);
+			this.btnStartCopiers.TabIndex = 25;
+			this.btnStartCopiers.Text = "Start copiers";
+			this.btnStartCopiers.UseVisualStyleBackColor = true;
+			// 
 			// PushingUserControl
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.Controls.Add(this.tlpMain);
-			this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+			this.Margin = new System.Windows.Forms.Padding(4);
 			this.Name = "PushingUserControl";
 			this.Size = new System.Drawing.Size(1223, 734);
 			this.tlpMain.ResumeLayout(false);
@@ -431,5 +455,7 @@
 		private System.Windows.Forms.Label label5;
 		private System.Windows.Forms.Label label6;
 		private System.Windows.Forms.Label label7;
+		private System.Windows.Forms.Button btnStopCopiers;
+		private System.Windows.Forms.Button btnStartCopiers;
 	}
 }
