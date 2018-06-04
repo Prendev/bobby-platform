@@ -89,8 +89,8 @@ namespace QvaDev.Orchestration
 		private Task ConnectMtAccounts()
 		{
 			var accounts = _duplicatContext.Accounts
-				.Where(pa => pa.Run && pa.State != Account.States.Connected && pa.MetaTraderAccountId.HasValue)
-				.AsEnumerable();
+				.Where(pa => pa.Run && pa.MetaTraderAccountId.HasValue).ToList()
+				.Where(pa => pa.State != Account.States.Connected);
 			var tasks = accounts.Select(pa => Task.Factory.StartNew(() =>
 			{
 				var connector = pa.Connector as Mt4Integration.Connector;
@@ -117,8 +117,8 @@ namespace QvaDev.Orchestration
         private Task ConenctCtAccounts()
 		{
 			var accounts = _duplicatContext.Accounts
-				.Where(pa => pa.Run && pa.State != Account.States.Connected && pa.CTraderAccountId.HasValue)
-				.AsEnumerable();
+				.Where(pa => pa.Run && pa.CTraderAccountId.HasValue).ToList()
+				.Where(pa => pa.State != Account.States.Connected);
 			var tasks = accounts.Select(pa => Task.Factory.StartNew(() =>
 			{
                 var connector = pa.Connector as CTraderIntegration.Connector;
@@ -154,8 +154,8 @@ namespace QvaDev.Orchestration
         private Task ConnectFtAccounts()
         {
 			var accounts = _duplicatContext.Accounts
-				.Where(pa => pa.Run && pa.State != Account.States.Connected && pa.FixTraderAccountId.HasValue)
-				.AsEnumerable();
+				.Where(pa => pa.Run && pa.FixTraderAccountId.HasValue).ToList()
+				.Where(pa => pa.State != Account.States.Connected);
 			var tasks = accounts.Select(pa => Task.Factory.StartNew(() =>
 			{
                 var connector = pa.Connector as FixTraderIntegration.Connector;
@@ -181,9 +181,8 @@ namespace QvaDev.Orchestration
         public Task Disconnect()
         {
             _duplicatContext.SaveChanges();
-			var accounts = _duplicatContext.Accounts
-				 .Where(pa => pa.State != Account.States.Disconnected)
-				 .AsEnumerable();
+			var accounts = _duplicatContext.Accounts.ToList()
+				 .Where(pa => pa.State != Account.States.Disconnected);
 			var tasks = accounts.Select(pa => Task.Factory.StartNew(() =>
 			{
 				pa.Connector.Disconnect();

@@ -65,7 +65,7 @@ namespace QvaDev.Duplicat.Views
 
         public void AttachDataSources()
         {
-            dgvMasters.AddComboBoxColumn(_viewModel.Accounts, "MetaTraderAccount");
+            dgvMasters.AddComboBoxColumn(_viewModel.Accounts);
 			dgvSlaves.AddComboBoxColumn(_viewModel.Masters);
             dgvSlaves.AddComboBoxColumn(_viewModel.Accounts);
 

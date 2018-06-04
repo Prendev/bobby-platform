@@ -2,8 +2,8 @@
 
 namespace QvaDev.Data.Models
 {
-    public class FixTraderAccount : BaseAccountEntity
-    {
+    public class FixTraderAccount : BaseDescriptionEntity
+	{
         [Required]
         public string IpAddress { get; set; }
         public int CommandSocketPort { get; set; }

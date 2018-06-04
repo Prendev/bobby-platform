@@ -7,13 +7,13 @@ namespace QvaDev.Data.Migrations
     using System.Resources;
     
     [GeneratedCode("EntityFramework.Migrations", "6.1.3-40302")]
-    public sealed partial class AddAccountsTable : IMigrationMetadata
+    public sealed partial class Init : IMigrationMetadata
     {
-        private readonly ResourceManager Resources = new ResourceManager(typeof(AddAccountsTable));
+        private readonly ResourceManager Resources = new ResourceManager(typeof(Init));
         
         string IMigrationMetadata.Id
         {
-            get { return "201806040941261_AddAccountsTable"; }
+            get { return "201806041444522_Init"; }
         }
         
         string IMigrationMetadata.Source

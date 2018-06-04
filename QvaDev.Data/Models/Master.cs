@@ -9,14 +9,14 @@ namespace QvaDev.Data.Models
 		[InvisibleColumn] public Profile Profile { get; set; }
 
 		public bool Run { get; set; }
-        public int MetaTraderAccountId { get; set; }
-        public Account MetaTraderAccount { get; set; }
+        public int AccountId { get; set; }
+        public Account Account { get; set; }
 
         public List<Slave> Slaves { get => Get(() => new List<Slave>()); set => Set(value, false); }
 
         public override string ToString()
         {
-            return MetaTraderAccount.ToString();
+            return Account.ToString();
         }
     }
 }

@@ -50,13 +50,8 @@ namespace QvaDev.Duplicat.ViewModel
         public ObservableCollection<SymbolMapping> SymbolMappings { get; private set; }
         public ObservableCollection<Copier> Copiers { get; private set; }
 	    public ObservableCollection<FixApiCopier> FixApiCopiers { get; private set; }
-		public ObservableCollection<Monitor> Monitors { get; private set; }
-        public ObservableCollection<MonitoredAccount> MonitoredAccounts { get; private set; }
         public ObservableCollection<Pushing> Pushings { get; private set; }
         public ObservableCollection<PushingDetail> PushingDetails { get; private set; }
-        public ObservableCollection<Expert> Experts { get; private set; }
-        public ObservableCollection<TradingAccount> TradingAccounts { get; private set; }
-        public ObservableCollection<QuadroSet> QuadroSets { get; private set; }
 		public ObservableCollection<Ticker> Tickers { get; private set; }
 	    public ObservableCollection<StratDealingArb> StratDealingArbs { get; private set; }
 
@@ -128,13 +123,8 @@ namespace QvaDev.Duplicat.ViewModel
             _duplicatContext.Copiers.Where(e => e.Slave.Master.ProfileId == SelectedProfileId).Load();
 	        _duplicatContext.FixApiCopiers.Where(e => e.Slave.Master.ProfileId == SelectedProfileId).Load();
 			_duplicatContext.SymbolMappings.Where(e => e.Slave.Master.ProfileId == SelectedProfileId).Load();
-            _duplicatContext.Monitors.Where(e => e.ProfileId == SelectedProfileId).Load();
-            _duplicatContext.MonitoredAccounts.Where(e => e.Monitor.ProfileId == SelectedProfileId).Load();
             _duplicatContext.Pushings.Where(e => e.ProfileId == SelectedProfileId).Load();
             _duplicatContext.Pushings.Where(e => e.ProfileId == SelectedProfileId).Select(e => e.PushingDetail).Load();
-            _duplicatContext.Experts.Load();
-            _duplicatContext.TradingAccounts.Where(e => e.ProfileId == SelectedProfileId).Load();
-            _duplicatContext.QuadroSets.Where(e => e.TradingAccount.ProfileId == SelectedProfileId).Load();
 			_duplicatContext.Tickers.Where(e => e.ProfileId == SelectedProfileId).Load();
 	        _duplicatContext.StratDealingArbs.Where(e => e.ProfileId == SelectedProfileId).Load();
 
@@ -150,20 +140,14 @@ namespace QvaDev.Duplicat.ViewModel
             SymbolMappings = _duplicatContext.SymbolMappings.Local;
             Copiers = _duplicatContext.Copiers.Local;
 	        FixApiCopiers = _duplicatContext.FixApiCopiers.Local;
-			Monitors = _duplicatContext.Monitors.Local;
-            MonitoredAccounts = _duplicatContext.MonitoredAccounts.Local;
             Pushings = _duplicatContext.Pushings.Local;
             PushingDetails = _duplicatContext.PushingDetails.Local;
-            Experts = _duplicatContext.Experts.Local;
-            TradingAccounts = _duplicatContext.TradingAccounts.Local;
-            QuadroSets = _duplicatContext.QuadroSets.Local;
 			Tickers = _duplicatContext.Tickers.Local;
 	        StratDealingArbs = _duplicatContext.StratDealingArbs.Local;
 
 			foreach (var e in SymbolMappings) e.IsFiltered = e.SlaveId != SelectedSlaveId;
             foreach (var e in Copiers) e.IsFiltered = e.SlaveId != SelectedSlaveId;
 	        foreach (var e in FixApiCopiers) e.IsFiltered = e.SlaveId != SelectedSlaveId;
-			foreach (var e in QuadroSets) e.IsFiltered = e.TradingAccountId != SelectedTradingAccountId;
             foreach (var e in PushingDetails) e.IsFiltered = e.Id != SelectedPushingDetailId;
         }
     }

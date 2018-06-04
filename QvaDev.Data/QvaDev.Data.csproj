@@ -74,31 +74,22 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DuplicatContext.cs" />
-    <Compile Include="Migrations\201806011450034_Init.cs" />
-    <Compile Include="Migrations\201806011450034_Init.Designer.cs">
-      <DependentUpon>201806011450034_Init.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201806040941261_AddAccountsTable.cs" />
-    <Compile Include="Migrations\201806040941261_AddAccountsTable.Designer.cs">
-      <DependentUpon>201806040941261_AddAccountsTable.cs</DependentUpon>
+    <Compile Include="Migrations\201806041444522_Init.cs" />
+    <Compile Include="Migrations\201806041444522_Init.Designer.cs">
+      <DependentUpon>201806041444522_Init.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
-    <Compile Include="Models\BaseAccountEntity.cs" />
     <Compile Include="Models\BaseEntity.cs" />
     <Compile Include="Models\BaseDescriptionEntity.cs" />
     <Compile Include="Models\FixApiCopier.cs" />
     <Compile Include="Models\Copier.cs" />
     <Compile Include="Models\CTraderAccount.cs" />
     <Compile Include="Models\CTraderPlatform.cs" />
-    <Compile Include="Models\Expert.cs" />
     <Compile Include="Models\Account.cs" />
     <Compile Include="Models\Pushing.cs" />
     <Compile Include="Models\PushingDetail.cs" />
-    <Compile Include="Models\QuadroSet.cs" />
     <Compile Include="Models\FixTraderAccount.cs" />
     <Compile Include="Models\IFilterableEntity.cs" />
-    <Compile Include="Models\Monitor.cs" />
-    <Compile Include="Models\MonitoredAccount.cs" />
     <Compile Include="Models\StratDealingArb.cs" />
     <Compile Include="Models\Ticker.cs" />
     <Compile Include="Models\Slave.cs" />
@@ -107,7 +98,6 @@
     <Compile Include="Models\Master.cs" />
     <Compile Include="Models\Profile.cs" />
     <Compile Include="Models\SymbolMapping.cs" />
-    <Compile Include="Models\TradingAccount.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repositories\Mt4PlatformRepository.cs" />
   </ItemGroup>
@@ -176,11 +166,8 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Migrations\201806011450034_Init.resx">
-      <DependentUpon>201806011450034_Init.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201806040941261_AddAccountsTable.resx">
-      <DependentUpon>201806040941261_AddAccountsTable.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\201806041444522_Init.resx">
+      <DependentUpon>201806041444522_Init.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

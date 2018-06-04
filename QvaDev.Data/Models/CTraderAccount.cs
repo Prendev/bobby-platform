@@ -2,8 +2,8 @@
 
 namespace QvaDev.Data.Models
 {
-    public class CTraderAccount : BaseAccountEntity
-    {
+    public class CTraderAccount : BaseDescriptionEntity
+	{
         [Required]
         public long AccountNumber { get; set; }
 

@@ -1,5 +1,6 @@
 ﻿using QvaDev.Common.Attributes;
 using QvaDev.Common.Integration;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -33,9 +34,9 @@ namespace QvaDev.Data.Models
 
 		public override string ToString()
 		{
-			if (MetaTraderAccount != null) return MetaTraderAccount.Description;
-			if (CTraderAccount != null) return CTraderAccount.Description;
-			if (FixTraderAccount != null) return FixTraderAccount.Description;
+			if (MetaTraderAccount != null) return $"MT4 | {MetaTraderAccount.Description}";
+			if (CTraderAccount != null) return $"CT | {CTraderAccount.Description}";
+			if (FixTraderAccount != null) return $"FT | {FixTraderAccount.Description}";
 			return "";
 		}
 	}

@@ -23,14 +23,8 @@ namespace QvaDev.Data
 	    public DbSet<FixApiCopier> FixApiCopiers { get; set; }
 		public DbSet<SymbolMapping> SymbolMappings { get; set; }
 
-        public DbSet<Monitor> Monitors { get; set; }
-        public DbSet<MonitoredAccount> MonitoredAccounts { get; set; }
         public DbSet<Pushing> Pushings { get; set; }
         public DbSet<PushingDetail> PushingDetails { get; set; }
-
-        public DbSet<Expert> Experts { get; set; }
-        public DbSet<TradingAccount> TradingAccounts { get; set; }
-        public DbSet<QuadroSet> QuadroSets { get; set; }
 
 		public DbSet<Ticker> Tickers { get; set; }
 

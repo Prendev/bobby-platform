@@ -137,12 +137,6 @@ namespace QvaDev.Duplicat.ViewModel
 	        foreach (var e in FixApiCopiers) e.IsFiltered = e.SlaveId != SelectedSlaveId;
 		}
 
-        public void ShowExpertSetsCommand(TradingAccount tradingAccount)
-        {
-            SelectedTradingAccountId = tradingAccount?.Id ?? 0;
-            foreach (var e in QuadroSets) e.IsFiltered = e.TradingAccountId != SelectedTradingAccountId;
-        }
-
         public void AccessNewCTraderCommand(CTraderPlatform p)
         {
             _xmlService.Save(CtPlatforms.ToList(), ConfigurationManager.AppSettings["CTraderPlatformsPath"]);

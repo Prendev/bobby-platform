@@ -30,12 +30,12 @@ namespace QvaDev.Orchestration.Services
         public void Start(DuplicatContext duplicatContext)
         {
 			var copiers = duplicatContext.Copiers.Local
-                .Where(c => c.Slave.Master.MetaTraderAccount.State == Account.States.Connected)
+                .Where(c => c.Slave.Master.Account.State == Account.States.Connected)
                 .Where(c => c.Slave.Account.State == Account.States.Connected)
                 .Select(c => c.Slave.Master);
 
 	        var fixApiCopiers = duplicatContext.FixApiCopiers.Local
-		        .Where(c => c.Slave.Master.MetaTraderAccount.State == Account.States.Connected)
+		        .Where(c => c.Slave.Master.Account.State == Account.States.Connected)
 		        .Where(c => c.Slave.Account.State == Account.States.Connected)
 		        .Select(c => c.Slave.Master);
 
@@ -43,8 +43,8 @@ namespace QvaDev.Orchestration.Services
 
 			foreach (var master in _masters)
             {
-                master.MetaTraderAccount.Connector.OnPosition -= MasterOnOrderUpdate;
-                master.MetaTraderAccount.Connector.OnPosition += MasterOnOrderUpdate;
+                master.Account.Connector.OnPosition -= MasterOnOrderUpdate;
+                master.Account.Connector.OnPosition += MasterOnOrderUpdate;
             }
 
             _isStarted = true;
@@ -66,7 +66,7 @@ namespace QvaDev.Orchestration.Services
                     _log.Info($"Master {e.Action:F} {e.Position.Side:F} signal on " +
                               $"{e.Position.Symbol} with open time: {e.Position.OpenTime:o}");
 
-	                var slaves = _masters.Where(m => m.Run && m.MetaTraderAccountId == e.DbId)
+	                var slaves = _masters.Where(m => m.Run && m.AccountId == e.DbId)
 		                .SelectMany(m => m.Slaves).Where(s => s.Run);
 					Task.WhenAll(slaves.Select(slave => CopyToAccount(e, slave))).Wait();
                 }

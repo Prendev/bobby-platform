@@ -2,20 +2,14 @@
 
 namespace QvaDev.Data.Models
 {
-    public class MetaTraderAccount : BaseAccountEntity
-    {
-        [Required]
+    public class MetaTraderAccount : BaseDescriptionEntity
+	{
         public long User { get; set; }
-
-        [Required]
-        public string Password { get; set; }
-
-        [Required]
+        [Required] public string Password { get; set; }
         public int MetaTraderPlatformId { get; set; }
-        [Required]
         public MetaTraderPlatform MetaTraderPlatform { get; set; }
 
-        public override string ToString()
+		public override string ToString()
         {
             return $"{Description} ({User})";
         }
