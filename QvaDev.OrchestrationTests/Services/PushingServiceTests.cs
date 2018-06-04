@@ -322,10 +322,10 @@ namespace QvaDev.OrchestrationTests.Services
 				AlphaSymbol = "alphaDummySymbol",
 				HedgeSymbol = "hedgeDummySymbol",
 				BetaOpenSide = Sides.Sell,
-				BetaMaster = new MetaTraderAccount() { Connector = BetaConnectorMock.Object },
-				AlphaMaster = new MetaTraderAccount() { Connector = AlphaConnectorMock.Object },
-				FutureAccount = new FixTraderAccount() { Connector = FtConnectorMock.Object },
-				HedgeAccount = new MetaTraderAccount() { Connector = HedgeConnectorMock.Object },
+				BetaMaster = new Account() { Connector = BetaConnectorMock.Object },
+				AlphaMaster = new Account() { Connector = AlphaConnectorMock.Object },
+				FutureAccount = new Account() { Connector = FtConnectorMock.Object },
+				HedgeAccount = new Account() { Connector = HedgeConnectorMock.Object },
 				PushingDetail = new PushingDetail()
 				{
 					AlphaLots = 0.123,

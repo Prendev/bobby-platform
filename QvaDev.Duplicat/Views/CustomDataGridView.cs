@@ -84,12 +84,12 @@ namespace QvaDev.Duplicat.Views
             if (bindingList == null) return;
             if (bindingList.Count <= e.RowIndex) return;
 
-            var entity = bindingList[e.RowIndex] as BaseAccountEntity;
+            var entity = bindingList[e.RowIndex] as Account;
             if (entity == null) return;
 
-            if (entity.State == BaseAccountEntity.States.Connected)
+            if (entity.State == Account.States.Connected)
                 Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.LightGreen;
-            else if (entity.State == BaseAccountEntity.States.Error)
+            else if (entity.State == Account.States.Error)
                 Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.PaleVioletRed;
             else Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.White;
         }

@@ -69,30 +69,29 @@ namespace QvaDev.Orchestration.Services
         public void Start(DuplicatContext duplicatContext)
         {
 			_tickers = duplicatContext.Tickers.Local
-				.Where(c => c.MainMetaTraderAccount?.State == BaseAccountEntity.States.Connected ||
-							c.MainFixTraderAccount?.State == BaseAccountEntity.States.Connected).ToList();
+				.Where(c => c.MainAccount.State == Account.States.Connected).ToList();
 
 			foreach (var ticker in _tickers)
             {
-				if (ticker.MainMetaTraderAccount?.Connector?.IsConnected == true)
+				if (ticker.MainAccount.Connector?.IsConnected == true && ticker.MainAccount.Connector is MtConnector)
 				{
-					var connector = (MtConnector)ticker.MainMetaTraderAccount.Connector;
+					var connector = (MtConnector)ticker.MainAccount.Connector;
 					connector.Subscribe(new List<Tuple<string, int, short>> { new Tuple<string, int, short>(ticker.MainSymbol, 1, 1) });
 				}
-				if (ticker.PairMetaTraderAccount?.Connector?.IsConnected == true)
+				if (ticker.PairAccount?.Connector?.IsConnected == true && ticker.PairAccount.Connector is MtConnector)
 				{
-					var connector = (MtConnector)ticker.PairMetaTraderAccount.Connector;
+					var connector = (MtConnector)ticker.PairAccount.Connector;
 					connector.Subscribe(new List<Tuple<string, int, short>> { new Tuple<string, int, short>(ticker.PairSymbol, 1, 1) });
 				}
 			}
 
-			foreach (var ft in _tickers.Where(t => t.MainFixTraderAccountId.HasValue).Select(t => t.MainFixTraderAccount).Distinct())
+			foreach (var ft in _tickers.Where(t => t.MainAccount.FixTraderAccountId.HasValue).Select(t => t.MainAccount).Distinct())
 			{
 				ft.Connector.OnTick -= Connector_OnTick;
 				ft.Connector.OnTick += Connector_OnTick;
 			}
 
-			foreach (var mt in _tickers.Where(t => t.MainMetaTraderAccountId.HasValue).Select(t => t.MainMetaTraderAccount).Distinct())
+			foreach (var mt in _tickers.Where(t => t.MainAccount.MetaTraderAccountId.HasValue).Select(t => t.MainAccount).Distinct())
 			{
 				mt.Connector.OnTick -= Connector_OnTick;
 				mt.Connector.OnTick += Connector_OnTick;
@@ -122,20 +121,14 @@ namespace QvaDev.Orchestration.Services
 			foreach (var ticker in _tickers)
 			{
 				if (ticker.MainSymbol != e.Tick.Symbol) continue;
-				if (ticker.MainFixTraderAccount?.Connector != connector && ticker.MainMetaTraderAccount?.Connector != connector)
-					continue;
+				if (ticker.MainAccount?.Connector != connector) continue;
 
 				Tick lastTick = null;
 				string pair = "";
-				if (ticker.PairMetaTraderAccount?.Connector?.IsConnected == true)
+				if (ticker.PairAccount?.Connector?.IsConnected == true)
 				{
-					lastTick = ticker.PairMetaTraderAccount.Connector.GetLastTick(ticker.PairSymbol);
-					pair = ticker.PairMetaTraderAccount.Connector.Description;
-				}
-				else if (ticker.PairFixTraderAccount?.Connector?.IsConnected == true)
-				{
-					lastTick = ticker.PairFixTraderAccount.Connector.GetLastTick(ticker.PairSymbol);
-					pair = ticker.PairFixTraderAccount.Connector.Description;
+					lastTick = ticker.PairAccount.Connector.GetLastTick(ticker.PairSymbol);
+					pair = ticker.PairAccount.Connector.Description;
 				}
 				else continue;
 

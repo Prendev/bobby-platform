@@ -26,18 +26,18 @@ namespace QvaDev.Orchestration.Services
 
         public Task OrderHistoryExport(DuplicatContext duplicatContext)
         {
-            var accounts = duplicatContext.MetaTraderAccounts.ToList().Where(
-                    a => a.Run && a.Connector != null && a.Connector.IsConnected);
+            var accounts = duplicatContext.Accounts.ToList().Where(
+                    a => a.Run && a.Connector?.IsConnected == true && a.MetaTraderAccountId.HasValue);
             var tasks = accounts.Select(account => Task.Factory.StartNew(() => Export(account)));
             return Task.WhenAll(Task.WhenAll(tasks)).ContinueWith(prevTask =>
                 _log.Debug("Order history export is READY!"));
         }
 
-        private void Export(MetaTraderAccount account)
+        private void Export(Account account)
         {
             var connector = (Connector) account.Connector;
             var templatePath = $@"{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}\Templates\OrderHistory.xlsx";
-            var filePath = $@"{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}\Reports\OrderHistories\{account.User}.xlsx";
+            var filePath = $@"{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}\Reports\OrderHistories\{account.MetaTraderAccount.User}.xlsx";
             new FileInfo(filePath).Directory?.Create();
             using (var stream = new FileStream(filePath, FileMode.OpenOrCreate, FileAccess.ReadWrite))
             {

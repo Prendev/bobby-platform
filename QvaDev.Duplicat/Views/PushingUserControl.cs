@@ -79,10 +79,10 @@ namespace QvaDev.Duplicat.Views
 
         public void AttachDataSources()
         {
-            dgvPushings.AddComboBoxColumn(_viewModel.FtAccounts, "FutureAccount");
-            dgvPushings.AddComboBoxColumn(_viewModel.MtAccounts, "AlphaMaster");
-            dgvPushings.AddComboBoxColumn(_viewModel.MtAccounts, "BetaMaster");
-            dgvPushings.AddComboBoxColumn(_viewModel.MtAccounts, "HedgeAccount");
+            dgvPushings.AddComboBoxColumn(_viewModel.Accounts, "FutureAccount");
+            dgvPushings.AddComboBoxColumn(_viewModel.Accounts, "AlphaMaster");
+            dgvPushings.AddComboBoxColumn(_viewModel.Accounts, "BetaMaster");
+            dgvPushings.AddComboBoxColumn(_viewModel.Accounts, "HedgeAccount");
             dgvPushings.DataSource = _viewModel.Pushings.ToBindingList();
             dgvPushingDetail.DataSource = _viewModel.PushingDetails.ToBindingList();
         }

@@ -32,10 +32,8 @@ namespace QvaDev.Duplicat.Views
 
 		public void AttachDataSources()
 		{
-			dgvTickers.AddComboBoxColumn(_viewModel.MtAccounts, "MainMetaTraderAccount");
-			dgvTickers.AddComboBoxColumn(_viewModel.FtAccounts, "MainFixTraderAccount");
-			dgvTickers.AddComboBoxColumn(_viewModel.MtAccounts, "PairMetaTraderAccount");
-			dgvTickers.AddComboBoxColumn(_viewModel.FtAccounts, "PairFixTraderAccount");
+			dgvTickers.AddComboBoxColumn(_viewModel.Accounts, "MainAccount");
+			dgvTickers.AddComboBoxColumn(_viewModel.Accounts, "PairAccount");
 			dgvTickers.DataSource = _viewModel.Tickers.ToBindingList();
 		}
 	}

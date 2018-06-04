@@ -44,7 +44,8 @@ namespace QvaDev.Duplicat.ViewModel
         public ObservableCollection<CTraderAccount> CtAccounts { get; private set; }
         public ObservableCollection<FixTraderAccount> FtAccounts { get; private set; }
         public ObservableCollection<Profile> Profiles { get; private set; }
-        public ObservableCollection<Master> Masters { get; private set; }
+		public ObservableCollection<Account> Accounts { get; private set; }
+		public ObservableCollection<Master> Masters { get; private set; }
         public ObservableCollection<Slave> Slaves { get; private set; }
         public ObservableCollection<SymbolMapping> SymbolMappings { get; private set; }
         public ObservableCollection<Copier> Copiers { get; private set; }
@@ -121,7 +122,8 @@ namespace QvaDev.Duplicat.ViewModel
             _duplicatContext.CTraderAccounts.Load();
             _duplicatContext.FixTraderAccounts.Load();
             _duplicatContext.Profiles.Load();
-            _duplicatContext.Masters.Where(e => e.ProfileId == SelectedProfileId).Load();
+			_duplicatContext.Accounts.Where(e => e.ProfileId == SelectedProfileId).Load();
+			_duplicatContext.Masters.Where(e => e.ProfileId == SelectedProfileId).Load();
             _duplicatContext.Slaves.Where(e => e.Master.ProfileId == SelectedProfileId).Load();
             _duplicatContext.Copiers.Where(e => e.Slave.Master.ProfileId == SelectedProfileId).Load();
 	        _duplicatContext.FixApiCopiers.Where(e => e.Slave.Master.ProfileId == SelectedProfileId).Load();
@@ -142,7 +144,8 @@ namespace QvaDev.Duplicat.ViewModel
             CtAccounts = _duplicatContext.CTraderAccounts.Local;
             FtAccounts = _duplicatContext.FixTraderAccounts.Local;
             Profiles = _duplicatContext.Profiles.Local;
-            Masters = _duplicatContext.Masters.Local;
+			Accounts = _duplicatContext.Accounts.Local;
+			Masters = _duplicatContext.Masters.Local;
             Slaves = _duplicatContext.Slaves.Local;
             SymbolMappings = _duplicatContext.SymbolMappings.Local;
             Copiers = _duplicatContext.Copiers.Local;

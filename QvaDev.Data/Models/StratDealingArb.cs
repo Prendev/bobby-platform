@@ -28,14 +28,12 @@ namespace QvaDev.Data.Models
 		public TimeSpan LatestCloseTime { get; set; }
 
 		public int FtAccountId { get; set; }
-		public FixTraderAccount FtAccount { get; set; }
-		[Required]
-		public string FtSymbol { get; set; }
+		public Account FtAccount { get; set; }
+		[Required] public string FtSymbol { get; set; }
 
 		public int MtAccountId { get; set; }
-		public MetaTraderAccount MtAccount { get; set; }
-		[Required]
-		public string MtSymbol { get; set; }
+		public Account MtAccount { get; set; }
+		[Required] public string MtSymbol { get; set; }
 
 		public double? ShiftInPip { get; set; }
 		public TimeSpan ShiftCalcInterval { get; set; }

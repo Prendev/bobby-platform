@@ -29,8 +29,8 @@ namespace QvaDev.Duplicat.Views
 
 		public void AttachDataSources()
 		{
-			dgvDealingArb.AddComboBoxColumn(_viewModel.FtAccounts, "FtAccount");
-			dgvDealingArb.AddComboBoxColumn(_viewModel.MtAccounts, "MtAccount");
+			dgvDealingArb.AddComboBoxColumn(_viewModel.Accounts, "FtAccount");
+			dgvDealingArb.AddComboBoxColumn(_viewModel.Accounts, "MtAccount");
 			dgvDealingArb.DataSource = _viewModel.StratDealingArbs.ToBindingList();
 			dgvDealingArb.Columns["ProfileId"].Visible = false;
 			dgvDealingArb.Columns["Profile"].Visible = false;

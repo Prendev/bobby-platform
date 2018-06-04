@@ -100,19 +100,7 @@
     <Compile Include="Views\PushingUserControl.Designer.cs">
       <DependentUpon>PushingUserControl.cs</DependentUpon>
     </Compile>
-    <Compile Include="Views\QuadroUserControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Views\QuadroUserControl.Designer.cs">
-      <DependentUpon>QuadroUserControl.cs</DependentUpon>
-    </Compile>
     <Compile Include="Views\ITabUserControl.cs" />
-    <Compile Include="Views\MonitorsUserControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Views\MonitorsUserControl.Designer.cs">
-      <DependentUpon>MonitorsUserControl.cs</DependentUpon>
-    </Compile>
     <Compile Include="TextBoxAppender.cs" />
     <Compile Include="UrlHelper.cs" />
     <Compile Include="ViewModel\BaseViewModel.cs" />
@@ -173,14 +161,8 @@
     <EmbeddedResource Include="Views\PushingUserControl.resx">
       <DependentUpon>PushingUserControl.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Views\QuadroUserControl.resx">
-      <DependentUpon>QuadroUserControl.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Views\MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Views\MonitorsUserControl.resx">
-      <DependentUpon>MonitorsUserControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -235,10 +217,6 @@
     <ProjectReference Include="..\QvaDev.Data\QvaDev.Data.csproj">
       <Project>{D7DA9DD6-1BA9-45B9-9581-1D095631DF0D}</Project>
       <Name>QvaDev.Data</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\QvaDev.Experts\QvaDev.Experts.csproj">
-      <Project>{B9F802CB-A64A-4281-858E-E37A53FFAF7D}</Project>
-      <Name>QvaDev.Experts</Name>
     </ProjectReference>
     <ProjectReference Include="..\QvaDev.Orchestration\QvaDev.Orchestration.csproj">
       <Project>{7FCD6735-2115-4096-B5C9-E5CD7B4A3C1C}</Project>

@@ -30,14 +30,13 @@ namespace QvaDev.Orchestration.Services
         public void Start(DuplicatContext duplicatContext)
         {
 			var copiers = duplicatContext.Copiers.Local
-                .Where(c => c.Slave.Master.MetaTraderAccount.State == BaseAccountEntity.States.Connected)
-                .Where(c => c.Slave.CTraderAccount?.State == BaseAccountEntity.States.Connected ||
-                            c.Slave.MetaTraderAccount?.State == BaseAccountEntity.States.Connected)
+                .Where(c => c.Slave.Master.MetaTraderAccount.State == Account.States.Connected)
+                .Where(c => c.Slave.Account.State == Account.States.Connected)
                 .Select(c => c.Slave.Master);
 
 	        var fixApiCopiers = duplicatContext.FixApiCopiers.Local
-		        .Where(c => c.Slave.Master.MetaTraderAccount.State == BaseAccountEntity.States.Connected)
-		        .Where(c => c.Slave.FixTraderAccount?.State == BaseAccountEntity.States.Connected)
+		        .Where(c => c.Slave.Master.MetaTraderAccount.State == Account.States.Connected)
+		        .Where(c => c.Slave.Account.State == Account.States.Connected)
 		        .Select(c => c.Slave.Master);
 
 	        _masters = copiers.Union(fixApiCopiers).Distinct();
@@ -76,15 +75,15 @@ namespace QvaDev.Orchestration.Services
 
         private Task CopyToAccount(PositionEventArgs e, Slave slave)
         {
-            if (slave.MetaTraderAccount != null) return CopyToMtAccount(e, slave);
-            if (slave.CTraderAccount != null) return CopyToCtAccount(e, slave);
-	        if (slave.FixTraderAccount != null) return CopyToFtAccount(e, slave);
+            if (slave.Account.MetaTraderAccountId.HasValue) return CopyToMtAccount(e, slave);
+            if (slave.Account.CTraderAccountId.HasValue) return CopyToCtAccount(e, slave);
+	        if (slave.Account.FixTraderAccountId.HasValue) return CopyToFtAccount(e, slave);
 			return Task.FromResult(0);
 		}
 
 	    private Task CopyToFtAccount(PositionEventArgs e, Slave slave)
 	    {
-		    var slaveConnector = slave.FixTraderAccount?.Connector as FixTraderIntegration.Connector;
+		    var slaveConnector = slave.Account?.Connector as FixTraderIntegration.Connector;
 		    if (slaveConnector == null) return Task.FromResult(0);
 
 		    var symbol = slave.SymbolMappings?.Any(m => m.From == e.Position.Symbol) == true
@@ -110,7 +109,7 @@ namespace QvaDev.Orchestration.Services
 
 		private Task CopyToCtAccount(PositionEventArgs e, Slave slave)
         {
-            var slaveConnector = slave.CTraderAccount?.Connector as CTraderIntegration.Connector;
+            var slaveConnector = slave.Account?.Connector as CTraderIntegration.Connector;
             if (slaveConnector == null) return Task.FromResult(0);
 
             var type = e.Position.Side == Sides.Buy ? ProtoTradeSide.BUY : ProtoTradeSide.SELL;
@@ -139,7 +138,7 @@ namespace QvaDev.Orchestration.Services
 
         private Task CopyToMtAccount(PositionEventArgs e, Slave slave)
         {
-            var slaveConnector = slave.MetaTraderAccount?.Connector as Mt4Integration.Connector;
+            var slaveConnector = slave.Account?.Connector as Mt4Integration.Connector;
             if (slaveConnector == null) return Task.FromResult(0);
 
             var symbol = slave.SymbolMappings?.Any(m => m.From == e.Position.Symbol) == true

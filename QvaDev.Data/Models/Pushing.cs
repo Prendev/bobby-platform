@@ -11,21 +11,20 @@ namespace QvaDev.Data.Models
         [InvisibleColumn] public Profile Profile { get; set; }
 
         public int FutureAccountId { get; set; }
-        public FixTraderAccount FutureAccount { get; set; }
-        [Required]
-        public string FutureSymbol { get; set; }
+        public Account FutureAccount { get; set; }
+        [Required] public string FutureSymbol { get; set; }
 
-        public int? AlphaMasterId { get; set; }
-        public MetaTraderAccount AlphaMaster { get; set; }
-        public string AlphaSymbol { get; set; }
+        public int AlphaMasterId { get; set; }
+        public Account AlphaMaster { get; set; }
+		[Required] public string AlphaSymbol { get; set; }
 
-        public int? BetaMasterId { get; set; }
-        public MetaTraderAccount BetaMaster { get; set; }
-        public string BetaSymbol { get; set; }
+        public int BetaMasterId { get; set; }
+        public Account BetaMaster { get; set; }
+		[Required] public string BetaSymbol { get; set; }
 
-        public int? HedgeAccountId { get; set; }
-        public MetaTraderAccount HedgeAccount { get; set; }
-        public string HedgeSymbol { get; set; }
+        public int HedgeAccountId { get; set; }
+        public Account HedgeAccount { get; set; }
+		[Required] public string HedgeSymbol { get; set; }
 
         [InvisibleColumn] public int PushingDetailId { get; set; }
         [InvisibleColumn] public PushingDetail PushingDetail { get; set; }

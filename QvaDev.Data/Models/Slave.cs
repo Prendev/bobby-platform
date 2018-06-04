@@ -9,14 +9,8 @@ namespace QvaDev.Data.Models
         public int MasterId { get; set; }
         public Master Master { get; set; }
 
-        public int? CTraderAccountId { get; set; }
-        public CTraderAccount CTraderAccount { get; set; }
-
-        public int? MetaTraderAccountId { get; set; }
-        public MetaTraderAccount MetaTraderAccount { get; set; }
-
-	    public int? FixTraderAccountId { get; set; }
-	    public FixTraderAccount FixTraderAccount { get; set; }
+        public int AccountId { get; set; }
+        public Account Account { get; set; }
 
 		public string SymbolSuffix { get; set; }
 

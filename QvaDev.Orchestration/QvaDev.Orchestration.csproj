@@ -94,12 +94,9 @@
     <Compile Include="CustomWorkbook.cs" />
     <Compile Include="Orchestrator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Services\BalanceReportService.cs" />
     <Compile Include="Services\Strategies\StrategiesService.cs" />
     <Compile Include="Services\TickerService.cs" />
     <Compile Include="Services\CopierService.cs" />
-    <Compile Include="Services\Strategies\ExpertService.cs" />
-    <Compile Include="Services\MonitorServices.cs" />
     <Compile Include="Services\Strategies\PushingService.cs" />
     <Compile Include="Services\ReportService.cs" />
   </ItemGroup>
@@ -119,10 +116,6 @@
     <ProjectReference Include="..\QvaDev.Data\QvaDev.Data.csproj">
       <Project>{D7DA9DD6-1BA9-45B9-9581-1D095631DF0D}</Project>
       <Name>QvaDev.Data</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\QvaDev.Experts\QvaDev.Experts.csproj">
-      <Project>{B9F802CB-A64A-4281-858E-E37A53FFAF7D}</Project>
-      <Name>QvaDev.Experts</Name>
     </ProjectReference>
     <ProjectReference Include="..\QvaDev.FixTraderIntegration\QvaDev.FixTraderIntegration.csproj">
       <Project>{e3002184-b948-49ee-b313-3167948c3f97}</Project>

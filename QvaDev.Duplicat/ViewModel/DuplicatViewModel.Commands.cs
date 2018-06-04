@@ -106,8 +106,6 @@ namespace QvaDev.Duplicat.ViewModel
         public void DisconnectCommand()
         {
             StopCopiersCommand();
-            StopMonitorsCommand();
-            StopExpertsCommand();
 			StopTickersCommand();
 	        StopStrategiesCommand();
 			IsLoading = true;
@@ -174,58 +172,6 @@ namespace QvaDev.Duplicat.ViewModel
         {
             _orchestrator.StopCopiers();
             AreCopiersStarted = false;
-        }
-
-        public void StartMonitorsCommand()
-        {
-            IsLoading = true;
-            IsConfigReadonly = true;
-            _orchestrator.StartMonitors(_duplicatContext, SelectedAlphaMonitorId, SelectedBetaMonitorId)
-                .ContinueWith(prevTask =>
-                {
-                    IsLoading = false;
-                    IsConfigReadonly = true;
-                    AreMonitorsStarted = true;
-                    IsConnected = true;
-                });
-        }
-        public void StopMonitorsCommand()
-        {
-            _orchestrator.StopMonitors();
-            AreMonitorsStarted = false;
-        }
-        public void BalanceReportCommand(DateTime from, DateTime to)
-        {
-            using (var sfd = new SaveFileDialog
-            {
-                Filter = "Excel file (*.xlsx)|*.xlsx",
-                FilterIndex = 1,
-                RestoreDirectory = true,
-                InitialDirectory = AppDomain.CurrentDomain.GetData("DataDirectory").ToString()
-            })
-            {
-                if (sfd.ShowDialog() != DialogResult.OK) return;
-                _orchestrator.BalanceReport(from, to, sfd.FileName);
-            }
-        }
-
-        public void StartExpertsCommand()
-        {
-            IsLoading = true;
-            IsConfigReadonly = true;
-            _orchestrator.StartExperts(_duplicatContext)
-                .ContinueWith(prevTask =>
-                {
-                    IsLoading = false;
-                    IsConfigReadonly = true;
-                    AreExpertsStarted = true;
-                    IsConnected = true;
-                });
-        }
-        public void StopExpertsCommand()
-        {
-            _orchestrator.StopExperts();
-            AreExpertsStarted = false;
         }
 
         public void OrderHistoryExportCommand()

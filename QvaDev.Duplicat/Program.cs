@@ -15,11 +15,10 @@ namespace QvaDev.Duplicat
         [STAThread]
         static void Main()
         {
-            AppDomain.CurrentDomain.SetData("DataDirectory", Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory));
-            using (var c = new DuplicatContext())
-                c.Init();
+			//AppDomain.CurrentDomain.SetData("DataDirectory", Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory));
+			using (var c = new DuplicatContext()) c.Init();
 
-            Application.EnableVisualStyles();
+			Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             using (var scope = Dependencies.GetContainer().BeginLifetimeScope())
             {

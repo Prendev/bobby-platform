@@ -7,7 +7,6 @@ using QvaDev.CTraderIntegration;
 using QvaDev.CTraderIntegration.Services;
 using QvaDev.Data.Repositories;
 using QvaDev.Duplicat.Views;
-using QvaDev.Experts.Quadro.Services;
 using QvaDev.Orchestration;
 using QvaDev.Orchestration.Services;
 using QvaDev.Orchestration.Services.Strategies;
@@ -31,7 +30,6 @@ namespace QvaDev.Duplicat
 	        RegisterCommon(builder);
             RegisterData(builder);
             RegisterOrchestration(builder);
-            RegisterExperts(builder);
         }
 
         private static void RegisterApp(ContainerBuilder builder)
@@ -62,28 +60,11 @@ namespace QvaDev.Duplicat
             builder.RegisterType<ConnectorFactory>().As<IConnectorFactory>();
             builder.RegisterType<TradingAccountsService>().As<ITradingAccountsService>();
             builder.RegisterType<RestService>().As<IRestService>();
-            builder.RegisterType<BalanceReportService>().As<IBalanceReportService>();
             builder.RegisterType<CopierService>().As<ICopierService>();
-            builder.RegisterType<MonitorServices>().As<IMonitorServices>();
-            builder.RegisterType<FrpService>().As<IFrpService>();
             builder.RegisterType<PushingService>().As<IPushingService>();
             builder.RegisterType<ReportService>().As<IReportService>();
 			builder.RegisterType<TickerService>().As<ITickerService>();
 			builder.RegisterType<StrategiesService>().As<IStrategiesService>();
 		}
-
-        private static void RegisterExperts(ContainerBuilder builder)
-        {
-            builder.RegisterType<CommonService>().As<ICommonService>()
-                .InstancePerLifetimeScope()
-                .PropertiesAutowired(PropertyWiringOptions.AllowCircularDependencies);
-            builder.RegisterType<QuadroService>().As<IQuadroService>();
-            builder.RegisterType<CloseService>().As<ICloseService>();
-            builder.RegisterType<EntriesService>().As<IEntriesService>();
-            builder.RegisterType<ReentriesService>().As<IReentriesService>();
-
-            //builder.RegisterType<NoHedgeService>().Keyed<IHedgeService>(QuadroSet.HedgeModes.NoHedge);
-            //builder.RegisterType<TwoPairHedgeService>().Keyed<IHedgeService>(QuadroSet.HedgeModes.TwoPairHedge);
-        }
     }
 }

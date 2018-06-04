@@ -19,9 +19,6 @@ namespace QvaDev.Duplicat.Views
             Load += MainForm_Load;
             InitializeComponent();
             TextBoxAppender.ConfigureTextBoxAppender(textBoxLog);
-
-			tabControlMain.TabPages.Remove(tabPageMonitor);
-			tabControlMain.TabPages.Remove(tabPageQuadro);
 		}
 
         private void MainForm_Load(object sender, EventArgs e)
@@ -43,9 +40,7 @@ namespace QvaDev.Duplicat.Views
 				nameof(_viewModel.SaveState), s => s == DuplicatViewModel.SaveStates.Error ? "ERROR" : s == DuplicatViewModel.SaveStates.Success ? "SUCCESS" : "Save config changes");
 
 			tabPageCopier.AddBinding<int>("Enabled", _viewModel, nameof(_viewModel.SelectedProfileId), p => p > 0);
-            tabPageMonitor.AddBinding<int>("Enabled", _viewModel, nameof(_viewModel.SelectedProfileId), p => p > 0);
             tabPagePush.AddBinding<int>("Enabled", _viewModel, nameof(_viewModel.SelectedProfileId), p => p > 0);
-            tabPageQuadro.AddBinding<int>("Enabled", _viewModel, nameof(_viewModel.SelectedProfileId), p => p > 0);
 			tabPageTicker.AddBinding<int>("Enabled", _viewModel, nameof(_viewModel.SelectedProfileId), p => p > 0);
 			labelProfile.AddBinding("Text", _viewModel, nameof(_viewModel.SelectedProfileDesc));
 
@@ -62,8 +57,6 @@ namespace QvaDev.Duplicat.Views
             tabControlMain.SelectedIndexChanged += (s, e) =>
             {
                 if (tabControlMain.SelectedTab.Name == tabPageCopier.Name) copiersUserControl.FilterRows();
-                else if (tabControlMain.SelectedTab.Name == tabPageMonitor.Name) monitorsUserControl.FilterRows();
-                else if (tabControlMain.SelectedTab.Name == tabPageQuadro.Name) quadroUserControl.FilterRows();
                 else if (tabControlMain.SelectedTab.Name == tabPagePush.Name) pushingUserControl.FilterRows();
             };
 
@@ -74,9 +67,7 @@ namespace QvaDev.Duplicat.Views
             mtAccountsUserControl.InitView(_viewModel);
             ctAccountsUserControl.InitView(_viewModel);
             ftAccountsUserControl.InitView(_viewModel);
-            monitorsUserControl.InitView(_viewModel);
             pushingUserControl.InitView(_viewModel);
-            quadroUserControl.InitView(_viewModel);
 	        strategiesUserControl.InitView(_viewModel);
 			tickersUserControl.InitView(_viewModel);
 
@@ -90,10 +81,7 @@ namespace QvaDev.Duplicat.Views
             ctAccountsUserControl.AttachDataSources();
             ftAccountsUserControl.AttachDataSources();
             copiersUserControl.AttachDataSources();
-            monitorsUserControl.AttachDataSources();
-            monitorsUserControl.AttachDataSources();
             pushingUserControl.AttachDataSources();
-            quadroUserControl.AttachDataSources();
 	        strategiesUserControl.AttachDataSources();
 			tickersUserControl.AttachDataSources();
 		}
