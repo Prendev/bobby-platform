@@ -2,6 +2,7 @@
 using System.Configuration;
 using System.Data.SqlClient;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -34,13 +35,15 @@ namespace QvaDev.Duplicat.ViewModel
 
 		public void BackupCommand()
         {
-            using (var sfd = new SaveFileDialog
-            {
-                Filter = "Backup file (*.bak)|*.bak",
-                FilterIndex = 1,
-                RestoreDirectory = true,
-                InitialDirectory = AppDomain.CurrentDomain.GetData("DataDirectory").ToString()
-            })
+			var dir = $"{AppDomain.CurrentDomain.BaseDirectory}Backups";
+			if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
+			using (var sfd = new SaveFileDialog
+				{
+					Filter = "Backup file (*.bak)|*.bak",
+					FilterIndex = 1,
+					RestoreDirectory = true,
+					InitialDirectory = dir
+				})
             {
                 if (sfd.ShowDialog() != DialogResult.OK) return;
                 var backupPath = sfd.FileName;
@@ -57,14 +60,16 @@ namespace QvaDev.Duplicat.ViewModel
         }
 
         public void RestoreCommand()
-        {
-            using (var sfd = new OpenFileDialog
-            {
-                Filter = "Backup file (*.bak)|*.bak",
-                FilterIndex = 1,
-                RestoreDirectory = true,
-                InitialDirectory = AppDomain.CurrentDomain.GetData("DataDirectory").ToString()
-            })
+		{
+			var dir = $"{AppDomain.CurrentDomain.BaseDirectory}Backups";
+			if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
+			using (var sfd = new OpenFileDialog
+				{
+					Filter = "Backup file (*.bak)|*.bak",
+					FilterIndex = 1,
+					RestoreDirectory = true,
+					InitialDirectory = dir
+				})
             {
                 if (sfd.ShowDialog() != DialogResult.OK) return;
                 IsLoading = true;
@@ -72,12 +77,14 @@ namespace QvaDev.Duplicat.ViewModel
                 var backupPath = sfd.FileName;
                 var dbName = _duplicatContext.Database.SqlQuery<string>("SELECT DB_NAME()").First();
                 Task.Factory.StartNew(() =>
-                {
-                    using (var conn = new SqlConnection(ConfigurationManager.AppSettings["MasterConnectionString"]))
+				{
+					var connectionString = ConfigurationManager.ConnectionStrings["DuplicatContext"].ConnectionString;
+					using (var conn = new SqlConnection(connectionString))
                     {
                         conn.Open();
                         _duplicatContext.Dispose();
-                        new SqlCommand($"ALTER DATABASE {dbName} SET SINGLE_USER WITH ROLLBACK IMMEDIATE", conn)
+						new SqlCommand("USE master", conn).ExecuteNonQuery();
+						new SqlCommand($"ALTER DATABASE {dbName} SET SINGLE_USER WITH ROLLBACK IMMEDIATE", conn)
                             .ExecuteNonQuery();
                         new SqlCommand($"RESTORE DATABASE {dbName} FROM DISK = N'{backupPath}' WITH REPLACE", conn)
                             .ExecuteNonQuery();
