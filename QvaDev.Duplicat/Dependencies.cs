@@ -5,6 +5,7 @@ using log4net;
 using QvaDev.Common.Services;
 using QvaDev.CTraderIntegration;
 using QvaDev.CTraderIntegration.Services;
+using QvaDev.Data;
 using QvaDev.Data.Repositories;
 using QvaDev.Duplicat.Views;
 using QvaDev.Orchestration;
@@ -57,8 +58,9 @@ namespace QvaDev.Duplicat
         private static void RegisterOrchestration(ContainerBuilder builder)
         {
             builder.RegisterType<Orchestrator>().As<IOrchestrator>();
-            builder.RegisterType<ConnectorFactory>().As<IConnectorFactory>();
-            builder.RegisterType<TradingAccountsService>().As<ITradingAccountsService>();
+            builder.RegisterType<CtConnectorFactory>().As<ICtConnectorFactory>();
+	        builder.RegisterType<ConnectorFactory>().As<IConnectorFactory>();
+			builder.RegisterType<TradingAccountsService>().As<ITradingAccountsService>();
             builder.RegisterType<RestService>().As<IRestService>();
             builder.RegisterType<CopierService>().As<ICopierService>();
             builder.RegisterType<PushingService>().As<IPushingService>();

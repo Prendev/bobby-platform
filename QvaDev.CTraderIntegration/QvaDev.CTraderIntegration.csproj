@@ -70,7 +70,7 @@
   <ItemGroup>
     <Compile Include="AccountInfo.cs" />
     <Compile Include="Connector.cs" />
-    <Compile Include="ConnectorFactory.cs" />
+    <Compile Include="CtConnectorFactory.cs" />
     <Compile Include="CTraderClientWrapper.cs" />
     <Compile Include="Dto\AccountRequest.cs" />
     <Compile Include="Dto\BaseRequest.cs" />

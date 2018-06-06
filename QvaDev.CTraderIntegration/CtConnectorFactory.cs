@@ -9,12 +9,12 @@ using QvaDev.CTraderIntegration.Services;
 
 namespace QvaDev.CTraderIntegration
 {
-    public interface IConnectorFactory
+    public interface ICtConnectorFactory
     {
         IConnector Create(PlatformInfo platformInfo, AccountInfo accountInfo);
     }
 
-    public class ConnectorFactory : IConnectorFactory
+    public class CtConnectorFactory : ICtConnectorFactory
     {
         /// <summary>
         /// The key is Platform's description
@@ -31,7 +31,7 @@ namespace QvaDev.CTraderIntegration
         private readonly ILog _log;
         private readonly ITradingAccountsService _tradingAccountsService;
 
-        public ConnectorFactory(
+        public CtConnectorFactory(
             ILog log,
             ITradingAccountsService tradingAccountsService)
         {

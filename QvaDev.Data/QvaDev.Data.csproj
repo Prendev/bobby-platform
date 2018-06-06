@@ -48,6 +48,9 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Common.Logging.Core">
+      <HintPath>..\Externals\QvaDev.Communication.FixApi.Connectors\Common.Logging.Core.dll</HintPath>
+    </Reference>
     <Reference Include="Dapper, Version=1.50.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Dapper.1.50.0\lib\net451\Dapper.dll</HintPath>
     </Reference>
@@ -74,6 +77,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DuplicatContext.cs" />
+    <Compile Include="IConnectorFactory.cs" />
     <Compile Include="Migrations\201806041444522_Init.cs" />
     <Compile Include="Migrations\201806041444522_Init.Designer.cs">
       <DependentUpon>201806041444522_Init.cs</DependentUpon>
@@ -107,7 +111,9 @@
     <Compile Include="Repositories\Mt4PlatformRepository.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
