@@ -1,6 +1,5 @@
 ﻿using QvaDev.Common.Attributes;
 using QvaDev.Common.Integration;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -29,6 +28,9 @@ namespace QvaDev.Data.Models
 		public int? FixTraderAccountId { get; set; }
 		public FixTraderAccount FixTraderAccount { get; set; }
 
+		public int? FixApiAccountId { get; set; }
+		public FixApiAccount FixApiAccount { get; set; }
+
 		[NotMapped] [InvisibleColumn] public IConnector Connector { get; set; }
 		[NotMapped] [ReadOnly(true)] public States State { get; set; }
 
@@ -37,6 +39,7 @@ namespace QvaDev.Data.Models
 			if (MetaTraderAccount != null) return $"MT4 | {MetaTraderAccount.Description}";
 			if (CTraderAccount != null) return $"CT | {CTraderAccount.Description}";
 			if (FixTraderAccount != null) return $"FT | {FixTraderAccount.Description}";
+			if (FixApiAccount != null) return $"FIX | {FixApiAccount.Description}";
 			return "";
 		}
 	}

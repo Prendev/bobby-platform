@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<PriceMarketsConfiguration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Password>PwXvgsajx</Password>
+  <SenderCompId>1341</SenderCompId>
+  <TargetCompId>FIX_SERVER</TargetCompId>
+  <DeliverToCompId>203</DeliverToCompId>
+  <Host>185.24.97.123</Host>
+  <Port>5001</Port>
+</PriceMarketsConfiguration>

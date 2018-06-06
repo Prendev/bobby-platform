@@ -78,9 +78,14 @@
     <Compile Include="Migrations\201806041444522_Init.Designer.cs">
       <DependentUpon>201806041444522_Init.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201806060757445_AddFixApiAccountTable.cs" />
+    <Compile Include="Migrations\201806060757445_AddFixApiAccountTable.Designer.cs">
+      <DependentUpon>201806060757445_AddFixApiAccountTable.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\BaseEntity.cs" />
     <Compile Include="Models\BaseDescriptionEntity.cs" />
+    <Compile Include="Models\FixApiAccount.cs" />
     <Compile Include="Models\FixApiCopier.cs" />
     <Compile Include="Models\Copier.cs" />
     <Compile Include="Models\CTraderAccount.cs" />
@@ -103,60 +108,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="Mt4SrvFiles\AuraFX-Demo.srv">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Mt4SrvFiles\AuraFX-LD Live.srv">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Mt4SrvFiles\AuraFX-NY Live.srv">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Mt4SrvFiles\BlackwellGlobal1-Demo5.srv">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Mt4SrvFiles\CoreSpreads-DemoBravo.srv">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Mt4SrvFiles\Equiti-Live.srv">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Mt4SrvFiles\GKFX-Live-2.srv">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Mt4SrvFiles\ICMarkets-Live10.srv">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Mt4SrvFiles\IFMTrade-Live.srv">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Mt4SrvFiles\LMAX-DemoUK.srv">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Mt4SrvFiles\LMAX-LiveUK.srv">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Mt4SrvFiles\OANDA-v20 Practice.srv">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Mt4SrvFiles\PriceMarkets-Live2.srv">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Mt4SrvFiles\PriorFX-Demo.srv">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Mt4SrvFiles\RegalCoreMarkets-Demo.srv">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Mt4SrvFiles\TrioMarkets-Live Server.srv">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Mt4SrvFiles\XM.COM-Real 17.srv">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Mt4SrvFiles\Z.comTradeUKLtd-Live-UK.srv">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
@@ -168,6 +119,9 @@
   <ItemGroup>
     <EmbeddedResource Include="Migrations\201806041444522_Init.resx">
       <DependentUpon>201806041444522_Init.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201806060757445_AddFixApiAccountTable.resx">
+      <DependentUpon>201806060757445_AddFixApiAccountTable.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

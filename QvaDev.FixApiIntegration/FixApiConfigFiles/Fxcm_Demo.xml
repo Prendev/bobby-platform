@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<FxcmConfiguration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Pricing>
+    <Host>fixdemo.fxcorporate.com</Host>
+    <Port>9001</Port>
+    <SenderCompId>MD_D102957578_client1</SenderCompId>
+    <TargetCompId>FXCM</TargetCompId>
+    <TargetSubId>U100D1</TargetSubId>
+    <Heartbeat>30</Heartbeat>
+  </Pricing>
+  <Trading>
+    <Host>fixdemo2.fxcorporate.com</Host>
+    <Port>80</Port>
+    <SenderCompId>D102957578_client1</SenderCompId>
+    <TargetCompId>FXCM</TargetCompId>
+    <TargetSubId>U100D1</TargetSubId>
+    <Heartbeat>30</Heartbeat>
+  </Trading>
+  <Login>D102957578</Login>
+  <Password>1234</Password>
+</FxcmConfiguration>

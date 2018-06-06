@@ -12,8 +12,9 @@ namespace QvaDev.Data
         public DbSet<MetaTraderAccount> MetaTraderAccounts { get; set; }
         public DbSet<CTraderAccount> CTraderAccounts { get; set; }
         public DbSet<FixTraderAccount> FixTraderAccounts { get; set; }
+		public DbSet<FixApiAccount> FixApiAccounts { get; set; }
 
-        public DbSet<Profile> Profiles { get; set; }
+		public DbSet<Profile> Profiles { get; set; }
 		public DbSet<Account> Accounts { get; set; }
 
 		public DbSet<Master> Masters { get; set; }
@@ -37,13 +38,23 @@ namespace QvaDev.Data
 
 			try
 			{
-				foreach (var srv in Directory.GetFiles(".\\Mt4SrvFiles", "*.srv").Select(Path.GetFileNameWithoutExtension))
+				foreach (var name in Directory.GetFiles(".\\Mt4SrvFiles", "*.srv").Select(Path.GetFileNameWithoutExtension))
 				{
-					if (MetaTraderPlatforms.Any(p => p.Description == srv)) continue;
+					if (MetaTraderPlatforms.Any(p => p.Description == name)) continue;
 					MetaTraderPlatforms.Add(new MetaTraderPlatform()
 					{
-						Description = srv,
-						SrvFilePath = $"Mt4SrvFiles\\{srv}.srv"
+						Description = name,
+						SrvFilePath = $"Mt4SrvFiles\\{name}.srv"
+					});
+				}
+
+				foreach (var name in Directory.GetFiles(".\\FixApiConfigFiles", "*.xml").Select(Path.GetFileNameWithoutExtension))
+				{
+					if (FixApiAccounts.Any(p => p.Description == name)) continue;
+					FixApiAccounts.Add(new FixApiAccount()
+					{
+						Description = name,
+						ConfigPath = $"FixApiConfigFiles\\{name}.xml"
 					});
 				}
 

@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<PrimeXmConfiguration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Pricing>
+    <Host>itradeuk.primexm.com</Host>
+    <Port>25976</Port>
+    <UseSsl>false</UseSsl>
+    <SenderCompId>Q015</SenderCompId>
+    <TargetCompId>XC78</TargetCompId>
+    <Heartbeat>30</Heartbeat>
+    <Username>primexm_jacint_connector_EUR_q</Username>
+    <Password>s9Y9eUbNuRzQ2WSh</Password>
+    <InstrumentFormat>BaseQuote</InstrumentFormat>
+  </Pricing>
+  <Trading>
+    <Host>itradeuk.primexm.com</Host>
+    <Port>25977</Port>
+    <UseSsl>true</UseSsl>
+    <SenderCompId>T015</SenderCompId>
+    <TargetCompId>XC78</TargetCompId>
+    <Heartbeat>30</Heartbeat>
+    <Username>primexm_jacint_connector_EUR_t</Username>
+    <Password>ZDapULWOvnDm7zT7</Password>
+    <Accounts>
+      <string>jacint</string>
+      <string>jacint1</string>
+    </Accounts>
+  </Trading>
+</PrimeXmConfiguration>

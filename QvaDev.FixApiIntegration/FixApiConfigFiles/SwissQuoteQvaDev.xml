@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<SwissQuoteConfiguration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Host>demo-fixapi.swissquote.com</Host>
+  <Port>21000</Port>
+  <Username>qvadev_fixapi</Username>
+  <Password>qvadev_fixapi</Password>
+  <TargetCompId>ACM-FIX-API</TargetCompId>
+  <SenderCompIdQuoteSession>DEMO-QVADEVFIXAPI-QUOTE</SenderCompIdQuoteSession>
+  <SenderCompIdTradeSession>DEMO-QVADEVFIXAPI-TRADE</SenderCompIdTradeSession>
+</SwissQuoteConfiguration>

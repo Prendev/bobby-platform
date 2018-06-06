@@ -218,6 +218,10 @@
       <Project>{D7DA9DD6-1BA9-45B9-9581-1D095631DF0D}</Project>
       <Name>QvaDev.Data</Name>
     </ProjectReference>
+    <ProjectReference Include="..\QvaDev.FixApiIntegration\QvaDev.FixApiIntegration.csproj">
+      <Project>{7f7f4b22-f0bd-4375-baf4-ffafe9b3a853}</Project>
+      <Name>QvaDev.FixApiIntegration</Name>
+    </ProjectReference>
     <ProjectReference Include="..\QvaDev.Orchestration\QvaDev.Orchestration.csproj">
       <Project>{7FCD6735-2115-4096-B5C9-E5CD7B4A3C1C}</Project>
       <Name>QvaDev.Orchestration</Name>

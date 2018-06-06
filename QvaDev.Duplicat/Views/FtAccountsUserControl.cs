@@ -17,12 +17,13 @@ namespace QvaDev.Duplicat.Views
         {
             _viewModel = viewModel;
 
-            dgvAccounts.AddBinding("ReadOnly", _viewModel, nameof(_viewModel.IsConfigReadonly));
+            dgvFtAccounts.AddBinding("ReadOnly", _viewModel, nameof(_viewModel.IsConfigReadonly));
         }
 
         public void AttachDataSources()
         {
-            dgvAccounts.DataSource = _viewModel.FtAccounts.ToBindingList();
-        }
+            dgvFtAccounts.DataSource = _viewModel.FtAccounts.ToBindingList();
+	        dgvFixAccounts.DataSource = _viewModel.FixAccounts.ToBindingList();
+		}
     }
 }

@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>QvaDev.Communication.FixApi.Connectors</name>
+    </assembly>
+    <members>
+        <member name="M:QvaDev.Communication.FixApi.Connectors.Fxcm.FxcmConnector.ProcessSpecialMessage(QvaDev.Communication.FixApi.FixSocket,QvaDev.Communication.FixApi.FixMessage)">
+            <summary>
+            Processes an FXCM specific message.
+            </summary>
+        </member>
+    </members>
+</doc>

@@ -30,17 +30,26 @@
         {
 			this.tabControlMain = new System.Windows.Forms.TabControl();
 			this.tabPageProfiles = new System.Windows.Forms.TabPage();
+			this.profilesUserControl = new QvaDev.Duplicat.Views.ProfilesUserControl();
 			this.tabPageMt4 = new System.Windows.Forms.TabPage();
+			this.mtAccountsUserControl = new QvaDev.Duplicat.Views.MtAccountsUserControl();
 			this.tabPageCTrader = new System.Windows.Forms.TabPage();
+			this.ctAccountsUserControl = new QvaDev.Duplicat.Views.CtAccountsUserControl();
 			this.tabPageFtAccount = new System.Windows.Forms.TabPage();
+			this.ftAccountsUserControl = new QvaDev.Duplicat.Views.FtAccountsUserControl();
 			this.tabPageCopier = new System.Windows.Forms.TabPage();
+			this.copiersUserControl = new QvaDev.Duplicat.Views.CopiersUserControl();
 			this.tabPagePush = new System.Windows.Forms.TabPage();
+			this.pushingUserControl = new QvaDev.Duplicat.Views.PushingUserControl();
 			this.tabPageStrategies = new System.Windows.Forms.TabPage();
+			this.strategiesUserControl = new QvaDev.Duplicat.Views.StrategiesUserControl();
 			this.tabPageTicker = new System.Windows.Forms.TabPage();
+			this.tickersUserControl = new QvaDev.Duplicat.Views.TickersUserControl();
 			this.tabPageLog = new System.Windows.Forms.TabPage();
 			this.textBoxLog = new System.Windows.Forms.TextBox();
 			this.tlpMain = new System.Windows.Forms.TableLayoutPanel();
 			this.gbControl = new System.Windows.Forms.GroupBox();
+			this.btnQuickStart = new System.Windows.Forms.Button();
 			this.labelProfile = new System.Windows.Forms.Label();
 			this.label1 = new System.Windows.Forms.Label();
 			this.btnRestore = new System.Windows.Forms.Button();
@@ -48,15 +57,6 @@
 			this.btnDisconnect = new System.Windows.Forms.Button();
 			this.btnConnect = new System.Windows.Forms.Button();
 			this.btnSave = new System.Windows.Forms.Button();
-			this.profilesUserControl = new QvaDev.Duplicat.Views.ProfilesUserControl();
-			this.mtAccountsUserControl = new QvaDev.Duplicat.Views.MtAccountsUserControl();
-			this.ctAccountsUserControl = new QvaDev.Duplicat.Views.CtAccountsUserControl();
-			this.ftAccountsUserControl = new QvaDev.Duplicat.Views.FtAccountsUserControl();
-			this.copiersUserControl = new QvaDev.Duplicat.Views.CopiersUserControl();
-			this.pushingUserControl = new QvaDev.Duplicat.Views.PushingUserControl();
-			this.strategiesUserControl = new QvaDev.Duplicat.Views.StrategiesUserControl();
-			this.tickersUserControl = new QvaDev.Duplicat.Views.TickersUserControl();
-			this.btnQuickStart = new System.Windows.Forms.Button();
 			this.tabControlMain.SuspendLayout();
 			this.tabPageProfiles.SuspendLayout();
 			this.tabPageMt4.SuspendLayout();
@@ -102,6 +102,15 @@
 			this.tabPageProfiles.Text = "Profiles";
 			this.tabPageProfiles.UseVisualStyleBackColor = true;
 			// 
+			// profilesUserControl
+			// 
+			this.profilesUserControl.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.profilesUserControl.Location = new System.Drawing.Point(4, 4);
+			this.profilesUserControl.Margin = new System.Windows.Forms.Padding(5);
+			this.profilesUserControl.Name = "profilesUserControl";
+			this.profilesUserControl.Size = new System.Drawing.Size(1477, 725);
+			this.profilesUserControl.TabIndex = 0;
+			// 
 			// tabPageMt4
 			// 
 			this.tabPageMt4.Controls.Add(this.mtAccountsUserControl);
@@ -109,10 +118,19 @@
 			this.tabPageMt4.Margin = new System.Windows.Forms.Padding(4);
 			this.tabPageMt4.Name = "tabPageMt4";
 			this.tabPageMt4.Padding = new System.Windows.Forms.Padding(4);
-			this.tabPageMt4.Size = new System.Drawing.Size(1337, 733);
+			this.tabPageMt4.Size = new System.Drawing.Size(1485, 733);
 			this.tabPageMt4.TabIndex = 1;
 			this.tabPageMt4.Text = "MT4 accounts";
 			this.tabPageMt4.UseVisualStyleBackColor = true;
+			// 
+			// mtAccountsUserControl
+			// 
+			this.mtAccountsUserControl.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.mtAccountsUserControl.Location = new System.Drawing.Point(4, 4);
+			this.mtAccountsUserControl.Margin = new System.Windows.Forms.Padding(5);
+			this.mtAccountsUserControl.Name = "mtAccountsUserControl";
+			this.mtAccountsUserControl.Size = new System.Drawing.Size(1477, 725);
+			this.mtAccountsUserControl.TabIndex = 0;
 			// 
 			// tabPageCTrader
 			// 
@@ -121,10 +139,19 @@
 			this.tabPageCTrader.Margin = new System.Windows.Forms.Padding(4);
 			this.tabPageCTrader.Name = "tabPageCTrader";
 			this.tabPageCTrader.Padding = new System.Windows.Forms.Padding(4);
-			this.tabPageCTrader.Size = new System.Drawing.Size(1337, 733);
+			this.tabPageCTrader.Size = new System.Drawing.Size(1485, 733);
 			this.tabPageCTrader.TabIndex = 2;
 			this.tabPageCTrader.Text = "cTrader accounts";
 			this.tabPageCTrader.UseVisualStyleBackColor = true;
+			// 
+			// ctAccountsUserControl
+			// 
+			this.ctAccountsUserControl.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.ctAccountsUserControl.Location = new System.Drawing.Point(4, 4);
+			this.ctAccountsUserControl.Margin = new System.Windows.Forms.Padding(5);
+			this.ctAccountsUserControl.Name = "ctAccountsUserControl";
+			this.ctAccountsUserControl.Size = new System.Drawing.Size(1477, 725);
+			this.ctAccountsUserControl.TabIndex = 0;
 			// 
 			// tabPageFtAccount
 			// 
@@ -132,10 +159,19 @@
 			this.tabPageFtAccount.Location = new System.Drawing.Point(4, 25);
 			this.tabPageFtAccount.Margin = new System.Windows.Forms.Padding(4);
 			this.tabPageFtAccount.Name = "tabPageFtAccount";
-			this.tabPageFtAccount.Size = new System.Drawing.Size(1337, 733);
+			this.tabPageFtAccount.Size = new System.Drawing.Size(1485, 733);
 			this.tabPageFtAccount.TabIndex = 7;
-			this.tabPageFtAccount.Text = "FIX Trader accounts";
+			this.tabPageFtAccount.Text = "FIX accounts";
 			this.tabPageFtAccount.UseVisualStyleBackColor = true;
+			// 
+			// ftAccountsUserControl
+			// 
+			this.ftAccountsUserControl.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.ftAccountsUserControl.Location = new System.Drawing.Point(0, 0);
+			this.ftAccountsUserControl.Margin = new System.Windows.Forms.Padding(5);
+			this.ftAccountsUserControl.Name = "ftAccountsUserControl";
+			this.ftAccountsUserControl.Size = new System.Drawing.Size(1485, 733);
+			this.ftAccountsUserControl.TabIndex = 0;
 			// 
 			// tabPageCopier
 			// 
@@ -144,10 +180,19 @@
 			this.tabPageCopier.Margin = new System.Windows.Forms.Padding(4);
 			this.tabPageCopier.Name = "tabPageCopier";
 			this.tabPageCopier.Padding = new System.Windows.Forms.Padding(4);
-			this.tabPageCopier.Size = new System.Drawing.Size(1337, 733);
+			this.tabPageCopier.Size = new System.Drawing.Size(1485, 733);
 			this.tabPageCopier.TabIndex = 0;
 			this.tabPageCopier.Text = "Copiers";
 			this.tabPageCopier.UseVisualStyleBackColor = true;
+			// 
+			// copiersUserControl
+			// 
+			this.copiersUserControl.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.copiersUserControl.Location = new System.Drawing.Point(4, 4);
+			this.copiersUserControl.Margin = new System.Windows.Forms.Padding(5);
+			this.copiersUserControl.Name = "copiersUserControl";
+			this.copiersUserControl.Size = new System.Drawing.Size(1477, 725);
+			this.copiersUserControl.TabIndex = 0;
 			// 
 			// tabPagePush
 			// 
@@ -156,10 +201,19 @@
 			this.tabPagePush.Margin = new System.Windows.Forms.Padding(4);
 			this.tabPagePush.Name = "tabPagePush";
 			this.tabPagePush.Padding = new System.Windows.Forms.Padding(4);
-			this.tabPagePush.Size = new System.Drawing.Size(1337, 733);
+			this.tabPagePush.Size = new System.Drawing.Size(1485, 733);
 			this.tabPagePush.TabIndex = 8;
 			this.tabPagePush.Text = "Pushing";
 			this.tabPagePush.UseVisualStyleBackColor = true;
+			// 
+			// pushingUserControl
+			// 
+			this.pushingUserControl.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.pushingUserControl.Location = new System.Drawing.Point(4, 4);
+			this.pushingUserControl.Margin = new System.Windows.Forms.Padding(5);
+			this.pushingUserControl.Name = "pushingUserControl";
+			this.pushingUserControl.Size = new System.Drawing.Size(1477, 725);
+			this.pushingUserControl.TabIndex = 0;
 			// 
 			// tabPageStrategies
 			// 
@@ -167,20 +221,36 @@
 			this.tabPageStrategies.Location = new System.Drawing.Point(4, 25);
 			this.tabPageStrategies.Name = "tabPageStrategies";
 			this.tabPageStrategies.Padding = new System.Windows.Forms.Padding(3);
-			this.tabPageStrategies.Size = new System.Drawing.Size(1337, 733);
+			this.tabPageStrategies.Size = new System.Drawing.Size(1485, 733);
 			this.tabPageStrategies.TabIndex = 10;
 			this.tabPageStrategies.Text = "Strategies";
 			this.tabPageStrategies.UseVisualStyleBackColor = true;
+			// 
+			// strategiesUserControl
+			// 
+			this.strategiesUserControl.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.strategiesUserControl.Location = new System.Drawing.Point(3, 3);
+			this.strategiesUserControl.Name = "strategiesUserControl";
+			this.strategiesUserControl.Size = new System.Drawing.Size(1479, 727);
+			this.strategiesUserControl.TabIndex = 0;
 			// 
 			// tabPageTicker
 			// 
 			this.tabPageTicker.Controls.Add(this.tickersUserControl);
 			this.tabPageTicker.Location = new System.Drawing.Point(4, 25);
 			this.tabPageTicker.Name = "tabPageTicker";
-			this.tabPageTicker.Size = new System.Drawing.Size(1337, 733);
+			this.tabPageTicker.Size = new System.Drawing.Size(1485, 733);
 			this.tabPageTicker.TabIndex = 9;
 			this.tabPageTicker.Text = "Tickers";
 			this.tabPageTicker.UseVisualStyleBackColor = true;
+			// 
+			// tickersUserControl
+			// 
+			this.tickersUserControl.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.tickersUserControl.Location = new System.Drawing.Point(0, 0);
+			this.tickersUserControl.Name = "tickersUserControl";
+			this.tickersUserControl.Size = new System.Drawing.Size(1485, 733);
+			this.tickersUserControl.TabIndex = 0;
 			// 
 			// tabPageLog
 			// 
@@ -189,7 +259,7 @@
 			this.tabPageLog.Margin = new System.Windows.Forms.Padding(4);
 			this.tabPageLog.Name = "tabPageLog";
 			this.tabPageLog.Padding = new System.Windows.Forms.Padding(4);
-			this.tabPageLog.Size = new System.Drawing.Size(1337, 733);
+			this.tabPageLog.Size = new System.Drawing.Size(1485, 733);
 			this.tabPageLog.TabIndex = 4;
 			this.tabPageLog.Text = "Log";
 			this.tabPageLog.UseVisualStyleBackColor = true;
@@ -203,7 +273,7 @@
 			this.textBoxLog.Name = "textBoxLog";
 			this.textBoxLog.ReadOnly = true;
 			this.textBoxLog.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-			this.textBoxLog.Size = new System.Drawing.Size(1329, 725);
+			this.textBoxLog.Size = new System.Drawing.Size(1477, 725);
 			this.textBoxLog.TabIndex = 0;
 			// 
 			// tlpMain
@@ -241,6 +311,17 @@
 			this.gbControl.TabIndex = 1;
 			this.gbControl.TabStop = false;
 			this.gbControl.Text = "Main control panel";
+			// 
+			// btnQuickStart
+			// 
+			this.btnQuickStart.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.btnQuickStart.Location = new System.Drawing.Point(869, 23);
+			this.btnQuickStart.Margin = new System.Windows.Forms.Padding(4);
+			this.btnQuickStart.Name = "btnQuickStart";
+			this.btnQuickStart.Size = new System.Drawing.Size(200, 28);
+			this.btnQuickStart.TabIndex = 24;
+			this.btnQuickStart.Text = "Quick start";
+			this.btnQuickStart.UseVisualStyleBackColor = true;
 			// 
 			// labelProfile
 			// 
@@ -314,87 +395,6 @@
 			this.btnSave.TabIndex = 7;
 			this.btnSave.Text = "Save config changes";
 			this.btnSave.UseVisualStyleBackColor = true;
-			// 
-			// profilesUserControl
-			// 
-			this.profilesUserControl.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.profilesUserControl.Location = new System.Drawing.Point(4, 4);
-			this.profilesUserControl.Margin = new System.Windows.Forms.Padding(5);
-			this.profilesUserControl.Name = "profilesUserControl";
-			this.profilesUserControl.Size = new System.Drawing.Size(1477, 725);
-			this.profilesUserControl.TabIndex = 0;
-			// 
-			// mtAccountsUserControl
-			// 
-			this.mtAccountsUserControl.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.mtAccountsUserControl.Location = new System.Drawing.Point(4, 4);
-			this.mtAccountsUserControl.Margin = new System.Windows.Forms.Padding(5);
-			this.mtAccountsUserControl.Name = "mtAccountsUserControl";
-			this.mtAccountsUserControl.Size = new System.Drawing.Size(1329, 725);
-			this.mtAccountsUserControl.TabIndex = 0;
-			// 
-			// ctAccountsUserControl
-			// 
-			this.ctAccountsUserControl.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.ctAccountsUserControl.Location = new System.Drawing.Point(4, 4);
-			this.ctAccountsUserControl.Margin = new System.Windows.Forms.Padding(5);
-			this.ctAccountsUserControl.Name = "ctAccountsUserControl";
-			this.ctAccountsUserControl.Size = new System.Drawing.Size(1329, 725);
-			this.ctAccountsUserControl.TabIndex = 0;
-			// 
-			// ftAccountsUserControl
-			// 
-			this.ftAccountsUserControl.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.ftAccountsUserControl.Location = new System.Drawing.Point(0, 0);
-			this.ftAccountsUserControl.Margin = new System.Windows.Forms.Padding(5);
-			this.ftAccountsUserControl.Name = "ftAccountsUserControl";
-			this.ftAccountsUserControl.Size = new System.Drawing.Size(1337, 733);
-			this.ftAccountsUserControl.TabIndex = 0;
-			// 
-			// copiersUserControl
-			// 
-			this.copiersUserControl.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.copiersUserControl.Location = new System.Drawing.Point(4, 4);
-			this.copiersUserControl.Margin = new System.Windows.Forms.Padding(5);
-			this.copiersUserControl.Name = "copiersUserControl";
-			this.copiersUserControl.Size = new System.Drawing.Size(1329, 725);
-			this.copiersUserControl.TabIndex = 0;
-			// 
-			// pushingUserControl
-			// 
-			this.pushingUserControl.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.pushingUserControl.Location = new System.Drawing.Point(4, 4);
-			this.pushingUserControl.Margin = new System.Windows.Forms.Padding(5);
-			this.pushingUserControl.Name = "pushingUserControl";
-			this.pushingUserControl.Size = new System.Drawing.Size(1329, 725);
-			this.pushingUserControl.TabIndex = 0;
-			// 
-			// strategiesUserControl
-			// 
-			this.strategiesUserControl.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.strategiesUserControl.Location = new System.Drawing.Point(3, 3);
-			this.strategiesUserControl.Name = "strategiesUserControl";
-			this.strategiesUserControl.Size = new System.Drawing.Size(1331, 727);
-			this.strategiesUserControl.TabIndex = 0;
-			// 
-			// tickersUserControl
-			// 
-			this.tickersUserControl.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.tickersUserControl.Location = new System.Drawing.Point(0, 0);
-			this.tickersUserControl.Name = "tickersUserControl";
-			this.tickersUserControl.Size = new System.Drawing.Size(1337, 733);
-			this.tickersUserControl.TabIndex = 0;
-			// 
-			// btnQuickStart
-			// 
-			this.btnQuickStart.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.btnQuickStart.Location = new System.Drawing.Point(869, 23);
-			this.btnQuickStart.Margin = new System.Windows.Forms.Padding(4);
-			this.btnQuickStart.Name = "btnQuickStart";
-			this.btnQuickStart.Size = new System.Drawing.Size(200, 28);
-			this.btnQuickStart.TabIndex = 24;
-			this.btnQuickStart.Text = "Quick start";
-			this.btnQuickStart.UseVisualStyleBackColor = true;
 			// 
 			// MainForm
 			// 
