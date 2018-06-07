@@ -24,8 +24,10 @@ namespace QvaDev.Orchestration
         Task Disconnect();
 
         Task OrderHistoryExport(DuplicatContext duplicatContext);
+	    void MtAccountImport(DuplicatContext duplicatContext);
 
-        void TestMarketOrder(Pushing pushing);
+
+		void TestMarketOrder(Pushing pushing);
 		void TestLimitOrder(Pushing pushing);
 
 		Task OpeningBeta(Pushing pushing);
@@ -54,6 +56,7 @@ namespace QvaDev.Orchestration
 	    private readonly IStrategiesService _strategiesService;
 	    private readonly IConnectorFactory _connectorFactory;
 	    private readonly IReportService _reportService;
+	    private readonly IMtAccountImportService _mtAccountImportService;
 
 	    public int SelectedAlphaMonitorId { get; set; }
         public int SelectedBetaMonitorId { get; set; }
@@ -65,8 +68,10 @@ namespace QvaDev.Orchestration
             IPushingService pushingService,
 			ITickerService tickerService,
             IStrategiesService strategiesService,
-			IReportService reportService)
+			IReportService reportService,
+            IMtAccountImportService mtAccountImportService)
         {
+	        _mtAccountImportService = mtAccountImportService;
 	        _reportService = reportService;
 	        _connectorFactory = connectorFactory;
 	        _strategiesService = strategiesService;
@@ -198,6 +203,11 @@ namespace QvaDev.Orchestration
                 _reportService.OrderHistoryExport(duplicatContext);
             });
 		}
+
+	    public void MtAccountImport(DuplicatContext duplicatContext)
+	    {
+		    _mtAccountImportService.Import(duplicatContext);
+	    }
 
 		public async Task StartTickers(DuplicatContext duplicatContext)
 		{

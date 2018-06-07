@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace QvaDev.Data.Models
 {
@@ -8,5 +9,7 @@ namespace QvaDev.Data.Models
         public string IpAddress { get; set; }
         public int CommandSocketPort { get; set; }
         public int EventsSocketPort { get; set; }
+
+		public List<Account> Accounts { get => Get(() => new List<Account>()); set => Set(value, false); }
 	}
 }

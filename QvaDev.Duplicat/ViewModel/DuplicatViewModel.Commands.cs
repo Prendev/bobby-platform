@@ -208,6 +208,16 @@ namespace QvaDev.Duplicat.ViewModel
 			IsConnected = true;
 		}
 
+	    public void MtAccountImportCommand()
+	    {
+		    IsLoading = true;
+		    IsConfigReadonly = true;
+		    _orchestrator.MtAccountImport(_duplicatContext);
+
+		    IsLoading = false;
+		    IsConfigReadonly = false;
+	    }
+
 		public async void StartTickersCommand()
 		{
 			IsLoading = true;

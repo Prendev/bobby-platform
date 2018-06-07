@@ -36,6 +36,7 @@
 			this.dgvMtPlatforms = new QvaDev.Duplicat.Views.CustomDataGridView();
 			this.gbControl = new System.Windows.Forms.GroupBox();
 			this.btnExport = new System.Windows.Forms.Button();
+			this.btnAccountImport = new System.Windows.Forms.Button();
 			this.tlpMain.SuspendLayout();
 			this.groupBox4.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.dgvMtAccounts)).BeginInit();
@@ -54,7 +55,7 @@
 			this.tlpMain.Controls.Add(this.tlpLeft, 0, 0);
 			this.tlpMain.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.tlpMain.Location = new System.Drawing.Point(0, 0);
-			this.tlpMain.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+			this.tlpMain.Margin = new System.Windows.Forms.Padding(4);
 			this.tlpMain.Name = "tlpMain";
 			this.tlpMain.RowCount = 1;
 			this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
@@ -67,9 +68,9 @@
 			this.groupBox4.Controls.Add(this.dgvMtAccounts);
 			this.groupBox4.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.groupBox4.Location = new System.Drawing.Point(621, 4);
-			this.groupBox4.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+			this.groupBox4.Margin = new System.Windows.Forms.Padding(4);
 			this.groupBox4.Name = "groupBox4";
-			this.groupBox4.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+			this.groupBox4.Padding = new System.Windows.Forms.Padding(4);
 			this.groupBox4.Size = new System.Drawing.Size(610, 671);
 			this.groupBox4.TabIndex = 0;
 			this.groupBox4.TabStop = false;
@@ -81,7 +82,7 @@
 			this.dgvMtAccounts.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
 			this.dgvMtAccounts.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.dgvMtAccounts.Location = new System.Drawing.Point(4, 19);
-			this.dgvMtAccounts.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+			this.dgvMtAccounts.Margin = new System.Windows.Forms.Padding(4);
 			this.dgvMtAccounts.MultiSelect = false;
 			this.dgvMtAccounts.Name = "dgvMtAccounts";
 			this.dgvMtAccounts.Size = new System.Drawing.Size(602, 648);
@@ -95,7 +96,7 @@
 			this.tlpLeft.Controls.Add(this.gbControl, 0, 0);
 			this.tlpLeft.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.tlpLeft.Location = new System.Drawing.Point(4, 4);
-			this.tlpLeft.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+			this.tlpLeft.Margin = new System.Windows.Forms.Padding(4);
 			this.tlpLeft.Name = "tlpLeft";
 			this.tlpLeft.RowCount = 2;
 			this.tlpLeft.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 64F));
@@ -108,9 +109,9 @@
 			this.groupBox1.Controls.Add(this.dgvMtPlatforms);
 			this.groupBox1.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.groupBox1.Location = new System.Drawing.Point(4, 68);
-			this.groupBox1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+			this.groupBox1.Margin = new System.Windows.Forms.Padding(4);
 			this.groupBox1.Name = "groupBox1";
-			this.groupBox1.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+			this.groupBox1.Padding = new System.Windows.Forms.Padding(4);
 			this.groupBox1.Size = new System.Drawing.Size(601, 599);
 			this.groupBox1.TabIndex = 2;
 			this.groupBox1.TabStop = false;
@@ -122,7 +123,7 @@
 			this.dgvMtPlatforms.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
 			this.dgvMtPlatforms.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.dgvMtPlatforms.Location = new System.Drawing.Point(4, 19);
-			this.dgvMtPlatforms.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+			this.dgvMtPlatforms.Margin = new System.Windows.Forms.Padding(4);
 			this.dgvMtPlatforms.MultiSelect = false;
 			this.dgvMtPlatforms.Name = "dgvMtPlatforms";
 			this.dgvMtPlatforms.ReadOnly = true;
@@ -131,12 +132,13 @@
 			// 
 			// gbControl
 			// 
+			this.gbControl.Controls.Add(this.btnAccountImport);
 			this.gbControl.Controls.Add(this.btnExport);
 			this.gbControl.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.gbControl.Location = new System.Drawing.Point(4, 4);
-			this.gbControl.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+			this.gbControl.Margin = new System.Windows.Forms.Padding(4);
 			this.gbControl.Name = "gbControl";
-			this.gbControl.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+			this.gbControl.Padding = new System.Windows.Forms.Padding(4);
 			this.gbControl.Size = new System.Drawing.Size(601, 56);
 			this.gbControl.TabIndex = 3;
 			this.gbControl.TabStop = false;
@@ -145,19 +147,29 @@
 			// btnExport
 			// 
 			this.btnExport.Location = new System.Drawing.Point(8, 23);
-			this.btnExport.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+			this.btnExport.Margin = new System.Windows.Forms.Padding(4);
 			this.btnExport.Name = "btnExport";
 			this.btnExport.Size = new System.Drawing.Size(200, 28);
 			this.btnExport.TabIndex = 21;
 			this.btnExport.Text = "Order history export";
 			this.btnExport.UseVisualStyleBackColor = true;
 			// 
+			// btnAccountImport
+			// 
+			this.btnAccountImport.Location = new System.Drawing.Point(216, 23);
+			this.btnAccountImport.Margin = new System.Windows.Forms.Padding(4);
+			this.btnAccountImport.Name = "btnAccountImport";
+			this.btnAccountImport.Size = new System.Drawing.Size(200, 28);
+			this.btnAccountImport.TabIndex = 22;
+			this.btnAccountImport.Text = "Account import";
+			this.btnAccountImport.UseVisualStyleBackColor = true;
+			// 
 			// MtAccountsUserControl
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.Controls.Add(this.tlpMain);
-			this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+			this.Margin = new System.Windows.Forms.Padding(4);
 			this.Name = "MtAccountsUserControl";
 			this.Size = new System.Drawing.Size(1235, 679);
 			this.tlpMain.ResumeLayout(false);
@@ -181,5 +193,6 @@
         private System.Windows.Forms.TableLayoutPanel tlpLeft;
         private System.Windows.Forms.GroupBox gbControl;
         private System.Windows.Forms.Button btnExport;
-    }
+		private System.Windows.Forms.Button btnAccountImport;
+	}
 }

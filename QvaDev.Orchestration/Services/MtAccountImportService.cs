@@ -1,0 +1,71 @@
+﻿using System.IO;
+using System.Linq;
+using QvaDev.Data;
+using QvaDev.Data.Models;
+
+namespace QvaDev.Orchestration.Services
+{
+	public interface IMtAccountImportService
+	{
+		void Import(DuplicatContext duplicatContext);
+	}
+
+	public class MtAccountImportService : IMtAccountImportService
+	{
+		private class Record
+		{
+			public string Server { get; set; }
+			public string User { get; set; }
+			public string Pass { get; set; }
+		}
+
+		public void Import(DuplicatContext duplicatContext)
+		{
+			using (var streamReader = new StreamReader("accounts.csv"))
+			using (var csvReader = new CsvHelper.CsvReader(streamReader))
+			{
+				csvReader.Configuration.Delimiter = ",";
+				csvReader.Configuration.HasHeaderRecord = false;
+				var records = csvReader.GetRecords<Record>().ToList();
+
+				var profile = duplicatContext.Profiles.FirstOrDefault(p => p.Description == "*Import-Export") ??
+				              duplicatContext.Profiles.Add(new Profile() {Description = "*Import-Export"});
+
+				foreach (var srv in records.Select(r => r.Server).Distinct())
+				{
+					if (duplicatContext.MetaTraderPlatforms.Any(p => p.SrvFilePath == srv))
+						continue;
+					duplicatContext.MetaTraderPlatforms.Add(new MetaTraderPlatform()
+					{
+						Description = srv,
+						SrvFilePath = srv
+					});
+				}
+				duplicatContext.SaveChanges();
+
+				foreach (var record in records)
+				{
+					var user = long.Parse(record.User);
+					var mtAccount = duplicatContext.MetaTraderAccounts.FirstOrDefault(a => a.User == user);
+
+					if (mtAccount == null)
+					{
+						var platform = duplicatContext.MetaTraderPlatforms.First(p => p.SrvFilePath == record.Server);
+						mtAccount = duplicatContext.MetaTraderAccounts.Add(new MetaTraderAccount()
+						{
+							Description = record.User,
+							User = user,
+							Password = record.Pass,
+							MetaTraderPlatform = platform
+						});
+					}
+
+					if (mtAccount.Accounts.All(a => a.Profile != profile))
+						mtAccount.Accounts.Add(new Account() {Profile = profile, Run = true});
+				}
+				duplicatContext.SaveChanges();
+			}
+
+		}
+	}
+}

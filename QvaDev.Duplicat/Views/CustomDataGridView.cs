@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -100,13 +101,15 @@ namespace QvaDev.Duplicat.Views
             var genericArgs =  DataSource?.GetType().GetGenericArguments();
             if (genericArgs?.Length > 0)
             {
-                foreach (var prop in genericArgs[0].GetProperties())
-                foreach (var attr in prop.GetCustomAttributes(true))
-                {
-                    if (!Columns.Contains(prop.Name)) continue;
-                    if (attr is InvisibleColumnAttribute) Columns[prop.Name].Visible = false;
-                    if (attr is DisplayIndexAttribute) Columns[prop.Name].DisplayIndex = ((DisplayIndexAttribute)attr).Index;
-                }
+	            foreach (var prop in genericArgs[0].GetProperties())
+				{
+					foreach (var attr in prop.GetCustomAttributes(true))
+					{
+						if (!Columns.Contains(prop.Name)) continue;
+						if (attr is InvisibleColumnAttribute) Columns[prop.Name].Visible = false;
+						if (attr is DisplayIndexAttribute) Columns[prop.Name].DisplayIndex = ((DisplayIndexAttribute)attr).Index;
+					}
+				}
             }
 
             foreach (var name in _invisibleColumns)

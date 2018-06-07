@@ -23,7 +23,8 @@ namespace QvaDev.Duplicat.Views
             //gbControl.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsConnected));
 
             btnExport.Click += (s, e) => { _viewModel.OrderHistoryExportCommand(); };
-        }
+			btnAccountImport.Click += (s, e) => { _viewModel.MtAccountImportCommand(); };
+		}
 
         public void AttachDataSources()
         {
