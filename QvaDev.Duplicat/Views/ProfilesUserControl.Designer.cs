@@ -30,16 +30,17 @@
         {
 			this.tlpMain = new System.Windows.Forms.TableLayoutPanel();
 			this.gbControl = new System.Windows.Forms.GroupBox();
+			this.btnSaveTheWeekend = new System.Windows.Forms.Button();
 			this.btnLoad = new System.Windows.Forms.Button();
-			this.groupBox6 = new System.Windows.Forms.GroupBox();
 			this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
+			this.groupBox6 = new System.Windows.Forms.GroupBox();
 			this.groupBox1 = new System.Windows.Forms.GroupBox();
 			this.dgvProfiles = new QvaDev.Duplicat.Views.CustomDataGridView();
 			this.dgvAccounts = new QvaDev.Duplicat.Views.CustomDataGridView();
 			this.tlpMain.SuspendLayout();
 			this.gbControl.SuspendLayout();
-			this.groupBox6.SuspendLayout();
 			this.tableLayoutPanel1.SuspendLayout();
+			this.groupBox6.SuspendLayout();
 			this.groupBox1.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.dgvProfiles)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.dgvAccounts)).BeginInit();
@@ -63,6 +64,7 @@
 			// 
 			// gbControl
 			// 
+			this.gbControl.Controls.Add(this.btnSaveTheWeekend);
 			this.gbControl.Controls.Add(this.btnLoad);
 			this.gbControl.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.gbControl.Location = new System.Drawing.Point(4, 4);
@@ -74,6 +76,17 @@
 			this.gbControl.TabStop = false;
 			this.gbControl.Text = "Control";
 			// 
+			// btnSaveTheWeekend
+			// 
+			this.btnSaveTheWeekend.Location = new System.Drawing.Point(216, 23);
+			this.btnSaveTheWeekend.Margin = new System.Windows.Forms.Padding(4);
+			this.btnSaveTheWeekend.Name = "btnSaveTheWeekend";
+			this.btnSaveTheWeekend.Size = new System.Drawing.Size(200, 28);
+			this.btnSaveTheWeekend.TabIndex = 16;
+			this.btnSaveTheWeekend.Text = "SAVE THE WEEKEND";
+			this.btnSaveTheWeekend.UseVisualStyleBackColor = true;
+			this.btnSaveTheWeekend.Visible = false;
+			// 
 			// btnLoad
 			// 
 			this.btnLoad.Location = new System.Drawing.Point(8, 23);
@@ -83,19 +96,6 @@
 			this.btnLoad.TabIndex = 15;
 			this.btnLoad.Text = "Load selected profile";
 			this.btnLoad.UseVisualStyleBackColor = true;
-			// 
-			// groupBox6
-			// 
-			this.groupBox6.Controls.Add(this.dgvProfiles);
-			this.groupBox6.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.groupBox6.Location = new System.Drawing.Point(4, 4);
-			this.groupBox6.Margin = new System.Windows.Forms.Padding(4);
-			this.groupBox6.Name = "groupBox6";
-			this.groupBox6.Padding = new System.Windows.Forms.Padding(4);
-			this.groupBox6.Size = new System.Drawing.Size(614, 667);
-			this.groupBox6.TabIndex = 0;
-			this.groupBox6.TabStop = false;
-			this.groupBox6.Text = "Profiles";
 			// 
 			// tableLayoutPanel1
 			// 
@@ -111,6 +111,19 @@
 			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
 			this.tableLayoutPanel1.Size = new System.Drawing.Size(1245, 675);
 			this.tableLayoutPanel1.TabIndex = 2;
+			// 
+			// groupBox6
+			// 
+			this.groupBox6.Controls.Add(this.dgvProfiles);
+			this.groupBox6.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.groupBox6.Location = new System.Drawing.Point(4, 4);
+			this.groupBox6.Margin = new System.Windows.Forms.Padding(4);
+			this.groupBox6.Name = "groupBox6";
+			this.groupBox6.Padding = new System.Windows.Forms.Padding(4);
+			this.groupBox6.Size = new System.Drawing.Size(614, 667);
+			this.groupBox6.TabIndex = 0;
+			this.groupBox6.TabStop = false;
+			this.groupBox6.Text = "Profiles";
 			// 
 			// groupBox1
 			// 
@@ -157,8 +170,8 @@
 			this.Size = new System.Drawing.Size(1251, 745);
 			this.tlpMain.ResumeLayout(false);
 			this.gbControl.ResumeLayout(false);
-			this.groupBox6.ResumeLayout(false);
 			this.tableLayoutPanel1.ResumeLayout(false);
+			this.groupBox6.ResumeLayout(false);
 			this.groupBox1.ResumeLayout(false);
 			((System.ComponentModel.ISupportInitialize)(this.dgvProfiles)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.dgvAccounts)).EndInit();
@@ -176,5 +189,6 @@
 		private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
 		private System.Windows.Forms.GroupBox groupBox1;
 		private CustomDataGridView dgvAccounts;
+		private System.Windows.Forms.Button btnSaveTheWeekend;
 	}
 }

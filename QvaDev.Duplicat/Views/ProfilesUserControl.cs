@@ -28,7 +28,12 @@ namespace QvaDev.Duplicat.Views
             {
                 _viewModel.LoadProfileCommand(dgvProfiles.GetSelectedItem<Profile>());
             };
-        }
+
+	        btnSaveTheWeekend.Click += (s, e) =>
+	        {
+		        _viewModel.SaveTheWeekendCommand();
+	        };
+		}
 
         public void AttachDataSources()
         {

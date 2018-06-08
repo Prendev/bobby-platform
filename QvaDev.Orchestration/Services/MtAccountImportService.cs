@@ -1,13 +1,17 @@
-﻿using System.IO;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using QvaDev.Data;
 using QvaDev.Data.Models;
+using TradingAPI.MT4Server;
 
 namespace QvaDev.Orchestration.Services
 {
 	public interface IMtAccountImportService
 	{
 		void Import(DuplicatContext duplicatContext);
+		void SaveTheWeekend(DuplicatContext duplicatContext);
 	}
 
 	public class MtAccountImportService : IMtAccountImportService
@@ -41,6 +45,7 @@ namespace QvaDev.Orchestration.Services
 						SrvFilePath = srv
 					});
 				}
+
 				duplicatContext.SaveChanges();
 
 				foreach (var record in records)
@@ -63,9 +68,95 @@ namespace QvaDev.Orchestration.Services
 					if (mtAccount.Accounts.All(a => a.Profile != profile))
 						mtAccount.Accounts.Add(new Account() {Profile = profile, Run = true});
 				}
+
 				duplicatContext.SaveChanges();
 			}
+		}
 
+		public void SaveTheWeekend(DuplicatContext duplicatContext)
+		{
+			using (var streamWriter = new StreamWriter("us.csv"))
+			using (var csvWriter = new CsvHelper.CsvWriter(streamWriter))
+			{
+				var profile = duplicatContext.Profiles.First(p => p.Description == "*Import-Export");
+				var accounts =
+					profile.Accounts.Where(a => a.Run && a.MetaTraderAccountId.HasValue && a.State == Account.States.Connected);
+
+				foreach (var account in accounts)
+				{
+					var conn = (Mt4Integration.Connector)account.Connector;
+					var orders = conn.QuoteClient.DownloadOrderHistory(new DateTime(2018,5,21), new DateTime(2018, 5, 25));
+					if(orders?.Length == 0) continue;
+					var us = orders.Where(o => UsSymbols().Contains(o.Symbol));
+					us = us.Where(o =>  o.Type == Op.Buy || o.Type == Op.Sell);
+
+					foreach (var order in us)
+					{
+						var record = new
+						{
+							Holder = conn.QuoteClient.AccountName,
+							Broker = conn.QuoteClient.Account.company,
+							Account = account.MetaTraderAccount.User,
+							ID = order.Ticket,
+							order.OpenTime,
+							Type = order.Type == Op.Buy ? "buy" : "sell",
+							Size = order.Lots,
+							order.Symbol,
+							order.OpenPrice,
+							Sl = order.StopLoss,
+							Tp = order.TakeProfit,
+							order.CloseTime,
+							Price = order.ClosePrice,
+							order.Commission,
+							order.Swap,
+							order.Profit
+						};
+						csvWriter.WriteRecord(record);
+						csvWriter.NextRecord();
+					}
+
+				}
+			}
+		}
+
+		private List<string> UsSymbols()
+		{
+			return new List<string>()
+			{
+				"#DJ30",
+				"#DOW30",
+				".US30",
+				"[DJI30]",
+				"DOWUSD",
+				"IDX.US.30",
+				"US.30..",
+				"US30",
+				"US30.c",
+				"US30.CASH",
+				"US30.i",
+				"US30.p",
+				"US30Cash",
+				"US30-CFD",
+				"US30s",
+				"US30USD",
+				"UsaInd",
+				"WS30",
+				"WS30.",
+				"WS30.ccm",
+				"WS30.lmx",
+				"#NAS",
+				"#NAS100",
+				".US100",
+				"US100",
+				"US100.c",
+				"US100s",
+				"US100.CASH",
+				"US100.i",
+				"US100.p",
+				"US.100",
+				"US.100.",
+				"US.100.."
+			};
 		}
 	}
 }

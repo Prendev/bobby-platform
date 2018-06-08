@@ -73,7 +73,7 @@ namespace QvaDev.Mt4Integration
 			try
 			{
 				if (Uri.TryCreate($"http://{_accountInfo.Srv}", UriKind.Absolute, out Uri ip))
-					QuoteClient = CreateQuoteClient(_accountInfo, ip.Host, ip.Port);
+					QuoteClient = CreateQuoteClient(_accountInfo, ip.Host, ip.IsDefaultPort ? 443 : ip.Port);
 				else
 				{
 					var srv = QuoteClient.LoadSrv(_accountInfo.Srv, out slaves);
