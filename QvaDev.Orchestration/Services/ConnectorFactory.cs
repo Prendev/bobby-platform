@@ -84,10 +84,10 @@ namespace QvaDev.Orchestration.Services
 		private void ConnectFixAccount(Account account)
 		{
 			if (account.Connector == null)
-				account.Connector = new FixApiIntegration.Connector();
+				account.Connector = new FixApiIntegration.Connector(_log);
 
 			((FixApiIntegration.Connector)account.Connector)
-				.Connect();
+				.Connect(account.FixApiAccount.ConfigPath);
 		}
 	}
 }

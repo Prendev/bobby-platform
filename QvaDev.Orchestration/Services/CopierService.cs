@@ -7,6 +7,7 @@ using log4net;
 using QvaDev.Common.Integration;
 using QvaDev.Data;
 using QvaDev.Data.Models;
+using QvaDev.FixTraderIntegration;
 
 namespace QvaDev.Orchestration.Services
 {
@@ -78,13 +79,13 @@ namespace QvaDev.Orchestration.Services
             if (slave.Account.MetaTraderAccountId.HasValue) return CopyToMtAccount(e, slave);
             if (slave.Account.CTraderAccountId.HasValue) return CopyToCtAccount(e, slave);
 	        if (slave.Account.FixTraderAccountId.HasValue) return CopyToFtAccount(e, slave);
+			if (slave.Account.FixApiAccountId.HasValue) return CopyToFixAccount(e, slave);
 			return Task.FromResult(0);
 		}
 
 	    private Task CopyToFtAccount(PositionEventArgs e, Slave slave)
 	    {
-		    var slaveConnector = slave.Account?.Connector as FixTraderIntegration.Connector;
-		    if (slaveConnector == null) return Task.FromResult(0);
+		    if (!(slave.Account?.Connector is Connector slaveConnector)) return Task.FromResult(0);
 
 		    var symbol = slave.SymbolMappings?.Any(m => m.From == e.Position.Symbol) == true
 			    ? slave.SymbolMappings.First(m => m.From == e.Position.Symbol).To
@@ -109,8 +110,7 @@ namespace QvaDev.Orchestration.Services
 
 		private Task CopyToCtAccount(PositionEventArgs e, Slave slave)
         {
-            var slaveConnector = slave.Account?.Connector as CTraderIntegration.Connector;
-            if (slaveConnector == null) return Task.FromResult(0);
+	        if (!(slave.Account?.Connector is CTraderIntegration.Connector slaveConnector)) return Task.FromResult(0);
 
             var type = e.Position.Side == Sides.Buy ? ProtoTradeSide.BUY : ProtoTradeSide.SELL;
             var symbol = slave.SymbolMappings?.Any(m => m.From == e.Position.Symbol) == true
@@ -138,8 +138,7 @@ namespace QvaDev.Orchestration.Services
 
         private Task CopyToMtAccount(PositionEventArgs e, Slave slave)
         {
-            var slaveConnector = slave.Account?.Connector as Mt4Integration.Connector;
-            if (slaveConnector == null) return Task.FromResult(0);
+	        if (!(slave.Account?.Connector is Mt4Integration.Connector slaveConnector)) return Task.FromResult(0);
 
             var symbol = slave.SymbolMappings?.Any(m => m.From == e.Position.Symbol) == true
                 ? slave.SymbolMappings.First(m => m.From == e.Position.Symbol).To
@@ -159,6 +158,32 @@ namespace QvaDev.Orchestration.Services
                     slaveConnector.SendClosePositionRequests($"{slave.Id}-{e.Position.Id}", copier.MaxRetryCount, copier.RetryPeriodInMilliseconds);
             }, TaskCreationOptions.LongRunning));
             return Task.WhenAll(tasks);
-        }
-    }
+		}
+
+		private Task CopyToFixAccount(PositionEventArgs e, Slave slave)
+		{
+			throw new NotImplementedException();
+			if (!(slave.Account?.Connector is FixApiIntegration.Connector slaveConnector)) return Task.FromResult(0);
+
+			var symbol = slave.SymbolMappings?.Any(m => m.From == e.Position.Symbol) == true
+				? slave.SymbolMappings.First(m => m.From == e.Position.Symbol).To
+				: e.Position.Symbol + (slave.SymbolSuffix ?? "");
+
+			//var tasks = slave.FixApiCopiers.Where(s => s.Run).Select(copier => Task.Factory.StartNew(() =>
+			//{
+			//	if (copier.DelayInMilliseconds > 0) Thread.Sleep(copier.DelayInMilliseconds);
+
+			//	var lots = Math.Abs(e.Position.Lots) * (double)copier.CopyRatio;
+			//	if (e.Action == PositionEventArgs.Actions.Open && copier.OrderType == FixApiCopier.FixApiOrderTypes.Aggressive)
+			//		slaveConnector.SendAggressiveOrderRequest(symbol, e.Position.Side, lots, e.Position.OpenPrice, copier.Slippage,
+			//			copier.BurstPeriodInMilliseconds, copier.MaxRetryCount, copier.RetryPeriodInMilliseconds, $"{slave.Id}-{e.Position.Id}");
+			//	else if (e.Action == PositionEventArgs.Actions.Open && copier.OrderType == FixApiCopier.FixApiOrderTypes.Market)
+			//		slaveConnector.SendMarketOrderRequest(symbol, e.Position.Side, lots, $"{slave.Id}-{e.Position.Id}");
+			//	else if (e.Action == PositionEventArgs.Actions.Close)
+			//		slaveConnector.OrderMultipleCloseBy(symbol);
+
+			//}, TaskCreationOptions.LongRunning));
+			//return Task.WhenAll(tasks);
+		}
+	}
 }
