@@ -38,14 +38,13 @@
             <param name="type">The type to check</param>
             <returns><c>true</c>, if <paramref name="type"/> is a <see cref="T:System.Nullable`1"/> type; otherwise, <c>false</c>.</returns>
         </member>
-        <member name="M:QvaDev.Communication.Extensions.DictionaryExtensions.GetValueOrDefault``2(System.Collections.Generic.IDictionary{``0,System.Object},``0,``1)">
+        <member name="M:QvaDev.Communication.Extensions.DictionaryExtensions.GetValueOrDefault``1(System.Collections.Generic.IDictionary{System.String,System.Object},System.String,``0)">
             <summary>
-            Tries to get the typed value from an <see cref="T:System.Object"/>-value dictionary for the given key.
+            Tries to get the typed value from a <see cref="T:System.String"/>-<see cref="T:System.Object"/> dictionary for the given key.
             </summary>
             <param name="dictionary">The dictionary.</param>
             <param name="key">The dictionary key.</param>
             <param name="defaultValue">The default value to return if <paramref name="key"/> not found or its actual type is not compatible with <typeparamref name="TActualValue"/>.</param>
-            <typeparam name="TKey">The type of value</typeparam>
             <typeparam name="TActualValue">The actual type of the stored value.</typeparam>
             <returns>The found value or <paramref name="defaultValue"/> if <paramref name="key"/> not found or its type is wrong.</returns>
         </member>
@@ -113,16 +112,6 @@
             <param name="configuration">The configuration.</param>
             <param name="pricingMessageBuilder">The message builder to be used when sending a FIX API message through the <see cref="P:QvaDev.Communication.FixApi.FixConnectorBase.PricingSocket"/>.</param>
             <param name="tradingMessageBuilder">The message builder to be used when sending a FIX API message through the <see cref="P:QvaDev.Communication.FixApi.FixConnectorBase.TradingSocket"/>.</param>
-            <remarks>
-            To start listening to the received and to be sent messages call the <see cref="M:QvaDev.Communication.FixApi.FixConnectorBase.ConnectPricingAsync(System.Boolean)" /> and <see cref="M:QvaDev.Communication.FixApi.FixConnectorBase.ConnectTradingAsync(System.Boolean)"/> methods after subscribing events.
-            </remarks>
-        </member>
-        <member name="M:QvaDev.Communication.FixApi.FixConnectorBase`3.#ctor(`0,QvaDev.Communication.FixApi.IFixMessageBuilder)">
-            <summary>
-            Initializes a new instance of the <see cref="T:QvaDev.Communication.FixApi.FixConnectorBase`3"/> class.
-            </summary>
-            <param name="configuration">The configuration.</param>
-            <param name="messageBuilder">The common message builder to be used when sending a FIX API message through any socket.</param>
             <remarks>
             To start listening to the received and to be sent messages call the <see cref="M:QvaDev.Communication.FixApi.FixConnectorBase.ConnectPricingAsync(System.Boolean)" /> and <see cref="M:QvaDev.Communication.FixApi.FixConnectorBase.ConnectTradingAsync(System.Boolean)"/> methods after subscribing events.
             </remarks>
@@ -209,13 +198,29 @@
             Type: int
             </remarks>
         </member>
+        <member name="T:QvaDev.Communication.FixApi.EncryptMethod">
+            <summary>
+            Represents the values of the <see cref="F:QvaDev.Communication.FixApi.KnownField.EncryptMethod"/> field.
+            </summary>
+            <remarks>
+            See <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_98.html" target="_blank">EncryptMethod</a>.
+            Type: int
+            </remarks>
+        </member>
+        <member name="T:QvaDev.Communication.FixApi.ExecInst">
+            <summary>
+            Represents the values of the <see cref="F:QvaDev.Communication.FixApi.KnownField.ExecInst"/> field.
+            </summary>
+            <remarks>
+            See <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_18.html" target="_blank">ExecInst</a>.
+            </remarks>
+        </member>
         <member name="T:QvaDev.Communication.FixApi.ExecType">
             <summary>
             Represents the values of the <see cref="F:QvaDev.Communication.FixApi.KnownField.ExecType"/> field.
             </summary>
             <remarks>
             See <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_150.html" target="_blank">ExecType</a>.
-            Type: char
             </remarks>
         </member>
         <member name="T:QvaDev.Communication.FixApi.MDEntryType">
@@ -224,7 +229,6 @@
             </summary>
             <remarks>
             See <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_269.html" target="_blank">MDEntryType</a>.
-            Type: char
             </remarks>
         </member>
         <member name="T:QvaDev.Communication.FixApi.MDReqRejReason">
@@ -233,7 +237,6 @@
             </summary>
             <remarks>
             See <a href="http://www.onixs.biz/fix-dictionary/5.0.SP2/tagNum_281.html" target="_blank">MDReqRejReason</a>.
-            Type: char
             </remarks>
         </member>
         <member name="T:QvaDev.Communication.FixApi.MDUpdateType">
@@ -251,7 +254,6 @@
             </summary>
             <remarks>
             See <a href="http://www.onixs.biz/fix-dictionary/5.0.SP2/tagNum_39.html" target="_blank">OrdStatus</a>.
-            Type: char
             </remarks>
         </member>
         <member name="T:QvaDev.Communication.FixApi.OrdType">
@@ -260,7 +262,15 @@
             </summary>
             <remarks>
             See <a href="http://www.onixs.biz/fix-dictionary/5.0.SP2/tagNum_40.html" target="_blank">OrdType</a>.
-            Type: char
+            </remarks>
+        </member>
+        <member name="T:QvaDev.Communication.FixApi.SecurityListRequestType">
+            <summary>
+            Represents the values of the <see cref="F:QvaDev.Communication.FixApi.KnownField.SecurityListRequestType"/> field.
+            </summary>
+            <remarks>
+            See <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_559.html" target="_blank">SecurityListRequestType</a>.
+            Type: int
             </remarks>
         </member>
         <member name="T:QvaDev.Communication.FixApi.SessionRejectReason">
@@ -269,7 +279,6 @@
             </summary>
             <remarks>
             See <a href="http://www.onixs.biz/fix-dictionary/5.0.SP2/tagNum_373.html" target="_blank">SessionRejectReason</a>.
-            Type: int
             </remarks>
         </member>
         <member name="T:QvaDev.Communication.FixApi.Side">
@@ -278,7 +287,6 @@
             </summary>
             <remarks>
             See <a href="http://www.onixs.biz/fix-dictionary/5.0.SP2/tagNum_54.html" target="_blank">Side</a>.
-            Type: char
             </remarks>
         </member>
         <member name="T:QvaDev.Communication.FixApi.SubscriptionRequestType">
@@ -295,7 +303,7 @@
             Represents the values of the <see cref="F:QvaDev.Communication.FixApi.KnownField.TimeInForce"/> field.
             </summary>
             <remarks>
-            See <a href="http://www.onixs.biz/fix-dictionary/5.0.SP2/tagNum_59.html" target="_blank">Side</a>.
+            See <a href="http://www.onixs.biz/fix-dictionary/5.0.SP2/tagNum_59.html" target="_blank">TimeInForce</a>.
             Type: char
             </remarks>
         </member>
@@ -667,7 +675,7 @@
             <summary>
             In a derived class gets the body of a <see cref="F:QvaDev.Communication.FixApi.FixMessageTypes.NewOrderSingle"/> message.
             </summary>
-            <param name="orderId">A newly generated order ID to use in the message.</param>
+            <param name="orderId">A newly generated order ID to use in the message. See <see cref="M:QvaDev.Communication.FixApi.FixConnectorBase.GetNewOrderId(QvaDev.Communication.FixApi.NewOrderRequest)"/> method.</param>
             <param name="request">The request to use.</param>
             <returns>A <see cref="T:QvaDev.Communication.FixApi.FixMessageBody"/> instance containing the message body to send.</returns>
         </member>
@@ -675,16 +683,16 @@
             <summary>
             In a derived class gets the body of a <see cref="F:QvaDev.Communication.FixApi.FixMessageTypes.OrderCancelRequest"/> message.
             </summary>
-            <param name="origOrderId">The identifier of the original order.</param>
-            <param name="cancelOrderId">The cancel order identifier.</param>
+            <param name="origOrderId">The identifier of the original order. See <see cref="M:QvaDev.Communication.FixApi.FixConnectorBase.GetNewOrderId(QvaDev.Communication.FixApi.NewOrderRequest)"/> method.</param>
+            <param name="cancelOrderId">The cancel order identifier. See <see cref="M:QvaDev.Communication.FixApi.FixConnectorBase.GetCancelOrderId(System.String)"/> method.</param>
             <returns>A <see cref="T:QvaDev.Communication.FixApi.FixMessageBody"/> instance containing the message body to send.</returns>
         </member>
         <member name="M:QvaDev.Communication.FixApi.FixConnectorBase.GetOrderStatusRequestMessageBody(System.String,System.String)">
             <summary>
             In a derived class gets the body of a <see cref="F:QvaDev.Communication.FixApi.FixMessageTypes.OrderStatusRequest"/> message.
             </summary>
-            <param name="origOrderId">The identifier of the original order.</param>
-            <param name="orderStatusRequestId">The status request order identifier.</param>
+            <param name="origOrderId">The identifier of the original order. See <see cref="M:QvaDev.Communication.FixApi.FixConnectorBase.GetNewOrderId(QvaDev.Communication.FixApi.NewOrderRequest)"/> method.</param>
+            <param name="orderStatusRequestId">The status request order identifier See <see cref="M:QvaDev.Communication.FixApi.FixConnectorBase.GetOrderStatusRequestId(System.String)"/> method.</param>
             <returns>A <see cref="T:QvaDev.Communication.FixApi.FixMessageBody"/> instance containing the message body to send.</returns>
         </member>
         <member name="M:QvaDev.Communication.FixApi.FixConnectorBase.GetLogoutMessageBody(QvaDev.Communication.FixApi.IFixSocketConfiguration)">

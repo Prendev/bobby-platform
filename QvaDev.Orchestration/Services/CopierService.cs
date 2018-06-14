@@ -162,28 +162,31 @@ namespace QvaDev.Orchestration.Services
 
 		private Task CopyToFixAccount(PositionEventArgs e, Slave slave)
 		{
-			throw new NotImplementedException();
 			if (!(slave.Account?.Connector is FixApiIntegration.Connector slaveConnector)) return Task.FromResult(0);
 
 			var symbol = slave.SymbolMappings?.Any(m => m.From == e.Position.Symbol) == true
 				? slave.SymbolMappings.First(m => m.From == e.Position.Symbol).To
 				: e.Position.Symbol + (slave.SymbolSuffix ?? "");
 
-			//var tasks = slave.FixApiCopiers.Where(s => s.Run).Select(copier => Task.Factory.StartNew(() =>
-			//{
-			//	if (copier.DelayInMilliseconds > 0) Thread.Sleep(copier.DelayInMilliseconds);
+			var tasks = slave.FixApiCopiers.Where(s => s.Run).Select(copier => Task.Factory.StartNew(() =>
+			{
+				if (copier.DelayInMilliseconds > 0) Thread.Sleep(copier.DelayInMilliseconds);
 
-			//	var lots = Math.Abs(e.Position.Lots) * (double)copier.CopyRatio;
-			//	if (e.Action == PositionEventArgs.Actions.Open && copier.OrderType == FixApiCopier.FixApiOrderTypes.Aggressive)
-			//		slaveConnector.SendAggressiveOrderRequest(symbol, e.Position.Side, lots, e.Position.OpenPrice, copier.Slippage,
-			//			copier.BurstPeriodInMilliseconds, copier.MaxRetryCount, copier.RetryPeriodInMilliseconds, $"{slave.Id}-{e.Position.Id}");
-			//	else if (e.Action == PositionEventArgs.Actions.Open && copier.OrderType == FixApiCopier.FixApiOrderTypes.Market)
-			//		slaveConnector.SendMarketOrderRequest(symbol, e.Position.Side, lots, $"{slave.Id}-{e.Position.Id}");
-			//	else if (e.Action == PositionEventArgs.Actions.Close)
-			//		slaveConnector.OrderMultipleCloseBy(symbol);
+				var quantity = (decimal)Math.Abs(e.Position.Lots) * copier.CopyRatio;
+				if (e.Action == PositionEventArgs.Actions.Open && copier.OrderType == FixApiCopier.FixApiOrderTypes.Aggressive)
+					slaveConnector.SendMarketOrderRequest(symbol, e.Position.Side, quantity);
+				else if (e.Action == PositionEventArgs.Actions.Open && copier.OrderType == FixApiCopier.FixApiOrderTypes.Market)
+					slaveConnector.SendMarketOrderRequest(symbol, e.Position.Side, quantity);
+				else if (e.Action == PositionEventArgs.Actions.Close)
+					slaveConnector.SendMarketOrderRequest(symbol, InvSide(e.Position.Side), quantity);
 
-			//}, TaskCreationOptions.LongRunning));
-			//return Task.WhenAll(tasks);
+			}, TaskCreationOptions.LongRunning));
+			return Task.WhenAll(tasks);
 		}
+
+	    private Sides InvSide(Sides side)
+	    {
+		    return side == Sides.Buy ? Sides.Sell : Sides.Buy;
+	    }
 	}
 }
