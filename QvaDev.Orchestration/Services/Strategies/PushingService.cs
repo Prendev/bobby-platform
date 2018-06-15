@@ -50,7 +50,7 @@ namespace QvaDev.Orchestration.Services.Strategies
 		public void OpeningAlpha(Pushing pushing)
 		{
 			var pd = pushing.PushingDetail;
-			var futureConnector = (FtConnector)pushing.FutureAccount.Connector;
+			var futureConnector = (IFixConnector)pushing.FutureAccount.Connector;
 			var alphaConnector = (MtConnector)pushing.AlphaMaster.Connector;
 
 			// Build up futures for second side
@@ -76,7 +76,7 @@ namespace QvaDev.Orchestration.Services.Strategies
 		public void OpeningFinish(Pushing pushing)
 		{
 			var pd = pushing.PushingDetail;
-			var futureConnector = (FtConnector)pushing.FutureAccount.Connector;
+			var futureConnector = (IFixConnector)pushing.FutureAccount.Connector;
 
 			// Build a little more futures
 			var contractsNeeded = GetSumContracts(pushing) + Math.Abs(pd.MasterSignalContractLimit);
@@ -111,7 +111,7 @@ namespace QvaDev.Orchestration.Services.Strategies
 			if (!pushing.IsHedgeClose) return;
 
 			var pd = pushing.PushingDetail;
-			var futureConnector = (FtConnector)pushing.FutureAccount.Connector;
+			var futureConnector = (IFixConnector)pushing.FutureAccount.Connector;
 			var hedgeConnector = (MtConnector)pushing.HedgeAccount.Connector;
 			var futureSide = InvSide(pushing.FirstCloseSide);
 
@@ -134,7 +134,7 @@ namespace QvaDev.Orchestration.Services.Strategies
 		public void ClosingSecond(Pushing pushing)
 		{
 			var pd = pushing.PushingDetail;
-			var futureConnector = (FtConnector)pushing.FutureAccount.Connector;
+			var futureConnector = (IFixConnector)pushing.FutureAccount.Connector;
 
 			var secondConnector = pushing.BetaOpenSide == pushing.FirstCloseSide
 				? (MtConnector) pushing.AlphaMaster.Connector
@@ -161,7 +161,7 @@ namespace QvaDev.Orchestration.Services.Strategies
 		public void ClosingFinish(Pushing pushing)
 		{
 			var pd = pushing.PushingDetail;
-			var futureConnector = (FtConnector)pushing.FutureAccount.Connector;
+			var futureConnector = (IFixConnector)pushing.FutureAccount.Connector;
 
 			var futureSide = InvSide(pushing.FirstCloseSide);
 
@@ -186,7 +186,7 @@ namespace QvaDev.Orchestration.Services.Strategies
             var pd = pushing.PushingDetail;
             if (!pd.PriceLimit.HasValue) return false;
 
-            var futureConnector = (FtConnector)pushing.FutureAccount.Connector;
+            var futureConnector = (IFixConnector)pushing.FutureAccount.Connector;
             var symbolInfo = futureConnector.GetSymbolInfo(pushing.FutureSymbol);
 
             if (symbolInfo.Ask > 0 && side == Sides.Buy && symbolInfo.Ask >= pd.PriceLimit.Value) return true;
@@ -201,7 +201,7 @@ namespace QvaDev.Orchestration.Services.Strategies
 
         private double GetSumContracts(Pushing pushing)
         {
-			var futureConnector = (FtConnector)pushing.FutureAccount.Connector;
+			var futureConnector = (IFixConnector)pushing.FutureAccount.Connector;
 			return Math.Abs(futureConnector.GetSymbolInfo(pushing.FutureSymbol).SumContracts);
         }
 

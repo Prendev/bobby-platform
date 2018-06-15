@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.IO;
-using System.Reflection;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Serialization;
@@ -11,7 +11,7 @@ using QvaDev.Communication.FixApi;
 
 namespace QvaDev.FixApiIntegration
 {
-	public class Connector : IConnector
+	public class Connector : IFixConnector
 	{
 		private readonly ILog _log;
 		private FixConnectorBase _fixConnector;
@@ -22,6 +22,9 @@ namespace QvaDev.FixApiIntegration
 		public event PositionEventHandler OnPosition;
 		public event BarHistoryEventHandler OnBarHistory;
 		public event TickEventHandler OnTick;
+
+		public ConcurrentDictionary<string, SymbolData> SymbolInfos { get; set; } =
+			new ConcurrentDictionary<string, SymbolData>();
 
 		public Connector(string configPath, ILog log)
 		{
@@ -35,6 +38,46 @@ namespace QvaDev.FixApiIntegration
 			var conf = new XmlSerializer(confType).Deserialize(File.OpenRead(configPath));
 
 			_fixConnector = (FixConnectorBase)Activator.CreateInstance(configurationTpye, conf);
+
+			_fixConnector.PricingSocketClosed += _fixConnector_SocketClosed;
+			_fixConnector.TradingSocketClosed += _fixConnector_SocketClosed;
+			_fixConnector.Quote += _fixConnector_Quote;
+			_fixConnector.ExecutionReport += _fixConnector_ExecutionReport;
+		}
+
+		// TODO double to decimal
+		private void _fixConnector_ExecutionReport(object sender, ExecutionReportEventArgs e)
+		{
+			if (!e.ExecutionReport.FulfilledQuantity.HasValue) return;
+			if (e.ExecutionReport.Side != Side.Buy && e.ExecutionReport.Side != Side.Sell) return;
+			if (new[] {ExecType.Fill, ExecType.PartialFill, ExecType.Trade}
+				    .Contains(e.ExecutionReport.ExecutionType) == false) return;
+
+			var quantity = (double)e.ExecutionReport.FulfilledQuantity.Value;
+			if (e.ExecutionReport.Side == Side.Sell) quantity *= -1;
+
+			SymbolInfos.AddOrUpdate(e.ExecutionReport.Symbol.ToString(),
+				new SymbolData { SumContracts = quantity },
+				(key, oldValue) =>
+				{
+					oldValue.SumContracts += quantity;
+					return oldValue;
+				});
+		}
+
+		// TODO go to nullable?
+		private void _fixConnector_Quote(object sender, QuoteEventArgs e)
+		{
+			var ask = (double?) e.QuoteSet.Entries.First().Ask;
+			var bid = (double?) e.QuoteSet.Entries.First().Bid;
+			SymbolInfos.AddOrUpdate(e.QuoteSet.Symbol.ToString(),
+				new SymbolData {Bid = bid ?? 0, Ask = ask ?? 0 },
+				(key, oldValue) =>
+				{
+					oldValue.Bid = bid ?? oldValue.Bid;
+					oldValue.Ask = ask ?? oldValue.Ask;
+					return oldValue;
+				});
 		}
 
 		public async Task<bool> Connect()
@@ -90,7 +133,7 @@ namespace QvaDev.FixApiIntegration
 			throw new NotImplementedException();
 		}
 
-		public void SendMarketOrderRequest(string symbol, Sides side, decimal quantity)
+		public double SendMarketOrderRequest(string symbol, Sides side, decimal quantity, string comment = null)
 		{
 			_fixConnector.NewOrderAsync(new NewOrderRequest()
 			{
@@ -99,6 +142,32 @@ namespace QvaDev.FixApiIntegration
 				Type = OrdType.Market,
 				Quantity = quantity
 			}).Wait();
+			return (double)quantity;
+		}
+
+		public void OrderMultipleCloseBy(string symbol)
+		{
+			var symbolInfo = GetSymbolInfo(symbol);
+			if (symbolInfo.SumContracts == 0) return;
+			var side = symbolInfo.SumContracts > 0 ? Sides.Sell : Sides.Buy;
+			SendMarketOrderRequest(symbol, side, (decimal) Math.Abs(symbolInfo.SumContracts));
+		}
+
+		public SymbolData GetSymbolInfo(string symbol)
+		{
+			return SymbolInfos.GetOrAdd(symbol, new SymbolData());
+		}
+
+		private async void _fixConnector_SocketClosed(object sender, ClosedEventArgs e)
+		{
+			if (e.Error == null) return;
+			await _fixConnector.ConnectPricingAsync();
+			await _fixConnector.ConnectTradingAsync();
+		}
+
+		private Sides InvSide(Sides side)
+		{
+			return side == Sides.Buy ? Sides.Sell : Sides.Buy;
 		}
 	}
 }

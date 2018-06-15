@@ -95,7 +95,7 @@ namespace QvaDev.Orchestration.Services
 		    {
 			    if (copier.DelayInMilliseconds > 0) Thread.Sleep(copier.DelayInMilliseconds);
 
-			    var lots = Math.Abs(e.Position.Lots) * (double) copier.CopyRatio;
+			    var lots = (decimal)Math.Abs(e.Position.Lots) *  copier.CopyRatio;
 			    if (e.Action == PositionEventArgs.Actions.Open && copier.OrderType == FixApiCopier.FixApiOrderTypes.Aggressive)
 				    slaveConnector.SendAggressiveOrderRequest(symbol, e.Position.Side, lots, e.Position.OpenPrice, copier.Slippage,
 					    copier.BurstPeriodInMilliseconds, copier.MaxRetryCount, copier.RetryPeriodInMilliseconds, $"{slave.Id}-{e.Position.Id}");

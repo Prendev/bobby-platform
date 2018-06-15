@@ -74,12 +74,12 @@ namespace QvaDev.OrchestrationTests.Services
 		public void OpeningAlpha()
 		{
 			// Arrange
-			var symbolInfo = new SymbolInfo() { SumContracts = 100 };
+			var symbolInfo = new SymbolData() { SumContracts = 100 };
 			FtConnectorMock
 				.Setup(m => m.GetSymbolInfo(It.IsAny<string>()))
 				.Returns(symbolInfo);
 			FtConnectorMock
-				.Setup(m => m.SendMarketOrderRequest(It.IsAny<string>(), It.IsAny<Sides>(), It.IsAny<double>(), It.IsAny<string>()))
+				.Setup(m => m.SendMarketOrderRequest(It.IsAny<string>(), It.IsAny<Sides>(), It.IsAny<decimal>(), It.IsAny<string>()))
 				.Callback(() => symbolInfo.SumContracts += 3);
 
 			AlphaConnectorMock
@@ -116,12 +116,12 @@ namespace QvaDev.OrchestrationTests.Services
 		public void OpeningFinish()
 		{
 			// Arrange
-			var symbolInfo = new SymbolInfo() { SumContracts = 100 };
+			var symbolInfo = new SymbolData() { SumContracts = 100 };
 			FtConnectorMock
 				.Setup(m => m.GetSymbolInfo(It.IsAny<string>()))
 				.Returns(symbolInfo);
 			FtConnectorMock
-				.Setup(m => m.SendMarketOrderRequest(It.IsAny<string>(), It.IsAny<Sides>(), It.IsAny<double>(), It.IsAny<string>()))
+				.Setup(m => m.SendMarketOrderRequest(It.IsAny<string>(), It.IsAny<Sides>(), It.IsAny<decimal>(), It.IsAny<string>()))
 				.Callback(() => symbolInfo.SumContracts += 4);
 
 			var pushing = CreatePushing();
@@ -200,12 +200,12 @@ namespace QvaDev.OrchestrationTests.Services
 
 			// Arrange
 			pushing.IsHedgeClose = true;
-			var symbolInfo = new SymbolInfo() { SumContracts = 100 };
+			var symbolInfo = new SymbolData() { SumContracts = 100 };
 			FtConnectorMock
 				.Setup(m => m.GetSymbolInfo(It.IsAny<string>()))
 				.Returns(symbolInfo);
 			FtConnectorMock
-				.Setup(m => m.SendMarketOrderRequest(It.IsAny<string>(), It.IsAny<Sides>(), It.IsAny<double>(), It.IsAny<string>()))
+				.Setup(m => m.SendMarketOrderRequest(It.IsAny<string>(), It.IsAny<Sides>(), It.IsAny<decimal>(), It.IsAny<string>()))
 				.Callback(() => symbolInfo.SumContracts += 3);
 
 			// Act
@@ -221,12 +221,12 @@ namespace QvaDev.OrchestrationTests.Services
 		public void ClosingSecond()
 		{
 			// Arrange
-			var symbolInfo = new SymbolInfo() { SumContracts = 100 };
+			var symbolInfo = new SymbolData() { SumContracts = 100 };
 			FtConnectorMock
 				.Setup(m => m.GetSymbolInfo(It.IsAny<string>()))
 				.Returns(symbolInfo);
 			FtConnectorMock
-				.Setup(m => m.SendMarketOrderRequest(It.IsAny<string>(), It.IsAny<Sides>(), It.IsAny<double>(), It.IsAny<string>()))
+				.Setup(m => m.SendMarketOrderRequest(It.IsAny<string>(), It.IsAny<Sides>(), It.IsAny<decimal>(), It.IsAny<string>()))
 				.Callback(() => symbolInfo.SumContracts += 3);
 
 			var pushing = CreatePushing();
@@ -269,12 +269,12 @@ namespace QvaDev.OrchestrationTests.Services
 		public void ClosingFinish()
 		{
 			// Arrange
-			var symbolInfo = new SymbolInfo() { SumContracts = 100 };
+			var symbolInfo = new SymbolData() { SumContracts = 100 };
 			FtConnectorMock
 				.Setup(m => m.GetSymbolInfo(It.IsAny<string>()))
 				.Returns(symbolInfo);
 			FtConnectorMock
-				.Setup(m => m.SendMarketOrderRequest(It.IsAny<string>(), It.IsAny<Sides>(), It.IsAny<double>(), It.IsAny<string>()))
+				.Setup(m => m.SendMarketOrderRequest(It.IsAny<string>(), It.IsAny<Sides>(), It.IsAny<decimal>(), It.IsAny<string>()))
 				.Callback(() => symbolInfo.SumContracts += 4);
 			FtConnectorMock
 				.Setup(m => m.OrderMultipleCloseBy("ftDummySymbol"))

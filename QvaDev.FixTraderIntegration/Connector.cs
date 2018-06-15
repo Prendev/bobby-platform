@@ -13,18 +13,10 @@ using QvaDev.Common.Integration;
 
 namespace QvaDev.FixTraderIntegration
 {
-	public class SymbolInfo
+	public interface IConnector : IFixConnector
 	{
-		public double SumContracts;
-		public double Ask;
-		public double Bid;
-	}
-
-	public interface IConnector : Common.Integration.IConnector
-	{
-		double SendMarketOrderRequest(string symbol, Sides side, double lots, string comment = null);
 		void OrderMultipleCloseBy(string symbol);
-		SymbolInfo GetSymbolInfo(string symbol);
+		SymbolData GetSymbolInfo(string symbol);
 	}
     
 	public class Connector : IConnector
@@ -45,8 +37,8 @@ namespace QvaDev.FixTraderIntegration
 		public event BarHistoryEventHandler OnBarHistory;
 		public event TickEventHandler OnTick;
 
-		public ConcurrentDictionary<string, SymbolInfo> SymbolInfos { get; set; } =
-			new ConcurrentDictionary<string, SymbolInfo>();
+		public ConcurrentDictionary<string, SymbolData> SymbolInfos { get; set; } =
+			new ConcurrentDictionary<string, SymbolData>();
 
 		public Connector(ILog log)
 		{
@@ -113,7 +105,7 @@ namespace QvaDev.FixTraderIntegration
 							var ask = double.Parse(tags.First(t => t.StartsWith("202")).Split('=').Last(),
 								CultureInfo.InvariantCulture);
 
-							SymbolInfos.AddOrUpdate(symbol, new SymbolInfo { Bid = bid, Ask = ask },
+							SymbolInfos.AddOrUpdate(symbol, new SymbolData { Bid = bid, Ask = ask },
 								(key, oldValue) =>
 								{
 									oldValue.Bid = bid;
@@ -137,7 +129,7 @@ namespace QvaDev.FixTraderIntegration
 							var sumLots = double.Parse(tags.First(t => t.StartsWith("104")).Split('=').Last(),
 								CultureInfo.InvariantCulture);
 
-							SymbolInfos.AddOrUpdate(symbol, new SymbolInfo { SumContracts = sumLots },
+							SymbolInfos.AddOrUpdate(symbol, new SymbolData { SumContracts = sumLots },
 								(key, oldValue) =>
 								{
 									oldValue.SumContracts = sumLots;
@@ -164,7 +156,7 @@ namespace QvaDev.FixTraderIntegration
 			catch { }
 		}
 
-		public double SendMarketOrderRequest(string symbol, Sides side, double lots, string comment = null)
+		public double SendMarketOrderRequest(string symbol, Sides side, decimal lots, string comment = null)
 		{
 			long unix = (long)(DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, 0)).TotalSeconds;
 			var tags = new List<string>
@@ -181,7 +173,7 @@ namespace QvaDev.FixTraderIntegration
 
 			try
 			{
-				var sumLots = SymbolInfos.GetOrAdd(symbol, new SymbolInfo()).SumContracts;
+				var sumLots = SymbolInfos.GetOrAdd(symbol, new SymbolData()).SumContracts;
 
 				var ns = _commandClient.GetStream();
 				var encoder = new ASCIIEncoding();
@@ -190,11 +182,11 @@ namespace QvaDev.FixTraderIntegration
 
 				var stopwatch = new Stopwatch();
 				stopwatch.Start();
-				var diff = SymbolInfos.GetOrAdd(symbol, new SymbolInfo()).SumContracts - sumLots;
+				var diff = SymbolInfos.GetOrAdd(symbol, new SymbolData()).SumContracts - sumLots;
 				while (diff == 0 && stopwatch.ElapsedMilliseconds < 1000)
 				{
 					Thread.Sleep(1);
-					diff = SymbolInfos.GetOrAdd(symbol, new SymbolInfo()).SumContracts - sumLots;
+					diff = SymbolInfos.GetOrAdd(symbol, new SymbolData()).SumContracts - sumLots;
 				}
 
 				return diff;
@@ -211,7 +203,7 @@ namespace QvaDev.FixTraderIntegration
 			try
 			{
 				long unix = (long)(DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, 0)).TotalSeconds;
-				var symbolInfo = SymbolInfos.GetOrAdd(symbol, new SymbolInfo());
+				var symbolInfo = SymbolInfos.GetOrAdd(symbol, new SymbolData());
 				var price = side == Sides.Buy ? symbolInfo.Ask : symbolInfo.Bid;
 
 				var tags = new List<string>
@@ -239,18 +231,18 @@ namespace QvaDev.FixTraderIntegration
 			}
 		}
 
-		public void SendAggressiveOrderRequest(string symbol, Sides side, double lots, double price, double slippage,
+		public void SendAggressiveOrderRequest(string symbol, Sides side, decimal lots, double price, double slippage,
 			int burstPeriodInMilliseconds, int maxRetryCount, int retryPeriodInMilliseconds, string comment = null)
 		{
 			try
 			{
 				var unix = (long)(DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, 0)).TotalSeconds;
-				var symbolInfo = SymbolInfos.GetOrAdd(symbol, new SymbolInfo());
+				var symbolInfo = SymbolInfos.GetOrAdd(symbol, new SymbolData());
 
 				var stopwatch = new Stopwatch();
 				stopwatch.Start();
 
-				var contractsNeeded = symbolInfo.SumContracts * (side == Sides.Buy ? 1 : -1) + lots;
+				var contractsNeeded = symbolInfo.SumContracts * (side == Sides.Buy ? 1 : -1) + (double)lots;
 				while (symbolInfo.SumContracts * (side == Sides.Buy ? 1 : -1) < contractsNeeded && maxRetryCount-- > 0 &&
 				       stopwatch.ElapsedMilliseconds < burstPeriodInMilliseconds)
 				{
@@ -313,9 +305,9 @@ namespace QvaDev.FixTraderIntegration
 			}
 		}
 
-		public SymbolInfo GetSymbolInfo(string symbol)
+		public SymbolData GetSymbolInfo(string symbol)
 		{
-			return SymbolInfos.GetOrAdd(symbol, new SymbolInfo());
+			return SymbolInfos.GetOrAdd(symbol, new SymbolData());
 		}
 
 		public long GetOpenContracts(string symbol)
