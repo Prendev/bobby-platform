@@ -67,7 +67,7 @@ namespace QvaDev.Orchestration.Services
                     _log.Info($"Master {e.Action:F} {e.Position.Side:F} signal on " +
                               $"{e.Position.Symbol} with open time: {e.Position.OpenTime:o}");
 
-	                var slaves = _masters.Where(m => m.Run && m.AccountId == e.DbId)
+	                var slaves = _masters.Where(m => m.Run && m.Account.MetaTraderAccountId == e.DbId)
 		                .SelectMany(m => m.Slaves).Where(s => s.Run);
 					Task.WhenAll(slaves.Select(slave => CopyToAccount(e, slave))).Wait();
                 }

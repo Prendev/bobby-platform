@@ -188,7 +188,7 @@ namespace QvaDev.Orchestration.Services.Strategies
 			}
 		}
 
-		private double GetDiffInPip(StratDealingArb arb, List<Position> mtPositions)
+		private decimal GetDiffInPip(StratDealingArb arb, List<Position> mtPositions)
 		{
 			var diffInPip = arb.SignalDiffInPip;
 			if (mtPositions.Count == 0) return diffInPip;
@@ -196,10 +196,10 @@ namespace QvaDev.Orchestration.Services.Strategies
 			if (!Double.TryParse(lastPos.Comment, out var d)) return 0;
 
 			if (lastPos.Side == Sides.Sell) // Future long
-				diffInPip = (lastPos.OpenPrice - Double.Parse(lastPos.Comment)) / arb.PipSize + mtPositions.Count * arb.SignalStepInPip;
+				diffInPip = (lastPos.OpenPrice - decimal.Parse(lastPos.Comment)) / arb.PipSize + mtPositions.Count * arb.SignalStepInPip;
 
 			else if (lastPos.Side == Sides.Buy) // Future short
-				diffInPip = (Double.Parse(lastPos.Comment) - lastPos.OpenPrice) / arb.PipSize + mtPositions.Count * arb.SignalStepInPip;
+				diffInPip = (decimal.Parse(lastPos.Comment) - lastPos.OpenPrice) / arb.PipSize + mtPositions.Count * arb.SignalStepInPip;
 
 			return diffInPip;
 		}
@@ -226,7 +226,7 @@ namespace QvaDev.Orchestration.Services.Strategies
 			foreach (var pos in mtPositions)
 			{
 				if ((mtConnector.ServerTime.Value - pos.OpenTime).TotalMinutes < arb.MinOpenTimeInMinutes) continue;
-				double netPip = CalculateNetPip(pos, ftTick, mtTick);
+				var netPip = CalculateNetPip(pos, ftTick, mtTick);
 				if (netPip < arb.TargetInPip) continue;
 
 				mtConnector.SendClosePositionRequests(pos, null, arb.MaxRetryCount, arb.RetryPeriodInMilliseconds);
@@ -235,10 +235,10 @@ namespace QvaDev.Orchestration.Services.Strategies
 			}
 		}
 
-		private double CalculateNetPip(Position pos, Tick ftTick, Tick mtTick)
+		private decimal CalculateNetPip(Position pos, Tick ftTick, Tick mtTick)
 		{
-			if (pos.Side == Sides.Sell) return ftTick.Bid - Double.Parse(pos.Comment) + pos.OpenPrice - mtTick.Ask;
-			if (pos.Side == Sides.Buy) return Double.Parse(pos.Comment) - ftTick.Ask + mtTick.Bid - pos.OpenPrice;
+			if (pos.Side == Sides.Sell) return ftTick.Bid - decimal.Parse(pos.Comment) + pos.OpenPrice - mtTick.Ask;
+			if (pos.Side == Sides.Buy) return decimal.Parse(pos.Comment) - ftTick.Ask + mtTick.Bid - pos.OpenPrice;
 			return 0;
 		}
 

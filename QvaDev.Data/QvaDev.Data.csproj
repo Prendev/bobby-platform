@@ -87,6 +87,10 @@
     <Compile Include="Migrations\201806060757445_AddFixApiAccountTable.Designer.cs">
       <DependentUpon>201806060757445_AddFixApiAccountTable.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201806190914297_RefactoringDecimal.cs" />
+    <Compile Include="Migrations\201806190914297_RefactoringDecimal.Designer.cs">
+      <DependentUpon>201806190914297_RefactoringDecimal.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\BaseEntity.cs" />
     <Compile Include="Models\BaseDescriptionEntity.cs" />
@@ -129,6 +133,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201806060757445_AddFixApiAccountTable.resx">
       <DependentUpon>201806060757445_AddFixApiAccountTable.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201806190914297_RefactoringDecimal.resx">
+      <DependentUpon>201806190914297_RefactoringDecimal.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

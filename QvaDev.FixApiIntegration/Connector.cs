@@ -45,7 +45,6 @@ namespace QvaDev.FixApiIntegration
 			_fixConnector.ExecutionReport += _fixConnector_ExecutionReport;
 		}
 
-		// TODO double to decimal
 		private void _fixConnector_ExecutionReport(object sender, ExecutionReportEventArgs e)
 		{
 			if (!e.ExecutionReport.FulfilledQuantity.HasValue) return;
@@ -53,7 +52,7 @@ namespace QvaDev.FixApiIntegration
 			if (new[] {ExecType.Fill, ExecType.PartialFill, ExecType.Trade}
 				    .Contains(e.ExecutionReport.ExecutionType) == false) return;
 
-			var quantity = (double)e.ExecutionReport.FulfilledQuantity.Value;
+			var quantity = e.ExecutionReport.FulfilledQuantity.Value;
 			if (e.ExecutionReport.Side == Side.Sell) quantity *= -1;
 
 			SymbolInfos.AddOrUpdate(e.ExecutionReport.Symbol.ToString(),
@@ -68,8 +67,8 @@ namespace QvaDev.FixApiIntegration
 		// TODO go to nullable?
 		private void _fixConnector_Quote(object sender, QuoteEventArgs e)
 		{
-			var ask = (double?) e.QuoteSet.Entries.First().Ask;
-			var bid = (double?) e.QuoteSet.Entries.First().Bid;
+			var ask = e.QuoteSet.Entries.First().Ask;
+			var bid = e.QuoteSet.Entries.First().Bid;
 			SymbolInfos.AddOrUpdate(e.QuoteSet.Symbol.ToString(),
 				new SymbolData {Bid = bid ?? 0, Ask = ask ?? 0 },
 				(key, oldValue) =>
@@ -133,7 +132,7 @@ namespace QvaDev.FixApiIntegration
 			throw new NotImplementedException();
 		}
 
-		public double SendMarketOrderRequest(string symbol, Sides side, decimal quantity, string comment = null)
+		public decimal SendMarketOrderRequest(string symbol, Sides side, decimal quantity, string comment = null)
 		{
 			_fixConnector.NewOrderAsync(new NewOrderRequest()
 			{
@@ -142,7 +141,7 @@ namespace QvaDev.FixApiIntegration
 				Type = OrdType.Market,
 				Quantity = quantity
 			}).Wait();
-			return (double)quantity;
+			return quantity;
 		}
 
 		public void OrderMultipleCloseBy(string symbol)

@@ -201,7 +201,7 @@ namespace QvaDev.CTraderIntegration
             }
         }
 
-        public void SendMarketRangeOrderRequest(string symbol, ProtoTradeSide type, long volume, double price, int slippageInPips, string clientOrderId, int maxRetryCount = 5, int retryPeriodInMilliseconds = 3000)
+        public void SendMarketRangeOrderRequest(string symbol, ProtoTradeSide type, long volume, decimal price, int slippageInPips, string clientOrderId, int maxRetryCount = 5, int retryPeriodInMilliseconds = 3000)
         {
             var clientMsgId = $"{AccountId}|{clientOrderId}";
             _marketOrders.GetOrAdd(clientMsgId, new MarketOrder
@@ -218,7 +218,7 @@ namespace QvaDev.CTraderIntegration
             lock (_cTraderClientWrapper.CTraderClient)
             {
                 _cTraderClientWrapper.CTraderClient.SendMarketRangeOrderRequest(_accountInfo.AccessToken, AccountId,
-                    symbol, type, volume, price, slippageInPips, clientMsgId);
+                    symbol, type, volume, (double)price, slippageInPips, clientMsgId);
             }
         }
 
@@ -327,7 +327,7 @@ namespace QvaDev.CTraderIntegration
             {
                 if (order.Price > 0)
                     _cTraderClientWrapper.CTraderClient.SendMarketRangeOrderRequest(_accountInfo.AccessToken, AccountId, order.Symbol,
-                        order.Side == Sides.Buy ? ProtoTradeSide.BUY : ProtoTradeSide.SELL, order.Volume, order.Price, order.SlippageInPips, clientMsgId);
+                        order.Side == Sides.Buy ? ProtoTradeSide.BUY : ProtoTradeSide.SELL, order.Volume, (double)order.Price, order.SlippageInPips, clientMsgId);
                 else _cTraderClientWrapper.CTraderClient.SendMarketOrderRequest(_accountInfo.AccessToken, AccountId,
                     order.Symbol, order.Side == Sides.Buy ? ProtoTradeSide.BUY : ProtoTradeSide.SELL, order.Volume, clientMsgId);
             }

@@ -22,17 +22,17 @@ namespace QvaDev.Orchestration.Services
 		public class CsvRow
 		{
 			public string Time { get; set; }
-			public double Ask { get; set; }
-			public double Bid { get; set; }
+			public decimal Ask { get; set; }
+			public decimal Bid { get; set; }
 		}
 
 		public class CsvRowPair
 		{
 			public string Time { get; set; }
-			public double Ask { get; set; }
-			public double Bid { get; set; }
-			public double PairAsk { get; set; }
-			public double PairBid { get; set; }
+			public decimal Ask { get; set; }
+			public decimal Bid { get; set; }
+			public decimal PairAsk { get; set; }
+			public decimal PairBid { get; set; }
 		}
 
 		public class Writer

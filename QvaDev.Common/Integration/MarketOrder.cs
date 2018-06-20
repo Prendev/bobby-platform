@@ -5,7 +5,7 @@
         public string Symbol { get; set; }
         public Sides Side { get; set; }
         public string Comment { get; set; }
-        public double Price { get; set; }
+        public decimal Price { get; set; }
         public int SlippageInPips { get; set; }
         public long Volume { get; set; }
     }

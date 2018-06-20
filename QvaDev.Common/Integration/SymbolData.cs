@@ -2,8 +2,8 @@
 {
 	public class SymbolData
 	{
-		public double SumContracts;
-		public double Ask;
-		public double Bid;
+		public decimal SumContracts;
+		public decimal Ask;
+		public decimal Bid;
 	}
 }

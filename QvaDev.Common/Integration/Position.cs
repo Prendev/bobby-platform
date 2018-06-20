@@ -17,10 +17,10 @@ namespace QvaDev.Common.Integration
         public int MagicNumber { get; set; }
 
         public DateTime OpenTime { get; set; }
-        public double OpenPrice { get; set; }
+        public decimal OpenPrice { get; set; }
 
         public DateTime CloseTime { get; set; }
-        public double ClosePrice { get; set; }
+        public decimal ClosePrice { get; set; }
 
         public double Profit { get; set; }
         public double Swap { get; set; }

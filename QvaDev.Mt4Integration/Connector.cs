@@ -118,7 +118,7 @@ namespace QvaDev.Mt4Integration
                     Commission = o.Commission,
                     Swap = o.Swap,
                     OpenTime = o.OpenTime,
-                    OpenPrice = o.OpenPrice,
+                    OpenPrice = (decimal)o.OpenPrice,
                     Comment = o.Comment
                 };
                 Positions.AddOrUpdate(o.Ticket, key => pos, (key, old) =>
@@ -153,7 +153,7 @@ namespace QvaDev.Mt4Integration
 					Commission = o.Commission,
 					Swap = o.Swap,
 					OpenTime = o.OpenTime,
-					OpenPrice = o.OpenPrice,
+					OpenPrice = (decimal)o.OpenPrice,
 					Comment = o.Comment
 				};
 				Positions.AddOrUpdate(position.Id, t => position, (t, old) => position);
@@ -271,27 +271,6 @@ namespace QvaDev.Mt4Integration
             return _lastTicks.GetOrAdd(symbol, (Tick)null);
         }
 
-        public double GetLastActionPrice(string symbol, Sides side, int magicNumber)
-        {
-            var lastPos = Positions.Select(p => p.Value)
-                .Where(p => p.MagicNumber == magicNumber && p.Side == side && p.Symbol == symbol)
-                .OrderByDescending(p => p.IsClosed ? p.CloseTime : p.OpenTime)
-                .FirstOrDefault();
-
-            var opType = side == Sides.Buy ? Op.Buy : Op.Sell;
-            _orderHistory = _orderHistory ?? QuoteClient
-                                .DownloadOrderHistory(DateTime.UtcNow.AddYears(-1), DateTime.UtcNow.AddDays(1))
-                                .OrderByDescending(o => o.CloseTime).ToList();
-            var lastClosed = _orderHistory.FirstOrDefault(o => o.MagicNumber == magicNumber && o.Type == opType && o.Symbol == symbol);
-
-            if (lastPos == null && lastClosed == null) return 0;
-            if (lastPos == null) return lastClosed.ClosePrice;
-            if (lastClosed == null) return lastPos.OpenPrice;
-            if ((lastPos.IsClosed ? lastPos.CloseTime : lastPos.OpenTime) <= lastClosed.CloseTime)
-                return lastClosed.ClosePrice;
-            return lastPos.IsClosed ? lastPos.ClosePrice : lastPos.OpenPrice;
-        }
-
         public double CalculateProfit(int magicNumber, string symbol1, Sides side1, string symbol2, Sides side2)
         {
             return QuoteClient.GetOpenedOrders()
@@ -369,8 +348,7 @@ namespace QvaDev.Mt4Integration
                     var lastBar = symbolHistory.LastBar;
                     if (lastBar != null && args.Time < lastBar.OpenTime.AddMinutes(2 * (int) timeframe)) continue;
 
-                    Tick lastTick;
-                    if (_lastTicks.TryGetValue(args.Symbol, out lastTick) && lastTick != null)
+	                if (_lastTicks.TryGetValue(args.Symbol, out var lastTick) && lastTick != null)
                     {
                         var openTime = lastTick.Time.RoundDown(TimeSpan.FromMinutes((int) timeframe));
                         symbolHistory.BarHistory[openTime] =
@@ -385,8 +363,8 @@ namespace QvaDev.Mt4Integration
             var tick = new Tick
             {
                 Symbol = args.Symbol,
-                Ask = args.Ask,
-                Bid = args.Bid,
+                Ask = (decimal)args.Ask,
+                Bid = (decimal)args.Bid,
                 Time = args.Time
             };
             _lastTicks.AddOrUpdate(args.Symbol, key => tick, (key, old) => tick);
@@ -425,7 +403,7 @@ namespace QvaDev.Mt4Integration
                 foreach (var bar in args.Bars)
                     symbolHistory.BarHistory[bar.Time] = new Bar
                     {
-                        Close = bar.Close,
+                        Close = (decimal)bar.Close,
                         OpenTime = bar.Time
                     };
                 OnBarHistory?.Invoke(this,
@@ -457,9 +435,9 @@ namespace QvaDev.Mt4Integration
                 Side = update.Order.Type == Op.Buy ? Sides.Buy : Sides.Sell,
                 RealVolume = (long)(update.Order.Lots * GetSymbolInfo(update.Order.Symbol).ContractSize * (update.Order.Type == Op.Buy ? 1 : -1)),
                 OpenTime = update.Order.OpenTime,
-                OpenPrice = update.Order.OpenPrice,
+                OpenPrice = (decimal)update.Order.OpenPrice,
                 CloseTime = update.Order.CloseTime,
-                ClosePrice = update.Order.ClosePrice,
+                ClosePrice = (decimal)update.Order.ClosePrice,
                 IsClosed = update.Action == UpdateAction.PositionClose,
                 MagicNumber = update.Order.MagicNumber,
                 Profit = update.Order.Profit,

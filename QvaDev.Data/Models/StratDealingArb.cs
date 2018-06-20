@@ -17,9 +17,9 @@ namespace QvaDev.Data.Models
 
 		public int MaxNumberOfPositions { get; set; }
 
-		public double SignalDiffInPip { get; set; }
-		public double SignalStepInPip { get; set; }
-		public double TargetInPip { get; set; }
+		public decimal SignalDiffInPip { get; set; }
+		public decimal SignalStepInPip { get; set; }
+		public decimal TargetInPip { get; set; }
 
 		public int MinOpenTimeInMinutes { get; set; }
 
@@ -35,17 +35,17 @@ namespace QvaDev.Data.Models
 		public Account MtAccount { get; set; }
 		[Required] public string MtSymbol { get; set; }
 
-		public double? ShiftInPip { get; set; }
+		public decimal? ShiftInPip { get; set; }
 		public TimeSpan ShiftCalcInterval { get; set; }
 
-		public double PipSize { get; set; }
+		public decimal PipSize { get; set; }
 		public int MagicNumber { get; set; }
 
 		public int MaxRetryCount { get; set; }
 		public int RetryPeriodInMilliseconds { get; set; }
 
 		[NotMapped] [InvisibleColumn] public int ShiftTickCount { get; set; }
-		[NotMapped] [InvisibleColumn] public double ShiftDiffSumInPip { get; set; }
+		[NotMapped] [InvisibleColumn] public decimal ShiftDiffSumInPip { get; set; }
 		[NotMapped] [InvisibleColumn] public Stopwatch ShiftCalcStopwatch { get; set; }
 
 	}

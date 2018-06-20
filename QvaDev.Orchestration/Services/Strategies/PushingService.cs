@@ -54,7 +54,7 @@ namespace QvaDev.Orchestration.Services.Strategies
 			var alphaConnector = (MtConnector)pushing.AlphaMaster.Connector;
 
 			// Build up futures for second side
-			double contractsNeeded = GetSumContracts(pushing) + pd.FullContractSize - Math.Abs(pd.MasterSignalContractLimit);
+			var contractsNeeded = GetSumContracts(pushing) + pd.FullContractSize - Math.Abs(pd.MasterSignalContractLimit);
 
 			while (GetSumContracts(pushing) < contractsNeeded)
 			{
@@ -116,7 +116,7 @@ namespace QvaDev.Orchestration.Services.Strategies
 			var futureSide = InvSide(pushing.FirstCloseSide);
 
 			// Build up futures for hedge
-			double contractsNeeded =
+			var contractsNeeded =
 				GetSumContracts(pushing) + pd.FullContractSize - Math.Abs(pd.MasterSignalContractLimit) - Math.Abs(pd.HedgeSignalContractLimit);
 
 			while (GetSumContracts(pushing) < contractsNeeded)
@@ -143,7 +143,7 @@ namespace QvaDev.Orchestration.Services.Strategies
 			var futureSide = InvSide(pushing.FirstCloseSide);
 
 			// Build up futures for second side
-			double contractsNeeded;
+			decimal contractsNeeded;
 			if (pushing.IsHedgeClose) contractsNeeded = GetSumContracts(pushing) + Math.Abs(pd.HedgeSignalContractLimit);
 			else contractsNeeded = GetSumContracts(pushing) + pd.FullContractSize - Math.Abs(pd.MasterSignalContractLimit);
 
@@ -199,7 +199,7 @@ namespace QvaDev.Orchestration.Services.Strategies
             return side == Sides.Buy ? Sides.Sell : Sides.Buy;
         }
 
-        private double GetSumContracts(Pushing pushing)
+        private decimal GetSumContracts(Pushing pushing)
         {
 			var futureConnector = (IFixConnector)pushing.FutureAccount.Connector;
 			return Math.Abs(futureConnector.GetSymbolInfo(pushing.FutureSymbol).SumContracts);

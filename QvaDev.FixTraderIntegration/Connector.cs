@@ -100,9 +100,9 @@ namespace QvaDev.FixTraderIntegration
 						if (commandType == "2")
 						{
 							var symbol = tags.First(t => t.StartsWith("200")).Split('=').Last();
-							var bid = double.Parse(tags.First(t => t.StartsWith("201")).Split('=').Last(),
+							var bid = decimal.Parse(tags.First(t => t.StartsWith("201")).Split('=').Last(),
 								CultureInfo.InvariantCulture);
-							var ask = double.Parse(tags.First(t => t.StartsWith("202")).Split('=').Last(),
+							var ask = decimal.Parse(tags.First(t => t.StartsWith("202")).Split('=').Last(),
 								CultureInfo.InvariantCulture);
 
 							SymbolInfos.AddOrUpdate(symbol, new SymbolData { Bid = bid, Ask = ask },
@@ -126,7 +126,7 @@ namespace QvaDev.FixTraderIntegration
 						else if (commandType == "6")
 						{
 							var symbol = tags.First(t => t.StartsWith("103")).Split('=').Last();
-							var sumLots = double.Parse(tags.First(t => t.StartsWith("104")).Split('=').Last(),
+							var sumLots = decimal.Parse(tags.First(t => t.StartsWith("104")).Split('=').Last(),
 								CultureInfo.InvariantCulture);
 
 							SymbolInfos.AddOrUpdate(symbol, new SymbolData { SumContracts = sumLots },
@@ -156,7 +156,7 @@ namespace QvaDev.FixTraderIntegration
 			catch { }
 		}
 
-		public double SendMarketOrderRequest(string symbol, Sides side, decimal lots, string comment = null)
+		public decimal SendMarketOrderRequest(string symbol, Sides side, decimal lots, string comment = null)
 		{
 			long unix = (long)(DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, 0)).TotalSeconds;
 			var tags = new List<string>
@@ -231,7 +231,7 @@ namespace QvaDev.FixTraderIntegration
 			}
 		}
 
-		public void SendAggressiveOrderRequest(string symbol, Sides side, decimal lots, double price, double slippage,
+		public void SendAggressiveOrderRequest(string symbol, Sides side, decimal lots, decimal price, double slippage,
 			int burstPeriodInMilliseconds, int maxRetryCount, int retryPeriodInMilliseconds, string comment = null)
 		{
 			try
@@ -242,7 +242,7 @@ namespace QvaDev.FixTraderIntegration
 				var stopwatch = new Stopwatch();
 				stopwatch.Start();
 
-				var contractsNeeded = symbolInfo.SumContracts * (side == Sides.Buy ? 1 : -1) + (double)lots;
+				var contractsNeeded = symbolInfo.SumContracts * (side == Sides.Buy ? 1 : -1) + lots;
 				while (symbolInfo.SumContracts * (side == Sides.Buy ? 1 : -1) < contractsNeeded && maxRetryCount-- > 0 &&
 				       stopwatch.ElapsedMilliseconds < burstPeriodInMilliseconds)
 				{
