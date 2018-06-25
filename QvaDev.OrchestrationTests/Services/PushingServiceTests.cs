@@ -20,7 +20,7 @@ namespace QvaDev.OrchestrationTests.Services
 		private Mock<MtConnector> HedgeConnectorMock { get; set; }
 		private Mock<MtConnector> BetaConnectorMock { get; set; }
 		private Mock<MtConnector> AlphaConnectorMock { get; set; }
-		private Mock<FtConnector> FtConnectorMock { get; set; }
+		private Mock<IFixConnector> FixConnectorMock { get; set; }
 
 		[SetUp]
 		public void SetUp()
@@ -32,7 +32,7 @@ namespace QvaDev.OrchestrationTests.Services
 			HedgeConnectorMock = new Mock<MtConnector>();
 			BetaConnectorMock = new Mock<MtConnector>();
 			AlphaConnectorMock = new Mock<MtConnector>();
-			FtConnectorMock = new Mock<FtConnector>();
+			FixConnectorMock = new Mock<IFixConnector>();
 		}
 
 		[Test]
@@ -75,10 +75,10 @@ namespace QvaDev.OrchestrationTests.Services
 		{
 			// Arrange
 			var symbolInfo = new SymbolData() { SumContracts = 100 };
-			FtConnectorMock
+			FixConnectorMock
 				.Setup(m => m.GetSymbolInfo(It.IsAny<string>()))
 				.Returns(symbolInfo);
-			FtConnectorMock
+			FixConnectorMock
 				.Setup(m => m.SendMarketOrderRequest(It.IsAny<string>(), It.IsAny<Sides>(), It.IsAny<decimal>(), It.IsAny<string>()))
 				.Callback(() => symbolInfo.SumContracts += 3);
 
@@ -94,7 +94,7 @@ namespace QvaDev.OrchestrationTests.Services
 
 			// Assert
 			AlphaConnectorMock.Verify(m => m.SendMarketOrderRequest("alphaDummySymbol", Sides.Buy, 0.123, 0, null, 7, 123), Times.Once);
-			FtConnectorMock.Verify(m => m.SendMarketOrderRequest("ftDummySymbol", Sides.Sell, 3, null), Times.Exactly(7));
+			FixConnectorMock.Verify(m => m.SendMarketOrderRequest("ftDummySymbol", Sides.Sell, 3, null), Times.Exactly(7));
 			ThreadServiceMock.Verify(m => m.Sleep(It.IsAny<int>()), Times.Exactly(7));
 			Assert.AreEqual(121, symbolInfo.SumContracts);
 
@@ -117,10 +117,10 @@ namespace QvaDev.OrchestrationTests.Services
 		{
 			// Arrange
 			var symbolInfo = new SymbolData() { SumContracts = 100 };
-			FtConnectorMock
+			FixConnectorMock
 				.Setup(m => m.GetSymbolInfo(It.IsAny<string>()))
 				.Returns(symbolInfo);
-			FtConnectorMock
+			FixConnectorMock
 				.Setup(m => m.SendMarketOrderRequest(It.IsAny<string>(), It.IsAny<Sides>(), It.IsAny<decimal>(), It.IsAny<string>()))
 				.Callback(() => symbolInfo.SumContracts += 4);
 
@@ -131,8 +131,8 @@ namespace QvaDev.OrchestrationTests.Services
 			PushingService.OpeningFinish(pushing);
 
 			// Assert
-			FtConnectorMock.Verify(m => m.SendMarketOrderRequest("ftDummySymbol", Sides.Sell, 4, null), Times.Exactly(8));
-			FtConnectorMock.Verify(m => m.OrderMultipleCloseBy("ftDummySymbol"), Times.Once);
+			FixConnectorMock.Verify(m => m.SendMarketOrderRequest("ftDummySymbol", Sides.Sell, 4, null), Times.Exactly(8));
+			FixConnectorMock.Verify(m => m.OrderMultipleCloseBy("ftDummySymbol"), Times.Once);
 			ThreadServiceMock.Verify(m => m.Sleep(It.IsAny<int>()), Times.Exactly(8));
 			Assert.AreEqual(132, symbolInfo.SumContracts);
 
@@ -143,7 +143,7 @@ namespace QvaDev.OrchestrationTests.Services
 			PushingService.OpeningFinish(pushing);
 
 			// Assert
-			FtConnectorMock.Verify(m => m.OrderMultipleCloseBy("ftDummySymbol"), Times.Exactly(2));
+			FixConnectorMock.Verify(m => m.OrderMultipleCloseBy("ftDummySymbol"), Times.Exactly(2));
 		}
 
 		[Test]
@@ -196,15 +196,15 @@ namespace QvaDev.OrchestrationTests.Services
 			ThreadServiceMock.VerifyNoOtherCalls();
 			AlphaConnectorMock.VerifyNoOtherCalls();
 			BetaConnectorMock.VerifyNoOtherCalls();
-			FtConnectorMock.VerifyNoOtherCalls();
+			FixConnectorMock.VerifyNoOtherCalls();
 
 			// Arrange
 			pushing.IsHedgeClose = true;
 			var symbolInfo = new SymbolData() { SumContracts = 100 };
-			FtConnectorMock
+			FixConnectorMock
 				.Setup(m => m.GetSymbolInfo(It.IsAny<string>()))
 				.Returns(symbolInfo);
-			FtConnectorMock
+			FixConnectorMock
 				.Setup(m => m.SendMarketOrderRequest(It.IsAny<string>(), It.IsAny<Sides>(), It.IsAny<decimal>(), It.IsAny<string>()))
 				.Callback(() => symbolInfo.SumContracts += 3);
 
@@ -212,7 +212,7 @@ namespace QvaDev.OrchestrationTests.Services
 			PushingService.OpeningHedge(pushing);
 
 			// Assert
-			FtConnectorMock.Verify(m => m.SendMarketOrderRequest("ftDummySymbol", Sides.Sell, 3, null), Times.Exactly(4));
+			FixConnectorMock.Verify(m => m.SendMarketOrderRequest("ftDummySymbol", Sides.Sell, 3, null), Times.Exactly(4));
 			HedgeConnectorMock.Verify(m => m.SendMarketOrderRequest("hedgeDummySymbol", Sides.Buy, 0.234, 0, null, 7, 123), Times.Once);
 			ThreadServiceMock.Verify(m => m.Sleep(It.IsAny<int>()), Times.Exactly(4));
 		}
@@ -222,10 +222,10 @@ namespace QvaDev.OrchestrationTests.Services
 		{
 			// Arrange
 			var symbolInfo = new SymbolData() { SumContracts = 100 };
-			FtConnectorMock
+			FixConnectorMock
 				.Setup(m => m.GetSymbolInfo(It.IsAny<string>()))
 				.Returns(symbolInfo);
-			FtConnectorMock
+			FixConnectorMock
 				.Setup(m => m.SendMarketOrderRequest(It.IsAny<string>(), It.IsAny<Sides>(), It.IsAny<decimal>(), It.IsAny<string>()))
 				.Callback(() => symbolInfo.SumContracts += 3);
 
@@ -242,7 +242,7 @@ namespace QvaDev.OrchestrationTests.Services
 			AlphaConnectorMock.Verify(m => m.SendMarketOrderRequest(It.IsAny<string>(), It.IsAny<Sides>(), It.IsAny<double>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()), Times.Never);
 			BetaConnectorMock.Verify(m => m.SendMarketOrderRequest(It.IsAny<string>(), It.IsAny<Sides>(), It.IsAny<double>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()), Times.Never);
 
-			FtConnectorMock.Verify(m => m.SendMarketOrderRequest("ftDummySymbol", Sides.Buy, 3, null), Times.Exactly(7));
+			FixConnectorMock.Verify(m => m.SendMarketOrderRequest("ftDummySymbol", Sides.Buy, 3, null), Times.Exactly(7));
 			ThreadServiceMock.Verify(m => m.Sleep(It.IsAny<int>()), Times.Exactly(7));
 			Assert.AreEqual(121, symbolInfo.SumContracts);
 
@@ -260,7 +260,7 @@ namespace QvaDev.OrchestrationTests.Services
 			AlphaConnectorMock.Verify(m => m.SendMarketOrderRequest(It.IsAny<string>(), It.IsAny<Sides>(), It.IsAny<double>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()), Times.Never);
 			BetaConnectorMock.Verify(m => m.SendMarketOrderRequest(It.IsAny<string>(), It.IsAny<Sides>(), It.IsAny<double>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()), Times.Never);
 
-			FtConnectorMock.Verify(m => m.SendMarketOrderRequest("ftDummySymbol", Sides.Sell, 3, null), Times.Exactly(4));
+			FixConnectorMock.Verify(m => m.SendMarketOrderRequest("ftDummySymbol", Sides.Sell, 3, null), Times.Exactly(4));
 			ThreadServiceMock.Verify(m => m.Sleep(It.IsAny<int>()), Times.Exactly(11));
 			Assert.AreEqual(122, symbolInfo.SumContracts);
 		}
@@ -270,13 +270,13 @@ namespace QvaDev.OrchestrationTests.Services
 		{
 			// Arrange
 			var symbolInfo = new SymbolData() { SumContracts = 100 };
-			FtConnectorMock
+			FixConnectorMock
 				.Setup(m => m.GetSymbolInfo(It.IsAny<string>()))
 				.Returns(symbolInfo);
-			FtConnectorMock
+			FixConnectorMock
 				.Setup(m => m.SendMarketOrderRequest(It.IsAny<string>(), It.IsAny<Sides>(), It.IsAny<decimal>(), It.IsAny<string>()))
 				.Callback(() => symbolInfo.SumContracts += 4);
-			FtConnectorMock
+			FixConnectorMock
 				.Setup(m => m.OrderMultipleCloseBy("ftDummySymbol"))
 				.Callback(() => symbolInfo.SumContracts = 0);
 
@@ -290,10 +290,10 @@ namespace QvaDev.OrchestrationTests.Services
 
 			// Assert
 			ThreadServiceMock.Verify(m => m.Sleep(It.IsAny<int>()), Times.Exactly(8));
-			FtConnectorMock.Verify(m => m.SendMarketOrderRequest("ftDummySymbol", Sides.Buy, 4, null), Times.Exactly(8));
+			FixConnectorMock.Verify(m => m.SendMarketOrderRequest("ftDummySymbol", Sides.Buy, 4, null), Times.Exactly(8));
 			BetaConnectorMock.Verify(m => m.SendClosePositionRequests(It.IsAny<Position>(), It.IsAny<double?>(), It.IsAny<int>(), It.IsAny<int>()), Times.Never);
 			AlphaConnectorMock.Verify(m => m.SendClosePositionRequests(It.IsAny<Position>(), It.IsAny<double?>(), It.IsAny<int>(), It.IsAny<int>()), Times.Never);
-			FtConnectorMock.Verify(m => m.OrderMultipleCloseBy(It.IsAny<string>()), Times.Never);
+			FixConnectorMock.Verify(m => m.OrderMultipleCloseBy(It.IsAny<string>()), Times.Never);
 			Assert.AreEqual(132, symbolInfo.SumContracts);
 
 			// Arrange
@@ -305,10 +305,10 @@ namespace QvaDev.OrchestrationTests.Services
 
 			// Assert
 			ThreadServiceMock.Verify(m => m.Sleep(It.IsAny<int>()), Times.Exactly(16));
-			FtConnectorMock.Verify(m => m.SendMarketOrderRequest("ftDummySymbol", Sides.Sell, 4, null), Times.Exactly(8));
+			FixConnectorMock.Verify(m => m.SendMarketOrderRequest("ftDummySymbol", Sides.Sell, 4, null), Times.Exactly(8));
 			BetaConnectorMock.Verify(m => m.SendClosePositionRequests(It.IsAny<Position>(), It.IsAny<double?>(), It.IsAny<int>(), It.IsAny<int>()), Times.Never);
 			AlphaConnectorMock.Verify(m => m.SendClosePositionRequests(It.IsAny<Position>(), It.IsAny<double?>(), It.IsAny<int>(), It.IsAny<int>()), Times.Never);
-			FtConnectorMock.Verify(m => m.OrderMultipleCloseBy(It.IsAny<string>()), Times.Once);
+			FixConnectorMock.Verify(m => m.OrderMultipleCloseBy(It.IsAny<string>()), Times.Once);
 			Assert.AreEqual(0, symbolInfo.SumContracts);
 		}
 
@@ -324,7 +324,7 @@ namespace QvaDev.OrchestrationTests.Services
 				BetaOpenSide = Sides.Sell,
 				BetaMaster = new Account() { Connector = BetaConnectorMock.Object },
 				AlphaMaster = new Account() { Connector = AlphaConnectorMock.Object },
-				FutureAccount = new Account() { Connector = FtConnectorMock.Object },
+				FutureAccount = new Account() { Connector = FixConnectorMock.Object },
 				HedgeAccount = new Account() { Connector = HedgeConnectorMock.Object },
 				PushingDetail = new PushingDetail()
 				{
