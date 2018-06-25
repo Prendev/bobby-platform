@@ -66,7 +66,7 @@ namespace QvaDev.Data.Models
 
         public override string ToString()
         {
-            return Id.ToString();
+            return Id == 0 ? "UNSAVED - " : Id.ToString();
         }
     }
 }
