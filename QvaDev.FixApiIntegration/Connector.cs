@@ -7,6 +7,7 @@ using System.Xml;
 using System.Xml.Serialization;
 using log4net;
 using QvaDev.Common.Integration;
+using QvaDev.Communication;
 using QvaDev.Communication.FixApi;
 
 namespace QvaDev.FixApiIntegration
@@ -14,6 +15,7 @@ namespace QvaDev.FixApiIntegration
 	public class Connector : IFixConnector
 	{
 		private readonly ILog _log;
+		private readonly TaskCompletionManager  _taskCompletionManager;
 		private FixConnectorBase _fixConnector;
 
 		public string Description { get; }
@@ -29,6 +31,7 @@ namespace QvaDev.FixApiIntegration
 		public Connector(string configPath, ILog log)
 		{
 			_log = log;
+			_taskCompletionManager = new TaskCompletionManager(1000, 5000);
 
 			var doc = new XmlDocument();
 			doc.Load(configPath);
@@ -62,6 +65,8 @@ namespace QvaDev.FixApiIntegration
 					oldValue.SumContracts += quantity;
 					return oldValue;
 				});
+
+			_taskCompletionManager.SetResult(e.ExecutionReport.OrderId, e.ExecutionReport);
 		}
 
 		// TODO go to nullable?
@@ -134,14 +139,15 @@ namespace QvaDev.FixApiIntegration
 
 		public decimal SendMarketOrderRequest(string symbol, Sides side, decimal quantity, string comment = null)
 		{
-			_fixConnector.NewOrderAsync(new NewOrderRequest()
+			var newResult = _fixConnector.NewOrderAsync(new NewOrderRequest()
 			{
 				Side = side == Sides.Buy ? Side.Buy : Side.Sell,
 				Symbol = Symbol.Parse(symbol),
 				Type = OrdType.Market,
 				Quantity = quantity
-			}).Wait();
-			return quantity;
+			}).Result;
+			var result = _taskCompletionManager.CreateCompletableTask<ExecutionReport>(newResult.OrderId).Result;
+			return result.FulfilledQuantity ?? 0;
 		}
 
 		public void OrderMultipleCloseBy(string symbol)

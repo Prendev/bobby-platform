@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using QvaDev.Common.Integration;
 using QvaDev.Data;
 using QvaDev.Data.Models;
 using QvaDev.Orchestration.Services;
@@ -87,7 +88,7 @@ namespace QvaDev.Orchestration
             _duplicatContext = duplicatContext;
             _synchronizationContext = _synchronizationContext ?? _synchronizationContextFactory.Invoke();
 
-	        var accounts = _duplicatContext.Accounts
+	        var accounts = _duplicatContext.Accounts.Local
 		        .Where(pa => pa.Run).ToList()
 		        .Where(pa => pa.State != Account.States.Connected);
 
@@ -128,8 +129,8 @@ namespace QvaDev.Orchestration
 
         public void TestMarketOrder(Pushing pushing)
         {
-            var connector = (FixTraderIntegration.Connector)pushing.FutureAccount.Connector;
-            connector.SendMarketOrderRequest(pushing.FutureSymbol, Common.Integration.Sides.Buy, pushing.PushingDetail.SmallContractSize);
+            var connector = (IFixConnector)pushing.FutureAccount.Connector;
+            connector.SendMarketOrderRequest(pushing.FutureSymbol, Sides.Buy, pushing.PushingDetail.SmallContractSize);
 		}
 		public void TestLimitOrder(Pushing pushing)
 		{
