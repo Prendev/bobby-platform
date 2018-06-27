@@ -21,6 +21,7 @@ namespace QvaDev.Duplicat.Views
             btnLoad.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsConfigReadonly), true);
             gbControl.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsLoading), true);
             dgvProfiles.AddBinding("ReadOnly", _viewModel, nameof(_viewModel.IsConfigReadonly));
+	        dgvAccounts.AddBinding<int>("Enabled", _viewModel, nameof(_viewModel.SelectedProfileId), p => p > 0);
 
 			dgvAccounts.DefaultValuesNeeded += (s, e) => e.Row.Cells["ProfileId"].Value = _viewModel.SelectedProfileId;
 

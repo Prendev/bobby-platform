@@ -148,6 +148,11 @@ namespace QvaDev.Duplicat.ViewModel
         public void LoadProfileCommand(Profile profile)
         {
             SelectedProfileId = profile?.Id ?? 0;
+	        if (SelectedProfileId == 0)
+	        {
+		        SelectedProfileDesc = "Save before load!!!";
+		        return;
+	        }
             SelectedProfileDesc = profile?.Description;
             LoadDataContext();
             DataContextChanged?.Invoke();

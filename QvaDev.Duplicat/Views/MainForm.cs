@@ -42,6 +42,7 @@ namespace QvaDev.Duplicat.Views
 			tabPageCopier.AddBinding<int>("Enabled", _viewModel, nameof(_viewModel.SelectedProfileId), p => p > 0);
             tabPagePush.AddBinding<int>("Enabled", _viewModel, nameof(_viewModel.SelectedProfileId), p => p > 0);
 			tabPageTicker.AddBinding<int>("Enabled", _viewModel, nameof(_viewModel.SelectedProfileId), p => p > 0);
+	        tabPageStrategies.AddBinding<int>("Enabled", _viewModel, nameof(_viewModel.SelectedProfileId), p => p > 0);
 			labelProfile.AddBinding("Text", _viewModel, nameof(_viewModel.SelectedProfileDesc));
 
 			btnQuickStart.Click += (s, e) => { _viewModel.QuickStartCommand(); };
