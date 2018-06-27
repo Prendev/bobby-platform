@@ -91,6 +91,10 @@
     <Compile Include="Migrations\201806190914297_RefactoringDecimal.Designer.cs">
       <DependentUpon>201806190914297_RefactoringDecimal.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201806270943172_DealingArbUpdate.cs" />
+    <Compile Include="Migrations\201806270943172_DealingArbUpdate.Designer.cs">
+      <DependentUpon>201806270943172_DealingArbUpdate.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\BaseEntity.cs" />
     <Compile Include="Models\BaseDescriptionEntity.cs" />
@@ -104,6 +108,7 @@
     <Compile Include="Models\PushingDetail.cs" />
     <Compile Include="Models\FixTraderAccount.cs" />
     <Compile Include="Models\IFilterableEntity.cs" />
+    <Compile Include="Models\StratDealingArbPosition.cs" />
     <Compile Include="Models\StratDealingArb.cs" />
     <Compile Include="Models\Ticker.cs" />
     <Compile Include="Models\Slave.cs" />
@@ -136,6 +141,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201806190914297_RefactoringDecimal.resx">
       <DependentUpon>201806190914297_RefactoringDecimal.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201806270943172_DealingArbUpdate.resx">
+      <DependentUpon>201806270943172_DealingArbUpdate.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

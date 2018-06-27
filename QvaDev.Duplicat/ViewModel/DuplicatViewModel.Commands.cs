@@ -259,6 +259,18 @@ namespace QvaDev.Duplicat.ViewModel
 	    {
 		    _orchestrator.StopStrategies();
 		    AreStrategiesStarted = false;
-	    }
+		}
+	    public void StrategyTestOpenSide1Command(StratDealingArb arb)
+	    {
+		    arb.DoOpenSide1 = true;
+		}
+	    public void StrategyTestOpenSide2Command(StratDealingArb arb)
+		{
+			arb.DoOpenSide2 = true;
+		}
+	    public void StrategyTestCloseCommand(StratDealingArb arb)
+		{
+			arb.DoClose = true;
+		}
 	}
 }

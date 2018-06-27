@@ -224,7 +224,14 @@ namespace QvaDev.Mt4Integration
 			return SendClosePositionRequests(position, lots, 0, 0);
 		}
 
-		public long GetOpenContracts(string symbol)
+	    public bool SendClosePositionRequests(long ticket, int maxRetryCount, int retryPeriodInMilliseconds)
+	    {
+		    var position = Positions.FirstOrDefault(p => p.Key == ticket && !p.Value.IsClosed);
+		    if (position.Value == null) return true;
+		    return SendClosePositionRequests(position.Value, null, maxRetryCount, retryPeriodInMilliseconds);
+	    }
+
+	    public long GetOpenContracts(string symbol)
         {
             return Positions.Where(p => p.Value.Symbol == symbol && !p.Value.IsClosed).Sum(p => p.Value.RealVolume);
         }

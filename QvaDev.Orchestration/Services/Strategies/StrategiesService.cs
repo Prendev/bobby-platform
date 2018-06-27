@@ -7,7 +7,6 @@ using QvaDev.Common.Integration;
 using QvaDev.Data;
 using QvaDev.Data.Models;
 using IConnector = QvaDev.Common.Integration.IConnector;
-using FtConnector = QvaDev.FixTraderIntegration.Connector;
 using MtConnector = QvaDev.Mt4Integration.Connector;
 using System.Threading.Tasks;
 
@@ -33,25 +32,21 @@ namespace QvaDev.Orchestration.Services.Strategies
 		public void Start(DuplicatContext duplicatContext)
 		{
 			_arbs = duplicatContext.StratDealingArbs.Local
-				.Where(c => (c.FtAccount?.State == Account.States.Connected ||
-				             c.MtAccount?.State == Account.States.Connected)).ToList();
+				.Where(c => c.AlphaAccount?.State == Account.States.Connected ||
+				             c.BetaAccount?.State == Account.States.Connected).ToList();
 
 			foreach (var arb in _arbs)
 			{
-				var connector = (MtConnector)arb.MtAccount.Connector;
-				connector.Subscribe(new List<Tuple<string, int, short>> { new Tuple<string, int, short>(arb.MtSymbol, 1, 1) });
-			}
+				if (arb.AlphaAccount.Connector is MtConnector alpha)
+					alpha.Subscribe(new List<Tuple<string, int, short>> {new Tuple<string, int, short>(arb.AlphaSymbol, 1, 1)});
 
-			foreach (var ft in _arbs.Select(t => t.FtAccount).Distinct())
-			{
-				ft.Connector.OnTick -= Connector_OnTick;
-				ft.Connector.OnTick += Connector_OnTick;
-			}
+				if (arb.BetaAccount.Connector is MtConnector beta)
+					beta.Subscribe(new List<Tuple<string, int, short>> { new Tuple<string, int, short>(arb.BetaSymbol, 1, 1) });
 
-			foreach (var mt in _arbs.Select(t => t.MtAccount).Distinct())
-			{
-				mt.Connector.OnTick -= Connector_OnTick;
-				mt.Connector.OnTick += Connector_OnTick;
+				arb.AlphaAccount.Connector.OnTick -= Connector_OnTick;
+				arb.AlphaAccount.Connector.OnTick += Connector_OnTick;
+				arb.BetaAccount.Connector.OnTick -= Connector_OnTick;
+				arb.BetaAccount.Connector.OnTick += Connector_OnTick;
 			}
 
 			_isStarted = true;
@@ -72,30 +67,25 @@ namespace QvaDev.Orchestration.Services.Strategies
 			{
 				Task.Factory.StartNew(() =>
 				{
-					var ftConnector = (FtConnector)arb.FtAccount.Connector;
-					var mtConnector = (MtConnector)arb.MtAccount.Connector;
-					if (ftConnector == connector && arb.FtSymbol != e.Tick.Symbol) return;
-					if (mtConnector == connector && arb.MtSymbol != e.Tick.Symbol) return;
+					var alpha = arb.AlphaAccount.Connector;
+					var beta = arb.BetaAccount.Connector;
 
-					var ftTick = ftConnector.GetLastTick(arb.FtSymbol);
-					var mtTick = mtConnector.GetLastTick(arb.MtSymbol);
+					if (alpha == connector && arb.AlphaSymbol != e.Tick.Symbol) return;
+					if (beta == connector && arb.BetaSymbol != e.Tick.Symbol) return;
 
-					if (ftTick == null || mtTick == null) return;
-					if (ftTick.Ask == 0 || ftTick.Bid == 0 || mtTick.Ask == 0 || mtTick.Bid == 0) return;
-					if (DateTime.UtcNow - ftTick.Time > new TimeSpan(0, 1, 0)) return;
-					if (DateTime.UtcNow - mtTick.Time > new TimeSpan(0, 1, 0)) return;
+					var alphaTick = alpha.GetLastTick(arb.AlphaSymbol);
+					var betaTick = beta.GetLastTick(arb.BetaSymbol);
+
+					if (alphaTick == null || betaTick == null) return;
+					if (alphaTick.Ask == 0 || alphaTick.Bid == 0 || betaTick.Ask == 0 || betaTick.Bid == 0) return;
+					if (DateTime.UtcNow - alphaTick.Time > new TimeSpan(0, 1, 0)) return;
+					if (DateTime.UtcNow - betaTick.Time > new TimeSpan(0, 1, 0)) return;
 
 					lock (arb)
 					{
-						if(IsShiftCalculating(arb, ftTick, mtTick)) return;
-
-						var mtPositions = mtConnector.Positions
-							.Where(p => p.Value.MagicNumber == arb.MagicNumber && p.Value.Symbol == arb.MtSymbol && !p.Value.IsClosed)
-							.Select(p => p.Value)
-							.ToList();
-
-						CheckOpen(arb, mtPositions);
-						CheckClose(arb, mtPositions);
+						if(IsShiftCalculating(arb, alphaTick, betaTick)) return;
+						CheckOpen(arb);
+						CheckClose(arb);
 					}
 				});
 			}
@@ -132,120 +122,160 @@ namespace QvaDev.Orchestration.Services.Strategies
 			return true;
 		}
 
-		private void CheckOpen(StratDealingArb arb, List<Position> mtPositions)
+		private void CheckOpen(StratDealingArb arb)
 		{
 			if (DateTime.UtcNow.TimeOfDay < arb.EarliestOpenTime) return;
 			if (DateTime.UtcNow.TimeOfDay > arb.LatestOpenTime) return;
-			if (mtPositions.Count >= arb.MaxNumberOfPositions) return;
+			if (arb.PositionCount >= arb.MaxNumberOfPositions) return;
 
-			var ftConnector = (FtConnector) arb.FtAccount.Connector;
-			var mtConnector = (MtConnector) arb.MtAccount.Connector;
+			var alphaTick = arb.AlphaAccount.Connector.GetLastTick(arb.AlphaSymbol);
+			var betaTick = arb.BetaAccount.Connector.GetLastTick(arb.BetaSymbol);
 
-			var ftTick = ftConnector.GetLastTick(arb.FtSymbol);
-			var mtTick = mtConnector.GetLastTick(arb.MtSymbol);
+			var diffInPip = GetDiffInPip(arb);
 
-			var diffInPip = GetDiffInPip(arb, mtPositions);
-
-			if (((mtTick.Bid - arb.ShiftInPip * arb.PipSize) - ftTick.Ask) / arb.PipSize > diffInPip &&
-			    (mtPositions.Count == 0 || mtPositions.First().Side == Sides.Sell)) // Future long
+			if (arb.DoOpenSide1 || (((betaTick.Bid - arb.ShiftInPip * arb.PipSize) - alphaTick.Ask) / arb.PipSize > diffInPip) &&
+			    (arb.PositionCount == 0 || arb.BetaSide == Sides.Sell)) // Alpha long
 			{
-				var pos = OpenMtPosition(arb, Sides.Sell, ftTick.Ask.ToString("F2"));
-				if (pos == null)
-				{
-					_log.Error($"{arb.Description} arb failed to open MT4 short!!!");
-					return;
-				}
+				arb.DoOpenSide1 = false;
+				var betaPos = OpenBetaPosition(arb, Sides.Sell);
+				var alphaPos = OpenAlphaPosition(arb, Sides.Buy);
 
-				var opened = ftConnector.SendMarketOrderRequest(arb.FtSymbol, Sides.Buy, arb.ContractSize);
-				if (opened == 0)
+				arb.Positions.Add(new StratDealingArbPosition()
 				{
-					mtConnector.SendClosePositionRequests(pos, null, arb.MaxRetryCount, arb.RetryPeriodInMilliseconds);
-					_log.Error($"{arb.Description} arb failed to open FT long!!!");
-					return;
-				}
+					AlphaOpenPrice = alphaTick.Ask,
+					AlphaSize = arb.AlphaSize,
+					AlphaSide = StratDealingArbPosition.Sides.Buy,
+					AlphaOrderTicket = alphaPos?.Id,
 
+					BetaOpenPrice = betaTick.Bid,
+					BetaSize = arb.BetaSize,
+					BetaSide = StratDealingArbPosition.Sides.Sell,
+					BetaOrderTicket = betaPos?.Id
+				});
 				_log.Info($"{arb.Description} arb MT4 short, FT long opened!!!");
 			}
-			else if ((ftTick.Bid - (mtTick.Ask - arb.ShiftInPip * arb.PipSize)) / arb.PipSize > diffInPip &&
-			         (mtPositions.Count == 0 || mtPositions.First().Side == Sides.Buy)) // Future short
+			else if (arb.DoOpenSide2 || ((alphaTick.Bid - (betaTick.Ask - arb.ShiftInPip * arb.PipSize)) / arb.PipSize > diffInPip) &&
+			         (arb.PositionCount == 0 || arb.BetaSide == Sides.Buy)) // Alpha short
 			{
-				var pos = OpenMtPosition(arb, Sides.Buy, ftTick.Bid.ToString("F2"));
-				if (pos == null)
-				{
-					_log.Error($"{arb.Description} arb failed to open MT4 long!!!");
-					return;
-				}
+				arb.DoOpenSide2 = false;
+				var betaPos = OpenBetaPosition(arb, Sides.Buy);
+				var alphaPos = OpenAlphaPosition(arb, Sides.Sell);
 
-				var opened = ftConnector.SendMarketOrderRequest(arb.FtSymbol, Sides.Sell, arb.ContractSize);
-				if (opened == 0)
+				arb.Positions.Add(new StratDealingArbPosition()
 				{
-					mtConnector.SendClosePositionRequests(pos, null, arb.MaxRetryCount, arb.RetryPeriodInMilliseconds);
-					_log.Error($"{arb.Description} arb failed to open FT short!!!");
-					return;
-				}
+					AlphaOpenPrice = alphaTick.Bid,
+					AlphaSize = arb.AlphaSize,
+					AlphaSide = StratDealingArbPosition.Sides.Sell,
+					AlphaOrderTicket = alphaPos?.Id,
 
+					BetaOpenPrice = betaTick.Ask,
+					BetaSize = arb.BetaSize,
+					BetaSide = StratDealingArbPosition.Sides.Buy,
+					BetaOrderTicket = betaPos?.Id
+				});
 				_log.Info($"{arb.Description} arb MT4 long, FT short opened!!!");
 			}
 		}
 
-		private decimal GetDiffInPip(StratDealingArb arb, List<Position> mtPositions)
+		private decimal GetDiffInPip(StratDealingArb arb)
 		{
 			var diffInPip = arb.SignalDiffInPip;
-			if (mtPositions.Count == 0) return diffInPip;
-			var lastPos = mtPositions.Last();
-			if (!Double.TryParse(lastPos.Comment, out var d)) return 0;
+			if (arb.PositionCount == 0) return diffInPip;
 
-			if (lastPos.Side == Sides.Sell) // Future long
-				diffInPip = (lastPos.OpenPrice - decimal.Parse(lastPos.Comment)) / arb.PipSize + mtPositions.Count * arb.SignalStepInPip;
+			if (arb.BetaSide == Sides.Sell) // Alpha long
+				diffInPip = (arb.LastBetaOpenPrice.Value - arb.LastAlphaOpenPrice.Value)
+				            / arb.PipSize + arb.PositionCount * arb.SignalStepInPip;
 
-			else if (lastPos.Side == Sides.Buy) // Future short
-				diffInPip = (decimal.Parse(lastPos.Comment) - lastPos.OpenPrice) / arb.PipSize + mtPositions.Count * arb.SignalStepInPip;
+			else if (arb.BetaSide == Sides.Buy) // Alpha short
+				diffInPip = (arb.LastAlphaOpenPrice.Value - arb.LastBetaOpenPrice.Value)
+				            / arb.PipSize + arb.PositionCount * arb.SignalStepInPip;
 
 			return diffInPip;
 		}
 
-		private void CheckClose(StratDealingArb arb, List<Position> mtPositions)
+		private void CheckClose(StratDealingArb arb)
 		{
-			if (!mtPositions.Any()) return;
-			var ftConnector = (FtConnector)arb.FtAccount.Connector;
-			var mtConnector = (MtConnector)arb.MtAccount.Connector;
-			var ftTick = ftConnector.GetLastTick(arb.FtSymbol);
-			var mtTick = mtConnector.GetLastTick(arb.MtSymbol);
+			if (arb.PositionCount > 0) return;
+
+			var alpha = arb.AlphaAccount.Connector;
+			var beta = arb.BetaAccount.Connector;
+
+			var alphaTick = alpha.GetLastTick(arb.AlphaSymbol);
+			var betaTick = beta.GetLastTick(arb.BetaSymbol);
 
 			// Close if not enough future contracts
-			if (Math.Abs(ftConnector.GetSymbolInfo(arb.FtSymbol).SumContracts) < arb.ContractSize * mtPositions.Count)
-			{
-				mtConnector.SendClosePositionRequests(mtPositions, arb.MaxRetryCount, arb.RetryPeriodInMilliseconds);
-				_log.Error($"{arb.Description} arb mismatching sides close, not enough futures!!!");
-			}
+			//if (Math.Abs(alpha.GetSymbolInfo(arb.AlphaSymbol).SumContracts) < arb.AlphaSize * mtPositions.Count)
+			//{
+			//	beta.SendClosePositionRequests(mtPositions, arb.MaxRetryCount, arb.RetryPeriodInMilliseconds);
+			//	_log.Error($"{arb.Description} arb mismatching sides close, not enough futures!!!");
+			//}
 
 			if (DateTime.UtcNow.TimeOfDay < arb.EarliestOpenTime) return;
 			if (DateTime.UtcNow.TimeOfDay > arb.LatestCloseTime) return;
-			if (!mtConnector.ServerTime.HasValue) return;
 
-			foreach (var pos in mtPositions)
+			foreach (var pos in arb.Positions)
 			{
-				if ((mtConnector.ServerTime.Value - pos.OpenTime).TotalMinutes < arb.MinOpenTimeInMinutes) continue;
-				var netPip = CalculateNetPip(pos, ftTick, mtTick);
-				if (netPip < arb.TargetInPip) continue;
+				if (!arb.DoClose && (DateTime.UtcNow - pos.OpenTime).TotalMinutes < arb.MinOpenTimeInMinutes) continue;
+				var netPip = CalculateNetPip(pos, alphaTick, betaTick);
+				if (!arb.DoClose && netPip < arb.TargetInPip) continue;
+				arb.DoClose = false;
 
-				mtConnector.SendClosePositionRequests(pos, null, arb.MaxRetryCount, arb.RetryPeriodInMilliseconds);
-				ftConnector.SendMarketOrderRequest(arb.FtSymbol, pos.Side, arb.ContractSize);
+				CloseAlphaPosition(arb, pos);
+				CloseBetaPosition(arb, pos);
+				pos.IsClosed = true;
 				_log.Info($"{arb.Description} arb closing!!!");
 			}
 		}
 
-		private decimal CalculateNetPip(Position pos, Tick ftTick, Tick mtTick)
+		private decimal CalculateNetPip(StratDealingArbPosition pos, Tick alphaTick, Tick betaTick)
 		{
-			if (pos.Side == Sides.Sell) return ftTick.Bid - decimal.Parse(pos.Comment) + pos.OpenPrice - mtTick.Ask;
-			if (pos.Side == Sides.Buy) return decimal.Parse(pos.Comment) - ftTick.Ask + mtTick.Bid - pos.OpenPrice;
+			if (pos.BetaSide == StratDealingArbPosition.Sides.Sell)
+				return alphaTick.Bid - pos.AlphaOpenPrice + pos.BetaOpenPrice - betaTick.Ask;
+			if (pos.BetaSide == StratDealingArbPosition.Sides.Buy)
+				return pos.AlphaOpenPrice - alphaTick.Ask + betaTick.Bid - pos.BetaOpenPrice;
 			return 0;
 		}
 
-		private Position OpenMtPosition(StratDealingArb arb, Sides side, string comment)
+		private Position OpenAlphaPosition(StratDealingArb arb, Sides side)
 		{
-			var mtConnector = (MtConnector)arb.MtAccount.Connector;
-			return mtConnector.SendMarketOrderRequest(arb.MtSymbol, side, arb.Lots, arb.MagicNumber, comment, arb.MaxRetryCount, arb.RetryPeriodInMilliseconds);
+			if (arb.AlphaAccount.Connector is MtConnector mt)
+				return mt.SendMarketOrderRequest(arb.AlphaSymbol, side, (double)arb.AlphaSize, arb.MagicNumber, null, arb.MaxRetryCount,
+					arb.RetryPeriodInMilliseconds);
+			if(arb.AlphaAccount.Connector is IFixConnector fix)
+				fix.SendMarketOrderRequest(arb.AlphaSymbol, side, arb.AlphaSize);
+			return null;
+		}
+
+		private Position OpenBetaPosition(StratDealingArb arb, Sides side)
+		{
+			if (arb.BetaAccount.Connector is MtConnector mt)
+				return mt.SendMarketOrderRequest(arb.BetaSymbol, side, (double)arb.BetaSize, arb.MagicNumber, null, arb.MaxRetryCount,
+					arb.RetryPeriodInMilliseconds);
+			if (arb.BetaAccount.Connector is IFixConnector fix)
+				fix.SendMarketOrderRequest(arb.BetaSymbol, side, arb.AlphaSize);
+			return null;
+		}
+
+		private void CloseAlphaPosition(StratDealingArb arb, StratDealingArbPosition pos)
+		{
+			if (arb.AlphaAccount.Connector is MtConnector mt)
+				mt.SendClosePositionRequests(pos.AlphaOrderTicket.Value, arb.MaxRetryCount, arb.RetryPeriodInMilliseconds);
+			else if (arb.AlphaAccount.Connector is IFixConnector fix)
+			{
+				var side = pos.BetaSide == StratDealingArbPosition.Sides.Buy ? Sides.Buy : Sides.Sell;
+				fix.SendMarketOrderRequest(arb.AlphaSymbol, side, arb.AlphaSize);
+			}
+		}
+
+		private void CloseBetaPosition(StratDealingArb arb, StratDealingArbPosition pos)
+		{
+			if (arb.BetaAccount.Connector is MtConnector mt)
+				mt.SendClosePositionRequests(pos.BetaOrderTicket.Value, arb.MaxRetryCount, arb.RetryPeriodInMilliseconds);
+			else if (arb.BetaAccount.Connector is IFixConnector fix)
+			{
+				var side = pos.AlphaSide == StratDealingArbPosition.Sides.Buy ? Sides.Buy : Sides.Sell;
+				fix.SendMarketOrderRequest(arb.BetaSymbol, side, arb.BetaSize);
+			}
 		}
 	}
 }
