@@ -17,6 +17,8 @@ namespace QvaDev.FixApiIntegration
 		private readonly ILog _log;
 		private readonly TaskCompletionManager  _taskCompletionManager;
 		private FixConnectorBase _fixConnector;
+		private readonly ConcurrentDictionary<string, Tick> _lastTicks =
+			new ConcurrentDictionary<string, Tick>();
 
 		public string Description { get; }
 		public bool IsConnected => _fixConnector?.IsPricingConnected == true && _fixConnector?.IsTradingConnected == true;
@@ -74,6 +76,7 @@ namespace QvaDev.FixApiIntegration
 		{
 			var ask = e.QuoteSet.Entries.First().Ask;
 			var bid = e.QuoteSet.Entries.First().Bid;
+			var symbol = e.QuoteSet.Symbol.ToString();
 			SymbolInfos.AddOrUpdate(e.QuoteSet.Symbol.ToString(),
 				new SymbolData {Bid = bid ?? 0, Ask = ask ?? 0 },
 				(key, oldValue) =>
@@ -82,6 +85,17 @@ namespace QvaDev.FixApiIntegration
 					oldValue.Ask = ask ?? oldValue.Ask;
 					return oldValue;
 				});
+
+			if (!ask.HasValue || !bid.HasValue) return;
+			var tick = new Tick
+			{
+				Symbol = e.QuoteSet.Symbol.ToString(),
+				Ask = ask ?? 0,
+				Bid = bid ?? 0,
+				Time = DateTime.UtcNow
+			};
+			_lastTicks.AddOrUpdate(symbol, key => tick, (key, old) => tick);
+			OnTick?.Invoke(this, new TickEventArgs { Tick = tick });
 		}
 
 		public async Task<bool> Connect()
@@ -134,7 +148,7 @@ namespace QvaDev.FixApiIntegration
 
 		public Tick GetLastTick(string symbol)
 		{
-			throw new NotImplementedException();
+			return _lastTicks.GetOrAdd(symbol, (Tick)null);
 		}
 
 		public decimal SendMarketOrderRequest(string symbol, Sides side, decimal quantity, string comment = null)
@@ -161,6 +175,11 @@ namespace QvaDev.FixApiIntegration
 		public SymbolData GetSymbolInfo(string symbol)
 		{
 			return SymbolInfos.GetOrAdd(symbol, new SymbolData());
+		}
+
+		public void Subscribe(string symbol)
+		{
+			_fixConnector.SubscribeMarketDataAsync(Symbol.Parse(symbol), 1).Wait();
 		}
 
 		private async void _fixConnector_SocketClosed(object sender, ClosedEventArgs e)

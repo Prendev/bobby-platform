@@ -37,11 +37,15 @@ namespace QvaDev.Orchestration.Services.Strategies
 
 			foreach (var arb in _arbs)
 			{
-				if (arb.AlphaAccount.Connector is MtConnector alpha)
-					alpha.Subscribe(new List<Tuple<string, int, short>> {new Tuple<string, int, short>(arb.AlphaSymbol, 1, 1)});
+				if (arb.AlphaAccount.Connector is MtConnector mtAlpha)
+					mtAlpha.Subscribe(new List<Tuple<string, int, short>> {new Tuple<string, int, short>(arb.AlphaSymbol, 1, 1)});
+				else if (arb.AlphaAccount.Connector is IFixConnector fixAlpha)
+					fixAlpha.Subscribe(arb.AlphaSymbol);
 
-				if (arb.BetaAccount.Connector is MtConnector beta)
-					beta.Subscribe(new List<Tuple<string, int, short>> { new Tuple<string, int, short>(arb.BetaSymbol, 1, 1) });
+				if (arb.BetaAccount.Connector is MtConnector mtBeta)
+					mtBeta.Subscribe(new List<Tuple<string, int, short>> { new Tuple<string, int, short>(arb.BetaSymbol, 1, 1) });
+				else if (arb.BetaAccount.Connector is IFixConnector fixBeta)
+					fixBeta.Subscribe(arb.BetaSymbol);
 
 				arb.AlphaAccount.Connector.OnTick -= Connector_OnTick;
 				arb.AlphaAccount.Connector.OnTick += Connector_OnTick;
@@ -86,6 +90,9 @@ namespace QvaDev.Orchestration.Services.Strategies
 						if(IsShiftCalculating(arb, alphaTick, betaTick)) return;
 						CheckOpen(arb);
 						CheckClose(arb);
+						arb.DoOpenSide1 = false;
+						arb.DoOpenSide2 = false;
+						arb.DoClose = false;
 					}
 				});
 			}
@@ -133,10 +140,9 @@ namespace QvaDev.Orchestration.Services.Strategies
 
 			var diffInPip = GetDiffInPip(arb);
 
-			if (arb.DoOpenSide1 || (((betaTick.Bid - arb.ShiftInPip * arb.PipSize) - alphaTick.Ask) / arb.PipSize > diffInPip) &&
+			if ((arb.DoOpenSide1 || ((betaTick.Bid - arb.ShiftInPip * arb.PipSize) - alphaTick.Ask) / arb.PipSize > diffInPip) &&
 			    (arb.PositionCount == 0 || arb.BetaSide == Sides.Sell)) // Alpha long
 			{
-				arb.DoOpenSide1 = false;
 				var betaPos = OpenBetaPosition(arb, Sides.Sell);
 				var alphaPos = OpenAlphaPosition(arb, Sides.Buy);
 
@@ -154,10 +160,9 @@ namespace QvaDev.Orchestration.Services.Strategies
 				});
 				_log.Info($"{arb.Description} arb MT4 short, FT long opened!!!");
 			}
-			else if (arb.DoOpenSide2 || ((alphaTick.Bid - (betaTick.Ask - arb.ShiftInPip * arb.PipSize)) / arb.PipSize > diffInPip) &&
+			else if ((arb.DoOpenSide2 || (alphaTick.Bid - (betaTick.Ask - arb.ShiftInPip * arb.PipSize)) / arb.PipSize > diffInPip) &&
 			         (arb.PositionCount == 0 || arb.BetaSide == Sides.Buy)) // Alpha short
 			{
-				arb.DoOpenSide2 = false;
 				var betaPos = OpenBetaPosition(arb, Sides.Buy);
 				var alphaPos = OpenAlphaPosition(arb, Sides.Sell);
 
@@ -195,7 +200,7 @@ namespace QvaDev.Orchestration.Services.Strategies
 
 		private void CheckClose(StratDealingArb arb)
 		{
-			if (arb.PositionCount > 0) return;
+			if (arb.PositionCount == 0) return;
 
 			var alpha = arb.AlphaAccount.Connector;
 			var beta = arb.BetaAccount.Connector;
@@ -210,20 +215,20 @@ namespace QvaDev.Orchestration.Services.Strategies
 			//	_log.Error($"{arb.Description} arb mismatching sides close, not enough futures!!!");
 			//}
 
-			if (DateTime.UtcNow.TimeOfDay < arb.EarliestOpenTime) return;
-			if (DateTime.UtcNow.TimeOfDay > arb.LatestCloseTime) return;
+			if (!arb.DoClose && DateTime.UtcNow.TimeOfDay < arb.EarliestOpenTime) return;
+			if (!arb.DoClose && DateTime.UtcNow.TimeOfDay > arb.LatestCloseTime) return;
 
-			foreach (var pos in arb.Positions)
+			foreach (var pos in arb.Positions.Where(p => !p.IsClosed))
 			{
 				if (!arb.DoClose && (DateTime.UtcNow - pos.OpenTime).TotalMinutes < arb.MinOpenTimeInMinutes) continue;
 				var netPip = CalculateNetPip(pos, alphaTick, betaTick);
 				if (!arb.DoClose && netPip < arb.TargetInPip) continue;
-				arb.DoClose = false;
 
 				CloseAlphaPosition(arb, pos);
 				CloseBetaPosition(arb, pos);
-				pos.IsClosed = true;
 				_log.Info($"{arb.Description} arb closing!!!");
+				pos.IsClosed = true;
+				arb.DoClose = false;
 			}
 		}
 

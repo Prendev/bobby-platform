@@ -45,7 +45,7 @@ namespace QvaDev.Data.Models
 		public int MaxRetryCount { get; set; }
 		public int RetryPeriodInMilliseconds { get; set; }
 
-		public decimal ShiftDiffSumInPip { get; set; }
+		[NotMapped] [InvisibleColumn] public decimal ShiftDiffSumInPip { get; set; }
 		[NotMapped] [InvisibleColumn] public Stopwatch ShiftCalcStopwatch { get; set; }
 		[NotMapped] [InvisibleColumn] public int ShiftTickCount { get; set; }
 

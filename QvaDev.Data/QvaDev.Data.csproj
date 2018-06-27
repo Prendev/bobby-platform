@@ -95,6 +95,10 @@
     <Compile Include="Migrations\201806270943172_DealingArbUpdate.Designer.cs">
       <DependentUpon>201806270943172_DealingArbUpdate.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201806271213252_DealingArbUpdate2.cs" />
+    <Compile Include="Migrations\201806271213252_DealingArbUpdate2.Designer.cs">
+      <DependentUpon>201806271213252_DealingArbUpdate2.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\BaseEntity.cs" />
     <Compile Include="Models\BaseDescriptionEntity.cs" />
@@ -144,6 +148,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201806270943172_DealingArbUpdate.resx">
       <DependentUpon>201806270943172_DealingArbUpdate.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201806271213252_DealingArbUpdate2.resx">
+      <DependentUpon>201806271213252_DealingArbUpdate2.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

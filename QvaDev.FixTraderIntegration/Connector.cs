@@ -310,6 +310,11 @@ namespace QvaDev.FixTraderIntegration
 			return SymbolInfos.GetOrAdd(symbol, new SymbolData());
 		}
 
+		public void Subscribe(string symbol)
+		{
+			return;
+		}
+
 		public long GetOpenContracts(string symbol)
 		{
 			throw new NotImplementedException();
