@@ -27,6 +27,7 @@ namespace QvaDev.Data.Models
 		public decimal TargetInPip { get; set; }
 
 		public int MinOpenTimeInMinutes { get; set; }
+		public int ReOpenIntervalInMinutes { get; set; }
 
 		public TimeSpan EarliestOpenTime { get; set; }
 		public TimeSpan LatestOpenTime { get; set; }
@@ -64,6 +65,7 @@ namespace QvaDev.Data.Models
 		[NotMapped] [InvisibleColumn] public Sides BetaSide => GetSide(Positions?.FirstOrDefault()?.BetaSide);
 		[NotMapped] [InvisibleColumn] public decimal? LastAlphaOpenPrice => Positions?.LastOrDefault()?.AlphaOpenPrice;
 		[NotMapped] [InvisibleColumn] public decimal? LastBetaOpenPrice => Positions?.LastOrDefault()?.BetaOpenPrice;
+		[NotMapped] [InvisibleColumn] public DateTime? LastOpenTime => Positions?.LastOrDefault()?.OpenTime;
 		[NotMapped] [InvisibleColumn] public int PositionCount => OpenPositions?.Count ?? 0;
 
 		[NotMapped] [InvisibleColumn] public bool DoOpenSide1 { get; set; }

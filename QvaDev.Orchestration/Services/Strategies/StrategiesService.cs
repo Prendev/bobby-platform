@@ -126,6 +126,8 @@ namespace QvaDev.Orchestration.Services.Strategies
 			if (DateTime.UtcNow.TimeOfDay < arb.EarliestOpenTime) return;
 			if (DateTime.UtcNow.TimeOfDay > arb.LatestOpenTime) return;
 			if (arb.PositionCount >= arb.MaxNumberOfPositions) return;
+			if (arb.LastOpenTime.HasValue &&
+			    (DateTime.UtcNow - arb.LastOpenTime.Value).Minutes < arb.ReOpenIntervalInMinutes) return;
 
 			var alphaTick = arb.AlphaAccount.Connector.GetLastTick(arb.AlphaSymbol);
 			var betaTick = arb.BetaAccount.Connector.GetLastTick(arb.BetaSymbol);

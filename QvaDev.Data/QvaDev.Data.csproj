@@ -103,6 +103,10 @@
     <Compile Include="Migrations\201806280757598_DealingArbOrderType.Designer.cs">
       <DependentUpon>201806280757598_DealingArbOrderType.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201807020645147_DealingArbReOpenInterval.cs" />
+    <Compile Include="Migrations\201807020645147_DealingArbReOpenInterval.Designer.cs">
+      <DependentUpon>201807020645147_DealingArbReOpenInterval.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\BaseEntity.cs" />
     <Compile Include="Models\BaseDescriptionEntity.cs" />
@@ -158,6 +162,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201806280757598_DealingArbOrderType.resx">
       <DependentUpon>201806280757598_DealingArbOrderType.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201807020645147_DealingArbReOpenInterval.resx">
+      <DependentUpon>201807020645147_DealingArbReOpenInterval.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
