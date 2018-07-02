@@ -11,6 +11,12 @@ namespace QvaDev.Data.Models
 {
 	public class StratDealingArb : BaseDescriptionEntity
 	{
+		public enum StratDealingArbOrderTypes
+		{
+			Market,
+			Aggressive
+		}
+
 		public int ProfileId { get; set; }
 		public Profile Profile { get; set; }
 
@@ -25,6 +31,8 @@ namespace QvaDev.Data.Models
 		public TimeSpan EarliestOpenTime { get; set; }
 		public TimeSpan LatestOpenTime { get; set; }
 		public TimeSpan LatestCloseTime { get; set; }
+
+		public StratDealingArbOrderTypes OrderType { get; set; }
 
 		public int AlphaAccountId { get; set; }
 		public Account AlphaAccount { get; set; }

@@ -37,15 +37,8 @@ namespace QvaDev.Orchestration.Services.Strategies
 
 			foreach (var arb in _arbs)
 			{
-				if (arb.AlphaAccount.Connector is MtConnector mtAlpha)
-					mtAlpha.Subscribe(new List<Tuple<string, int, short>> {new Tuple<string, int, short>(arb.AlphaSymbol, 1, 1)});
-				else if (arb.AlphaAccount.Connector is IFixConnector fixAlpha)
-					fixAlpha.Subscribe(arb.AlphaSymbol);
-
-				if (arb.BetaAccount.Connector is MtConnector mtBeta)
-					mtBeta.Subscribe(new List<Tuple<string, int, short>> { new Tuple<string, int, short>(arb.BetaSymbol, 1, 1) });
-				else if (arb.BetaAccount.Connector is IFixConnector fixBeta)
-					fixBeta.Subscribe(arb.BetaSymbol);
+				arb.AlphaAccount.Connector.Subscribe(arb.AlphaSymbol);
+				arb.BetaAccount.Connector.Subscribe(arb.BetaSymbol);
 
 				arb.AlphaAccount.Connector.OnTick -= Connector_OnTick;
 				arb.AlphaAccount.Connector.OnTick += Connector_OnTick;
@@ -79,9 +72,8 @@ namespace QvaDev.Orchestration.Services.Strategies
 
 					var alphaTick = alpha.GetLastTick(arb.AlphaSymbol);
 					var betaTick = beta.GetLastTick(arb.BetaSymbol);
-
-					if (alphaTick == null || betaTick == null) return;
-					if (alphaTick.Ask == 0 || alphaTick.Bid == 0 || betaTick.Ask == 0 || betaTick.Bid == 0) return;
+					
+					if (alphaTick?.HasValue != true || betaTick?.HasValue != true) return;
 					if (DateTime.UtcNow - alphaTick.Time > new TimeSpan(0, 1, 0)) return;
 					if (DateTime.UtcNow - betaTick.Time > new TimeSpan(0, 1, 0)) return;
 

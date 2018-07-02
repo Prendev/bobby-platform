@@ -8,5 +8,7 @@ namespace QvaDev.Common.Integration
         public decimal Bid { get; set; }
         public string Symbol { get; set; }
         public DateTime Time { get; set; }
+
+	    public bool HasValue => !string.IsNullOrWhiteSpace(Symbol) && Ask > 0 && Bid > 0;
     }
 }

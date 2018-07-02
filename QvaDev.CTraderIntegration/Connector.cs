@@ -56,7 +56,17 @@ namespace QvaDev.CTraderIntegration
             _log.Debug($"{_accountInfo.Description} account ({_accountInfo.AccountNumber}) disconnected");
         }
 
-        public bool Connect()
+	    public Tick GetLastTick(string symbol)
+	    {
+		    throw new NotImplementedException();
+	    }
+
+	    public void Subscribe(string symbol)
+	    {
+		    throw new NotImplementedException();
+	    }
+
+	    public bool Connect()
         {
             if (!IsConnected)
             {
@@ -124,11 +134,6 @@ namespace QvaDev.CTraderIntegration
             return (double)(accounts.Value.FirstOrDefault(a => a.accountId == AccountId)?.balance ?? 0);
         }
 
-        public double GetFloatingProfit()
-        {
-            throw new NotImplementedException();
-        }
-
         public double GetPnl(DateTime from, DateTime to)
         {
             if (!IsConnected) return 0;
@@ -165,21 +170,6 @@ namespace QvaDev.CTraderIntegration
                 }, true));
 
             return accounts.Value.FirstOrDefault(a => a.accountId == AccountId)?.depositCurrency ?? "";
-        }
-
-        public int GetDigits(string symbol)
-        {
-            throw new NotImplementedException();
-        }
-
-        public double GetPoint(string symbol)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Tick GetLastTick(string symbol)
-        {
-            throw new NotImplementedException();
         }
 
         public void SendMarketOrderRequest(string symbol, ProtoTradeSide type, long volume, string clientOrderId, int maxRetryCount = 5, int retryPeriodInMilliseconds = 3000)

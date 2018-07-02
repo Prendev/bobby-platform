@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 
 namespace QvaDev.Common.Integration
 {
@@ -12,13 +11,7 @@ namespace QvaDev.Common.Integration
         event BarHistoryEventHandler OnBarHistory;
 		event TickEventHandler OnTick;
 		void Disconnect();
-        long GetOpenContracts(string symbol);
-        double GetBalance();
-        double GetFloatingProfit();
-        double GetPnl(DateTime from, DateTime to);
-        string GetCurrency();
-        int GetDigits(string symbol);
-        double GetPoint(string symbol);
-        Tick GetLastTick(string symbol);
-    }
+	    Tick GetLastTick(string symbol);
+	    void Subscribe(string symbol);
+	}
 }

@@ -293,7 +293,12 @@ namespace QvaDev.Mt4Integration
                 .Where(p => (p.Symbol == symbol1 || p.Symbol == symbol2) &&
                             magics?.Any(m => m == p.MagicNumber) == true)
                 .Sum(o => o.Profit + o.Commission + o.Swap);
-        }
+		}
+
+		public void Subscribe(string symbol)
+		{
+			Subscribe(new List<Tuple<string, int, short>> {new Tuple<string, int, short>(symbol, 1, 1)});
+		}
 
 		public void Subscribe(List<Tuple<string, int, short>> symbols)
         {

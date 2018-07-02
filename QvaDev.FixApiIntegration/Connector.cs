@@ -111,41 +111,6 @@ namespace QvaDev.FixApiIntegration
 			_fixConnector.TradingSocket.Close();
 		}
 
-		public long GetOpenContracts(string symbol)
-		{
-			throw new NotImplementedException();
-		}
-
-		public double GetBalance()
-		{
-			throw new NotImplementedException();
-		}
-
-		public double GetFloatingProfit()
-		{
-			throw new NotImplementedException();
-		}
-
-		public double GetPnl(DateTime @from, DateTime to)
-		{
-			throw new NotImplementedException();
-		}
-
-		public string GetCurrency()
-		{
-			throw new NotImplementedException();
-		}
-
-		public int GetDigits(string symbol)
-		{
-			throw new NotImplementedException();
-		}
-
-		public double GetPoint(string symbol)
-		{
-			throw new NotImplementedException();
-		}
-
 		public Tick GetLastTick(string symbol)
 		{
 			return _lastTicks.GetOrAdd(symbol, (Tick)null);

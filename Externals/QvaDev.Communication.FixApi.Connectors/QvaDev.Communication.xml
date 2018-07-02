@@ -116,6 +116,36 @@
             To start listening to the received and to be sent messages call the <see cref="M:QvaDev.Communication.FixApi.FixConnectorBase.ConnectPricingAsync(System.Boolean)" /> and <see cref="M:QvaDev.Communication.FixApi.FixConnectorBase.ConnectTradingAsync(System.Boolean)"/> methods after subscribing events.
             </remarks>
         </member>
+        <member name="P:QvaDev.Communication.FixApi.NewAggressiveOrderRequest.Symbol">
+            <summary>
+            Gets or sets the symbol.
+            </summary>
+        </member>
+        <member name="P:QvaDev.Communication.FixApi.NewAggressiveOrderRequest.Side">
+            <summary>
+            Gets or sets the side.
+            </summary>
+        </member>
+        <member name="P:QvaDev.Communication.FixApi.NewAggressiveOrderRequest.Quantity">
+            <summary>
+            Gets or sets the quantity of the order.
+            </summary>
+        </member>
+        <member name="P:QvaDev.Communication.FixApi.NewAggressiveOrderRequest.Price">
+            <summary>
+            Gets or sets the price.
+            </summary>
+        </member>
+        <member name="P:QvaDev.Communication.FixApi.NewAggressiveOrderRequest.Deviation">
+            <summary>
+            Gets or sets the deviation. For example 0.00002 in case of EURUSD.
+            </summary>
+        </member>
+        <member name="P:QvaDev.Communication.FixApi.NewAggressiveOrderRequest.CustomProperties">
+            <summary>
+            Provides optional, vendor specific values for the order.
+            </summary>
+        </member>
         <member name="T:QvaDev.Communication.FixApi.CurrencyPair">
             <summary>
             Represents a currency pair type <see cref="T:QvaDev.Communication.FixApi.Symbol"/>.
@@ -568,6 +598,13 @@
             against the actual FIX connector by overriding the <see cref="M:QvaDev.Communication.FixApi.FixConnectorBase.ValidateNewOrderRequest(QvaDev.Communication.FixApi.NewOrderRequest)"/> method.
             If the <paramref name="request"/> can contain custom parameters you can override the <see cref="M:QvaDev.Communication.FixApi.FixConnectorBase.GetNewOrderCustomProperties"/> method.</remarks>
         </member>
+        <member name="M:QvaDev.Communication.FixApi.FixConnectorBase.NewAggressiveOrderAsync(QvaDev.Communication.FixApi.NewAggressiveOrderRequest)">
+            <summary>
+            Initiates aggressive limit order with slippage if supported.
+            </summary>
+            <param name="request"></param>
+            <returns></returns>
+        </member>
         <member name="M:QvaDev.Communication.FixApi.FixConnectorBase.CancelOrderAsync(System.String)">
             <summary>
             Cancels an order. Initiated by the <see cref="M:QvaDev.Communication.FixApi.FixConnectorBase.NewOrderAsync(QvaDev.Communication.FixApi.NewOrderRequest)"/> method.
@@ -590,6 +627,13 @@
             <summary>
             Disposes this <see cref="T:QvaDev.Communication.FixApi.FixConnectorBase`3"/> instance.
             </summary>
+        </member>
+        <member name="M:QvaDev.Communication.FixApi.FixConnectorBase.GetNewOrderRequest(QvaDev.Communication.FixApi.NewAggressiveOrderRequest)">
+            <summary>
+            Create simple <see cref="T:QvaDev.Communication.FixApi.NewOrderRequest"/> class from <see cref="T:QvaDev.Communication.FixApi.NewAggressiveOrderRequest"/> class. By default this functionality is not supported.
+            </summary>
+            <param name="request"></param>
+            <returns></returns>
         </member>
         <member name="M:QvaDev.Communication.FixApi.FixConnectorBase.Dispose(System.Boolean)">
             <summary>
