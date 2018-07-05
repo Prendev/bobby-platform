@@ -52,10 +52,21 @@ namespace QvaDev.FixApiIntegration
 
 		private void _fixConnector_ExecutionReport(object sender, ExecutionReportEventArgs e)
 		{
+			SumContractsUpdate(e);
+
+			if (new[] { OrdStatus.New, OrdStatus.PartiallyFilled }
+				    .Contains(e.ExecutionReport.OrderStatus)) return;
+
+			_taskCompletionManager.SetResult(e.ExecutionReport.OrderId, e.ExecutionReport);
+		}
+
+		private void SumContractsUpdate(ExecutionReportEventArgs e)
+		{
 			if (!e.ExecutionReport.FulfilledQuantity.HasValue) return;
 			if (e.ExecutionReport.Side != Side.Buy && e.ExecutionReport.Side != Side.Sell) return;
-			if (new[] {ExecType.Fill, ExecType.PartialFill, ExecType.Trade}
-				    .Contains(e.ExecutionReport.ExecutionType) == false) return;
+
+			//if (new[] { ExecType.Fill, ExecType.PartialFill, ExecType.Trade }
+			//		.Contains(e.ExecutionReport.ExecutionType) == false) return;
 
 			var quantity = e.ExecutionReport.FulfilledQuantity.Value;
 			if (e.ExecutionReport.Side == Side.Sell) quantity *= -1;
@@ -67,8 +78,6 @@ namespace QvaDev.FixApiIntegration
 					oldValue.SumContracts += quantity;
 					return oldValue;
 				});
-
-			_taskCompletionManager.SetResult(e.ExecutionReport.OrderId, e.ExecutionReport);
 		}
 
 		// TODO go to nullable?
@@ -90,8 +99,8 @@ namespace QvaDev.FixApiIntegration
 			var tick = new Tick
 			{
 				Symbol = e.QuoteSet.Symbol.ToString(),
-				Ask = ask ?? 0,
-				Bid = bid ?? 0,
+				Ask = (decimal) ask,
+				Bid = (decimal) bid,
 				Time = DateTime.UtcNow
 			};
 			_lastTicks.AddOrUpdate(symbol, key => tick, (key, old) => tick);
@@ -116,25 +125,62 @@ namespace QvaDev.FixApiIntegration
 			return _lastTicks.GetOrAdd(symbol, (Tick)null);
 		}
 
-		public decimal SendMarketOrderRequest(string symbol, Sides side, decimal quantity, string comment = null)
+		public async Task<decimal> SendMarketOrderRequest(string symbol, Sides side, decimal quantity, string comment = null)
 		{
-			var newResult = _fixConnector.NewOrderAsync(new NewOrderRequest()
+			try
 			{
-				Side = side == Sides.Buy ? Side.Buy : Side.Sell,
-				Symbol = Symbol.Parse(symbol),
-				Type = OrdType.Market,
-				Quantity = quantity
-			}).Result;
-			var result = _taskCompletionManager.CreateCompletableTask<ExecutionReport>(newResult.OrderId).Result;
-			return result.FulfilledQuantity ?? 0;
+				var newResult = await _fixConnector.NewOrderAsync(new NewOrderRequest()
+				{
+					Side = side == Sides.Buy ? Side.Buy : Side.Sell,
+					Symbol = Symbol.Parse(symbol),
+					Type = OrdType.Market,
+					Quantity = quantity
+				});
+				var result = await _taskCompletionManager.CreateCompletableTask<ExecutionReport>(newResult.OrderId);
+				return result.CumulativeQuantity ?? 0;
+			}
+			catch (Exception e)
+			{
+				_log.Error($"Connector.SendMarketOrderRequest({symbol}, {side}, {quantity}, {comment}) exception", e);
+				return 0;
+			}
 		}
 
-		public void OrderMultipleCloseBy(string symbol)
+		public async Task<decimal> SendAggressiveOrderRequest(
+			string symbol,
+			Sides side,
+			decimal quantity,
+			decimal price,
+			decimal deviation,
+			int ttl)
+		{
+			try
+			{
+				var newResult = await _fixConnector.NewAggressiveOrderAsync(new NewAggressiveOrderRequest()
+				{
+					Side = side == Sides.Buy ? Side.Buy : Side.Sell,
+					Symbol = Symbol.Parse(symbol),
+					Quantity = quantity,
+					Price = price,
+					Deviation = deviation,
+					Ttl = ttl
+				});
+				var result = await _taskCompletionManager.CreateCompletableTask<ExecutionReport>(newResult.OrderId);
+				return result.CumulativeQuantity ?? 0;
+			}
+			catch (Exception e)
+			{
+				_log.Error($"Connector.SendAggressiveOrderRequest({symbol}, {side}, {quantity}, {price}, {deviation}, {ttl}) exception", e);
+				return 0;
+			}
+		}
+
+		public async void OrderMultipleCloseBy(string symbol)
 		{
 			var symbolInfo = GetSymbolInfo(symbol);
 			if (symbolInfo.SumContracts == 0) return;
 			var side = symbolInfo.SumContracts > 0 ? Sides.Sell : Sides.Buy;
-			SendMarketOrderRequest(symbol, side, (decimal) Math.Abs(symbolInfo.SumContracts));
+			await SendMarketOrderRequest(symbol, side, Math.Abs(symbolInfo.SumContracts));
 		}
 
 		public SymbolData GetSymbolInfo(string symbol)
@@ -152,11 +198,6 @@ namespace QvaDev.FixApiIntegration
 			if (e.Error == null) return;
 			await _fixConnector.ConnectPricingAsync();
 			await _fixConnector.ConnectTradingAsync();
-		}
-
-		private Sides InvSide(Sides side)
-		{
-			return side == Sides.Buy ? Sides.Sell : Sides.Buy;
 		}
 	}
 }

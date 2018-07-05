@@ -10,6 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using log4net;
 using QvaDev.Common.Integration;
+using QvaDev.Communication;
 
 namespace QvaDev.FixTraderIntegration
 {
@@ -29,6 +30,7 @@ namespace QvaDev.FixTraderIntegration
 		private readonly ILog _log;
 		private readonly ConcurrentDictionary<string, Tick> _lastTicks =
 			new ConcurrentDictionary<string, Tick>();
+		private readonly TaskCompletionManager _taskCompletionManager;
 
 		public string Description => _accountInfo.Description;
 		public bool IsConnected => _commandClient?.Connected == true && _eventsClient?.Connected == true;
@@ -43,6 +45,7 @@ namespace QvaDev.FixTraderIntegration
 		public Connector(ILog log)
 		{
 			_log = log;
+			_taskCompletionManager = new TaskCompletionManager(100, 1000);
 		}
 
 		public bool Connect(AccountInfo accountInfo)
@@ -132,6 +135,9 @@ namespace QvaDev.FixTraderIntegration
 							SymbolInfos.AddOrUpdate(symbol, new SymbolData { SumContracts = sumLots },
 								(key, oldValue) =>
 								{
+									var quantity = sumLots - oldValue.SumContracts;
+									_taskCompletionManager.SetResult(symbol, quantity);
+
 									oldValue.SumContracts = sumLots;
 									return oldValue;
 								});
@@ -156,40 +162,31 @@ namespace QvaDev.FixTraderIntegration
 			catch { }
 		}
 
-		public decimal SendMarketOrderRequest(string symbol, Sides side, decimal lots, string comment = null)
+		public async Task<decimal> SendMarketOrderRequest(string symbol, Sides side, decimal lots, string comment = null)
 		{
-			long unix = (long)(DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, 0)).TotalSeconds;
-			var tags = new List<string>
-			{
-				$"1=1",
-				$"101=1",
-				$"102={(side == Sides.Buy ? 0 : 1)}",
-				$"103={symbol}",
-				$"104={lots}",
-				$"114={unix}",
-				$"115=0",
-			};
-			if (!string.IsNullOrWhiteSpace(comment)) tags.Insert(1, $"100={comment}");
-
 			try
 			{
-				var sumLots = SymbolInfos.GetOrAdd(symbol, new SymbolData()).SumContracts;
+				var unix = (long)(DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, 0)).TotalSeconds;
+				var tags = new List<string>
+				{
+					$"1=1",
+					$"101=1",
+					$"102={(side == Sides.Buy ? 0 : 1)}",
+					$"103={symbol}",
+					$"104={lots}",
+					$"114={unix}",
+					$"115=0"
+				};
+				if (!string.IsNullOrWhiteSpace(comment)) tags.Insert(1, $"100={comment}");
+
+				var task = _taskCompletionManager.CreateCompletableTask<decimal>(symbol);
 
 				var ns = _commandClient.GetStream();
 				var encoder = new ASCIIEncoding();
 				var buffer = encoder.GetBytes($"|{string.Join("|", tags)}|\n");
 				ns.Write(buffer, 0, buffer.Length);
 
-				var stopwatch = new Stopwatch();
-				stopwatch.Start();
-				var diff = SymbolInfos.GetOrAdd(symbol, new SymbolData()).SumContracts - sumLots;
-				while (diff == 0 && stopwatch.ElapsedMilliseconds < 1000)
-				{
-					Thread.Sleep(1);
-					diff = SymbolInfos.GetOrAdd(symbol, new SymbolData()).SumContracts - sumLots;
-				}
-
-				return diff;
+				return await task;
 			}
 			catch (Exception e)
 			{
@@ -202,7 +199,7 @@ namespace QvaDev.FixTraderIntegration
 		{
 			try
 			{
-				long unix = (long)(DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, 0)).TotalSeconds;
+				var unix = (long)(DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, 0)).TotalSeconds;
 				var symbolInfo = SymbolInfos.GetOrAdd(symbol, new SymbolData());
 				var price = side == Sides.Buy ? symbolInfo.Ask : symbolInfo.Bid;
 

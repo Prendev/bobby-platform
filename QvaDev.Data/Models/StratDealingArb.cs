@@ -34,6 +34,8 @@ namespace QvaDev.Data.Models
 		public TimeSpan LatestCloseTime { get; set; }
 
 		public StratDealingArbOrderTypes OrderType { get; set; }
+		public decimal Deviation { get; set; }
+		public int Ttl { get; set; }
 
 		public int AlphaAccountId { get; set; }
 		public Account AlphaAccount { get; set; }

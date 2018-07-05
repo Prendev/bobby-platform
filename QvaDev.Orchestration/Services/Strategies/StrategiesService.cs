@@ -79,7 +79,9 @@ namespace QvaDev.Orchestration.Services.Strategies
 
 					lock (arb)
 					{
-						if(IsShiftCalculating(arb, alphaTick, betaTick)) return;
+						if (!arb.DoOpenSide1 && !arb.DoOpenSide2 && !arb.DoClose &&
+						    IsShiftCalculating(arb, alphaTick, betaTick)) return;
+
 						CheckOpen(arb);
 						CheckClose(arb);
 						arb.DoOpenSide1 = false;

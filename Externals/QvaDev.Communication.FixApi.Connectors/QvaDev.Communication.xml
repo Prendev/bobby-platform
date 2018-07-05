@@ -136,6 +136,11 @@
             Gets or sets the price.
             </summary>
         </member>
+        <member name="P:QvaDev.Communication.FixApi.NewAggressiveOrderRequest.Ttl">
+            <summary>
+            Gets or sets the TTL. Time in Milliseconds an open order will stay active in the system.
+            </summary>
+        </member>
         <member name="P:QvaDev.Communication.FixApi.NewAggressiveOrderRequest.Deviation">
             <summary>
             Gets or sets the deviation. For example 0.00002 in case of EURUSD.

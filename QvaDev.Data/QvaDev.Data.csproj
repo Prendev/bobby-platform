@@ -107,6 +107,10 @@
     <Compile Include="Migrations\201807020645147_DealingArbReOpenInterval.Designer.cs">
       <DependentUpon>201807020645147_DealingArbReOpenInterval.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201807021205577_DealingArbAggressiveParameters.cs" />
+    <Compile Include="Migrations\201807021205577_DealingArbAggressiveParameters.Designer.cs">
+      <DependentUpon>201807021205577_DealingArbAggressiveParameters.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\BaseEntity.cs" />
     <Compile Include="Models\BaseDescriptionEntity.cs" />
@@ -165,6 +169,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201807020645147_DealingArbReOpenInterval.resx">
       <DependentUpon>201807020645147_DealingArbReOpenInterval.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201807021205577_DealingArbAggressiveParameters.resx">
+      <DependentUpon>201807021205577_DealingArbAggressiveParameters.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
