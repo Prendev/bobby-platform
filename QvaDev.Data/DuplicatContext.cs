@@ -13,6 +13,7 @@ namespace QvaDev.Data
         public DbSet<CTraderAccount> CTraderAccounts { get; set; }
         public DbSet<FixTraderAccount> FixTraderAccounts { get; set; }
 		public DbSet<FixApiAccount> FixApiAccounts { get; set; }
+		public DbSet<IlyaFastFeedAccount> IlyaFastFeedAccounts { get; set; }
 
 		public DbSet<Profile> Profiles { get; set; }
 		public DbSet<Account> Accounts { get; set; }

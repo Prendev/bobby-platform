@@ -102,6 +102,12 @@
     <Compile Include="Views\CtAccountsUserControl.Designer.cs">
       <DependentUpon>CtAccountsUserControl.cs</DependentUpon>
     </Compile>
+    <Compile Include="Views\IffAccountsUserControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Views\IffAccountsUserControl.Designer.cs">
+      <DependentUpon>IffAccountsUserControl.cs</DependentUpon>
+    </Compile>
     <Compile Include="Views\PushingUserControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -165,6 +171,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Views\CtAccountsUserControl.resx">
       <DependentUpon>CtAccountsUserControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\IffAccountsUserControl.resx">
+      <DependentUpon>IffAccountsUserControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\PushingUserControl.resx">
       <DependentUpon>PushingUserControl.cs</DependentUpon>

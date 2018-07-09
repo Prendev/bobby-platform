@@ -31,6 +31,9 @@ namespace QvaDev.Data.Models
 		public int? FixApiAccountId { get; set; }
 		public FixApiAccount FixApiAccount { get; set; }
 
+		public int? IlyaFastFeedAccountId { get; set; }
+		public IlyaFastFeedAccount IlyaFastFeedAccount { get; set; }
+
 		[NotMapped] [InvisibleColumn] public IConnector Connector { get; set; }
 		[NotMapped] [ReadOnly(true)] public States State { get; set; }
 
@@ -40,6 +43,7 @@ namespace QvaDev.Data.Models
 			if (CTraderAccount != null) return $"CT | {CTraderAccount.Description}";
 			if (FixTraderAccount != null) return $"FT | {FixTraderAccount.Description}";
 			if (FixApiAccount != null) return $"FIX | {FixApiAccount.Description}";
+			if (IlyaFastFeedAccount != null) return $"ILYA | {IlyaFastFeedAccount.Description}";
 			return "";
 		}
 	}

@@ -27,6 +27,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QvaDev.OrchestrationTests",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QvaDev.FixApiIntegration", "QvaDev.FixApiIntegration\QvaDev.FixApiIntegration.csproj", "{7F7F4B22-F0BD-4375-BAF4-FFAFE9B3A853}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QvaDev.IlyaFastFeedIntegration", "QvaDev.IlyaFastFeedIntegration\QvaDev.IlyaFastFeedIntegration.csproj", "{4C1EA1A8-5C20-48AB-A662-72969D880B21}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -123,6 +125,14 @@ Global
 		{7F7F4B22-F0BD-4375-BAF4-FFAFE9B3A853}.Release|Any CPU.Build.0 = Release|Any CPU
 		{7F7F4B22-F0BD-4375-BAF4-FFAFE9B3A853}.Release|x64.ActiveCfg = Release|Any CPU
 		{7F7F4B22-F0BD-4375-BAF4-FFAFE9B3A853}.Release|x64.Build.0 = Release|Any CPU
+		{4C1EA1A8-5C20-48AB-A662-72969D880B21}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4C1EA1A8-5C20-48AB-A662-72969D880B21}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4C1EA1A8-5C20-48AB-A662-72969D880B21}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{4C1EA1A8-5C20-48AB-A662-72969D880B21}.Debug|x64.Build.0 = Debug|Any CPU
+		{4C1EA1A8-5C20-48AB-A662-72969D880B21}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4C1EA1A8-5C20-48AB-A662-72969D880B21}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4C1EA1A8-5C20-48AB-A662-72969D880B21}.Release|x64.ActiveCfg = Release|Any CPU
+		{4C1EA1A8-5C20-48AB-A662-72969D880B21}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

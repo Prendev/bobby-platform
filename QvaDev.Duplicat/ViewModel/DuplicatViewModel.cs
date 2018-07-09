@@ -44,6 +44,7 @@ namespace QvaDev.Duplicat.ViewModel
         public ObservableCollection<CTraderAccount> CtAccounts { get; private set; }
         public ObservableCollection<FixTraderAccount> FtAccounts { get; private set; }
 	    public ObservableCollection<FixApiAccount> FixAccounts { get; private set; }
+	    public ObservableCollection<IlyaFastFeedAccount> IlyaFastFeedAccounts { get; private set; }
 		public ObservableCollection<Profile> Profiles { get; private set; }
 		public ObservableCollection<Account> Accounts { get; private set; }
 		public ObservableCollection<Master> Masters { get; private set; }
@@ -136,6 +137,7 @@ namespace QvaDev.Duplicat.ViewModel
             CtAccounts = _duplicatContext.CTraderAccounts.Local;
             FtAccounts = _duplicatContext.FixTraderAccounts.Local;
 	        FixAccounts = _duplicatContext.FixApiAccounts.Local;
+	        IlyaFastFeedAccounts = _duplicatContext.IlyaFastFeedAccounts.Local;
 			Profiles = _duplicatContext.Profiles.Local;
 			Accounts = _duplicatContext.Accounts.Local;
 			Masters = _duplicatContext.Masters.Local;

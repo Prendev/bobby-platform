@@ -111,6 +111,14 @@
     <Compile Include="Migrations\201807021205577_DealingArbAggressiveParameters.Designer.cs">
       <DependentUpon>201807021205577_DealingArbAggressiveParameters.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201807090918330_IlyaFastFeedAccount.cs" />
+    <Compile Include="Migrations\201807090918330_IlyaFastFeedAccount.Designer.cs">
+      <DependentUpon>201807090918330_IlyaFastFeedAccount.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201807090933579_IlyaFastFeedAccount2.cs" />
+    <Compile Include="Migrations\201807090933579_IlyaFastFeedAccount2.Designer.cs">
+      <DependentUpon>201807090933579_IlyaFastFeedAccount2.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\BaseEntity.cs" />
     <Compile Include="Models\BaseDescriptionEntity.cs" />
@@ -120,6 +128,7 @@
     <Compile Include="Models\CTraderAccount.cs" />
     <Compile Include="Models\CTraderPlatform.cs" />
     <Compile Include="Models\Account.cs" />
+    <Compile Include="Models\IlyaFastFeedAccount.cs" />
     <Compile Include="Models\Pushing.cs" />
     <Compile Include="Models\PushingDetail.cs" />
     <Compile Include="Models\FixTraderAccount.cs" />
@@ -172,6 +181,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201807021205577_DealingArbAggressiveParameters.resx">
       <DependentUpon>201807021205577_DealingArbAggressiveParameters.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201807090918330_IlyaFastFeedAccount.resx">
+      <DependentUpon>201807090918330_IlyaFastFeedAccount.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201807090933579_IlyaFastFeedAccount2.resx">
+      <DependentUpon>201807090933579_IlyaFastFeedAccount2.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

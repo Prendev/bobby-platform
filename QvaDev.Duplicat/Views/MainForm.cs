@@ -65,11 +65,12 @@ namespace QvaDev.Duplicat.Views
             _viewModel.DataContextChanged += AttachDataSources;
 
             profilesUserControl.InitView(_viewModel);
-            copiersUserControl.InitView(_viewModel);
             mtAccountsUserControl.InitView(_viewModel);
             ctAccountsUserControl.InitView(_viewModel);
             ftAccountsUserControl.InitView(_viewModel);
-            pushingUserControl.InitView(_viewModel);
+	        iffAccountsUserControl.InitView(_viewModel);
+	        copiersUserControl.InitView(_viewModel);
+			pushingUserControl.InitView(_viewModel);
 	        strategiesUserControl.InitView(_viewModel);
 			tickersUserControl.InitView(_viewModel);
 
@@ -82,6 +83,7 @@ namespace QvaDev.Duplicat.Views
             mtAccountsUserControl.AttachDataSources();
             ctAccountsUserControl.AttachDataSources();
             ftAccountsUserControl.AttachDataSources();
+            iffAccountsUserControl.AttachDataSources();
             copiersUserControl.AttachDataSources();
             pushingUserControl.AttachDataSources();
 	        strategiesUserControl.AttachDataSources();
