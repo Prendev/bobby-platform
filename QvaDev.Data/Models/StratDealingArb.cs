@@ -29,9 +29,9 @@ namespace QvaDev.Data.Models
 		public int MinOpenTimeInMinutes { get; set; }
 		public int ReOpenIntervalInMinutes { get; set; }
 
-		public TimeSpan EarliestOpenTime { get; set; }
-		public TimeSpan LatestOpenTime { get; set; }
-		public TimeSpan LatestCloseTime { get; set; }
+		public TimeSpan? EarliestOpenTime { get; set; }
+		public TimeSpan? LatestOpenTime { get; set; }
+		public TimeSpan? LatestCloseTime { get; set; }
 
 		public StratDealingArbOrderTypes OrderType { get; set; }
 		public decimal Deviation { get; set; }
@@ -62,6 +62,7 @@ namespace QvaDev.Data.Models
 
 		public List<StratDealingArbPosition> Positions { get => Get(() => new List<StratDealingArbPosition>()); set => Set(value, false); }
 
+		[NotMapped] [InvisibleColumn] public bool HasTiming => EarliestOpenTime.HasValue && LatestOpenTime.HasValue && LatestCloseTime.HasValue;
 		[NotMapped] [InvisibleColumn] public List<StratDealingArbPosition> OpenPositions => Positions.Where(p => !p.IsClosed).ToList();
 		[NotMapped] [InvisibleColumn] public Sides AlphaSide => GetSide(Positions?.FirstOrDefault()?.AlphaSide);
 		[NotMapped] [InvisibleColumn] public Sides BetaSide => GetSide(Positions?.FirstOrDefault()?.BetaSide);

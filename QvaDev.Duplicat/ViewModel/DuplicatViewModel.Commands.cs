@@ -143,7 +143,7 @@ namespace QvaDev.Duplicat.ViewModel
 			IsLoading = false;
 			IsConfigReadonly = false;
 			IsConnected = false;
-        }
+		}
 
         public void LoadProfileCommand(Profile profile)
         {

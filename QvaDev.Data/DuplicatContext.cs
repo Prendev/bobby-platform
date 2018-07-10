@@ -63,5 +63,17 @@ namespace QvaDev.Data
 			}
 			catch { }
 		}
+
+		protected override void OnModelCreating(DbModelBuilder modelBuilder)
+		{
+			modelBuilder.Entity<StratDealingArb>().Property(x => x.PipSize).HasPrecision(18, 5);
+			modelBuilder.Entity<StratDealingArb>().Property(x => x.Deviation).HasPrecision(18, 5);
+			modelBuilder.Entity<StratDealingArb>().Property(x => x.AlphaSize).HasPrecision(18, 3);
+			modelBuilder.Entity<StratDealingArb>().Property(x => x.BetaSize).HasPrecision(18, 3);
+			modelBuilder.Entity<StratDealingArbPosition>().Property(x => x.AlphaOpenPrice).HasPrecision(18, 5);
+			modelBuilder.Entity<StratDealingArbPosition>().Property(x => x.BetaOpenPrice).HasPrecision(18, 5);
+			modelBuilder.Entity<StratDealingArbPosition>().Property(x => x.AlphaSize).HasPrecision(18, 3);
+			modelBuilder.Entity<StratDealingArbPosition>().Property(x => x.BetaSize).HasPrecision(18, 3);
+		}
 	}
 }

@@ -125,9 +125,9 @@ namespace QvaDev.Orchestration.Services.Strategies
 
 		private void CheckOpen(StratDealingArb arb)
 		{
-			if (DateTime.UtcNow.TimeOfDay < arb.EarliestOpenTime) return;
-			if (DateTime.UtcNow.TimeOfDay > arb.LatestOpenTime) return;
 			if (arb.PositionCount >= arb.MaxNumberOfPositions) return;
+			if (!arb.DoOpenSide1 && !arb.DoOpenSide2 && arb.HasTiming &&
+			    IsTime(DateTime.UtcNow.TimeOfDay, arb.LatestOpenTime, arb.EarliestOpenTime)) return;
 			if (arb.LastOpenTime.HasValue &&
 			    (DateTime.UtcNow - arb.LastOpenTime.Value).Minutes < arb.ReOpenIntervalInMinutes) return;
 
@@ -211,14 +211,16 @@ namespace QvaDev.Orchestration.Services.Strategies
 			//	_log.Error($"{arb.Description} arb mismatching sides close, not enough futures!!!");
 			//}
 
-			if (!arb.DoClose && DateTime.UtcNow.TimeOfDay < arb.EarliestOpenTime) return;
-			if (!arb.DoClose && DateTime.UtcNow.TimeOfDay > arb.LatestCloseTime) return;
+
+			var doClose = arb.HasTiming && IsTime(DateTime.UtcNow.TimeOfDay, arb.LatestCloseTime, arb.EarliestOpenTime);
+			doClose = doClose || arb.DoClose;
 
 			foreach (var pos in arb.Positions.Where(p => !p.IsClosed))
 			{
-				if (!arb.DoClose && (DateTime.UtcNow - pos.OpenTime).TotalMinutes < arb.MinOpenTimeInMinutes) continue;
+				if (!doClose && (DateTime.UtcNow - pos.OpenTime).TotalMinutes < arb.MinOpenTimeInMinutes) continue;
+
 				var netPip = CalculateNetPip(pos, alphaTick, betaTick);
-				if (!arb.DoClose && netPip < arb.TargetInPip) continue;
+				if (!doClose && netPip < arb.TargetInPip) continue;
 
 				CloseAlphaPosition(arb, pos);
 				CloseBetaPosition(arb, pos);
@@ -277,6 +279,16 @@ namespace QvaDev.Orchestration.Services.Strategies
 				var side = pos.AlphaSide == StratDealingArbPosition.Sides.Buy ? Sides.Buy : Sides.Sell;
 				fix.SendMarketOrderRequest(arb.BetaSymbol, side, arb.BetaSize);
 			}
+		}
+
+		private bool IsTime(TimeSpan current, TimeSpan? start, TimeSpan? end)
+		{
+			if (!start.HasValue || !end.HasValue) return false;
+			var startOk = current >= start;
+			var endOk = current < end;
+
+			if (end < start) return startOk || endOk;
+			return startOk && endOk;
 		}
 	}
 }
