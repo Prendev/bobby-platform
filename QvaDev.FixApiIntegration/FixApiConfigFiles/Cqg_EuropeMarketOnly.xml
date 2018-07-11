@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<CqgConfiguration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Host>europe.cqgtrader.com</Host>
+  <Port>6925</Port>
+  <Account>673966</Account>
+  <SenderCompId>VCADGR1</SenderCompId>
+  <SenderSubId>ADTrading</SenderSubId>
+  <TargetCompId>CQG_Gateway</TargetCompId>
+  <Password>ABC123</Password>
+</CqgConfiguration>

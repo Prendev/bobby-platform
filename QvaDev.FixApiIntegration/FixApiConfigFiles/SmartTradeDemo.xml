@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<SmartTradeConfiguration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Pricing>
+    <Host>149.5.77.44</Host>
+    <Port>10001</Port>
+    <UseSsl>false</UseSsl>
+    <TargetCompId>LFX</TargetCompId>
+    <SenderCompId>MKT.UAT.QP518</SenderCompId>
+    <Heartbeat>30</Heartbeat>
+  </Pricing>
+  <Trading>
+    <Host>149.5.77.44</Host>
+    <Port>10000</Port>
+    <UseSsl>false</UseSsl>
+    <TargetCompId>LFX</TargetCompId>
+    <SenderCompId>TRD.UAT.QP518</SenderCompId>
+    <Heartbeat>30</Heartbeat>
+  </Trading>
+</SmartTradeConfiguration>

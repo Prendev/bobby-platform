@@ -3,7 +3,7 @@
   <Pricing>
     <Host>fixdemo.fxcorporate.com</Host>
     <Port>9001</Port>
-    <SenderCompId>MD_D102957578_client1</SenderCompId>
+    <SenderCompId>MD_d103131426_client1</SenderCompId>
     <TargetCompId>FXCM</TargetCompId>
     <TargetSubId>U100D1</TargetSubId>
     <Heartbeat>30</Heartbeat>
@@ -11,11 +11,12 @@
   <Trading>
     <Host>fixdemo2.fxcorporate.com</Host>
     <Port>80</Port>
-    <SenderCompId>D102957578_client1</SenderCompId>
+    <SenderCompId>d103131426_client1</SenderCompId>
     <TargetCompId>FXCM</TargetCompId>
     <TargetSubId>U100D1</TargetSubId>
     <Heartbeat>30</Heartbeat>
   </Trading>
-  <Login>D102957578</Login>
+  <Login>d103131426</Login>
   <Password>1234</Password>
+  <Account>03121082</Account>
 </FxcmConfiguration>

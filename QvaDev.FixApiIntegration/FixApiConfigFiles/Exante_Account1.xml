@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<ExanteConfiguration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Pricing>
+    <Host>fixuat.exante.eu</Host>
+    <Port>8100</Port>
+    <SenderCompId>GCG6025_FEED_UAT</SenderCompId>
+    <TargetCompId>EXANTE_FEED_UAT</TargetCompId>
+    <Password>OtLoEnuxqrMeNfJP</Password>
+    <Heartbeat>30</Heartbeat>
+  </Pricing>
+  <Trading>
+    <Host>fixuat.exante.eu</Host>
+    <Port>8101</Port>
+    <SenderCompId>GCG6025_TRADE_UAT</SenderCompId>
+    <TargetCompId>EXANTE_TRADE_UAT</TargetCompId>
+    <Password>OtLoEnuxqrMeNfJP</Password>
+    <Heartbeat>30</Heartbeat>
+  </Trading>
+</ExanteConfiguration>

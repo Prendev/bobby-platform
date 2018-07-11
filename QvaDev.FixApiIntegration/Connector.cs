@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Serialization;
@@ -20,37 +21,24 @@ namespace QvaDev.FixApiIntegration
 		private readonly ConcurrentDictionary<string, Tick> _lastTicks =
 			new ConcurrentDictionary<string, Tick>();
 
-		private readonly AccountInfo _accountInfo;
+		private AccountInfo _accountInfo;
 
 		public string Description => _accountInfo?.Description ?? "";
 		public bool IsConnected => _fixConnector?.IsPricingConnected == true && _fixConnector?.IsTradingConnected == true;
+
 		public ConcurrentDictionary<long, Position> Positions { get; }
 		public event PositionEventHandler OnPosition;
 		public event BarHistoryEventHandler OnBarHistory;
+
 		public event TickEventHandler OnTick;
 
 		public ConcurrentDictionary<string, SymbolData> SymbolInfos { get; set; } =
 			new ConcurrentDictionary<string, SymbolData>();
 
-		public Connector(AccountInfo accountInfo, ILog log)
+		public Connector(ILog log)
 		{
-			_accountInfo = accountInfo;
 			_log = log;
 			_taskCompletionManager = new TaskCompletionManager(1000, 5000);
-
-			var doc = new XmlDocument();
-			doc.Load(_accountInfo.ConfigPath);
-
-			var confType = ConnectorHelper.GetConfigurationType(doc.DocumentElement.Name);
-			var configurationTpye = ConnectorHelper.GetConnectorType(confType);
-			var conf = new XmlSerializer(confType).Deserialize(File.OpenRead(_accountInfo.ConfigPath));
-
-			_fixConnector = (FixConnectorBase)Activator.CreateInstance(configurationTpye, conf);
-
-			_fixConnector.PricingSocketClosed += _fixConnector_SocketClosed;
-			_fixConnector.TradingSocketClosed += _fixConnector_SocketClosed;
-			_fixConnector.Quote += _fixConnector_Quote;
-			_fixConnector.ExecutionReport += _fixConnector_ExecutionReport;
 		}
 
 		private void _fixConnector_ExecutionReport(object sender, ExecutionReportEventArgs e)
@@ -110,24 +98,57 @@ namespace QvaDev.FixApiIntegration
 			OnTick?.Invoke(this, new TickEventArgs { Tick = tick });
 		}
 
-		public async Task<bool> Connect()
+		public async Task<bool> Connect(AccountInfo accountInfo)
 		{
+			_accountInfo = accountInfo;
+
+			var doc = new XmlDocument();
+			doc.Load(_accountInfo.ConfigPath);
+
+			var confType = ConnectorHelper.GetConfigurationType(doc.DocumentElement.Name);
+			var configurationTpye = ConnectorHelper.GetConnectorType(confType);
+			var conf = new XmlSerializer(confType).Deserialize(File.OpenRead(_accountInfo.ConfigPath));
+
+			_fixConnector = (FixConnectorBase)Activator.CreateInstance(configurationTpye, conf);
+
+			_fixConnector.PricingSocketClosed += _fixConnector_SocketClosed;
+			_fixConnector.TradingSocketClosed += _fixConnector_SocketClosed;
+			_fixConnector.Quote += _fixConnector_Quote;
+			_fixConnector.ExecutionReport += _fixConnector_ExecutionReport;
+
 			try
 			{
 				await _fixConnector.ConnectPricingAsync();
 				await _fixConnector.ConnectTradingAsync();
+				await Task.WhenAll(SymbolInfos.Keys.Select(symbol =>
+					_fixConnector.SubscribeMarketDataAsync(Symbol.Parse(symbol), 1)));
 			}
 			catch (Exception e)
 			{
-				_log.Error($"{Description} account FAILED to connect", e);
+				_log.Error($"{Description} FIX account FAILED to connect", e);
 			}
+			_log.Debug($"{_accountInfo.Description} FIX account connected");
 			return IsConnected;
 		}
 
 		public void Disconnect()
 		{
-			_fixConnector.PricingSocket.Close();
-			_fixConnector.TradingSocket.Close();
+			try
+			{
+				if (_fixConnector != null)
+				{
+					_fixConnector.PricingSocketClosed -= _fixConnector_SocketClosed;
+					_fixConnector.TradingSocketClosed -= _fixConnector_SocketClosed;
+					_fixConnector.Quote -= _fixConnector_Quote;
+					_fixConnector.ExecutionReport -= _fixConnector_ExecutionReport;
+				}
+				_fixConnector?.PricingSocket?.Close();
+				_fixConnector?.TradingSocket?.Close();
+			}
+			catch (Exception e)
+			{
+				_log.Error($"{Description} FIX account ERROR during disconnect", e);
+			}
 		}
 
 		public Tick GetLastTick(string symbol)
@@ -206,7 +227,9 @@ namespace QvaDev.FixApiIntegration
 		private async void _fixConnector_SocketClosed(object sender, ClosedEventArgs e)
 		{
 			if (e.Error == null) return;
-			await Connect();
+			Thread.Sleep(1000);
+			Disconnect();
+			await Connect(_accountInfo);
 		}
 	}
 }
