@@ -95,14 +95,30 @@ namespace QvaDev.Orchestration
 	        var tasks = accounts.Select(account => Task.Factory.StartNew(() =>
 	        {
 		        _connectorFactory.Create(account);
+
 		        account.State = account.Connector?.IsConnected == true ? Account.States.Connected : Account.States.Error;
 		        account.RaisePropertyChanged(_synchronizationContext, nameof(account.State));
+
+				account.Connector.OnConnectionChange -= Connector_OnConnectionChange;
+				account.Connector.OnConnectionChange += Connector_OnConnectionChange;
 	        }));
 
 			return Task.WhenAll(tasks);
         }
 
-        public Task Disconnect()
+		private void Connector_OnConnectionChange(object sender, EventArgs e)
+		{
+			var accounts = _duplicatContext.Accounts.Local
+				.Where(pa => pa.Run && pa.Connector == sender).ToList();
+
+			foreach (var account in accounts)
+			{
+				account.State = account.Connector?.IsConnected == true ? Account.States.Connected : Account.States.Error;
+				account.RaisePropertyChanged(_synchronizationContext, nameof(account.State));
+			}
+		}
+
+		public Task Disconnect()
         {
             _duplicatContext.SaveChanges();
 			var accounts = _duplicatContext.Accounts.ToList()

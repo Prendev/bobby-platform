@@ -31,6 +31,7 @@ namespace QvaDev.CTraderIntegration
         public event PositionEventHandler OnPosition;
         public event BarHistoryEventHandler OnBarHistory;
 		public event TickEventHandler OnTick;
+		public event EventHandler OnConnectionChange;
 
 		public Connector(
             AccountInfo accountInfo,

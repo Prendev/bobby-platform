@@ -1,4 +1,5 @@
-﻿using System.Collections.Concurrent;
+﻿using System;
+using System.Collections.Concurrent;
 
 namespace QvaDev.Common.Integration
 {
@@ -10,6 +11,7 @@ namespace QvaDev.Common.Integration
         event PositionEventHandler OnPosition;
         event BarHistoryEventHandler OnBarHistory;
 		event TickEventHandler OnTick;
+		event EventHandler OnConnectionChange;
 		void Disconnect();
 	    Tick GetLastTick(string symbol);
 	    void Subscribe(string symbol);

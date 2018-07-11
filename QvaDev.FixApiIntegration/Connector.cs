@@ -29,8 +29,8 @@ namespace QvaDev.FixApiIntegration
 		public ConcurrentDictionary<long, Position> Positions { get; }
 		public event PositionEventHandler OnPosition;
 		public event BarHistoryEventHandler OnBarHistory;
-
 		public event TickEventHandler OnTick;
+		public event EventHandler OnConnectionChange;
 
 		public ConcurrentDictionary<string, SymbolData> SymbolInfos { get; set; } =
 			new ConcurrentDictionary<string, SymbolData>();
@@ -126,8 +126,10 @@ namespace QvaDev.FixApiIntegration
 			catch (Exception e)
 			{
 				_log.Error($"{Description} FIX account FAILED to connect", e);
+				Disconnect();
 			}
 			_log.Debug($"{_accountInfo.Description} FIX account connected");
+			OnConnectionChange?.Invoke(this, null);
 			return IsConnected;
 		}
 
@@ -149,6 +151,8 @@ namespace QvaDev.FixApiIntegration
 			{
 				_log.Error($"{Description} FIX account ERROR during disconnect", e);
 			}
+
+			OnConnectionChange?.Invoke(this, null);
 		}
 
 		public Tick GetLastTick(string symbol)
@@ -219,9 +223,17 @@ namespace QvaDev.FixApiIntegration
 			return SymbolInfos.GetOrAdd(symbol, new SymbolData());
 		}
 
-		public void Subscribe(string symbol)
+		public async void Subscribe(string symbol)
 		{
-			_fixConnector.SubscribeMarketDataAsync(Symbol.Parse(symbol), 1).Wait();
+			try
+			{
+				await _fixConnector.SubscribeMarketDataAsync(Symbol.Parse(symbol), 1);
+			}
+			catch (Exception e)
+			{
+				_log.Error($"Connector.Subscribe({symbol}) exception", e);
+				Disconnect();
+			}
 		}
 
 		private async void _fixConnector_SocketClosed(object sender, ClosedEventArgs e)

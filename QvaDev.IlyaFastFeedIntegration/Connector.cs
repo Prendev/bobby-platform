@@ -30,6 +30,7 @@ namespace QvaDev.IlyaFastFeedIntegration
 		public event PositionEventHandler OnPosition;
 		public event BarHistoryEventHandler OnBarHistory;
 		public event TickEventHandler OnTick;
+		public event EventHandler OnConnectionChange;
 
 		public Connector(ILog log)
 		{

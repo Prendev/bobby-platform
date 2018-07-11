@@ -45,6 +45,7 @@ namespace QvaDev.Mt4Integration
         public event PositionEventHandler OnPosition;
         public event BarHistoryEventHandler OnBarHistory;
         public event TickEventHandler OnTick;
+		public event EventHandler OnConnectionChange;
 
 		public QuoteClient QuoteClient;
         public OrderClient OrderClient;
