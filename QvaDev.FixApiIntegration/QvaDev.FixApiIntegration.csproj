@@ -57,6 +57,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AccountInfo.cs" />
     <Compile Include="Connector.cs" />
     <Compile Include="ConnectorHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

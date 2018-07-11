@@ -2,6 +2,7 @@
 using QvaDev.CTraderIntegration;
 using QvaDev.Data;
 using QvaDev.Data.Models;
+using QvaDev.FixApiIntegration;
 
 namespace QvaDev.Orchestration.Services
 {
@@ -84,7 +85,11 @@ namespace QvaDev.Orchestration.Services
 		private void ConnectFixAccount(Account account)
 		{
 			if (account.Connector == null)
-				account.Connector = new FixApiIntegration.Connector(account.FixApiAccount.ConfigPath, _log);
+				account.Connector = new FixApiIntegration.Connector(new FixApiIntegration.AccountInfo
+				{
+					Description = account.FixApiAccount.Description,
+					ConfigPath = account.FixApiAccount.ConfigPath,
+				}, _log);
 
 			var connected = ((FixApiIntegration.Connector)account.Connector).Connect().Result;
 		}

@@ -20,7 +20,9 @@ namespace QvaDev.FixApiIntegration
 		private readonly ConcurrentDictionary<string, Tick> _lastTicks =
 			new ConcurrentDictionary<string, Tick>();
 
-		public string Description { get; }
+		private readonly AccountInfo _accountInfo;
+
+		public string Description => _accountInfo?.Description ?? "";
 		public bool IsConnected => _fixConnector?.IsPricingConnected == true && _fixConnector?.IsTradingConnected == true;
 		public ConcurrentDictionary<long, Position> Positions { get; }
 		public event PositionEventHandler OnPosition;
@@ -30,17 +32,18 @@ namespace QvaDev.FixApiIntegration
 		public ConcurrentDictionary<string, SymbolData> SymbolInfos { get; set; } =
 			new ConcurrentDictionary<string, SymbolData>();
 
-		public Connector(string configPath, ILog log)
+		public Connector(AccountInfo accountInfo, ILog log)
 		{
+			_accountInfo = accountInfo;
 			_log = log;
 			_taskCompletionManager = new TaskCompletionManager(1000, 5000);
 
 			var doc = new XmlDocument();
-			doc.Load(configPath);
+			doc.Load(_accountInfo.ConfigPath);
 
 			var confType = ConnectorHelper.GetConfigurationType(doc.DocumentElement.Name);
 			var configurationTpye = ConnectorHelper.GetConnectorType(confType);
-			var conf = new XmlSerializer(confType).Deserialize(File.OpenRead(configPath));
+			var conf = new XmlSerializer(confType).Deserialize(File.OpenRead(_accountInfo.ConfigPath));
 
 			_fixConnector = (FixConnectorBase)Activator.CreateInstance(configurationTpye, conf);
 
@@ -109,8 +112,15 @@ namespace QvaDev.FixApiIntegration
 
 		public async Task<bool> Connect()
 		{
-			await _fixConnector.ConnectPricingAsync();
-			await _fixConnector.ConnectTradingAsync();
+			try
+			{
+				await _fixConnector.ConnectPricingAsync();
+				await _fixConnector.ConnectTradingAsync();
+			}
+			catch (Exception e)
+			{
+				_log.Error($"{Description} account FAILED to connect", e);
+			}
 			return IsConnected;
 		}
 
@@ -196,8 +206,7 @@ namespace QvaDev.FixApiIntegration
 		private async void _fixConnector_SocketClosed(object sender, ClosedEventArgs e)
 		{
 			if (e.Error == null) return;
-			await _fixConnector.ConnectPricingAsync();
-			await _fixConnector.ConnectTradingAsync();
+			await Connect();
 		}
 	}
 }

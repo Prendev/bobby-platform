@@ -32,7 +32,7 @@ namespace QvaDev.FixTraderIntegration
 			new ConcurrentDictionary<string, Tick>();
 		private readonly TaskCompletionManager _taskCompletionManager;
 
-		public string Description => _accountInfo.Description;
+		public string Description => _accountInfo?.Description ?? "";
 		public bool IsConnected => _commandClient?.Connected == true && _eventsClient?.Connected == true;
 		public ConcurrentDictionary<long, Position> Positions { get; }
 		public event PositionEventHandler OnPosition;
