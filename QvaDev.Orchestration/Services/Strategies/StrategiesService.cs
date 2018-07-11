@@ -32,7 +32,7 @@ namespace QvaDev.Orchestration.Services.Strategies
 		public void Start(DuplicatContext duplicatContext)
 		{
 			_arbs = duplicatContext.StratDealingArbs.Local
-				.Where(c => c.AlphaAccount?.State == Account.States.Connected ||
+				.Where(c => c.AlphaAccount?.State == Account.States.Connected &&
 				             c.BetaAccount?.State == Account.States.Connected).ToList();
 
 			foreach (var arb in _arbs)
