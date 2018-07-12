@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using log4net;
 using QvaDev.Common.Integration;
 using QvaDev.Data;
 using QvaDev.Data.Models;
@@ -59,6 +60,7 @@ namespace QvaDev.Orchestration
 	    private readonly IConnectorFactory _connectorFactory;
 	    private readonly IReportService _reportService;
 	    private readonly IMtAccountImportService _mtAccountImportService;
+	    private readonly ILog _log;
 
 	    public int SelectedAlphaMonitorId { get; set; }
         public int SelectedBetaMonitorId { get; set; }
@@ -71,8 +73,10 @@ namespace QvaDev.Orchestration
 			ITickerService tickerService,
             IStrategiesService strategiesService,
 			IReportService reportService,
-            IMtAccountImportService mtAccountImportService)
+            IMtAccountImportService mtAccountImportService,
+            ILog log)
         {
+	        _log = log;
 	        _mtAccountImportService = mtAccountImportService;
 	        _reportService = reportService;
 	        _connectorFactory = connectorFactory;
@@ -108,8 +112,12 @@ namespace QvaDev.Orchestration
 
 		private void Connector_OnConnectionChange(object sender, EventArgs e)
 		{
+			var connector = (IConnector) sender;
+			var state = connector.IsConnected ? "connected" : "disconnected";
+			_log.Debug($"{connector.Description} account {state}");
+
 			var accounts = _duplicatContext.Accounts.Local
-				.Where(pa => pa.Run && pa.Connector == sender).ToList();
+				.Where(pa => pa.Run && pa.Connector == connector).ToList();
 
 			foreach (var account in accounts)
 			{

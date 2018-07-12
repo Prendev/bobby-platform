@@ -34,9 +34,7 @@ namespace QvaDev.FixTraderIntegration
 
 		public string Description => _accountInfo?.Description ?? "";
 		public bool IsConnected => _commandClient?.Connected == true && _eventsClient?.Connected == true;
-		public ConcurrentDictionary<long, Position> Positions { get; }
 		public event PositionEventHandler OnPosition;
-		public event BarHistoryEventHandler OnBarHistory;
 		public event TickEventHandler OnTick;
 		public event EventHandler OnConnectionChange;
 

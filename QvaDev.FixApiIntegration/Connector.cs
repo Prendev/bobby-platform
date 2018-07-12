@@ -2,7 +2,6 @@
 using System.Collections.Concurrent;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Serialization;
@@ -17,89 +16,25 @@ namespace QvaDev.FixApiIntegration
 	{
 		private readonly ILog _log;
 		private readonly TaskCompletionManager  _taskCompletionManager;
-		private FixConnectorBase _fixConnector;
+		private readonly FixConnectorBase _fixConnector;
 		private readonly ConcurrentDictionary<string, Tick> _lastTicks =
 			new ConcurrentDictionary<string, Tick>();
-
-		private AccountInfo _accountInfo;
+		private readonly AccountInfo _accountInfo;
 
 		public string Description => _accountInfo?.Description ?? "";
 		public bool IsConnected => _fixConnector?.IsPricingConnected == true && _fixConnector?.IsTradingConnected == true;
 
-		public ConcurrentDictionary<long, Position> Positions { get; }
 		public event PositionEventHandler OnPosition;
-		public event BarHistoryEventHandler OnBarHistory;
 		public event TickEventHandler OnTick;
 		public event EventHandler OnConnectionChange;
 
 		public ConcurrentDictionary<string, SymbolData> SymbolInfos { get; set; } =
 			new ConcurrentDictionary<string, SymbolData>();
 
-		public Connector(ILog log)
+		public Connector(AccountInfo accountInfo, ILog log)
 		{
 			_log = log;
 			_taskCompletionManager = new TaskCompletionManager(1000, 5000);
-		}
-
-		private void _fixConnector_ExecutionReport(object sender, ExecutionReportEventArgs e)
-		{
-			SumContractsUpdate(e);
-
-			if (new[] { OrdStatus.New, OrdStatus.PartiallyFilled }
-				    .Contains(e.ExecutionReport.OrderStatus)) return;
-
-			_taskCompletionManager.SetResult(e.ExecutionReport.OrderId, e.ExecutionReport);
-		}
-
-		private void SumContractsUpdate(ExecutionReportEventArgs e)
-		{
-			if (!e.ExecutionReport.FulfilledQuantity.HasValue) return;
-			if (e.ExecutionReport.Side != Side.Buy && e.ExecutionReport.Side != Side.Sell) return;
-
-			//if (new[] { ExecType.Fill, ExecType.PartialFill, ExecType.Trade }
-			//		.Contains(e.ExecutionReport.ExecutionType) == false) return;
-
-			var quantity = e.ExecutionReport.FulfilledQuantity.Value;
-			if (e.ExecutionReport.Side == Side.Sell) quantity *= -1;
-
-			SymbolInfos.AddOrUpdate(e.ExecutionReport.Symbol.ToString(),
-				new SymbolData { SumContracts = quantity },
-				(key, oldValue) =>
-				{
-					oldValue.SumContracts += quantity;
-					return oldValue;
-				});
-		}
-
-		// TODO go to nullable?
-		private void _fixConnector_Quote(object sender, QuoteEventArgs e)
-		{
-			var ask = e.QuoteSet.Entries.First().Ask;
-			var bid = e.QuoteSet.Entries.First().Bid;
-			var symbol = e.QuoteSet.Symbol.ToString();
-			SymbolInfos.AddOrUpdate(e.QuoteSet.Symbol.ToString(),
-				new SymbolData {Bid = bid ?? 0, Ask = ask ?? 0 },
-				(key, oldValue) =>
-				{
-					oldValue.Bid = bid ?? oldValue.Bid;
-					oldValue.Ask = ask ?? oldValue.Ask;
-					return oldValue;
-				});
-
-			if (!ask.HasValue || !bid.HasValue) return;
-			var tick = new Tick
-			{
-				Symbol = e.QuoteSet.Symbol.ToString(),
-				Ask = (decimal) ask,
-				Bid = (decimal) bid,
-				Time = DateTime.UtcNow
-			};
-			_lastTicks.AddOrUpdate(symbol, key => tick, (key, old) => tick);
-			OnTick?.Invoke(this, new TickEventArgs { Tick = tick });
-		}
-
-		public async Task<bool> Connect(AccountInfo accountInfo)
-		{
 			_accountInfo = accountInfo;
 
 			var doc = new XmlDocument();
@@ -110,11 +45,19 @@ namespace QvaDev.FixApiIntegration
 			var conf = new XmlSerializer(confType).Deserialize(File.OpenRead(_accountInfo.ConfigPath));
 
 			_fixConnector = (FixConnectorBase)Activator.CreateInstance(configurationTpye, conf);
+		}
 
-			_fixConnector.PricingSocketClosed += _fixConnector_SocketClosed;
-			_fixConnector.TradingSocketClosed += _fixConnector_SocketClosed;
-			_fixConnector.Quote += _fixConnector_Quote;
-			_fixConnector.ExecutionReport += _fixConnector_ExecutionReport;
+		public async Task Connect()
+		{
+			_fixConnector.PricingSocketClosed -= FixConnector_SocketClosed;
+			_fixConnector.TradingSocketClosed -= FixConnector_SocketClosed;
+			_fixConnector.Quote -= FixConnector_Quote;
+			_fixConnector.ExecutionReport -= FixConnector_ExecutionReport;
+
+			_fixConnector.PricingSocketClosed += FixConnector_SocketClosed;
+			_fixConnector.TradingSocketClosed += FixConnector_SocketClosed;
+			_fixConnector.Quote += FixConnector_Quote;
+			_fixConnector.ExecutionReport += FixConnector_ExecutionReport;
 
 			try
 			{
@@ -128,22 +71,19 @@ namespace QvaDev.FixApiIntegration
 				_log.Error($"{Description} FIX account FAILED to connect", e);
 				Disconnect();
 			}
-			_log.Debug($"{_accountInfo.Description} FIX account connected");
+
 			OnConnectionChange?.Invoke(this, null);
-			return IsConnected;
 		}
 
 		public void Disconnect()
 		{
+			_fixConnector.PricingSocketClosed -= FixConnector_SocketClosed;
+			_fixConnector.TradingSocketClosed -= FixConnector_SocketClosed;
+			_fixConnector.Quote -= FixConnector_Quote;
+			_fixConnector.ExecutionReport -= FixConnector_ExecutionReport;
+
 			try
 			{
-				if (_fixConnector != null)
-				{
-					_fixConnector.PricingSocketClosed -= _fixConnector_SocketClosed;
-					_fixConnector.TradingSocketClosed -= _fixConnector_SocketClosed;
-					_fixConnector.Quote -= _fixConnector_Quote;
-					_fixConnector.ExecutionReport -= _fixConnector_ExecutionReport;
-				}
 				_fixConnector?.PricingSocket?.Close();
 				_fixConnector?.TradingSocket?.Close();
 			}
@@ -176,36 +116,7 @@ namespace QvaDev.FixApiIntegration
 			}
 			catch (Exception e)
 			{
-				_log.Error($"Connector.SendMarketOrderRequest({symbol}, {side}, {quantity}, {comment}) exception", e);
-				return 0;
-			}
-		}
-
-		public async Task<decimal> SendAggressiveOrderRequest(
-			string symbol,
-			Sides side,
-			decimal quantity,
-			decimal price,
-			decimal deviation,
-			int ttl)
-		{
-			try
-			{
-				var newResult = await _fixConnector.NewAggressiveOrderAsync(new NewAggressiveOrderRequest()
-				{
-					Side = side == Sides.Buy ? Side.Buy : Side.Sell,
-					Symbol = Symbol.Parse(symbol),
-					Quantity = quantity,
-					Price = price,
-					Deviation = deviation,
-					Ttl = ttl
-				});
-				var result = await _taskCompletionManager.CreateCompletableTask<ExecutionReport>(newResult.OrderId);
-				return result.CumulativeQuantity ?? 0;
-			}
-			catch (Exception e)
-			{
-				_log.Error($"Connector.SendAggressiveOrderRequest({symbol}, {side}, {quantity}, {price}, {deviation}, {ttl}) exception", e);
+				_log.Error($"{Description} Connector.SendMarketOrderRequest({symbol}, {side}, {quantity}, {comment}) exception", e);
 				return 0;
 			}
 		}
@@ -229,19 +140,85 @@ namespace QvaDev.FixApiIntegration
 			{
 				await _fixConnector.SubscribeMarketDataAsync(Symbol.Parse(symbol), 1);
 			}
+			catch (ObjectDisposedException e)
+			{
+				_log.Error($"{Description} Connector.Subscribe({symbol}) ObjectDisposedException", e);
+				Reconnect();
+			}
 			catch (Exception e)
 			{
-				_log.Error($"Connector.Subscribe({symbol}) exception", e);
-				Disconnect();
+				_log.Error($"{Description} Connector.Subscribe({symbol}) exception", e);
 			}
 		}
 
-		private async void _fixConnector_SocketClosed(object sender, ClosedEventArgs e)
+		private async void Reconnect()
 		{
-			if (e.Error == null) return;
-			Thread.Sleep(1000);
-			Disconnect();
-			await Connect(_accountInfo);
+			OnConnectionChange?.Invoke(this, null);
+			await Task.Delay(1000);
+			await Connect();
+		}
+
+		private void FixConnector_SocketClosed(object sender, ClosedEventArgs e)
+		{
+			Reconnect();
+		}
+
+		// TODO go to nullable?
+		private void FixConnector_Quote(object sender, QuoteEventArgs e)
+		{
+			var ask = e.QuoteSet.Entries.First().Ask;
+			var bid = e.QuoteSet.Entries.First().Bid;
+			var symbol = e.QuoteSet.Symbol.ToString();
+
+			SymbolInfos.AddOrUpdate(e.QuoteSet.Symbol.ToString(),
+				new SymbolData { Bid = bid ?? 0, Ask = ask ?? 0 },
+				(key, oldValue) =>
+				{
+					oldValue.Bid = bid ?? oldValue.Bid;
+					oldValue.Ask = ask ?? oldValue.Ask;
+					return oldValue;
+				});
+
+			if (!ask.HasValue || !bid.HasValue) return;
+
+			var tick = new Tick
+			{
+				Symbol = e.QuoteSet.Symbol.ToString(),
+				Ask = (decimal)ask,
+				Bid = (decimal)bid,
+				Time = DateTime.UtcNow
+			};
+			_lastTicks.AddOrUpdate(symbol, key => tick, (key, old) => tick);
+			OnTick?.Invoke(this, new TickEventArgs { Tick = tick });
+		}
+
+		private void FixConnector_ExecutionReport(object sender, ExecutionReportEventArgs e)
+		{
+			if (new[] { OrdStatus.New }.Contains(e.ExecutionReport.OrderStatus)) return;
+
+			SumContractsUpdate(e);
+
+			_taskCompletionManager.SetResult(e.ExecutionReport.OrderId, e.ExecutionReport);
+		}
+
+		private void SumContractsUpdate(ExecutionReportEventArgs e)
+		{
+			if (!e.ExecutionReport.FulfilledQuantity.HasValue) return;
+			if (e.ExecutionReport.Side != Side.Buy && e.ExecutionReport.Side != Side.Sell) return;
+
+			//if (new[] { ExecType.Fill, ExecType.PartialFill, ExecType.Trade }
+			//		.Contains(e.ExecutionReport.ExecutionType) == false) return;
+
+			var quantity = e.ExecutionReport.FulfilledQuantity.Value;
+			if (e.ExecutionReport.Side == Side.Sell) quantity *= -1;
+
+			SymbolInfos.AddOrUpdate(e.ExecutionReport.Symbol.ToString(),
+				new SymbolData { SumContracts = quantity },
+				(key, oldValue) =>
+				{
+					oldValue.SumContracts += quantity;
+					return oldValue;
+				});
 		}
 	}
 }

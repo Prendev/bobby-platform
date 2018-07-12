@@ -14,7 +14,6 @@ namespace QvaDev.IlyaFastFeedIntegration
 	public class Connector : IConnector
 	{
 		private readonly ILog _log;
-		private readonly TaskCompletionManager _taskCompletionManager;
 		private AccountInfo _accountInfo;
 		private TcpClient _tcpClient;
 		private Task _receiverTask;
@@ -25,17 +24,13 @@ namespace QvaDev.IlyaFastFeedIntegration
 		public string Description => _accountInfo.Description;
 		public bool IsConnected => _tcpClient?.Connected == true;
 
-		public ConcurrentDictionary<long, Position> Positions => throw new NotImplementedException();
-
 		public event PositionEventHandler OnPosition;
-		public event BarHistoryEventHandler OnBarHistory;
 		public event TickEventHandler OnTick;
 		public event EventHandler OnConnectionChange;
 
 		public Connector(ILog log)
 		{
 			_log = log;
-			_taskCompletionManager = new TaskCompletionManager(100, 1000);
 		}
 
 		public bool Connect(AccountInfo accountInfo)

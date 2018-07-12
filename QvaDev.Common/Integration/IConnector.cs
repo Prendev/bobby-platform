@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 
 namespace QvaDev.Common.Integration
 {
@@ -7,9 +6,7 @@ namespace QvaDev.Common.Integration
     {
         string Description { get; }
         bool IsConnected { get; }
-        ConcurrentDictionary<long, Position> Positions { get; }
         event PositionEventHandler OnPosition;
-        event BarHistoryEventHandler OnBarHistory;
 		event TickEventHandler OnTick;
 		event EventHandler OnConnectionChange;
 		void Disconnect();

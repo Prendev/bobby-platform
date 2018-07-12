@@ -7,7 +7,6 @@ using QvaDev.Common.Integration;
 using QvaDev.Data;
 using QvaDev.Data.Models;
 using IConnector = QvaDev.Common.Integration.IConnector;
-using MtConnector = QvaDev.Mt4Integration.Connector;
 using System.Threading.Tasks;
 
 namespace QvaDev.Orchestration.Services.Strategies
@@ -123,7 +122,7 @@ namespace QvaDev.Orchestration.Services.Strategies
 			return true;
 		}
 
-		private void CheckOpen(StratDealingArb arb)
+		private async void CheckOpen(StratDealingArb arb)
 		{
 			if (arb.PositionCount >= arb.MaxNumberOfPositions) return;
 			if (!arb.DoOpenSide1 && !arb.DoOpenSide2 && arb.HasTiming &&
@@ -139,42 +138,64 @@ namespace QvaDev.Orchestration.Services.Strategies
 			if ((arb.DoOpenSide1 || ((betaTick.Bid - arb.ShiftInPip * arb.PipSize) - alphaTick.Ask) / arb.PipSize > diffInPip) &&
 			    (arb.PositionCount == 0 || arb.BetaSide == Sides.Sell)) // Alpha long
 			{
-				var betaPos = OpenBetaPosition(arb, Sides.Sell);
-				var alphaPos = OpenAlphaPosition(arb, Sides.Buy);
+				var betaPos = await OpenBetaPosition(arb, Sides.Sell);
+				if (betaPos == 0)
+				{
+					_log.Error($"{arb.Description} arb beta not opened!!!");
+					return;
+				}
+				var alphaPos = await OpenAlphaPosition(arb, Sides.Buy);
+				if (alphaPos == 0)
+				{
+					_log.Error($"{arb.Description} arb alpha not opened!!!");
+					SendeBetaPosition(arb, Sides.Buy, betaPos);
+					return;
+				}
 
 				arb.Positions.Add(new StratDealingArbPosition()
 				{
 					AlphaOpenPrice = alphaTick.Ask,
 					AlphaSize = arb.AlphaSize,
 					AlphaSide = StratDealingArbPosition.Sides.Buy,
-					AlphaOrderTicket = alphaPos?.Id,
+					//AlphaOrderTicket = alphaPos?.Id,
 
 					BetaOpenPrice = betaTick.Bid,
 					BetaSize = arb.BetaSize,
 					BetaSide = StratDealingArbPosition.Sides.Sell,
-					BetaOrderTicket = betaPos?.Id
+					//BetaOrderTicket = betaPos?.Id
 				});
-				_log.Info($"{arb.Description} arb MT4 short, FT long opened!!!");
+				_log.Info($"{arb.Description} arb beta short, alpha long opened!!!");
 			}
 			else if ((arb.DoOpenSide2 || (alphaTick.Bid - (betaTick.Ask - arb.ShiftInPip * arb.PipSize)) / arb.PipSize > diffInPip) &&
 			         (arb.PositionCount == 0 || arb.BetaSide == Sides.Buy)) // Alpha short
 			{
-				var betaPos = OpenBetaPosition(arb, Sides.Buy);
-				var alphaPos = OpenAlphaPosition(arb, Sides.Sell);
+				var betaPos = await OpenBetaPosition(arb, Sides.Buy);
+				if (betaPos == 0)
+				{
+					_log.Error($"{arb.Description} arb beta not opened!!!");
+					return;
+				}
+				var alphaPos = await OpenAlphaPosition(arb, Sides.Sell);
+				if (alphaPos == 0)
+				{
+					_log.Error($"{arb.Description} arb alpha not opened!!!");
+					SendeBetaPosition(arb, Sides.Sell, betaPos);
+					return;
+				}
 
 				arb.Positions.Add(new StratDealingArbPosition()
 				{
 					AlphaOpenPrice = alphaTick.Bid,
 					AlphaSize = arb.AlphaSize,
 					AlphaSide = StratDealingArbPosition.Sides.Sell,
-					AlphaOrderTicket = alphaPos?.Id,
+					//AlphaOrderTicket = alphaPos?.Id,
 
 					BetaOpenPrice = betaTick.Ask,
 					BetaSize = arb.BetaSize,
 					BetaSide = StratDealingArbPosition.Sides.Buy,
-					BetaOrderTicket = betaPos?.Id
+					//BetaOrderTicket = betaPos?.Id
 				});
-				_log.Info($"{arb.Description} arb MT4 long, FT short opened!!!");
+				_log.Info($"{arb.Description} arb beta long, alpha short opened!!!");
 			}
 		}
 
@@ -239,31 +260,33 @@ namespace QvaDev.Orchestration.Services.Strategies
 			return 0;
 		}
 
-		private Position OpenAlphaPosition(StratDealingArb arb, Sides side)
+		private async Task<decimal> OpenAlphaPosition(StratDealingArb arb, Sides side)
 		{
-			if (arb.AlphaAccount.Connector is MtConnector mt)
-				return mt.SendMarketOrderRequest(arb.AlphaSymbol, side, (double)arb.AlphaSize, arb.MagicNumber, null, arb.MaxRetryCount,
-					arb.RetryPeriodInMilliseconds);
+			decimal retValue = 0;
+			//if (arb.AlphaAccount.Connector is MtConnector mt)
+			//	return mt.SendMarketOrderRequest(arb.AlphaSymbol, side, (double)arb.AlphaSize, arb.MagicNumber, null, arb.MaxRetryCount,
+			//		arb.RetryPeriodInMilliseconds);
 			if(arb.AlphaAccount.Connector is IFixConnector fix)
-				fix.SendMarketOrderRequest(arb.AlphaSymbol, side, arb.AlphaSize);
-			return null;
+				retValue = await fix.SendMarketOrderRequest(arb.AlphaSymbol, side, arb.AlphaSize);
+			return retValue;
 		}
 
-		private Position OpenBetaPosition(StratDealingArb arb, Sides side)
+		private async Task<decimal> OpenBetaPosition(StratDealingArb arb, Sides side)
 		{
-			if (arb.BetaAccount.Connector is MtConnector mt)
-				return mt.SendMarketOrderRequest(arb.BetaSymbol, side, (double)arb.BetaSize, arb.MagicNumber, null, arb.MaxRetryCount,
-					arb.RetryPeriodInMilliseconds);
+			decimal retValue = 0;
+			//if (arb.BetaAccount.Connector is MtConnector mt)
+			//	return mt.SendMarketOrderRequest(arb.BetaSymbol, side, (double)arb.BetaSize, arb.MagicNumber, null, arb.MaxRetryCount,
+			//		arb.RetryPeriodInMilliseconds);
 			if (arb.BetaAccount.Connector is IFixConnector fix)
-				fix.SendMarketOrderRequest(arb.BetaSymbol, side, arb.AlphaSize);
-			return null;
+				retValue = await fix.SendMarketOrderRequest(arb.BetaSymbol, side, arb.AlphaSize);
+			return retValue;
 		}
 
 		private void CloseAlphaPosition(StratDealingArb arb, StratDealingArbPosition pos)
 		{
-			if (arb.AlphaAccount.Connector is MtConnector mt)
-				mt.SendClosePositionRequests(pos.AlphaOrderTicket.Value, arb.MaxRetryCount, arb.RetryPeriodInMilliseconds);
-			else if (arb.AlphaAccount.Connector is IFixConnector fix)
+			//if (arb.AlphaAccount.Connector is MtConnector mt)
+			//	mt.SendClosePositionRequests(pos.AlphaOrderTicket.Value, arb.MaxRetryCount, arb.RetryPeriodInMilliseconds);
+			if (arb.AlphaAccount.Connector is IFixConnector fix)
 			{
 				var side = pos.BetaSide == StratDealingArbPosition.Sides.Buy ? Sides.Buy : Sides.Sell;
 				fix.SendMarketOrderRequest(arb.AlphaSymbol, side, arb.AlphaSize);
@@ -272,13 +295,25 @@ namespace QvaDev.Orchestration.Services.Strategies
 
 		private void CloseBetaPosition(StratDealingArb arb, StratDealingArbPosition pos)
 		{
-			if (arb.BetaAccount.Connector is MtConnector mt)
-				mt.SendClosePositionRequests(pos.BetaOrderTicket.Value, arb.MaxRetryCount, arb.RetryPeriodInMilliseconds);
-			else if (arb.BetaAccount.Connector is IFixConnector fix)
+			//if (arb.BetaAccount.Connector is MtConnector mt)
+			//	mt.SendClosePositionRequests(pos.BetaOrderTicket.Value, arb.MaxRetryCount, arb.RetryPeriodInMilliseconds);
+			if (arb.BetaAccount.Connector is IFixConnector fix)
 			{
 				var side = pos.AlphaSide == StratDealingArbPosition.Sides.Buy ? Sides.Buy : Sides.Sell;
 				fix.SendMarketOrderRequest(arb.BetaSymbol, side, arb.BetaSize);
 			}
+		}
+
+		private void SendAlphaPosition(StratDealingArb arb, Sides side, decimal size)
+		{
+			if (arb.AlphaAccount.Connector is IFixConnector fix)
+				fix.SendMarketOrderRequest(arb.AlphaSymbol, side, size);
+		}
+
+		private void SendeBetaPosition(StratDealingArb arb, Sides side, decimal size)
+		{
+			if (arb.BetaAccount.Connector is IFixConnector fix)
+				fix.SendMarketOrderRequest(arb.BetaSymbol, side, size);
 		}
 
 		private bool IsTime(TimeSpan current, TimeSpan? start, TimeSpan? end)

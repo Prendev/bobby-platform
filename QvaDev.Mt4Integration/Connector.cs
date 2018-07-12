@@ -43,7 +43,6 @@ namespace QvaDev.Mt4Integration
         public bool IsConnected => QuoteClient?.Connected == true;
         public ConcurrentDictionary<long, Position> Positions { get; }
         public event PositionEventHandler OnPosition;
-        public event BarHistoryEventHandler OnBarHistory;
         public event TickEventHandler OnTick;
 		public event EventHandler OnConnectionChange;
 
@@ -366,8 +365,6 @@ namespace QvaDev.Mt4Integration
                         var openTime = lastTick.Time.RoundDown(TimeSpan.FromMinutes((int) timeframe));
                         symbolHistory.BarHistory[openTime] =
                             new Bar { OpenTime = openTime, Close = lastTick.Bid };
-                        OnBarHistory?.Invoke(this,
-                            new BarHistoryEventArgs { Symbol = args.Symbol, BarHistory = symbolHistory.BarHistory });
                     }
                     else GetBarHistory(args.Symbol, timeframe, DateTime.Now.AddDays(1), 1);
                 }
@@ -419,8 +416,6 @@ namespace QvaDev.Mt4Integration
                         Close = (decimal)bar.Close,
                         OpenTime = bar.Time
                     };
-                OnBarHistory?.Invoke(this,
-                    new BarHistoryEventArgs { Symbol = args.Symbol, BarHistory = symbolHistory.BarHistory });
             }
         }
 

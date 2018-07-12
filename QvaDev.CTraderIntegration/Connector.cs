@@ -29,7 +29,6 @@ namespace QvaDev.CTraderIntegration
         public bool IsConnected => _cTraderClientWrapper?.IsConnected == true && AccountId > 0;
         public ConcurrentDictionary<long, Position> Positions { get; }
         public event PositionEventHandler OnPosition;
-        public event BarHistoryEventHandler OnBarHistory;
 		public event TickEventHandler OnTick;
 		public event EventHandler OnConnectionChange;
 
