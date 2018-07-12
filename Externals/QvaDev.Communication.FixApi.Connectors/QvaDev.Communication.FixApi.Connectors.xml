@@ -26,6 +26,11 @@
             Parses the orderId created by <see cref="M:QvaDev.Communication.FixApi.Connectors.OrderIdHelper.GetCommonNewOrderId(QvaDev.Communication.FixApi.NewOrderRequest,System.Func{QvaDev.Communication.FixApi.Symbol,System.String})"/> and retrieves Side, Quantity and Symbol information.
             </summary>
         </member>
+        <member name="F:QvaDev.Communication.FixApi.Connectors.Fxcm.FxcmConnector.orderIdMapping">
+            <summary>
+            Mapping from local order id to server side order id
+            </summary>
+        </member>
         <member name="M:QvaDev.Communication.FixApi.Connectors.Fxcm.FxcmConnector.ProcessSpecialMessage(QvaDev.Communication.FixApi.FixSocket,QvaDev.Communication.FixApi.FixMessage)">
             <summary>
             Processes an FXCM specific message.

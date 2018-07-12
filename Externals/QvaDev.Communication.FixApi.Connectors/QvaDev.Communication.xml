@@ -116,41 +116,6 @@
             To start listening to the received and to be sent messages call the <see cref="M:QvaDev.Communication.FixApi.FixConnectorBase.ConnectPricingAsync(System.Boolean)" /> and <see cref="M:QvaDev.Communication.FixApi.FixConnectorBase.ConnectTradingAsync(System.Boolean)"/> methods after subscribing events.
             </remarks>
         </member>
-        <member name="P:QvaDev.Communication.FixApi.NewAggressiveOrderRequest.Symbol">
-            <summary>
-            Gets or sets the symbol.
-            </summary>
-        </member>
-        <member name="P:QvaDev.Communication.FixApi.NewAggressiveOrderRequest.Side">
-            <summary>
-            Gets or sets the side.
-            </summary>
-        </member>
-        <member name="P:QvaDev.Communication.FixApi.NewAggressiveOrderRequest.Quantity">
-            <summary>
-            Gets or sets the quantity of the order.
-            </summary>
-        </member>
-        <member name="P:QvaDev.Communication.FixApi.NewAggressiveOrderRequest.Price">
-            <summary>
-            Gets or sets the price.
-            </summary>
-        </member>
-        <member name="P:QvaDev.Communication.FixApi.NewAggressiveOrderRequest.Ttl">
-            <summary>
-            Gets or sets the TTL. Time in Milliseconds an open order will stay active in the system.
-            </summary>
-        </member>
-        <member name="P:QvaDev.Communication.FixApi.NewAggressiveOrderRequest.Deviation">
-            <summary>
-            Gets or sets the deviation. For example 0.00002 in case of EURUSD.
-            </summary>
-        </member>
-        <member name="P:QvaDev.Communication.FixApi.NewAggressiveOrderRequest.CustomProperties">
-            <summary>
-            Provides optional, vendor specific values for the order.
-            </summary>
-        </member>
         <member name="T:QvaDev.Communication.FixApi.CurrencyPair">
             <summary>
             Represents a currency pair type <see cref="T:QvaDev.Communication.FixApi.Symbol"/>.
@@ -603,13 +568,6 @@
             against the actual FIX connector by overriding the <see cref="M:QvaDev.Communication.FixApi.FixConnectorBase.ValidateNewOrderRequest(QvaDev.Communication.FixApi.NewOrderRequest)"/> method.
             If the <paramref name="request"/> can contain custom parameters you can override the <see cref="M:QvaDev.Communication.FixApi.FixConnectorBase.GetNewOrderCustomProperties"/> method.</remarks>
         </member>
-        <member name="M:QvaDev.Communication.FixApi.FixConnectorBase.NewAggressiveOrderAsync(QvaDev.Communication.FixApi.NewAggressiveOrderRequest)">
-            <summary>
-            Initiates aggressive limit order with slippage if supported.
-            </summary>
-            <param name="request"></param>
-            <returns></returns>
-        </member>
         <member name="M:QvaDev.Communication.FixApi.FixConnectorBase.CancelOrderAsync(System.String)">
             <summary>
             Cancels an order. Initiated by the <see cref="M:QvaDev.Communication.FixApi.FixConnectorBase.NewOrderAsync(QvaDev.Communication.FixApi.NewOrderRequest)"/> method.
@@ -632,13 +590,6 @@
             <summary>
             Disposes this <see cref="T:QvaDev.Communication.FixApi.FixConnectorBase`3"/> instance.
             </summary>
-        </member>
-        <member name="M:QvaDev.Communication.FixApi.FixConnectorBase.GetNewOrderRequest(QvaDev.Communication.FixApi.NewAggressiveOrderRequest)">
-            <summary>
-            Create simple <see cref="T:QvaDev.Communication.FixApi.NewOrderRequest"/> class from <see cref="T:QvaDev.Communication.FixApi.NewAggressiveOrderRequest"/> class. By default this functionality is not supported.
-            </summary>
-            <param name="request"></param>
-            <returns></returns>
         </member>
         <member name="M:QvaDev.Communication.FixApi.FixConnectorBase.Dispose(System.Boolean)">
             <summary>
@@ -858,6 +809,11 @@
             <param name="message">The message to process.</param>
             <returns><c>true</c> if the <paramref name="message"/> has been processed; otherwise, <c>false</c>.</returns>
             <returns><c>true</c> if the <paramref name="message"/> has been processed; otherwise, <c>false</c>.</returns>
+        </member>
+        <member name="M:QvaDev.Communication.FixApi.FixConnectorBase.GetOrderIdToComplete(QvaDev.Communication.FixApi.ExecutionReport,QvaDev.Communication.FixApi.FixMessage)">
+            <summary>
+            Gets the OrderId to use for task completition.
+            </summary>
         </member>
         <member name="M:QvaDev.Communication.FixApi.FixConnectorBase.ProcessOrderCancelRejectMessage(QvaDev.Communication.FixApi.FixSocket,QvaDev.Communication.FixApi.FixMessage)">
             <summary>
@@ -1300,6 +1256,51 @@
             <param name="interval">The interval, in milliseconds, for checking task statuses.</param>
             <param name="timeout">The interval, in milliseconds, after an uncompleted task will timeout.</param>
         </member>
+        <member name="M:QvaDev.Communication.TaskCompletionManager.IsCompleted(System.Object)">
+            <summary>
+            Gets whether the <see cref="T:System.Threading.Tasks.Task"/> of the specified <paramref name="key"/> is completed.
+            </summary>
+            <param name="key">The key of the <see cref="T:System.Threading.Tasks.Task"/>.</param>
+            <returns><see langword="null"/> if no <see cref="T:System.Threading.Tasks.Task"/> found with the specified <paramref name="key"/>,
+            <c>true</c> if the corresponding <see cref="T:System.Threading.Tasks.Task"/> is completed,
+            <c>false</c> if the corresponding <see cref="T:System.Threading.Tasks.Task"/> is not completed.</returns>
+        </member>
+        <member name="M:QvaDev.Communication.TaskCompletionManager.CreateCompletableTask``1(System.Object)">
+            <summary>
+            Creates a <see cref="T:System.Threading.Tasks.Task`1"/>, which can be completed by using the public methods of this <see cref="T:QvaDev.Communication.TaskCompletionManager"/> instance.
+            </summary>
+            <typeparam name="TResult">The type of the result.</typeparam>
+            <param name="key">The key, which can be used to complete the result <see cref="T:System.Threading.Tasks.Task`1"/> by calling the methods of this <see cref="T:QvaDev.Communication.TaskCompletionManager"/> instance.
+            If the same key is re-used multiple times, the possibly not completed previous task will be canceled.</param>
+            <returns>A not completed <see cref="T:System.Threading.Tasks.Task`1"/> instance.</returns>
+        </member>
+        <member name="M:QvaDev.Communication.TaskCompletionManager.CreateCompletableTask(System.Object)">
+            <summary>
+            Creates a <see cref="T:System.Threading.Tasks.Task"/>, which can be completed by using the public methods of this <see cref="T:QvaDev.Communication.TaskCompletionManager"/> instance.
+            </summary>
+            <param name="key">The key, which can be used to complete the result <see cref="T:System.Threading.Tasks.Task"/> by calling the methods of this <see cref="T:QvaDev.Communication.TaskCompletionManager"/> instance.
+            If the same key is re-used multiple times, the possibly not completed previous task will be canceled.</param>
+            <returns>A not completed <see cref="T:System.Threading.Tasks.Task"/> instance.</returns>
+        </member>
+        <member name="M:QvaDev.Communication.TaskCompletionManager.ReplaceCompletableTask``1(System.Object,``0,System.Exception)">
+            <summary>
+            Creates a <see cref="T:System.Threading.Tasks.Task`1"/>, which can be completed by using the public methods of this <see cref="T:QvaDev.Communication.TaskCompletionManager"/> instance.
+            </summary>
+            <typeparam name="TResult">The type of the result.</typeparam>
+            <param name="key">The key, which can be used to complete the result <see cref="T:System.Threading.Tasks.Task`1"/> by calling the methods of this <see cref="T:QvaDev.Communication.TaskCompletionManager"/> instance.
+            If the same key is re-used multiple times, the possibly not completed previous task will be canceled.</param>
+            <param name="oldTaskResult">If there is an old task to replace, then </param>
+            <returns>A not completed <see cref="T:System.Threading.Tasks.Task`1"/> instance.</returns>
+        </member>
+        <member name="M:QvaDev.Communication.TaskCompletionManager.ReplaceCompletableTask(System.Object,System.Exception)">
+            <summary>
+            Creates a <see cref="T:System.Threading.Tasks.Task`1"/>, which can be completed by using the public methods of this <see cref="T:QvaDev.Communication.TaskCompletionManager"/> instance.
+            </summary>
+            <typeparam name="TResult">The type of the result.</typeparam>
+            <param name="key">The key, which can be used to complete the result <see cref="T:System.Threading.Tasks.Task`1"/> by calling the methods of this <see cref="T:QvaDev.Communication.TaskCompletionManager"/> instance.
+            If the same key is re-used multiple times, the possibly not completed previous task will be canceled.</param>
+            <returns>A not completed <see cref="T:System.Threading.Tasks.Task`1"/> instance.</returns>
+        </member>
         <member name="M:QvaDev.Communication.TaskCompletionManager.RemoveAll(System.Func{System.Object,System.Boolean},System.Exception)">
             <summary>
             Removes all <see cref="T:System.Threading.Tasks.Task"/>s from the <see cref="T:QvaDev.Communication.TaskCompletionManager"/> selected by the provided <paramref name="predicate"/>
@@ -1312,6 +1313,64 @@
             <summary>
             Removes all <see cref="T:System.Threading.Tasks.Task"/>s from the <see cref="T:QvaDev.Communication.TaskCompletionManager"/> and cancels all of the removed unfinished tasks.
             </summary>
+        </member>
+        <member name="M:QvaDev.Communication.TaskCompletionManager.Dispose">
+            <summary>
+            Disposes this <see cref="T:QvaDev.Communication.TaskCompletionManager"/> instance.
+            </summary>
+        </member>
+        <member name="M:QvaDev.Communication.TaskCompletionManager.ContainsKey(System.Object)">
+            <summary>
+            Determines whether the <see cref="T:QvaDev.Communication.TaskCompletionManager"/> contains a <see cref="T:System.Threading.Tasks.Task"/> with specified <paramref name="key"/>.
+            </summary>
+            <param name="key">The key to check.</param>
+            <returns><c>true</c> if the specified <paramref name="key"/> exists in current <see cref="T:QvaDev.Communication.TaskCompletionManager"/>; otherwise, <c>false</c>.</returns>
+        </member>
+        <member name="M:QvaDev.Communication.TaskCompletionManager.TryGetTask(System.Object,System.Threading.Tasks.Task@)">
+            <summary>
+            Tries the get a <see cref="T:System.Threading.Tasks.Task"/> with specified <paramref name="key"/>.
+            </summary>
+            <param name="key">The key of the <see cref="T:System.Threading.Tasks.Task"/> to get.</param>
+            <param name="task">The result <see cref="T:System.Threading.Tasks.Task"/> if the return value is <c>true</c>;otherwise, <see langword="null"/>.</param>
+            <returns><c>true</c>, if <paramref name="key"/> exists in current <see cref="T:QvaDev.Communication.TaskCompletionManager"/>; otherwise, <c>false</c>.</returns>
+        </member>
+        <member name="M:QvaDev.Communication.TaskCompletionManager.TryGetTask``1(System.Object,System.Threading.Tasks.Task{``0}@)">
+            <summary>
+            Tries the get a <see cref="T:System.Threading.Tasks.Task`1"/> with specified <paramref name="key"/>.
+            </summary>
+            <param name="key">The key of the <see cref="T:System.Threading.Tasks.Task`1"/> to get.</param>
+            <param name="task">The result <see cref="T:System.Threading.Tasks.Task`1"/> if the return value is <c>true</c>;otherwise, <see langword="null"/>.</param>
+            <returns><c>true</c>, if <paramref name="key"/> exists in current <see cref="T:QvaDev.Communication.TaskCompletionManager"/>; otherwise, <c>false</c>.</returns>
+        </member>
+        <member name="M:QvaDev.Communication.TaskCompletionManager.SetCompleted(System.Object,System.Boolean)">
+            <summary>
+            Sets a <see cref="T:System.Threading.Tasks.Task"/> completed of the specified <paramref name="key"/>, which was created by the <see cref="M:QvaDev.Communication.TaskCompletionManager.CreateCompletableTask(System.Object)"/> method.
+            </summary>
+            <param name="key">The key of the <see cref="T:System.Threading.Tasks.Task"/> to complete.</param>
+            <param name="remove"><c>true</c> to remove the completed <see cref="T:System.Threading.Tasks.Task"/> from the <see cref="T:QvaDev.Communication.TaskCompletionManager"/>; otherwise, <c>false</c>.</param>
+        </member>
+        <member name="M:QvaDev.Communication.TaskCompletionManager.SetResult``1(System.Object,``0,System.Boolean)">
+            <summary>
+            Sets the result of a <see cref="T:System.Threading.Tasks.Task`1"/> of the specified <paramref name="key"/>, which was created by the <see cref="M:QvaDev.Communication.TaskCompletionManager.CreateCompletableTask``1(System.Object)"/> method.
+            </summary>
+            <param name="key">The key of the <see cref="T:System.Threading.Tasks.Task`1"/> to complete.</param>
+            <param name="result">The desired result of the <see cref="T:System.Threading.Tasks.Task`1"/> to set.</param>
+            <param name="remove"><c>true</c> to remove the completed <see cref="T:System.Threading.Tasks.Task`1"/> from the <see cref="T:QvaDev.Communication.TaskCompletionManager"/>; otherwise, <c>false</c>.</param>
+        </member>
+        <member name="M:QvaDev.Communication.TaskCompletionManager.SetCanceled(System.Object,System.Boolean)">
+            <summary>
+            Cancels the <see cref="T:System.Threading.Tasks.Task"/> of the specified <paramref name="key"/>.
+            </summary>
+            <param name="key">The key of the <see cref="T:System.Threading.Tasks.Task"/> to cancel.</param>
+            <param name="remove"><c>true</c> to remove the completed <see cref="T:System.Threading.Tasks.Task`1"/> from the <see cref="T:QvaDev.Communication.TaskCompletionManager"/>; otherwise, <c>false</c>.</param>
+        </member>
+        <member name="M:QvaDev.Communication.TaskCompletionManager.SetError(System.Object,System.Exception,System.Boolean)">
+            <summary>
+            Fails the <see cref="T:System.Threading.Tasks.Task"/> of the specified <paramref name="key"/> with the provided <paramref name="error"/>.
+            </summary>
+            <param name="key">The key of the <see cref="T:System.Threading.Tasks.Task"/> to fail.</param>
+            <param name="error">The <see cref="T:System.Exception"/> to set.</param>
+            <param name="remove"><c>true</c> to remove the completed <see cref="T:System.Threading.Tasks.Task`1"/> from the <see cref="T:QvaDev.Communication.TaskCompletionManager"/>; otherwise, <c>false</c>.</param>
         </member>
         <member name="T:QvaDev.Communication.Logger">
             <summary>
