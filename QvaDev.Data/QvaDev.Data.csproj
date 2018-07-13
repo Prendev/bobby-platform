@@ -123,6 +123,10 @@
     <Compile Include="Migrations\201807100935234_DecimalFix.Designer.cs">
       <DependentUpon>201807100935234_DecimalFix.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201807131010465_DealingArbLastOpenTime.cs" />
+    <Compile Include="Migrations\201807131010465_DealingArbLastOpenTime.Designer.cs">
+      <DependentUpon>201807131010465_DealingArbLastOpenTime.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\BaseEntity.cs" />
     <Compile Include="Models\BaseDescriptionEntity.cs" />
@@ -194,6 +198,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201807100935234_DecimalFix.resx">
       <DependentUpon>201807100935234_DecimalFix.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201807131010465_DealingArbLastOpenTime.resx">
+      <DependentUpon>201807131010465_DealingArbLastOpenTime.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

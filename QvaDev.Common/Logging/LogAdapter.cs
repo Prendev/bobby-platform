@@ -4,10 +4,6 @@ using Common.Logging.Factory;
 
 namespace QvaDev.Common.Logging
 {
-	public interface ICommonLog : global::Common.Logging.ILog
-	{
-	}
-
 	public class LogAdapter : AbstractLogger
 	{
 		private readonly log4net.ILog _log4NetLog;
@@ -42,7 +38,7 @@ namespace QvaDev.Common.Logging
 			}
 		}
 
-		public override bool IsTraceEnabled { get; } = true;
+		public override bool IsTraceEnabled { get; } = false;
 		public override bool IsDebugEnabled { get; } = true;
 		public override bool IsErrorEnabled { get; } = true;
 		public override bool IsFatalEnabled { get; } = true;

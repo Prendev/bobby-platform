@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
+using System.Runtime.Remoting.Messaging;
 using System.Windows.Forms;
 using log4net;
 using log4net.Appender;
@@ -13,11 +16,13 @@ namespace QvaDev.Duplicat
 		public string LoggerNameFilter { get; set; }
 
 		private RichTextBox _textBox;
-        private readonly object _lockObj = new object();
+		private readonly List<string> _filters;
 
-        public TextBoxAppender(RichTextBox textBox)
+		public TextBoxAppender(RichTextBox textBox, params string[] filters)
         {
-            var frm = textBox.FindForm();
+	        _filters = (filters ?? new string[] { }).ToList();
+
+			var frm = textBox.FindForm();
             if (frm == null)
                 return;
 
@@ -32,10 +37,10 @@ namespace QvaDev.Duplicat
 
         public string Name { get; set; }
 
-        public static void ConfigureTextBoxAppender(RichTextBox textBox, string loggerNameFilter = null)
+        public static void ConfigureTextBoxAppender(RichTextBox textBox, string loggerNameFilter, params string[] filters)
         {
             var hierarchy = (Hierarchy) LogManager.GetRepository();
-            var appender = new TextBoxAppender(textBox){ LoggerNameFilter = loggerNameFilter};
+            var appender = new TextBoxAppender(textBox, filters){ LoggerNameFilter = loggerNameFilter};
             hierarchy.Root.AddAppender(appender);
         }
 
@@ -59,10 +64,12 @@ namespace QvaDev.Duplicat
 			if (!string.IsNullOrWhiteSpace(LoggerNameFilter) && !loggingEvent.LoggerName.StartsWith(LoggerNameFilter))
 		        return;
 
-			if (_textBox == null)
-				return;
 			if (loggingEvent.LoggerName.Contains("NHibernate"))
 				return;
+
+			if (_filters.Any(f => loggingEvent.RenderedMessage?.Contains(f) == true))
+				return;
+
 			var msg = $"{loggingEvent.TimeStamp:yyyy-MM-dd HH:mm:ss,fff} [{loggingEvent.ThreadName}] {loggingEvent.RenderedMessage}{Environment.NewLine}";
 			if (loggingEvent.ExceptionObject != null)
 				msg += loggingEvent.ExceptionObject + Environment.NewLine;

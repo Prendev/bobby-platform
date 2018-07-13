@@ -138,6 +138,7 @@ namespace QvaDev.Orchestration.Services.Strategies
 			if ((arb.DoOpenSide1 || ((betaTick.Bid - arb.ShiftInPip * arb.PipSize) - alphaTick.Ask) / arb.PipSize > diffInPip) &&
 			    (arb.PositionCount == 0 || arb.BetaSide == Sides.Sell)) // Alpha long
 			{
+				arb.LastOpenTime = DateTime.UtcNow;
 				var beta = SendeBetaPosition(arb, Sides.Sell, arb.BetaSize);
 				var alpha = SendAlphaPosition(arb, Sides.Buy, arb.AlphaSize);
 				await Task.WhenAll(beta, alpha);
@@ -147,8 +148,8 @@ namespace QvaDev.Orchestration.Services.Strategies
 				if (betaPos != arb.BetaSize || alphaPos != arb.AlphaSize)
 				{
 					_log.Error($"{arb.Description} arb opening ERROR!!!");
-					while (betaPos > 0) betaPos -= SendeBetaPosition(arb, Sides.Buy, betaPos).Result;
-					while (alphaPos > 0) alphaPos -= SendAlphaPosition(arb, Sides.Sell, alphaPos).Result;
+					/*while (betaPos > 0)*/ betaPos -= SendeBetaPosition(arb, Sides.Buy, betaPos).Result;
+					/*while (alphaPos > 0)*/ alphaPos -= SendAlphaPosition(arb, Sides.Sell, alphaPos).Result;
 					return;
 				}
 
@@ -169,6 +170,7 @@ namespace QvaDev.Orchestration.Services.Strategies
 			else if ((arb.DoOpenSide2 || (alphaTick.Bid - (betaTick.Ask - arb.ShiftInPip * arb.PipSize)) / arb.PipSize > diffInPip) &&
 			         (arb.PositionCount == 0 || arb.BetaSide == Sides.Buy)) // Alpha short
 			{
+				arb.LastOpenTime = DateTime.UtcNow;
 				var beta = SendeBetaPosition(arb, Sides.Buy, arb.BetaSize);
 				var alpha = SendAlphaPosition(arb, Sides.Sell, arb.AlphaSize);
 				await Task.WhenAll(beta, alpha);
@@ -178,8 +180,8 @@ namespace QvaDev.Orchestration.Services.Strategies
 				if (betaPos != arb.BetaSize || alphaPos != arb.AlphaSize)
 				{
 					_log.Error($"{arb.Description} arb opening ERROR!!!");
-					while (betaPos > 0) betaPos -= SendeBetaPosition(arb, Sides.Sell, betaPos).Result;
-					while (alphaPos > 0) alphaPos -= SendAlphaPosition(arb, Sides.Buy, alphaPos).Result;
+					/*while (betaPos > 0)*/ betaPos -= SendeBetaPosition(arb, Sides.Sell, betaPos).Result;
+					/*while (alphaPos > 0)*/ alphaPos -= SendAlphaPosition(arb, Sides.Buy, alphaPos).Result;
 					return;
 				}
 
@@ -282,12 +284,14 @@ namespace QvaDev.Orchestration.Services.Strategies
 
 		private Task<decimal> SendAlphaPosition(StratDealingArb arb, Sides side, decimal size)
 		{
+			if (size <= 0) return Task.FromResult<decimal>(0);
 			var fix = (IFixConnector)arb.AlphaAccount.Connector;
 			return fix.SendMarketOrderRequest(arb.AlphaSymbol, side, size);
 		}
 
 		private Task<decimal> SendeBetaPosition(StratDealingArb arb, Sides side, decimal size)
 		{
+			if (size <= 0) return Task.FromResult<decimal>(0);
 			var fix = (IFixConnector)arb.BetaAccount.Connector;
 			return fix.SendMarketOrderRequest(arb.BetaSymbol, side, size);
 		}

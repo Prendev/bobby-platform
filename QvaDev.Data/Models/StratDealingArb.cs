@@ -56,11 +56,13 @@ namespace QvaDev.Data.Models
 		public int MaxRetryCount { get; set; }
 		public int RetryPeriodInMilliseconds { get; set; }
 
+		[InvisibleColumn] public DateTime? LastOpenTime { get; set; }
+
+		public List<StratDealingArbPosition> Positions { get => Get(() => new List<StratDealingArbPosition>()); set => Set(value, false); }
+
 		[NotMapped] [InvisibleColumn] public decimal ShiftDiffSumInPip { get; set; }
 		[NotMapped] [InvisibleColumn] public Stopwatch ShiftCalcStopwatch { get; set; }
 		[NotMapped] [InvisibleColumn] public int ShiftTickCount { get; set; }
-
-		public List<StratDealingArbPosition> Positions { get => Get(() => new List<StratDealingArbPosition>()); set => Set(value, false); }
 
 		[NotMapped] [InvisibleColumn] public bool HasTiming => EarliestOpenTime.HasValue && LatestOpenTime.HasValue && LatestCloseTime.HasValue;
 		[NotMapped] [InvisibleColumn] public List<StratDealingArbPosition> OpenPositions => Positions.Where(p => !p.IsClosed).ToList();
@@ -68,7 +70,6 @@ namespace QvaDev.Data.Models
 		[NotMapped] [InvisibleColumn] public Sides BetaSide => GetSide(Positions?.FirstOrDefault()?.BetaSide);
 		[NotMapped] [InvisibleColumn] public decimal? LastAlphaOpenPrice => Positions?.LastOrDefault()?.AlphaOpenPrice;
 		[NotMapped] [InvisibleColumn] public decimal? LastBetaOpenPrice => Positions?.LastOrDefault()?.BetaOpenPrice;
-		[NotMapped] [InvisibleColumn] public DateTime? LastOpenTime => Positions?.LastOrDefault()?.OpenTime;
 		[NotMapped] [InvisibleColumn] public int PositionCount => OpenPositions?.Count ?? 0;
 
 		[NotMapped] [InvisibleColumn] public bool DoOpenSide1 { get; set; }
