@@ -1,18 +1,16 @@
 ﻿using log4net;
-using QvaDev.CTraderIntegration;
 using QvaDev.Data;
 using QvaDev.Data.Models;
-using QvaDev.FixApiIntegration;
 
 namespace QvaDev.Orchestration.Services
 {
 	public class ConnectorFactory : IConnectorFactory
 	{
-		private readonly ICtConnectorFactory _ctConnectorFactory;
+		private readonly CTraderIntegration.ICtConnectorFactory _ctConnectorFactory;
 		private readonly ILog _log;
 
 		public ConnectorFactory(
-			ICtConnectorFactory ctConnectorFactory,
+			CTraderIntegration.ICtConnectorFactory ctConnectorFactory,
 			ILog log)
 		{
 			_log = log;

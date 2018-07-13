@@ -7,7 +7,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using log4net;
 using QvaDev.Common.Integration;
-using QvaDev.Communication;
 
 namespace QvaDev.IlyaFastFeedIntegration
 {

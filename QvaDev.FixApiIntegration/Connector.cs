@@ -31,7 +31,9 @@ namespace QvaDev.FixApiIntegration
 		public ConcurrentDictionary<string, SymbolData> SymbolInfos { get; set; } =
 			new ConcurrentDictionary<string, SymbolData>();
 
-		public Connector(AccountInfo accountInfo, ILog log)
+		public Connector(
+			AccountInfo accountInfo,
+			ILog log)
 		{
 			_log = log;
 			_taskCompletionManager = new TaskCompletionManager(1000, 5000);

@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Threading;
 using Autofac;
-using log4net;
+using QvaDev.Common.Logging;
 using QvaDev.Common.Services;
+using QvaDev.Communication;
 using QvaDev.CTraderIntegration;
 using QvaDev.CTraderIntegration.Services;
 using QvaDev.Data;
@@ -35,8 +36,11 @@ namespace QvaDev.Duplicat
 
         private static void RegisterApp(ContainerBuilder builder)
         {
-            builder.RegisterInstance(LogManager.GetLogger(""));
-            builder.RegisterType<MainForm>().AsSelf().InstancePerLifetimeScope();
+	        var generalLog = log4net.LogManager.GetLogger("General");
+	        var fixLog = log4net.LogManager.GetLogger("FIX");
+			Logger.Instance = new LogAdapter(fixLog);
+			builder.RegisterInstance(generalLog);
+			builder.RegisterType<MainForm>().AsSelf().InstancePerLifetimeScope();
             builder.RegisterType<ViewModel.DuplicatViewModel>().AsSelf().InstancePerLifetimeScope();
             builder.Register((c, p) => new Func<SynchronizationContext>(() => SynchronizationContext.Current));
 		}

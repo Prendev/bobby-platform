@@ -80,7 +80,7 @@ namespace QvaDev.Duplicat.ViewModel
         public int SelectedPushingDetailId { get => Get<int>(); set => Set(value); }
 
         public DuplicatViewModel(
-            ILog log,
+	        ILog log,
             IOrchestrator orchestrator,
             IXmlService xmlService)
         {
