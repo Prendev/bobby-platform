@@ -56,6 +56,7 @@ namespace QvaDev.Duplicat.ViewModel
         public ObservableCollection<PushingDetail> PushingDetails { get; private set; }
 		public ObservableCollection<Ticker> Tickers { get; private set; }
 	    public ObservableCollection<StratDealingArb> StratDealingArbs { get; private set; }
+	    public ObservableCollection<StratDealingArbPosition> StratDealingArbPositions { get; private set; }
 
 		public event DataContextChangedEventHandler DataContextChanged;
         
@@ -78,6 +79,7 @@ namespace QvaDev.Duplicat.ViewModel
         public int SelectedBetaMonitorId { get => Get<int>(); set => Set(value); }
         public int SelectedTradingAccountId { get => Get<int>(); set => Set(value); }
         public int SelectedPushingDetailId { get => Get<int>(); set => Set(value); }
+        public int SelectedDealingArbId { get => Get<int>(); set => Set(value); }
 
         public DuplicatViewModel(
 	        ILog log,
@@ -130,6 +132,7 @@ namespace QvaDev.Duplicat.ViewModel
             _duplicatContext.Pushings.Where(e => e.ProfileId == SelectedProfileId).Select(e => e.PushingDetail).Load();
 			_duplicatContext.Tickers.Where(e => e.ProfileId == SelectedProfileId).Load();
 	        _duplicatContext.StratDealingArbs.Where(e => e.ProfileId == SelectedProfileId).Load();
+	        _duplicatContext.StratDealingArbPositions.Where(e => e.StratDealingArb.ProfileId == SelectedProfileId).Load();
 
 			MtPlatforms = _duplicatContext.MetaTraderPlatforms.Local;
             CtPlatforms = _duplicatContext.CTraderPlatforms.Local;
@@ -149,11 +152,13 @@ namespace QvaDev.Duplicat.ViewModel
             PushingDetails = _duplicatContext.PushingDetails.Local;
 			Tickers = _duplicatContext.Tickers.Local;
 	        StratDealingArbs = _duplicatContext.StratDealingArbs.Local;
+	        StratDealingArbPositions = _duplicatContext.StratDealingArbPositions.Local;
 
 			foreach (var e in SymbolMappings) e.IsFiltered = e.SlaveId != SelectedSlaveId;
             foreach (var e in Copiers) e.IsFiltered = e.SlaveId != SelectedSlaveId;
 	        foreach (var e in FixApiCopiers) e.IsFiltered = e.SlaveId != SelectedSlaveId;
             foreach (var e in PushingDetails) e.IsFiltered = e.Id != SelectedPushingDetailId;
-        }
+	        foreach (var e in StratDealingArbPositions) e.IsFiltered = e.StratDealingArbId != SelectedDealingArbId;
+		}
     }
 }

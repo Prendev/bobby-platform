@@ -62,6 +62,7 @@ namespace QvaDev.Duplicat.Views
             {
                 if (tabControlMain.SelectedTab.Name == tabPageCopier.Name) copiersUserControl.FilterRows();
                 else if (tabControlMain.SelectedTab.Name == tabPagePush.Name) pushingUserControl.FilterRows();
+                else if (tabControlMain.SelectedTab.Name == tabPageStrategies.Name) strategiesUserControl.FilterRows();
             };
 
             _viewModel.DataContextChanged += AttachDataSources;

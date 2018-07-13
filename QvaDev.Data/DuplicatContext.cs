@@ -31,6 +31,7 @@ namespace QvaDev.Data
 		public DbSet<Ticker> Tickers { get; set; }
 
 	    public DbSet<StratDealingArb> StratDealingArbs { get; set; }
+	    public DbSet<StratDealingArbPosition> StratDealingArbPositions { get; set; }
 
 		public void Init()
 		{

@@ -17,8 +17,8 @@ namespace QvaDev.Data.Models
 			Aggressive
 		}
 
-		public int ProfileId { get; set; }
-		public Profile Profile { get; set; }
+		[InvisibleColumn] public int ProfileId { get; set; }
+		[InvisibleColumn] public Profile Profile { get; set; }
 
 		[NotMapped] public decimal? AlphaAsk { get => Get<decimal?>(); set => Set(value); }
 		[NotMapped] public decimal? BetaBid { get => Get<decimal?>(); set => Set(value); }

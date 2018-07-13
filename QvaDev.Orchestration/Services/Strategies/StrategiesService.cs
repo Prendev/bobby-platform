@@ -61,14 +61,14 @@ namespace QvaDev.Orchestration.Services.Strategies
 
 			foreach (var arb in _arbs)
 			{
+				var alpha = arb.AlphaAccount.Connector;
+				var beta = arb.BetaAccount.Connector;
+
+				if (alpha == connector && arb.AlphaSymbol != e.Tick.Symbol) return;
+				if (beta == connector && arb.BetaSymbol != e.Tick.Symbol) return;
+
 				Task.Factory.StartNew(() =>
 				{
-					var alpha = arb.AlphaAccount.Connector;
-					var beta = arb.BetaAccount.Connector;
-
-					if (alpha == connector && arb.AlphaSymbol != e.Tick.Symbol) return;
-					if (beta == connector && arb.BetaSymbol != e.Tick.Symbol) return;
-
 					var alphaTick = alpha.GetLastTick(arb.AlphaSymbol);
 					var betaTick = beta.GetLastTick(arb.BetaSymbol);
 
@@ -98,7 +98,7 @@ namespace QvaDev.Orchestration.Services.Strategies
 						arb.DoOpenSide2 = false;
 						arb.DoClose = false;
 					}
-				});
+				}, TaskCreationOptions.LongRunning);
 			}
 		}
 

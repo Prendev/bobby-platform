@@ -277,5 +277,11 @@ namespace QvaDev.Duplicat.ViewModel
 		{
 			arb.DoClose = true;
 		}
+
+	    public void ShowArbPositionsCommand(StratDealingArb arb)
+	    {
+		    SelectedDealingArbId = arb?.Id ?? 0;
+		    foreach (var e in StratDealingArbPositions) e.IsFiltered = e.StratDealingArbId != SelectedDealingArbId;
+	    }
 	}
 }
