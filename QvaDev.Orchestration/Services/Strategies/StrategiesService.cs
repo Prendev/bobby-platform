@@ -71,7 +71,18 @@ namespace QvaDev.Orchestration.Services.Strategies
 
 					var alphaTick = alpha.GetLastTick(arb.AlphaSymbol);
 					var betaTick = beta.GetLastTick(arb.BetaSymbol);
-					
+
+					if (sender == alpha)
+					{
+						arb.AlphaAsk = alphaTick?.Ask;
+						arb.AlphaBid = alphaTick?.Bid;
+					}
+					else if (sender == beta)
+					{
+						arb.BetaAsk = betaTick?.Ask;
+						arb.BetaBid = betaTick?.Bid;
+					}
+
 					if (alphaTick?.HasValue != true || betaTick?.HasValue != true) return;
 					if (DateTime.UtcNow - alphaTick.Time > new TimeSpan(0, 1, 0)) return;
 					if (DateTime.UtcNow - betaTick.Time > new TimeSpan(0, 1, 0)) return;

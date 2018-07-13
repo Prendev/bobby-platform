@@ -27,9 +27,9 @@ namespace QvaDev.Data.Models
             {
                 syncContext.Post(o => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName)), null);
             }
-        }
+		}
 
-        [NotifyPropertyChangedInvocator]
+		[NotifyPropertyChangedInvocator]
         protected T Get<T>(Func<T> defaultValueFactory = null, [CallerMemberName] string propertyName = null)
         {
             if (string.IsNullOrEmpty(propertyName))

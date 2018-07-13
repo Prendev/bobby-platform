@@ -20,6 +20,11 @@ namespace QvaDev.Data.Models
 		public int ProfileId { get; set; }
 		public Profile Profile { get; set; }
 
+		[NotMapped] public decimal? AlphaAsk { get => Get<decimal?>(); set => Set(value); }
+		[NotMapped] public decimal? BetaBid { get => Get<decimal?>(); set => Set(value); }
+		[NotMapped] public decimal? BetaAsk { get => Get<decimal?>(); set => Set(value); }
+		[NotMapped] public decimal? AlphaBid { get => Get<decimal?>(); set => Set(value); }
+
 		public int MaxNumberOfPositions { get; set; }
 
 		public decimal SignalDiffInPip { get; set; }
@@ -47,7 +52,7 @@ namespace QvaDev.Data.Models
 		[Required] public string BetaSymbol { get; set; }
 		public decimal BetaSize { get; set; }
 
-		public decimal? ShiftInPip { get; set; }
+		public decimal? ShiftInPip { get => Get<decimal?>(); set => Set(value); }
 		public TimeSpan ShiftCalcInterval { get; set; }
 
 		public decimal PipSize { get; set; }
@@ -56,7 +61,7 @@ namespace QvaDev.Data.Models
 		public int MaxRetryCount { get; set; }
 		public int RetryPeriodInMilliseconds { get; set; }
 
-		[InvisibleColumn] public DateTime? LastOpenTime { get; set; }
+		[InvisibleColumn] public DateTime? LastOpenTime { get => Get<DateTime?>(); set => Set(value); }
 
 		public List<StratDealingArbPosition> Positions { get => Get(() => new List<StratDealingArbPosition>()); set => Set(value, false); }
 
