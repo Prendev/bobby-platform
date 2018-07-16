@@ -102,7 +102,7 @@ namespace QvaDev.FixApiIntegration
 			return _lastTicks.GetOrAdd(symbol, (Tick)null);
 		}
 
-		public async Task<decimal> SendMarketOrderRequest(string symbol, Sides side, decimal quantity, string comment = null)
+		public async Task<OrderResponse> SendMarketOrderRequest(string symbol, Sides side, decimal quantity, string comment = null)
 		{
 			try
 			{
@@ -114,12 +114,25 @@ namespace QvaDev.FixApiIntegration
 					Quantity = quantity
 				});
 				var result = await _taskCompletionManager.CreateCompletableTask<ExecutionReport>(newResult.OrderId);
-				return result.CumulativeQuantity ?? 0;
+
+				_log.Debug(
+					$"{Description} Connector.SendMarketOrderRequest({symbol}, {side}, {quantity}, {comment}) opened {result.CumulativeQuantity ?? 0} at avg price {result.AveragePrice}");
+				return new OrderResponse()
+				{
+					OrderedQuantity = quantity,
+					AveragePrice = result.AveragePrice,
+					FilledQuantity = result.CumulativeQuantity ?? 0
+				};
 			}
 			catch (Exception e)
 			{
 				_log.Error($"{Description} Connector.SendMarketOrderRequest({symbol}, {side}, {quantity}, {comment}) exception", e);
-				return 0;
+				return new OrderResponse()
+				{
+					OrderedQuantity = quantity,
+					AveragePrice = null,
+					FilledQuantity = 0
+				};
 			}
 		}
 

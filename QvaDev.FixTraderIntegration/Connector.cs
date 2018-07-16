@@ -135,7 +135,11 @@ namespace QvaDev.FixTraderIntegration
 								(key, oldValue) =>
 								{
 									var quantity = sumLots - oldValue.SumContracts;
-									_taskCompletionManager.SetResult(symbol, quantity);
+									_taskCompletionManager.SetResult(symbol, new OrderResponse()
+									{
+										AveragePrice = 0,
+										FilledQuantity = quantity
+									});
 
 									oldValue.SumContracts = sumLots;
 									return oldValue;
@@ -161,7 +165,7 @@ namespace QvaDev.FixTraderIntegration
 			catch { }
 		}
 
-		public async Task<decimal> SendMarketOrderRequest(string symbol, Sides side, decimal lots, string comment = null)
+		public async Task<OrderResponse> SendMarketOrderRequest(string symbol, Sides side, decimal quantity, string comment = null)
 		{
 			try
 			{
@@ -172,13 +176,13 @@ namespace QvaDev.FixTraderIntegration
 					$"101=1",
 					$"102={(side == Sides.Buy ? 0 : 1)}",
 					$"103={symbol}",
-					$"104={lots}",
+					$"104={quantity}",
 					$"114={unix}",
 					$"115=0"
 				};
 				if (!string.IsNullOrWhiteSpace(comment)) tags.Insert(1, $"100={comment}");
 
-				var task = _taskCompletionManager.CreateCompletableTask<decimal>(symbol);
+				var task = _taskCompletionManager.CreateCompletableTask<OrderResponse>(symbol);
 
 				var ns = _commandClient.GetStream();
 				var encoder = new ASCIIEncoding();
@@ -189,8 +193,13 @@ namespace QvaDev.FixTraderIntegration
 			}
 			catch (Exception e)
 			{
-				_log.Error($"Connector.SendMarketOrderRequest({symbol}, {side}, {lots}, {comment}) exception", e);
-				return 0;
+				_log.Error($"Connector.SendMarketOrderRequest({symbol}, {side}, {quantity}, {comment}) exception", e);
+				return new OrderResponse()
+				{
+					OrderedQuantity = quantity,
+					AveragePrice = null,
+					FilledQuantity = 0
+				};
 			}
 		}
 
