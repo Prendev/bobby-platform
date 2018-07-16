@@ -128,6 +128,10 @@
       <Project>{e3002184-b948-49ee-b313-3167948c3f97}</Project>
       <Name>QvaDev.FixTraderIntegration</Name>
     </ProjectReference>
+    <ProjectReference Include="..\QvaDev.IlyaFastFeedIntegration\QvaDev.IlyaFastFeedIntegration.csproj">
+      <Project>{4c1ea1a8-5c20-48ab-a662-72969d880b21}</Project>
+      <Name>QvaDev.IlyaFastFeedIntegration</Name>
+    </ProjectReference>
     <ProjectReference Include="..\QvaDev.Mt4Integration\QvaDev.Mt4Integration.csproj">
       <Project>{73a2679e-f17e-4484-8874-461d3fc895dd}</Project>
       <Name>QvaDev.Mt4Integration</Name>

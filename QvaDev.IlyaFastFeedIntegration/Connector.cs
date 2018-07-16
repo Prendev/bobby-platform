@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using log4net;
 using QvaDev.Common.Integration;
+using QvaDev.Communication;
 
 namespace QvaDev.IlyaFastFeedIntegration
 {
@@ -19,9 +20,10 @@ namespace QvaDev.IlyaFastFeedIntegration
 		private CancellationTokenSource _cancellationTokenSource;
 		private readonly ConcurrentDictionary<string, Tick> _lastTicks =
 			new ConcurrentDictionary<string, Tick>();
+		private readonly TaskCompletionManager _taskCompletionManager;
 
 		public string Description => _accountInfo.Description;
-		public bool IsConnected => _tcpClient?.Connected == true;
+		public bool IsConnected { get; private set; }
 
 		public event PositionEventHandler OnPosition;
 		public event TickEventHandler OnTick;
@@ -30,35 +32,37 @@ namespace QvaDev.IlyaFastFeedIntegration
 		public Connector(ILog log)
 		{
 			_log = log;
+			_taskCompletionManager = new TaskCompletionManager(100, 1000);
 		}
 
-		public bool Connect(AccountInfo accountInfo)
+		public async Task Connect(AccountInfo accountInfo)
 		{
 			_accountInfo = accountInfo;
 			try
 			{
 				_tcpClient = new TcpClient(accountInfo.IpAddress, accountInfo.Port);
 
-				if (!IsConnected)
-				{
+				if (!_tcpClient.Connected)
 					Disconnect();
-					return false;
-				}
 
 				if (!string.IsNullOrWhiteSpace(_accountInfo.UserName))
 					SendMessage("User Logon=" + _accountInfo.UserName + "\r\n");
+
+
+				var task = _taskCompletionManager.CreateCompletableTask<bool>(_accountInfo.Description);
 
 				_cancellationTokenSource = new CancellationTokenSource();
 				_receiverTask = new Task(Receive, _cancellationTokenSource.Token, TaskCreationOptions.LongRunning);
 				_receiverTask.Start();
 
-				return true;
+				IsConnected = await task;
 			}
 			catch (Exception e)
 			{
 				_log.Error($"{_accountInfo.Description} account FAILED to connect", e);
+				IsConnected = false;
 			}
-			return false;
+			OnConnectionChange?.Invoke(this, null);
 		}
 
 		public void Disconnect()
@@ -69,6 +73,9 @@ namespace QvaDev.IlyaFastFeedIntegration
 				_tcpClient?.Dispose();
 			}
 			catch { }
+
+			IsConnected = false;
+			OnConnectionChange?.Invoke(this, null);
 		}
 
 		public Tick GetLastTick(string symbol)
@@ -108,8 +115,7 @@ namespace QvaDev.IlyaFastFeedIntegration
 			if (ret <= 0)
 			{
 				_log.Error($"{_accountInfo.Description} feeder closed connection");
-				Disconnect();
-				Connect(_accountInfo);
+				Reconnect();
 			}
 			// Admin
 			else if (ret == 31 || ret == 8 || ret == 52 || ret == 14)
@@ -130,10 +136,16 @@ namespace QvaDev.IlyaFastFeedIntegration
 				var badMessages = new[]
 					{"User is already autorized!!!=#=", "License is blocked, or expired or do not exist!!!=#=", "User Logoff=#="};
 				if (badMessages.Contains(result.Trim()))
+				{
 					OnMessageDisconnect(result.Trim());
+					_taskCompletionManager.SetResult(_accountInfo.Description, false);
+				}
 
 				if (result.Trim().Equals("OK!!!=#="))
+				{
 					_log.Info($"{_accountInfo.Description} admin message auth OK");
+					_taskCompletionManager.SetResult(_accountInfo.Description, true);
+				}
 			}
 			// Tick
 			else
@@ -168,6 +180,13 @@ namespace QvaDev.IlyaFastFeedIntegration
 
 				}
 			}
+		}
+
+		private async void Reconnect()
+		{
+			OnConnectionChange?.Invoke(this, null);
+			await Task.Delay(1000);
+			await Connect(_accountInfo);
 		}
 
 		private void OnMessageDisconnect(string message)

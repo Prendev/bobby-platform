@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -112,14 +111,18 @@ namespace QvaDev.Duplicat.Views
 				}
             }
 
+			// Set invisible columns
             foreach (var name in _invisibleColumns)
             {
                 if (!Columns.Contains(name)) continue;
                 Columns[name].Visible = false;
             }
+
+			// Set ToolTips for short named columns
 			foreach (DataGridViewColumn column in Columns)
 				if (column.HeaderText != column.DataPropertyName && !column.HeaderText.Contains('*'))
 					column.ToolTipText = column.DataPropertyName;
+
 			FilterRows();
         }
 

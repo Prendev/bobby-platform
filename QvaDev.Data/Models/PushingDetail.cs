@@ -6,8 +6,8 @@ namespace QvaDev.Data.Models
 {
     public class PushingDetail : BaseEntity, IFilterableEntity
     {
-        [NotMapped]
-        public decimal? PriceLimit { get => Get<decimal?>(); set => Set(value); }
+        [NotMapped] public decimal? PriceLimit { get => Get<decimal?>(); set => Set(value); }
+
 	    [DisplayName("Small")] public int SmallContractSize { get; set; }
 	    [DisplayName("Big")] public int BigContractSize { get; set; }
         public int BigPercentage { get; set; }

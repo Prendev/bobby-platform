@@ -153,16 +153,16 @@ namespace QvaDev.FixApiIntegration
 			}
 		}
 
+		private void FixConnector_SocketClosed(object sender, ClosedEventArgs e)
+		{
+			Reconnect();
+		}
+
 		private async void Reconnect()
 		{
 			OnConnectionChange?.Invoke(this, null);
 			await Task.Delay(1000);
 			await Connect();
-		}
-
-		private void FixConnector_SocketClosed(object sender, ClosedEventArgs e)
-		{
-			Reconnect();
 		}
 
 		// TODO go to nullable?

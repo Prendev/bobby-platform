@@ -121,6 +121,7 @@ namespace QvaDev.Duplicat.ViewModel
             _duplicatContext.CTraderAccounts.Load();
             _duplicatContext.FixTraderAccounts.Load();
 	        _duplicatContext.FixApiAccounts.Load();
+	        _duplicatContext.IlyaFastFeedAccounts.Load();
 			_duplicatContext.Profiles.Load();
 			_duplicatContext.Accounts.Where(e => e.ProfileId == SelectedProfileId).Load();
 			_duplicatContext.Masters.Where(e => e.ProfileId == SelectedProfileId).Load();

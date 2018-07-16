@@ -22,6 +22,7 @@ namespace QvaDev.Orchestration.Services
 			if (account.CTraderAccountId.HasValue) ConenctCtAccount(account);
 			if (account.FixTraderAccountId.HasValue) ConnectFtAccount(account);
 			if (account.FixApiAccountId.HasValue) ConnectFixAccount(account);
+			if (account.IlyaFastFeedAccountId.HasValue) ConnectIlyaFastFeedAccount(account);
 		}
 
 
@@ -90,6 +91,20 @@ namespace QvaDev.Orchestration.Services
 				}, _log);
 
 			await ((FixApiIntegration.Connector) account.Connector).Connect();
+		}
+
+		private async void ConnectIlyaFastFeedAccount(Account account)
+		{
+			if (account.Connector == null)
+				account.Connector = new IlyaFastFeedIntegration.Connector(_log);
+
+			((IlyaFastFeedIntegration.Connector)account.Connector).Connect(new IlyaFastFeedIntegration.AccountInfo()
+			{
+				Description = account.IlyaFastFeedAccount.Description,
+				IpAddress = account.IlyaFastFeedAccount.IpAddress,
+				Port = account.IlyaFastFeedAccount.Port,
+				UserName = account.IlyaFastFeedAccount.UserName
+			});
 		}
 	}
 }
