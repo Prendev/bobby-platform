@@ -98,7 +98,7 @@ namespace QvaDev.Orchestration.Services
 			    var lots = (decimal)Math.Abs(e.Position.Lots) *  copier.CopyRatio;
 			    if (e.Action == PositionEventArgs.Actions.Open && copier.OrderType == FixApiCopier.FixApiOrderTypes.Aggressive)
 				    slaveConnector.SendAggressiveOrderRequest(symbol, e.Position.Side, lots, e.Position.OpenPrice, copier.Slippage,
-					    copier.BurstPeriodInMilliseconds, copier.MaxRetryCount, copier.RetryPeriodInMilliseconds, $"{slave.Id}-{e.Position.Id}");
+					    copier.BurstPeriodInMilliseconds, copier.MaxRetryCount, copier.RetryPeriodInMs, $"{slave.Id}-{e.Position.Id}");
 				else if (e.Action == PositionEventArgs.Actions.Open && copier.OrderType == FixApiCopier.FixApiOrderTypes.Market)
 					slaveConnector.SendMarketOrderRequest(symbol, e.Position.Side, lots, $"{slave.Id}-{e.Position.Id}");
 				else if (e.Action == PositionEventArgs.Actions.Close)
@@ -124,13 +124,13 @@ namespace QvaDev.Orchestration.Services
 				var volume = (long)(100 * Math.Abs(e.Position.RealVolume) * copier.CopyRatio);
                 if (e.Action == PositionEventArgs.Actions.Open && copier.OrderType == Copier.CopierOrderTypes.MarketRange)
                     slaveConnector.SendMarketRangeOrderRequest(symbol, type, volume, e.Position.OpenPrice,
-                        copier.SlippageInPips, $"{slave.Id}-{e.Position.Id}", copier.MaxRetryCount, copier.RetryPeriodInMilliseconds);
+                        copier.SlippageInPips, $"{slave.Id}-{e.Position.Id}", copier.MaxRetryCount, copier.RetryPeriodInMs);
                 else if (e.Action == PositionEventArgs.Actions.Open && copier.OrderType == Copier.CopierOrderTypes.Market)
                     slaveConnector.SendMarketOrderRequest(symbol, type, volume, $"{slave.Id}-{e.Position.Id}",
-                        copier.MaxRetryCount, copier.RetryPeriodInMilliseconds);
+                        copier.MaxRetryCount, copier.RetryPeriodInMs);
                 else if (e.Action == PositionEventArgs.Actions.Close)
                     slaveConnector.SendClosePositionRequests($"{slave.Id}-{e.Position.Id}",
-                        copier.MaxRetryCount, copier.RetryPeriodInMilliseconds);
+                        copier.MaxRetryCount, copier.RetryPeriodInMs);
 
             }, TaskCreationOptions.LongRunning));
             return Task.WhenAll(tasks);
@@ -153,9 +153,9 @@ namespace QvaDev.Orchestration.Services
 				var lots = e.Position.Lots;
                 if (e.Action == PositionEventArgs.Actions.Open)
                     slaveConnector.SendMarketOrderRequest(symbol, e.Position.Side, lots, e.Position.MagicNumber,
-                        $"{slave.Id}-{e.Position.Id}", copier.MaxRetryCount, copier.RetryPeriodInMilliseconds);
+                        $"{slave.Id}-{e.Position.Id}", copier.MaxRetryCount, copier.RetryPeriodInMs);
                 else if (e.Action == PositionEventArgs.Actions.Close)
-                    slaveConnector.SendClosePositionRequests($"{slave.Id}-{e.Position.Id}", copier.MaxRetryCount, copier.RetryPeriodInMilliseconds);
+                    slaveConnector.SendClosePositionRequests($"{slave.Id}-{e.Position.Id}", copier.MaxRetryCount, copier.RetryPeriodInMs);
             }, TaskCreationOptions.LongRunning));
             return Task.WhenAll(tasks);
 		}

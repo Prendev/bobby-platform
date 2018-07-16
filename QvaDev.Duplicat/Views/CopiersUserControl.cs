@@ -53,13 +53,13 @@ namespace QvaDev.Duplicat.Views
                 e.Row.Cells["SlaveId"].Value = _viewModel.SelectedSlaveId;
                 e.Row.Cells["SlippageInPips"].Value = 1;
                 e.Row.Cells["MaxRetryCount"].Value = 5;
-                e.Row.Cells["RetryPeriodInMilliseconds"].Value = 25;
+                e.Row.Cells["RetryPeriodInMs"].Value = 25;
             };
 	        dgvFixApiCopiers.DefaultValuesNeeded += (s, e) =>
 	        {
 		        e.Row.Cells["SlaveId"].Value = _viewModel.SelectedSlaveId;
 		        e.Row.Cells["MaxRetryCount"].Value = 5;
-		        e.Row.Cells["RetryPeriodInMilliseconds"].Value = 25;
+		        e.Row.Cells["RetryPeriodInMs"].Value = 25;
 	        };
 		}
 

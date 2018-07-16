@@ -117,7 +117,10 @@ namespace QvaDev.Duplicat.Views
                 if (!Columns.Contains(name)) continue;
                 Columns[name].Visible = false;
             }
-            FilterRows();
+			foreach (DataGridViewColumn column in Columns)
+				if (column.HeaderText != column.DataPropertyName && !column.HeaderText.Contains('*'))
+					column.ToolTipText = column.DataPropertyName;
+			FilterRows();
         }
 
         private void DataGridView_DataError(object sender, DataGridViewDataErrorEventArgs e)

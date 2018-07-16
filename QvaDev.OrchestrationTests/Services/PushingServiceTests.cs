@@ -331,7 +331,7 @@ namespace QvaDev.OrchestrationTests.Services
 					AlphaLots = 0.123,
 					BetaLots = 0.345,
 					MaxRetryCount = 7,
-					RetryPeriodInMilliseconds = 123,
+					RetryPeriodInMs = 123,
 					FutureOpenDelayInMs = 4321,
 					FullContractSize = 50,
 					HedgeSignalContractLimit = 10,

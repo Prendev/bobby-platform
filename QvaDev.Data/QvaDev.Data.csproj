@@ -127,6 +127,10 @@
     <Compile Include="Migrations\201807131010465_DealingArbLastOpenTime.Designer.cs">
       <DependentUpon>201807131010465_DealingArbLastOpenTime.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201807160849548_RetryPeriodRename.cs" />
+    <Compile Include="Migrations\201807160849548_RetryPeriodRename.Designer.cs">
+      <DependentUpon>201807160849548_RetryPeriodRename.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\BaseEntity.cs" />
     <Compile Include="Models\BaseDescriptionEntity.cs" />
@@ -201,6 +205,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201807131010465_DealingArbLastOpenTime.resx">
       <DependentUpon>201807131010465_DealingArbLastOpenTime.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201807160849548_RetryPeriodRename.resx">
+      <DependentUpon>201807160849548_RetryPeriodRename.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

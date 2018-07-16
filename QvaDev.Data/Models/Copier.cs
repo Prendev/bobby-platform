@@ -19,7 +19,7 @@ namespace QvaDev.Data.Models
 		public CopierOrderTypes OrderType { get; set; }
 		public int SlippageInPips { get; set; }
         public int MaxRetryCount { get; set; }
-        public int RetryPeriodInMilliseconds { get; set; }
+        public int RetryPeriodInMs { get; set; }
         public int DelayInMilliseconds { get; set; }
 
 	    [NotMapped] [InvisibleColumn] public bool IsFiltered { get => Get<bool>(); set => Set(value); }

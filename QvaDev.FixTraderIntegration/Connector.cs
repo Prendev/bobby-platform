@@ -228,7 +228,7 @@ namespace QvaDev.FixTraderIntegration
 		}
 
 		public void SendAggressiveOrderRequest(string symbol, Sides side, decimal lots, decimal price, double slippage,
-			int burstPeriodInMilliseconds, int maxRetryCount, int retryPeriodInMilliseconds, string comment = null)
+			int burstPeriodInMilliseconds, int maxRetryCount, int retryPeriodInMs, string comment = null)
 		{
 			try
 			{
@@ -242,7 +242,7 @@ namespace QvaDev.FixTraderIntegration
 				while (symbolInfo.SumContracts * (side == Sides.Buy ? 1 : -1) < contractsNeeded && maxRetryCount-- > 0 &&
 				       stopwatch.ElapsedMilliseconds < burstPeriodInMilliseconds)
 				{
-					var expDate = DateTime.UtcNow.AddMilliseconds(retryPeriodInMilliseconds);
+					var expDate = DateTime.UtcNow.AddMilliseconds(retryPeriodInMs);
 					var sumLots = symbolInfo.SumContracts * (side == Sides.Buy ? 1 : -1);
 					var diff = contractsNeeded - sumLots;
 

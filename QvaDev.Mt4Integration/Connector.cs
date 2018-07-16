@@ -14,9 +14,9 @@ namespace QvaDev.Mt4Integration
 	public interface IConnector : Common.Integration.IConnector
 	{
 		Position SendMarketOrderRequest(string symbol, Sides side, double lots, int magicNumber,
-			string comment, int maxRetryCount, int retryPeriodInMilliseconds);
+			string comment, int maxRetryCount, int retryPeriodInMs);
 
-		bool SendClosePositionRequests(Position position, double? lots, int maxRetryCount, int retryPeriodInMilliseconds);
+		bool SendClosePositionRequests(Position position, double? lots, int maxRetryCount, int retryPeriodInMs);
 	}
 
     public class Connector : IConnector
@@ -132,7 +132,7 @@ namespace QvaDev.Mt4Integration
         }
 
 		public Position SendMarketOrderRequest(string symbol, Sides side, double lots, int magicNumber,
-			string comment, int maxRetryCount, int retryPeriodInMilliseconds)
+			string comment, int maxRetryCount, int retryPeriodInMs)
         {
             try
 			{
@@ -173,8 +173,8 @@ namespace QvaDev.Mt4Integration
                 _log.Error($"Connector.SendMarketOrderRequest({symbol}, {side}, {lots}, {magicNumber}, {comment}) exception", e);
 				if (maxRetryCount <= 0) return null;
 
-				Thread.Sleep(retryPeriodInMilliseconds);
-				return SendMarketOrderRequest(symbol, side, lots, magicNumber, comment, --maxRetryCount, retryPeriodInMilliseconds);
+				Thread.Sleep(retryPeriodInMs);
+				return SendMarketOrderRequest(symbol, side, lots, magicNumber, comment, --maxRetryCount, retryPeriodInMs);
 			}
         }
 
@@ -183,7 +183,7 @@ namespace QvaDev.Mt4Integration
 			return SendMarketOrderRequest(symbol, side, lots, magicNumber, comment, 0, 0);
 		}
 
-		public bool SendClosePositionRequests(Position position, double? lots, int maxRetryCount, int retryPeriodInMilliseconds)
+		public bool SendClosePositionRequests(Position position, double? lots, int maxRetryCount, int retryPeriodInMs)
         {
             try
 			{
@@ -200,22 +200,22 @@ namespace QvaDev.Mt4Integration
                 _log.Error($"Connector.SendClosePositionRequests({position.Id}) exception", e);
 				if (maxRetryCount <= 0) return false;
 
-				Thread.Sleep(retryPeriodInMilliseconds);
-				return SendClosePositionRequests(position, lots, --maxRetryCount, retryPeriodInMilliseconds);
+				Thread.Sleep(retryPeriodInMs);
+				return SendClosePositionRequests(position, lots, --maxRetryCount, retryPeriodInMs);
 			}
         }
 
-        public bool SendClosePositionRequests(string comment, int maxRetryCount , int retryPeriodInMilliseconds)
+        public bool SendClosePositionRequests(string comment, int maxRetryCount , int retryPeriodInMs)
         {
             foreach (var pos in Positions.Where(p => p.Value.Comment == comment && !p.Value.IsClosed))
-                SendClosePositionRequests(pos.Value, null, maxRetryCount, retryPeriodInMilliseconds);
+                SendClosePositionRequests(pos.Value, null, maxRetryCount, retryPeriodInMs);
 			return true;
 		}
 
-	    public bool SendClosePositionRequests(List<Position> positions, int maxRetryCount, int retryPeriodInMilliseconds)
+	    public bool SendClosePositionRequests(List<Position> positions, int maxRetryCount, int retryPeriodInMs)
 	    {
 		    foreach (var pos in positions)
-			    SendClosePositionRequests(pos, null, maxRetryCount, retryPeriodInMilliseconds);
+			    SendClosePositionRequests(pos, null, maxRetryCount, retryPeriodInMs);
 		    return true;
 	    }
 
@@ -224,11 +224,11 @@ namespace QvaDev.Mt4Integration
 			return SendClosePositionRequests(position, lots, 0, 0);
 		}
 
-	    public bool SendClosePositionRequests(long ticket, int maxRetryCount, int retryPeriodInMilliseconds)
+	    public bool SendClosePositionRequests(long ticket, int maxRetryCount, int retryPeriodInMs)
 	    {
 		    var position = Positions.FirstOrDefault(p => p.Key == ticket && !p.Value.IsClosed);
 		    if (position.Value == null) return true;
-		    return SendClosePositionRequests(position.Value, null, maxRetryCount, retryPeriodInMilliseconds);
+		    return SendClosePositionRequests(position.Value, null, maxRetryCount, retryPeriodInMs);
 	    }
 
 	    public long GetOpenContracts(string symbol)

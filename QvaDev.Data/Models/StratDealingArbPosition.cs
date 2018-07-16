@@ -12,9 +12,6 @@ namespace QvaDev.Data.Models
 			Sell
 		}
 
-		[InvisibleColumn] public int StratDealingArbId { get; set; }
-		[InvisibleColumn] public StratDealingArb StratDealingArb { get; set; }
-
 		public DateTime OpenTime { get; set; }
 
 		public decimal AlphaOpenPrice { get; set; }
@@ -28,6 +25,9 @@ namespace QvaDev.Data.Models
 		[InvisibleColumn] public long? BetaOrderTicket { get; set; }
 
 		public bool IsClosed { get; set; }
+
+		[InvisibleColumn] public int StratDealingArbId { get; set; }
+		[InvisibleColumn] public StratDealingArb StratDealingArb { get; set; }
 
 		[NotMapped] [InvisibleColumn] public bool IsFiltered { get => Get<bool>(); set => Set(value); }
 	}

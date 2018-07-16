@@ -21,7 +21,7 @@ namespace QvaDev.Data.Models
 		public int BurstPeriodInMilliseconds { get; set; }
 		public int DelayInMilliseconds { get; set; }
         public int MaxRetryCount { get; set; }
-        public int RetryPeriodInMilliseconds { get; set; }
+        public int RetryPeriodInMs { get; set; }
 
         [NotMapped] [InvisibleColumn] public bool IsFiltered { get => Get<bool>(); set => Set(value); }
     }

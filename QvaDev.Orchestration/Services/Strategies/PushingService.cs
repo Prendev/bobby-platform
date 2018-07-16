@@ -37,7 +37,7 @@ namespace QvaDev.Orchestration.Services.Strategies
 			var betaConnector = (MtConnector)pushing.BetaMaster.Connector;
 			// Open first side and wait a bit
 			pushing.BetaPosition = betaConnector.SendMarketOrderRequest(pushing.BetaSymbol, pushing.BetaOpenSide, pushing.PushingDetail.BetaLots, 0,
-				null, pushing.PushingDetail.MaxRetryCount, pushing.PushingDetail.RetryPeriodInMilliseconds);
+				null, pushing.PushingDetail.MaxRetryCount, pushing.PushingDetail.RetryPeriodInMs);
 
 			if (pushing.BetaPosition == null)
 			{
@@ -65,7 +65,7 @@ namespace QvaDev.Orchestration.Services.Strategies
 				if (pushing.InPanic || PriceLimitReached(pushing, pushing.BetaOpenSide)) break;
 			}
 			pushing.AlphaPosition = alphaConnector.SendMarketOrderRequest(pushing.AlphaSymbol, InvSide(pushing.BetaOpenSide), pd.AlphaLots, 0,
-				null, pushing.PushingDetail.MaxRetryCount, pushing.PushingDetail.RetryPeriodInMilliseconds);
+				null, pushing.PushingDetail.MaxRetryCount, pushing.PushingDetail.RetryPeriodInMs);
 
 			if (pushing.AlphaPosition == null)
 			{
@@ -102,7 +102,7 @@ namespace QvaDev.Orchestration.Services.Strategies
 			var firstPos = pushing.BetaOpenSide == pushing.FirstCloseSide ? pushing.BetaPosition : pushing.AlphaPosition;
 
 			// Close first side and wait a bit
-			firstConnector.SendClosePositionRequests(firstPos, null, pushing.PushingDetail.MaxRetryCount, pushing.PushingDetail.RetryPeriodInMilliseconds);
+			firstConnector.SendClosePositionRequests(firstPos, null, pushing.PushingDetail.MaxRetryCount, pushing.PushingDetail.RetryPeriodInMs);
 			_threadService.Sleep(pushing.PushingDetail.FutureOpenDelayInMs);
 		}
 
@@ -128,7 +128,7 @@ namespace QvaDev.Orchestration.Services.Strategies
 				if (pushing.InPanic || PriceLimitReached(pushing, futureSide)) break;
 			}
 			hedgeConnector.SendMarketOrderRequest(pushing.HedgeSymbol, pushing.FirstCloseSide, pd.HedgeLots, 0,
-				null, pushing.PushingDetail.MaxRetryCount, pushing.PushingDetail.RetryPeriodInMilliseconds);
+				null, pushing.PushingDetail.MaxRetryCount, pushing.PushingDetail.RetryPeriodInMs);
 		}
 
 		public void ClosingSecond(Pushing pushing)
@@ -155,7 +155,7 @@ namespace QvaDev.Orchestration.Services.Strategies
 				// Rush
 				if (pushing.InPanic || PriceLimitReached(pushing, futureSide)) break;
 			}
-			secondConnector.SendClosePositionRequests(secondPos, null, pushing.PushingDetail.MaxRetryCount, pushing.PushingDetail.RetryPeriodInMilliseconds);
+			secondConnector.SendClosePositionRequests(secondPos, null, pushing.PushingDetail.MaxRetryCount, pushing.PushingDetail.RetryPeriodInMs);
 		}
 
 		public void ClosingFinish(Pushing pushing)

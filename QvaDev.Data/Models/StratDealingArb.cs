@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics;
@@ -25,22 +26,28 @@ namespace QvaDev.Data.Models
 		[NotMapped] public decimal? BetaAsk { get => Get<decimal?>(); set => Set(value); }
 		[NotMapped] public decimal? AlphaBid { get => Get<decimal?>(); set => Set(value); }
 
+		[DisplayName("MaxPos")]
 		public int MaxNumberOfPositions { get; set; }
 
+		[DisplayName("SignalDiff")]
 		public decimal SignalDiffInPip { get; set; }
+		[DisplayName("SignalStep")]
 		public decimal SignalStepInPip { get; set; }
+		[DisplayName("Target")]
 		public decimal TargetInPip { get; set; }
 
+		[DisplayName("MinOpenTime")]
 		public int MinOpenTimeInMinutes { get; set; }
+		[DisplayName("ReOpenInterval")]
 		public int ReOpenIntervalInMinutes { get; set; }
 
-		public TimeSpan? EarliestOpenTime { get; set; }
-		public TimeSpan? LatestOpenTime { get; set; }
-		public TimeSpan? LatestCloseTime { get; set; }
+		[InvisibleColumn] public TimeSpan? EarliestOpenTime { get; set; }
+		[InvisibleColumn] public TimeSpan? LatestOpenTime { get; set; }
+		[InvisibleColumn] public TimeSpan? LatestCloseTime { get; set; }
 
-		public StratDealingArbOrderTypes OrderType { get; set; }
-		public decimal Deviation { get; set; }
-		public int Ttl { get; set; }
+		[InvisibleColumn] public StratDealingArbOrderTypes OrderType { get; set; }
+		[InvisibleColumn] public decimal Deviation { get; set; }
+		[InvisibleColumn] public int Ttl { get; set; }
 
 		public int AlphaAccountId { get; set; }
 		public Account AlphaAccount { get; set; }
@@ -56,10 +63,10 @@ namespace QvaDev.Data.Models
 		public TimeSpan ShiftCalcInterval { get; set; }
 
 		public decimal PipSize { get; set; }
-		public int MagicNumber { get; set; }
+		[InvisibleColumn] public int MagicNumber { get; set; }
 
-		public int MaxRetryCount { get; set; }
-		public int RetryPeriodInMilliseconds { get; set; }
+		[InvisibleColumn] public int MaxRetryCount { get; set; }
+		[InvisibleColumn] public int RetryPeriodInMs { get; set; }
 
 		[InvisibleColumn] public DateTime? LastOpenTime { get => Get<DateTime?>(); set => Set(value); }
 

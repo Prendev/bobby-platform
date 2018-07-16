@@ -83,7 +83,7 @@
 			// 
 			// btnLoad
 			// 
-			this.btnLoad.Location = new System.Drawing.Point(7, 22);
+			this.btnLoad.Location = new System.Drawing.Point(7, 58);
 			this.btnLoad.Margin = new System.Windows.Forms.Padding(4);
 			this.btnLoad.Name = "btnLoad";
 			this.btnLoad.Size = new System.Drawing.Size(200, 28);
@@ -93,7 +93,7 @@
 			// 
 			// btnTestClose
 			// 
-			this.btnTestClose.Location = new System.Drawing.Point(423, 58);
+			this.btnTestClose.Location = new System.Drawing.Point(631, 58);
 			this.btnTestClose.Margin = new System.Windows.Forms.Padding(4);
 			this.btnTestClose.Name = "btnTestClose";
 			this.btnTestClose.Size = new System.Drawing.Size(200, 28);
@@ -103,7 +103,7 @@
 			// 
 			// btnTestOpenSide2
 			// 
-			this.btnTestOpenSide2.Location = new System.Drawing.Point(215, 58);
+			this.btnTestOpenSide2.Location = new System.Drawing.Point(423, 58);
 			this.btnTestOpenSide2.Margin = new System.Windows.Forms.Padding(4);
 			this.btnTestOpenSide2.Name = "btnTestOpenSide2";
 			this.btnTestOpenSide2.Size = new System.Drawing.Size(200, 28);
@@ -113,7 +113,7 @@
 			// 
 			// btnTestOpenSide1
 			// 
-			this.btnTestOpenSide1.Location = new System.Drawing.Point(7, 58);
+			this.btnTestOpenSide1.Location = new System.Drawing.Point(215, 58);
 			this.btnTestOpenSide1.Margin = new System.Windows.Forms.Padding(4);
 			this.btnTestOpenSide1.Name = "btnTestOpenSide1";
 			this.btnTestOpenSide1.Size = new System.Drawing.Size(200, 28);
@@ -123,7 +123,7 @@
 			// 
 			// btnStop
 			// 
-			this.btnStop.Location = new System.Drawing.Point(423, 22);
+			this.btnStop.Location = new System.Drawing.Point(215, 22);
 			this.btnStop.Margin = new System.Windows.Forms.Padding(4);
 			this.btnStop.Name = "btnStop";
 			this.btnStop.Size = new System.Drawing.Size(200, 28);
@@ -133,7 +133,7 @@
 			// 
 			// btnStart
 			// 
-			this.btnStart.Location = new System.Drawing.Point(215, 22);
+			this.btnStart.Location = new System.Drawing.Point(7, 22);
 			this.btnStart.Margin = new System.Windows.Forms.Padding(4);
 			this.btnStart.Name = "btnStart";
 			this.btnStart.Size = new System.Drawing.Size(200, 28);

@@ -243,7 +243,7 @@ namespace QvaDev.Orchestration.Services.Strategies
 			// Close if not enough future contracts
 			//if (Math.Abs(alpha.GetSymbolInfo(arb.AlphaSymbol).SumContracts) < arb.AlphaSize * mtPositions.Count)
 			//{
-			//	beta.SendClosePositionRequests(mtPositions, arb.MaxRetryCount, arb.RetryPeriodInMilliseconds);
+			//	beta.SendClosePositionRequests(mtPositions, arb.MaxRetryCount, arb.RetryPeriodInMs);
 			//	_log.Error($"{arb.Description} arb mismatching sides close, not enough futures!!!");
 			//}
 

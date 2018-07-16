@@ -144,7 +144,7 @@ namespace QvaDev.Data.Migrations
                         OrderType = c.Int(nullable: false),
                         SlippageInPips = c.Int(nullable: false),
                         MaxRetryCount = c.Int(nullable: false),
-                        RetryPeriodInMilliseconds = c.Int(nullable: false),
+                        RetryPeriodInMs = c.Int(nullable: false),
                         DelayInMilliseconds = c.Int(nullable: false),
                     })
                 .PrimaryKey(t => t.Id)
@@ -164,7 +164,7 @@ namespace QvaDev.Data.Migrations
                         BurstPeriodInMilliseconds = c.Int(nullable: false),
                         DelayInMilliseconds = c.Int(nullable: false),
                         MaxRetryCount = c.Int(nullable: false),
-                        RetryPeriodInMilliseconds = c.Int(nullable: false),
+                        RetryPeriodInMs = c.Int(nullable: false),
                     })
                 .PrimaryKey(t => t.Id)
                 .ForeignKey("dbo.Slaves", t => t.SlaveId, cascadeDelete: true)
@@ -232,7 +232,7 @@ namespace QvaDev.Data.Migrations
                         BetaLots = c.Double(nullable: false),
                         HedgeLots = c.Double(nullable: false),
                         MaxRetryCount = c.Int(nullable: false),
-                        RetryPeriodInMilliseconds = c.Int(nullable: false),
+                        RetryPeriodInMs = c.Int(nullable: false),
                     })
                 .PrimaryKey(t => t.Id);
             
@@ -261,7 +261,7 @@ namespace QvaDev.Data.Migrations
                         PipSize = c.Double(nullable: false),
                         MagicNumber = c.Int(nullable: false),
                         MaxRetryCount = c.Int(nullable: false),
-                        RetryPeriodInMilliseconds = c.Int(nullable: false),
+                        RetryPeriodInMs = c.Int(nullable: false),
                         Description = c.String(nullable: false),
                     })
                 .PrimaryKey(t => t.Id)

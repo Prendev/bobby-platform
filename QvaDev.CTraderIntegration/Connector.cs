@@ -172,7 +172,7 @@ namespace QvaDev.CTraderIntegration
             return accounts.Value.FirstOrDefault(a => a.accountId == AccountId)?.depositCurrency ?? "";
         }
 
-        public void SendMarketOrderRequest(string symbol, ProtoTradeSide type, long volume, string clientOrderId, int maxRetryCount = 5, int retryPeriodInMilliseconds = 3000)
+        public void SendMarketOrderRequest(string symbol, ProtoTradeSide type, long volume, string clientOrderId, int maxRetryCount = 5, int retryPeriodInMs = 3000)
         {
             var clientMsgId = $"{AccountId}|{clientOrderId}";
             _marketOrders.GetOrAdd(clientMsgId, new MarketOrder
@@ -181,7 +181,7 @@ namespace QvaDev.CTraderIntegration
                 Side = type ==  ProtoTradeSide.BUY ? Sides.Buy : Sides.Sell,
                 Volume = volume,
                 MaxRetryCount = maxRetryCount,
-                RetryPeriodInMilliseconds = retryPeriodInMilliseconds
+                RetryPeriodInMs = retryPeriodInMs
             });
 
             lock (_cTraderClientWrapper.CTraderClient)
@@ -191,7 +191,7 @@ namespace QvaDev.CTraderIntegration
             }
         }
 
-        public void SendMarketRangeOrderRequest(string symbol, ProtoTradeSide type, long volume, decimal price, int slippageInPips, string clientOrderId, int maxRetryCount = 5, int retryPeriodInMilliseconds = 3000)
+        public void SendMarketRangeOrderRequest(string symbol, ProtoTradeSide type, long volume, decimal price, int slippageInPips, string clientOrderId, int maxRetryCount = 5, int retryPeriodInMs = 3000)
         {
             var clientMsgId = $"{AccountId}|{clientOrderId}";
             _marketOrders.GetOrAdd(clientMsgId, new MarketOrder
@@ -202,7 +202,7 @@ namespace QvaDev.CTraderIntegration
                 Price = price,
                 SlippageInPips = slippageInPips,
                 MaxRetryCount = maxRetryCount,
-                RetryPeriodInMilliseconds = retryPeriodInMilliseconds
+                RetryPeriodInMs = retryPeriodInMs
             });
 
             lock (_cTraderClientWrapper.CTraderClient)
@@ -212,17 +212,17 @@ namespace QvaDev.CTraderIntegration
             }
         }
 
-        public void SendClosePositionRequests(string clientOrderId, int maxRetryCount = 5, int retryPeriodInMilliseconds = 3000)
+        public void SendClosePositionRequests(string clientOrderId, int maxRetryCount = 5, int retryPeriodInMs = 3000)
         {
             var clientMsgId = $"{AccountId}|{clientOrderId}";
             foreach (var pos in Positions.Where(p => p.Value.Comment == clientMsgId && !p.Value.IsClosed))
-                SendClosePositionRequest(pos, Math.Abs(pos.Value.Volume), maxRetryCount, retryPeriodInMilliseconds);
+                SendClosePositionRequest(pos, Math.Abs(pos.Value.Volume), maxRetryCount, retryPeriodInMs);
         }
 
-        private void SendClosePositionRequest(KeyValuePair<long, Position> pos, long volume, int maxRetryCount = 5, int retryPeriodInMilliseconds = 3000)
+        private void SendClosePositionRequest(KeyValuePair<long, Position> pos, long volume, int maxRetryCount = 5, int retryPeriodInMs = 3000)
         {
             var clientMsgId = $"{AccountId}|{pos.Key}";
-            pos.Value.CloseOrder = new RetryOrder { MaxRetryCount = maxRetryCount, RetryPeriodInMilliseconds = retryPeriodInMilliseconds };
+            pos.Value.CloseOrder = new RetryOrder { MaxRetryCount = maxRetryCount, RetryPeriodInMs = retryPeriodInMs };
             lock (_cTraderClientWrapper.CTraderClient)
             {
                 _cTraderClientWrapper.CTraderClient.SendClosePositionRequest(_accountInfo.AccessToken, AccountId,
@@ -311,7 +311,7 @@ namespace QvaDev.CTraderIntegration
         {
             order.RetryCount++;
             if (order.RetryCount > order.MaxRetryCount) return;
-            if (DateTime.UtcNow - order.Time > new TimeSpan(0, 0, 0, 0, order.RetryPeriodInMilliseconds)) return;
+            if (DateTime.UtcNow - order.Time > new TimeSpan(0, 0, 0, 0, order.RetryPeriodInMs)) return;
 
             lock (_cTraderClientWrapper.CTraderClient)
             {
@@ -328,7 +328,7 @@ namespace QvaDev.CTraderIntegration
             if (ctPos.CloseOrder == null) return;
             ctPos.CloseOrder.RetryCount++;
             if (ctPos.CloseOrder.RetryCount > ctPos.CloseOrder.MaxRetryCount) return;
-            if (DateTime.UtcNow - ctPos.CloseOrder.Time > new TimeSpan(0, 0, 0, 0, ctPos.CloseOrder.RetryPeriodInMilliseconds)) return;
+            if (DateTime.UtcNow - ctPos.CloseOrder.Time > new TimeSpan(0, 0, 0, 0, ctPos.CloseOrder.RetryPeriodInMs)) return;
 
             lock (_cTraderClientWrapper.CTraderClient)
             {
