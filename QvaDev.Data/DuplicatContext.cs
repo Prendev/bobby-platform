@@ -71,8 +71,16 @@ namespace QvaDev.Data
 			modelBuilder.Entity<StratDealingArb>().Property(x => x.Deviation).HasPrecision(18, 5);
 			modelBuilder.Entity<StratDealingArb>().Property(x => x.AlphaSize).HasPrecision(18, 3);
 			modelBuilder.Entity<StratDealingArb>().Property(x => x.BetaSize).HasPrecision(18, 3);
+
 			modelBuilder.Entity<StratDealingArbPosition>().Property(x => x.AlphaOpenPrice).HasPrecision(18, 5);
 			modelBuilder.Entity<StratDealingArbPosition>().Property(x => x.BetaOpenPrice).HasPrecision(18, 5);
+			modelBuilder.Entity<StratDealingArbPosition>().Property(x => x.AlphaClosePrice).HasPrecision(18, 5);
+			modelBuilder.Entity<StratDealingArbPosition>().Property(x => x.BetaClosePrice).HasPrecision(18, 5);
+			modelBuilder.Entity<StratDealingArbPosition>().Property(x => x.AlphaOpenSignal).HasPrecision(18, 5);
+			modelBuilder.Entity<StratDealingArbPosition>().Property(x => x.BetaOpenSignal).HasPrecision(18, 5);
+			modelBuilder.Entity<StratDealingArbPosition>().Property(x => x.AlphaCloseSignal).HasPrecision(18, 5);
+			modelBuilder.Entity<StratDealingArbPosition>().Property(x => x.BetaCloseSignal).HasPrecision(18, 5);
+
 			modelBuilder.Entity<StratDealingArbPosition>().Property(x => x.AlphaSize).HasPrecision(18, 3);
 			modelBuilder.Entity<StratDealingArbPosition>().Property(x => x.BetaSize).HasPrecision(18, 3);
 		}

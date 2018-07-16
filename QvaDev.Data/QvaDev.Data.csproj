@@ -139,6 +139,10 @@
     <Compile Include="Migrations\201807161434179_DealingArbSignalPrices.Designer.cs">
       <DependentUpon>201807161434179_DealingArbSignalPrices.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201807161457578_DealingArbSignalPricesFix.cs" />
+    <Compile Include="Migrations\201807161457578_DealingArbSignalPricesFix.Designer.cs">
+      <DependentUpon>201807161457578_DealingArbSignalPricesFix.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\BaseEntity.cs" />
     <Compile Include="Models\BaseDescriptionEntity.cs" />
@@ -222,6 +226,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201807161434179_DealingArbSignalPrices.resx">
       <DependentUpon>201807161434179_DealingArbSignalPrices.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201807161457578_DealingArbSignalPricesFix.resx">
+      <DependentUpon>201807161457578_DealingArbSignalPricesFix.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
