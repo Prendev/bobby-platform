@@ -39,7 +39,7 @@ namespace QvaDev.Duplicat.Views
 
 			dgvDealingArbPos.DefaultValuesNeeded += (s, e) =>
 			{
-				e.Row.Cells["DealingArbId"].Value = _viewModel.SelectedDealingArbId;
+				e.Row.Cells["StratDealingArbId"].Value = _viewModel.SelectedDealingArbId;
 			};
 		}
 

@@ -7,15 +7,16 @@ using System.Xml;
 using System.Xml.Serialization;
 using log4net;
 using QvaDev.Common.Integration;
-using QvaDev.Communication;
 using QvaDev.Communication.FixApi;
+using QvaDev.Communication.FixApi.Connectors.Strategies;
+using QvaDev.Communication.FixApi.Connectors.Strategies.MarketOrder;
+using OrderResponse = QvaDev.Common.Integration.OrderResponse;
 
 namespace QvaDev.FixApiIntegration
 {
 	public class Connector : IFixConnector
 	{
 		private readonly ILog _log;
-		private readonly TaskCompletionManager  _taskCompletionManager;
 		private readonly FixConnectorBase _fixConnector;
 		private readonly ConcurrentDictionary<string, Tick> _lastTicks =
 			new ConcurrentDictionary<string, Tick>();
@@ -36,7 +37,6 @@ namespace QvaDev.FixApiIntegration
 			ILog log)
 		{
 			_log = log;
-			_taskCompletionManager = new TaskCompletionManager(1000, 5000);
 			_accountInfo = accountInfo;
 
 			var doc = new XmlDocument();
@@ -106,22 +106,20 @@ namespace QvaDev.FixApiIntegration
 		{
 			try
 			{
-				var newResult = await _fixConnector.NewOrderAsync(new NewOrderRequest()
+				var response = await _fixConnector.MarketOrderAsync(new OrderRequest()
 				{
 					Side = side == Sides.Buy ? Side.Buy : Side.Sell,
 					Symbol = Symbol.Parse(symbol),
-					Type = OrdType.Market,
 					Quantity = quantity
 				});
-				var result = await _taskCompletionManager.CreateCompletableTask<ExecutionReport>(newResult.OrderId);
 
 				_log.Debug(
-					$"{Description} Connector.SendMarketOrderRequest({symbol}, {side}, {quantity}, {comment}) opened {result.CumulativeQuantity ?? 0} at avg price {result.AveragePrice}");
+					$"{Description} Connector.SendMarketOrderRequest({symbol}, {side}, {quantity}, {comment}) opened {response.FilledQuantity} at avg price {response.AveragePrice}");
 				return new OrderResponse()
 				{
 					OrderedQuantity = quantity,
-					AveragePrice = result.AveragePrice,
-					FilledQuantity = result.CumulativeQuantity ?? 0
+					AveragePrice = response.AveragePrice,
+					FilledQuantity = response.FilledQuantity
 				};
 			}
 			catch (Exception e)
@@ -209,11 +207,7 @@ namespace QvaDev.FixApiIntegration
 
 		private void FixConnector_ExecutionReport(object sender, ExecutionReportEventArgs e)
 		{
-			if (new[] { OrdStatus.New }.Contains(e.ExecutionReport.OrderStatus)) return;
-
 			SumContractsUpdate(e);
-
-			_taskCompletionManager.SetResult(e.ExecutionReport.OrderId, e.ExecutionReport);
 		}
 
 		private void SumContractsUpdate(ExecutionReportEventArgs e)

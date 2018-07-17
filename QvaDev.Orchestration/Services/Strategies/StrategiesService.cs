@@ -67,26 +67,26 @@ namespace QvaDev.Orchestration.Services.Strategies
 				if (alpha == connector && arb.AlphaSymbol != e.Tick.Symbol) return;
 				if (beta == connector && arb.BetaSymbol != e.Tick.Symbol) return;
 
+				var alphaTick = alpha.GetLastTick(arb.AlphaSymbol);
+				var betaTick = beta.GetLastTick(arb.BetaSymbol);
+
+				if (sender == alpha)
+				{
+					arb.AlphaAsk = alphaTick?.Ask;
+					arb.AlphaBid = alphaTick?.Bid;
+				}
+				else if (sender == beta)
+				{
+					arb.BetaAsk = betaTick?.Ask;
+					arb.BetaBid = betaTick?.Bid;
+				}
+
+				if (alphaTick?.HasValue != true || betaTick?.HasValue != true) return;
+				if (DateTime.UtcNow - alphaTick.Time > new TimeSpan(0, 1, 0)) return;
+				if (DateTime.UtcNow - betaTick.Time > new TimeSpan(0, 1, 0)) return;
+
 				Task.Factory.StartNew(() =>
 				{
-					var alphaTick = alpha.GetLastTick(arb.AlphaSymbol);
-					var betaTick = beta.GetLastTick(arb.BetaSymbol);
-
-					if (sender == alpha)
-					{
-						arb.AlphaAsk = alphaTick?.Ask;
-						arb.AlphaBid = alphaTick?.Bid;
-					}
-					else if (sender == beta)
-					{
-						arb.BetaAsk = betaTick?.Ask;
-						arb.BetaBid = betaTick?.Bid;
-					}
-
-					if (alphaTick?.HasValue != true || betaTick?.HasValue != true) return;
-					if (DateTime.UtcNow - alphaTick.Time > new TimeSpan(0, 1, 0)) return;
-					if (DateTime.UtcNow - betaTick.Time > new TimeSpan(0, 1, 0)) return;
-
 					lock (arb)
 					{
 						if (!arb.DoOpenSide1 && !arb.DoOpenSide2 && !arb.DoClose &&

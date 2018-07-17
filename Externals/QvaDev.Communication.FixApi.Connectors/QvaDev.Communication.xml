@@ -38,6 +38,16 @@
             <param name="type">The type to check</param>
             <returns><c>true</c>, if <paramref name="type"/> is a <see cref="T:System.Nullable`1"/> type; otherwise, <c>false</c>.</returns>
         </member>
+        <member name="M:QvaDev.Communication.Extensions.WaitHandleExtensions.WaitOneAsync(System.Threading.WaitHandle,System.Int32,System.Threading.CancellationToken)">
+            <summary>
+            Waits for a signal asynchronously on the provided <paramref name="handle"/>.
+            </summary>
+        </member>
+        <member name="M:QvaDev.Communication.Extensions.WaitHandleExtensions.WaitOneAsync(System.Threading.WaitHandle,System.Threading.CancellationToken)">
+            <summary>
+            Waits for a signal asynchronously on the provided <paramref name="handle"/>.
+            </summary>
+        </member>
         <member name="M:QvaDev.Communication.Extensions.DictionaryExtensions.GetValueOrDefault``1(System.Collections.Generic.IDictionary{System.String,System.Object},System.String,``0)">
             <summary>
             Tries to get the typed value from a <see cref="T:System.String"/>-<see cref="T:System.Object"/> dictionary for the given key.
