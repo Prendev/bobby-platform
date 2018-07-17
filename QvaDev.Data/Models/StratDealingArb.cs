@@ -18,6 +18,8 @@ namespace QvaDev.Data.Models
 			Aggressive
 		}
 
+		public event EventHandler OnTick;
+
 		[InvisibleColumn] public int ProfileId { get; set; }
 		[InvisibleColumn] public Profile Profile { get; set; }
 
@@ -25,6 +27,8 @@ namespace QvaDev.Data.Models
 		[NotMapped] public decimal? BetaBid { get => Get<decimal?>(); set => Set(value); }
 		[NotMapped] public decimal? BetaAsk { get => Get<decimal?>(); set => Set(value); }
 		[NotMapped] public decimal? AlphaBid { get => Get<decimal?>(); set => Set(value); }
+		[NotMapped] [InvisibleColumn]  public Tick AlphaTick { get; set; }
+		[NotMapped] [InvisibleColumn]  public Tick BetaTick { get; set; }
 
 		[DisplayName("MaxPos")]
 		public int MaxNumberOfPositions { get; set; }
@@ -52,12 +56,36 @@ namespace QvaDev.Data.Models
 		public int TimeWindowInMs { get; set; }
 
 		public int AlphaAccountId { get; set; }
-		public Account AlphaAccount { get; set; }
+		private Account _alphaAccount;
+		public Account AlphaAccount
+		{
+			get => _alphaAccount;
+			set
+			{
+				if (_alphaAccount != null)
+					_alphaAccount.OnTick -= Account_OnTick;
+				if (value != null)
+					value.OnTick += Account_OnTick;
+				_alphaAccount = value;
+			}
+		}
 		[Required] public string AlphaSymbol { get; set; }
 		public decimal AlphaSize { get; set; }
 
 		public int BetaAccountId { get; set; }
-		public Account BetaAccount { get; set; }
+		private Account _betaAccount;
+		public Account BetaAccount
+		{
+			get => _betaAccount;
+			set
+			{
+				if (_betaAccount != null)
+					_betaAccount.OnTick -= Account_OnTick;
+				if (value != null)
+					value.OnTick += Account_OnTick;
+				_betaAccount = value;
+			}
+		}
 		[Required] public string BetaSymbol { get; set; }
 		public decimal BetaSize { get; set; }
 
@@ -91,6 +119,16 @@ namespace QvaDev.Data.Models
 		[NotMapped] [InvisibleColumn] public bool DoOpenSide2 { get; set; }
 		[NotMapped] [InvisibleColumn] public bool DoClose { get; set; }
 
+		[NotMapped]
+		[InvisibleColumn]
+		public bool IsBusy
+		{
+			get => _isBusy;
+			set => _isBusy = value;
+		}
+		private volatile bool _isBusy;
+
+
 		private Sides GetSide(StratDealingArbPosition.Sides? side)
 		{
 			switch (side)
@@ -101,6 +139,32 @@ namespace QvaDev.Data.Models
 					return Sides.Sell;
 				default: return Sides.None;
 			}
+		}
+
+		private void Account_OnTick(object sender, TickEventArgs tickEventArgs)
+		{
+			if (tickEventArgs?.Tick?.HasValue != true) return;
+			if (sender == AlphaAccount && tickEventArgs.Tick.Symbol != AlphaSymbol) return;
+			if (sender == BetaAccount && tickEventArgs.Tick.Symbol != BetaSymbol) return;
+
+			if (sender == AlphaAccount)
+			{
+				AlphaAsk = tickEventArgs.Tick.Ask;
+				AlphaBid = tickEventArgs.Tick.Bid;
+				AlphaTick = tickEventArgs.Tick;
+			}
+			else if (sender == BetaAccount)
+			{
+				BetaAsk = tickEventArgs.Tick.Ask;
+				BetaBid = tickEventArgs.Tick.Bid;
+				BetaTick = tickEventArgs.Tick;
+			}
+
+			if (AlphaTick?.HasValue != true || BetaTick?.HasValue != true) return;
+			if (DateTime.UtcNow - AlphaTick.Time > new TimeSpan(0, 1, 0)) return;
+			if (DateTime.UtcNow - BetaTick.Time > new TimeSpan(0, 1, 0)) return;
+
+			OnTick?.Invoke(this, null);
 		}
 	}
 }

@@ -251,7 +251,7 @@ namespace QvaDev.FixApiIntegration
 				Time = DateTime.UtcNow
 			};
 			_lastTicks.AddOrUpdate(symbol, key => tick, (key, old) => tick);
-			OnTick?.Invoke(this, new TickEventArgs { Tick = tick });
+			OnTick?.BeginInvoke(this, new TickEventArgs {Tick = tick}, null, null);
 		}
 
 		private void FixConnector_ExecutionReport(object sender, ExecutionReportEventArgs e)

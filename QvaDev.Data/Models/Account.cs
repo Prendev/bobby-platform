@@ -14,6 +14,8 @@ namespace QvaDev.Data.Models
 			Error
 		}
 
+		public event TickEventHandler OnTick;
+
 		[InvisibleColumn] public int ProfileId { get; set; }
 		[InvisibleColumn] public Profile Profile { get; set; }
 
@@ -34,8 +36,33 @@ namespace QvaDev.Data.Models
 		public int? IlyaFastFeedAccountId { get; set; }
 		public IlyaFastFeedAccount IlyaFastFeedAccount { get; set; }
 
-		[NotMapped] [InvisibleColumn] public IConnector Connector { get; set; }
 		[NotMapped] [ReadOnly(true)] public States State { get; set; }
+
+		private IConnector _connector;
+		[NotMapped]
+		[InvisibleColumn]
+		public IConnector Connector
+		{
+			get => _connector;
+			set
+			{
+				if (_connector != null)
+					_connector.OnTick -= Connector_OnTick;
+				if (value != null)
+					value.OnTick += Connector_OnTick;
+				_connector = value;
+			}
+		}
+
+		public Tick GetLastTick(string symbol)
+		{
+			return _connector?.GetLastTick(symbol);
+		}
+
+		private void Connector_OnTick(object sender, TickEventArgs e)
+		{
+			OnTick?.Invoke(this, e);
+		}
 
 		public override string ToString()
 		{
