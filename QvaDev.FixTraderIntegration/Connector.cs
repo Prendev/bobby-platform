@@ -203,6 +203,12 @@ namespace QvaDev.FixTraderIntegration
 			}
 		}
 
+		public Task<OrderResponse> SendAggressiveOrderRequest(string symbol, Sides side, decimal quantity, decimal limitPrice, decimal deviation,
+			int timeout, int? retryCount = null, int? retryPeriod = null)
+		{
+			throw new NotImplementedException();
+		}
+
 		public void SendLimitOrderRequest(string symbol, Sides side, double lots, double slippage, string comment = null)
 		{
 			try

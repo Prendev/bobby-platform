@@ -45,9 +45,11 @@ namespace QvaDev.Data.Models
 		[InvisibleColumn] public TimeSpan? LatestOpenTime { get; set; }
 		[InvisibleColumn] public TimeSpan? LatestCloseTime { get; set; }
 
-		[InvisibleColumn] public StratDealingArbOrderTypes OrderType { get; set; }
-		[InvisibleColumn] public decimal Deviation { get; set; }
-		[InvisibleColumn] public int Ttl { get; set; }
+		public StratDealingArbOrderTypes OrderType { get; set; }
+		[DisplayName("Slippage")]
+		public decimal SlippageInPip { get; set; }
+		[DisplayName("TimeWindow")]
+		public int TimeWindowInMs { get; set; }
 
 		public int AlphaAccountId { get; set; }
 		public Account AlphaAccount { get; set; }
@@ -83,6 +85,7 @@ namespace QvaDev.Data.Models
 		[NotMapped] [InvisibleColumn] public decimal? LastAlphaOpenPrice => Positions?.LastOrDefault()?.AlphaOpenPrice;
 		[NotMapped] [InvisibleColumn] public decimal? LastBetaOpenPrice => Positions?.LastOrDefault()?.BetaOpenPrice;
 		[NotMapped] [InvisibleColumn] public int PositionCount => OpenPositions?.Count ?? 0;
+		[NotMapped] [InvisibleColumn] public decimal Deviation => SlippageInPip * PipSize;
 
 		[NotMapped] [InvisibleColumn] public bool DoOpenSide1 { get; set; }
 		[NotMapped] [InvisibleColumn] public bool DoOpenSide2 { get; set; }

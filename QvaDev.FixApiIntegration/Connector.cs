@@ -9,6 +9,7 @@ using log4net;
 using QvaDev.Common.Integration;
 using QvaDev.Communication.FixApi;
 using QvaDev.Communication.FixApi.Connectors.Strategies;
+using QvaDev.Communication.FixApi.Connectors.Strategies.AggressiveOrder;
 using QvaDev.Communication.FixApi.Connectors.Strategies.MarketOrder;
 using OrderResponse = QvaDev.Common.Integration.OrderResponse;
 
@@ -127,6 +128,54 @@ namespace QvaDev.FixApiIntegration
 				_log.Error($"{Description} Connector.SendMarketOrderRequest({symbol}, {side}, {quantity}, {comment}) exception", e);
 				return new OrderResponse()
 				{
+					OrderedQuantity = quantity,
+					AveragePrice = null,
+					FilledQuantity = 0
+				};
+			}
+		}
+
+		public async Task<OrderResponse> SendAggressiveOrderRequest(
+			string symbol, Sides side, decimal quantity,
+			decimal limitPrice, decimal deviation, int timeout,
+			int? retryCount = null, int? retryPeriod = null)
+		{
+			if (!_fixConnector.IsAggressiveOrderSupported())
+				return await SendMarketOrderRequest(symbol, side, quantity);
+			try
+			{
+				var response = await _fixConnector.AggressiveOrderAsync(new AggressiveOrderRequest()
+				{
+					Side = side == Sides.Buy ? Side.Buy : Side.Sell,
+					Symbol = Symbol.Parse(symbol),
+					Quantity = quantity,
+					LimitPrice = limitPrice,
+					Deviation = deviation,
+					Timeout = timeout
+				});
+
+				_log.Debug(
+					$"{Description} Connector.SendAggressiveOrderRequest({symbol}, {side}, {quantity}, " +
+					$"{limitPrice}, {deviation}, {timeout}, {retryCount}, {retryPeriod}) " +
+					$"opened {response.FilledQuantity} at avg price {response.AveragePrice}");
+
+				return new OrderResponse()
+				{
+					OrderPrice = limitPrice,
+					OrderedQuantity = quantity,
+					AveragePrice = response.AveragePrice,
+					FilledQuantity = response.FilledQuantity
+				};
+			}
+			catch (Exception e)
+			{
+				_log.Error(
+					$"{Description} Connector.SendAggressiveOrderRequest({symbol}, {side}, {quantity}, " +
+					$"{limitPrice}, {deviation}, {timeout}, {retryCount}, {retryPeriod}) exception", e);
+
+				return new OrderResponse()
+				{
+					OrderPrice = limitPrice,
 					OrderedQuantity = quantity,
 					AveragePrice = null,
 					FilledQuantity = 0

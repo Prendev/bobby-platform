@@ -143,6 +143,14 @@
     <Compile Include="Migrations\201807161457578_DealingArbSignalPricesFix.Designer.cs">
       <DependentUpon>201807161457578_DealingArbSignalPricesFix.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201807170953586_DealingArbSlippage.cs" />
+    <Compile Include="Migrations\201807170953586_DealingArbSlippage.Designer.cs">
+      <DependentUpon>201807170953586_DealingArbSlippage.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201807170958146_DealingArbTimeWindow.cs" />
+    <Compile Include="Migrations\201807170958146_DealingArbTimeWindow.Designer.cs">
+      <DependentUpon>201807170958146_DealingArbTimeWindow.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\BaseEntity.cs" />
     <Compile Include="Models\BaseDescriptionEntity.cs" />
@@ -229,6 +237,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201807161457578_DealingArbSignalPricesFix.resx">
       <DependentUpon>201807161457578_DealingArbSignalPricesFix.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201807170953586_DealingArbSlippage.resx">
+      <DependentUpon>201807170953586_DealingArbSlippage.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201807170958146_DealingArbTimeWindow.resx">
+      <DependentUpon>201807170958146_DealingArbTimeWindow.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

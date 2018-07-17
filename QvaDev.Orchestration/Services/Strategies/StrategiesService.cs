@@ -150,8 +150,8 @@ namespace QvaDev.Orchestration.Services.Strategies
 			    (arb.PositionCount == 0 || arb.BetaSide == Sides.Sell)) // Alpha long
 			{
 				arb.LastOpenTime = DateTime.UtcNow;
-				var beta = SendeBetaPosition(arb, Sides.Sell, arb.BetaSize);
-				var alpha = SendAlphaPosition(arb, Sides.Buy, arb.AlphaSize);
+				var beta = SendeBetaPosition(arb, Sides.Sell, arb.BetaSize, betaTick);
+				var alpha = SendAlphaPosition(arb, Sides.Buy, arb.AlphaSize, alphaTick);
 				await Task.WhenAll(beta, alpha);
 
 				var betaPos = beta.Result;
@@ -184,8 +184,8 @@ namespace QvaDev.Orchestration.Services.Strategies
 			         (arb.PositionCount == 0 || arb.BetaSide == Sides.Buy)) // Alpha short
 			{
 				arb.LastOpenTime = DateTime.UtcNow;
-				var beta = SendeBetaPosition(arb, Sides.Buy, arb.BetaSize);
-				var alpha = SendAlphaPosition(arb, Sides.Sell, arb.AlphaSize);
+				var beta = SendeBetaPosition(arb, Sides.Buy, arb.BetaSize, betaTick);
+				var alpha = SendAlphaPosition(arb, Sides.Sell, arb.AlphaSize, alphaTick);
 				await Task.WhenAll(beta, alpha);
 
 				var betaPos = beta.Result;
@@ -241,14 +241,6 @@ namespace QvaDev.Orchestration.Services.Strategies
 			var alphaTick = arb.AlphaAccount.Connector.GetLastTick(arb.AlphaSymbol);
 			var betaTick = arb.BetaAccount.Connector.GetLastTick(arb.BetaSymbol);
 
-			// Close if not enough future contracts
-			//if (Math.Abs(alpha.GetSymbolInfo(arb.AlphaSymbol).SumContracts) < arb.AlphaSize * mtPositions.Count)
-			//{
-			//	beta.SendClosePositionRequests(mtPositions, arb.MaxRetryCount, arb.RetryPeriodInMs);
-			//	_log.Error($"{arb.Description} arb mismatching sides close, not enough futures!!!");
-			//}
-
-
 			var timingClose = arb.HasTiming && IsTime(DateTime.UtcNow.TimeOfDay, arb.LatestCloseTime, arb.EarliestOpenTime);
 
 			foreach (var pos in arb.Positions.Where(p => !p.IsClosed))
@@ -286,6 +278,7 @@ namespace QvaDev.Orchestration.Services.Strategies
 		private Task<OrderResponse> CloseAlphaPosition(StratDealingArb arb, StratDealingArbPosition pos)
 		{
 			if (!(arb.AlphaAccount.Connector is IFixConnector fix)) throw new NotImplementedException();
+
 			var side = pos.BetaSide == StratDealingArbPosition.Sides.Buy ? Sides.Buy : Sides.Sell;
 			return fix.SendMarketOrderRequest(arb.AlphaSymbol, side, arb.AlphaSize);
 		}
@@ -293,22 +286,35 @@ namespace QvaDev.Orchestration.Services.Strategies
 		private Task<OrderResponse> CloseBetaPosition(StratDealingArb arb, StratDealingArbPosition pos)
 		{
 			if (!(arb.BetaAccount.Connector is IFixConnector fix)) throw new NotImplementedException();
+
 			var side = pos.AlphaSide == StratDealingArbPosition.Sides.Buy ? Sides.Buy : Sides.Sell;
 			return fix.SendMarketOrderRequest(arb.BetaSymbol, side, arb.BetaSize);
 		}
 
-		private Task<OrderResponse> SendAlphaPosition(StratDealingArb arb, Sides side, decimal size)
+		private Task<OrderResponse> SendAlphaPosition(StratDealingArb arb, Sides side, decimal size, Tick lastTick = null)
 		{
+			if (!(arb.AlphaAccount.Connector is IFixConnector fix)) throw new NotImplementedException();
 			if (size <= 0) return Task.FromResult(new OrderResponse());
-			var fix = (IFixConnector)arb.AlphaAccount.Connector;
-			return fix.SendMarketOrderRequest(arb.AlphaSymbol, side, size);
+
+			if (arb.OrderType == StratDealingArb.StratDealingArbOrderTypes.Market || lastTick == null)
+				return fix.SendMarketOrderRequest(arb.AlphaSymbol, side, size);
+
+			var limitPrice = side == Sides.Buy ? lastTick.Ask : lastTick.Bid;
+			return fix.SendAggressiveOrderRequest(arb.AlphaSymbol, side, size,
+				limitPrice, arb.Deviation, arb.TimeWindowInMs, arb.MaxRetryCount, arb.RetryPeriodInMs);
 		}
 
-		private Task<OrderResponse> SendeBetaPosition(StratDealingArb arb, Sides side, decimal size)
+		private Task<OrderResponse> SendeBetaPosition(StratDealingArb arb, Sides side, decimal size, Tick lastTick = null)
 		{
+			if (!(arb.BetaAccount.Connector is IFixConnector fix)) throw new NotImplementedException();
 			if (size <= 0) return Task.FromResult(new OrderResponse());
-			var fix = (IFixConnector)arb.BetaAccount.Connector;
-			return fix.SendMarketOrderRequest(arb.BetaSymbol, side, size);
+
+			if(arb.OrderType == StratDealingArb.StratDealingArbOrderTypes.Market || lastTick == null)
+				return fix.SendMarketOrderRequest(arb.BetaSymbol, side, size);
+;
+			var limitPrice = side == Sides.Buy ? lastTick.Ask : lastTick.Bid;
+			return fix.SendAggressiveOrderRequest(arb.BetaSymbol, side, size,
+				limitPrice, arb.SlippageInPip * arb.PipSize, arb.TimeWindowInMs, arb.MaxRetryCount, arb.RetryPeriodInMs);
 		}
 
 		private bool IsTime(TimeSpan current, TimeSpan? start, TimeSpan? end)
