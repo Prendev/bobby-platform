@@ -27,7 +27,7 @@ namespace QvaDev.IlyaFastFeedIntegration
 
 		public event PositionEventHandler OnPosition;
 		public event TickEventHandler OnTick;
-		public event EventHandler OnConnectionChange;
+		public event ConnectionChangeEventHandler OnConnectionChange;
 
 		public Connector(ILog log)
 		{
@@ -62,7 +62,7 @@ namespace QvaDev.IlyaFastFeedIntegration
 				_log.Error($"{_accountInfo.Description} account FAILED to connect", e);
 				IsConnected = false;
 			}
-			OnConnectionChange?.Invoke(this, null);
+			OnConnectionChange?.Invoke(this, IsConnected);
 		}
 
 		public void Disconnect()
@@ -75,7 +75,7 @@ namespace QvaDev.IlyaFastFeedIntegration
 			catch { }
 
 			IsConnected = false;
-			OnConnectionChange?.Invoke(this, null);
+			OnConnectionChange?.Invoke(this, IsConnected);
 		}
 
 		public Tick GetLastTick(string symbol)
@@ -184,7 +184,7 @@ namespace QvaDev.IlyaFastFeedIntegration
 
 		private async void Reconnect()
 		{
-			OnConnectionChange?.Invoke(this, null);
+			OnConnectionChange?.Invoke(this, IsConnected);
 			await Task.Delay(1000);
 			await Connect(_accountInfo);
 		}

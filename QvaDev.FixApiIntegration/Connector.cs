@@ -23,12 +23,15 @@ namespace QvaDev.FixApiIntegration
 			new ConcurrentDictionary<string, Tick>();
 		private readonly AccountInfo _accountInfo;
 
+		private readonly Object _lock = new Object();
+		private volatile bool _isConnecting;
+
 		public string Description => _accountInfo?.Description ?? "";
 		public bool IsConnected => _fixConnector?.IsPricingConnected == true && _fixConnector?.IsTradingConnected == true;
 
 		public event PositionEventHandler OnPosition;
 		public event TickEventHandler OnTick;
-		public event EventHandler OnConnectionChange;
+		public event ConnectionChangeEventHandler OnConnectionChange;
 
 		public ConcurrentDictionary<string, SymbolData> SymbolInfos { get; set; } =
 			new ConcurrentDictionary<string, SymbolData>();
@@ -52,6 +55,12 @@ namespace QvaDev.FixApiIntegration
 
 		public async Task Connect()
 		{
+			lock (_lock)
+			{
+				if (_isConnecting) return;
+				_isConnecting = true;
+			}
+
 			_fixConnector.PricingSocketClosed -= FixConnector_SocketClosed;
 			_fixConnector.TradingSocketClosed -= FixConnector_SocketClosed;
 			_fixConnector.Quote -= FixConnector_Quote;
@@ -72,10 +81,11 @@ namespace QvaDev.FixApiIntegration
 			catch (Exception e)
 			{
 				_log.Error($"{Description} FIX account FAILED to connect", e);
-				Disconnect();
+				Reconnect();
 			}
 
-			OnConnectionChange?.Invoke(this, null);
+			OnConnectionChange?.Invoke(this, IsConnected);
+			_isConnecting = false;
 		}
 
 		public void Disconnect()
@@ -95,7 +105,22 @@ namespace QvaDev.FixApiIntegration
 				_log.Error($"{Description} FIX account ERROR during disconnect", e);
 			}
 
-			OnConnectionChange?.Invoke(this, null);
+			OnConnectionChange?.Invoke(this, IsConnected);
+		}
+
+		private void FixConnector_SocketClosed(object sender, ClosedEventArgs e)
+		{
+			Task.Run(() => Reconnect(5000));
+		}
+
+		private void FixConnector_Quote(object sender, QuoteEventArgs e)
+		{
+			Task.Run(() => Quote(e));
+		}
+
+		private void FixConnector_ExecutionReport(object sender, ExecutionReportEventArgs e)
+		{
+			Task.Run(() => ExecutionReport(e));
 		}
 
 		public Tick GetLastTick(string symbol)
@@ -205,7 +230,7 @@ namespace QvaDev.FixApiIntegration
 			catch (ObjectDisposedException e)
 			{
 				_log.Error($"{Description} Connector.Subscribe({symbol}) ObjectDisposedException", e);
-				Reconnect();
+				Reconnect(1000);
 			}
 			catch (Exception e)
 			{
@@ -213,20 +238,14 @@ namespace QvaDev.FixApiIntegration
 			}
 		}
 
-		private void FixConnector_SocketClosed(object sender, ClosedEventArgs e)
+		private async void Reconnect(int delay = 30000)
 		{
-			Reconnect();
-		}
-
-		private async void Reconnect()
-		{
-			OnConnectionChange?.Invoke(this, null);
-			await Task.Delay(1000);
+			OnConnectionChange?.Invoke(this, IsConnected);
+			await Task.Delay(delay);
 			await Connect();
 		}
 
-		// TODO go to nullable?
-		private void FixConnector_Quote(object sender, QuoteEventArgs e)
+		private void Quote(QuoteEventArgs e)
 		{
 			var ask = e.QuoteSet.Entries.First().Ask;
 			var bid = e.QuoteSet.Entries.First().Bid;
@@ -251,15 +270,10 @@ namespace QvaDev.FixApiIntegration
 				Time = DateTime.UtcNow
 			};
 			_lastTicks.AddOrUpdate(symbol, key => tick, (key, old) => tick);
-			OnTick?.BeginInvoke(this, new TickEventArgs {Tick = tick}, null, null);
+			OnTick?.Invoke(this, new TickEventArgs { Tick = tick });
 		}
 
-		private void FixConnector_ExecutionReport(object sender, ExecutionReportEventArgs e)
-		{
-			SumContractsUpdate(e);
-		}
-
-		private void SumContractsUpdate(ExecutionReportEventArgs e)
+		private void ExecutionReport(ExecutionReportEventArgs e)
 		{
 			if (!e.ExecutionReport.FulfilledQuantity.HasValue) return;
 			if (e.ExecutionReport.Side != Side.Buy && e.ExecutionReport.Side != Side.Sell) return;

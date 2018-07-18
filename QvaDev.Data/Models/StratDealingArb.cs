@@ -115,9 +115,29 @@ namespace QvaDev.Data.Models
 		[NotMapped] [InvisibleColumn] public int PositionCount => OpenPositions?.Count ?? 0;
 		[NotMapped] [InvisibleColumn] public decimal Deviation => SlippageInPip * PipSize;
 
-		[NotMapped] [InvisibleColumn] public bool DoOpenSide1 { get; set; }
-		[NotMapped] [InvisibleColumn] public bool DoOpenSide2 { get; set; }
-		[NotMapped] [InvisibleColumn] public bool DoClose { get; set; }
+		[NotMapped]
+		[InvisibleColumn]
+		public bool DoOpenSide1
+		{
+			get => _doOpenSide1;
+			set => _doOpenSide1 = value;
+		}
+
+		[NotMapped]
+		[InvisibleColumn]
+		public bool DoOpenSide2
+		{
+			get => _doOpenSide2;
+			set => _doOpenSide2 = value;
+		}
+
+		[NotMapped]
+		[InvisibleColumn]
+		public bool DoClose
+		{
+			get => _doClose;
+			set => _doClose = value;
+		}
 
 		[NotMapped]
 		[InvisibleColumn]
@@ -127,6 +147,9 @@ namespace QvaDev.Data.Models
 			set => _isBusy = value;
 		}
 		private volatile bool _isBusy;
+		private volatile bool _doOpenSide1;
+		private volatile bool _doOpenSide2;
+		private volatile bool _doClose;
 
 
 		private Sides GetSide(StratDealingArbPosition.Sides? side)

@@ -110,10 +110,10 @@ namespace QvaDev.Orchestration
 			return Task.WhenAll(tasks);
         }
 
-		private void Connector_OnConnectionChange(object sender, EventArgs e)
+		private void Connector_OnConnectionChange(object sender, bool isConnected)
 		{
 			var connector = (IConnector) sender;
-			var state = connector.IsConnected ? "connected" : "disconnected";
+			var state = isConnected ? "connected" : "disconnected";
 			_log.Debug($"{connector.Description} account {state}");
 
 			var accounts = _duplicatContext.Accounts.Local

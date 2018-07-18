@@ -78,6 +78,7 @@
     <Compile Include="Attributes\InvisibleColumnAttribute.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="Integration\AccountTypes.cs" />
+    <Compile Include="Integration\ConnectionChangeEventHandler.cs" />
     <Compile Include="Integration\IFixConnector.cs" />
     <Compile Include="Integration\OrderResponse.cs" />
     <Compile Include="Integration\SymbolData.cs" />

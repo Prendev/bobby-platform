@@ -44,7 +44,7 @@ namespace QvaDev.Mt4Integration
         public ConcurrentDictionary<long, Position> Positions { get; }
         public event PositionEventHandler OnPosition;
         public event TickEventHandler OnTick;
-		public event EventHandler OnConnectionChange;
+		public event ConnectionChangeEventHandler OnConnectionChange;
 
 		public QuoteClient QuoteClient;
         public OrderClient OrderClient;

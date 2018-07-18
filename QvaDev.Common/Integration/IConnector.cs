@@ -8,7 +8,7 @@ namespace QvaDev.Common.Integration
         bool IsConnected { get; }
         event PositionEventHandler OnPosition;
 		event TickEventHandler OnTick;
-		event EventHandler OnConnectionChange;
+		event ConnectionChangeEventHandler OnConnectionChange;
 		void Disconnect();
 	    Tick GetLastTick(string symbol);
 	    void Subscribe(string symbol);

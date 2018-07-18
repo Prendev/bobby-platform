@@ -30,7 +30,7 @@ namespace QvaDev.CTraderIntegration
         public ConcurrentDictionary<long, Position> Positions { get; }
         public event PositionEventHandler OnPosition;
 		public event TickEventHandler OnTick;
-		public event EventHandler OnConnectionChange;
+		public event ConnectionChangeEventHandler OnConnectionChange;
 
 		public Connector(
             AccountInfo accountInfo,

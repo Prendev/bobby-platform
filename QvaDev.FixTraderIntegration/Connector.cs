@@ -36,7 +36,7 @@ namespace QvaDev.FixTraderIntegration
 		public bool IsConnected => _commandClient?.Connected == true && _eventsClient?.Connected == true;
 		public event PositionEventHandler OnPosition;
 		public event TickEventHandler OnTick;
-		public event EventHandler OnConnectionChange;
+		public event ConnectionChangeEventHandler OnConnectionChange;
 
 		public ConcurrentDictionary<string, SymbolData> SymbolInfos { get; set; } =
 			new ConcurrentDictionary<string, SymbolData>();
