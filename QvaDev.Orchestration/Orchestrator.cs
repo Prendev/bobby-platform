@@ -159,11 +159,12 @@ namespace QvaDev.Orchestration
 		public void TestLimitOrder(Pushing pushing)
 		{
 			var connector = (FixTraderIntegration.Connector)pushing.FutureAccount.Connector;
-			connector.SendLimitOrderRequest(pushing.FutureSymbol, Common.Integration.Sides.Buy, pushing.PushingDetail.SmallContractSize, 0);
+			connector.SendLimitOrderRequest(pushing.FutureSymbol, Sides.Buy, pushing.PushingDetail.SmallContractSize, 0);
 		}
 
 		public Task OpeningBeta(Pushing pushing)
 		{
+			pushing.PushingDetail.OpenedFutures = 0;
 			pushing.InPanic = false;
 			return Task.Run(() => _pushingService.OpeningBeta(pushing));
 		}

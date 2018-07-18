@@ -1,8 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using QvaDev.Common.Integration;
 using QvaDev.Common.Services;
 using QvaDev.Data.Models;
-using FtConnector = QvaDev.FixTraderIntegration.IConnector;
 using MtConnector = QvaDev.Mt4Integration.IConnector;
 
 namespace QvaDev.Orchestration.Services.Strategies
@@ -10,13 +11,13 @@ namespace QvaDev.Orchestration.Services.Strategies
     public interface IPushingService
     {
         void OpeningBeta(Pushing pushing);
-		void OpeningAlpha(Pushing pushing);
-		void OpeningFinish(Pushing pushing);
+	    Task OpeningAlpha(Pushing pushing);
+	    Task OpeningFinish(Pushing pushing);
 
-		void ClosingFirst(Pushing pushing);
-		void OpeningHedge(Pushing pushing);
-		void ClosingSecond(Pushing pushing);
-		void ClosingFinish(Pushing pushing);
+	    void ClosingFirst(Pushing pushing);
+	    Task OpeningHedge(Pushing pushing);
+	    Task ClosingSecond(Pushing pushing);
+	    Task ClosingFinish(Pushing pushing);
 	}
 
     public class PushingService : IPushingService
@@ -47,24 +48,17 @@ namespace QvaDev.Orchestration.Services.Strategies
 			_threadService.Sleep(pushing.PushingDetail.FutureOpenDelayInMs);
 		}
 
-		public void OpeningAlpha(Pushing pushing)
+		public async Task OpeningAlpha(Pushing pushing)
 		{
 			var pd = pushing.PushingDetail;
-			var futureConnector = (IFixConnector)pushing.FutureAccount.Connector;
 			var alphaConnector = (MtConnector)pushing.AlphaMaster.Connector;
+			var futureSide = pushing.BetaOpenSide;
 
 			// Build up futures for second side
-			var contractsNeeded = GetSumContracts(pushing) + pd.FullContractSize - Math.Abs(pd.MasterSignalContractLimit);
+			var contractsNeeded = pd.FullContractSize - Math.Abs(pd.MasterSignalContractLimit);
+			await FutureBuildUp(pushing, futureSide, contractsNeeded, true);
 
-			while (GetSumContracts(pushing) < contractsNeeded)
-			{
-				var contractSize = _rndService.Next(0, 100) > pd.BigPercentage ? pd.SmallContractSize : pd.BigContractSize;
-				futureConnector.SendMarketOrderRequest(pushing.FutureSymbol, pushing.BetaOpenSide, contractSize);
-				FutureInterval(pd);
-				// Rush
-				if (pushing.InPanic || PriceLimitReached(pushing, pushing.BetaOpenSide)) break;
-			}
-			pushing.AlphaPosition = alphaConnector.SendMarketOrderRequest(pushing.AlphaSymbol, InvSide(pushing.BetaOpenSide), pd.AlphaLots, 0,
+			pushing.AlphaPosition = alphaConnector.SendMarketOrderRequest(pushing.AlphaSymbol, InvSide(futureSide), pd.AlphaLots, 0,
 				null, pushing.PushingDetail.MaxRetryCount, pushing.PushingDetail.RetryPeriodInMs);
 
 			if (pushing.AlphaPosition == null)
@@ -73,25 +67,20 @@ namespace QvaDev.Orchestration.Services.Strategies
 			}
 		}
 
-		public void OpeningFinish(Pushing pushing)
+		public async Task OpeningFinish(Pushing pushing)
 		{
 			var pd = pushing.PushingDetail;
 			var futureConnector = (IFixConnector)pushing.FutureAccount.Connector;
+			var futureSide = pushing.BetaOpenSide;
 
 			// Build a little more futures
-			var contractsNeeded = GetSumContracts(pushing) + Math.Abs(pd.MasterSignalContractLimit);
+			var contractsNeeded = Math.Abs(pd.MasterSignalContractLimit);
+			await FutureBuildUp(pushing, futureSide, contractsNeeded, false);
 
-			while (GetSumContracts(pushing) < contractsNeeded)
-			{
-				var contractSize = _rndService.Next(0, 100) > pd.BigPercentage ? pd.SmallContractSize : pd.BigContractSize;
-				futureConnector.SendMarketOrderRequest(pushing.FutureSymbol, pushing.BetaOpenSide, contractSize);
-				FutureInterval(pd);
-				// Rush
-				if (pushing.InPanic) break;
-			}
-			pushing.InPanic = false;
 			// Close futures
-			futureConnector.OrderMultipleCloseBy(pushing.FutureSymbol);
+			await futureConnector.SendMarketOrderRequest(pushing.FutureSymbol, InvSide(futureSide),
+				pushing.PushingDetail.OpenedFutures);
+			pushing.PushingDetail.OpenedFutures = 0;
 		}
 
 		public void ClosingFirst(Pushing pushing)
@@ -106,36 +95,26 @@ namespace QvaDev.Orchestration.Services.Strategies
 			_threadService.Sleep(pushing.PushingDetail.FutureOpenDelayInMs);
 		}
 
-		public void OpeningHedge(Pushing pushing)
+		public async Task OpeningHedge(Pushing pushing)
 		{
 			if (!pushing.IsHedgeClose) return;
 
 			var pd = pushing.PushingDetail;
-			var futureConnector = (IFixConnector)pushing.FutureAccount.Connector;
 			var hedgeConnector = (MtConnector)pushing.HedgeAccount.Connector;
 			var futureSide = InvSide(pushing.FirstCloseSide);
 
 			// Build up futures for hedge
-			var contractsNeeded =
-				GetSumContracts(pushing) + pd.FullContractSize - Math.Abs(pd.MasterSignalContractLimit) - Math.Abs(pd.HedgeSignalContractLimit);
+			var contractsNeeded = pd.FullContractSize - Math.Abs(pd.MasterSignalContractLimit) - Math.Abs(pd.HedgeSignalContractLimit);
+			await FutureBuildUp(pushing, futureSide, contractsNeeded, true);
 
-			while (GetSumContracts(pushing) < contractsNeeded)
-			{
-				var contractSize = _rndService.Next(0, 100) > pd.BigPercentage ? pd.SmallContractSize : pd.BigContractSize;
-				futureConnector.SendMarketOrderRequest(pushing.FutureSymbol, futureSide, contractSize);
-				FutureInterval(pd);
-				// Rush
-				if (pushing.InPanic || PriceLimitReached(pushing, futureSide)) break;
-			}
+			// Open hedge
 			hedgeConnector.SendMarketOrderRequest(pushing.HedgeSymbol, pushing.FirstCloseSide, pd.HedgeLots, 0,
 				null, pushing.PushingDetail.MaxRetryCount, pushing.PushingDetail.RetryPeriodInMs);
 		}
 
-		public void ClosingSecond(Pushing pushing)
+		public async Task ClosingSecond(Pushing pushing)
 		{
 			var pd = pushing.PushingDetail;
-			var futureConnector = (IFixConnector)pushing.FutureAccount.Connector;
-
 			var secondConnector = pushing.BetaOpenSide == pushing.FirstCloseSide
 				? (MtConnector) pushing.AlphaMaster.Connector
 				: (MtConnector) pushing.BetaMaster.Connector;
@@ -144,44 +123,92 @@ namespace QvaDev.Orchestration.Services.Strategies
 
 			// Build up futures for second side
 			decimal contractsNeeded;
-			if (pushing.IsHedgeClose) contractsNeeded = GetSumContracts(pushing) + Math.Abs(pd.HedgeSignalContractLimit);
-			else contractsNeeded = GetSumContracts(pushing) + pd.FullContractSize - Math.Abs(pd.MasterSignalContractLimit);
+			if (pushing.IsHedgeClose) contractsNeeded = Math.Abs(pd.HedgeSignalContractLimit);
+			else contractsNeeded = pd.FullContractSize - Math.Abs(pd.MasterSignalContractLimit);
+			await FutureBuildUp(pushing, futureSide, contractsNeeded, true);
 
-			while (GetSumContracts(pushing) < contractsNeeded)
-			{
-				var contractSize = _rndService.Next(0, 100) > pd.BigPercentage ? pd.SmallContractSize : pd.BigContractSize;
-				futureConnector.SendMarketOrderRequest(pushing.FutureSymbol, futureSide, contractSize);
-				FutureInterval(pd);
-				// Rush
-				if (pushing.InPanic || PriceLimitReached(pushing, futureSide)) break;
-			}
+			// Close second side
 			secondConnector.SendClosePositionRequests(secondPos, null, pushing.PushingDetail.MaxRetryCount, pushing.PushingDetail.RetryPeriodInMs);
 		}
 
-		public void ClosingFinish(Pushing pushing)
+		public async Task ClosingFinish(Pushing pushing)
 		{
 			var pd = pushing.PushingDetail;
 			var futureConnector = (IFixConnector)pushing.FutureAccount.Connector;
-
 			var futureSide = InvSide(pushing.FirstCloseSide);
 
 			// Build a little more
-			var contractsNeeded = GetSumContracts(pushing) + Math.Abs(pd.MasterSignalContractLimit);
+			var contractsNeeded = Math.Abs(pd.MasterSignalContractLimit);
+			await FutureBuildUp(pushing, futureSide, contractsNeeded, false);
 
-			while (GetSumContracts(pushing) < contractsNeeded)
+			// Close futures if not hedging
+			if (pushing.IsHedgeClose) return;
+			await futureConnector.SendMarketOrderRequest(pushing.FutureSymbol, InvSide(futureSide),
+				pushing.PushingDetail.OpenedFutures);
+			pushing.PushingDetail.OpenedFutures = 0;
+		}
+
+		private async Task FutureBuildUp(Pushing pushing, Sides side, decimal contractsNeeded, bool priceCheck)
+		{
+			if (pushing.FutureExecutionMode == Pushing.FutureExecutionModes.NonConfirmed)
+				await NonConfirmed(pushing, side, contractsNeeded, priceCheck);
+			else await Confirmed(pushing, side, contractsNeeded, priceCheck);
+		}
+
+		private async Task Confirmed(Pushing pushing, Sides side, decimal contractsNeeded, bool priceCheck)
+		{
+			var pd = pushing.PushingDetail;
+			var futureConnector = (IFixConnector)pushing.FutureAccount.Connector;
+			var contractsOpened = 0m;
+
+			while (contractsOpened < contractsNeeded)
 			{
-				var contractSize = _rndService.Next(0, 100) > pd.BigPercentage ? pd.SmallContractSize : pd.BigContractSize;
-				futureConnector.SendMarketOrderRequest(pushing.FutureSymbol, futureSide, contractSize);
+				var contractSize = (decimal)(_rndService.Next(0, 100) > pd.BigPercentage ? pd.SmallContractSize : pd.BigContractSize);
+				contractSize = Math.Min(contractSize, contractsNeeded - contractsOpened);
+				var orderResponse = await futureConnector.SendMarketOrderRequest(pushing.FutureSymbol, side, contractSize);
+				pushing.PushingDetail.OpenedFutures += orderResponse.FilledQuantity;
+				contractsOpened += orderResponse.FilledQuantity;
+
 				FutureInterval(pd);
 				// Rush
 				if (pushing.InPanic) break;
+				if (priceCheck && PriceLimitReached(pushing, side)) break;
 			}
-			// Close futures if not hedging
-			if (pushing.IsHedgeClose) return;
-			futureConnector.OrderMultipleCloseBy(pushing.FutureSymbol);
 		}
 
-        private bool PriceLimitReached(Pushing pushing, Sides side)
+		private async Task NonConfirmed(Pushing pushing, Sides side, decimal contractsNeeded, bool priceCheck)
+		{
+			var pd = pushing.PushingDetail;
+			var futureConnector = (IFixConnector)pushing.FutureAccount.Connector;
+			var contractsOpened = 0m;
+			var orders = new List<Task<OrderResponse>>();
+
+			while (contractsOpened < contractsNeeded)
+			{
+				var contractSize = (decimal)(_rndService.Next(0, 100) > pd.BigPercentage ? pd.SmallContractSize : pd.BigContractSize);
+				contractSize = Math.Min(contractSize, contractsNeeded - contractsOpened);
+				pushing.PushingDetail.OpenedFutures += contractSize;
+				contractsOpened += contractSize;
+
+				// Collect orders
+				orders.Add(futureConnector.SendMarketOrderRequest(pushing.FutureSymbol, side, contractSize));
+
+				FutureInterval(pd);
+				// Rush
+				if (pushing.InPanic) break;
+				if (priceCheck && PriceLimitReached(pushing, side)) break;
+			}
+
+			// Wait for orders and check result
+			await Task.WhenAll(orders);
+			pushing.PushingDetail.OpenedFutures -= contractsOpened;
+			contractsOpened = 0m;
+			foreach (var order in orders)
+				contractsOpened += order.Result.FilledQuantity;
+			pushing.PushingDetail.OpenedFutures += contractsOpened;
+		}
+
+		private bool PriceLimitReached(Pushing pushing, Sides side)
         {
             var pd = pushing.PushingDetail;
             if (!pd.PriceLimit.HasValue) return false;
@@ -199,17 +226,11 @@ namespace QvaDev.Orchestration.Services.Strategies
             return side == Sides.Buy ? Sides.Sell : Sides.Buy;
         }
 
-        private decimal GetSumContracts(Pushing pushing)
-        {
-			var futureConnector = (IFixConnector)pushing.FutureAccount.Connector;
-			return Math.Abs(futureConnector.GetSymbolInfo(pushing.FutureSymbol).SumContracts);
-        }
-
 		private void FutureInterval(PushingDetail pd)
 		{
 			if (pd.MaxIntervalInMs <= 0) return;
-			int minValue = Math.Max(0, pd.MinIntervalInMs);
-			int maxValue = Math.Max(minValue, pd.MaxIntervalInMs);
+			var minValue = Math.Max(0, pd.MinIntervalInMs);
+			var maxValue = Math.Max(minValue, pd.MaxIntervalInMs);
 			_threadService.Sleep(_rndService.Next(minValue, maxValue));
 		}
     }

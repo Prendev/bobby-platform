@@ -6,11 +6,18 @@ using QvaDev.Common.Integration;
 namespace QvaDev.Data.Models
 {
     public class Pushing : BaseDescriptionEntity
-    {
-        [InvisibleColumn] public int ProfileId { get; set; }
+	{
+		public enum FutureExecutionModes
+		{
+			Confirmed,
+			NonConfirmed
+		}
+
+		[InvisibleColumn] public int ProfileId { get; set; }
         [InvisibleColumn] public Profile Profile { get; set; }
 
-        public int FutureAccountId { get; set; }
+		public FutureExecutionModes FutureExecutionMode { get; set; }
+		public int FutureAccountId { get; set; }
         public Account FutureAccount { get; set; }
         [Required] public string FutureSymbol { get; set; }
 

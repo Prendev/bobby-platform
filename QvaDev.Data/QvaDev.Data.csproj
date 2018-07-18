@@ -151,6 +151,10 @@
     <Compile Include="Migrations\201807170958146_DealingArbTimeWindow.Designer.cs">
       <DependentUpon>201807170958146_DealingArbTimeWindow.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201807181014018_PushingModes.cs" />
+    <Compile Include="Migrations\201807181014018_PushingModes.Designer.cs">
+      <DependentUpon>201807181014018_PushingModes.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\BaseEntity.cs" />
     <Compile Include="Models\BaseDescriptionEntity.cs" />
@@ -243,6 +247,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201807170958146_DealingArbTimeWindow.resx">
       <DependentUpon>201807170958146_DealingArbTimeWindow.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201807181014018_PushingModes.resx">
+      <DependentUpon>201807181014018_PushingModes.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
