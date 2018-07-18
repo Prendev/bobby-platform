@@ -25,7 +25,8 @@ namespace QvaDev.CTraderIntegration
         public static ConcurrentDictionary<string, Lazy<List<AccountData>>> BalanceAccounts =
             new ConcurrentDictionary<string, Lazy<List<AccountData>>>();
 
-        public string Description => _accountInfo?.Description;
+	    public int Id => _accountInfo?.DbId ?? 0;
+	    public string Description => _accountInfo?.Description;
         public bool IsConnected => _cTraderClientWrapper?.IsConnected == true && AccountId > 0;
         public ConcurrentDictionary<long, Position> Positions { get; }
         public event PositionEventHandler OnPosition;

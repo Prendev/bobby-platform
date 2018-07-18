@@ -1,10 +1,9 @@
-﻿using System;
-
-namespace QvaDev.Common.Integration
+﻿namespace QvaDev.Common.Integration
 {
     public interface IConnector
-    {
-        string Description { get; }
+	{
+		int Id { get; }
+		string Description { get; }
         bool IsConnected { get; }
         event PositionEventHandler OnPosition;
 		event TickEventHandler OnTick;

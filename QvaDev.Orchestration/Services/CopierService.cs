@@ -85,13 +85,13 @@ namespace QvaDev.Orchestration.Services
 
 	    private Task CopyToFtAccount(PositionEventArgs e, Slave slave)
 	    {
-		    if (!(slave.Account?.Connector is Connector slaveConnector)) return Task.FromResult(0);
+		    if (!(slave.Account?.Connector is Connector slaveConnector)) return Task.CompletedTask;
 
 		    var symbol = slave.SymbolMappings?.Any(m => m.From == e.Position.Symbol) == true
 			    ? slave.SymbolMappings.First(m => m.From == e.Position.Symbol).To
 			    : e.Position.Symbol + (slave.SymbolSuffix ?? "");
 
-		    var tasks = slave.FixApiCopiers.Where(s => s.Run).Select(copier => Task.Factory.StartNew(() =>
+		    var tasks = slave.FixApiCopiers.Where(s => s.Run).Select(copier => Task.Factory.StartNew(async () =>
 		    {
 			    if (copier.DelayInMilliseconds > 0) Thread.Sleep(copier.DelayInMilliseconds);
 
@@ -100,7 +100,7 @@ namespace QvaDev.Orchestration.Services
 				    slaveConnector.SendAggressiveOrderRequest(symbol, e.Position.Side, lots, e.Position.OpenPrice, copier.Slippage,
 					    copier.BurstPeriodInMilliseconds, copier.MaxRetryCount, copier.RetryPeriodInMs, $"{slave.Id}-{e.Position.Id}");
 				else if (e.Action == PositionEventArgs.Actions.Open && copier.OrderType == FixApiCopier.FixApiOrderTypes.Market)
-					slaveConnector.SendMarketOrderRequest(symbol, e.Position.Side, lots, $"{slave.Id}-{e.Position.Id}");
+					await slaveConnector.SendMarketOrderRequest(symbol, e.Position.Side, lots, $"{slave.Id}-{e.Position.Id}");
 				else if (e.Action == PositionEventArgs.Actions.Close)
 					slaveConnector.OrderMultipleCloseBy(symbol);
 
@@ -168,17 +168,17 @@ namespace QvaDev.Orchestration.Services
 				? slave.SymbolMappings.First(m => m.From == e.Position.Symbol).To
 				: e.Position.Symbol + (slave.SymbolSuffix ?? "");
 
-			var tasks = slave.FixApiCopiers.Where(s => s.Run).Select(copier => Task.Factory.StartNew(() =>
+			var tasks = slave.FixApiCopiers.Where(s => s.Run).Select(copier => Task.Factory.StartNew(async () =>
 			{
 				if (copier.DelayInMilliseconds > 0) Thread.Sleep(copier.DelayInMilliseconds);
 
 				var quantity = (decimal)Math.Abs(e.Position.Lots) * copier.CopyRatio;
 				if (e.Action == PositionEventArgs.Actions.Open && copier.OrderType == FixApiCopier.FixApiOrderTypes.Aggressive)
-					slaveConnector.SendMarketOrderRequest(symbol, e.Position.Side, quantity);
+					await slaveConnector.SendMarketOrderRequest(symbol, e.Position.Side, quantity);
 				else if (e.Action == PositionEventArgs.Actions.Open && copier.OrderType == FixApiCopier.FixApiOrderTypes.Market)
-					slaveConnector.SendMarketOrderRequest(symbol, e.Position.Side, quantity);
+					await slaveConnector.SendMarketOrderRequest(symbol, e.Position.Side, quantity);
 				else if (e.Action == PositionEventArgs.Actions.Close)
-					slaveConnector.SendMarketOrderRequest(symbol, InvSide(e.Position.Side), quantity);
+					await slaveConnector.SendMarketOrderRequest(symbol, InvSide(e.Position.Side), quantity);
 
 			}, TaskCreationOptions.LongRunning));
 			return Task.WhenAll(tasks);

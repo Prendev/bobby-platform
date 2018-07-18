@@ -76,7 +76,7 @@ namespace QvaDev.Duplicat.ViewModel
                 IsConfigReadonly = true;
                 var backupPath = sfd.FileName;
                 var dbName = _duplicatContext.Database.SqlQuery<string>("SELECT DB_NAME()").First();
-                Task.Factory.StartNew(() =>
+	            Task.Run(() =>
 				{
 					var connectionString = ConfigurationManager.ConnectionStrings["DuplicatContext"].ConnectionString;
 					using (var conn = new SqlConnection(connectionString))

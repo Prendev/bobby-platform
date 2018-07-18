@@ -28,6 +28,10 @@ namespace QvaDev.Orchestration.Services
 
 		private void ConnectMtAccount(Account account)
 		{
+			if (!(account.Connector is Mt4Integration.Connector) ||
+			    account.Connector.Id != account.MetaTraderAccountId)
+				account.Connector = null;
+
 			if (account.Connector == null)
 				account.Connector = new Mt4Integration.Connector(_log);
 			((Mt4Integration.Connector) account.Connector)
@@ -43,6 +47,10 @@ namespace QvaDev.Orchestration.Services
 
 		private void ConenctCtAccount(Account account)
 		{
+			if (!(account.Connector is CTraderIntegration.Connector) ||
+			    account.Connector.Id != account.CTraderAccountId)
+				account.Connector = null;
+
 			if (account.Connector == null)
 			{
 				account.Connector = (CTraderIntegration.Connector)_ctConnectorFactory.Create(
@@ -68,12 +76,17 @@ namespace QvaDev.Orchestration.Services
 
 		private void ConnectFtAccount(Account account)
 		{
+			if (!(account.Connector is FixTraderIntegration.Connector) ||
+			    account.Connector.Id != account.FixTraderAccountId)
+				account.Connector = null;
+
 			if (account.Connector == null)
 				account.Connector = new FixTraderIntegration.Connector(_log);
 
 			((FixTraderIntegration.Connector) account.Connector)
 				.Connect(new FixTraderIntegration.AccountInfo
 				{
+					DbId = account.FixTraderAccount.Id,
 					Description = account.FixTraderAccount.Description,
 					IpAddress = account.FixTraderAccount.IpAddress,
 					CommandSocketPort = account.FixTraderAccount.CommandSocketPort,
@@ -83,9 +96,14 @@ namespace QvaDev.Orchestration.Services
 
 		private async void ConnectFixAccount(Account account)
 		{
+			if (!(account.Connector is FixApiIntegration.Connector) ||
+			    account.Connector.Id != account.FixTraderAccountId)
+				account.Connector = null;
+
 			if (account.Connector == null)
 				account.Connector = new FixApiIntegration.Connector(new FixApiIntegration.AccountInfo
 				{
+					DbId = account.FixApiAccount.Id,
 					Description = account.FixApiAccount.Description,
 					ConfigPath = account.FixApiAccount.ConfigPath,
 				}, _log);
@@ -95,6 +113,10 @@ namespace QvaDev.Orchestration.Services
 
 		private async void ConnectIlyaFastFeedAccount(Account account)
 		{
+			if (!(account.Connector is IlyaFastFeedIntegration.Connector) ||
+			    account.Connector.Id != account.IlyaFastFeedAccountId)
+				account.Connector = null;
+
 			if (account.Connector == null)
 				account.Connector = new IlyaFastFeedIntegration.Connector(_log);
 

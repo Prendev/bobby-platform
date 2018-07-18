@@ -96,7 +96,7 @@ namespace QvaDev.Orchestration
 		        .Where(pa => pa.Run).ToList()
 		        .Where(pa => pa.State != Account.States.Connected);
 
-	        var tasks = accounts.Select(account => Task.Factory.StartNew(() =>
+	        var tasks = accounts.Select(account => Task.Run(() =>
 	        {
 		        _connectorFactory.Create(account);
 
@@ -131,7 +131,7 @@ namespace QvaDev.Orchestration
             _duplicatContext.SaveChanges();
 			var accounts = _duplicatContext.Accounts.ToList()
 				 .Where(pa => pa.State != Account.States.Disconnected);
-			var tasks = accounts.Select(pa => Task.Factory.StartNew(() =>
+			var tasks = accounts.Select(pa => Task.Run(() =>
 			{
 				pa.Connector.Disconnect();
 				pa.State = Account.States.Disconnected;

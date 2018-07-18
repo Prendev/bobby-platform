@@ -28,7 +28,7 @@ namespace QvaDev.Orchestration.Services
         {
             var accounts = duplicatContext.Accounts.ToList().Where(
                     a => a.Run && a.Connector?.IsConnected == true && a.MetaTraderAccountId.HasValue);
-            var tasks = accounts.Select(account => Task.Factory.StartNew(() => Export(account)));
+            var tasks = accounts.Select(account => Task.Run(() => Export(account)));
             return Task.WhenAll(Task.WhenAll(tasks)).ContinueWith(prevTask =>
                 _log.Debug("Order history export is READY!"));
         }

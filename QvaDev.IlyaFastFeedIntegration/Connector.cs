@@ -22,6 +22,7 @@ namespace QvaDev.IlyaFastFeedIntegration
 			new ConcurrentDictionary<string, Tick>();
 		private readonly TaskCompletionManager _taskCompletionManager;
 
+		public int Id => _accountInfo?.DbId ?? 0;
 		public string Description => _accountInfo.Description;
 		public bool IsConnected { get; private set; }
 

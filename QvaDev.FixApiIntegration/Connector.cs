@@ -26,6 +26,7 @@ namespace QvaDev.FixApiIntegration
 		private readonly Object _lock = new Object();
 		private volatile bool _isConnecting;
 
+		public int Id => _accountInfo?.DbId ?? 0;
 		public string Description => _accountInfo?.Description ?? "";
 		public bool IsConnected => _fixConnector?.IsPricingConnected == true && _fixConnector?.IsTradingConnected == true;
 

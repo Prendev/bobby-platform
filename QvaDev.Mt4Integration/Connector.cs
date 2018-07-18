@@ -38,10 +38,11 @@ namespace QvaDev.Mt4Integration
         private List<Tuple<string, int, short>> _symbols;
         private IEnumerable<Order> _orderHistory;
 
-	    public DateTime? ServerTime => QuoteClient?.ServerTime;
+	    public int Id => _accountInfo?.DbId ?? 0;
 		public string Description => _accountInfo?.Description;
         public bool IsConnected => QuoteClient?.Connected == true;
-        public ConcurrentDictionary<long, Position> Positions { get; }
+	    public DateTime? ServerTime => QuoteClient?.ServerTime;
+		public ConcurrentDictionary<long, Position> Positions { get; }
         public event PositionEventHandler OnPosition;
         public event TickEventHandler OnTick;
 		public event ConnectionChangeEventHandler OnConnectionChange;
@@ -383,22 +384,19 @@ namespace QvaDev.Mt4Integration
 
         private void GetBarHistory(string symbol, Timeframe timeframe, DateTime from, short count)
         {
-            //Task.Factory.StartNew(() =>
-            //{
-                try
+            try
+            {
+                QuoteClient.DownloadQuoteHistory(symbol, timeframe, from, count);
+            }
+            catch (Exception e)
+            {
+                _log.Error($"{symbol}: DownloadQuoteHistory exception => {e.Message}", e);
+                if (e.Message == "Previous request have not sent in 10000 ms")
                 {
-                    QuoteClient.DownloadQuoteHistory(symbol, timeframe, from, count);
+                    Thread.Sleep(new TimeSpan(0, 0, 10));
+                    GetBarHistory(symbol, timeframe, from, count);
                 }
-                catch (Exception e)
-                {
-                    _log.Error($"{symbol}: DownloadQuoteHistory exception => {e.Message}", e);
-                    if (e.Message == "Previous request have not sent in 10000 ms")
-                    {
-                        Thread.Sleep(new TimeSpan(0, 0, 10));
-                        GetBarHistory(symbol, timeframe, from, count);
-                    }
-                }
-            //});
+            }
         }
 
         private void QuoteClient_OnQuoteHistory(object sender, QuoteHistoryEventArgs args)
