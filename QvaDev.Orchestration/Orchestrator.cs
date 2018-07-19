@@ -104,15 +104,30 @@ namespace QvaDev.Orchestration
 		public Task Disconnect()
         {
             _duplicatContext.SaveChanges();
-			var accounts = _duplicatContext.Accounts.ToList();
+
+			var accounts = _duplicatContext.Accounts.Local.ToList();
 			var tasks = accounts.Select(pa => Task.Run(() => pa.Connector?.Disconnect()));
+
 			return Task.WhenAll(tasks);
 		}
 
         public async Task StartCopiers(DuplicatContext duplicatContext)
-        {
-            await Connect(duplicatContext);
-            _copierService.Start(duplicatContext);
+		{
+			await Connect(duplicatContext);
+
+			var copiers = duplicatContext.Copiers.Local
+				.Where(c => c.Slave.Master.Account.ConnectionState == ConnectionStates.Connected)
+				.Where(c => c.Slave.Account.ConnectionState == ConnectionStates.Connected)
+				.Select(c => c.Slave.Master);
+
+			var fixApiCopiers = duplicatContext.FixApiCopiers.Local
+				.Where(c => c.Slave.Master.Account.ConnectionState == ConnectionStates.Connected)
+				.Where(c => c.Slave.Account.ConnectionState == ConnectionStates.Connected)
+				.Select(c => c.Slave.Master);
+
+			var masters = copiers.Union(fixApiCopiers).Distinct().ToList();
+
+			_copierService.Start(masters);
         }
 
         public void StopCopiers()
@@ -184,7 +199,13 @@ namespace QvaDev.Orchestration
 	    public async Task StartStrategies(DuplicatContext duplicatContext)
 		{
 			await Connect(duplicatContext);
-			_strategiesService.Start(duplicatContext);
+
+			var arbs = duplicatContext.StratDealingArbs.Local
+				.Where(c => c.AlphaAccount?.ConnectionState == ConnectionStates.Connected &&
+				            c.BetaAccount?.ConnectionState == ConnectionStates.Connected)
+				.ToList();
+
+			_strategiesService.Start(arbs);
 		}
 
 	    public void StopStrategies()
@@ -192,31 +213,37 @@ namespace QvaDev.Orchestration
 		    _strategiesService.Stop();
 		}
 
-	    public Task OrderHistoryExport(DuplicatContext duplicatContext)
-        {
-            return Connect(duplicatContext).ContinueWith(prevTask =>
-            {
-                _reportService.OrderHistoryExport(duplicatContext);
-            });
-		}
+	    public async Task OrderHistoryExport(DuplicatContext duplicatContext)
+	    {
+		    await Connect(duplicatContext);
+
+	        var accounts = duplicatContext.Accounts.Local
+		        .Where(a => a.Run && a.Connector?.IsConnected == true && a.MetaTraderAccountId.HasValue)
+		        .ToList();
+
+		    await _reportService.OrderHistoryExport(accounts);
+	    }
 
 	    public void MtAccountImport(DuplicatContext duplicatContext)
 	    {
 		    _mtAccountImportService.Import(duplicatContext);
 		}
 
-	    public Task SaveTheWeekend(DuplicatContext duplicatContext)
+	    public async Task SaveTheWeekend(DuplicatContext duplicatContext)
 	    {
-		    return Connect(duplicatContext).ContinueWith(prevTask =>
-		    {
-			    _mtAccountImportService.SaveTheWeekend(duplicatContext);
-			});
-	    }
+		    await Connect(duplicatContext);
+		    _mtAccountImportService.SaveTheWeekend(duplicatContext);
+		}
 
 		public async Task StartTickers(DuplicatContext duplicatContext)
 		{
 			await Connect(duplicatContext);
-			_tickerService.Start(duplicatContext);
+
+			var tickers = duplicatContext.Tickers.Local
+				.Where(c => c.MainAccount.ConnectionState == ConnectionStates.Connected)
+				.ToList();
+
+			_tickerService.Start(tickers);
 		}
 
 		public void StopTickers()

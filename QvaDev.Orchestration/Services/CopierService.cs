@@ -5,7 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using log4net;
 using QvaDev.Common.Integration;
-using QvaDev.Data;
 using QvaDev.Data.Models;
 using QvaDev.FixTraderIntegration;
 
@@ -13,7 +12,7 @@ namespace QvaDev.Orchestration.Services
 {
     public interface ICopierService
     {
-        void Start(DuplicatContext duplicatContext);
+        void Start(List<Master> masters);
         void Stop();
     }
 
@@ -28,19 +27,9 @@ namespace QvaDev.Orchestration.Services
             _log = log;
         }
 
-        public void Start(DuplicatContext duplicatContext)
+        public void Start(List<Master> masters)
         {
-			var copiers = duplicatContext.Copiers.Local
-                .Where(c => c.Slave.Master.Account.ConnectionState == ConnectionStates.Connected)
-                .Where(c => c.Slave.Account.ConnectionState == ConnectionStates.Connected)
-                .Select(c => c.Slave.Master);
-
-	        var fixApiCopiers = duplicatContext.FixApiCopiers.Local
-		        .Where(c => c.Slave.Master.Account.ConnectionState == ConnectionStates.Connected)
-		        .Where(c => c.Slave.Account.ConnectionState == ConnectionStates.Connected)
-		        .Select(c => c.Slave.Master);
-
-	        _masters = copiers.Union(fixApiCopiers).Distinct();
+	        _masters = masters;
 
 			foreach (var master in _masters)
             {

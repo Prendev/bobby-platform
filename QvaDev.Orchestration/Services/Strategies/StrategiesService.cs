@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.Linq;
 using log4net;
 using QvaDev.Common.Integration;
-using QvaDev.Data;
 using QvaDev.Data.Models;
 using System.Threading.Tasks;
 
@@ -12,7 +11,7 @@ namespace QvaDev.Orchestration.Services.Strategies
 {
 	public interface IStrategiesService
 	{
-		void Start(DuplicatContext duplicatContext);
+		void Start(List<StratDealingArb> arbs);
 		void Stop();
 	}
 
@@ -20,18 +19,16 @@ namespace QvaDev.Orchestration.Services.Strategies
 	{
 		private bool _isStarted;
 		private readonly ILog _log;
-		private IEnumerable<StratDealingArb> _arbs;
+		private List<StratDealingArb> _arbs;
 
 		public StrategiesService(ILog log)
 		{
 			_log = log;
 		}
 
-		public void Start(DuplicatContext duplicatContext)
+		public void Start(List<StratDealingArb> arbs)
 		{
-			_arbs = duplicatContext.StratDealingArbs.Local
-				.Where(c => c.AlphaAccount?.ConnectionState == ConnectionStates.Connected &&
-				             c.BetaAccount?.ConnectionState == ConnectionStates.Connected).ToList();
+			_arbs = arbs;
 
 			foreach (var arb in _arbs)
 			{

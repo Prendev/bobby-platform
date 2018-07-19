@@ -29,7 +29,7 @@ namespace QvaDev.Duplicat.ViewModel
 			}
 
 	        var timer = new System.Timers.Timer(5000) {AutoReset = false};
-	        timer.Elapsed += (s, e) => SynchronizationContext.Post(o => SaveState = SaveStates.Default, null);
+	        timer.Elapsed += (s, e) => SaveState = SaveStates.Default;
 			timer.Start();
 		}
 
@@ -59,51 +59,49 @@ namespace QvaDev.Duplicat.ViewModel
             }
         }
 
-        public void RestoreCommand()
-		{
-			var dir = $"{AppDomain.CurrentDomain.BaseDirectory}Backups";
-			if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
-			using (var sfd = new OpenFileDialog
-				{
-					Filter = "Backup file (*.bak)|*.bak",
-					FilterIndex = 1,
-					RestoreDirectory = true,
-					InitialDirectory = dir
-				})
-            {
-                if (sfd.ShowDialog() != DialogResult.OK) return;
-                IsLoading = true;
-                IsConfigReadonly = true;
-                var backupPath = sfd.FileName;
-                var dbName = _duplicatContext.Database.SqlQuery<string>("SELECT DB_NAME()").First();
-	            Task.Run(() =>
-				{
-					var connectionString = ConfigurationManager.ConnectionStrings["DuplicatContext"].ConnectionString;
-					using (var conn = new SqlConnection(connectionString))
-                    {
-                        conn.Open();
-                        _duplicatContext.Dispose();
-						new SqlCommand("USE master", conn).ExecuteNonQuery();
-						new SqlCommand($"ALTER DATABASE {dbName} SET SINGLE_USER WITH ROLLBACK IMMEDIATE", conn)
-                            .ExecuteNonQuery();
-                        new SqlCommand($"RESTORE DATABASE {dbName} FROM DISK = N'{backupPath}' WITH REPLACE", conn)
-                            .ExecuteNonQuery();
-                        _log.Debug($"Database ({dbName}) restore is ready from {backupPath}");
-                    }
-                }).ContinueWith(prevTask =>
-                {
-                    SynchronizationContext.Post(o =>
-                    {
-                        IsLoading = false;
-                        IsConfigReadonly = false;
-                        LoadDataContext();
-                        DataContextChanged?.Invoke();
-                    }, null);
-                });
-            }
-        }
+	    public async void RestoreCommand()
+	    {
+		    var dir = $"{AppDomain.CurrentDomain.BaseDirectory}Backups";
+		    if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
 
-		public async void QuickStartCommand()
+		    using (var sfd = new OpenFileDialog
+		    {
+			    Filter = "Backup file (*.bak)|*.bak",
+			    FilterIndex = 1,
+			    RestoreDirectory = true,
+			    InitialDirectory = dir
+		    })
+		    {
+			    if (sfd.ShowDialog() != DialogResult.OK) return;
+			    IsLoading = true;
+			    IsConfigReadonly = true;
+
+			    var backupPath = sfd.FileName;
+			    await Task.Run(() =>
+			    {
+				    var dbName = _duplicatContext.Database.SqlQuery<string>("SELECT DB_NAME()").First();
+				    var connectionString = ConfigurationManager.ConnectionStrings["DuplicatContext"].ConnectionString;
+				    using (var conn = new SqlConnection(connectionString))
+				    {
+					    conn.Open();
+					    _duplicatContext.Dispose();
+					    new SqlCommand("USE master", conn).ExecuteNonQuery();
+					    new SqlCommand($"ALTER DATABASE {dbName} SET SINGLE_USER WITH ROLLBACK IMMEDIATE", conn)
+						    .ExecuteNonQuery();
+					    new SqlCommand($"RESTORE DATABASE {dbName} FROM DISK = N'{backupPath}' WITH REPLACE", conn)
+						    .ExecuteNonQuery();
+					    _log.Debug($"Database ({dbName}) restore is ready from {backupPath}");
+				    }
+			    });
+
+			    IsLoading = false;
+			    IsConfigReadonly = false;
+			    LoadDataContext();
+			    DataContextChanged?.Invoke();
+		    }
+	    }
+
+	    public async void QuickStartCommand()
 		{
 			IsLoading = true;
 			IsConfigReadonly = true;

@@ -5,7 +5,6 @@ using System.IO;
 using System.Linq;
 using log4net;
 using QvaDev.Common.Integration;
-using QvaDev.Data;
 using QvaDev.Data.Models;
 using MtConnector = QvaDev.Mt4Integration.Connector;
 
@@ -13,7 +12,7 @@ namespace QvaDev.Orchestration.Services
 {
     public interface ITickerService
     {
-        void Start(DuplicatContext duplicatContext);
+        void Start(List<Ticker> tickers);
         void Stop();
     }
 
@@ -66,10 +65,9 @@ namespace QvaDev.Orchestration.Services
             _log = log;
         }
 
-        public void Start(DuplicatContext duplicatContext)
+        public void Start(List<Ticker> tickers)
         {
-			_tickers = duplicatContext.Tickers.Local
-				.Where(c => c.MainAccount.ConnectionState == ConnectionStates.Connected).ToList();
+			_tickers = tickers;
 
 			foreach (var ticker in _tickers)
             {

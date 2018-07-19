@@ -32,8 +32,6 @@ namespace QvaDev.Duplicat.Views
 
         private void InitView()
         {
-            _viewModel.SynchronizationContext = SynchronizationContext.Current;
-
             btnRestore.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsConfigReadonly), true);
             gbControl.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsLoading), true);
             btnConnect.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsConnected), true);
