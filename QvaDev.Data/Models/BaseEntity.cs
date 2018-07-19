@@ -4,7 +4,7 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Runtime.CompilerServices;
-using System.Threading;
+using QvaDev.Common;
 using QvaDev.Common.Annotations;
 using QvaDev.Common.Attributes;
 
@@ -20,14 +20,6 @@ namespace QvaDev.Data.Models
         public int Id { get; set; }
 
         public event PropertyChangedEventHandler PropertyChanged;
-
-        public void RaisePropertyChanged(SynchronizationContext syncContext, string propertyName)
-        {
-            lock (syncContext)
-            {
-                syncContext.Post(o => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName)), null);
-            }
-		}
 
 		[NotifyPropertyChangedInvocator]
         protected T Get<T>(Func<T> defaultValueFactory = null, [CallerMemberName] string propertyName = null)
@@ -57,7 +49,9 @@ namespace QvaDev.Data.Models
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
-	        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+	        DependecyManager.SynchronizationContext?.Post(
+		        o => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName)), null);
+	        //PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         [NotMapped]

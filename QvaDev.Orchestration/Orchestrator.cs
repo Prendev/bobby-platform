@@ -99,10 +99,7 @@ namespace QvaDev.Orchestration
 	        var tasks = accounts.Select(account => Task.Run(() =>
 	        {
 		        _connectorFactory.Create(account);
-
 		        account.State = account.Connector?.IsConnected == true ? Account.States.Connected : Account.States.Error;
-		        account.RaisePropertyChanged(_synchronizationContext, nameof(account.State));
-
 				account.Connector.OnConnectionChange -= Connector_OnConnectionChange;
 				account.Connector.OnConnectionChange += Connector_OnConnectionChange;
 	        }));
@@ -122,7 +119,6 @@ namespace QvaDev.Orchestration
 			foreach (var account in accounts)
 			{
 				account.State = account.Connector?.IsConnected == true ? Account.States.Connected : Account.States.Error;
-				account.RaisePropertyChanged(_synchronizationContext, nameof(account.State));
 			}
 		}
 
@@ -135,7 +131,6 @@ namespace QvaDev.Orchestration
 			{
 				pa.Connector.Disconnect();
 				pa.State = Account.States.Disconnected;
-				pa.RaisePropertyChanged(_synchronizationContext, nameof(pa.State));
 			}));
 			return Task.WhenAll(tasks);
 		}

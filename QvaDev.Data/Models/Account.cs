@@ -36,7 +36,7 @@ namespace QvaDev.Data.Models
 		public int? IlyaFastFeedAccountId { get; set; }
 		public IlyaFastFeedAccount IlyaFastFeedAccount { get; set; }
 
-		[NotMapped] [ReadOnly(true)] public States State { get; set; }
+		[NotMapped] [ReadOnly(true)] public States State { get => Get<States>(); set => Set(value); }
 
 		private IConnector _connector;
 		[NotMapped]

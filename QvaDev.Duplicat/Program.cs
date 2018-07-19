@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Windows.Forms;
 using Autofac;
 using QvaDev.Data;
@@ -22,7 +21,7 @@ namespace QvaDev.Duplicat
             Application.SetCompatibleTextRenderingDefault(false);
             using (var scope = Dependencies.GetContainer().BeginLifetimeScope())
             {
-                Application.Run(scope.Resolve<MainForm>());
+				Application.Run(scope.Resolve<MainForm>());
             }
         }
     }

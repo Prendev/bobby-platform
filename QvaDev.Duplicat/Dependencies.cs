@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using Autofac;
+using QvaDev.Common;
 using QvaDev.Common.Logging;
 using QvaDev.Common.Services;
 using QvaDev.Communication;
@@ -19,7 +20,7 @@ namespace QvaDev.Duplicat
 {
     public class Dependencies
     {
-        public static IContainer GetContainer()
+		public static IContainer GetContainer()
         {
             var builder = new ContainerBuilder();
             Register(builder);
@@ -42,7 +43,7 @@ namespace QvaDev.Duplicat
 			builder.RegisterInstance(generalLog);
 			builder.RegisterType<MainForm>().AsSelf().InstancePerLifetimeScope();
             builder.RegisterType<ViewModel.DuplicatViewModel>().AsSelf().InstancePerLifetimeScope();
-            builder.Register((c, p) => new Func<SynchronizationContext>(() => SynchronizationContext.Current));
+            builder.Register((c, p) => new Func<SynchronizationContext>(() => DependecyManager.SynchronizationContext));
 		}
 
 	    private static void RegisterCommon(ContainerBuilder builder)

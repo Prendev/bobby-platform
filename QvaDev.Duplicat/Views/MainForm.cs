@@ -2,6 +2,7 @@
 using System.Drawing;
 using System.Threading;
 using System.Windows.Forms;
+using QvaDev.Common;
 using QvaDev.Duplicat.ViewModel;
 
 namespace QvaDev.Duplicat.Views
@@ -13,8 +14,9 @@ namespace QvaDev.Duplicat.Views
         public MainForm(
             DuplicatViewModel viewModel
         )
-        {
-            _viewModel = viewModel;
+		{
+			DependecyManager.SynchronizationContext = SynchronizationContext.Current;
+			_viewModel = viewModel;
 
             Load += MainForm_Load;
             InitializeComponent();
@@ -25,7 +27,7 @@ namespace QvaDev.Duplicat.Views
 
         private void MainForm_Load(object sender, EventArgs e)
         {
-            InitView();
+			InitView();
         }
 
         private void InitView()
