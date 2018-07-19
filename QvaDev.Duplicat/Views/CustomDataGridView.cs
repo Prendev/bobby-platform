@@ -7,24 +7,34 @@ using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 using QvaDev.Common.Attributes;
+using QvaDev.Common.Integration;
 using QvaDev.Data.Models;
 
 namespace QvaDev.Duplicat.Views
 {
-    public class CustomDataGridView : DataGridView
+	public class CustomDataGridView : DataGridView
     {
         private readonly List<string> _invisibleColumns = new List<string>();
 
-        public CustomDataGridView()
+	    public EventHandler RowDoubleClick;
+
+		public CustomDataGridView()
         {
             MultiSelect = false;
             AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
             DataSourceChanged += CustomDataGridView_DataSourceChanged;
             RowPrePaint += CustomDataGridView_RowPrePaint;
             DataError += DataGridView_DataError;
+			DoubleClick += (sender, args) =>
+			{
+				if (SelectedRows.Count != 1) return;
+				if (SelectedColumns.Count != 0) return;
+				if (CurrentRow?.DataBoundItem == null) return;
+				RowDoubleClick?.Invoke(this, null);
+			};
         }
 
-        public void AddComboBoxColumn<T>(ObservableCollection<T> list, string name = null) where T : class
+		public void AddComboBoxColumn<T>(ObservableCollection<T> list, string name = null) where T : class
         {
             name = name ?? typeof(T).Name;
             if (!_invisibleColumns.Contains(name))
@@ -87,9 +97,9 @@ namespace QvaDev.Duplicat.Views
             var entity = bindingList[e.RowIndex] as Account;
             if (entity == null) return;
 
-            if (entity.State == Account.States.Connected)
+            if (entity.ConnectionState == ConnectionStates.Connected)
                 Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.LightGreen;
-            else if (entity.State == Account.States.Error)
+            else if (entity.ConnectionState == ConnectionStates.Error)
                 Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.PaleVioletRed;
             else Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.White;
         }

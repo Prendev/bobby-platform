@@ -25,15 +25,9 @@ namespace QvaDev.Duplicat.Views
 
 			dgvAccounts.DefaultValuesNeeded += (s, e) => e.Row.Cells["ProfileId"].Value = _viewModel.SelectedProfileId;
 
-			btnLoad.Click += (s, e) =>
-            {
-                _viewModel.LoadProfileCommand(dgvProfiles.GetSelectedItem<Profile>());
-            };
-
-	        btnSaveTheWeekend.Click += (s, e) =>
-	        {
-		        _viewModel.SaveTheWeekendCommand();
-	        };
+	        dgvProfiles.RowDoubleClick += (s, e) => _viewModel.LoadProfileCommand(dgvProfiles.GetSelectedItem<Profile>());
+			btnLoad.Click += (s, e) => _viewModel.LoadProfileCommand(dgvProfiles.GetSelectedItem<Profile>());
+			btnSaveTheWeekend.Click += (s, e) => _viewModel.SaveTheWeekendCommand();
 		}
 
         public void AttachDataSources()

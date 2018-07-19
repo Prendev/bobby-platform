@@ -1,8 +1,8 @@
 ﻿namespace QvaDev.Common.Integration
 {
-    public delegate void PositionEventHandler(object sender, PositionEventArgs e);
+    public delegate void NewPositionEventHandler(object sender, NewPositionEventArgs e);
 
-    public class PositionEventArgs
+    public class NewPositionEventArgs
     {
         public enum Actions
         {

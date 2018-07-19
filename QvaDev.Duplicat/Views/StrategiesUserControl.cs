@@ -29,18 +29,20 @@ namespace QvaDev.Duplicat.Views
 			btnTestOpenSide1.Click += (s, e) => { _viewModel.StrategyTestOpenSide1Command(dgvDealingArb.GetSelectedItem<StratDealingArb>()); };
 			btnTestOpenSide2.Click += (s, e) => { _viewModel.StrategyTestOpenSide2Command(dgvDealingArb.GetSelectedItem<StratDealingArb>()); };
 			btnTestClose.Click += (s, e) => { _viewModel.StrategyTestCloseCommand(dgvDealingArb.GetSelectedItem<StratDealingArb>()); };
-
-			btnLoad.Click += (s, e) =>
-			{
-				var arb = dgvDealingArb.GetSelectedItem<StratDealingArb>();
-				_viewModel.ShowArbPositionsCommand(arb);
-				FilterRows();
-			};
+			btnLoad.Click += Load_Click;
+			dgvDealingArb.RowDoubleClick += Load_Click;
 
 			dgvDealingArbPos.DefaultValuesNeeded += (s, e) =>
 			{
 				e.Row.Cells["StratDealingArbId"].Value = _viewModel.SelectedDealingArbId;
 			};
+		}
+
+		private void Load_Click(object sender, System.EventArgs e)
+		{
+			var arb = dgvDealingArb.GetSelectedItem<StratDealingArb>();
+			_viewModel.ShowArbPositionsCommand(arb);
+			FilterRows();
 		}
 
 		public void AttachDataSources()

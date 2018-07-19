@@ -94,44 +94,18 @@ namespace QvaDev.Orchestration
 
 	        var accounts = _duplicatContext.Accounts.Local
 		        .Where(pa => pa.Run).ToList()
-		        .Where(pa => pa.State != Account.States.Connected);
+		        .Where(pa => pa.ConnectionState != ConnectionStates.Connected);
 
-	        var tasks = accounts.Select(account => Task.Run(() =>
-	        {
-		        _connectorFactory.Create(account);
-		        account.State = account.Connector?.IsConnected == true ? Account.States.Connected : Account.States.Error;
-				account.Connector.OnConnectionChange -= Connector_OnConnectionChange;
-				account.Connector.OnConnectionChange += Connector_OnConnectionChange;
-	        }));
+	        var tasks = accounts.Select(account => Task.Run(() => _connectorFactory.Create(account)));
 
 			return Task.WhenAll(tasks);
         }
 
-		private void Connector_OnConnectionChange(object sender, bool isConnected)
-		{
-			var connector = (IConnector) sender;
-			var state = isConnected ? "connected" : "disconnected";
-			_log.Debug($"{connector.Description} account {state}");
-
-			var accounts = _duplicatContext.Accounts.Local
-				.Where(pa => pa.Run && pa.Connector == connector).ToList();
-
-			foreach (var account in accounts)
-			{
-				account.State = account.Connector?.IsConnected == true ? Account.States.Connected : Account.States.Error;
-			}
-		}
-
 		public Task Disconnect()
         {
             _duplicatContext.SaveChanges();
-			var accounts = _duplicatContext.Accounts.ToList()
-				 .Where(pa => pa.State != Account.States.Disconnected);
-			var tasks = accounts.Select(pa => Task.Run(() =>
-			{
-				pa.Connector.Disconnect();
-				pa.State = Account.States.Disconnected;
-			}));
+			var accounts = _duplicatContext.Accounts.ToList();
+			var tasks = accounts.Select(pa => Task.Run(() => pa.Connector?.Disconnect()));
 			return Task.WhenAll(tasks);
 		}
 

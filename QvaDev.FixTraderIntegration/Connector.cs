@@ -14,37 +14,26 @@ using QvaDev.Communication;
 
 namespace QvaDev.FixTraderIntegration
 {
-	public interface IConnector : IFixConnector
-	{
-		void OrderMultipleCloseBy(string symbol);
-		SymbolData GetSymbolInfo(string symbol);
-	}
-    
-	public class Connector : IConnector
+	public class Connector : ConnectorBase, IFixConnector
 	{
 		private TcpClient _commandClient;
 		private TcpClient _eventsClient;
 		private Task _receiverTask;
 		private CancellationTokenSource _cancellationTokenSource;
 		private AccountInfo _accountInfo;
-		private readonly ILog _log;
 		private readonly ConcurrentDictionary<string, Tick> _lastTicks =
 			new ConcurrentDictionary<string, Tick>();
 		private readonly TaskCompletionManager _taskCompletionManager;
 
-		public int Id => _accountInfo?.DbId ?? 0;
-		public string Description => _accountInfo?.Description ?? "";
-		public bool IsConnected => _commandClient?.Connected == true && _eventsClient?.Connected == true;
-		public event PositionEventHandler OnPosition;
-		public event TickEventHandler OnTick;
-		public event ConnectionChangeEventHandler OnConnectionChange;
+		public override int Id => _accountInfo?.DbId ?? 0;
+		public override string Description => _accountInfo?.Description ?? "";
+		public override bool IsConnected => _commandClient?.Connected == true && _eventsClient?.Connected == true;
 
 		public ConcurrentDictionary<string, SymbolData> SymbolInfos { get; set; } =
 			new ConcurrentDictionary<string, SymbolData>();
 
-		public Connector(ILog log)
+		public Connector(ILog log) : base(log)
 		{
-			_log = log;
 			_taskCompletionManager = new TaskCompletionManager(100, 1000);
 		}
 
@@ -67,7 +56,7 @@ namespace QvaDev.FixTraderIntegration
 			}
 			catch (Exception e)
 			{
-				_log.Error($"{_accountInfo.Description} account FAILED to connect", e);
+				Log.Error($"{_accountInfo.Description} account FAILED to connect", e);
 			}
 			return false;
 		}
@@ -124,7 +113,7 @@ namespace QvaDev.FixTraderIntegration
 								Time = DateTime.UtcNow
 							};
 							_lastTicks.AddOrUpdate(symbol, key => tick, (key, old) => tick);
-							OnTick?.Invoke(this, new TickEventArgs { Tick = tick });
+							OnNewTick(new NewTickEventArgs { Tick = tick });
 						}
 						else if (commandType == "6")
 						{
@@ -150,12 +139,12 @@ namespace QvaDev.FixTraderIntegration
 				}
 				catch (Exception e)
 				{
-					_log.Error($"Connector.RunReceiver exception", e);
+					Log.Error($"Connector.RunReceiver exception", e);
 				}
 			}
 		}
 
-		public void Disconnect()
+		public override void Disconnect()
 		{
 			try
 			{
@@ -194,7 +183,7 @@ namespace QvaDev.FixTraderIntegration
 			}
 			catch (Exception e)
 			{
-				_log.Error($"Connector.SendMarketOrderRequest({symbol}, {side}, {quantity}, {comment}) exception", e);
+				Log.Error($"Connector.SendMarketOrderRequest({symbol}, {side}, {quantity}, {comment}) exception", e);
 				return new OrderResponse()
 				{
 					OrderedQuantity = quantity,
@@ -239,7 +228,7 @@ namespace QvaDev.FixTraderIntegration
 			}
 			catch (Exception e)
 			{
-				_log.Error($"Connector.SendLimitOrderRequest({symbol}, {side}, {lots}, {comment}) exception", e);
+				Log.Error($"Connector.SendLimitOrderRequest({symbol}, {side}, {lots}, {comment}) exception", e);
 			}
 		}
 
@@ -288,7 +277,7 @@ namespace QvaDev.FixTraderIntegration
 			}
 			catch (Exception e)
 			{
-				_log.Error($"Connector.SendLimitOrderRequest({symbol}, {side}, {lots}, {comment}) exception", e);
+				Log.Error($"Connector.SendLimitOrderRequest({symbol}, {side}, {lots}, {comment}) exception", e);
 			}
 		}
 
@@ -313,7 +302,7 @@ namespace QvaDev.FixTraderIntegration
 			}
 			catch (Exception e)
 			{
-				_log.Error($"Connector.OrderMultipleCloseBy({symbol}) exception", e);
+				Log.Error($"Connector.OrderMultipleCloseBy({symbol}) exception", e);
 			}
 		}
 
@@ -322,12 +311,12 @@ namespace QvaDev.FixTraderIntegration
 			return SymbolInfos.GetOrAdd(symbol, new SymbolData());
 		}
 
-		public void Subscribe(string symbol)
+		public override void Subscribe(string symbol)
 		{
 			return;
 		}
 
-		public Tick GetLastTick(string symbol)
+		public override Tick GetLastTick(string symbol)
 		{
 			return _lastTicks.GetOrAdd(symbol, (Tick)null);
 		}

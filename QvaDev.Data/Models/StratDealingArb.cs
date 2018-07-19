@@ -18,7 +18,7 @@ namespace QvaDev.Data.Models
 			Aggressive
 		}
 
-		public event EventHandler OnTick;
+		public event EventHandler NewTick;
 
 		[InvisibleColumn] public int ProfileId { get; set; }
 		[InvisibleColumn] public Profile Profile { get; set; }
@@ -63,9 +63,9 @@ namespace QvaDev.Data.Models
 			set
 			{
 				if (_alphaAccount != null)
-					_alphaAccount.OnTick -= Account_OnTick;
+					_alphaAccount.NewTick -= Account_NewTick;
 				if (value != null)
-					value.OnTick += Account_OnTick;
+					value.NewTick += Account_NewTick;
 				_alphaAccount = value;
 			}
 		}
@@ -80,9 +80,9 @@ namespace QvaDev.Data.Models
 			set
 			{
 				if (_betaAccount != null)
-					_betaAccount.OnTick -= Account_OnTick;
+					_betaAccount.NewTick -= Account_NewTick;
 				if (value != null)
-					value.OnTick += Account_OnTick;
+					value.NewTick += Account_NewTick;
 				_betaAccount = value;
 			}
 		}
@@ -164,30 +164,30 @@ namespace QvaDev.Data.Models
 			}
 		}
 
-		private void Account_OnTick(object sender, TickEventArgs tickEventArgs)
+		private void Account_NewTick(object sender, NewTickEventArgs newTickEventArgs)
 		{
-			if (tickEventArgs?.Tick?.HasValue != true) return;
-			if (sender == AlphaAccount && tickEventArgs.Tick.Symbol != AlphaSymbol) return;
-			if (sender == BetaAccount && tickEventArgs.Tick.Symbol != BetaSymbol) return;
+			if (newTickEventArgs?.Tick?.HasValue != true) return;
+			if (sender == AlphaAccount && newTickEventArgs.Tick.Symbol != AlphaSymbol) return;
+			if (sender == BetaAccount && newTickEventArgs.Tick.Symbol != BetaSymbol) return;
 
 			if (sender == AlphaAccount)
 			{
-				AlphaAsk = tickEventArgs.Tick.Ask;
-				AlphaBid = tickEventArgs.Tick.Bid;
-				AlphaTick = tickEventArgs.Tick;
+				AlphaAsk = newTickEventArgs.Tick.Ask;
+				AlphaBid = newTickEventArgs.Tick.Bid;
+				AlphaTick = newTickEventArgs.Tick;
 			}
 			else if (sender == BetaAccount)
 			{
-				BetaAsk = tickEventArgs.Tick.Ask;
-				BetaBid = tickEventArgs.Tick.Bid;
-				BetaTick = tickEventArgs.Tick;
+				BetaAsk = newTickEventArgs.Tick.Ask;
+				BetaBid = newTickEventArgs.Tick.Bid;
+				BetaTick = newTickEventArgs.Tick;
 			}
 
 			if (AlphaTick?.HasValue != true || BetaTick?.HasValue != true) return;
 			if (DateTime.UtcNow - AlphaTick.Time > new TimeSpan(0, 1, 0)) return;
 			if (DateTime.UtcNow - BetaTick.Time > new TimeSpan(0, 1, 0)) return;
 
-			OnTick?.Invoke(this, null);
+			NewTick?.Invoke(this, null);
 		}
 	}
 }

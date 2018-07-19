@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.Data.Entity;
 using System.Drawing;
 using System.Windows.Forms;
@@ -22,7 +23,6 @@ namespace QvaDev.Duplicat.Views
 
             gbControl.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsLoading), true);
             gbPushing.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsPushingEnabled));
-            //btnLoad.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsConnected), true);
             dgvPushings.AddBinding("AllowUserToAddRows", _viewModel, nameof(_viewModel.IsConfigReadonly), true);
             dgvPushings.AddBinding("AllowUserToDeleteRows", _viewModel, nameof(_viewModel.IsConfigReadonly), true);
 			btnStartCopiers.AddBinding("Enabled", _viewModel, nameof(_viewModel.AreCopiersStarted), true);
@@ -73,17 +73,21 @@ namespace QvaDev.Duplicat.Views
 			btnReset.Click += (s, e) => { _viewModel.PushingResetCommand(); };
 
 			dgvPushingDetail.DataSourceChanged += (s, e) => FilterRows();
-            btnLoad.Click += (s, e) =>
-            {
-                var pushing = dgvPushings.GetSelectedItem<Pushing>();
-                _viewModel.ShowPushingCommand(pushing);
-                cbHedge.DataBindings.Clear();
-                cbHedge.DataBindings.Add("Checked", pushing, "IsHedgeClose");
-                FilterRows();
-            };
+
+			dgvPushings.RowDoubleClick += Load_Click;
+			btnLoad.Click += Load_Click;
         }
 
-        public void AttachDataSources()
+		private void Load_Click(object sender, EventArgs e)
+		{
+			var pushing = dgvPushings.GetSelectedItem<Pushing>();
+			_viewModel.ShowPushingCommand(pushing);
+			cbHedge.DataBindings.Clear();
+			cbHedge.DataBindings.Add("Checked", pushing, "IsHedgeClose");
+			FilterRows();
+		}
+
+		public void AttachDataSources()
         {
             dgvPushings.AddComboBoxColumn(_viewModel.Accounts, "FutureAccount");
             dgvPushings.AddComboBoxColumn(_viewModel.Accounts, "AlphaMaster");
@@ -95,12 +99,10 @@ namespace QvaDev.Duplicat.Views
 
         public void FilterRows()
         {
-            var bindingList = dgvPushingDetail.DataSource as IBindingList;
-            if (bindingList == null) return;
+	        if (!(dgvPushingDetail.DataSource is IBindingList)) return;
             foreach (DataGridViewRow row in dgvPushingDetail.Rows)
             {
-                var entity = row.DataBoundItem as PushingDetail;
-                if (entity == null) continue;
+	            if (!(row.DataBoundItem is PushingDetail entity)) continue;
 
                 var isFiltered = entity.Id != _viewModel.SelectedPushingDetailId;
                 row.ReadOnly = isFiltered;

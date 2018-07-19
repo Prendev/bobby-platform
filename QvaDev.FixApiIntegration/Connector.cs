@@ -15,9 +15,8 @@ using OrderResponse = QvaDev.Common.Integration.OrderResponse;
 
 namespace QvaDev.FixApiIntegration
 {
-	public class Connector : IFixConnector
+	public class Connector : ConnectorBase, IFixConnector
 	{
-		private readonly ILog _log;
 		private readonly FixConnectorBase _fixConnector;
 		private readonly ConcurrentDictionary<string, Tick> _lastTicks =
 			new ConcurrentDictionary<string, Tick>();
@@ -26,22 +25,15 @@ namespace QvaDev.FixApiIntegration
 		private readonly Object _lock = new Object();
 		private volatile bool _isConnecting;
 
-		public int Id => _accountInfo?.DbId ?? 0;
-		public string Description => _accountInfo?.Description ?? "";
-		public bool IsConnected => _fixConnector?.IsPricingConnected == true && _fixConnector?.IsTradingConnected == true;
-
-		public event PositionEventHandler OnPosition;
-		public event TickEventHandler OnTick;
-		public event ConnectionChangeEventHandler OnConnectionChange;
+		public override int Id => _accountInfo?.DbId ?? 0;
+		public override string Description => _accountInfo?.Description ?? "";
+		public override bool IsConnected => _fixConnector?.IsPricingConnected == true && _fixConnector?.IsTradingConnected == true;
 
 		public ConcurrentDictionary<string, SymbolData> SymbolInfos { get; set; } =
 			new ConcurrentDictionary<string, SymbolData>();
 
-		public Connector(
-			AccountInfo accountInfo,
-			ILog log)
+		public Connector(AccountInfo accountInfo, ILog log) : base(log)
 		{
-			_log = log;
 			_accountInfo = accountInfo;
 
 			var doc = new XmlDocument();
@@ -81,15 +73,15 @@ namespace QvaDev.FixApiIntegration
 			}
 			catch (Exception e)
 			{
-				_log.Error($"{Description} FIX account FAILED to connect", e);
+				Log.Error($"{Description} FIX account FAILED to connect", e);
 				Reconnect();
 			}
 
-			OnConnectionChange?.Invoke(this, IsConnected);
+			OnConnectionChanged(IsConnected ? ConnectionStates.Connected : ConnectionStates.Error);
 			_isConnecting = false;
 		}
 
-		public void Disconnect()
+		public override void Disconnect()
 		{
 			_fixConnector.PricingSocketClosed -= FixConnector_SocketClosed;
 			_fixConnector.TradingSocketClosed -= FixConnector_SocketClosed;
@@ -103,10 +95,10 @@ namespace QvaDev.FixApiIntegration
 			}
 			catch (Exception e)
 			{
-				_log.Error($"{Description} FIX account ERROR during disconnect", e);
+				Log.Error($"{Description} account ERROR during disconnect", e);
 			}
 
-			OnConnectionChange?.Invoke(this, IsConnected);
+			OnConnectionChanged(ConnectionStates.Disconnected);
 		}
 
 		private void FixConnector_SocketClosed(object sender, ClosedEventArgs e)
@@ -124,7 +116,7 @@ namespace QvaDev.FixApiIntegration
 			Task.Run(() => ExecutionReport(e));
 		}
 
-		public Tick GetLastTick(string symbol)
+		public override Tick GetLastTick(string symbol)
 		{
 			return _lastTicks.GetOrAdd(symbol, (Tick)null);
 		}
@@ -140,7 +132,7 @@ namespace QvaDev.FixApiIntegration
 					Quantity = quantity
 				});
 
-				_log.Debug(
+				Log.Debug(
 					$"{Description} Connector.SendMarketOrderRequest({symbol}, {side}, {quantity}, {comment}) opened {response.FilledQuantity} at avg price {response.AveragePrice}");
 				return new OrderResponse()
 				{
@@ -151,7 +143,7 @@ namespace QvaDev.FixApiIntegration
 			}
 			catch (Exception e)
 			{
-				_log.Error($"{Description} Connector.SendMarketOrderRequest({symbol}, {side}, {quantity}, {comment}) exception", e);
+				Log.Error($"{Description} Connector.SendMarketOrderRequest({symbol}, {side}, {quantity}, {comment}) exception", e);
 				return new OrderResponse()
 				{
 					OrderedQuantity = quantity,
@@ -180,7 +172,7 @@ namespace QvaDev.FixApiIntegration
 					Timeout = timeout
 				});
 
-				_log.Debug(
+				Log.Debug(
 					$"{Description} Connector.SendAggressiveOrderRequest({symbol}, {side}, {quantity}, " +
 					$"{limitPrice}, {deviation}, {timeout}, {retryCount}, {retryPeriod}) " +
 					$"opened {response.FilledQuantity} at avg price {response.AveragePrice}");
@@ -195,7 +187,7 @@ namespace QvaDev.FixApiIntegration
 			}
 			catch (Exception e)
 			{
-				_log.Error(
+				Log.Error(
 					$"{Description} Connector.SendAggressiveOrderRequest({symbol}, {side}, {quantity}, " +
 					$"{limitPrice}, {deviation}, {timeout}, {retryCount}, {retryPeriod}) exception", e);
 
@@ -222,7 +214,7 @@ namespace QvaDev.FixApiIntegration
 			return SymbolInfos.GetOrAdd(symbol, new SymbolData());
 		}
 
-		public async void Subscribe(string symbol)
+		public override async void Subscribe(string symbol)
 		{
 			try
 			{
@@ -230,18 +222,18 @@ namespace QvaDev.FixApiIntegration
 			}
 			catch (ObjectDisposedException e)
 			{
-				_log.Error($"{Description} Connector.Subscribe({symbol}) ObjectDisposedException", e);
+				Log.Error($"{Description} Connector.Subscribe({symbol}) ObjectDisposedException", e);
 				Reconnect(1000);
 			}
 			catch (Exception e)
 			{
-				_log.Error($"{Description} Connector.Subscribe({symbol}) exception", e);
+				Log.Error($"{Description} Connector.Subscribe({symbol}) exception", e);
 			}
 		}
 
 		private async void Reconnect(int delay = 30000)
 		{
-			OnConnectionChange?.Invoke(this, IsConnected);
+			OnConnectionChanged(ConnectionStates.Error);
 			await Task.Delay(delay);
 			await Connect();
 		}
@@ -271,7 +263,7 @@ namespace QvaDev.FixApiIntegration
 				Time = DateTime.UtcNow
 			};
 			_lastTicks.AddOrUpdate(symbol, key => tick, (key, old) => tick);
-			OnTick?.Invoke(this, new TickEventArgs { Tick = tick });
+			OnNewTick(new NewTickEventArgs { Tick = tick });
 		}
 
 		private void ExecutionReport(ExecutionReportEventArgs e)

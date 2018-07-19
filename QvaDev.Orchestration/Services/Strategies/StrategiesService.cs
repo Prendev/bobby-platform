@@ -30,13 +30,13 @@ namespace QvaDev.Orchestration.Services.Strategies
 		public void Start(DuplicatContext duplicatContext)
 		{
 			_arbs = duplicatContext.StratDealingArbs.Local
-				.Where(c => c.AlphaAccount?.State == Account.States.Connected &&
-				             c.BetaAccount?.State == Account.States.Connected).ToList();
+				.Where(c => c.AlphaAccount?.ConnectionState == ConnectionStates.Connected &&
+				             c.BetaAccount?.ConnectionState == ConnectionStates.Connected).ToList();
 
 			foreach (var arb in _arbs)
 			{
-				arb.OnTick -= Arb_OnTick;
-				arb.OnTick += Arb_OnTick;
+				arb.NewTick -= Arb_NewTick;
+				arb.NewTick += Arb_NewTick;
 
 				arb.AlphaAccount.Connector.Subscribe(arb.AlphaSymbol);
 				arb.BetaAccount.Connector.Subscribe(arb.BetaSymbol);
@@ -51,7 +51,7 @@ namespace QvaDev.Orchestration.Services.Strategies
 			_isStarted = false;
 		}
 
-		private void Arb_OnTick(object sender, EventArgs e)
+		private void Arb_NewTick(object sender, EventArgs e)
 		{
 			if (!_isStarted) return;
 			var arb = (StratDealingArb) sender;

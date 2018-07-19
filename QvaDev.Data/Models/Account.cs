@@ -7,14 +7,7 @@ namespace QvaDev.Data.Models
 {
 	public class Account : BaseEntity
 	{
-		public enum States
-		{
-			Disconnected,
-			Connected,
-			Error
-		}
-
-		public event TickEventHandler OnTick;
+		public event NewTickEventHandler NewTick;
 
 		[InvisibleColumn] public int ProfileId { get; set; }
 		[InvisibleColumn] public Profile Profile { get; set; }
@@ -36,7 +29,7 @@ namespace QvaDev.Data.Models
 		public int? IlyaFastFeedAccountId { get; set; }
 		public IlyaFastFeedAccount IlyaFastFeedAccount { get; set; }
 
-		[NotMapped] [ReadOnly(true)] public States State { get => Get<States>(); set => Set(value); }
+		[NotMapped] [ReadOnly(true)] public ConnectionStates ConnectionState { get => Get<ConnectionStates>(); set => Set(value); }
 
 		private IConnector _connector;
 		[NotMapped]
@@ -47,11 +40,24 @@ namespace QvaDev.Data.Models
 			set
 			{
 				if (_connector != null)
-					_connector.OnTick -= Connector_OnTick;
+				{
+					_connector.NewTick -= Connector_NewTick;
+					_connector.ConnectionChanged -= Connector_ConnectionChanged;
+				}
+
 				if (value != null)
-					value.OnTick += Connector_OnTick;
+				{
+
+					value.NewTick += Connector_NewTick;
+					value.ConnectionChanged += Connector_ConnectionChanged;
+				}
 				_connector = value;
 			}
+		}
+
+		private void Connector_ConnectionChanged(object sender, ConnectionStates connectionState)
+		{
+			ConnectionState = connectionState;
 		}
 
 		public Tick GetLastTick(string symbol)
@@ -59,9 +65,9 @@ namespace QvaDev.Data.Models
 			return _connector?.GetLastTick(symbol);
 		}
 
-		private void Connector_OnTick(object sender, TickEventArgs e)
+		private void Connector_NewTick(object sender, NewTickEventArgs e)
 		{
-			OnTick?.Invoke(this, e);
+			NewTick?.Invoke(this, e);
 		}
 
 		public override string ToString()

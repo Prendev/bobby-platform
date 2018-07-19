@@ -11,9 +11,9 @@ using QvaDev.Communication;
 
 namespace QvaDev.IlyaFastFeedIntegration
 {
-	public class Connector : IConnector
+	public class Connector : ConnectorBase
 	{
-		private readonly ILog _log;
+		private bool _isConnected;
 		private AccountInfo _accountInfo;
 		private TcpClient _tcpClient;
 		private Task _receiverTask;
@@ -22,17 +22,12 @@ namespace QvaDev.IlyaFastFeedIntegration
 			new ConcurrentDictionary<string, Tick>();
 		private readonly TaskCompletionManager _taskCompletionManager;
 
-		public int Id => _accountInfo?.DbId ?? 0;
-		public string Description => _accountInfo.Description;
-		public bool IsConnected { get; private set; }
+		public override int Id => _accountInfo?.DbId ?? 0;
+		public override string Description => _accountInfo.Description;
+		public override bool IsConnected => _isConnected;
 
-		public event PositionEventHandler OnPosition;
-		public event TickEventHandler OnTick;
-		public event ConnectionChangeEventHandler OnConnectionChange;
-
-		public Connector(ILog log)
+		public Connector(ILog log) : base(log)
 		{
-			_log = log;
 			_taskCompletionManager = new TaskCompletionManager(100, 1000);
 		}
 
@@ -56,17 +51,17 @@ namespace QvaDev.IlyaFastFeedIntegration
 				_receiverTask = new Task(Receive, _cancellationTokenSource.Token, TaskCreationOptions.LongRunning);
 				_receiverTask.Start();
 
-				IsConnected = await task;
+				_isConnected = await task;
 			}
 			catch (Exception e)
 			{
-				_log.Error($"{_accountInfo.Description} account FAILED to connect", e);
-				IsConnected = false;
+				Log.Error($"{_accountInfo.Description} account FAILED to connect", e);
+				_isConnected = false;
 			}
-			OnConnectionChange?.Invoke(this, IsConnected);
+			OnConnectionChanged(IsConnected ? ConnectionStates.Connected : ConnectionStates.Error);
 		}
 
-		public void Disconnect()
+		public override void Disconnect()
 		{
 			try
 			{
@@ -75,16 +70,16 @@ namespace QvaDev.IlyaFastFeedIntegration
 			}
 			catch { }
 
-			IsConnected = false;
-			OnConnectionChange?.Invoke(this, IsConnected);
+			_isConnected = false;
+			OnConnectionChanged(ConnectionStates.Disconnected);
 		}
 
-		public Tick GetLastTick(string symbol)
+		public override Tick GetLastTick(string symbol)
 		{
 			return _lastTicks.GetOrAdd(symbol, (Tick)null);
 		}
 
-		public void Subscribe(string symbol)
+		public override void Subscribe(string symbol)
 		{
 			return;
 		}
@@ -115,7 +110,7 @@ namespace QvaDev.IlyaFastFeedIntegration
 			// Disconnect
 			if (ret <= 0)
 			{
-				_log.Error($"{_accountInfo.Description} feeder closed connection");
+				Log.Error($"{_accountInfo.Description} feeder closed connection");
 				Reconnect();
 			}
 			// Admin
@@ -128,11 +123,11 @@ namespace QvaDev.IlyaFastFeedIntegration
 				}
 				catch (Exception e)
 				{
-					_log.Error($"{_accountInfo.Description} admin message parse error", e);
+					Log.Error($"{_accountInfo.Description} admin message parse error", e);
 					return;
 				}
 
-				_log.Debug($"{_accountInfo.Description} admin message: {result}");
+				Log.Debug($"{_accountInfo.Description} admin message: {result}");
 
 				var badMessages = new[]
 					{"User is already autorized!!!=#=", "License is blocked, or expired or do not exist!!!=#=", "User Logoff=#="};
@@ -144,7 +139,7 @@ namespace QvaDev.IlyaFastFeedIntegration
 
 				if (result.Trim().Equals("OK!!!=#="))
 				{
-					_log.Info($"{_accountInfo.Description} admin message auth OK");
+					Log.Info($"{_accountInfo.Description} admin message auth OK");
 					_taskCompletionManager.SetResult(_accountInfo.Description, true);
 				}
 			}
@@ -177,7 +172,7 @@ namespace QvaDev.IlyaFastFeedIntegration
 						Time = DateTime.UtcNow
 					};
 					_lastTicks.AddOrUpdate(symbol, key => tick, (key, old) => tick);
-					OnTick?.Invoke(this, new TickEventArgs { Tick = tick });
+					OnNewTick(new NewTickEventArgs { Tick = tick });
 
 				}
 			}
@@ -185,14 +180,14 @@ namespace QvaDev.IlyaFastFeedIntegration
 
 		private async void Reconnect()
 		{
-			OnConnectionChange?.Invoke(this, IsConnected);
+			OnConnectionChanged(ConnectionStates.Error);
 			await Task.Delay(1000);
 			await Connect(_accountInfo);
 		}
 
 		private void OnMessageDisconnect(string message)
 		{
-			_log.Error($"{_accountInfo.Description} admin message disconnect reason: {message}");
+			Log.Error($"{_accountInfo.Description} admin message disconnect reason: {message}");
 			Disconnect();
 		}
 

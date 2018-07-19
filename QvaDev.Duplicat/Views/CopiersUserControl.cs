@@ -40,7 +40,12 @@ namespace QvaDev.Duplicat.Views
 			btnStart.Click += (s, e) => { _viewModel.StartCopiersCommand(); };
             btnStop.Click += (s, e) => { _viewModel.StopCopiersCommand(); };
 
-            btnShowSelectedSlave.Click += (s, e) =>
+	        dgvSlaves.RowDoubleClick += (s, e) =>
+	        {
+		        _viewModel.ShowSelectedSlaveCommand(dgvSlaves.GetSelectedItem<Slave>());
+		        FilterRows();
+	        };
+			btnShowSelectedSlave.Click += (s, e) =>
             {
                 _viewModel.ShowSelectedSlaveCommand(dgvSlaves.GetSelectedItem<Slave>());
                 FilterRows();

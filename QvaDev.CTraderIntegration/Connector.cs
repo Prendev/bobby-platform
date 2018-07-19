@@ -10,9 +10,8 @@ using QvaDev.CTraderIntegration.Services;
 
 namespace QvaDev.CTraderIntegration
 {
-    public class Connector : IConnector
+    public class Connector : ConnectorBase, IConnector
     {
-        private readonly ILog _log;
         private readonly ITradingAccountsService _tradingAccountsService;
         private readonly ConcurrentDictionary<string, MarketOrder> _marketOrders = new ConcurrentDictionary<string, MarketOrder>();
         private readonly CTraderClientWrapper _cTraderClientWrapper;
@@ -25,28 +24,27 @@ namespace QvaDev.CTraderIntegration
         public static ConcurrentDictionary<string, Lazy<List<AccountData>>> BalanceAccounts =
             new ConcurrentDictionary<string, Lazy<List<AccountData>>>();
 
-	    public int Id => _accountInfo?.DbId ?? 0;
-	    public string Description => _accountInfo?.Description;
-        public bool IsConnected => _cTraderClientWrapper?.IsConnected == true && AccountId > 0;
+	    public override int Id => _accountInfo?.DbId ?? 0;
+		public override string Description => _accountInfo?.Description;
+		public override bool IsConnected => _cTraderClientWrapper?.IsConnected == true && AccountId > 0;
         public ConcurrentDictionary<long, Position> Positions { get; }
-        public event PositionEventHandler OnPosition;
-		public event TickEventHandler OnTick;
-		public event ConnectionChangeEventHandler OnConnectionChange;
+        public event NewPositionEventHandler NewPosition;
+		public event NewTickEventHandler NewTick;
+		public event ConnectionChangedEventHandler ConnectionChanged;
 
 		public Connector(
             AccountInfo accountInfo,
             CTraderClientWrapper cTraderClientWrapper,
             ITradingAccountsService tradingAccountsService,
-            ILog log)
+            ILog log) : base(log)
         {
             _tradingAccountsService = tradingAccountsService;
             _accountInfo = accountInfo;
             _cTraderClientWrapper = cTraderClientWrapper;
-            _log = log;
             Positions = new ConcurrentDictionary<long, Position>();
         }
 
-        public void Disconnect()
+		public override void Disconnect()
         {
             _cTraderClientWrapper.CTraderClient.OnPosition -= CTraderClient_OnPosition;
             _cTraderClientWrapper.CTraderClient.OnError -= OnError;
@@ -54,15 +52,15 @@ namespace QvaDev.CTraderIntegration
             {
                 _cTraderClientWrapper.CTraderClient.SendUnsubscribeForTradingEventsRequest(AccountId);
             }
-            _log.Debug($"{_accountInfo.Description} account ({_accountInfo.AccountNumber}) disconnected");
+            Log.Debug($"{_accountInfo.Description} account ({_accountInfo.AccountNumber}) disconnected");
         }
 
-	    public Tick GetLastTick(string symbol)
+		public override Tick GetLastTick(string symbol)
 	    {
 		    throw new NotImplementedException();
 	    }
 
-	    public void Subscribe(string symbol)
+		public override void Subscribe(string symbol)
 	    {
 		    throw new NotImplementedException();
 	    }
@@ -71,10 +69,10 @@ namespace QvaDev.CTraderIntegration
         {
             if (!IsConnected)
             {
-                _log.Error($"{_accountInfo.Description} account ({_accountInfo.AccountNumber}) FAILED to connect");
+                Log.Error($"{_accountInfo.Description} account ({_accountInfo.AccountNumber}) FAILED to connect");
                 return false;
             }
-            _log.Debug($"{_accountInfo.Description} account ({_accountInfo.AccountNumber}) connected");
+            Log.Debug($"{_accountInfo.Description} account ({_accountInfo.AccountNumber}) connected");
 
             _cTraderClientWrapper.CTraderClient.SendUnsubscribeForTradingEventsRequest(AccountId);
             _cTraderClientWrapper.CTraderClient.SendSubscribeForTradingEventsRequest(_accountInfo.AccessToken, AccountId);
@@ -90,7 +88,7 @@ namespace QvaDev.CTraderIntegration
                 BaseUrl = _cTraderClientWrapper.PlatformInfo.AccountsApi,
                 AccountId = AccountId
             });
-            _log.Debug($"{_accountInfo.Description} account ({_accountInfo.AccountNumber}) positions acquired");
+            Log.Debug($"{_accountInfo.Description} account ({_accountInfo.AccountNumber}) positions acquired");
 
             foreach (var p in positions)
             {
@@ -128,7 +126,7 @@ namespace QvaDev.CTraderIntegration
                             BaseUrl = _cTraderClientWrapper.PlatformInfo.AccountsApi
                         });
 
-                    _log.Debug($"Accounts acquired for access token: {accessToken}");
+                    Log.Debug($"Accounts acquired for access token: {accessToken}");
                     return accs;
                 }, true));
 
@@ -166,7 +164,7 @@ namespace QvaDev.CTraderIntegration
                             BaseUrl = _cTraderClientWrapper.PlatformInfo.AccountsApi
                         });
 
-                    _log.Debug($"Accounts acquired for access token: {accessToken}");
+                    Log.Debug($"Accounts acquired for access token: {accessToken}");
                     return accs;
                 }, true));
 
@@ -251,12 +249,12 @@ namespace QvaDev.CTraderIntegration
             CheckMarketOrder(p);
             CheckCloseOrder(p, position);
 
-            OnPosition?.Invoke(this, new PositionEventArgs
+            NewPosition?.Invoke(this, new NewPositionEventArgs
             {
                 DbId = _accountInfo.DbId,
                 AccountType = AccountTypes.Ct,
                 Position = position,
-                Action = p.PositionStatus == ProtoOAPositionStatus.OA_POSITION_STATUS_OPEN ? PositionEventArgs.Actions.Open : PositionEventArgs.Actions.Close,
+                Action = p.PositionStatus == ProtoOAPositionStatus.OA_POSITION_STATUS_OPEN ? NewPositionEventArgs.Actions.Open : NewPositionEventArgs.Actions.Close,
             });
         }
 
@@ -296,7 +294,7 @@ namespace QvaDev.CTraderIntegration
             MarketOrder marketOrder;
             if (_marketOrders.TryGetValue(clientMsgId, out marketOrder))
             {
-                _log.Info($"cTrader error: {error.Description}");
+                Log.Info($"cTrader error: {error.Description}");
                 RetryMarketOrder(marketOrder, clientMsgId);
                 return;
             }

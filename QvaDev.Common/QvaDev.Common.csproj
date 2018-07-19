@@ -79,7 +79,8 @@
     <Compile Include="DependecyManager.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="Integration\AccountTypes.cs" />
-    <Compile Include="Integration\ConnectionChangeEventHandler.cs" />
+    <Compile Include="Integration\ConnectionChangedEventHandler.cs" />
+    <Compile Include="Integration\ConnectorBase.cs" />
     <Compile Include="Integration\IFixConnector.cs" />
     <Compile Include="Integration\OrderResponse.cs" />
     <Compile Include="Integration\SymbolData.cs" />
@@ -89,11 +90,11 @@
     <Compile Include="Integration\BaseAccountInfo.cs" />
     <Compile Include="Integration\IConnector.cs" />
     <Compile Include="Integration\MarketOrder.cs" />
-    <Compile Include="Integration\PositionEventArgs.cs" />
+    <Compile Include="Integration\NewPositionEventArgs.cs" />
     <Compile Include="Integration\Position.cs" />
     <Compile Include="Integration\RetryOrder.cs" />
     <Compile Include="Integration\Sides.cs" />
-    <Compile Include="Integration\TickEventArgs.cs" />
+    <Compile Include="Integration\NewTickEventArgs.cs" />
     <Compile Include="Logging\LogAdapter.cs" />
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

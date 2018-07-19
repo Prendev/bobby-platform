@@ -69,7 +69,7 @@ namespace QvaDev.Orchestration.Services
         public void Start(DuplicatContext duplicatContext)
         {
 			_tickers = duplicatContext.Tickers.Local
-				.Where(c => c.MainAccount.State == Account.States.Connected).ToList();
+				.Where(c => c.MainAccount.ConnectionState == ConnectionStates.Connected).ToList();
 
 			foreach (var ticker in _tickers)
             {
@@ -87,14 +87,14 @@ namespace QvaDev.Orchestration.Services
 
 			foreach (var ft in _tickers.Where(t => t.MainAccount.FixTraderAccountId.HasValue).Select(t => t.MainAccount).Distinct())
 			{
-				ft.Connector.OnTick -= Connector_OnTick;
-				ft.Connector.OnTick += Connector_OnTick;
+				ft.Connector.NewTick -= Connector_NewTick;
+				ft.Connector.NewTick += Connector_NewTick;
 			}
 
 			foreach (var mt in _tickers.Where(t => t.MainAccount.MetaTraderAccountId.HasValue).Select(t => t.MainAccount).Distinct())
 			{
-				mt.Connector.OnTick -= Connector_OnTick;
-				mt.Connector.OnTick += Connector_OnTick;
+				mt.Connector.NewTick -= Connector_NewTick;
+				mt.Connector.NewTick += Connector_NewTick;
 			}
 
 			_isStarted = true;
@@ -109,7 +109,7 @@ namespace QvaDev.Orchestration.Services
 			_csvWriters.Clear();
 		}
 
-		private void Connector_OnTick(object sender, TickEventArgs e)
+		private void Connector_NewTick(object sender, NewTickEventArgs e)
 		{
 			if (!_isStarted) return;
 			var connector = (IConnector)sender;
