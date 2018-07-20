@@ -127,7 +127,7 @@ namespace QvaDev.FixApiIntegration
 			{
 				var response = await _fixConnector.MarketOrderAsync(new OrderRequest()
 				{
-					Side = side == Sides.Buy ? Side.Buy : Side.Sell,
+					IsLong = side == Sides.Buy,
 					Symbol = Symbol.Parse(symbol),
 					Quantity = quantity
 				});
@@ -164,7 +164,7 @@ namespace QvaDev.FixApiIntegration
 			{
 				var response = await _fixConnector.AggressiveOrderAsync(new AggressiveOrderRequest()
 				{
-					Side = side == Sides.Buy ? Side.Buy : Side.Sell,
+					IsLong = side == Sides.Buy,
 					Symbol = Symbol.Parse(symbol),
 					Quantity = quantity,
 					LimitPrice = limitPrice,

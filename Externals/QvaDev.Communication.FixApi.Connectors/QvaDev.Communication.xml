@@ -126,6 +126,60 @@
             To start listening to the received and to be sent messages call the <see cref="M:QvaDev.Communication.FixApi.FixConnectorBase.ConnectPricingAsync(System.Boolean)" /> and <see cref="M:QvaDev.Communication.FixApi.FixConnectorBase.ConnectTradingAsync(System.Boolean)"/> methods after subscribing events.
             </remarks>
         </member>
+        <member name="T:QvaDev.Communication.FixApi.MarketDataManager">
+            <summary>
+            Can be used for centralizing market data info from different connector sources.
+            It automatically manages delta quotes and provides a consistent book based on last data.
+            Incoming data of different sources can be processed by <see cref="M:QvaDev.Communication.FixApi.MarketDataManager.PostQuoteSet(QvaDev.Communication.FixApi.FixConnectorBase,QvaDev.Communication.FixApi.QuoteSet)"/>, which can be consumed by subscribing the <see cref="M:QvaDev.Communication.FixApi.MarketDataManager.SubscribeBookChange(QvaDev.Communication.FixApi.FixConnectorBase,QvaDev.Communication.FixApi.Symbol,System.Action{QvaDev.Communication.FixApi.QuoteSet})"/> event.
+            </summary>
+        </member>
+        <member name="M:QvaDev.Communication.FixApi.MarketDataManager.PostQuoteSet(QvaDev.Communication.FixApi.FixConnectorBase,QvaDev.Communication.FixApi.QuoteSet)">
+            <summary>
+            Posts a <see cref="T:QvaDev.Communication.FixApi.QuoteSet"/> to the manager to be merged with the currently set data.
+            A <see cref="T:QvaDev.Communication.FixApi.FixConnectorBase"/> normally calls this method if subscribed to a <see cref="T:QvaDev.Communication.FixApi.Symbol"/> so
+            normally it is not needed to call this method externally.
+            </summary>
+            <param name="source">The source connector. If not used before, will be registered automatically.</param>
+            <param name="quoteSet">The quote set to process.</param>
+        </member>
+        <member name="M:QvaDev.Communication.FixApi.MarketDataManager.RemoveConnector(QvaDev.Communication.FixApi.FixConnectorBase)">
+            <summary>
+            Removes the stored market data of the connector along with its subscriptions.
+            </summary>
+            <param name="source">The source.</param>
+        </member>
+        <member name="M:QvaDev.Communication.FixApi.MarketDataManager.GetTopOfTheBook(QvaDev.Communication.FixApi.FixConnectorBase,QvaDev.Communication.FixApi.Symbol)">
+            <summary>
+            Gets the top of the book for the requested <paramref name="symbol"/> or <see langword="null"/> if
+            the <paramref name="connector"/> does not have stored data for the symbol.
+            </summary>
+        </member>
+        <member name="M:QvaDev.Communication.FixApi.MarketDataManager.GetBook(QvaDev.Communication.FixApi.FixConnectorBase,QvaDev.Communication.FixApi.Symbol)">
+            <summary>
+            Gets the book for the requested <paramref name="symbol"/>. Returns an empty set if
+            the <paramref name="connector"/> does not have stored data for the symbol.
+            </summary>
+        </member>
+        <member name="M:QvaDev.Communication.FixApi.MarketDataManager.SubscribeBookChange(QvaDev.Communication.FixApi.FixConnectorBase,QvaDev.Communication.FixApi.Symbol,System.Action{QvaDev.Communication.FixApi.QuoteSet})">
+            <summary>
+            Subscribes the specified callback <paramref name="handler"/> to the change of the book.
+            This is similar to the <see cref="E:QvaDev.Communication.FixApi.FixConnectorBase.Quote"/> event but this contains the
+            historical data, too (if <see cref="E:QvaDev.Communication.FixApi.FixConnectorBase.Quote"/> event provides delta ticks),
+            and is triggered to a specified <see cref="T:QvaDev.Communication.FixApi.Symbol"/> only.
+            </summary>
+        </member>
+        <member name="M:QvaDev.Communication.FixApi.MarketDataManager.UnsubscribeBookChange(QvaDev.Communication.FixApi.FixConnectorBase,QvaDev.Communication.FixApi.Symbol,System.Action{QvaDev.Communication.FixApi.QuoteSet})">
+            <summary>
+            Unsubscribes the specified callback <paramref name="handler"/> from the change of the book.
+            </summary>
+        </member>
+        <member name="M:QvaDev.Communication.FixApi.MarketDataManager.WaitForEntry(QvaDev.Communication.FixApi.FixConnectorBase,QvaDev.Communication.FixApi.Symbol,System.Decimal,System.Boolean,System.TimeSpan)">
+            <summary>
+            Waiting for a possible entry price.
+            </summary>
+            <returns>The current market price suitable for <paramref name="entryLimit"/> or <see langword="null"/> if there is no price feed (<see cref="M:QvaDev.Communication.FixApi.FixConnectorBase.SubscribeMarketDataAsync(QvaDev.Communication.FixApi.Symbol,System.Int32)"/> is needed)
+            or if the request timed out.</returns>
+        </member>
         <member name="T:QvaDev.Communication.FixApi.CurrencyPair">
             <summary>
             Represents a currency pair type <see cref="T:QvaDev.Communication.FixApi.Symbol"/>.
@@ -1259,12 +1313,13 @@
             </summary>
             <seealso cref="T:System.IDisposable" />
         </member>
-        <member name="M:QvaDev.Communication.TaskCompletionManager.#ctor(System.Int32,System.Int32)">
+        <member name="M:QvaDev.Communication.TaskCompletionManager.#ctor(System.Int32,System.Int32,System.Boolean)">
             <summary>
             Initializes a new instance of the <see cref="T:QvaDev.Communication.TaskCompletionManager"/> class.
             </summary>
             <param name="interval">The interval, in milliseconds, for checking task statuses.</param>
             <param name="timeout">The interval, in milliseconds, after an uncompleted task will timeout.</param>
+            <param name="throwErrorOnTimeout">If <c>true</c>, a <see cref="T:System.TimeoutException"/> will be thrown on timeout. If <c>false</c>, the created task will be completed by setting the default result.</param>
         </member>
         <member name="M:QvaDev.Communication.TaskCompletionManager.IsCompleted(System.Object)">
             <summary>

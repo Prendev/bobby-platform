@@ -11,8 +11,16 @@ using Bar = QvaDev.Common.Integration.Bar;
 
 namespace QvaDev.Mt4Integration
 {
-    public class Connector : ConnectorBase
-    {
+	public interface IConnector : Common.Integration.IConnector
+	{
+		Position SendMarketOrderRequest(string symbol, Sides side, double lots, int magicNumber,
+			string comment, int maxRetryCount, int retryPeriodInMs);
+
+		bool SendClosePositionRequests(Position position, double? lots, int maxRetryCount, int retryPeriodInMs);
+	}
+
+	public class Connector : ConnectorBase, IConnector
+	{
         public class SymbolHistory
         {
             public ConcurrentDictionary<DateTime, Bar> BarHistory { get; set; } = new ConcurrentDictionary<DateTime, Bar>();

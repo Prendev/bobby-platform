@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using QvaDev.Common.Integration;
 using QvaDev.Common.Services;
 using QvaDev.Data.Models;
-using MtConnector = QvaDev.Mt4Integration.Connector;
+using MtConnector = QvaDev.Mt4Integration.IConnector;
 
 namespace QvaDev.Orchestration.Services.Strategies
 {
