@@ -54,6 +54,7 @@ namespace QvaDev.Orchestration.Services.Strategies
 			if (!_isStarted) return;
 			var arb = (StratDealingArb) sender;
 
+			if (!arb.Run) return;
 			if (arb.IsBusy) return;
 			if (IsTesting(arb)) return;
 			if (IsShiftCalculating(arb)) return;
@@ -170,7 +171,7 @@ namespace QvaDev.Orchestration.Services.Strategies
 					var betaTick = arb.BetaTick;
 
 					arb.LastOpenTime = DateTime.UtcNow;
-					var beta = SendeBetaPosition(arb, betaSide, arb.BetaSize, betaTick);
+					var beta = SendBetaPosition(arb, betaSide, arb.BetaSize, betaTick);
 					var alpha = SendAlphaPosition(arb, alphaSide, arb.AlphaSize, alphaTick);
 					await Task.WhenAll(beta, alpha);
 
@@ -179,7 +180,7 @@ namespace QvaDev.Orchestration.Services.Strategies
 					if (betaPos.FilledQuantity > alphaPos.FilledQuantity)
 					{
 						_log.Error($"{arb.Description} arb opening size mismatch!!!");
-						await SendeBetaPosition(arb, betaSide.Inv(), betaPos.FilledQuantity - alphaPos.FilledQuantity);
+						await SendBetaPosition(arb, betaSide.Inv(), betaPos.FilledQuantity - alphaPos.FilledQuantity);
 					}
 					else if (betaPos.FilledQuantity < alphaPos.FilledQuantity)
 					{
@@ -245,17 +246,26 @@ namespace QvaDev.Orchestration.Services.Strategies
 			{
 				try
 				{
+					pos.AlphaCloseSignal = pos.AlphaSide == StratDealingArbPosition.Sides.Buy ? arb.AlphaTick.Bid : arb.AlphaTick.Ask;
+					pos.BetaCloseSignal = pos.BetaSide == StratDealingArbPosition.Sides.Buy ? arb.BetaTick.Bid : arb.BetaTick.Ask;
+
 					var alpha = CloseAlphaPosition(arb, pos);
 					var beta = CloseBetaPosition(arb, pos);
 					await Task.WhenAll(beta, alpha);
 
 					pos.IsClosed = true;
-					pos.AlphaCloseSignal = pos.AlphaSide == StratDealingArbPosition.Sides.Buy ? arb.AlphaTick.Bid : arb.AlphaTick.Ask;
 					pos.AlphaClosePrice = alpha.Result.AveragePrice;
-					pos.BetaCloseSignal = pos.BetaSide == StratDealingArbPosition.Sides.Buy ? arb.BetaTick.Bid : arb.BetaTick.Ask;
+					pos.RemainingAlpha = alpha.Result.FilledQuantity - pos.AlphaSize;
 					pos.BetaClosePrice = beta.Result.AveragePrice;
+					pos.RemainingBeta = beta.Result.FilledQuantity - pos.BetaSize;
 
-					_log.Info($"{arb.Description} arb closing!!!");
+					if (pos.RemainingAlpha > 0 || pos.RemainingBeta > 0)
+					{
+						_log.Error($"{arb.Description} arb closing issue with remaining " +
+						           $"alpha size {pos.RemainingAlpha}, beta size {pos.RemainingBeta}!!!");
+						arb.Run = false;
+					}
+					else _log.Info($"{arb.Description} arb closed!!!");
 				}
 				finally
 				{
@@ -273,20 +283,58 @@ namespace QvaDev.Orchestration.Services.Strategies
 			return 0;
 		}
 
-		private Task<OrderResponse> CloseAlphaPosition(StratDealingArb arb, StratDealingArbPosition pos)
+		private async Task<OrderResponse> CloseAlphaPosition(StratDealingArb arb, StratDealingArbPosition pos)
 		{
 			if (!(arb.AlphaAccount.Connector is IFixConnector fix)) throw new NotImplementedException();
 
 			var side = pos.AlphaSide == StratDealingArbPosition.Sides.Buy ? Sides.Sell : Sides.Buy;
-			return fix.SendMarketOrderRequest(arb.AlphaSymbol, side, arb.AlphaSize);
+
+			// OrderType used based on setting
+			var r1 = await SendAlphaPosition(arb, side, pos.AlphaSize, arb.AlphaTick);
+			if (r1.FilledQuantity == pos.AlphaSize) return r1;
+
+			// MarketOrder used as backup
+			var r2 = await fix.SendMarketOrderRequest(arb.AlphaSymbol, side, pos.AlphaSize - r1.FilledQuantity);
+
+			// Calculate summary of both orders
+			var filled = r1.FilledQuantity + r2.FilledQuantity;
+			var avgPrice = filled > 0
+				? ((r1.FilledQuantity * r1.AveragePrice ?? 0) + (r2.FilledQuantity * r2.AveragePrice ?? 0)) / filled
+				: (decimal?) null;
+
+			return new OrderResponse()
+			{
+				OrderedQuantity = pos.AlphaSize,
+				FilledQuantity = r1.FilledQuantity + r2.FilledQuantity,
+				AveragePrice = avgPrice
+			};
 		}
 
-		private Task<OrderResponse> CloseBetaPosition(StratDealingArb arb, StratDealingArbPosition pos)
+		private async Task<OrderResponse> CloseBetaPosition(StratDealingArb arb, StratDealingArbPosition pos)
 		{
 			if (!(arb.BetaAccount.Connector is IFixConnector fix)) throw new NotImplementedException();
 
 			var side = pos.BetaSide == StratDealingArbPosition.Sides.Buy ? Sides.Sell : Sides.Buy;
-			return fix.SendMarketOrderRequest(arb.BetaSymbol, side, arb.BetaSize);
+
+			// OrderType used based on setting
+			var r1 = await SendBetaPosition(arb, side, pos.BetaSize, arb.BetaTick);
+			if (r1.FilledQuantity == pos.BetaSize) return r1;
+
+			// MarketOrder used as backup
+			var r2 = await fix.SendMarketOrderRequest(arb.BetaSymbol, side, pos.BetaSize - r1.FilledQuantity);
+
+			// Calculate summary of both orders
+			var filled = r1.FilledQuantity + r2.FilledQuantity;
+			var avgPrice = filled > 0
+				? ((r1.FilledQuantity * r1.AveragePrice ?? 0) + (r2.FilledQuantity * r2.AveragePrice ?? 0)) / filled
+				: (decimal?)null;
+
+			return new OrderResponse()
+			{
+				OrderedQuantity = pos.BetaSize,
+				FilledQuantity = r1.FilledQuantity + r2.FilledQuantity,
+				AveragePrice = avgPrice
+			};
 		}
 
 		private Task<OrderResponse> SendAlphaPosition(StratDealingArb arb, Sides side, decimal size, Tick lastTick = null)
@@ -301,7 +349,7 @@ namespace QvaDev.Orchestration.Services.Strategies
 				lastTick.GetPrice(side), arb.Deviation, arb.TimeWindowInMs, arb.MaxRetryCount, arb.RetryPeriodInMs);
 		}
 
-		private Task<OrderResponse> SendeBetaPosition(StratDealingArb arb, Sides side, decimal size, Tick lastTick = null)
+		private Task<OrderResponse> SendBetaPosition(StratDealingArb arb, Sides side, decimal size, Tick lastTick = null)
 		{
 			if (!(arb.BetaAccount.Connector is IFixConnector fix)) throw new NotImplementedException();
 			if (size <= 0) return Task.FromResult(new OrderResponse());
