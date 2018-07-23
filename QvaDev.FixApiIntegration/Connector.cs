@@ -24,6 +24,7 @@ namespace QvaDev.FixApiIntegration
 
 		private readonly Object _lock = new Object();
 		private volatile bool _isConnecting;
+		private volatile bool _shouldConnect;
 
 		public override int Id => _accountInfo?.DbId ?? 0;
 		public override string Description => _accountInfo?.Description ?? "";
@@ -46,10 +47,17 @@ namespace QvaDev.FixApiIntegration
 			_fixConnector = (FixConnectorBase)Activator.CreateInstance(configurationTpye, conf);
 		}
 
-		public async Task Connect()
+		public Task Connect()
+		{
+			lock (_lock) _shouldConnect = true;
+			return InnerConnect();
+		}
+
+		private async Task InnerConnect()
 		{
 			lock (_lock)
 			{
+				if (!_shouldConnect) return;
 				if (_isConnecting) return;
 				_isConnecting = true;
 			}
@@ -83,6 +91,7 @@ namespace QvaDev.FixApiIntegration
 
 		public override void Disconnect()
 		{
+			lock (_lock) _shouldConnect = false;
 			_fixConnector.PricingSocketClosed -= FixConnector_SocketClosed;
 			_fixConnector.TradingSocketClosed -= FixConnector_SocketClosed;
 			_fixConnector.Quote -= FixConnector_Quote;
@@ -235,7 +244,7 @@ namespace QvaDev.FixApiIntegration
 		{
 			OnConnectionChanged(ConnectionStates.Error);
 			await Task.Delay(delay);
-			await Connect();
+			await InnerConnect();
 		}
 
 		private void Quote(QuoteEventArgs e)

@@ -51,7 +51,6 @@ namespace QvaDev.Data.Models
         {
 	        DependecyManager.SynchronizationContext?.Post(
 		        o => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName)), null);
-	        //PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         [NotMapped]
