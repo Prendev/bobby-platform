@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using log4net;
+using QvaDev.Common;
 using QvaDev.Common.Integration;
 using QvaDev.Data.Models;
 using QvaDev.FixTraderIntegration;
@@ -167,15 +168,10 @@ namespace QvaDev.Orchestration.Services
 				else if (e.Action == NewPositionEventArgs.Actions.Open && copier.OrderType == FixApiCopier.FixApiOrderTypes.Market)
 					await slaveConnector.SendMarketOrderRequest(symbol, e.Position.Side, quantity);
 				else if (e.Action == NewPositionEventArgs.Actions.Close)
-					await slaveConnector.SendMarketOrderRequest(symbol, InvSide(e.Position.Side), quantity);
+					await slaveConnector.SendMarketOrderRequest(symbol, e.Position.Side.Inv(), quantity);
 
 			}, TaskCreationOptions.LongRunning));
 			return Task.WhenAll(tasks);
 		}
-
-	    private Sides InvSide(Sides side)
-	    {
-		    return side == Sides.Buy ? Sides.Sell : Sides.Buy;
-	    }
 	}
 }

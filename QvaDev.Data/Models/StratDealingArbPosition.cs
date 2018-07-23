@@ -16,21 +16,21 @@ namespace QvaDev.Data.Models
 
 		public decimal AlphaOpenSignal { get; set; }
 		public decimal AlphaOpenPrice { get; set; }
-		public decimal? AlphaClosePrice { get; set; }
-		public decimal? AlphaCloseSignal { get; set; }
+		public decimal? AlphaClosePrice { get => Get<decimal?>(); set => Set(value); }
+		public decimal? AlphaCloseSignal { get => Get<decimal?>(); set => Set(value); }
 		public Sides AlphaSide { get; set; }
 		public decimal AlphaSize { get; set; }
 		[InvisibleColumn] public long? AlphaOrderTicket { get; set; }
 
 		public decimal BetaOpenSignal { get; set; }
 		public decimal BetaOpenPrice { get; set; }
-		public decimal? BetaClosePrice { get; set; }
-		public decimal? BetaCloseSignal { get; set; }
+		public decimal? BetaClosePrice { get => Get<decimal?>(); set => Set(value); }
+		public decimal? BetaCloseSignal { get => Get<decimal?>(); set => Set(value); }
 		public Sides BetaSide { get; set; }
 		public decimal BetaSize { get; set; }
 		[InvisibleColumn] public long? BetaOrderTicket { get; set; }
 
-		public bool IsClosed { get; set; }
+		public bool IsClosed { get => Get<bool>(); set => Set(value); }
 
 		[InvisibleColumn] public int StratDealingArbId { get; set; }
 		[InvisibleColumn] public StratDealingArb StratDealingArb { get; set; }

@@ -90,7 +90,7 @@ namespace QvaDev.Duplicat.ViewModel
             _xmlService = xmlService;
             _orchestrator = orchestrator;
             PropertyChanged += DuplicatViewModel_PropertyChanged;
-            LoadDataContext();
+            InitDataContext();
         }
 
         private void DuplicatViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -110,56 +110,67 @@ namespace QvaDev.Duplicat.ViewModel
 			}
         }
 
-        private void LoadDataContext()
+        private void InitDataContext()
         {
             _duplicatContext?.Dispose();
             _duplicatContext = new DuplicatContext();
+	        LoadLocals();
+        }
 
-            _duplicatContext.MetaTraderPlatforms.Load();
-            _duplicatContext.CTraderPlatforms.Load();
-            _duplicatContext.MetaTraderAccounts.Load();
-            _duplicatContext.CTraderAccounts.Load();
-            _duplicatContext.FixTraderAccounts.Load();
-	        _duplicatContext.FixApiAccounts.Load();
-	        _duplicatContext.IlyaFastFeedAccounts.Load();
+	    private void LoadLocals()
+		{
+			_duplicatContext.MetaTraderPlatforms.Load();
+			_duplicatContext.CTraderPlatforms.Load();
+			_duplicatContext.MetaTraderAccounts.Load();
+			_duplicatContext.CTraderAccounts.Load();
+			_duplicatContext.FixTraderAccounts.Load();
+			_duplicatContext.FixApiAccounts.Load();
+			_duplicatContext.IlyaFastFeedAccounts.Load();
 			_duplicatContext.Profiles.Load();
 			_duplicatContext.Accounts.Where(e => e.ProfileId == SelectedProfileId).Load();
 			_duplicatContext.Masters.Where(e => e.ProfileId == SelectedProfileId).Load();
-            _duplicatContext.Slaves.Where(e => e.Master.ProfileId == SelectedProfileId).Load();
-            _duplicatContext.Copiers.Where(e => e.Slave.Master.ProfileId == SelectedProfileId).Load();
-	        _duplicatContext.FixApiCopiers.Where(e => e.Slave.Master.ProfileId == SelectedProfileId).Load();
+			_duplicatContext.Slaves.Where(e => e.Master.ProfileId == SelectedProfileId).Load();
+			_duplicatContext.Copiers.Where(e => e.Slave.Master.ProfileId == SelectedProfileId).Load();
+			_duplicatContext.FixApiCopiers.Where(e => e.Slave.Master.ProfileId == SelectedProfileId).Load();
 			_duplicatContext.SymbolMappings.Where(e => e.Slave.Master.ProfileId == SelectedProfileId).Load();
-            _duplicatContext.Pushings.Where(e => e.ProfileId == SelectedProfileId).Load();
-            _duplicatContext.Pushings.Where(e => e.ProfileId == SelectedProfileId).Select(e => e.PushingDetail).Load();
+			_duplicatContext.Pushings.Where(e => e.ProfileId == SelectedProfileId).Load();
+			_duplicatContext.Pushings.Where(e => e.ProfileId == SelectedProfileId).Select(e => e.PushingDetail).Load();
 			_duplicatContext.Tickers.Where(e => e.ProfileId == SelectedProfileId).Load();
-	        _duplicatContext.StratDealingArbs.Where(e => e.ProfileId == SelectedProfileId).Load();
-	        _duplicatContext.StratDealingArbPositions.Where(e => e.StratDealingArb.ProfileId == SelectedProfileId).Load();
+			_duplicatContext.StratDealingArbs.Where(e => e.ProfileId == SelectedProfileId).Load();
+			_duplicatContext.StratDealingArbPositions.Where(e => e.StratDealingArb.ProfileId == SelectedProfileId).Load();
 
 			MtPlatforms = _duplicatContext.MetaTraderPlatforms.Local;
-            CtPlatforms = _duplicatContext.CTraderPlatforms.Local;
-            MtAccounts = _duplicatContext.MetaTraderAccounts.Local;
-            CtAccounts = _duplicatContext.CTraderAccounts.Local;
-            FtAccounts = _duplicatContext.FixTraderAccounts.Local;
-	        FixAccounts = _duplicatContext.FixApiAccounts.Local;
-	        IlyaFastFeedAccounts = _duplicatContext.IlyaFastFeedAccounts.Local;
+			CtPlatforms = _duplicatContext.CTraderPlatforms.Local;
+			MtAccounts = _duplicatContext.MetaTraderAccounts.Local;
+			CtAccounts = _duplicatContext.CTraderAccounts.Local;
+			FtAccounts = _duplicatContext.FixTraderAccounts.Local;
+			FixAccounts = _duplicatContext.FixApiAccounts.Local;
+			IlyaFastFeedAccounts = _duplicatContext.IlyaFastFeedAccounts.Local;
 			Profiles = _duplicatContext.Profiles.Local;
 			Accounts = _duplicatContext.Accounts.Local;
 			Masters = _duplicatContext.Masters.Local;
-            Slaves = _duplicatContext.Slaves.Local;
-            SymbolMappings = _duplicatContext.SymbolMappings.Local;
-            Copiers = _duplicatContext.Copiers.Local;
-	        FixApiCopiers = _duplicatContext.FixApiCopiers.Local;
-            Pushings = _duplicatContext.Pushings.Local;
-            PushingDetails = _duplicatContext.PushingDetails.Local;
+			Slaves = _duplicatContext.Slaves.Local;
+			SymbolMappings = _duplicatContext.SymbolMappings.Local;
+			Copiers = _duplicatContext.Copiers.Local;
+			FixApiCopiers = _duplicatContext.FixApiCopiers.Local;
+			Pushings = _duplicatContext.Pushings.Local;
+			PushingDetails = _duplicatContext.PushingDetails.Local;
 			Tickers = _duplicatContext.Tickers.Local;
-	        StratDealingArbs = _duplicatContext.StratDealingArbs.Local;
-	        StratDealingArbPositions = _duplicatContext.StratDealingArbPositions.Local;
+			StratDealingArbs = _duplicatContext.StratDealingArbs.Local;
+			StratDealingArbPositions = _duplicatContext.StratDealingArbPositions.Local;
 
 			foreach (var e in SymbolMappings) e.IsFiltered = e.SlaveId != SelectedSlaveId;
-            foreach (var e in Copiers) e.IsFiltered = e.SlaveId != SelectedSlaveId;
-	        foreach (var e in FixApiCopiers) e.IsFiltered = e.SlaveId != SelectedSlaveId;
-            foreach (var e in PushingDetails) e.IsFiltered = e.Id != SelectedPushingDetailId;
-	        foreach (var e in StratDealingArbPositions) e.IsFiltered = e.StratDealingArbId != SelectedDealingArbId;
+			foreach (var e in Copiers) e.IsFiltered = e.SlaveId != SelectedSlaveId;
+			foreach (var e in FixApiCopiers) e.IsFiltered = e.SlaveId != SelectedSlaveId;
+			foreach (var e in PushingDetails) e.IsFiltered = e.Id != SelectedPushingDetailId;
+			foreach (var e in StratDealingArbPositions) e.IsFiltered = e.StratDealingArbId != SelectedDealingArbId;
 		}
-    }
+
+	    private void LoadStratDealingArbPositions()
+		{
+			_duplicatContext.StratDealingArbPositions.Where(e => e.StratDealingArb.ProfileId == SelectedProfileId).Load();
+			StratDealingArbPositions = _duplicatContext.StratDealingArbPositions.Local;
+			foreach (var e in StratDealingArbPositions) e.IsFiltered = e.StratDealingArbId != SelectedDealingArbId;
+		}
+	}
 }

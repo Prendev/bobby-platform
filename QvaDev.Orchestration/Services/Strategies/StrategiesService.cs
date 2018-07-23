@@ -6,6 +6,7 @@ using log4net;
 using QvaDev.Common.Integration;
 using QvaDev.Data.Models;
 using System.Threading.Tasks;
+using QvaDev.Common;
 
 namespace QvaDev.Orchestration.Services.Strategies
 {
@@ -70,8 +71,8 @@ namespace QvaDev.Orchestration.Services.Strategies
 				var firstPos = arb.Positions.FirstOrDefault(p => !p.IsClosed);
 				if (firstPos != null) DoClose(arb, firstPos);
 			}
-			else if (arb.DoOpenSide1) OpenSide1(arb);
-			else if (arb.DoOpenSide2) OpenSide2(arb);
+			else if (arb.DoOpenSide1) OpenSide(arb, Sides.Buy, Sides.Sell);
+			else if (arb.DoOpenSide2) OpenSide(arb, Sides.Sell, Sides.Buy);
 
 			arb.DoOpenSide1 = false;
 			arb.DoOpenSide2 = false;
@@ -128,12 +129,12 @@ namespace QvaDev.Orchestration.Services.Strategies
 			if (((betaTick.Bid - arb.ShiftInPip * arb.PipSize) - alphaTick.Ask) / arb.PipSize > diffInPip &&
 			    (arb.PositionCount == 0 || arb.BetaSide == Sides.Sell)) // Alpha long
 			{
-				OpenSide1(arb);
+				OpenSide(arb, Sides.Buy, Sides.Sell);
 			}
 			else if ((alphaTick.Bid - (betaTick.Ask - arb.ShiftInPip * arb.PipSize)) / arb.PipSize > diffInPip &&
 			         (arb.PositionCount == 0 || arb.BetaSide == Sides.Buy)) // Alpha short
 			{
-				OpenSide2(arb);
+				OpenSide(arb, Sides.Sell, Sides.Buy);
 			}
 		}
 
@@ -153,7 +154,7 @@ namespace QvaDev.Orchestration.Services.Strategies
 			return diffInPip;
 		}
 
-		private void OpenSide1(StratDealingArb arb)
+		private void OpenSide(StratDealingArb arb, Sides alphaSide, Sides betaSide)
 		{
 			lock (arb)
 			{
@@ -169,95 +170,41 @@ namespace QvaDev.Orchestration.Services.Strategies
 					var betaTick = arb.BetaTick;
 
 					arb.LastOpenTime = DateTime.UtcNow;
-					var beta = SendeBetaPosition(arb, Sides.Sell, arb.BetaSize, betaTick);
-					var alpha = SendAlphaPosition(arb, Sides.Buy, arb.AlphaSize, alphaTick);
+					var beta = SendeBetaPosition(arb, betaSide, arb.BetaSize, betaTick);
+					var alpha = SendAlphaPosition(arb, alphaSide, arb.AlphaSize, alphaTick);
 					await Task.WhenAll(beta, alpha);
 
 					var betaPos = beta.Result;
 					var alphaPos = alpha.Result;
-					if (betaPos.FilledQuantity != arb.BetaSize || alphaPos.FilledQuantity != arb.AlphaSize)
+					if (betaPos.FilledQuantity > alphaPos.FilledQuantity)
 					{
-						_log.Error($"{arb.Description} arb opening ERROR!!!");
-						/*while (betaPos > 0)*/
-						await SendeBetaPosition(arb, Sides.Buy, betaPos.FilledQuantity);
-						/*while (alphaPos > 0)*/
-						await SendAlphaPosition(arb, Sides.Sell, alphaPos.FilledQuantity);
-						return;
+						_log.Error($"{arb.Description} arb opening size mismatch!!!");
+						await SendeBetaPosition(arb, betaSide.Inv(), betaPos.FilledQuantity - alphaPos.FilledQuantity);
 					}
+					else if (betaPos.FilledQuantity < alphaPos.FilledQuantity)
+					{
+						_log.Error($"{arb.Description} arb opening size mismatch!!!");
+						await SendAlphaPosition(arb, alphaSide.Inv(), alphaPos.FilledQuantity - betaPos.FilledQuantity);
+					}
+
+					if (betaPos.FilledQuantity == 0 || alphaPos.FilledQuantity == 0) return;
 
 					arb.Positions.Add(new StratDealingArbPosition()
 					{
 						OpenTime = DateTime.UtcNow,
 
-						AlphaOpenSignal = alphaTick.Ask,
+						AlphaOpenSignal = alphaTick.GetPrice(alphaSide),
 						AlphaOpenPrice = alphaPos.AveragePrice ?? 0,
 						AlphaSize = arb.AlphaSize,
-						AlphaSide = StratDealingArbPosition.Sides.Buy,
+						AlphaSide = (StratDealingArbPosition.Sides)Enum.Parse(typeof(StratDealingArbPosition.Sides), alphaSide.ToString()),
 
-						BetaOpenSignal = betaTick.Bid,
+						BetaOpenSignal = betaTick.GetPrice(betaSide),
 						BetaOpenPrice = betaPos.AveragePrice ?? 0,
 						BetaSize = arb.BetaSize,
-						BetaSide = StratDealingArbPosition.Sides.Sell
+						BetaSide = (StratDealingArbPosition.Sides)Enum.Parse(typeof(StratDealingArbPosition.Sides), betaSide.ToString()),
 					});
 
-					_log.Info($"{arb.Description} arb beta short, alpha long opened!!!");
-				}
-				finally
-				{
-					arb.IsBusy = false;
-				}
-			}, TaskCreationOptions.LongRunning);
-		}
-
-		private void OpenSide2(StratDealingArb arb)
-		{
-			lock (arb)
-			{
-				if (arb.IsBusy) return;
-				arb.IsBusy = true;
-			}
-
-			Task.Factory.StartNew(async () =>
-			{
-				try
-				{
-					var alphaTick = arb.AlphaTick;
-					var betaTick = arb.BetaTick;
-
-					arb.LastOpenTime = DateTime.UtcNow;
-					var beta = SendeBetaPosition(arb, Sides.Buy, arb.BetaSize, betaTick);
-					var alpha = SendAlphaPosition(arb, Sides.Sell, arb.AlphaSize, alphaTick);
-					await Task.WhenAll(beta, alpha);
-
-					var betaPos = beta.Result;
-					var alphaPos = alpha.Result;
-					if (betaPos.FilledQuantity != arb.BetaSize || alphaPos.FilledQuantity != arb.AlphaSize)
-					{
-						_log.Error($"{arb.Description} arb opening ERROR!!!");
-						/*while (betaPos > 0)*/
-						await SendeBetaPosition(arb, Sides.Sell, betaPos.FilledQuantity);
-						/*while (alphaPos > 0)*/
-						await SendAlphaPosition(arb, Sides.Buy, alphaPos.FilledQuantity);
-						return;
-					}
-
-					arb.Positions.Add(new StratDealingArbPosition()
-					{
-						OpenTime = DateTime.UtcNow,
-
-						AlphaOpenSignal = alphaTick.Bid,
-						AlphaOpenPrice = alphaPos.AveragePrice ?? 0,
-						AlphaSize = arb.AlphaSize,
-						AlphaSide = StratDealingArbPosition.Sides.Sell,
-						//AlphaOrderTicket = alphaPos?.Id,
-
-						BetaOpenSignal = betaTick.Ask,
-						BetaOpenPrice = betaPos.AveragePrice ?? 0,
-						BetaSize = arb.BetaSize,
-						BetaSide = StratDealingArbPosition.Sides.Buy,
-						//BetaOrderTicket = betaPos?.Id
-					});
-					_log.Info($"{arb.Description} arb beta long, alpha short opened!!!");
+					_log.Info($"{arb.Description} arb beta {betaSide}, alpha {alphaSide} opened!!!");
 				}
 				finally
 				{
@@ -350,9 +297,8 @@ namespace QvaDev.Orchestration.Services.Strategies
 			if (arb.OrderType == StratDealingArb.StratDealingArbOrderTypes.Market || lastTick == null)
 				return fix.SendMarketOrderRequest(arb.AlphaSymbol, side, size);
 
-			var limitPrice = side == Sides.Buy ? lastTick.Ask : lastTick.Bid;
 			return fix.SendAggressiveOrderRequest(arb.AlphaSymbol, side, size,
-				limitPrice, arb.Deviation, arb.TimeWindowInMs, arb.MaxRetryCount, arb.RetryPeriodInMs);
+				lastTick.GetPrice(side), arb.Deviation, arb.TimeWindowInMs, arb.MaxRetryCount, arb.RetryPeriodInMs);
 		}
 
 		private Task<OrderResponse> SendeBetaPosition(StratDealingArb arb, Sides side, decimal size, Tick lastTick = null)
@@ -363,9 +309,8 @@ namespace QvaDev.Orchestration.Services.Strategies
 			if(arb.OrderType == StratDealingArb.StratDealingArbOrderTypes.Market || lastTick == null)
 				return fix.SendMarketOrderRequest(arb.BetaSymbol, side, size);
 ;
-			var limitPrice = side == Sides.Buy ? lastTick.Ask : lastTick.Bid;
 			return fix.SendAggressiveOrderRequest(arb.BetaSymbol, side, size,
-				limitPrice, arb.SlippageInPip * arb.PipSize, arb.TimeWindowInMs, arb.MaxRetryCount, arb.RetryPeriodInMs);
+				lastTick.GetPrice(side), arb.Deviation, arb.TimeWindowInMs, arb.MaxRetryCount, arb.RetryPeriodInMs);
 		}
 
 		private bool IsTime(TimeSpan current, TimeSpan? start, TimeSpan? end)

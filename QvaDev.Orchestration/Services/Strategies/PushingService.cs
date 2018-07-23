@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using QvaDev.Common;
 using QvaDev.Common.Integration;
 using QvaDev.Common.Services;
 using QvaDev.Data.Models;
@@ -58,7 +59,7 @@ namespace QvaDev.Orchestration.Services.Strategies
 			var contractsNeeded = pd.FullContractSize - Math.Abs(pd.MasterSignalContractLimit);
 			await FutureBuildUp(pushing, futureSide, contractsNeeded, true);
 
-			pushing.AlphaPosition = alphaConnector.SendMarketOrderRequest(pushing.AlphaSymbol, InvSide(futureSide), pd.AlphaLots, 0,
+			pushing.AlphaPosition = alphaConnector.SendMarketOrderRequest(pushing.AlphaSymbol, futureSide.Inv(), pd.AlphaLots, 0,
 				null, pushing.PushingDetail.MaxRetryCount, pushing.PushingDetail.RetryPeriodInMs);
 
 			if (pushing.AlphaPosition == null)
@@ -78,7 +79,7 @@ namespace QvaDev.Orchestration.Services.Strategies
 			await FutureBuildUp(pushing, futureSide, contractsNeeded, false);
 
 			// Close futures
-			await futureConnector.SendMarketOrderRequest(pushing.FutureSymbol, InvSide(futureSide),
+			await futureConnector.SendMarketOrderRequest(pushing.FutureSymbol, futureSide.Inv(),
 				pushing.PushingDetail.OpenedFutures);
 			pushing.PushingDetail.OpenedFutures = 0;
 		}
@@ -101,7 +102,7 @@ namespace QvaDev.Orchestration.Services.Strategies
 
 			var pd = pushing.PushingDetail;
 			var hedgeConnector = (MtConnector)pushing.HedgeAccount.Connector;
-			var futureSide = InvSide(pushing.FirstCloseSide);
+			var futureSide = pushing.FirstCloseSide.Inv();
 
 			// Build up futures for hedge
 			var contractsNeeded = pd.FullContractSize - Math.Abs(pd.MasterSignalContractLimit) - Math.Abs(pd.HedgeSignalContractLimit);
@@ -119,7 +120,7 @@ namespace QvaDev.Orchestration.Services.Strategies
 				? (MtConnector) pushing.AlphaMaster.Connector
 				: (MtConnector) pushing.BetaMaster.Connector;
 			var secondPos = pushing.BetaOpenSide == pushing.FirstCloseSide ? pushing.AlphaPosition : pushing.BetaPosition;
-			var futureSide = InvSide(pushing.FirstCloseSide);
+			var futureSide = pushing.FirstCloseSide.Inv();
 
 			// Build up futures for second side
 			decimal contractsNeeded;
@@ -135,7 +136,7 @@ namespace QvaDev.Orchestration.Services.Strategies
 		{
 			var pd = pushing.PushingDetail;
 			var futureConnector = (IFixConnector)pushing.FutureAccount.Connector;
-			var futureSide = InvSide(pushing.FirstCloseSide);
+			var futureSide = pushing.FirstCloseSide.Inv();
 
 			// Build a little more
 			var contractsNeeded = Math.Abs(pd.MasterSignalContractLimit);
@@ -143,7 +144,7 @@ namespace QvaDev.Orchestration.Services.Strategies
 
 			// Close futures if not hedging
 			if (pushing.IsHedgeClose) return;
-			await futureConnector.SendMarketOrderRequest(pushing.FutureSymbol, InvSide(futureSide),
+			await futureConnector.SendMarketOrderRequest(pushing.FutureSymbol, futureSide.Inv(),
 				pushing.PushingDetail.OpenedFutures);
 			pushing.PushingDetail.OpenedFutures = 0;
 		}
@@ -219,11 +220,6 @@ namespace QvaDev.Orchestration.Services.Strategies
             if (symbolInfo.Ask > 0 && side == Sides.Buy && symbolInfo.Ask >= pd.PriceLimit.Value) return true;
             if (symbolInfo.Bid > 0 && side == Sides.Sell && symbolInfo.Bid <= pd.PriceLimit.Value) return true;
             return false;
-        }
-
-        private Sides InvSide(Sides side)
-        {
-            return side == Sides.Buy ? Sides.Sell : Sides.Buy;
         }
 
 		private void FutureInterval(PushingDetail pd)

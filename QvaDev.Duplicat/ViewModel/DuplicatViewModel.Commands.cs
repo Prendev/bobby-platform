@@ -96,7 +96,7 @@ namespace QvaDev.Duplicat.ViewModel
 
 			    IsLoading = false;
 			    IsConfigReadonly = false;
-			    LoadDataContext();
+			    InitDataContext();
 			    DataContextChanged?.Invoke();
 		    }
 	    }
@@ -152,7 +152,7 @@ namespace QvaDev.Duplicat.ViewModel
 		        return;
 	        }
             SelectedProfileDesc = profile?.Description;
-            LoadDataContext();
+            InitDataContext();
             DataContextChanged?.Invoke();
         }
 
@@ -277,9 +277,9 @@ namespace QvaDev.Duplicat.ViewModel
 		}
 
 	    public void ShowArbPositionsCommand(StratDealingArb arb)
-	    {
-		    SelectedDealingArbId = arb?.Id ?? 0;
-		    foreach (var e in StratDealingArbPositions) e.IsFiltered = e.StratDealingArbId != SelectedDealingArbId;
+		{
+			SelectedDealingArbId = arb?.Id ?? 0;
+			LoadStratDealingArbPositions();
 	    }
 	}
 }
