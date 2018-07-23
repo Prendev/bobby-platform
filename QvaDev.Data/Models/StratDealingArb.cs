@@ -23,6 +23,8 @@ namespace QvaDev.Data.Models
 		[InvisibleColumn] public int ProfileId { get; set; }
 		[InvisibleColumn] public Profile Profile { get; set; }
 
+		public bool Run { get => Get<bool>(); set => Set(value); }
+
 		[NotMapped] public decimal? AlphaAsk { get => Get<decimal?>(); set => Set(value); }
 		[NotMapped] public decimal? BetaBid { get => Get<decimal?>(); set => Set(value); }
 		[NotMapped] public decimal? BetaAsk { get => Get<decimal?>(); set => Set(value); }

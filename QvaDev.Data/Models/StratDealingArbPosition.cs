@@ -20,6 +20,7 @@ namespace QvaDev.Data.Models
 		public decimal? AlphaCloseSignal { get => Get<decimal?>(); set => Set(value); }
 		public Sides AlphaSide { get; set; }
 		public decimal AlphaSize { get; set; }
+		public decimal? RemainingAlpha { get => Get<decimal?>(); set => Set(value); }
 		[InvisibleColumn] public long? AlphaOrderTicket { get; set; }
 
 		public decimal BetaOpenSignal { get; set; }
@@ -28,6 +29,7 @@ namespace QvaDev.Data.Models
 		public decimal? BetaCloseSignal { get => Get<decimal?>(); set => Set(value); }
 		public Sides BetaSide { get; set; }
 		public decimal BetaSize { get; set; }
+		public decimal? RemainingBeta { get => Get<decimal?>(); set => Set(value); }
 		[InvisibleColumn] public long? BetaOrderTicket { get; set; }
 
 		public bool IsClosed { get => Get<bool>(); set => Set(value); }
