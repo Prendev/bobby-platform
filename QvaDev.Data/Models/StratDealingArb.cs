@@ -110,10 +110,10 @@ namespace QvaDev.Data.Models
 
 		[NotMapped] [InvisibleColumn] public bool HasTiming => EarliestOpenTime.HasValue && LatestOpenTime.HasValue && LatestCloseTime.HasValue;
 		[NotMapped] [InvisibleColumn] public List<StratDealingArbPosition> OpenPositions => Positions.Where(p => !p.IsClosed).ToList();
-		[NotMapped] [InvisibleColumn] public Sides AlphaSide => GetSide(Positions?.FirstOrDefault()?.AlphaSide);
-		[NotMapped] [InvisibleColumn] public Sides BetaSide => GetSide(Positions?.FirstOrDefault()?.BetaSide);
-		[NotMapped] [InvisibleColumn] public decimal? LastAlphaOpenPrice => Positions?.LastOrDefault()?.AlphaOpenPrice;
-		[NotMapped] [InvisibleColumn] public decimal? LastBetaOpenPrice => Positions?.LastOrDefault()?.BetaOpenPrice;
+		[NotMapped] [InvisibleColumn] public Sides AlphaSide => GetSide(OpenPositions?.FirstOrDefault()?.AlphaSide);
+		[NotMapped] [InvisibleColumn] public Sides BetaSide => GetSide(OpenPositions?.FirstOrDefault()?.BetaSide);
+		[NotMapped] [InvisibleColumn] public decimal? LastAlphaOpenPrice => OpenPositions?.LastOrDefault()?.AlphaOpenPrice;
+		[NotMapped] [InvisibleColumn] public decimal? LastBetaOpenPrice => OpenPositions?.LastOrDefault()?.BetaOpenPrice;
 		[NotMapped] [InvisibleColumn] public int PositionCount => OpenPositions?.Count ?? 0;
 		[NotMapped] [InvisibleColumn] public decimal Deviation => SlippageInPip * PipSize;
 
@@ -168,6 +168,7 @@ namespace QvaDev.Data.Models
 
 		private void Account_NewTick(object sender, NewTickEventArgs newTickEventArgs)
 		{
+			if (!Run) return;
 			if (newTickEventArgs?.Tick?.HasValue != true) return;
 			if (sender == AlphaAccount && newTickEventArgs.Tick.Symbol != AlphaSymbol) return;
 			if (sender == BetaAccount && newTickEventArgs.Tick.Symbol != BetaSymbol) return;
