@@ -227,8 +227,8 @@ namespace QvaDev.Orchestration.Services.Strategies
 			{
 				if (!timingClose && (DateTime.UtcNow - pos.OpenTime).TotalMinutes < arb.MinOpenTimeInMinutes) continue;
 
-				var netPip = CalculateNetPip(pos, alphaTick, betaTick);
-				if (!timingClose && netPip < arb.TargetInPip) continue;
+				var net = CalculateNetPip(pos, alphaTick, betaTick) / arb.PipSize;
+				if (!timingClose && net < arb.TargetInPip) continue;
 
 				DoClose(arb, pos);
 			}
@@ -277,11 +277,15 @@ namespace QvaDev.Orchestration.Services.Strategies
 
 		private decimal CalculateNetPip(StratDealingArbPosition pos, Tick alphaTick, Tick betaTick)
 		{
-			if (pos.BetaSide == StratDealingArbPosition.Sides.Sell)
-				return alphaTick.Bid - pos.AlphaOpenPrice + pos.BetaOpenPrice - betaTick.Ask;
-			if (pos.BetaSide == StratDealingArbPosition.Sides.Buy)
-				return pos.AlphaOpenPrice - alphaTick.Ask + betaTick.Bid - pos.BetaOpenPrice;
-			return 0;
+			var alphaNet = pos.AlphaSide == StratDealingArbPosition.Sides.Sell
+				? pos.AlphaOpenPrice - alphaTick.Ask
+				: alphaTick.Bid - pos.AlphaOpenPrice;
+
+			var betaNet = pos.BetaSide == StratDealingArbPosition.Sides.Sell
+				? pos.BetaOpenPrice - betaTick.Ask
+				: betaTick.Bid - pos.BetaOpenPrice;
+
+			return (alphaNet + betaNet) / 2;
 		}
 
 		private async Task<OrderResponse> CloseAlphaPosition(StratDealingArb arb, StratDealingArbPosition pos)

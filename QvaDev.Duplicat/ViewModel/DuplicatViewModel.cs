@@ -171,6 +171,7 @@ namespace QvaDev.Duplicat.ViewModel
 			_duplicatContext.StratDealingArbPositions.Where(e => e.StratDealingArb.ProfileId == SelectedProfileId).Load();
 			StratDealingArbPositions = _duplicatContext.StratDealingArbPositions.Local;
 			foreach (var e in StratDealingArbPositions) e.IsFiltered = e.StratDealingArbId != SelectedDealingArbId;
+			foreach (var e in StratDealingArbs) e.SetNetProfits();
 		}
 	}
 }

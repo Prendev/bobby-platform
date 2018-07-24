@@ -13,7 +13,7 @@ namespace QvaDev.Data.Models
 		}
 
 		public DateTime OpenTime { get; set; }
-		public DateTime? CloseTime { get; set; }
+		public DateTime? CloseTime { get => Get<DateTime?> (); set => Set(value); }
 
 		public decimal AlphaOpenSignal { get; set; }
 		public decimal AlphaOpenPrice { get; set; }
@@ -34,6 +34,8 @@ namespace QvaDev.Data.Models
 		[InvisibleColumn] public long? BetaOrderTicket { get; set; }
 
 		public bool IsClosed { get => Get<bool>(); set => Set(value); }
+
+		[NotMapped] public decimal NetProfitInPip { get => Get<decimal>(); set => Set(value); }
 
 		[InvisibleColumn] public int StratDealingArbId { get; set; }
 		[InvisibleColumn] public StratDealingArb StratDealingArb { get; set; }

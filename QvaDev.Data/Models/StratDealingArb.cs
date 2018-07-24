@@ -190,7 +190,44 @@ namespace QvaDev.Data.Models
 			if (DateTime.UtcNow - AlphaTick.Time > new TimeSpan(0, 1, 0)) return;
 			if (DateTime.UtcNow - BetaTick.Time > new TimeSpan(0, 1, 0)) return;
 
+			SetNetProfits();
 			NewTick?.Invoke(this, null);
+		}
+
+		public void SetNetProfits()
+		{
+			if (Positions == null || Positions.Count == 0) return;
+			foreach (var pos in Positions)
+				NetProfitInPip(pos);
+		}
+
+		private void NetProfitInPip(StratDealingArbPosition pos)
+		{
+			var net = 0m;
+
+			if (pos.AlphaSide == StratDealingArbPosition.Sides.Sell)
+			{
+				net += pos.AlphaOpenPrice;
+				net -= pos.AlphaClosePrice ?? AlphaTick?.Ask ?? 0;
+			}
+			else if (pos.AlphaSide == StratDealingArbPosition.Sides.Buy)
+			{
+				net -= pos.AlphaOpenPrice;
+				net += pos.AlphaClosePrice ?? AlphaTick?.Bid ?? 0;
+			}
+
+			if (pos.BetaSide == StratDealingArbPosition.Sides.Sell)
+			{
+				net += pos.BetaOpenPrice;
+				net -= pos.BetaClosePrice ?? BetaTick?.Ask ?? 0;
+			}
+			else if (pos.BetaSide == StratDealingArbPosition.Sides.Buy)
+			{
+				net -= pos.BetaOpenPrice;
+				net += pos.BetaClosePrice ?? BetaTick?.Bid ?? 0;
+			}
+
+			pos.NetProfitInPip = net / 2 / PipSize;
 		}
 	}
 }
