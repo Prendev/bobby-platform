@@ -254,6 +254,7 @@ namespace QvaDev.Orchestration.Services.Strategies
 					await Task.WhenAll(beta, alpha);
 
 					pos.IsClosed = true;
+					pos.CloseTime = DateTime.UtcNow;
 					pos.AlphaClosePrice = alpha.Result.AveragePrice;
 					pos.RemainingAlpha = alpha.Result.FilledQuantity - pos.AlphaSize;
 					pos.BetaClosePrice = beta.Result.AveragePrice;

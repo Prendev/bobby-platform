@@ -159,6 +159,10 @@
     <Compile Include="Migrations\201807231427459_DealingArbRemainingSize.Designer.cs">
       <DependentUpon>201807231427459_DealingArbRemainingSize.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201807240652470_DealingArbCloseTime.cs" />
+    <Compile Include="Migrations\201807240652470_DealingArbCloseTime.Designer.cs">
+      <DependentUpon>201807240652470_DealingArbCloseTime.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\BaseEntity.cs" />
     <Compile Include="Models\BaseDescriptionEntity.cs" />
@@ -257,6 +261,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201807231427459_DealingArbRemainingSize.resx">
       <DependentUpon>201807231427459_DealingArbRemainingSize.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201807240652470_DealingArbCloseTime.resx">
+      <DependentUpon>201807240652470_DealingArbCloseTime.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

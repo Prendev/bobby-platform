@@ -13,6 +13,7 @@ namespace QvaDev.Data.Models
 		}
 
 		public DateTime OpenTime { get; set; }
+		public DateTime? CloseTime { get; set; }
 
 		public decimal AlphaOpenSignal { get; set; }
 		public decimal AlphaOpenPrice { get; set; }
