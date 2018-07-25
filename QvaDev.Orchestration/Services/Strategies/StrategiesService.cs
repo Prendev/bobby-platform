@@ -281,22 +281,73 @@ namespace QvaDev.Orchestration.Services.Strategies
 					pos.AlphaCloseSignal = pos.AlphaSide == StratDealingArbPosition.Sides.Buy ? arb.AlphaTick.Bid : arb.AlphaTick.Ask;
 					pos.BetaCloseSignal = pos.BetaSide == StratDealingArbPosition.Sides.Buy ? arb.BetaTick.Bid : arb.BetaTick.Ask;
 
-					var alpha = CloseAlphaPosition(arb, pos);
-					var beta = CloseBetaPosition(arb, pos);
+					// OrderType based on confih
+					var beta = SendBetaPosition(arb, pos.BetaSide.ToSide().Inv(), arb.BetaSize, arb.BetaTick);
+					var alpha = SendAlphaPosition(arb, pos.AlphaSide.ToSide().Inv(), arb.AlphaSize, arb.AlphaTick);
 					await Task.WhenAll(beta, alpha);
+
+					var betaPos = beta.Result;
+					var alphaPos = alpha.Result;
+					OrderResponse betaMarket = null;
+					OrderResponse alphaMarket = null;
+
+					// Backup market order for close
+					if (alphaPos.FilledQuantity < betaPos.FilledQuantity)
+					{
+						_log.Error($"{arb.Description} arb closing size mismatch!!!");
+						alphaMarket = await SendAlphaPosition(arb, pos.AlphaSide.ToSide().Inv(), betaPos.FilledQuantity - alphaPos.FilledQuantity);
+					}
+					else if (betaPos.FilledQuantity < alphaPos.FilledQuantity)
+					{
+						_log.Error($"{arb.Description} arb closing size mismatch!!!");
+						betaMarket = await SendBetaPosition(arb, pos.BetaSide.ToSide().Inv(), alphaPos.FilledQuantity - betaPos.FilledQuantity);
+					}
+
+					// Leave the position if nothing closed
+					var alphaFull = alphaPos.FilledQuantity + (alphaMarket?.FilledQuantity ?? 0);
+					var betaFull = betaPos.FilledQuantity + (betaMarket?.FilledQuantity ?? 0);
+					if (alphaFull == 0 && betaFull == 0)
+					{
+						_log.Error($"{arb.Description} arb closing with remaining " +
+						           $"alpha size {pos.AlphaSize}, beta size {pos.BetaSide}!!!");
+						return;
+					}
 
 					pos.IsClosed = true;
 					pos.CloseTime = DateTime.UtcNow;
-					pos.AlphaClosePrice = alpha.Result.AveragePrice;
-					pos.RemainingAlpha = alpha.Result.FilledQuantity - pos.AlphaSize;
-					pos.BetaClosePrice = beta.Result.AveragePrice;
-					pos.RemainingBeta = beta.Result.FilledQuantity - pos.BetaSize;
+					
+					// Calculate alpha avg and remaining
+					pos.AlphaClosePrice = alphaPos.AveragePrice * alphaPos.FilledQuantity;
+					if (alphaMarket != null) pos.AlphaClosePrice += alphaMarket.AveragePrice * alphaMarket.FilledQuantity;
+					if (pos.AlphaClosePrice > 0) pos.AlphaClosePrice /= alphaFull;
+					pos.RemainingAlpha = pos.AlphaSize - alphaFull;
 
+					// Calculate beta avg and remaining
+					pos.BetaClosePrice = betaPos.AveragePrice * betaPos.FilledQuantity;
+					if (betaMarket != null) pos.BetaClosePrice += betaMarket.AveragePrice * betaMarket.FilledQuantity;
+					if (pos.BetaClosePrice > 0) pos.BetaClosePrice /= betaFull;
+					pos.RemainingBeta = pos.BetaSize - betaFull;
+
+					// Creating new position with the remaining
 					if (pos.RemainingAlpha > 0 || pos.RemainingBeta > 0)
 					{
-						_log.Error($"{arb.Description} arb closing issue with remaining " +
+						_log.Error($"{arb.Description} arb closing with remaining " +
 						           $"alpha size {pos.RemainingAlpha}, beta size {pos.RemainingBeta}!!!");
-						arb.Run = false;
+
+						arb.Positions.Add(new StratDealingArbPosition()
+						{
+							OpenTime = pos.OpenTime,
+
+							AlphaOpenSignal = pos.AlphaOpenSignal,
+							AlphaOpenPrice = pos.AlphaOpenPrice,
+							AlphaSize = pos.RemainingAlpha ?? 0,
+							AlphaSide = pos.AlphaSide,
+
+							BetaOpenSignal = pos.BetaOpenSignal,
+							BetaOpenPrice = pos.BetaOpenPrice,
+							BetaSize = pos.RemainingBeta ?? 0,
+							BetaSide = pos.BetaSide,
+						});
 					}
 					else _log.Info($"{arb.Description} arb closed!!!");
 				}
@@ -318,60 +369,6 @@ namespace QvaDev.Orchestration.Services.Strategies
 				: betaTick.Bid - pos.BetaOpenPrice;
 
 			return (alphaNet + betaNet) / 2;
-		}
-
-		private async Task<OrderResponse> CloseAlphaPosition(StratDealingArb arb, StratDealingArbPosition pos)
-		{
-			if (!(arb.AlphaAccount.Connector is IFixConnector fix)) throw new NotImplementedException();
-
-			var side = pos.AlphaSide == StratDealingArbPosition.Sides.Buy ? Sides.Sell : Sides.Buy;
-
-			// OrderType used based on setting
-			var r1 = await SendAlphaPosition(arb, side, pos.AlphaSize, arb.AlphaTick);
-			if (r1.FilledQuantity == pos.AlphaSize) return r1;
-
-			// MarketOrder used as backup
-			var r2 = await fix.SendMarketOrderRequest(arb.AlphaSymbol, side, pos.AlphaSize - r1.FilledQuantity);
-
-			// Calculate summary of both orders
-			var filled = r1.FilledQuantity + r2.FilledQuantity;
-			var avgPrice = filled > 0
-				? ((r1.FilledQuantity * r1.AveragePrice ?? 0) + (r2.FilledQuantity * r2.AveragePrice ?? 0)) / filled
-				: (decimal?) null;
-
-			return new OrderResponse()
-			{
-				OrderedQuantity = pos.AlphaSize,
-				FilledQuantity = r1.FilledQuantity + r2.FilledQuantity,
-				AveragePrice = avgPrice
-			};
-		}
-
-		private async Task<OrderResponse> CloseBetaPosition(StratDealingArb arb, StratDealingArbPosition pos)
-		{
-			if (!(arb.BetaAccount.Connector is IFixConnector fix)) throw new NotImplementedException();
-
-			var side = pos.BetaSide == StratDealingArbPosition.Sides.Buy ? Sides.Sell : Sides.Buy;
-
-			// OrderType used based on setting
-			var r1 = await SendBetaPosition(arb, side, pos.BetaSize, arb.BetaTick);
-			if (r1.FilledQuantity == pos.BetaSize) return r1;
-
-			// MarketOrder used as backup
-			var r2 = await fix.SendMarketOrderRequest(arb.BetaSymbol, side, pos.BetaSize - r1.FilledQuantity);
-
-			// Calculate summary of both orders
-			var filled = r1.FilledQuantity + r2.FilledQuantity;
-			var avgPrice = filled > 0
-				? ((r1.FilledQuantity * r1.AveragePrice ?? 0) + (r2.FilledQuantity * r2.AveragePrice ?? 0)) / filled
-				: (decimal?)null;
-
-			return new OrderResponse()
-			{
-				OrderedQuantity = pos.BetaSize,
-				FilledQuantity = r1.FilledQuantity + r2.FilledQuantity,
-				AveragePrice = avgPrice
-			};
 		}
 
 		private Task<OrderResponse> SendAlphaPosition(StratDealingArb arb, Sides side, decimal size, Tick lastTick = null)
