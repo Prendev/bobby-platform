@@ -164,9 +164,19 @@ namespace QvaDev.Duplicat.ViewModel
 			foreach (var e in FixApiCopiers) e.IsFiltered = e.SlaveId != SelectedSlaveId;
 			foreach (var e in PushingDetails) e.IsFiltered = e.Id != SelectedPushingDetailId;
 			foreach (var e in StratDealingArbPositions) e.IsFiltered = e.StratDealingArbId != SelectedDealingArbId;
+
+			_duplicatContext.Profiles.Local.CollectionChanged += Profiles_CollectionChanged;
 		}
 
-	    private void LoadStratDealingArbPositions()
+		private void Profiles_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+		{
+			if(_duplicatContext.Profiles.Local.Any(l => l.Id == SelectedProfileId)) return;
+			SelectedProfileDesc = "";
+			SelectedProfileId = 0;
+			LoadLocals();
+		}
+
+		private void LoadStratDealingArbPositions()
 		{
 			_duplicatContext.StratDealingArbPositions.Where(e => e.StratDealingArb.ProfileId == SelectedProfileId).Load();
 			StratDealingArbPositions = _duplicatContext.StratDealingArbPositions.Local;
