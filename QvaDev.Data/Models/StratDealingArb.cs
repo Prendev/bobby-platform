@@ -52,6 +52,10 @@ namespace QvaDev.Data.Models
 		[InvisibleColumn] public TimeSpan? LatestCloseTime { get; set; }
 
 		public StratDealingArbOrderTypes OrderType { get; set; }
+		[DisplayName("MaxRetry")]
+		public int MaxRetryCount { get; set; }
+		[DisplayName("RetryPeriod")]
+		public int RetryPeriodInMs { get; set; }
 		[DisplayName("Slippage")]
 		public decimal SlippageInPip { get; set; }
 		[DisplayName("TimeWindow")]
@@ -96,9 +100,6 @@ namespace QvaDev.Data.Models
 
 		public decimal PipSize { get; set; }
 		[InvisibleColumn] public int MagicNumber { get; set; }
-
-		[InvisibleColumn] public int MaxRetryCount { get; set; }
-		[InvisibleColumn] public int RetryPeriodInMs { get; set; }
 
 		[InvisibleColumn] public DateTime? LastOpenTime { get => Get<DateTime?>(); set => Set(value); }
 
@@ -203,31 +204,36 @@ namespace QvaDev.Data.Models
 
 		private void NetProfitInPip(StratDealingArbPosition pos)
 		{
-			var net = 0m;
+			var alpha = 0m;
+			var beta = 0m;
 
 			if (pos.AlphaSide == StratDealingArbPosition.Sides.Sell)
 			{
-				net += pos.AlphaOpenPrice;
-				net -= pos.AlphaClosePrice ?? AlphaTick?.Ask ?? 0;
+				alpha += pos.AlphaOpenPrice;
+				alpha -= pos.AlphaClosePrice ?? AlphaTick?.Ask ?? 0;
 			}
 			else if (pos.AlphaSide == StratDealingArbPosition.Sides.Buy)
 			{
-				net -= pos.AlphaOpenPrice;
-				net += pos.AlphaClosePrice ?? AlphaTick?.Bid ?? 0;
+				alpha -= pos.AlphaOpenPrice;
+				alpha += pos.AlphaClosePrice ?? AlphaTick?.Bid ?? 0;
 			}
 
 			if (pos.BetaSide == StratDealingArbPosition.Sides.Sell)
 			{
-				net += pos.BetaOpenPrice;
-				net -= pos.BetaClosePrice ?? BetaTick?.Ask ?? 0;
+				beta += pos.BetaOpenPrice;
+				beta -= pos.BetaClosePrice ?? BetaTick?.Ask ?? 0;
 			}
 			else if (pos.BetaSide == StratDealingArbPosition.Sides.Buy)
 			{
-				net -= pos.BetaOpenPrice;
-				net += pos.BetaClosePrice ?? BetaTick?.Bid ?? 0;
+				beta -= pos.BetaOpenPrice;
+				beta += pos.BetaClosePrice ?? BetaTick?.Bid ?? 0;
 			}
 
-			pos.NetProfitInPip = net / 2 / PipSize;
+			alpha *= pos.AlphaSize;
+			beta *= pos.BetaSize;
+
+			if (pos.AlphaSize + pos.BetaSize == 0) pos.NetProfitInPip = 0;
+			else pos.NetProfitInPip = (alpha + beta) / (pos.AlphaSize + pos.BetaSize) / PipSize;
 		}
 	}
 }

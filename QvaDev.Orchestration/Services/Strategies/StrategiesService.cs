@@ -180,12 +180,44 @@ namespace QvaDev.Orchestration.Services.Strategies
 					if (betaPos.FilledQuantity > alphaPos.FilledQuantity)
 					{
 						_log.Error($"{arb.Description} arb opening size mismatch!!!");
-						await SendBetaPosition(arb, betaSide.Inv(), betaPos.FilledQuantity - alphaPos.FilledQuantity);
+						var closePos = await SendBetaPosition(arb, betaSide.Inv(), betaPos.FilledQuantity - alphaPos.FilledQuantity);
+
+						arb.Positions.Add(new StratDealingArbPosition()
+						{
+							IsClosed = true,
+							OpenTime = DateTime.UtcNow,
+							CloseTime = DateTime.UtcNow,
+							AlphaSide = (StratDealingArbPosition.Sides)Enum.Parse(typeof(StratDealingArbPosition.Sides), alphaSide.ToString()),
+
+							BetaOpenSignal = betaTick.GetPrice(betaSide),
+							BetaOpenPrice = betaPos.AveragePrice ?? 0,
+							BetaSize = closePos.FilledQuantity,
+							BetaSide = (StratDealingArbPosition.Sides)Enum.Parse(typeof(StratDealingArbPosition.Sides), betaSide.ToString()),
+
+							BetaCloseSignal = closePos.AveragePrice,
+							BetaClosePrice = closePos.AveragePrice,
+						});
 					}
 					else if (betaPos.FilledQuantity < alphaPos.FilledQuantity)
 					{
 						_log.Error($"{arb.Description} arb opening size mismatch!!!");
-						await SendAlphaPosition(arb, alphaSide.Inv(), alphaPos.FilledQuantity - betaPos.FilledQuantity);
+						var closePos = await SendAlphaPosition(arb, alphaSide.Inv(), alphaPos.FilledQuantity - betaPos.FilledQuantity);
+
+						arb.Positions.Add(new StratDealingArbPosition()
+						{
+							IsClosed = true,
+							OpenTime = DateTime.UtcNow,
+							CloseTime = DateTime.UtcNow,
+							BetaSide = (StratDealingArbPosition.Sides)Enum.Parse(typeof(StratDealingArbPosition.Sides), betaSide.ToString()),
+
+							AlphaOpenSignal = alphaTick.GetPrice(alphaSide),
+							AlphaOpenPrice = alphaPos.AveragePrice ?? 0,
+							AlphaSize = closePos.FilledQuantity,
+							AlphaSide = (StratDealingArbPosition.Sides)Enum.Parse(typeof(StratDealingArbPosition.Sides), alphaSide.ToString()),
+
+							AlphaCloseSignal = closePos.AveragePrice,
+							AlphaClosePrice = closePos.AveragePrice,
+						});
 					}
 
 					if (betaPos.FilledQuantity == 0 || alphaPos.FilledQuantity == 0) return;

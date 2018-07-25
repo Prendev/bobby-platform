@@ -74,10 +74,12 @@ namespace QvaDev.FixApiIntegration
 
 			try
 			{
+				var subscribe = _fixConnector.PricingSocket?.IsConnected != true;
 				await _fixConnector.ConnectPricingAsync();
 				await _fixConnector.ConnectTradingAsync();
-				await Task.WhenAll(SymbolInfos.Keys.Select(symbol =>
-					_fixConnector.SubscribeMarketDataAsync(Symbol.Parse(symbol), 1)));
+				if (subscribe)
+					await Task.WhenAll(SymbolInfos.Keys.Select(symbol =>
+						_fixConnector.SubscribeMarketDataAsync(Symbol.Parse(symbol), 1)));
 			}
 			catch (Exception e)
 			{
@@ -91,7 +93,10 @@ namespace QvaDev.FixApiIntegration
 
 		public override void Disconnect()
 		{
-			lock (_lock) _shouldConnect = false;
+			lock (_lock)
+			{
+				_shouldConnect = false;
+			}
 			_fixConnector.PricingSocketClosed -= FixConnector_SocketClosed;
 			_fixConnector.TradingSocketClosed -= FixConnector_SocketClosed;
 			_fixConnector.Quote -= FixConnector_Quote;

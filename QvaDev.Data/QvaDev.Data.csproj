@@ -127,10 +127,6 @@
     <Compile Include="Migrations\201807131010465_DealingArbLastOpenTime.Designer.cs">
       <DependentUpon>201807131010465_DealingArbLastOpenTime.cs</DependentUpon>
     </Compile>
-    <Compile Include="Migrations\201807160849548_RetryPeriodRename.cs" />
-    <Compile Include="Migrations\201807160849548_RetryPeriodRename.Designer.cs">
-      <DependentUpon>201807160849548_RetryPeriodRename.cs</DependentUpon>
-    </Compile>
     <Compile Include="Migrations\201807161351278_DealingArbClosePrices.cs" />
     <Compile Include="Migrations\201807161351278_DealingArbClosePrices.Designer.cs">
       <DependentUpon>201807161351278_DealingArbClosePrices.cs</DependentUpon>
@@ -237,9 +233,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201807131010465_DealingArbLastOpenTime.resx">
       <DependentUpon>201807131010465_DealingArbLastOpenTime.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201807160849548_RetryPeriodRename.resx">
-      <DependentUpon>201807160849548_RetryPeriodRename.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201807161351278_DealingArbClosePrices.resx">
       <DependentUpon>201807161351278_DealingArbClosePrices.cs</DependentUpon>
