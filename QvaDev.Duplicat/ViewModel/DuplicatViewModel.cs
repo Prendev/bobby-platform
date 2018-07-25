@@ -165,6 +165,7 @@ namespace QvaDev.Duplicat.ViewModel
 			foreach (var e in PushingDetails) e.IsFiltered = e.Id != SelectedPushingDetailId;
 			foreach (var e in StratDealingArbPositions) e.IsFiltered = e.StratDealingArbId != SelectedDealingArbId;
 
+			_duplicatContext.Profiles.Local.CollectionChanged -= Profiles_CollectionChanged;
 			_duplicatContext.Profiles.Local.CollectionChanged += Profiles_CollectionChanged;
 		}
 
