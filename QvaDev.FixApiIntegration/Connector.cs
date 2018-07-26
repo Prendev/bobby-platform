@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -21,6 +22,7 @@ namespace QvaDev.FixApiIntegration
 		private readonly ConcurrentDictionary<string, Tick> _lastTicks =
 			new ConcurrentDictionary<string, Tick>();
 		private readonly AccountInfo _accountInfo;
+		private List<string> _subscribes = new List<string>();
 
 		private readonly Object _lock = new Object();
 		private volatile bool _isConnecting;
@@ -78,8 +80,10 @@ namespace QvaDev.FixApiIntegration
 				await _fixConnector.ConnectPricingAsync();
 				await _fixConnector.ConnectTradingAsync();
 				if (subscribe)
-					await Task.WhenAll(SymbolInfos.Keys.Select(symbol =>
-						_fixConnector.SubscribeMarketDataAsync(Symbol.Parse(symbol), 1)));
+				{
+					lock (_subscribes) _subscribes.Clear();
+					await Task.WhenAll(SymbolInfos.Keys.Select(InnerSubscribe));
+				}
 			}
 			catch (Exception e)
 			{
@@ -230,8 +234,19 @@ namespace QvaDev.FixApiIntegration
 
 		public override async void Subscribe(string symbol)
 		{
+			await InnerSubscribe(symbol);
+		}
+
+		private async Task InnerSubscribe(string symbol)
+		{
 			try
 			{
+				lock (_subscribes)
+				{
+					if (_subscribes.Contains(symbol)) return;
+					_subscribes.Add(symbol);
+				}
+
 				await _fixConnector.SubscribeMarketDataAsync(Symbol.Parse(symbol), 1);
 			}
 			catch (ObjectDisposedException e)

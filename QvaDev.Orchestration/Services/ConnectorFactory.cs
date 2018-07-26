@@ -1,4 +1,5 @@
-﻿using log4net;
+﻿using System.Threading.Tasks;
+using log4net;
 using QvaDev.Data;
 using QvaDev.Data.Models;
 
@@ -16,12 +17,12 @@ namespace QvaDev.Orchestration.Services
 			_log = log;
 			_ctConnectorFactory = ctConnectorFactory;
 		}
-		public void Create(Account account)
+		public async Task Create(Account account)
 		{
 			if (account.MetaTraderAccountId.HasValue) ConnectMtAccount(account);
 			if (account.CTraderAccountId.HasValue) ConenctCtAccount(account);
 			if (account.FixTraderAccountId.HasValue) ConnectFtAccount(account);
-			if (account.FixApiAccountId.HasValue) ConnectFixAccount(account);
+			if (account.FixApiAccountId.HasValue) await ConnectFixAccount(account);
 			if (account.IlyaFastFeedAccountId.HasValue) ConnectIlyaFastFeedAccount(account);
 		}
 
@@ -94,7 +95,7 @@ namespace QvaDev.Orchestration.Services
 				});
 		}
 
-		private async void ConnectFixAccount(Account account)
+		private async Task ConnectFixAccount(Account account)
 		{
 			if (!(account.Connector is FixApiIntegration.Connector) ||
 			    account.Connector.Id != account.FixTraderAccountId)
