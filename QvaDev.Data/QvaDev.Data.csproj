@@ -159,9 +159,18 @@
     <Compile Include="Migrations\201807240652470_DealingArbCloseTime.Designer.cs">
       <DependentUpon>201807240652470_DealingArbCloseTime.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201808201219225_CqgClientApiAccount.cs" />
+    <Compile Include="Migrations\201808201219225_CqgClientApiAccount.Designer.cs">
+      <DependentUpon>201808201219225_CqgClientApiAccount.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201808201249082_CqgClientApiAccount2.cs" />
+    <Compile Include="Migrations\201808201249082_CqgClientApiAccount2.Designer.cs">
+      <DependentUpon>201808201249082_CqgClientApiAccount2.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\BaseEntity.cs" />
     <Compile Include="Models\BaseDescriptionEntity.cs" />
+    <Compile Include="Models\CqgClientApiAccount.cs" />
     <Compile Include="Models\FixApiAccount.cs" />
     <Compile Include="Models\FixApiCopier.cs" />
     <Compile Include="Models\Copier.cs" />
@@ -257,6 +266,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201807240652470_DealingArbCloseTime.resx">
       <DependentUpon>201807240652470_DealingArbCloseTime.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201808201219225_CqgClientApiAccount.resx">
+      <DependentUpon>201808201219225_CqgClientApiAccount.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201808201249082_CqgClientApiAccount2.resx">
+      <DependentUpon>201808201249082_CqgClientApiAccount2.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

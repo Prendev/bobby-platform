@@ -110,6 +110,10 @@
       <Project>{10A3EF89-12BB-4D00-9950-36BFED281B91}</Project>
       <Name>QvaDev.Common</Name>
     </ProjectReference>
+    <ProjectReference Include="..\QvaDev.CqgClientApiIntegration\QvaDev.CqgClientApiIntegration.csproj">
+      <Project>{8acfc7d6-2c62-4f4c-9fa5-86066cfb62b9}</Project>
+      <Name>QvaDev.CqgClientApiIntegration</Name>
+    </ProjectReference>
     <ProjectReference Include="..\QvaDev.CTraderApi\QvaDev.CTraderApi.csproj">
       <Project>{866039f3-42ff-4d42-a85e-f91cef04f3df}</Project>
       <Name>QvaDev.CTraderApi</Name>

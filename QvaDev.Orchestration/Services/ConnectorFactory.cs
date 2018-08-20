@@ -24,6 +24,7 @@ namespace QvaDev.Orchestration.Services
 			if (account.FixTraderAccountId.HasValue) ConnectFtAccount(account);
 			if (account.FixApiAccountId.HasValue) await ConnectFixAccount(account);
 			if (account.IlyaFastFeedAccountId.HasValue) ConnectIlyaFastFeedAccount(account);
+			if (account.CqgClientApiAccountId.HasValue) ConnectCqgClientApiAccount(account);
 		}
 
 
@@ -121,13 +122,32 @@ namespace QvaDev.Orchestration.Services
 			if (account.Connector == null)
 				account.Connector = new IlyaFastFeedIntegration.Connector(_log);
 
-			((IlyaFastFeedIntegration.Connector)account.Connector).Connect(new IlyaFastFeedIntegration.AccountInfo()
+			await ((IlyaFastFeedIntegration.Connector)account.Connector).Connect(new IlyaFastFeedIntegration.AccountInfo()
 			{
+				DbId = account.IlyaFastFeedAccount.Id,
 				Description = account.IlyaFastFeedAccount.Description,
 				IpAddress = account.IlyaFastFeedAccount.IpAddress,
 				Port = account.IlyaFastFeedAccount.Port,
 				UserName = account.IlyaFastFeedAccount.UserName
 			});
+		}
+
+		private void ConnectCqgClientApiAccount(Account account)
+		{
+			if (!(account.Connector is CqgClientApiIntegration.Connector) ||
+			    account.Connector.Id != account.IlyaFastFeedAccountId)
+				account.Connector = null;
+
+			if (account.Connector == null)
+				account.Connector = new CqgClientApiIntegration.Connector(new CqgClientApiIntegration.AccountInfo()
+				{
+					DbId = account.CqgClientApiAccount.Id,
+					Description = account.CqgClientApiAccount.Description,
+					UserName = account.CqgClientApiAccount.UserName,
+					Password = account.CqgClientApiAccount.Password
+				}, _log);
+
+			((CqgClientApiIntegration.Connector)account.Connector).Connect();
 		}
 	}
 }

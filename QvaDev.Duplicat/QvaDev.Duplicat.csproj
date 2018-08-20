@@ -102,16 +102,22 @@
     <Compile Include="Views\CopiersUserControl.Designer.cs">
       <DependentUpon>CopiersUserControl.cs</DependentUpon>
     </Compile>
-    <Compile Include="Views\CtAccountsUserControl.cs">
+    <Compile Include="Views\_Accounts\CqgAccountsUserControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Views\CtAccountsUserControl.Designer.cs">
+    <Compile Include="Views\_Accounts\CqgAccountsUserControl.Designer.cs">
+      <DependentUpon>CqgAccountsUserControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\_Accounts\CtAccountsUserControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Views\_Accounts\CtAccountsUserControl.Designer.cs">
       <DependentUpon>CtAccountsUserControl.cs</DependentUpon>
     </Compile>
-    <Compile Include="Views\IffAccountsUserControl.cs">
+    <Compile Include="Views\_Accounts\IffAccountsUserControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Views\IffAccountsUserControl.Designer.cs">
+    <Compile Include="Views\_Accounts\IffAccountsUserControl.Designer.cs">
       <DependentUpon>IffAccountsUserControl.cs</DependentUpon>
     </Compile>
     <Compile Include="Views\PushingUserControl.cs">
@@ -142,16 +148,16 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="ViewModel\DuplicatViewModel.cs" />
-    <Compile Include="Views\FtAccountsUserControl.cs">
+    <Compile Include="Views\_Accounts\FtAccountsUserControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Views\FtAccountsUserControl.Designer.cs">
+    <Compile Include="Views\_Accounts\FtAccountsUserControl.Designer.cs">
       <DependentUpon>FtAccountsUserControl.cs</DependentUpon>
     </Compile>
-    <Compile Include="Views\MtAccountsUserControl.cs">
+    <Compile Include="Views\_Accounts\MtAccountsUserControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Views\MtAccountsUserControl.Designer.cs">
+    <Compile Include="Views\_Accounts\MtAccountsUserControl.Designer.cs">
       <DependentUpon>MtAccountsUserControl.cs</DependentUpon>
     </Compile>
     <Compile Include="Views\ProfilesUserControl.cs">
@@ -175,10 +181,13 @@
     <EmbeddedResource Include="Views\CopiersUserControl.resx">
       <DependentUpon>CopiersUserControl.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Views\CtAccountsUserControl.resx">
+    <EmbeddedResource Include="Views\_Accounts\CqgAccountsUserControl.resx">
+      <DependentUpon>CqgAccountsUserControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\_Accounts\CtAccountsUserControl.resx">
       <DependentUpon>CtAccountsUserControl.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Views\IffAccountsUserControl.resx">
+    <EmbeddedResource Include="Views\_Accounts\IffAccountsUserControl.resx">
       <DependentUpon>IffAccountsUserControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\PushingUserControl.resx">
@@ -197,10 +206,10 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
-    <EmbeddedResource Include="Views\FtAccountsUserControl.resx">
+    <EmbeddedResource Include="Views\_Accounts\FtAccountsUserControl.resx">
       <DependentUpon>FtAccountsUserControl.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Views\MtAccountsUserControl.resx">
+    <EmbeddedResource Include="Views\_Accounts\MtAccountsUserControl.resx">
       <DependentUpon>MtAccountsUserControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\ProfilesUserControl.resx">

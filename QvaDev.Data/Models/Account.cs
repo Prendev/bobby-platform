@@ -29,6 +29,10 @@ namespace QvaDev.Data.Models
 		public int? IlyaFastFeedAccountId { get; set; }
 		public IlyaFastFeedAccount IlyaFastFeedAccount { get; set; }
 
+		public int? CqgClientApiAccountId { get; set; }
+		public CqgClientApiAccount CqgClientApiAccount { get; set; }
+
+
 		[NotMapped] [ReadOnly(true)] public ConnectionStates ConnectionState { get => Get<ConnectionStates>(); set => Set(value); }
 
 		private IConnector _connector;
@@ -77,6 +81,7 @@ namespace QvaDev.Data.Models
 			if (FixTraderAccount != null) return $"{(Id == 0 ? "UNSAVED - " : "")}FT | {FixTraderAccount.Description}";
 			if (FixApiAccount != null) return $"{(Id == 0 ? "UNSAVED - " : "")}FIX | {FixApiAccount.Description}";
 			if (IlyaFastFeedAccount != null) return $"{(Id == 0 ? "UNSAVED - " : "")}ILYA | {IlyaFastFeedAccount.Description}";
+			if (CqgClientApiAccount != null) return $"{(Id == 0 ? "UNSAVED - " : "")}CQG | {CqgClientApiAccount.Description}";
 			return "";
 		}
 	}

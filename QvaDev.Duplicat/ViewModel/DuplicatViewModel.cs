@@ -45,6 +45,7 @@ namespace QvaDev.Duplicat.ViewModel
         public ObservableCollection<FixTraderAccount> FtAccounts { get; private set; }
 	    public ObservableCollection<FixApiAccount> FixAccounts { get; private set; }
 	    public ObservableCollection<IlyaFastFeedAccount> IlyaFastFeedAccounts { get; private set; }
+	    public ObservableCollection<CqgClientApiAccount> CqgClientApiAccounts { get; private set; }
 		public ObservableCollection<Profile> Profiles { get; private set; }
 		public ObservableCollection<Account> Accounts { get; private set; }
 		public ObservableCollection<Master> Masters { get; private set; }
@@ -126,6 +127,7 @@ namespace QvaDev.Duplicat.ViewModel
 			_duplicatContext.FixTraderAccounts.Load();
 			_duplicatContext.FixApiAccounts.Load();
 			_duplicatContext.IlyaFastFeedAccounts.Load();
+			_duplicatContext.CqgClientApiAccounts.Load();
 			_duplicatContext.Profiles.Load();
 			_duplicatContext.Accounts.Where(e => e.ProfileId == SelectedProfileId).Load();
 			_duplicatContext.Masters.Where(e => e.ProfileId == SelectedProfileId).Load();
@@ -146,6 +148,7 @@ namespace QvaDev.Duplicat.ViewModel
 			FtAccounts = _duplicatContext.FixTraderAccounts.Local;
 			FixAccounts = _duplicatContext.FixApiAccounts.Local;
 			IlyaFastFeedAccounts = _duplicatContext.IlyaFastFeedAccounts.Local;
+			CqgClientApiAccounts = _duplicatContext.CqgClientApiAccounts.Local;
 			Profiles = _duplicatContext.Profiles.Local;
 			Accounts = _duplicatContext.Accounts.Local;
 			Masters = _duplicatContext.Masters.Local;
