@@ -58,9 +58,25 @@ namespace QvaDev.Orchestration.Services.Strategies
 			if (arb.IsBusy) return;
 			if (IsTesting(arb)) return;
 			if (IsShiftCalculating(arb)) return;
+			if (IsTimingClose(arb)) return;
+			if (arb.LastOpenTime.HasValue &&
+			    (DateTime.UtcNow - arb.LastOpenTime.Value).Minutes < arb.ReOpenIntervalInMinutes) return;
 
 			CheckOpen(arb);
 			CheckClose(arb);
+		}
+
+		private bool IsTimingClose(StratDealingArb arb)
+		{
+			var timingClose = arb.HasTiming && IsTime(DateTime.UtcNow.TimeOfDay, arb.LatestCloseTime, arb.EarliestOpenTime);
+			if (!timingClose) return false;
+
+			foreach (var pos in arb.OpenPositions)
+			{
+				DoClose(arb, pos, true);
+			}
+
+			return true;
 		}
 
 		private bool IsTesting(StratDealingArb arb)
@@ -69,7 +85,7 @@ namespace QvaDev.Orchestration.Services.Strategies
 
 			if (arb.DoClose)
 			{
-				var firstPos = arb.Positions.FirstOrDefault(p => !p.IsClosed);
+				var firstPos = arb.OpenPositions.FirstOrDefault();
 				if (firstPos != null) DoClose(arb, firstPos);
 			}
 			else if (arb.DoOpenSide1) OpenSide(arb, Sides.Buy, Sides.Sell);
@@ -119,8 +135,6 @@ namespace QvaDev.Orchestration.Services.Strategies
 		{
 			if (arb.PositionCount >= arb.MaxNumberOfPositions) return;
 			if (IsTime(DateTime.UtcNow.TimeOfDay, arb.LatestOpenTime, arb.EarliestOpenTime)) return;
-			if (arb.LastOpenTime.HasValue &&
-			    (DateTime.UtcNow - arb.LastOpenTime.Value).Minutes < arb.ReOpenIntervalInMinutes) return;
 
 			var alphaTick = arb.AlphaTick;
 			var betaTick = arb.BetaTick;
@@ -160,6 +174,9 @@ namespace QvaDev.Orchestration.Services.Strategies
 			lock (arb)
 			{
 				if (arb.IsBusy) return;
+				if (arb.LastOpenTime.HasValue &&
+				    (DateTime.UtcNow - arb.LastOpenTime.Value).Minutes < arb.ReOpenIntervalInMinutes) return;
+				arb.LastOpenTime = DateTime.UtcNow;
 				arb.IsBusy = true;
 			}
 
@@ -170,7 +187,6 @@ namespace QvaDev.Orchestration.Services.Strategies
 					var alphaTick = arb.AlphaTick;
 					var betaTick = arb.BetaTick;
 
-					arb.LastOpenTime = DateTime.UtcNow;
 					var beta = SendBetaPosition(arb, betaSide, arb.BetaSize, betaTick);
 					var alpha = SendAlphaPosition(arb, alphaSide, arb.AlphaSize, alphaTick);
 					await Task.WhenAll(beta, alpha);
@@ -253,24 +269,27 @@ namespace QvaDev.Orchestration.Services.Strategies
 			var alphaTick = arb.AlphaTick;
 			var betaTick = arb.BetaTick;
 
-			var timingClose = arb.HasTiming && IsTime(DateTime.UtcNow.TimeOfDay, arb.LatestCloseTime, arb.EarliestOpenTime);
-
 			foreach (var pos in arb.Positions.Where(p => !p.IsClosed))
 			{
-				if (!timingClose && (DateTime.UtcNow - pos.OpenTime).TotalMinutes < arb.MinOpenTimeInMinutes) continue;
+				if (arb.LastOpenTime.HasValue &&
+				    (DateTime.UtcNow - arb.LastOpenTime.Value).Minutes < arb.ReOpenIntervalInMinutes) return;
+				if ((DateTime.UtcNow - pos.OpenTime).TotalMinutes < arb.MinOpenTimeInMinutes) continue;
 
 				var net = CalculateNetPip(pos, alphaTick, betaTick) / arb.PipSize;
-				if (!timingClose && net < arb.TargetInPip) continue;
+				if (net < arb.TargetInPip) continue;
 
 				DoClose(arb, pos);
 			}
 		}
 
-		private void DoClose(StratDealingArb arb, StratDealingArbPosition pos)
+		private void DoClose(StratDealingArb arb, StratDealingArbPosition pos, bool timingClose = false)
 		{
 			lock (arb)
 			{
 				if (arb.IsBusy) return;
+				if (!timingClose && arb.LastOpenTime.HasValue &&
+				    (DateTime.UtcNow - arb.LastOpenTime.Value).Minutes < arb.ReOpenIntervalInMinutes) return;
+				arb.LastOpenTime = DateTime.UtcNow;
 				arb.IsBusy = true;
 			}
 

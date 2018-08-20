@@ -72,11 +72,11 @@ namespace QvaDev.Data.Models
 
 		public override string ToString()
 		{
-			if (MetaTraderAccount != null) return $"MT4 | {MetaTraderAccount.Description}";
-			if (CTraderAccount != null) return $"CT | {CTraderAccount.Description}";
-			if (FixTraderAccount != null) return $"FT | {FixTraderAccount.Description}";
-			if (FixApiAccount != null) return $"FIX | {FixApiAccount.Description}";
-			if (IlyaFastFeedAccount != null) return $"ILYA | {IlyaFastFeedAccount.Description}";
+			if (MetaTraderAccount != null) return $"{(Id == 0 ? "UNSAVED - " : "")}MT4 | {MetaTraderAccount.Description}";
+			if (CTraderAccount != null) return $"{(Id == 0 ? "UNSAVED - " : "")}CT | {CTraderAccount.Description}";
+			if (FixTraderAccount != null) return $"{(Id == 0 ? "UNSAVED - " : "")}FT | {FixTraderAccount.Description}";
+			if (FixApiAccount != null) return $"{(Id == 0 ? "UNSAVED - " : "")}FIX | {FixApiAccount.Description}";
+			if (IlyaFastFeedAccount != null) return $"{(Id == 0 ? "UNSAVED - " : "")}ILYA | {IlyaFastFeedAccount.Description}";
 			return "";
 		}
 	}
