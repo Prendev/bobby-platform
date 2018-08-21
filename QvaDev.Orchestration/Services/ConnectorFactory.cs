@@ -132,7 +132,7 @@ namespace QvaDev.Orchestration.Services
 			});
 		}
 
-		private void ConnectCqgClientApiAccount(Account account)
+		private async void ConnectCqgClientApiAccount(Account account)
 		{
 			if (!(account.Connector is CqgClientApiIntegration.Connector) ||
 			    account.Connector.Id != account.IlyaFastFeedAccountId)
@@ -147,7 +147,7 @@ namespace QvaDev.Orchestration.Services
 					Password = account.CqgClientApiAccount.Password
 				}, _log);
 
-			((CqgClientApiIntegration.Connector)account.Connector).Connect();
+			await ((CqgClientApiIntegration.Connector)account.Connector).Connect();
 		}
 	}
 }
