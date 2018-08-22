@@ -30,13 +30,13 @@
         {
 			this.tlpMain = new System.Windows.Forms.TableLayoutPanel();
 			this.groupBox4 = new System.Windows.Forms.GroupBox();
-			this.groupBox1 = new System.Windows.Forms.GroupBox();
 			this.dgvFtAccounts = new QvaDev.Duplicat.Views.CustomDataGridView();
+			this.groupBox1 = new System.Windows.Forms.GroupBox();
 			this.dgvFixAccounts = new QvaDev.Duplicat.Views.CustomDataGridView();
 			this.tlpMain.SuspendLayout();
 			this.groupBox4.SuspendLayout();
-			this.groupBox1.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.dgvFtAccounts)).BeginInit();
+			this.groupBox1.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.dgvFixAccounts)).BeginInit();
 			this.SuspendLayout();
 			// 
@@ -67,18 +67,7 @@
 			this.groupBox4.Size = new System.Drawing.Size(610, 671);
 			this.groupBox4.TabIndex = 0;
 			this.groupBox4.TabStop = false;
-			this.groupBox4.Text = "FIX Trader accounts";
-			// 
-			// groupBox1
-			// 
-			this.groupBox1.Controls.Add(this.dgvFixAccounts);
-			this.groupBox1.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.groupBox1.Location = new System.Drawing.Point(3, 3);
-			this.groupBox1.Name = "groupBox1";
-			this.groupBox1.Size = new System.Drawing.Size(611, 673);
-			this.groupBox1.TabIndex = 1;
-			this.groupBox1.TabStop = false;
-			this.groupBox1.Text = "FIX API accounts";
+			this.groupBox4.Text = "Ilya\'s FIX Trader accounts";
 			// 
 			// dgvFtAccounts
 			// 
@@ -91,6 +80,17 @@
 			this.dgvFtAccounts.Name = "dgvFtAccounts";
 			this.dgvFtAccounts.Size = new System.Drawing.Size(602, 648);
 			this.dgvFtAccounts.TabIndex = 0;
+			// 
+			// groupBox1
+			// 
+			this.groupBox1.Controls.Add(this.dgvFixAccounts);
+			this.groupBox1.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.groupBox1.Location = new System.Drawing.Point(3, 3);
+			this.groupBox1.Name = "groupBox1";
+			this.groupBox1.Size = new System.Drawing.Size(611, 673);
+			this.groupBox1.TabIndex = 1;
+			this.groupBox1.TabStop = false;
+			this.groupBox1.Text = "FIX API accounts";
 			// 
 			// dgvFixAccounts
 			// 
@@ -114,8 +114,8 @@
 			this.Size = new System.Drawing.Size(1235, 679);
 			this.tlpMain.ResumeLayout(false);
 			this.groupBox4.ResumeLayout(false);
-			this.groupBox1.ResumeLayout(false);
 			((System.ComponentModel.ISupportInitialize)(this.dgvFtAccounts)).EndInit();
+			this.groupBox1.ResumeLayout(false);
 			((System.ComponentModel.ISupportInitialize)(this.dgvFixAccounts)).EndInit();
 			this.ResumeLayout(false);
 

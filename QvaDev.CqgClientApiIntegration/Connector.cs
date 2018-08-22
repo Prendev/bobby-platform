@@ -2,13 +2,12 @@
 using log4net;
 using QvaDev.Common.Integration;
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 using QvaDev.Communication;
 
 namespace QvaDev.CqgClientApiIntegration
 {
-	public class Connector : ConnectorBase
+	public class Connector : FixApiConnectorBase
 	{
 		private CQGCEL _cqgCel;
 		private readonly AccountInfo _accountInfo;
@@ -68,30 +67,6 @@ namespace QvaDev.CqgClientApiIntegration
 			//_cqgCel.LineTimeChanged += _cqgCel_LineTimeChanged;
 		}
 
-		private void _cqgCel_ManualFillUpdateResolved(CQGManualFillRequest cqgManualFillRequest, CQGError cqgError)
-		{
-		}
-
-		private void _cqgCel_ManualFillChanged(CQGManualFill cqgManualFill, eManualFillUpdateType modifyType)
-		{
-		}
-
-		private void _cqgCel_ManualFillsResolved(CQGManualFills cqgManualFills, CQGError cqgError)
-		{
-		}
-
-		private void _cqgCel_OrderChanged(eChangeType changeType, CQGOrder cqgOrder, CQGOrderProperties oldProperties, CQGFill cqgFill, CQGError cqgError)
-		{
-		}
-
-		private void _cqgCel_InstrumentChanged(CQGInstrument cqgInstrument, CQGQuotes cqgQuotes, CQGInstrumentProperties cqgInstrumentProperties)
-		{
-		}
-
-		private void _cqgCel_InstrumentResolved(string symbol, CQGInstrument cqgInstrument, CQGError cqgError)
-		{
-		}
-
 		public Task Connect()
 		{
 			lock (_lock) _shouldConnect = true;
@@ -114,6 +89,10 @@ namespace QvaDev.CqgClientApiIntegration
 				_cqgCel.Startup();
 				await task;
 				//_cqgCel.LogOn(_accountInfo.UserName, _accountInfo.Password);
+
+				lock (Subscribes) Subscribes.Clear();
+				foreach (var symbol in SymbolInfos.Keys)
+					Subscribe(symbol);
 			}
 			catch (Exception e)
 			{
@@ -141,14 +120,38 @@ namespace QvaDev.CqgClientApiIntegration
 			OnConnectionChanged(ConnectionStates.Disconnected);
 		}
 
-		public override Tick GetLastTick(string symbol)
-		{
-			throw new System.NotImplementedException();
-		}
-
 		public override void Subscribe(string symbol)
 		{
-			throw new System.NotImplementedException();
+			try
+			{
+				lock (Subscribes)
+				{
+					if (Subscribes.Contains(symbol)) return;
+					Subscribes.Add(symbol);
+				}
+
+				_cqgCel.NewInstrument(symbol);
+			}
+			catch (Exception e)
+			{
+				Log.Error($"{Description} Connector.Subscribe({symbol}) exception", e);
+			}
+		}
+
+		public override Task<OrderResponse> SendMarketOrderRequest(string symbol, Sides side, decimal quantity, string comment = null)
+		{
+			throw new NotImplementedException();
+		}
+
+		public override Task<OrderResponse> SendAggressiveOrderRequest(string symbol, Sides side, decimal quantity, decimal limitPrice, decimal deviation,
+			int timeout, int? retryCount = null, int? retryPeriod = null)
+		{
+			throw new NotImplementedException();
+		}
+
+		public override void OrderMultipleCloseBy(string symbol)
+		{
+			throw new NotImplementedException();
 		}
 
 		private async void Reconnect(int delay = 30000)
@@ -200,6 +203,58 @@ namespace QvaDev.CqgClientApiIntegration
 					new Exception($"DataConnectionStatusChanged to {newStatus}"), true);
 
 			OnConnectionChanged(GetStatus());
+		}
+
+		private void _cqgCel_ManualFillUpdateResolved(CQGManualFillRequest cqgManualFillRequest, CQGError cqgError)
+		{
+		}
+
+		private void _cqgCel_ManualFillChanged(CQGManualFill cqgManualFill, eManualFillUpdateType modifyType)
+		{
+		}
+
+		private void _cqgCel_ManualFillsResolved(CQGManualFills cqgManualFills, CQGError cqgError)
+		{
+		}
+
+		private void _cqgCel_OrderChanged(eChangeType changeType, CQGOrder cqgOrder, CQGOrderProperties oldProperties, CQGFill cqgFill, CQGError cqgError)
+		{
+		}
+
+		private void _cqgCel_InstrumentChanged(CQGInstrument cqgInstrument, CQGQuotes cqgQuotes, CQGInstrumentProperties cqgInstrumentProperties)
+		{
+			if (cqgInstrument == null) return;
+			var ask = cqgInstrument.Ask.IsValid ? (decimal?) cqgInstrument.Ask.Price : null;
+			var bid = cqgInstrument.Bid.IsValid ? (decimal?)cqgInstrument.Bid.Price : null;
+			var symbol = cqgInstrument.FullName;
+
+			SymbolInfos.AddOrUpdate(symbol,
+				new SymbolData { Bid = bid ?? 0, Ask = ask ?? 0 },
+				(key, oldValue) =>
+				{
+					oldValue.Bid = bid ?? oldValue.Bid;
+					oldValue.Ask = ask ?? oldValue.Ask;
+					return oldValue;
+				});
+
+			if (!ask.HasValue || !bid.HasValue) return;
+
+			var tick = new Tick
+			{
+				Symbol = symbol,
+				Ask = (decimal)ask,
+				Bid = (decimal)bid,
+				Time = DateTime.UtcNow
+			};
+			LastTicks.AddOrUpdate(symbol, key => tick, (key, old) => tick);
+			OnNewTick(new NewTickEventArgs { Tick = tick });
+		}
+
+		private void _cqgCel_InstrumentResolved(string symbol, CQGInstrument cqgInstrument, CQGError cqgError)
+		{
+			if (cqgError == null) return;
+			Log.Error($"{Description} Connector.Subscribe({symbol}) InstrumentResolved error",
+				new Exception(cqgError.Description));
 		}
 
 		~Connector()

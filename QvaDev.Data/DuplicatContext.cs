@@ -51,6 +51,12 @@ namespace QvaDev.Data
 					});
 				}
 
+				SaveChanges();
+			}
+			catch { }
+
+			try
+			{
 				foreach (var name in Directory.GetFiles(".\\FixApiConfigFiles", "*.xml").Select(Path.GetFileNameWithoutExtension))
 				{
 					if (FixApiAccounts.Any(p => p.Description == name)) continue;

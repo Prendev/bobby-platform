@@ -215,10 +215,10 @@ namespace QvaDev.Orchestration.Services.Strategies
             if (!pd.PriceLimit.HasValue) return false;
 
             var futureConnector = (IFixConnector)pushing.FutureAccount.Connector;
-            var symbolInfo = futureConnector.GetSymbolInfo(pushing.FutureSymbol);
+            var lastTick = futureConnector.GetLastTick(pushing.FutureSymbol);
 
-            if (symbolInfo.Ask > 0 && side == Sides.Buy && symbolInfo.Ask >= pd.PriceLimit.Value) return true;
-            if (symbolInfo.Bid > 0 && side == Sides.Sell && symbolInfo.Bid <= pd.PriceLimit.Value) return true;
+            if (lastTick.Ask > 0 && side == Sides.Buy && lastTick.Ask >= pd.PriceLimit.Value) return true;
+            if (lastTick.Bid > 0 && side == Sides.Sell && lastTick.Bid <= pd.PriceLimit.Value) return true;
             return false;
         }
 

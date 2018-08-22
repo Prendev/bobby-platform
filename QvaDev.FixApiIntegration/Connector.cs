@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -16,13 +14,10 @@ using OrderResponse = QvaDev.Common.Integration.OrderResponse;
 
 namespace QvaDev.FixApiIntegration
 {
-	public class Connector : ConnectorBase, IFixConnector
+	public class Connector : FixApiConnectorBase
 	{
 		private readonly FixConnectorBase _fixConnector;
-		private readonly ConcurrentDictionary<string, Tick> _lastTicks =
-			new ConcurrentDictionary<string, Tick>();
 		private readonly AccountInfo _accountInfo;
-		private List<string> _subscribes = new List<string>();
 
 		private readonly Object _lock = new Object();
 		private volatile bool _isConnecting;
@@ -31,9 +26,6 @@ namespace QvaDev.FixApiIntegration
 		public override int Id => _accountInfo?.DbId ?? 0;
 		public override string Description => _accountInfo?.Description ?? "";
 		public override bool IsConnected => _fixConnector?.IsPricingConnected == true && _fixConnector?.IsTradingConnected == true;
-
-		public ConcurrentDictionary<string, SymbolData> SymbolInfos { get; set; } =
-			new ConcurrentDictionary<string, SymbolData>();
 
 		public Connector(AccountInfo accountInfo, ILog log) : base(log)
 		{
@@ -81,7 +73,7 @@ namespace QvaDev.FixApiIntegration
 				await _fixConnector.ConnectTradingAsync();
 				if (subscribe)
 				{
-					lock (_subscribes) _subscribes.Clear();
+					lock (Subscribes) Subscribes.Clear();
 					await Task.WhenAll(SymbolInfos.Keys.Select(InnerSubscribe));
 				}
 			}
@@ -97,10 +89,8 @@ namespace QvaDev.FixApiIntegration
 
 		public override void Disconnect()
 		{
-			lock (_lock)
-			{
-				_shouldConnect = false;
-			}
+			lock (_lock) _shouldConnect = false;
+
 			_fixConnector.PricingSocketClosed -= FixConnector_SocketClosed;
 			_fixConnector.TradingSocketClosed -= FixConnector_SocketClosed;
 			_fixConnector.Quote -= FixConnector_Quote;
@@ -134,12 +124,7 @@ namespace QvaDev.FixApiIntegration
 			Task.Run(() => ExecutionReport(e));
 		}
 
-		public override Tick GetLastTick(string symbol)
-		{
-			return _lastTicks.GetOrAdd(symbol, (Tick)null);
-		}
-
-		public async Task<OrderResponse> SendMarketOrderRequest(string symbol, Sides side, decimal quantity, string comment = null)
+		public override async Task<OrderResponse> SendMarketOrderRequest(string symbol, Sides side, decimal quantity, string comment = null)
 		{
 			try
 			{
@@ -171,7 +156,7 @@ namespace QvaDev.FixApiIntegration
 			}
 		}
 
-		public async Task<OrderResponse> SendAggressiveOrderRequest(
+		public override async Task<OrderResponse> SendAggressiveOrderRequest(
 			string symbol, Sides side, decimal quantity,
 			decimal limitPrice, decimal deviation, int timeout,
 			int? retryCount = null, int? retryPeriod = null)
@@ -219,17 +204,12 @@ namespace QvaDev.FixApiIntegration
 			}
 		}
 
-		public async void OrderMultipleCloseBy(string symbol)
+		public override async void OrderMultipleCloseBy(string symbol)
 		{
 			var symbolInfo = GetSymbolInfo(symbol);
 			if (symbolInfo.SumContracts == 0) return;
 			var side = symbolInfo.SumContracts > 0 ? Sides.Sell : Sides.Buy;
 			await SendMarketOrderRequest(symbol, side, Math.Abs(symbolInfo.SumContracts));
-		}
-
-		public SymbolData GetSymbolInfo(string symbol)
-		{
-			return SymbolInfos.GetOrAdd(symbol, new SymbolData());
 		}
 
 		public override async void Subscribe(string symbol)
@@ -241,10 +221,10 @@ namespace QvaDev.FixApiIntegration
 		{
 			try
 			{
-				lock (_subscribes)
+				lock (Subscribes)
 				{
-					if (_subscribes.Contains(symbol)) return;
-					_subscribes.Add(symbol);
+					if (Subscribes.Contains(symbol)) return;
+					Subscribes.Add(symbol);
 				}
 
 				await _fixConnector.SubscribeMarketDataAsync(Symbol.Parse(symbol), 1);
@@ -264,6 +244,8 @@ namespace QvaDev.FixApiIntegration
 		{
 			OnConnectionChanged(ConnectionStates.Error);
 			await Task.Delay(delay);
+
+			_isConnecting = false;
 			await InnerConnect();
 		}
 
@@ -273,7 +255,7 @@ namespace QvaDev.FixApiIntegration
 			var bid = e.QuoteSet.Entries.First().Bid;
 			var symbol = e.QuoteSet.Symbol.ToString();
 
-			SymbolInfos.AddOrUpdate(e.QuoteSet.Symbol.ToString(),
+			SymbolInfos.AddOrUpdate(symbol,
 				new SymbolData { Bid = bid ?? 0, Ask = ask ?? 0 },
 				(key, oldValue) =>
 				{
@@ -286,12 +268,12 @@ namespace QvaDev.FixApiIntegration
 
 			var tick = new Tick
 			{
-				Symbol = e.QuoteSet.Symbol.ToString(),
+				Symbol = symbol,
 				Ask = (decimal)ask,
 				Bid = (decimal)bid,
 				Time = DateTime.UtcNow
 			};
-			_lastTicks.AddOrUpdate(symbol, key => tick, (key, old) => tick);
+			LastTicks.AddOrUpdate(symbol, key => tick, (key, old) => tick);
 			OnNewTick(new NewTickEventArgs { Tick = tick });
 		}
 
