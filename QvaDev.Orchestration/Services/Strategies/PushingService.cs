@@ -143,10 +143,26 @@ namespace QvaDev.Orchestration.Services.Strategies
 			await FutureBuildUp(pushing, futureSide, contractsNeeded, false);
 
 			// Close futures if not hedging
-			if (pushing.IsHedgeClose) return;
-			await futureConnector.SendMarketOrderRequest(pushing.FutureSymbol, futureSide.Inv(),
-				pushing.PushingDetail.OpenedFutures);
-			pushing.PushingDetail.OpenedFutures = 0;
+			if (!pushing.IsHedgeClose)
+			{
+				await futureConnector.SendMarketOrderRequest(pushing.FutureSymbol, futureSide.Inv(),
+					pushing.PushingDetail.OpenedFutures);
+				pushing.PushingDetail.OpenedFutures = 0;
+			}
+			// Close futures if hedging with partial close
+			else
+			{
+				var closeSize = pushing.PushingDetail.OpenedFutures;
+				var percentage = Math.Min(pushing.PushingDetail.PartialHedgeClosePercentage, 100);
+				percentage = Math.Max(percentage, 0);
+				closeSize = closeSize * percentage / 100;
+
+				if (closeSize <= 0) return;
+
+				await futureConnector.SendMarketOrderRequest(pushing.FutureSymbol, futureSide.Inv(), closeSize);
+				pushing.PushingDetail.OpenedFutures -= closeSize;
+			}
+
 		}
 
 		private async Task FutureBuildUp(Pushing pushing, Sides side, decimal contractsNeeded, bool priceCheck)

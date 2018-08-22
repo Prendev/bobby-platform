@@ -167,6 +167,10 @@
     <Compile Include="Migrations\201808201249082_CqgClientApiAccount2.Designer.cs">
       <DependentUpon>201808201249082_CqgClientApiAccount2.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201808221353183_PartialHedgeClosePercentage.cs" />
+    <Compile Include="Migrations\201808221353183_PartialHedgeClosePercentage.Designer.cs">
+      <DependentUpon>201808221353183_PartialHedgeClosePercentage.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\BaseEntity.cs" />
     <Compile Include="Models\BaseDescriptionEntity.cs" />
@@ -272,6 +276,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201808201249082_CqgClientApiAccount2.resx">
       <DependentUpon>201808201249082_CqgClientApiAccount2.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201808221353183_PartialHedgeClosePercentage.resx">
+      <DependentUpon>201808221353183_PartialHedgeClosePercentage.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

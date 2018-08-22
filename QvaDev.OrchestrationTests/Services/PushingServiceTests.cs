@@ -338,6 +338,34 @@ namespace QvaDev.OrchestrationTests.Services
 			FixConnectorMock.Verify(m => m.OrderMultipleCloseBy(It.IsAny<string>()), Times.Never);
 		}
 
+		[Test]
+		public async Task ClosingFinishHedgeWithPartialClose()
+		{
+			// Arrange
+			FixConnectorMock
+				.Setup(m => m.SendMarketOrderRequest(It.IsAny<string>(), It.IsAny<Sides>(), It.IsAny<decimal>(), It.IsAny<string>()))
+				.Returns<string, Sides, decimal, string>((sym, s, q, c) => Task.FromResult(new OrderResponse() { FilledQuantity = q }));
+
+			var pushing = CreatePushing();
+			pushing.PushingDetail.SmallContractSize = 4;
+			pushing.PushingDetail.OpenedFutures = 100;
+			pushing.PushingDetail.PartialHedgeClosePercentage = 50;
+			pushing.IsHedgeClose = true;
+			pushing.FirstCloseSide = Sides.Buy;
+
+			// Act
+			await PushingService.ClosingFinish(pushing);
+
+			// Assert
+			ThreadServiceMock.Verify(m => m.Sleep(It.IsAny<int>()), Times.Exactly(8));
+			FixConnectorMock.Verify(m => m.SendMarketOrderRequest("ftDummySymbol", Sides.Sell, 4, null), Times.Exactly(7));
+			FixConnectorMock.Verify(m => m.SendMarketOrderRequest("ftDummySymbol", Sides.Sell, 2, null), Times.Exactly(1));
+			FixConnectorMock.Verify(m => m.SendMarketOrderRequest("ftDummySymbol", Sides.Buy, 65, null), Times.Exactly(1));
+			BetaConnectorMock.Verify(m => m.SendClosePositionRequests(It.IsAny<Position>(), It.IsAny<double?>(), It.IsAny<int>(), It.IsAny<int>()), Times.Never);
+			AlphaConnectorMock.Verify(m => m.SendClosePositionRequests(It.IsAny<Position>(), It.IsAny<double?>(), It.IsAny<int>(), It.IsAny<int>()), Times.Never);
+			FixConnectorMock.Verify(m => m.OrderMultipleCloseBy(It.IsAny<string>()), Times.Never);
+		}
+
 		private Pushing CreatePushing()
 		{
 			return new Pushing()
