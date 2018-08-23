@@ -145,23 +145,34 @@ namespace QvaDev.Duplicat.ViewModel
 
         public void LoadProfileCommand(Profile profile)
         {
-            SelectedProfileId = profile?.Id ?? 0;
-	        if (SelectedProfileId == 0)
-	        {
-		        SelectedProfileDesc = "Save before load!!!";
-		        return;
-	        }
-            SelectedProfileDesc = profile?.Description;
+	        if (IsConfigReadonly) return;
+	        if (IsLoading) return;
+
+			SelectedProfile = profile;
+	        SelectedAggregator = null;
+	        SelectedSlave = null;
+	        SelectedPushing = null;
+
             InitDataContext();
             DataContextChanged?.Invoke();
         }
 
-        public void ShowSelectedSlaveCommand(Slave slave)
-        {
-            SelectedSlaveId = slave?.Id ?? 0;
-            foreach (var e in SymbolMappings) e.IsFiltered = e.SlaveId != SelectedSlaveId;
-            foreach (var e in Copiers) e.IsFiltered = e.SlaveId != SelectedSlaveId;
-	        foreach (var e in FixApiCopiers) e.IsFiltered = e.SlaveId != SelectedSlaveId;
+	    public void ShowSelectedAggregatorCommand(Aggregator aggregator)
+		{
+			if (IsLoading) return;
+
+			SelectedAggregator = aggregator;
+			foreach (var e in AggregatorAccounts) e.IsFiltered = e.AggregatorId != SelectedAggregator?.Id;
+		}
+
+		public void ShowSelectedSlaveCommand(Slave slave)
+		{
+			if (IsLoading) return;
+
+            SelectedSlave = slave;
+			foreach (var e in SymbolMappings) e.IsFiltered = e.SlaveId != SelectedSlave?.Id;
+            foreach (var e in Copiers) e.IsFiltered = e.SlaveId != SelectedSlave?.Id;
+			foreach (var e in FixApiCopiers) e.IsFiltered = e.SlaveId != SelectedSlave?.Id;
 		}
 
         public void AccessNewCTraderCommand(CTraderPlatform p)
@@ -278,8 +289,10 @@ namespace QvaDev.Duplicat.ViewModel
 
 	    public void ShowArbPositionsCommand(StratDealingArb arb)
 		{
-			SelectedDealingArbId = arb?.Id ?? 0;
+			if (IsLoading) return;
+
+			SelectedDealingArb = arb;
 			LoadStratDealingArbPositions();
-	    }
+		}
 	}
 }

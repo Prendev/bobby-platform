@@ -18,6 +18,8 @@ namespace QvaDev.Data
 
 		public DbSet<Profile> Profiles { get; set; }
 		public DbSet<Account> Accounts { get; set; }
+		public DbSet<Aggregator> Aggregators { get; set; }
+		public DbSet<AggregatorAccount> AggregatorAccounts { get; set; }
 
 		public DbSet<Master> Masters { get; set; }
         public DbSet<Slave> Slaves { get; set; }

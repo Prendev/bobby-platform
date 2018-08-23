@@ -171,9 +171,16 @@
     <Compile Include="Migrations\201808221353183_PartialHedgeClosePercentage.Designer.cs">
       <DependentUpon>201808221353183_PartialHedgeClosePercentage.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201808231221539_Aggregator.cs" />
+    <Compile Include="Migrations\201808231221539_Aggregator.Designer.cs">
+      <DependentUpon>201808231221539_Aggregator.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
+    <Compile Include="Models\Aggregator.cs" />
+    <Compile Include="Models\AggregatorAccount.cs" />
     <Compile Include="Models\BaseEntity.cs" />
     <Compile Include="Models\BaseDescriptionEntity.cs" />
+    <Compile Include="Models\BaseNotifyPropertyChange.cs" />
     <Compile Include="Models\CqgClientApiAccount.cs" />
     <Compile Include="Models\FixApiAccount.cs" />
     <Compile Include="Models\FixApiCopier.cs" />
@@ -279,6 +286,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201808221353183_PartialHedgeClosePercentage.resx">
       <DependentUpon>201808221353183_PartialHedgeClosePercentage.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201808231221539_Aggregator.resx">
+      <DependentUpon>201808231221539_Aggregator.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

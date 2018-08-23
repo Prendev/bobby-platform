@@ -48,6 +48,8 @@ namespace QvaDev.Duplicat.ViewModel
 	    public ObservableCollection<CqgClientApiAccount> CqgClientApiAccounts { get; private set; }
 		public ObservableCollection<Profile> Profiles { get; private set; }
 		public ObservableCollection<Account> Accounts { get; private set; }
+		public ObservableCollection<Aggregator> Aggregators { get; private set; }
+		public ObservableCollection<AggregatorAccount> AggregatorAccounts { get; private set; }
 		public ObservableCollection<Master> Masters { get; private set; }
         public ObservableCollection<Slave> Slaves { get; private set; }
         public ObservableCollection<SymbolMapping> SymbolMappings { get; private set; }
@@ -62,6 +64,7 @@ namespace QvaDev.Duplicat.ViewModel
 		public event DataContextChangedEventHandler DataContextChanged;
         
         public bool IsConfigReadonly { get => Get<bool>(); set => Set(value); }
+        public bool IsCopierConfigAddEnabled { get => Get<bool>(); set => Set(value); }
         public bool IsLoading { get => Get<bool>(); set => Set(value); }
         public bool IsConnected { get => Get<bool>(); set => Set(value); }
         public bool AreCopiersStarted { get => Get<bool>(); set => Set(value); }
@@ -73,14 +76,15 @@ namespace QvaDev.Duplicat.ViewModel
         public PushingStates PushingState { get => Get<PushingStates>(); set => Set(value); }
 		public SaveStates SaveState { get => Get<SaveStates>(); set => Set(value); }
 
-		public string SelectedProfileDesc { get => Get<string>(); set => Set(value ?? ""); }
-        public int SelectedProfileId { get => Get<int>(); set => Set(value); }
-        public int SelectedSlaveId { get => Get<int>(); set => Set(value); }
+	    public Profile SelectedProfile { get => Get<Profile>(); set => Set(value); }
+	    public Aggregator SelectedAggregator { get => Get<Aggregator>(); set => Set(value); }
+	    public Slave SelectedSlave { get => Get<Slave>(); set => Set(value); }
+	    public Pushing SelectedPushing { get => Get<Pushing>(); set => Set(value); }
+	    public StratDealingArb SelectedDealingArb { get => Get<StratDealingArb>(); set => Set(value); }
+
         public int SelectedAlphaMonitorId { get => Get<int>(); set => Set(value); }
         public int SelectedBetaMonitorId { get => Get<int>(); set => Set(value); }
         public int SelectedTradingAccountId { get => Get<int>(); set => Set(value); }
-        public int SelectedPushingDetailId { get => Get<int>(); set => Set(value); }
-        public int SelectedDealingArbId { get => Get<int>(); set => Set(value); }
 
         public DuplicatViewModel(
 	        ILog log,
@@ -100,16 +104,19 @@ namespace QvaDev.Duplicat.ViewModel
 				_orchestrator.SelectedAlphaMonitorId = SelectedAlphaMonitorId;
 			else if (e.PropertyName == nameof(SelectedBetaMonitorId))
 				_orchestrator.SelectedBetaMonitorId = SelectedBetaMonitorId;
-			else if (e.PropertyName == nameof(IsConnected) || e.PropertyName == nameof(SelectedPushingDetailId))
+			else if (e.PropertyName == nameof(IsConnected) || e.PropertyName == nameof(SelectedPushing))
 			{
-				var pushing = Pushings.FirstOrDefault(p => p.PushingDetailId == SelectedPushingDetailId);
-				IsPushingEnabled = IsConnected && SelectedPushingDetailId > 0 &&
+				var id = SelectedPushing?.Id ?? 0;
+				var pushing = Pushings.FirstOrDefault(p => p.Id == id);
+				IsPushingEnabled = IsConnected && id > 0 &&
 					pushing?.FutureAccount?.Connector?.IsConnected == true &&
 					pushing?.AlphaMaster?.Connector?.IsConnected == true &&
 					pushing?.BetaMaster?.Connector?.IsConnected == true &&
 					pushing?.HedgeAccount?.Connector?.IsConnected == true;
 			}
-        }
+			else if (e.PropertyName == nameof(IsConfigReadonly) || e.PropertyName == nameof(SelectedSlave))
+				IsCopierConfigAddEnabled = !IsConfigReadonly && SelectedSlave?.Id > 0;
+		}
 
         private void InitDataContext()
         {
@@ -119,7 +126,8 @@ namespace QvaDev.Duplicat.ViewModel
         }
 
 	    private void LoadLocals()
-		{
+	    {
+		    var p = SelectedProfile?.Id;
 			_duplicatContext.MetaTraderPlatforms.Load();
 			_duplicatContext.CTraderPlatforms.Load();
 			_duplicatContext.MetaTraderAccounts.Load();
@@ -129,17 +137,19 @@ namespace QvaDev.Duplicat.ViewModel
 			_duplicatContext.IlyaFastFeedAccounts.Load();
 			_duplicatContext.CqgClientApiAccounts.Load();
 			_duplicatContext.Profiles.Load();
-			_duplicatContext.Accounts.Where(e => e.ProfileId == SelectedProfileId).Load();
-			_duplicatContext.Masters.Where(e => e.ProfileId == SelectedProfileId).Load();
-			_duplicatContext.Slaves.Where(e => e.Master.ProfileId == SelectedProfileId).Load();
-			_duplicatContext.Copiers.Where(e => e.Slave.Master.ProfileId == SelectedProfileId).Load();
-			_duplicatContext.FixApiCopiers.Where(e => e.Slave.Master.ProfileId == SelectedProfileId).Load();
-			_duplicatContext.SymbolMappings.Where(e => e.Slave.Master.ProfileId == SelectedProfileId).Load();
-			_duplicatContext.Pushings.Where(e => e.ProfileId == SelectedProfileId).Load();
-			_duplicatContext.Pushings.Where(e => e.ProfileId == SelectedProfileId).Select(e => e.PushingDetail).Load();
-			_duplicatContext.Tickers.Where(e => e.ProfileId == SelectedProfileId).Load();
-			_duplicatContext.StratDealingArbs.Where(e => e.ProfileId == SelectedProfileId).Load();
-			_duplicatContext.StratDealingArbPositions.Where(e => e.StratDealingArb.ProfileId == SelectedProfileId).Load();
+			_duplicatContext.Accounts.Where(e => e.ProfileId == p).Load();
+			_duplicatContext.Aggregators.Where(e => e.ProfileId == p).Load();
+			_duplicatContext.AggregatorAccounts.Where(e => e.Aggregator.ProfileId == p).Load();
+			_duplicatContext.Masters.Where(e => e.ProfileId == p).Load();
+			_duplicatContext.Slaves.Where(e => e.Master.ProfileId == p).Load();
+			_duplicatContext.Copiers.Where(e => e.Slave.Master.ProfileId == p).Load();
+			_duplicatContext.FixApiCopiers.Where(e => e.Slave.Master.ProfileId == p).Load();
+			_duplicatContext.SymbolMappings.Where(e => e.Slave.Master.ProfileId == p).Load();
+			_duplicatContext.Pushings.Where(e => e.ProfileId == p).Load();
+			_duplicatContext.Pushings.Where(e => e.ProfileId == p).Select(e => e.PushingDetail).Load();
+			_duplicatContext.Tickers.Where(e => e.ProfileId == p).Load();
+			_duplicatContext.StratDealingArbs.Where(e => e.ProfileId == p).Load();
+			_duplicatContext.StratDealingArbPositions.Where(e => e.StratDealingArb.ProfileId == p).Load();
 
 			MtPlatforms = _duplicatContext.MetaTraderPlatforms.Local;
 			CtPlatforms = _duplicatContext.CTraderPlatforms.Local;
@@ -151,6 +161,8 @@ namespace QvaDev.Duplicat.ViewModel
 			CqgClientApiAccounts = _duplicatContext.CqgClientApiAccounts.Local;
 			Profiles = _duplicatContext.Profiles.Local;
 			Accounts = _duplicatContext.Accounts.Local;
+			Aggregators = _duplicatContext.Aggregators.Local;
+			AggregatorAccounts = _duplicatContext.AggregatorAccounts.Local;
 			Masters = _duplicatContext.Masters.Local;
 			Slaves = _duplicatContext.Slaves.Local;
 			SymbolMappings = _duplicatContext.SymbolMappings.Local;
@@ -162,11 +174,12 @@ namespace QvaDev.Duplicat.ViewModel
 			StratDealingArbs = _duplicatContext.StratDealingArbs.Local;
 			StratDealingArbPositions = _duplicatContext.StratDealingArbPositions.Local;
 
-			foreach (var e in SymbolMappings) e.IsFiltered = e.SlaveId != SelectedSlaveId;
-			foreach (var e in Copiers) e.IsFiltered = e.SlaveId != SelectedSlaveId;
-			foreach (var e in FixApiCopiers) e.IsFiltered = e.SlaveId != SelectedSlaveId;
-			foreach (var e in PushingDetails) e.IsFiltered = e.Id != SelectedPushingDetailId;
-			foreach (var e in StratDealingArbPositions) e.IsFiltered = e.StratDealingArbId != SelectedDealingArbId;
+			foreach (var e in AggregatorAccounts) e.IsFiltered = e.AggregatorId != SelectedAggregator?.Id;
+			foreach (var e in SymbolMappings) e.IsFiltered = e.SlaveId != SelectedSlave?.Id;
+			foreach (var e in Copiers) e.IsFiltered = e.SlaveId != SelectedSlave?.Id;
+			foreach (var e in FixApiCopiers) e.IsFiltered = e.SlaveId != SelectedSlave?.Id;
+			foreach (var e in PushingDetails) e.IsFiltered = e.Id != SelectedPushing?.PushingDetailId;
+			foreach (var e in StratDealingArbPositions) e.IsFiltered = e.StratDealingArbId != SelectedDealingArb?.Id;
 
 			_duplicatContext.Profiles.Local.CollectionChanged -= Profiles_CollectionChanged;
 			_duplicatContext.Profiles.Local.CollectionChanged += Profiles_CollectionChanged;
@@ -174,17 +187,16 @@ namespace QvaDev.Duplicat.ViewModel
 
 		private void Profiles_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
 		{
-			if(_duplicatContext.Profiles.Local.Any(l => l.Id == SelectedProfileId)) return;
-			SelectedProfileDesc = "";
-			SelectedProfileId = 0;
+			if(_duplicatContext.Profiles.Local.Any(l => l.Id == SelectedProfile.Id)) return;
 			LoadLocals();
 		}
 
 		private void LoadStratDealingArbPositions()
 		{
-			_duplicatContext.StratDealingArbPositions.Where(e => e.StratDealingArb.ProfileId == SelectedProfileId).Load();
+			var p = SelectedProfile?.Id;
+			_duplicatContext.StratDealingArbPositions.Where(e => e.StratDealingArb.ProfileId == p).Load();
 			StratDealingArbPositions = _duplicatContext.StratDealingArbPositions.Local;
-			foreach (var e in StratDealingArbPositions) e.IsFiltered = e.StratDealingArbId != SelectedDealingArbId;
+			foreach (var e in StratDealingArbPositions) e.IsFiltered = e.StratDealingArbId != SelectedDealingArb?.Id;
 			foreach (var e in StratDealingArbs) e.SetNetProfits();
 		}
 	}

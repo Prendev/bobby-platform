@@ -22,19 +22,21 @@ namespace QvaDev.Duplicat.Views
 			btnStart.AddBinding("Enabled", _viewModel, nameof(_viewModel.AreStrategiesStarted), true);
 			btnStop.AddBinding("Enabled", _viewModel, nameof(_viewModel.AreStrategiesStarted));
 
-			dgvDealingArb.DefaultValuesNeeded += (s, e) => e.Row.Cells["ProfileId"].Value = _viewModel.SelectedProfileId;
+			gbDealingArb.AddBinding<StratDealingArb, string>("Text", _viewModel, nameof(_viewModel.SelectedDealingArb),
+				s => $"Dealing arbs (use double-click) - {s?.ToString() ?? "Save before load!!!"}");
+
+			dgvDealingArb.DefaultValuesNeeded += (s, e) => e.Row.Cells["ProfileId"].Value = _viewModel.SelectedProfile.Id;
 
 			btnStart.Click += (s, e) => { _viewModel.StartStrategiesCommand(); };
 			btnStop.Click += (s, e) => { _viewModel.StopStrategiesCommand(); };
 			btnTestOpenSide1.Click += (s, e) => { _viewModel.StrategyTestOpenSide1Command(dgvDealingArb.GetSelectedItem<StratDealingArb>()); };
 			btnTestOpenSide2.Click += (s, e) => { _viewModel.StrategyTestOpenSide2Command(dgvDealingArb.GetSelectedItem<StratDealingArb>()); };
 			btnTestClose.Click += (s, e) => { _viewModel.StrategyTestCloseCommand(dgvDealingArb.GetSelectedItem<StratDealingArb>()); };
-			btnLoad.Click += Load_Click;
 			dgvDealingArb.RowDoubleClick += Load_Click;
 
 			dgvDealingArbPos.DefaultValuesNeeded += (s, e) =>
 			{
-				e.Row.Cells["StratDealingArbId"].Value = _viewModel.SelectedDealingArbId;
+				e.Row.Cells["StratDealingArbId"].Value = _viewModel.SelectedDealingArb.Id;
 			};
 		}
 

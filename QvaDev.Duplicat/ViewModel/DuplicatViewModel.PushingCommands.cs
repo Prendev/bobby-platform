@@ -17,9 +17,11 @@ namespace QvaDev.Duplicat.ViewModel
 		}
 
 		public void ShowPushingCommand(Pushing pushing)
-        {
-            SelectedPushingDetailId = pushing?.PushingDetailId ?? 0;
-            foreach (var e in PushingDetails) e.IsFiltered = e.Id != SelectedPushingDetailId;
+		{
+			if (IsLoading) return;
+
+			SelectedPushing = pushing;
+            foreach (var e in PushingDetails) e.IsFiltered = e.Id != SelectedPushing.PushingDetailId;
         }
 
         public async void PushingOpenCommand(Pushing pushing, Common.Integration.Sides firstBetaOpenSide)

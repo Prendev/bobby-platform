@@ -30,7 +30,6 @@
 		{
 			this.tlpMain = new System.Windows.Forms.TableLayoutPanel();
 			this.gbControl = new System.Windows.Forms.GroupBox();
-			this.btnLoad = new System.Windows.Forms.Button();
 			this.btnTestClose = new System.Windows.Forms.Button();
 			this.btnTestOpenSide2 = new System.Windows.Forms.Button();
 			this.btnTestOpenSide1 = new System.Windows.Forms.Button();
@@ -67,7 +66,6 @@
 			// 
 			// gbControl
 			// 
-			this.gbControl.Controls.Add(this.btnLoad);
 			this.gbControl.Controls.Add(this.btnTestClose);
 			this.gbControl.Controls.Add(this.btnTestOpenSide2);
 			this.gbControl.Controls.Add(this.btnTestOpenSide1);
@@ -81,19 +79,9 @@
 			this.gbControl.TabStop = false;
 			this.gbControl.Text = "Control";
 			// 
-			// btnLoad
-			// 
-			this.btnLoad.Location = new System.Drawing.Point(7, 58);
-			this.btnLoad.Margin = new System.Windows.Forms.Padding(4);
-			this.btnLoad.Name = "btnLoad";
-			this.btnLoad.Size = new System.Drawing.Size(200, 28);
-			this.btnLoad.TabIndex = 29;
-			this.btnLoad.Text = "Load arb\'s positions";
-			this.btnLoad.UseVisualStyleBackColor = true;
-			// 
 			// btnTestClose
 			// 
-			this.btnTestClose.Location = new System.Drawing.Point(631, 58);
+			this.btnTestClose.Location = new System.Drawing.Point(423, 58);
 			this.btnTestClose.Margin = new System.Windows.Forms.Padding(4);
 			this.btnTestClose.Name = "btnTestClose";
 			this.btnTestClose.Size = new System.Drawing.Size(200, 28);
@@ -103,7 +91,7 @@
 			// 
 			// btnTestOpenSide2
 			// 
-			this.btnTestOpenSide2.Location = new System.Drawing.Point(423, 58);
+			this.btnTestOpenSide2.Location = new System.Drawing.Point(215, 58);
 			this.btnTestOpenSide2.Margin = new System.Windows.Forms.Padding(4);
 			this.btnTestOpenSide2.Name = "btnTestOpenSide2";
 			this.btnTestOpenSide2.Size = new System.Drawing.Size(200, 28);
@@ -113,7 +101,7 @@
 			// 
 			// btnTestOpenSide1
 			// 
-			this.btnTestOpenSide1.Location = new System.Drawing.Point(215, 58);
+			this.btnTestOpenSide1.Location = new System.Drawing.Point(7, 58);
 			this.btnTestOpenSide1.Margin = new System.Windows.Forms.Padding(4);
 			this.btnTestOpenSide1.Name = "btnTestOpenSide1";
 			this.btnTestOpenSide1.Size = new System.Drawing.Size(200, 28);
@@ -217,6 +205,5 @@
 		private System.Windows.Forms.Button btnTestOpenSide1;
 		private System.Windows.Forms.GroupBox gbDealingArbPos;
 		private CustomDataGridView dgvDealingArbPos;
-		private System.Windows.Forms.Button btnLoad;
 	}
 }

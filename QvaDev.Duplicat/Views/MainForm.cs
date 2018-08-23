@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Threading;
 using System.Windows.Forms;
 using QvaDev.Common;
+using QvaDev.Data.Models;
 using QvaDev.Duplicat.ViewModel;
 
 namespace QvaDev.Duplicat.Views
@@ -41,11 +42,12 @@ namespace QvaDev.Duplicat.Views
 			btnSave.AddBinding<DuplicatViewModel.SaveStates, string>("Text", _viewModel,
 				nameof(_viewModel.SaveState), s => s == DuplicatViewModel.SaveStates.Error ? "ERROR" : s == DuplicatViewModel.SaveStates.Success ? "SUCCESS" : "Save config changes");
 
-			tabPageCopier.AddBinding<int>("Enabled", _viewModel, nameof(_viewModel.SelectedProfileId), p => p > 0);
-            tabPagePush.AddBinding<int>("Enabled", _viewModel, nameof(_viewModel.SelectedProfileId), p => p > 0);
-			tabPageTicker.AddBinding<int>("Enabled", _viewModel, nameof(_viewModel.SelectedProfileId), p => p > 0);
-	        tabPageStrategies.AddBinding<int>("Enabled", _viewModel, nameof(_viewModel.SelectedProfileId), p => p > 0);
-			labelProfile.AddBinding("Text", _viewModel, nameof(_viewModel.SelectedProfileDesc));
+			tabPageAggregator.AddBinding<Profile>("Enabled", _viewModel, nameof(_viewModel.SelectedProfile), p => p != null);
+			tabPageCopier.AddBinding<Profile>("Enabled", _viewModel, nameof(_viewModel.SelectedProfile), p => p != null);
+			tabPagePush.AddBinding<Profile>("Enabled", _viewModel, nameof(_viewModel.SelectedProfile), p => p != null);
+			tabPageTicker.AddBinding<Profile>("Enabled", _viewModel, nameof(_viewModel.SelectedProfile), p => p != null);
+			tabPageStrategy.AddBinding<Profile>("Enabled", _viewModel, nameof(_viewModel.SelectedProfile), p => p != null);
+			labelProfile.AddBinding<Profile, string>("Text", _viewModel, nameof(_viewModel.SelectedProfile), p => p?.Description ?? "");
 
 			btnQuickStart.Click += (s, e) => { _viewModel.QuickStartCommand(); };
 			btnConnect.Click += (s, e) => { _viewModel.ConnectCommand(); };
@@ -60,9 +62,10 @@ namespace QvaDev.Duplicat.Views
             btnRestore.Click += (s, e) => { _viewModel.RestoreCommand(); };
             tabControlMain.SelectedIndexChanged += (s, e) =>
             {
-                if (tabControlMain.SelectedTab.Name == tabPageCopier.Name) copiersUserControl.FilterRows();
+                if (tabControlMain.SelectedTab.Name == tabPageAggregator.Name) aggregatorUserControl.FilterRows();
+                else if (tabControlMain.SelectedTab.Name == tabPageCopier.Name) copiersUserControl.FilterRows();
                 else if (tabControlMain.SelectedTab.Name == tabPagePush.Name) pushingUserControl.FilterRows();
-                else if (tabControlMain.SelectedTab.Name == tabPageStrategies.Name) strategiesUserControl.FilterRows();
+                else if (tabControlMain.SelectedTab.Name == tabPageStrategy.Name) strategiesUserControl.FilterRows();
             };
 
             _viewModel.DataContextChanged += AttachDataSources;
@@ -73,6 +76,7 @@ namespace QvaDev.Duplicat.Views
             ftAccountsUserControl.InitView(_viewModel);
 	        iffAccountsUserControl.InitView(_viewModel);
 	        cqgAccountsUserControl.InitView(_viewModel);
+	        aggregatorUserControl.InitView(_viewModel);
 	        copiersUserControl.InitView(_viewModel);
 			pushingUserControl.InitView(_viewModel);
 	        strategiesUserControl.InitView(_viewModel);
@@ -89,6 +93,7 @@ namespace QvaDev.Duplicat.Views
             ftAccountsUserControl.AttachDataSources();
             iffAccountsUserControl.AttachDataSources();
 	        cqgAccountsUserControl.AttachDataSources();
+            aggregatorUserControl.AttachDataSources();
             copiersUserControl.AttachDataSources();
             pushingUserControl.AttachDataSources();
 	        strategiesUserControl.AttachDataSources();

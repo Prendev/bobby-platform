@@ -31,7 +31,7 @@ namespace QvaDev.Duplicat.ViewModel
             if (string.IsNullOrEmpty(propertyName)) return;
 
             var oldValue = Get<T>(null, propertyName);
-            if (value.Equals(oldValue)) return;
+            if (value?.Equals(oldValue) == true) return;
 
             _propertyValues[propertyName] = value;
 

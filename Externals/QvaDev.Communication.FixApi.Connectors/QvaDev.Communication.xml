@@ -4,6 +4,11 @@
         <name>QvaDev.Communication</name>
     </assembly>
     <members>
+        <member name="T:QvaDev.Communication.ConnectionManager">
+            <summary>
+            Represents a class, which manages connections.
+            </summary>
+        </member>
         <member name="T:QvaDev.Communication.DataReceivedEventArgs">
             <summary>
             Represents the data of <see cref="E:QvaDev.Communication.DuplexStreamConcurrentHandler.DataReceived"/> event.
@@ -19,56 +24,34 @@
             Gets the actual length of <see cref="P:QvaDev.Communication.DataReceivedEventArgs.Buffer"/> to process.
             </summary>
         </member>
-        <member name="M:QvaDev.Communication.Extensions.EventHandlerExtensions.InvokeSafe``1(System.EventHandler{``0},System.Object,``0)">
+        <member name="M:QvaDev.Communication.EventHandlerExtensions.InvokeSafe``1(System.EventHandler{``0},System.Object,``0)">
             <summary>
             Invoking the user's self subscription without risking the stop of reader/writer thread due to an error in user's event handler.
             If <see cref="T:System.OperationCanceledException"/> is thrown it is propagated to the caller.
             </summary>
         </member>
-        <member name="M:QvaDev.Communication.Extensions.TypeExtensions.CanAcceptValue(System.Type,System.Object)">
+        <member name="M:QvaDev.Communication.TypeExtensions.CanAcceptValue(System.Type,System.Object)">
             <summary>
             Checks whether a <paramref name="value"/> can be an instance of <paramref name="type"/> when, for example,
             <paramref name="value"/> is passed to a method with <paramref name="type"/> parameter type.
             </summary>
         </member>
-        <member name="M:QvaDev.Communication.Extensions.TypeExtensions.IsNullable(System.Type)">
+        <member name="M:QvaDev.Communication.TypeExtensions.IsNullable(System.Type)">
             <summary>
             Gets whether given <paramref name="type"/> is a <see cref="T:System.Nullable`1"/> type.
             </summary>
             <param name="type">The type to check</param>
             <returns><c>true</c>, if <paramref name="type"/> is a <see cref="T:System.Nullable`1"/> type; otherwise, <c>false</c>.</returns>
         </member>
-        <member name="M:QvaDev.Communication.Extensions.WaitHandleExtensions.WaitOneAsync(System.Threading.WaitHandle,System.Int32,System.Threading.CancellationToken)">
+        <member name="M:QvaDev.Communication.WaitHandleExtensions.WaitOneAsync(System.Threading.WaitHandle,System.Int32,System.Threading.CancellationToken)">
             <summary>
             Waits for a signal asynchronously on the provided <paramref name="handle"/>.
             </summary>
         </member>
-        <member name="M:QvaDev.Communication.Extensions.WaitHandleExtensions.WaitOneAsync(System.Threading.WaitHandle,System.Threading.CancellationToken)">
+        <member name="M:QvaDev.Communication.WaitHandleExtensions.WaitOneAsync(System.Threading.WaitHandle,System.Threading.CancellationToken)">
             <summary>
             Waits for a signal asynchronously on the provided <paramref name="handle"/>.
             </summary>
-        </member>
-        <member name="M:QvaDev.Communication.Extensions.DictionaryExtensions.GetValueOrDefault``1(System.Collections.Generic.IDictionary{System.String,System.Object},System.String,``0)">
-            <summary>
-            Tries to get the typed value from a <see cref="T:System.String"/>-<see cref="T:System.Object"/> dictionary for the given key.
-            </summary>
-            <param name="dictionary">The dictionary.</param>
-            <param name="key">The dictionary key.</param>
-            <param name="defaultValue">The default value to return if <paramref name="key"/> not found or its actual type is not compatible with <typeparamref name="TActualValue"/>.</param>
-            <typeparam name="TActualValue">The actual type of the stored value.</typeparam>
-            <returns>The found value or <paramref name="defaultValue"/> if <paramref name="key"/> not found or its type is wrong.</returns>
-        </member>
-        <member name="M:QvaDev.Communication.Extensions.DictionaryExtensions.GetValueOrDefault``3(System.Collections.Generic.IDictionary{``0,``1},``0,``2)">
-            <summary>
-            Tries to get the typed value from a dictionary for the given key.
-            </summary>
-            <param name="dictionary">The dictionary.</param>
-            <param name="key">The dictionary key.</param>
-            <param name="defaultValue">The default value to return if <paramref name="key"/> not found or its actual type is not compatible with <typeparamref name="TActualValue"/>.</param>
-            <typeparam name="TKey">The type of value</typeparam>
-            <typeparam name="TValue">Type of the stored values in the <paramref name="dictionary"/>.</typeparam>
-            <typeparam name="TActualValue">The actual type of the stored value.</typeparam>
-            <returns>The found value or <paramref name="defaultValue"/> if <paramref name="key"/> not found or its type is wrong.</returns>
         </member>
         <member name="T:QvaDev.Communication.FixApi.FixConnectorBase`1">
             <summary>
@@ -179,6 +162,37 @@
             </summary>
             <returns>The current market price suitable for <paramref name="entryLimit"/> or <see langword="null"/> if there is no price feed (<see cref="M:QvaDev.Communication.FixApi.FixConnectorBase.SubscribeMarketDataAsync(QvaDev.Communication.FixApi.Symbol,System.Int32)"/> is needed)
             or if the request timed out.</returns>
+        </member>
+        <member name="M:QvaDev.Communication.FixApi.MarketDataManager.CreateQuoteAggregator(QvaDev.Communication.FixApi.FixConnectorBase[],QvaDev.Communication.FixApi.Symbol[])">
+            <summary>
+            Creates a new quote aggregator for symbols, which are identical through all connectors.
+            </summary>
+            <param name="connectors">The connectors to aggregate.</param>
+            <param name="symbols">The symbols to watch. If <see langword="null"/>, then the <see cref="E:QvaDev.Communication.FixApi.IQuoteAggregator.GroupQuote"/> event will be triggered for any <see cref="T:QvaDev.Communication.FixApi.Symbol"/>.</param>
+            <returns>An <see cref="T:QvaDev.Communication.FixApi.IQuoteAggregator"/> instance, which raises the <see cref="E:QvaDev.Communication.FixApi.IQuoteAggregator.GroupQuote"/> event for any change of the specified <paramref name="symbols"/> on the provided <paramref name="connectors"/>.</returns>
+        </member>
+        <member name="M:QvaDev.Communication.FixApi.MarketDataManager.CreateQuoteAggregator(System.Collections.Generic.IDictionary{QvaDev.Communication.FixApi.FixConnectorBase,QvaDev.Communication.FixApi.Symbol}[])">
+            <summary>
+            Creates a new quote aggregator for symbols, which can have different names in different connectors.
+            </summary>
+            <param name="groups">One or more <see cref="T:System.Collections.Generic.IDictionary`2"/> of connector-symbol pairs, whose most recent top price should be returned in a single
+            <see cref="E:QvaDev.Communication.FixApi.IQuoteAggregator.GroupQuote"/> event if any of the symbol in a group changes.</param>
+            <returns>An <see cref="T:QvaDev.Communication.FixApi.IQuoteAggregator"/> instance, which raises the <see cref="E:QvaDev.Communication.FixApi.IQuoteAggregator.GroupQuote"/> event for any change of symbols in a group.</returns>
+        </member>
+        <member name="P:QvaDev.Communication.FixApi.GroupQuoteEventArgs.TriggeringSymbol">
+            <summary>
+            Gets the symbol of the group quote event.
+            </summary>
+        </member>
+        <member name="P:QvaDev.Communication.FixApi.GroupQuoteEventArgs.TriggeringConnector">
+            <summary>
+            Gets the connector, which triggered the group quote event for the <see cref="T:QvaDev.Communication.FixApi.Symbol"/>.
+            </summary>
+        </member>
+        <member name="P:QvaDev.Communication.FixApi.GroupQuoteEventArgs.BookTops">
+            <summary>
+            Gets the top of the book for each connector in the aggregated quote.
+            </summary>
         </member>
         <member name="T:QvaDev.Communication.FixApi.CurrencyPair">
             <summary>
@@ -612,7 +626,7 @@
             <param name="symbol">The symbol to subscribe to.</param>
             <param name="marketDepth">The market depth to obtain. 0 means full book.</param>
             <returns>A <see cref="T:System.Threading.Tasks.Task"/> instance, which must be completed by calling the <see cref="M:QvaDev.Communication.FixApi.FixConnectorBase.CompleteSubscribeMarketData(QvaDev.Communication.FixApi.Symbol,System.Exception)"/> method if the response to the subscription arrived.
-            By default, <see cref="M:QvaDev.Communication.FixApi.FixConnectorBase.ProcessMarketDataRequestRejectMessage(QvaDev.Communication.FixApi.FixSocket,QvaDev.Communication.FixApi.FixMessage)"/>, <see cref="M:QvaDev.Communication.FixApi.FixConnectorBase.ProcessMassQuoteMessage(QvaDev.Communication.FixApi.FixSocket,QvaDev.Communication.FixApi.FixMessage)"/> and <see cref="!:ProcessMarketDataSnapshotFullrefreshMessage"/> methods call the <see cref="M:QvaDev.Communication.FixApi.FixConnectorBase.CompleteSubscribeMarketData(QvaDev.Communication.FixApi.Symbol,System.Exception)"/> method.</returns>
+            By default, <see cref="M:QvaDev.Communication.FixApi.FixConnectorBase.ProcessMarketDataRequestRejectMessage(QvaDev.Communication.FixApi.FixSocket,QvaDev.Communication.FixApi.FixMessage)"/>, <see cref="M:QvaDev.Communication.FixApi.FixConnectorBase.ProcessMassQuoteMessage(QvaDev.Communication.FixApi.FixSocket,QvaDev.Communication.FixApi.FixMessage)"/> and <see cref="M:QvaDev.Communication.FixApi.FixConnectorBase.ProcessMarketDataSnapshotFullRefreshMessage(QvaDev.Communication.FixApi.FixSocket,QvaDev.Communication.FixApi.FixMessage)"/> methods call the <see cref="M:QvaDev.Communication.FixApi.FixConnectorBase.CompleteSubscribeMarketData(QvaDev.Communication.FixApi.Symbol,System.Exception)"/> method.</returns>
             <remarks>This method subscribes to the bid/ask prices of exactly one symbol with the desired market data. If any special subscription is needed you should send the request directly
             to <see cref="P:QvaDev.Communication.FixApi.FixConnectorBase.PricingSocket"/>. The default behavior is implemented in <see cref="M:QvaDev.Communication.FixApi.FixConnectorBase.GetMarketDataRequestMessageBody(QvaDev.Communication.FixApi.Symbol,System.Int32)"/> method.</remarks>
         </member>
@@ -1002,6 +1016,12 @@
             <param name="value">The value of the field.</param>
             <exception cref="T:System.ArgumentNullException"><paramref name="value"/> is <see langword="null"/>.</exception>
         </member>
+        <member name="M:QvaDev.Communication.FixApi.FixField.#ctor(QvaDev.Communication.FixApi.KnownField,System.String)">
+            <summary>
+            This constructor overload is private on purpose so we don't need to check whether the specified <paramref name="knownField"/> value is really a defined enum value.
+            Use this from the strongly typed static methods only.
+            </summary>
+        </member>
         <member name="M:QvaDev.Communication.FixApi.FixField.ToString">
             <summary>
             Returns the <see cref="T:System.String" /> representation of this <see cref="T:QvaDev.Communication.FixApi.FixField"/> instance.
@@ -1028,6 +1048,17 @@
         <member name="M:QvaDev.Communication.FixApi.FixField.GetHashCode">
             <summary>
             Returns a hash code for this instance.
+            </summary>
+        </member>
+        <member name="F:QvaDev.Communication.FixApi.FixField.enumFields">
+            <summary>
+            Contains the mapping between a known field and its possible values if the <see cref="P:QvaDev.Communication.FixApi.FixField.KnownField"/> has enum values.
+            Used in the <see cref="M:QvaDev.Communication.FixApi.FixField.ToString"/> method to provide more human readable info.
+            </summary>
+        </member>
+        <member name="P:QvaDev.Communication.FixApi.FixField.EnumFields">
+            <summary>
+            Gets the mapping between a known field an its possible enumeration values. This is detected by the static methods of the <see cref="T:QvaDev.Communication.FixApi.FixField"/> structure.
             </summary>
         </member>
         <member name="T:QvaDev.Communication.FixApi.FixMessage">
@@ -1306,6 +1337,28 @@
             <summary>
             Returns a hash code for this instance.
             </summary>
+        </member>
+        <member name="M:QvaDev.Communication.DictionaryExtensions.GetValueOrDefault``1(System.Collections.Generic.IDictionary{System.String,System.Object},System.String,``0)">
+            <summary>
+            Tries to get the typed value from a <see cref="T:System.String"/>-<see cref="T:System.Object"/> dictionary for the given key.
+            </summary>
+            <param name="dictionary">The dictionary.</param>
+            <param name="key">The dictionary key.</param>
+            <param name="defaultValue">The default value to return if <paramref name="key"/> not found or its actual type is not compatible with <typeparamref name="TActualValue"/>.</param>
+            <typeparam name="TActualValue">The actual type of the stored value.</typeparam>
+            <returns>The found value or <paramref name="defaultValue"/> if <paramref name="key"/> not found or its type is wrong.</returns>
+        </member>
+        <member name="M:QvaDev.Communication.DictionaryExtensions.GetValueOrDefault``3(System.Collections.Generic.IDictionary{``0,``1},``0,``2)">
+            <summary>
+            Tries to get the typed value from a dictionary for the given key.
+            </summary>
+            <param name="dictionary">The dictionary.</param>
+            <param name="key">The dictionary key.</param>
+            <param name="defaultValue">The default value to return if <paramref name="key"/> not found or its actual type is not compatible with <typeparamref name="TActualValue"/>.</param>
+            <typeparam name="TKey">The type of value</typeparam>
+            <typeparam name="TValue">Type of the stored values in the <paramref name="dictionary"/>.</typeparam>
+            <typeparam name="TActualValue">The actual type of the stored value.</typeparam>
+            <returns>The found value or <paramref name="defaultValue"/> if <paramref name="key"/> not found or its type is wrong.</returns>
         </member>
         <member name="T:QvaDev.Communication.TaskCompletionManager">
             <summary>

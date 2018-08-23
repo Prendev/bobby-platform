@@ -22,11 +22,14 @@ namespace QvaDev.Duplicat.Views
             _viewModel = viewModel;
 
             gbControl.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsLoading), true);
-            gbPushing.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsPushingEnabled));
+            gbFlow.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsPushingEnabled));
             dgvPushings.AddBinding("AllowUserToAddRows", _viewModel, nameof(_viewModel.IsConfigReadonly), true);
             dgvPushings.AddBinding("AllowUserToDeleteRows", _viewModel, nameof(_viewModel.IsConfigReadonly), true);
 			btnStartCopiers.AddBinding("Enabled", _viewModel, nameof(_viewModel.AreCopiersStarted), true);
 			btnStopCopiers.AddBinding("Enabled", _viewModel, nameof(_viewModel.AreCopiersStarted));
+
+			gbPushings.AddBinding<Pushing, string>("Text", _viewModel, nameof(_viewModel.SelectedPushing),
+				s => $"Pushings (use double-click) - {s?.ToString() ?? "Save before load!!!"}");
 
 			btnBuyBeta.AddBinding<DuplicatViewModel.PushingStates>("Enabled", _viewModel,
                 nameof(_viewModel.PushingState), p => p == DuplicatViewModel.PushingStates.NotRunning);
@@ -50,7 +53,7 @@ namespace QvaDev.Duplicat.Views
 
 			dgvPushings.DefaultValuesNeeded += (s, e) =>
             {
-                e.Row.Cells["ProfileId"].Value = _viewModel.SelectedProfileId;
+                e.Row.Cells["ProfileId"].Value = _viewModel.SelectedProfile.Id;
                 e.Row.Cells["PushingDetail"].Value = new PushingDetail();
             };
 
@@ -73,13 +76,12 @@ namespace QvaDev.Duplicat.Views
 			btnReset.Click += (s, e) => { _viewModel.PushingResetCommand(); };
 
 			dgvPushingDetail.DataSourceChanged += (s, e) => FilterRows();
-
 			dgvPushings.RowDoubleClick += Load_Click;
-			btnLoad.Click += Load_Click;
-        }
+		}
 
 		private void Load_Click(object sender, EventArgs e)
 		{
+			if (_viewModel.IsConfigReadonly) return;
 			var pushing = dgvPushings.GetSelectedItem<Pushing>();
 			_viewModel.ShowPushingCommand(pushing);
 			cbHedge.DataBindings.Clear();
@@ -99,23 +101,7 @@ namespace QvaDev.Duplicat.Views
 
         public void FilterRows()
         {
-	        if (!(dgvPushingDetail.DataSource is IBindingList)) return;
-            foreach (DataGridViewRow row in dgvPushingDetail.Rows)
-            {
-	            if (!(row.DataBoundItem is PushingDetail entity)) continue;
-
-                var isFiltered = entity.Id != _viewModel.SelectedPushingDetailId;
-                row.ReadOnly = isFiltered;
-                row.DefaultCellStyle.BackColor = isFiltered ? Color.LightGray : Color.White;
-
-                if (row.Visible == isFiltered)
-                {
-                    var currencyManager = (CurrencyManager)BindingContext[dgvPushingDetail.DataSource];
-                    currencyManager.SuspendBinding();
-                    row.Visible = !isFiltered;
-                    currencyManager.ResumeBinding();
-                }
-            }
+	        dgvPushingDetail.FilterRows();
         }
     }
 }

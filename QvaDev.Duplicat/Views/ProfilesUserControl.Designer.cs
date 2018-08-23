@@ -33,14 +33,14 @@
 			this.btnSaveTheWeekend = new System.Windows.Forms.Button();
 			this.btnLoad = new System.Windows.Forms.Button();
 			this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
-			this.groupBox6 = new System.Windows.Forms.GroupBox();
+			this.gbProfile = new System.Windows.Forms.GroupBox();
 			this.groupBox1 = new System.Windows.Forms.GroupBox();
 			this.dgvProfiles = new QvaDev.Duplicat.Views.CustomDataGridView();
 			this.dgvAccounts = new QvaDev.Duplicat.Views.CustomDataGridView();
 			this.tlpMain.SuspendLayout();
 			this.gbControl.SuspendLayout();
 			this.tableLayoutPanel1.SuspendLayout();
-			this.groupBox6.SuspendLayout();
+			this.gbProfile.SuspendLayout();
 			this.groupBox1.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.dgvProfiles)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.dgvAccounts)).BeginInit();
@@ -57,7 +57,7 @@
 			this.tlpMain.Margin = new System.Windows.Forms.Padding(4);
 			this.tlpMain.Name = "tlpMain";
 			this.tlpMain.RowCount = 2;
-			this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 64F));
+			this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 0F));
 			this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
 			this.tlpMain.Size = new System.Drawing.Size(1251, 745);
 			this.tlpMain.TabIndex = 1;
@@ -71,10 +71,11 @@
 			this.gbControl.Margin = new System.Windows.Forms.Padding(4);
 			this.gbControl.Name = "gbControl";
 			this.gbControl.Padding = new System.Windows.Forms.Padding(4);
-			this.gbControl.Size = new System.Drawing.Size(1243, 56);
+			this.gbControl.Size = new System.Drawing.Size(1243, 1);
 			this.gbControl.TabIndex = 1;
 			this.gbControl.TabStop = false;
 			this.gbControl.Text = "Control";
+			this.gbControl.Visible = false;
 			// 
 			// btnSaveTheWeekend
 			// 
@@ -102,28 +103,28 @@
 			this.tableLayoutPanel1.ColumnCount = 2;
 			this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
 			this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-			this.tableLayoutPanel1.Controls.Add(this.groupBox6, 0, 0);
+			this.tableLayoutPanel1.Controls.Add(this.gbProfile, 0, 0);
 			this.tableLayoutPanel1.Controls.Add(this.groupBox1, 1, 0);
 			this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.tableLayoutPanel1.Location = new System.Drawing.Point(3, 67);
+			this.tableLayoutPanel1.Location = new System.Drawing.Point(3, 3);
 			this.tableLayoutPanel1.Name = "tableLayoutPanel1";
 			this.tableLayoutPanel1.RowCount = 1;
 			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-			this.tableLayoutPanel1.Size = new System.Drawing.Size(1245, 675);
+			this.tableLayoutPanel1.Size = new System.Drawing.Size(1245, 739);
 			this.tableLayoutPanel1.TabIndex = 2;
 			// 
-			// groupBox6
+			// gbProfile
 			// 
-			this.groupBox6.Controls.Add(this.dgvProfiles);
-			this.groupBox6.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.groupBox6.Location = new System.Drawing.Point(4, 4);
-			this.groupBox6.Margin = new System.Windows.Forms.Padding(4);
-			this.groupBox6.Name = "groupBox6";
-			this.groupBox6.Padding = new System.Windows.Forms.Padding(4);
-			this.groupBox6.Size = new System.Drawing.Size(614, 667);
-			this.groupBox6.TabIndex = 0;
-			this.groupBox6.TabStop = false;
-			this.groupBox6.Text = "Profiles";
+			this.gbProfile.Controls.Add(this.dgvProfiles);
+			this.gbProfile.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.gbProfile.Location = new System.Drawing.Point(4, 4);
+			this.gbProfile.Margin = new System.Windows.Forms.Padding(4);
+			this.gbProfile.Name = "gbProfile";
+			this.gbProfile.Padding = new System.Windows.Forms.Padding(4);
+			this.gbProfile.Size = new System.Drawing.Size(614, 731);
+			this.gbProfile.TabIndex = 0;
+			this.gbProfile.TabStop = false;
+			this.gbProfile.Text = "Profiles (use double-click)";
 			// 
 			// groupBox1
 			// 
@@ -131,7 +132,7 @@
 			this.groupBox1.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.groupBox1.Location = new System.Drawing.Point(625, 3);
 			this.groupBox1.Name = "groupBox1";
-			this.groupBox1.Size = new System.Drawing.Size(617, 669);
+			this.groupBox1.Size = new System.Drawing.Size(617, 733);
 			this.groupBox1.TabIndex = 1;
 			this.groupBox1.TabStop = false;
 			this.groupBox1.Text = "Accounts";
@@ -145,7 +146,7 @@
 			this.dgvProfiles.Margin = new System.Windows.Forms.Padding(4);
 			this.dgvProfiles.MultiSelect = false;
 			this.dgvProfiles.Name = "dgvProfiles";
-			this.dgvProfiles.Size = new System.Drawing.Size(606, 644);
+			this.dgvProfiles.Size = new System.Drawing.Size(606, 708);
 			this.dgvProfiles.TabIndex = 0;
 			// 
 			// dgvAccounts
@@ -157,7 +158,7 @@
 			this.dgvAccounts.MultiSelect = false;
 			this.dgvAccounts.Name = "dgvAccounts";
 			this.dgvAccounts.RowTemplate.Height = 24;
-			this.dgvAccounts.Size = new System.Drawing.Size(611, 648);
+			this.dgvAccounts.Size = new System.Drawing.Size(611, 712);
 			this.dgvAccounts.TabIndex = 0;
 			// 
 			// ProfilesUserControl
@@ -171,7 +172,7 @@
 			this.tlpMain.ResumeLayout(false);
 			this.gbControl.ResumeLayout(false);
 			this.tableLayoutPanel1.ResumeLayout(false);
-			this.groupBox6.ResumeLayout(false);
+			this.gbProfile.ResumeLayout(false);
 			this.groupBox1.ResumeLayout(false);
 			((System.ComponentModel.ISupportInitialize)(this.dgvProfiles)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.dgvAccounts)).EndInit();
@@ -182,7 +183,7 @@
         #endregion
 
         private System.Windows.Forms.TableLayoutPanel tlpMain;
-        private System.Windows.Forms.GroupBox groupBox6;
+        private System.Windows.Forms.GroupBox gbProfile;
         private CustomDataGridView dgvProfiles;
         private System.Windows.Forms.GroupBox gbControl;
         private System.Windows.Forms.Button btnLoad;

@@ -15,7 +15,7 @@ namespace QvaDev.Duplicat.Views
 	public class CustomDataGridView : DataGridView
     {
         private readonly List<string> _invisibleColumns = new List<string>();
-
+		
 	    public EventHandler RowDoubleClick;
 
 		public CustomDataGridView()

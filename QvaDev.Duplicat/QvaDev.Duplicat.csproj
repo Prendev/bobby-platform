@@ -96,6 +96,12 @@
   <ItemGroup>
     <Compile Include="ViewModel\DuplicatViewModel.PushingCommands.cs" />
     <Compile Include="ViewModel\DuplicatViewModel.Commands.cs" />
+    <Compile Include="Views\AggregatorUserControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Views\AggregatorUserControl.Designer.cs">
+      <DependentUpon>AggregatorUserControl.cs</DependentUpon>
+    </Compile>
     <Compile Include="Views\CopiersUserControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -178,6 +184,9 @@
     <Compile Include="Views\TickersUserControl.Designer.cs">
       <DependentUpon>TickersUserControl.cs</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="Views\AggregatorUserControl.resx">
+      <DependentUpon>AggregatorUserControl.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Views\CopiersUserControl.resx">
       <DependentUpon>CopiersUserControl.cs</DependentUpon>
     </EmbeddedResource>

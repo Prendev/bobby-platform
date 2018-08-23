@@ -29,7 +29,8 @@
         private void InitializeComponent()
         {
 			this.tlpMain = new System.Windows.Forms.TableLayoutPanel();
-			this.gbPushing = new System.Windows.Forms.GroupBox();
+			this.gbFlow = new System.Windows.Forms.GroupBox();
+			this.btnReset = new System.Windows.Forms.Button();
 			this.label7 = new System.Windows.Forms.Label();
 			this.label6 = new System.Windows.Forms.Label();
 			this.label5 = new System.Windows.Forms.Label();
@@ -50,30 +51,28 @@
 			this.btnBuyBeta = new System.Windows.Forms.Button();
 			this.btnTestMarketOrder = new System.Windows.Forms.Button();
 			this.groupBox2 = new System.Windows.Forms.GroupBox();
-			this.dgvPushingDetail = new QvaDev.Duplicat.Views.CustomDataGridView();
-			this.groupBox1 = new System.Windows.Forms.GroupBox();
-			this.dgvPushings = new QvaDev.Duplicat.Views.CustomDataGridView();
+			this.gbPushings = new System.Windows.Forms.GroupBox();
 			this.gbControl = new System.Windows.Forms.GroupBox();
-			this.btnLoad = new System.Windows.Forms.Button();
 			this.btnStopCopiers = new System.Windows.Forms.Button();
 			this.btnStartCopiers = new System.Windows.Forms.Button();
-			this.btnReset = new System.Windows.Forms.Button();
+			this.dgvPushingDetail = new QvaDev.Duplicat.Views.CustomDataGridView();
+			this.dgvPushings = new QvaDev.Duplicat.Views.CustomDataGridView();
 			this.tlpMain.SuspendLayout();
-			this.gbPushing.SuspendLayout();
+			this.gbFlow.SuspendLayout();
 			this.groupBox2.SuspendLayout();
-			((System.ComponentModel.ISupportInitialize)(this.dgvPushingDetail)).BeginInit();
-			this.groupBox1.SuspendLayout();
-			((System.ComponentModel.ISupportInitialize)(this.dgvPushings)).BeginInit();
+			this.gbPushings.SuspendLayout();
 			this.gbControl.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)(this.dgvPushingDetail)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.dgvPushings)).BeginInit();
 			this.SuspendLayout();
 			// 
 			// tlpMain
 			// 
 			this.tlpMain.ColumnCount = 1;
 			this.tlpMain.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-			this.tlpMain.Controls.Add(this.gbPushing, 0, 3);
+			this.tlpMain.Controls.Add(this.gbFlow, 0, 3);
 			this.tlpMain.Controls.Add(this.groupBox2, 0, 2);
-			this.tlpMain.Controls.Add(this.groupBox1, 0, 1);
+			this.tlpMain.Controls.Add(this.gbPushings, 0, 1);
 			this.tlpMain.Controls.Add(this.gbControl, 0, 0);
 			this.tlpMain.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.tlpMain.Location = new System.Drawing.Point(0, 0);
@@ -87,36 +86,46 @@
 			this.tlpMain.Size = new System.Drawing.Size(1223, 734);
 			this.tlpMain.TabIndex = 0;
 			// 
-			// gbPushing
+			// gbFlow
 			// 
-			this.gbPushing.Controls.Add(this.btnReset);
-			this.gbPushing.Controls.Add(this.label7);
-			this.gbPushing.Controls.Add(this.label6);
-			this.gbPushing.Controls.Add(this.label5);
-			this.gbPushing.Controls.Add(this.btnRushClose);
-			this.gbPushing.Controls.Add(this.btnRushCloseFinish);
-			this.gbPushing.Controls.Add(this.btnRushOpenFinish);
-			this.gbPushing.Controls.Add(this.btnTestLimitOrder);
-			this.gbPushing.Controls.Add(this.label4);
-			this.gbPushing.Controls.Add(this.btnRushHedge);
-			this.gbPushing.Controls.Add(this.label3);
-			this.gbPushing.Controls.Add(this.btnRushOpen);
-			this.gbPushing.Controls.Add(this.label2);
-			this.gbPushing.Controls.Add(this.label1);
-			this.gbPushing.Controls.Add(this.cbHedge);
-			this.gbPushing.Controls.Add(this.btnCloseShortBuyFutures);
-			this.gbPushing.Controls.Add(this.btnCloseLongSellFutures);
-			this.gbPushing.Controls.Add(this.btnSellBeta);
-			this.gbPushing.Controls.Add(this.btnBuyBeta);
-			this.gbPushing.Controls.Add(this.btnTestMarketOrder);
-			this.gbPushing.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.gbPushing.Location = new System.Drawing.Point(4, 314);
-			this.gbPushing.Margin = new System.Windows.Forms.Padding(4);
-			this.gbPushing.Name = "gbPushing";
-			this.gbPushing.Padding = new System.Windows.Forms.Padding(4);
-			this.gbPushing.Size = new System.Drawing.Size(1215, 416);
-			this.gbPushing.TabIndex = 0;
-			this.gbPushing.TabStop = false;
+			this.gbFlow.Controls.Add(this.btnReset);
+			this.gbFlow.Controls.Add(this.label7);
+			this.gbFlow.Controls.Add(this.label6);
+			this.gbFlow.Controls.Add(this.label5);
+			this.gbFlow.Controls.Add(this.btnRushClose);
+			this.gbFlow.Controls.Add(this.btnRushCloseFinish);
+			this.gbFlow.Controls.Add(this.btnRushOpenFinish);
+			this.gbFlow.Controls.Add(this.btnTestLimitOrder);
+			this.gbFlow.Controls.Add(this.label4);
+			this.gbFlow.Controls.Add(this.btnRushHedge);
+			this.gbFlow.Controls.Add(this.label3);
+			this.gbFlow.Controls.Add(this.btnRushOpen);
+			this.gbFlow.Controls.Add(this.label2);
+			this.gbFlow.Controls.Add(this.label1);
+			this.gbFlow.Controls.Add(this.cbHedge);
+			this.gbFlow.Controls.Add(this.btnCloseShortBuyFutures);
+			this.gbFlow.Controls.Add(this.btnCloseLongSellFutures);
+			this.gbFlow.Controls.Add(this.btnSellBeta);
+			this.gbFlow.Controls.Add(this.btnBuyBeta);
+			this.gbFlow.Controls.Add(this.btnTestMarketOrder);
+			this.gbFlow.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.gbFlow.Location = new System.Drawing.Point(4, 314);
+			this.gbFlow.Margin = new System.Windows.Forms.Padding(4);
+			this.gbFlow.Name = "gbFlow";
+			this.gbFlow.Padding = new System.Windows.Forms.Padding(4);
+			this.gbFlow.Size = new System.Drawing.Size(1215, 416);
+			this.gbFlow.TabIndex = 0;
+			this.gbFlow.TabStop = false;
+			// 
+			// btnReset
+			// 
+			this.btnReset.Location = new System.Drawing.Point(423, 23);
+			this.btnReset.Margin = new System.Windows.Forms.Padding(4);
+			this.btnReset.Name = "btnReset";
+			this.btnReset.Size = new System.Drawing.Size(200, 28);
+			this.btnReset.TabIndex = 46;
+			this.btnReset.Text = "Reset";
+			this.btnReset.UseVisualStyleBackColor = true;
 			// 
 			// label7
 			// 
@@ -324,6 +333,53 @@
 			this.groupBox2.TabStop = false;
 			this.groupBox2.Text = "Detail";
 			// 
+			// gbPushings
+			// 
+			this.gbPushings.Controls.Add(this.dgvPushings);
+			this.gbPushings.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.gbPushings.Location = new System.Drawing.Point(4, 68);
+			this.gbPushings.Margin = new System.Windows.Forms.Padding(4);
+			this.gbPushings.Name = "gbPushings";
+			this.gbPushings.Padding = new System.Windows.Forms.Padding(4);
+			this.gbPushings.Size = new System.Drawing.Size(1215, 115);
+			this.gbPushings.TabIndex = 1;
+			this.gbPushings.TabStop = false;
+			this.gbPushings.Text = "Pushings";
+			// 
+			// gbControl
+			// 
+			this.gbControl.Controls.Add(this.btnStopCopiers);
+			this.gbControl.Controls.Add(this.btnStartCopiers);
+			this.gbControl.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.gbControl.Location = new System.Drawing.Point(4, 4);
+			this.gbControl.Margin = new System.Windows.Forms.Padding(4);
+			this.gbControl.Name = "gbControl";
+			this.gbControl.Padding = new System.Windows.Forms.Padding(4);
+			this.gbControl.Size = new System.Drawing.Size(1215, 56);
+			this.gbControl.TabIndex = 3;
+			this.gbControl.TabStop = false;
+			this.gbControl.Text = "Control";
+			// 
+			// btnStopCopiers
+			// 
+			this.btnStopCopiers.Location = new System.Drawing.Point(216, 23);
+			this.btnStopCopiers.Margin = new System.Windows.Forms.Padding(4);
+			this.btnStopCopiers.Name = "btnStopCopiers";
+			this.btnStopCopiers.Size = new System.Drawing.Size(200, 28);
+			this.btnStopCopiers.TabIndex = 26;
+			this.btnStopCopiers.Text = "Stop copiers";
+			this.btnStopCopiers.UseVisualStyleBackColor = true;
+			// 
+			// btnStartCopiers
+			// 
+			this.btnStartCopiers.Location = new System.Drawing.Point(8, 23);
+			this.btnStartCopiers.Margin = new System.Windows.Forms.Padding(4);
+			this.btnStartCopiers.Name = "btnStartCopiers";
+			this.btnStartCopiers.Size = new System.Drawing.Size(200, 28);
+			this.btnStartCopiers.TabIndex = 25;
+			this.btnStartCopiers.Text = "Start copiers";
+			this.btnStartCopiers.UseVisualStyleBackColor = true;
+			// 
 			// dgvPushingDetail
 			// 
 			this.dgvPushingDetail.AllowUserToAddRows = false;
@@ -338,19 +394,6 @@
 			this.dgvPushingDetail.Size = new System.Drawing.Size(1207, 92);
 			this.dgvPushingDetail.TabIndex = 0;
 			// 
-			// groupBox1
-			// 
-			this.groupBox1.Controls.Add(this.dgvPushings);
-			this.groupBox1.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.groupBox1.Location = new System.Drawing.Point(4, 68);
-			this.groupBox1.Margin = new System.Windows.Forms.Padding(4);
-			this.groupBox1.Name = "groupBox1";
-			this.groupBox1.Padding = new System.Windows.Forms.Padding(4);
-			this.groupBox1.Size = new System.Drawing.Size(1215, 115);
-			this.groupBox1.TabIndex = 1;
-			this.groupBox1.TabStop = false;
-			this.groupBox1.Text = "Pushings";
-			// 
 			// dgvPushings
 			// 
 			this.dgvPushings.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
@@ -363,61 +406,6 @@
 			this.dgvPushings.Size = new System.Drawing.Size(1207, 92);
 			this.dgvPushings.TabIndex = 0;
 			// 
-			// gbControl
-			// 
-			this.gbControl.Controls.Add(this.btnStopCopiers);
-			this.gbControl.Controls.Add(this.btnStartCopiers);
-			this.gbControl.Controls.Add(this.btnLoad);
-			this.gbControl.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.gbControl.Location = new System.Drawing.Point(4, 4);
-			this.gbControl.Margin = new System.Windows.Forms.Padding(4);
-			this.gbControl.Name = "gbControl";
-			this.gbControl.Padding = new System.Windows.Forms.Padding(4);
-			this.gbControl.Size = new System.Drawing.Size(1215, 56);
-			this.gbControl.TabIndex = 3;
-			this.gbControl.TabStop = false;
-			this.gbControl.Text = "Control";
-			// 
-			// btnLoad
-			// 
-			this.btnLoad.Location = new System.Drawing.Point(8, 23);
-			this.btnLoad.Margin = new System.Windows.Forms.Padding(4);
-			this.btnLoad.Name = "btnLoad";
-			this.btnLoad.Size = new System.Drawing.Size(200, 28);
-			this.btnLoad.TabIndex = 24;
-			this.btnLoad.Text = "Load selected pushing";
-			this.btnLoad.UseVisualStyleBackColor = true;
-			// 
-			// btnStopCopiers
-			// 
-			this.btnStopCopiers.Location = new System.Drawing.Point(423, 23);
-			this.btnStopCopiers.Margin = new System.Windows.Forms.Padding(4);
-			this.btnStopCopiers.Name = "btnStopCopiers";
-			this.btnStopCopiers.Size = new System.Drawing.Size(200, 28);
-			this.btnStopCopiers.TabIndex = 26;
-			this.btnStopCopiers.Text = "Stop copiers";
-			this.btnStopCopiers.UseVisualStyleBackColor = true;
-			// 
-			// btnStartCopiers
-			// 
-			this.btnStartCopiers.Location = new System.Drawing.Point(215, 23);
-			this.btnStartCopiers.Margin = new System.Windows.Forms.Padding(4);
-			this.btnStartCopiers.Name = "btnStartCopiers";
-			this.btnStartCopiers.Size = new System.Drawing.Size(200, 28);
-			this.btnStartCopiers.TabIndex = 25;
-			this.btnStartCopiers.Text = "Start copiers";
-			this.btnStartCopiers.UseVisualStyleBackColor = true;
-			// 
-			// btnReset
-			// 
-			this.btnReset.Location = new System.Drawing.Point(423, 23);
-			this.btnReset.Margin = new System.Windows.Forms.Padding(4);
-			this.btnReset.Name = "btnReset";
-			this.btnReset.Size = new System.Drawing.Size(200, 28);
-			this.btnReset.TabIndex = 46;
-			this.btnReset.Text = "Reset";
-			this.btnReset.UseVisualStyleBackColor = true;
-			// 
 			// PushingUserControl
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -427,13 +415,13 @@
 			this.Name = "PushingUserControl";
 			this.Size = new System.Drawing.Size(1223, 734);
 			this.tlpMain.ResumeLayout(false);
-			this.gbPushing.ResumeLayout(false);
-			this.gbPushing.PerformLayout();
+			this.gbFlow.ResumeLayout(false);
+			this.gbFlow.PerformLayout();
 			this.groupBox2.ResumeLayout(false);
-			((System.ComponentModel.ISupportInitialize)(this.dgvPushingDetail)).EndInit();
-			this.groupBox1.ResumeLayout(false);
-			((System.ComponentModel.ISupportInitialize)(this.dgvPushings)).EndInit();
+			this.gbPushings.ResumeLayout(false);
 			this.gbControl.ResumeLayout(false);
+			((System.ComponentModel.ISupportInitialize)(this.dgvPushingDetail)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.dgvPushings)).EndInit();
 			this.ResumeLayout(false);
 
         }
@@ -441,11 +429,10 @@
         #endregion
 
         private System.Windows.Forms.TableLayoutPanel tlpMain;
-        private System.Windows.Forms.GroupBox gbPushing;
-        private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.GroupBox gbFlow;
+        private System.Windows.Forms.GroupBox gbPushings;
         private CustomDataGridView dgvPushings;
         private System.Windows.Forms.Button btnTestMarketOrder;
-        private System.Windows.Forms.Button btnLoad;
         private System.Windows.Forms.GroupBox groupBox2;
         private CustomDataGridView dgvPushingDetail;
         private System.Windows.Forms.Label label4;

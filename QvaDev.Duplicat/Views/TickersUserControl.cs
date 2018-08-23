@@ -24,7 +24,7 @@ namespace QvaDev.Duplicat.Views
 			dgvTickers.AddBinding("AllowUserToAddRows", _viewModel, nameof(_viewModel.IsConfigReadonly), true);
 			dgvTickers.AddBinding("AllowUserToDeleteRows", _viewModel, nameof(_viewModel.IsConfigReadonly), true);
 
-			dgvTickers.DefaultValuesNeeded += (s, e) => e.Row.Cells["ProfileId"].Value = _viewModel.SelectedProfileId;
+			dgvTickers.DefaultValuesNeeded += (s, e) => e.Row.Cells["ProfileId"].Value = _viewModel.SelectedProfile.Id;
 
 			btnStart.Click += (s, e) => { _viewModel.StartTickersCommand(); };
 			btnStop.Click += (s, e) => { _viewModel.StopTickersCommand(); };
