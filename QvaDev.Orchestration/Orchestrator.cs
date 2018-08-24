@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using log4net;
 using QvaDev.Common.Integration;
+using QvaDev.Communication.FixApi;
 using QvaDev.Data;
 using QvaDev.Data.Models;
 using QvaDev.Orchestration.Services;
@@ -87,7 +88,7 @@ namespace QvaDev.Orchestration
             _synchronizationContextFactory = synchronizationContextFactory;
         }
 
-        public Task Connect(DuplicatContext duplicatContext)
+        public async Task Connect(DuplicatContext duplicatContext)
         {
             _duplicatContext = duplicatContext;
             _synchronizationContext = _synchronizationContext ?? _synchronizationContextFactory.Invoke();
@@ -96,14 +97,34 @@ namespace QvaDev.Orchestration
 		        .Where(pa => pa.Run).ToList()
 		        .Where(pa => pa.ConnectionState != ConnectionStates.Connected);
 
-	        var tasks = accounts.Select(account => Task.Run(() => _connectorFactory.Create(account)));
+	        var tasks = accounts.Select(account => Task.Run(() => _connectorFactory.Create(account))).ToList();
 
-			return Task.WhenAll(tasks);
+	        await Task.WhenAll(tasks);
+
+	        foreach (var agg in _duplicatContext.Aggregators)
+	        {
+		        var groups = agg.Accounts
+			        .Where(a => a.Account.FixApiAccountId.HasValue)
+			        .Select(a =>
+				        new
+				        {
+					        ((FixApiIntegration.Connector) a.Account.Connector).FixConnector,
+					        Symbol = Symbol.Parse(a.Symbol)
+				        }).ToDictionary(x => x.FixConnector, x => x.Symbol);
+
+				agg.QuoteAggregator = MarketDataManager.CreateQuoteAggregator(groups);
+			}
         }
 
 		public Task Disconnect()
         {
             _duplicatContext.SaveChanges();
+
+	        foreach (var agg in _duplicatContext.Aggregators)
+	        {
+		        agg.QuoteAggregator?.Dispose();
+		        agg.QuoteAggregator = null;
+	        }
 
 			var accounts = _duplicatContext.Accounts.Local.ToList();
 			var tasks = accounts.Select(pa => Task.Run(() => pa.Connector?.Disconnect()));

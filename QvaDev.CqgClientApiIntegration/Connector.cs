@@ -253,7 +253,7 @@ namespace QvaDev.CqgClientApiIntegration
 		{
 			if (cqgInstrument == null) return;
 			var ask = cqgInstrument.Ask.IsValid ? (decimal?) cqgInstrument.Ask.Price : null;
-			var bid = cqgInstrument.Bid.IsValid ? (decimal?)cqgInstrument.Bid.Price : null;
+			var bid = cqgInstrument.Bid.IsValid ? (decimal?) cqgInstrument.Bid.Price : null;
 			var symbol = cqgInstrument.FullName;
 
 			SymbolInfos.AddOrUpdate(symbol,

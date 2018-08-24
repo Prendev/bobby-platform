@@ -16,7 +16,6 @@ namespace QvaDev.FixApiIntegration
 {
 	public class Connector : FixApiConnectorBase
 	{
-		private readonly FixConnectorBase _fixConnector;
 		private readonly AccountInfo _accountInfo;
 
 		private readonly Object _lock = new Object();
@@ -25,7 +24,8 @@ namespace QvaDev.FixApiIntegration
 
 		public override int Id => _accountInfo?.DbId ?? 0;
 		public override string Description => _accountInfo?.Description ?? "";
-		public override bool IsConnected => _fixConnector?.IsPricingConnected == true && _fixConnector?.IsTradingConnected == true;
+		public override bool IsConnected => FixConnector?.IsPricingConnected == true && FixConnector?.IsTradingConnected == true;
+		public readonly FixConnectorBase FixConnector;
 
 		public Connector(AccountInfo accountInfo, ILog log) : base(log)
 		{
@@ -38,7 +38,7 @@ namespace QvaDev.FixApiIntegration
 			var configurationTpye = ConnectorHelper.GetConnectorType(confType);
 			var conf = new XmlSerializer(confType).Deserialize(File.OpenRead(_accountInfo.ConfigPath));
 
-			_fixConnector = (FixConnectorBase)Activator.CreateInstance(configurationTpye, conf);
+			FixConnector = (FixConnectorBase)Activator.CreateInstance(configurationTpye, conf);
 		}
 
 		public Task Connect()
@@ -56,21 +56,21 @@ namespace QvaDev.FixApiIntegration
 				_isConnecting = true;
 			}
 
-			_fixConnector.PricingSocketClosed -= FixConnector_SocketClosed;
-			_fixConnector.TradingSocketClosed -= FixConnector_SocketClosed;
-			_fixConnector.Quote -= FixConnector_Quote;
-			_fixConnector.ExecutionReport -= FixConnector_ExecutionReport;
+			FixConnector.PricingSocketClosed -= FixConnector_SocketClosed;
+			FixConnector.TradingSocketClosed -= FixConnector_SocketClosed;
+			FixConnector.Quote -= FixConnector_Quote;
+			FixConnector.ExecutionReport -= FixConnector_ExecutionReport;
 
-			_fixConnector.PricingSocketClosed += FixConnector_SocketClosed;
-			_fixConnector.TradingSocketClosed += FixConnector_SocketClosed;
-			_fixConnector.Quote += FixConnector_Quote;
-			_fixConnector.ExecutionReport += FixConnector_ExecutionReport;
+			FixConnector.PricingSocketClosed += FixConnector_SocketClosed;
+			FixConnector.TradingSocketClosed += FixConnector_SocketClosed;
+			FixConnector.Quote += FixConnector_Quote;
+			FixConnector.ExecutionReport += FixConnector_ExecutionReport;
 
 			try
 			{
-				var subscribe = _fixConnector.PricingSocket?.IsConnected != true;
-				await _fixConnector.ConnectPricingAsync();
-				await _fixConnector.ConnectTradingAsync();
+				var subscribe = FixConnector.PricingSocket?.IsConnected != true;
+				await FixConnector.ConnectPricingAsync();
+				await FixConnector.ConnectTradingAsync();
 				if (subscribe)
 				{
 					lock (Subscribes) Subscribes.Clear();
@@ -91,15 +91,15 @@ namespace QvaDev.FixApiIntegration
 		{
 			lock (_lock) _shouldConnect = false;
 
-			_fixConnector.PricingSocketClosed -= FixConnector_SocketClosed;
-			_fixConnector.TradingSocketClosed -= FixConnector_SocketClosed;
-			_fixConnector.Quote -= FixConnector_Quote;
-			_fixConnector.ExecutionReport -= FixConnector_ExecutionReport;
+			FixConnector.PricingSocketClosed -= FixConnector_SocketClosed;
+			FixConnector.TradingSocketClosed -= FixConnector_SocketClosed;
+			FixConnector.Quote -= FixConnector_Quote;
+			FixConnector.ExecutionReport -= FixConnector_ExecutionReport;
 
 			try
 			{
-				_fixConnector?.PricingSocket?.Close();
-				_fixConnector?.TradingSocket?.Close();
+				FixConnector?.PricingSocket?.Close();
+				FixConnector?.TradingSocket?.Close();
 			}
 			catch (Exception e)
 			{
@@ -128,7 +128,7 @@ namespace QvaDev.FixApiIntegration
 		{
 			try
 			{
-				var response = await _fixConnector.MarketOrderAsync(new OrderRequest()
+				var response = await FixConnector.MarketOrderAsync(new OrderRequest()
 				{
 					IsLong = side == Sides.Buy,
 					Symbol = Symbol.Parse(symbol),
@@ -161,11 +161,11 @@ namespace QvaDev.FixApiIntegration
 			decimal limitPrice, decimal deviation, int timeout,
 			int? retryCount = null, int? retryPeriod = null)
 		{
-			if (!_fixConnector.IsAggressiveOrderSupported())
+			if (!FixConnector.IsAggressiveOrderSupported())
 				return await SendMarketOrderRequest(symbol, side, quantity);
 			try
 			{
-				var response = await _fixConnector.AggressiveOrderAsync(new AggressiveOrderRequest()
+				var response = await FixConnector.AggressiveOrderAsync(new AggressiveOrderRequest()
 				{
 					IsLong = side == Sides.Buy,
 					Symbol = Symbol.Parse(symbol),
@@ -227,7 +227,7 @@ namespace QvaDev.FixApiIntegration
 					Subscribes.Add(symbol);
 				}
 
-				await _fixConnector.SubscribeMarketDataAsync(Symbol.Parse(symbol), 1);
+				await FixConnector.SubscribeMarketDataAsync(Symbol.Parse(symbol), 1);
 			}
 			catch (ObjectDisposedException e)
 			{

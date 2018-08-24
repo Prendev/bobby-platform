@@ -12,6 +12,8 @@ namespace QvaDev.Data.Models
 		[Key, Column("Account_Id", Order = 2)] public int AccountId { get; set; }
 		public Account Account { get; set; }
 
+		[Required] public string Symbol { get; set; }
+
 		[NotMapped] [InvisibleColumn] public bool IsFiltered { get => Get<bool>(); set => Set(value); }
 	}
 }
