@@ -8,7 +8,7 @@ using QvaDev.Duplicat.ViewModel;
 
 namespace QvaDev.Duplicat.Views
 {
-    public partial class PushingUserControl : UserControl, ITabUserControl
+    public partial class PushingUserControl : UserControl, IMvvmUserControl
     {
         private DuplicatViewModel _viewModel;
 

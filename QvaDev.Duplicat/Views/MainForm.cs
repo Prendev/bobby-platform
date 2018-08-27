@@ -68,38 +68,30 @@ namespace QvaDev.Duplicat.Views
                 else if (tabControlMain.SelectedTab.Name == tabPageStrategy.Name) strategiesUserControl.FilterRows();
             };
 
-            _viewModel.DataContextChanged += AttachDataSources;
+	        _viewModel.DataContextChanged += () => AttachDataSources(this);
 
-            profilesUserControl.InitView(_viewModel);
-            mtAccountsUserControl.InitView(_viewModel);
-            ctAccountsUserControl.InitView(_viewModel);
-            ftAccountsUserControl.InitView(_viewModel);
-	        iffAccountsUserControl.InitView(_viewModel);
-	        cqgAccountsUserControl.InitView(_viewModel);
-	        aggregatorUserControl.InitView(_viewModel);
-	        copiersUserControl.InitView(_viewModel);
-			pushingUserControl.InitView(_viewModel);
-	        strategiesUserControl.InitView(_viewModel);
-	        hubArbUserControl.InitView(_viewModel);
-			tickersUserControl.InitView(_viewModel);
-
-			AttachDataSources();
+	        InitViews(this);
+	        AttachDataSources(this);
         }
 
-        private void AttachDataSources()
-        {
-            profilesUserControl.AttachDataSources();
-            mtAccountsUserControl.AttachDataSources();
-            ctAccountsUserControl.AttachDataSources();
-            ftAccountsUserControl.AttachDataSources();
-            iffAccountsUserControl.AttachDataSources();
-	        cqgAccountsUserControl.AttachDataSources();
-            aggregatorUserControl.AttachDataSources();
-            copiersUserControl.AttachDataSources();
-            pushingUserControl.AttachDataSources();
-	        strategiesUserControl.AttachDataSources();
-	        hubArbUserControl.AttachDataSources();
-			tickersUserControl.AttachDataSources();
+		private void AttachDataSources(Control parent)
+	    {
+		    foreach (Control c in parent.Controls)
+		    {
+				if (!(c is IMvvmUserControl mvvm))
+					AttachDataSources(c);
+				else mvvm.AttachDataSources();
+			}
 		}
-    }
+
+	    private void InitViews(Control parent)
+	    {
+		    foreach (Control c in parent.Controls)
+		    {
+			    if (!(c is IMvvmUserControl mvvm))
+				    InitViews(c);
+			    else mvvm.InitView(_viewModel);
+		    }
+		}
+	}
 }

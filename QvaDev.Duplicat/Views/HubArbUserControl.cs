@@ -4,7 +4,7 @@ using QvaDev.Duplicat.ViewModel;
 
 namespace QvaDev.Duplicat.Views
 {
-	public partial class HubArbUserControl : UserControl, ITabUserControl
+	public partial class HubArbUserControl : UserControl, IMvvmUserControl
 	{
 		private DuplicatViewModel _viewModel;
 

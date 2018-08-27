@@ -5,7 +5,7 @@ using QvaDev.Duplicat.ViewModel;
 
 namespace QvaDev.Duplicat.Views
 {
-	public partial class StrategiesUserControl : UserControl, ITabUserControl
+	public partial class StrategiesUserControl : UserControl, IMvvmUserControl
 	{
 		private DuplicatViewModel _viewModel;
 

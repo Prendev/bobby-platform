@@ -2,7 +2,7 @@
 
 namespace QvaDev.Duplicat.Views
 {
-    public interface ITabUserControl
+    public interface IMvvmUserControl
     {
         void InitView(DuplicatViewModel viewModel);
         void AttachDataSources();

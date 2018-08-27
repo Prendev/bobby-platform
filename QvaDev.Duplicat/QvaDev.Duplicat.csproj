@@ -138,7 +138,7 @@
     <Compile Include="Views\PushingUserControl.Designer.cs">
       <DependentUpon>PushingUserControl.cs</DependentUpon>
     </Compile>
-    <Compile Include="Views\ITabUserControl.cs" />
+    <Compile Include="Views\IMvvmUserControl.cs" />
     <Compile Include="TextBoxAppender.cs" />
     <Compile Include="UrlHelper.cs" />
     <Compile Include="ViewModel\BaseViewModel.cs" />
