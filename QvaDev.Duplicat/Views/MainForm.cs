@@ -80,6 +80,7 @@ namespace QvaDev.Duplicat.Views
 	        copiersUserControl.InitView(_viewModel);
 			pushingUserControl.InitView(_viewModel);
 	        strategiesUserControl.InitView(_viewModel);
+	        hubArbUserControl.InitView(_viewModel);
 			tickersUserControl.InitView(_viewModel);
 
 			AttachDataSources();
@@ -97,6 +98,7 @@ namespace QvaDev.Duplicat.Views
             copiersUserControl.AttachDataSources();
             pushingUserControl.AttachDataSources();
 	        strategiesUserControl.AttachDataSources();
+	        hubArbUserControl.AttachDataSources();
 			tickersUserControl.AttachDataSources();
 		}
     }

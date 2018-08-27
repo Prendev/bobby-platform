@@ -108,6 +108,12 @@
     <Compile Include="Views\CopiersUserControl.Designer.cs">
       <DependentUpon>CopiersUserControl.cs</DependentUpon>
     </Compile>
+    <Compile Include="Views\HubArbUserControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Views\HubArbUserControl.Designer.cs">
+      <DependentUpon>HubArbUserControl.cs</DependentUpon>
+    </Compile>
     <Compile Include="Views\_Accounts\CqgAccountsUserControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -189,6 +195,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Views\CopiersUserControl.resx">
       <DependentUpon>CopiersUserControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\HubArbUserControl.resx">
+      <DependentUpon>HubArbUserControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\_Accounts\CqgAccountsUserControl.resx">
       <DependentUpon>CqgAccountsUserControl.cs</DependentUpon>

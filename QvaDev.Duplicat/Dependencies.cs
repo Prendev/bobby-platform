@@ -72,6 +72,7 @@ namespace QvaDev.Duplicat
             builder.RegisterType<ReportService>().As<IReportService>();
 			builder.RegisterType<TickerService>().As<ITickerService>();
 			builder.RegisterType<StrategiesService>().As<IStrategiesService>();
+			builder.RegisterType<HubArbService>().As<IHubArbService>();
 			builder.RegisterType<MtAccountImportService>().As<IMtAccountImportService>();
 		}
     }

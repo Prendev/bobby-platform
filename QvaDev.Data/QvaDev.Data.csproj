@@ -182,9 +182,13 @@
     <Compile Include="Migrations\201808240852115_AggregatorSymbol.Designer.cs">
       <DependentUpon>201808240852115_AggregatorSymbol.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201808271350304_HubArb.cs" />
+    <Compile Include="Migrations\201808271350304_HubArb.Designer.cs">
+      <DependentUpon>201808271350304_HubArb.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
-    <Compile Include="Models\Aggregator.cs" />
-    <Compile Include="Models\AggregatorAccount.cs" />
+    <Compile Include="Models\_Strategies\Aggregator.cs" />
+    <Compile Include="Models\_Strategies\AggregatorAccount.cs" />
     <Compile Include="Models\BaseEntity.cs" />
     <Compile Include="Models\BaseDescriptionEntity.cs" />
     <Compile Include="Models\BaseNotifyPropertyChange.cs" />
@@ -200,8 +204,9 @@
     <Compile Include="Models\PushingDetail.cs" />
     <Compile Include="Models\FixTraderAccount.cs" />
     <Compile Include="Models\IFilterableEntity.cs" />
-    <Compile Include="Models\StratDealingArbPosition.cs" />
-    <Compile Include="Models\StratDealingArb.cs" />
+    <Compile Include="Models\_Strategies\StratHubArb.cs" />
+    <Compile Include="Models\_Strategies\StratDealingArbPosition.cs" />
+    <Compile Include="Models\_Strategies\StratDealingArb.cs" />
     <Compile Include="Models\Ticker.cs" />
     <Compile Include="Models\Slave.cs" />
     <Compile Include="Models\MetaTraderPlatform.cs" />
@@ -299,6 +304,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201808240852115_AggregatorSymbol.resx">
       <DependentUpon>201808240852115_AggregatorSymbol.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201808271350304_HubArb.resx">
+      <DependentUpon>201808271350304_HubArb.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

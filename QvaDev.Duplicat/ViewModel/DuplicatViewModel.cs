@@ -60,6 +60,7 @@ namespace QvaDev.Duplicat.ViewModel
 		public ObservableCollection<Ticker> Tickers { get; private set; }
 	    public ObservableCollection<StratDealingArb> StratDealingArbs { get; private set; }
 	    public ObservableCollection<StratDealingArbPosition> StratDealingArbPositions { get; private set; }
+	    public ObservableCollection<StratHubArb> StratHubArbs { get; private set; }
 
 		public event DataContextChangedEventHandler DataContextChanged;
         
@@ -150,6 +151,7 @@ namespace QvaDev.Duplicat.ViewModel
 			_duplicatContext.Tickers.Where(e => e.ProfileId == p).Load();
 			_duplicatContext.StratDealingArbs.Where(e => e.ProfileId == p).Load();
 			_duplicatContext.StratDealingArbPositions.Where(e => e.StratDealingArb.ProfileId == p).Load();
+		    _duplicatContext.StratHubArbs.Where(e => e.Aggregator.ProfileId == p).Load();
 
 			MtPlatforms = _duplicatContext.MetaTraderPlatforms.Local;
 			CtPlatforms = _duplicatContext.CTraderPlatforms.Local;
@@ -173,6 +175,7 @@ namespace QvaDev.Duplicat.ViewModel
 			Tickers = _duplicatContext.Tickers.Local;
 			StratDealingArbs = _duplicatContext.StratDealingArbs.Local;
 			StratDealingArbPositions = _duplicatContext.StratDealingArbPositions.Local;
+		    StratHubArbs = _duplicatContext.StratHubArbs.Local;
 
 			foreach (var e in AggregatorAccounts) e.IsFiltered = e.AggregatorId != SelectedAggregator?.Id;
 			foreach (var e in SymbolMappings) e.IsFiltered = e.SlaveId != SelectedSlave?.Id;

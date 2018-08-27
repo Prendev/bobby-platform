@@ -35,6 +35,7 @@ namespace QvaDev.Data
 
 	    public DbSet<StratDealingArb> StratDealingArbs { get; set; }
 	    public DbSet<StratDealingArbPosition> StratDealingArbPositions { get; set; }
+	    public DbSet<StratHubArb> StratHubArbs { get; set; }
 
 		public void Init()
 		{
@@ -94,6 +95,10 @@ namespace QvaDev.Data
 			modelBuilder.Entity<StratDealingArbPosition>().Property(x => x.BetaSize).HasPrecision(18, 3);
 			modelBuilder.Entity<StratDealingArbPosition>().Property(x => x.RemainingAlpha).HasPrecision(18, 3);
 			modelBuilder.Entity<StratDealingArbPosition>().Property(x => x.RemainingBeta).HasPrecision(18, 3);
+
+			modelBuilder.Entity<StratHubArb>().Property(x => x.PipSize).HasPrecision(18, 5);
+			modelBuilder.Entity<StratHubArb>().Property(x => x.Size).HasPrecision(18, 3);
+			modelBuilder.Entity<StratHubArb>().Property(x => x.SlippageInPip).HasPrecision(18, 2);
 		}
 	}
 }
