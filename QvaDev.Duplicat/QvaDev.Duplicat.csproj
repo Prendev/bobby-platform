@@ -114,6 +114,7 @@
     <Compile Include="Views\HubArbUserControl.Designer.cs">
       <DependentUpon>HubArbUserControl.cs</DependentUpon>
     </Compile>
+    <Compile Include="Views\IFilterable.cs" />
     <Compile Include="Views\_Accounts\CqgAccountsUserControl.cs">
       <SubType>UserControl</SubType>
     </Compile>

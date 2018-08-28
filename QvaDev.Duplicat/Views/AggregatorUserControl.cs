@@ -6,7 +6,7 @@ using QvaDev.Duplicat.ViewModel;
 
 namespace QvaDev.Duplicat.Views
 {
-	public partial class AggregatorUserControl : UserControl, IMvvmUserControl
+	public partial class AggregatorUserControl : UserControl, IMvvmUserControl, IFilterable
 	{
 		private DuplicatViewModel _viewModel;
 

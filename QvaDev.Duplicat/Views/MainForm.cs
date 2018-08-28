@@ -60,23 +60,30 @@ namespace QvaDev.Duplicat.Views
             btnSave.Click += (s, e) => { _viewModel.SaveCommand(); };
             btnBackup.Click += (s, e) => { _viewModel.BackupCommand(); };
             btnRestore.Click += (s, e) => { _viewModel.RestoreCommand(); };
-            tabControlMain.SelectedIndexChanged += (s, e) =>
-            {
-                if (tabControlMain.SelectedTab.Name == tabPageAggregator.Name) aggregatorUserControl.FilterRows();
-                else if (tabControlMain.SelectedTab.Name == tabPageCopier.Name) copiersUserControl.FilterRows();
-                else if (tabControlMain.SelectedTab.Name == tabPagePush.Name) pushingUserControl.FilterRows();
-                else if (tabControlMain.SelectedTab.Name == tabPageStrategy.Name) strategiesUserControl.FilterRows();
-            };
+	        tabControlMain.SelectedIndexChanged += (s, e) => FilterRows(tabControlMain.SelectedTab);
 
-	        _viewModel.DataContextChanged += () => AttachDataSources(this);
+
+			_viewModel.DataContextChanged += () => AttachDataSources(this);
 
 	        InitViews(this);
 	        AttachDataSources(this);
         }
 
-		private void AttachDataSources(Control parent)
+	    private void FilterRows(Control parent)
 	    {
-		    foreach (Control c in parent.Controls)
+		    if (parent == null) return;
+			foreach (Control c in parent.Controls)
+			{
+				if (!(c is IFilterable filterable))
+					FilterRows(c);
+				else filterable.FilterRows();
+			}
+		}
+
+		private void AttachDataSources(Control parent)
+		{
+			if (parent == null) return;
+			foreach (Control c in parent.Controls)
 		    {
 				if (!(c is IMvvmUserControl mvvm))
 					AttachDataSources(c);
@@ -85,8 +92,9 @@ namespace QvaDev.Duplicat.Views
 		}
 
 	    private void InitViews(Control parent)
-	    {
-		    foreach (Control c in parent.Controls)
+		{
+			if (parent == null) return;
+			foreach (Control c in parent.Controls)
 		    {
 			    if (!(c is IMvvmUserControl mvvm))
 				    InitViews(c);

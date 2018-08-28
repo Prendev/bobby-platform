@@ -5,8 +5,8 @@ using QvaDev.Duplicat.ViewModel;
 
 namespace QvaDev.Duplicat.Views
 {
-    public partial class CopiersUserControl : UserControl, IMvvmUserControl
-    {
+    public partial class CopiersUserControl : UserControl, IMvvmUserControl, IFilterable
+	{
         private DuplicatViewModel _viewModel;
 
         public CopiersUserControl()
