@@ -58,7 +58,8 @@ namespace QvaDev.Orchestration
         private readonly IPushingService _pushingService;
 		private readonly ITickerService _tickerService;
 	    private readonly IStrategiesService _strategiesService;
-	    private readonly IConnectorFactory _connectorFactory;
+	    private readonly IHubArbService _hubArbService;
+		private readonly IConnectorFactory _connectorFactory;
 	    private readonly IReportService _reportService;
 	    private readonly IMtAccountImportService _mtAccountImportService;
 	    private readonly ILog _log;
@@ -73,6 +74,7 @@ namespace QvaDev.Orchestration
             IPushingService pushingService,
 			ITickerService tickerService,
             IStrategiesService strategiesService,
+            IHubArbService hubArbService,
 			IReportService reportService,
             IMtAccountImportService mtAccountImportService,
             ILog log)
@@ -82,7 +84,8 @@ namespace QvaDev.Orchestration
 	        _reportService = reportService;
 	        _connectorFactory = connectorFactory;
 	        _strategiesService = strategiesService;
-	        _tickerService = tickerService;
+	        _hubArbService = hubArbService;
+			_tickerService = tickerService;
             _pushingService = pushingService;
             _copierService = copierService;
             _synchronizationContextFactory = synchronizationContextFactory;
@@ -156,10 +159,10 @@ namespace QvaDev.Orchestration
             _copierService.Stop();
         }
 
-        public void TestMarketOrder(Pushing pushing)
+        public async void TestMarketOrder(Pushing pushing)
         {
             var connector = (IFixConnector)pushing.FutureAccount.Connector;
-            connector.SendMarketOrderRequest(pushing.FutureSymbol, Sides.Buy, pushing.PushingDetail.SmallContractSize);
+            var response = await connector.SendMarketOrderRequest(pushing.FutureSymbol, Sides.Buy, pushing.PushingDetail.SmallContractSize);
 		}
 		public void TestLimitOrder(Pushing pushing)
 		{
@@ -227,11 +230,15 @@ namespace QvaDev.Orchestration
 				.ToList();
 
 			_strategiesService.Start(arbs);
+
+			var hubArbs = duplicatContext.StratHubArbs.Local.ToList();
+			_hubArbService.Start(hubArbs);
 		}
 
 	    public void StopStrategies()
 	    {
 		    _strategiesService.Stop();
+		    _hubArbService.Stop();
 		}
 
 	    public async Task OrderHistoryExport(DuplicatContext duplicatContext)

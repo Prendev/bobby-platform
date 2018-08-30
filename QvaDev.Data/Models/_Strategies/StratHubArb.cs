@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
 using QvaDev.Common.Attributes;
 using QvaDev.Common.Integration;
+using QvaDev.Communication.FixApi;
 
 namespace QvaDev.Data.Models
 {
@@ -14,8 +15,25 @@ namespace QvaDev.Data.Models
 			Aggressive
 		}
 
+		public event EventHandler<GroupQuoteEventArgs> GroupQuote;
+
 		[InvisibleColumn] public int AggregatorId { get; set; }
-		[InvisibleColumn] public Aggregator Aggregator { get; set; }
+		private Aggregator _aggregator;
+		[InvisibleColumn]
+		public Aggregator Aggregator
+		{
+			get => _aggregator;
+			set
+			{
+				if (_aggregator != null)
+					_aggregator.GroupQuote -= Aggregator_GroupQuote;
+
+				if (value != null)
+					value.GroupQuote += Aggregator_GroupQuote;
+
+				_aggregator = value;
+			}
+		}
 
 		public bool Run { get => Get<bool>(); set => Set(value); }
 
@@ -54,6 +72,15 @@ namespace QvaDev.Data.Models
 		[NotMapped] [InvisibleColumn] public bool HasTiming => EarliestOpenTime.HasValue && LatestOpenTime.HasValue && LatestCloseTime.HasValue;
 		[NotMapped] [InvisibleColumn] public decimal Deviation => SlippageInPip * PipSize;
 
+		[NotMapped]
+		[InvisibleColumn]
+		public bool IsBusy
+		{
+			get => _isBusy;
+			set => _isBusy = value;
+		}
+		private volatile bool _isBusy;
+
 		private Sides GetSide(StratDealingArbPosition.Sides? side)
 		{
 			switch (side)
@@ -64,6 +91,11 @@ namespace QvaDev.Data.Models
 					return Sides.Sell;
 				default: return Sides.None;
 			}
+		}
+
+		private void Aggregator_GroupQuote(object sender, GroupQuoteEventArgs e)
+		{
+			GroupQuote?.Invoke(this, e);
 		}
 	}
 }

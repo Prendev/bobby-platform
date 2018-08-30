@@ -9,6 +9,7 @@ namespace QvaDev.Data.Models
 	public class Account : BaseEntity
 	{
 		public event NewTickEventHandler NewTick;
+		public event ConnectionChangedEventHandler ConnectionChanged;
 
 		[InvisibleColumn] public int ProfileId { get; set; }
 		[InvisibleColumn] public Profile Profile { get; set; }
@@ -64,6 +65,7 @@ namespace QvaDev.Data.Models
 		private void Connector_ConnectionChanged(object sender, ConnectionStates connectionState)
 		{
 			ConnectionState = connectionState;
+			ConnectionChanged?.Invoke(this, connectionState);
 		}
 
 		public Tick GetLastTick(string symbol)

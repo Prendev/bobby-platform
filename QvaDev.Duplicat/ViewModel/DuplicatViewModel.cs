@@ -105,21 +105,25 @@ namespace QvaDev.Duplicat.ViewModel
 				_orchestrator.SelectedAlphaMonitorId = SelectedAlphaMonitorId;
 			else if (e.PropertyName == nameof(SelectedBetaMonitorId))
 				_orchestrator.SelectedBetaMonitorId = SelectedBetaMonitorId;
-			else if (e.PropertyName == nameof(IsConnected) || e.PropertyName == nameof(SelectedPushing))
+			else if (e.PropertyName == nameof(SelectedPushing))
 			{
-				var id = SelectedPushing?.Id ?? 0;
-				var pushing = Pushings.FirstOrDefault(p => p.Id == id);
-				IsPushingEnabled = IsConnected && id > 0 &&
-					pushing?.FutureAccount?.Connector?.IsConnected == true &&
-					pushing?.AlphaMaster?.Connector?.IsConnected == true &&
-					pushing?.BetaMaster?.Connector?.IsConnected == true &&
-					pushing?.HedgeAccount?.Connector?.IsConnected == true;
+				IsPushingEnabled = SelectedPushing?.IsConnected == true;
+				if (SelectedPushing != null)
+				{
+					SelectedPushing.ConnectionChanged -= SelectedPushing_ConnectionChanged;
+					SelectedPushing.ConnectionChanged += SelectedPushing_ConnectionChanged;
+				}
 			}
 			else if (e.PropertyName == nameof(IsConfigReadonly) || e.PropertyName == nameof(SelectedSlave))
 				IsCopierConfigAddEnabled = !IsConfigReadonly && SelectedSlave?.Id > 0;
 		}
 
-        private void InitDataContext()
+		private void SelectedPushing_ConnectionChanged(object sender, Common.Integration.ConnectionStates connectionStates)
+		{
+			IsPushingEnabled = SelectedPushing?.IsConnected == true;
+		}
+
+		private void InitDataContext()
         {
             _duplicatContext?.Dispose();
             _duplicatContext = new DuplicatContext();

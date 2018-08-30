@@ -26,6 +26,24 @@ namespace QvaDev.Orchestration.Services.Strategies
 		public void Start(List<StratHubArb> arbs)
 		{
 			_arbs = arbs;
+
+			foreach (var arb in _arbs)
+			{
+				arb.GroupQuote -= Aggregator_GroupQuote;
+				arb.GroupQuote += Aggregator_GroupQuote;
+			}
+
+			_isStarted = true;
+			_log.Info("Hub arbs are started");
+		}
+
+		private void Aggregator_GroupQuote(object sender, Communication.FixApi.GroupQuoteEventArgs e)
+		{
+			if (!_isStarted) return;
+			var arb = (StratHubArb)sender;
+
+			if (!arb.Run) return;
+			if (arb.IsBusy) return;
 		}
 
 		public void Stop()

@@ -17,14 +17,7 @@ namespace QvaDev.CqgClientApiIntegration
 		private volatile bool _isConnecting;
 		private volatile bool _shouldConnect;
 
-		private CQGAccount CqgAccount
-		{
-			get
-			{
-				if (IsConnected) return null;
-				return _cqgCel.Accounts.ItemByIndex[0];
-			}
-		}
+		private CQGAccount CqgAccount { get; set; }
 
 		public override int Id => _accountInfo?.DbId ?? 0;
 		public override string Description => _accountInfo?.Description ?? "";
@@ -61,6 +54,7 @@ namespace QvaDev.CqgClientApiIntegration
 			_cqgCel.APIConfiguration.DefaultInstrumentSubscriptionLevel = eDataSubscriptionLevel.dsQuotesAndBBA;
 			_cqgCel.APIConfiguration.ReadyStatusCheck = eReadyStatusCheck.rscOff;
 			_cqgCel.APIConfiguration.TimeZoneCode = eTimeZone.tzCentral;
+			_cqgCel.APIConfiguration.DefPositionSubscriptionLevel = ePositionSubscriptionLevel.pslSnapshotAndUpdates;
 
 			// Handle following events
 			_cqgCel.DataConnectionStatusChanged += _cqgCel_DataConnectionStatusChanged;
@@ -98,6 +92,7 @@ namespace QvaDev.CqgClientApiIntegration
 				_cqgCel.Startup();
 				await task;
 				//_cqgCel.LogOn(_accountInfo.UserName, _accountInfo.Password);
+				CqgAccount = _cqgCel.Accounts.ItemByIndex[0];
 
 				lock (Subscribes) Subscribes.Clear();
 				foreach (var symbol in SymbolInfos.Keys)
@@ -147,16 +142,30 @@ namespace QvaDev.CqgClientApiIntegration
 			}
 		}
 
-		public override Task<OrderResponse> SendMarketOrderRequest(string symbol, Sides side, decimal quantity, string comment = null)
+		public override async Task<OrderResponse> SendMarketOrderRequest(string symbol, Sides side, decimal quantity, string comment = null)
 		{
-			var cqgQuantity = (int) quantity;
-			if (side == Sides.Sell) cqgQuantity *= -1;
+			try
+			{
+				var cqgQuantity = (int)quantity;
+				if (side == Sides.Sell) cqgQuantity *= -1;
 
-			var order = _cqgCel.CreateOrderByInstrumentName(eOrderType.otMarket, symbol, CqgAccount, cqgQuantity);
-			order.Place();
+				var datetime = DateTime.UtcNow;
+				var key = (datetime - datetime.Date).TotalMilliseconds.ToString("0000000.000");
+				var task = _taskCompletionManager.CreateCompletableTask<OrderResponse>(key);
+				_cqgCel.CreateOrderByInstrumentName(eOrderType.otMarket, symbol, CqgAccount, cqgQuantity, eOrderSide.osdUndefined, 0, 0, key).Place();
 
-			var task = _taskCompletionManager.CreateCompletableTask<OrderResponse>(order.OriginalOrderID);
-			return task;
+				return await task;
+			}
+			catch (Exception e)
+			{
+				Log.Error($"{Description} Connector.SendMarketOrderRequest({symbol}, {side}, {quantity}, {comment}) exception", e);
+				return new OrderResponse()
+				{
+					OrderedQuantity = quantity,
+					AveragePrice = null,
+					FilledQuantity = 0
+				};
+			}
 		}
 
 		public override Task<OrderResponse> SendAggressiveOrderRequest(string symbol, Sides side, decimal quantity, decimal limitPrice, decimal deviation,
@@ -187,12 +196,31 @@ namespace QvaDev.CqgClientApiIntegration
 
 		private void _cqgCel_AccountChanged(eAccountChangeType changeType, CQGAccount cqgAccount, CQGPosition cqgPosition)
 		{
-			if (IsConnected) _taskCompletionManager.SetResult(_accountInfo.Description, true, true);
-			else if (changeType == eAccountChangeType.actAccountChanged)
-				_taskCompletionManager.SetError(_accountInfo.Description,
-					new Exception($"AccountChanged GWLogonName {_cqgCel.Environment.GWLogonName}"), true);
+			//  This event means that the login was successful
+			if (changeType == eAccountChangeType.actAccountsReloaded)
+			{
+				_taskCompletionManager.SetResult(_accountInfo.Description, true, true);
+				OnConnectionChanged(GetStatus());
+			}
+			// After successful login open positions are loaded
+			else if (changeType == eAccountChangeType.actPositionsReloaded)
+			{
+				foreach (CQGPosition pos in CqgAccount.Positions)
+				{
+					var quantity = (decimal) pos.Quantity;
+					var symbol = pos.InstrumentName;
 
-			OnConnectionChanged(GetStatus());
+					SymbolInfos.AddOrUpdate(symbol, new SymbolData {SumContracts = quantity},
+						(key, oldValue) =>
+						{
+							oldValue.SumContracts = quantity;
+							return oldValue;
+						});
+				}
+			}
+			else if (changeType == eAccountChangeType.actPositionChanged)
+			{
+			}
 		}
 
 		private void _cqgCel_DataError(object cqgError, string errorDescription)
@@ -204,9 +232,13 @@ namespace QvaDev.CqgClientApiIntegration
 		private void _cqgCel_GWConnectionStatusChanged(eConnectionStatus newStatus)
 		{
 			if (newStatus == eConnectionStatus.csConnectionUp)
-				_cqgCel.AccountSubscriptionLevel = eAccountSubscriptionLevel.aslAccountUpdatesAndOrders;
-			else
-				_taskCompletionManager.SetError(_accountInfo.Description,
+			{
+				if (_cqgCel.Environment.GWLogonName != _accountInfo.UserName)
+					_taskCompletionManager.SetError(_accountInfo.Description,
+						new Exception($"GWConnectionStatusChanged GWLogonName {_cqgCel.Environment.GWLogonName}"), true);
+				else _cqgCel.AccountSubscriptionLevel = eAccountSubscriptionLevel.aslAccountUpdatesAndOrders;
+			}
+			else _taskCompletionManager.SetError(_accountInfo.Description,
 					new Exception($"GWConnectionStatusChanged to {newStatus}"), true);
 
 			OnConnectionChanged(GetStatus());
@@ -224,14 +256,16 @@ namespace QvaDev.CqgClientApiIntegration
 		private void _cqgCel_OrderChanged(eChangeType changeType, CQGOrder cqgOrder, CQGOrderProperties oldProperties,
 			CQGFill cqgFill, CQGError cqgError)
 		{
-			if (CqgAccount.Orders[cqgOrder.GWOrderID] == null) return;
-			if (cqgError != null)
+			if (cqgOrder.Account != CqgAccount) return;
+			var orderKey = OrderKey(cqgOrder);
+			if (cqgError != null && orderKey != null)
 			{
-				_taskCompletionManager.SetResult(cqgOrder.OriginalOrderID, new OrderResponse(), true);
+				_taskCompletionManager.SetResult(orderKey, new OrderResponse(), true);
 				Log.Error($"{Description} Connector._cqgCel_OrderChanged", new Exception(cqgError.Description));
 				return;
 			}
-			if (cqgFill.Quantity == 0) return;
+
+			if (cqgFill == null) return;
 
 			var quantity = (decimal) cqgFill.Quantity;
 			var symbol = cqgOrder.InstrumentName;
@@ -239,14 +273,16 @@ namespace QvaDev.CqgClientApiIntegration
 			SymbolInfos.AddOrUpdate(symbol, new SymbolData {SumContracts = quantity},
 				(key, oldValue) =>
 				{
-					_taskCompletionManager.SetResult(cqgOrder.OriginalOrderID, new OrderResponse()
-					{
-						FilledQuantity = quantity
-					}, true);
-
 					oldValue.SumContracts += quantity;
 					return oldValue;
 				});
+
+			if (orderKey == null) return;
+			_taskCompletionManager.SetResult(orderKey, new OrderResponse()
+			{
+				AveragePrice = (decimal) cqgFill.Price,
+				FilledQuantity = quantity
+			}, true);
 		}
 
 		private void _cqgCel_InstrumentChanged(CQGInstrument cqgInstrument, CQGQuotes cqgQuotes, CQGInstrumentProperties cqgInstrumentProperties)
@@ -283,6 +319,13 @@ namespace QvaDev.CqgClientApiIntegration
 			if (cqgError == null) return;
 			Log.Error($"{Description} Connector.Subscribe({symbol}) InstrumentResolved error",
 				new Exception(cqgError.Description));
+		}
+
+		private string OrderKey(CQGOrder cqgOrder)
+		{
+			if (string.IsNullOrWhiteSpace(cqgOrder?.UEName)) return null;
+			if (cqgOrder.UEName.Length < 17) return null;
+			return cqgOrder.UEName.Substring(5, 12);
 		}
 
 		~Connector()
