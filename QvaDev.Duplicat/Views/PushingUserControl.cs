@@ -1,8 +1,7 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Data.Entity;
-using System.Drawing;
 using System.Windows.Forms;
+using QvaDev.Common.Integration;
 using QvaDev.Data.Models;
 using QvaDev.Duplicat.ViewModel;
 
@@ -60,16 +59,22 @@ namespace QvaDev.Duplicat.Views
 			btnStartCopiers.Click += (s, e) => { _viewModel.StartCopiersCommand(); };
 			btnStopCopiers.Click += (s, e) => { _viewModel.StopCopiersCommand(); };
 
-			btnTestMarketOrder.Click += (s, e) => { _viewModel.PushingTestMarketOrderCommand(dgvPushings.GetSelectedItem<Pushing>()); };
-			btnTestLimitOrder.Click += (s, e) => { _viewModel.PushingTestLimitOrderCommand(dgvPushings.GetSelectedItem<Pushing>()); };
+	        btnBuyFutures.Click += (s, e) =>
+	        {
+		        _viewModel.PushingFuturesOrderCommand(dgvPushings.GetSelectedItem<Pushing>(), Sides.Buy, nudFuturesContractSize.Value);
+	        };
+	        btnSellFutures.Click += (s, e) =>
+	        {
+		        _viewModel.PushingFuturesOrderCommand(dgvPushings.GetSelectedItem<Pushing>(), Sides.Sell, nudFuturesContractSize.Value);
+	        };
 
-			btnBuyBeta.Click += (s, e) => { _viewModel.PushingOpenCommand(dgvPushings.GetSelectedItem<Pushing>(), Common.Integration.Sides.Buy); };
-            btnSellBeta.Click += (s, e) => { _viewModel.PushingOpenCommand(dgvPushings.GetSelectedItem<Pushing>(), Common.Integration.Sides.Sell); };
+			btnBuyBeta.Click += (s, e) => { _viewModel.PushingOpenCommand(dgvPushings.GetSelectedItem<Pushing>(), Sides.Buy); };
+            btnSellBeta.Click += (s, e) => { _viewModel.PushingOpenCommand(dgvPushings.GetSelectedItem<Pushing>(), Sides.Sell); };
             btnRushOpen.Click += (s, e) => { _viewModel.PushingPanicCommand(dgvPushings.GetSelectedItem<Pushing>()); };
 			btnRushOpenFinish.Click += (s, e) => { _viewModel.PushingPanicCommand(dgvPushings.GetSelectedItem<Pushing>()); };
 
-			btnCloseLongSellFutures.Click += (s, e) => { _viewModel.PushingCloseCommand(dgvPushings.GetSelectedItem<Pushing>(), Common.Integration.Sides.Buy); };
-            btnCloseShortBuyFutures.Click += (s, e) => { _viewModel.PushingCloseCommand(dgvPushings.GetSelectedItem<Pushing>(), Common.Integration.Sides.Sell); };
+			btnCloseLongSellFutures.Click += (s, e) => { _viewModel.PushingCloseCommand(dgvPushings.GetSelectedItem<Pushing>(), Sides.Buy); };
+            btnCloseShortBuyFutures.Click += (s, e) => { _viewModel.PushingCloseCommand(dgvPushings.GetSelectedItem<Pushing>(), Sides.Sell); };
             btnRushHedge.Click += (s, e) => { _viewModel.PushingPanicCommand(dgvPushings.GetSelectedItem<Pushing>()); };
 			btnRushClose.Click += (s, e) => { _viewModel.PushingPanicCommand(dgvPushings.GetSelectedItem<Pushing>()); };
 			btnRushCloseFinish.Click += (s, e) => { _viewModel.PushingPanicCommand(dgvPushings.GetSelectedItem<Pushing>()); };

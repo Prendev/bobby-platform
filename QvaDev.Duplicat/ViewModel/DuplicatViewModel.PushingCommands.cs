@@ -1,19 +1,15 @@
 ﻿using QvaDev.Data.Models;
 using System;
 using System.Windows.Forms;
+using QvaDev.Common.Integration;
 
 namespace QvaDev.Duplicat.ViewModel
 {
     public partial class DuplicatViewModel
-    {
-        public void PushingTestMarketOrderCommand(Pushing pushing)
-        {
-            _orchestrator.TestMarketOrder(pushing);
-		}
-
-		public void PushingTestLimitOrderCommand(Pushing pushing)
+	{
+		public void PushingFuturesOrderCommand(Pushing pushing, Sides side, decimal contractSize)
 		{
-			_orchestrator.TestLimitOrder(pushing);
+			_orchestrator.SendPushingFuturesOrder(pushing, side, contractSize);
 		}
 
 		public void ShowPushingCommand(Pushing pushing)
@@ -24,7 +20,7 @@ namespace QvaDev.Duplicat.ViewModel
             foreach (var e in PushingDetails) e.IsFiltered = e.Id != SelectedPushing.PushingDetailId;
         }
 
-        public async void PushingOpenCommand(Pushing pushing, Common.Integration.Sides firstBetaOpenSide)
+        public async void PushingOpenCommand(Pushing pushing, Sides firstBetaOpenSide)
 		{
 			PushingState = PushingStates.Busy;
 			pushing.BetaOpenSide = firstBetaOpenSide;
@@ -63,7 +59,7 @@ namespace QvaDev.Duplicat.ViewModel
 			PushingState = PushingStates.BeforeClosing;
 		}
 
-        public async void PushingCloseCommand(Pushing pushing, Common.Integration.Sides firstCloseSide)
+        public async void PushingCloseCommand(Pushing pushing, Sides firstCloseSide)
 		{
 			PushingState = PushingStates.Busy;
 			pushing.FirstCloseSide = firstCloseSide;

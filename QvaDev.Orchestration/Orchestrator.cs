@@ -30,9 +30,7 @@ namespace QvaDev.Orchestration
 	    void MtAccountImport(DuplicatContext duplicatContext);
 	    Task SaveTheWeekend(DuplicatContext duplicatContext);
 
-
-		void TestMarketOrder(Pushing pushing);
-		void TestLimitOrder(Pushing pushing);
+	    void SendPushingFuturesOrder(Pushing pushing, Sides side, decimal contractSize);
 
 		Task OpeningBeta(Pushing pushing);
 		Task OpeningAlpha(Pushing pushing);
@@ -159,16 +157,11 @@ namespace QvaDev.Orchestration
             _copierService.Stop();
         }
 
-        public async void TestMarketOrder(Pushing pushing)
-        {
-            var connector = (IFixConnector)pushing.FutureAccount.Connector;
-            var response = await connector.SendMarketOrderRequest(pushing.FutureSymbol, Sides.Buy, pushing.PushingDetail.SmallContractSize);
-		}
-		public void TestLimitOrder(Pushing pushing)
-		{
-			var connector = (FixTraderIntegration.Connector)pushing.FutureAccount.Connector;
-			connector.SendLimitOrderRequest(pushing.FutureSymbol, Sides.Buy, pushing.PushingDetail.SmallContractSize, 0);
-		}
+	    public async void SendPushingFuturesOrder(Pushing pushing, Sides side, decimal contractSize)
+	    {
+		    var connector = (IFixConnector)pushing.FutureAccount.Connector;
+		    var response = await connector.SendMarketOrderRequest(pushing.FutureSymbol, side, contractSize);
+	    }
 
 		public Task OpeningBeta(Pushing pushing)
 		{
