@@ -159,14 +159,6 @@ namespace QvaDev.Mt4Integration
 				};
 				Positions.AddOrUpdate(position.Id, t => position, (t, old) => position);
 
-				OnNewPosition(new NewPositionEventArgs
-				{
-					DbId = _accountInfo.DbId,
-					AccountType = AccountTypes.Mt4,
-					Position = position,
-					Action = NewPositionEventArgs.Actions.Open,
-				});
-
 				return position;
 			}
             catch (Exception e)

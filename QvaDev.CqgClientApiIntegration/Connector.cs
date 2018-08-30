@@ -26,10 +26,17 @@ namespace QvaDev.CqgClientApiIntegration
 			get
 			{
 				if (_cqgCel == null) return false;
-				if (!_cqgCel.IsStarted) return false;
-				if (_cqgCel.Environment.DataConnectionStatus != eConnectionStatus.csConnectionUp) return false;
-				if (_cqgCel.Environment.GWConnectionStatus != eConnectionStatus.csConnectionUp) return false;
-				if (_cqgCel.Environment.GWLogonName != _accountInfo.UserName) return false;
+				try
+				{
+					if (!_cqgCel.IsStarted) return false;
+					if (_cqgCel.Environment.DataConnectionStatus != eConnectionStatus.csConnectionUp) return false;
+					if (_cqgCel.Environment.GWConnectionStatus != eConnectionStatus.csConnectionUp) return false;
+					if (_cqgCel.Environment.GWLogonName != _accountInfo.UserName) return false;
+				}
+				catch
+				{
+					return false;
+				}
 				return true;
 			}
 		}
@@ -37,7 +44,7 @@ namespace QvaDev.CqgClientApiIntegration
 		public Connector(AccountInfo accountInfo, ILog log) : base(log)
 		{
 			_accountInfo = accountInfo;
-			_taskCompletionManager = new TaskCompletionManager(100, 1000);
+			_taskCompletionManager = new TaskCompletionManager(100, 2000);
 
 			InitializeCqgCel();
 		}
@@ -151,7 +158,7 @@ namespace QvaDev.CqgClientApiIntegration
 				if (side == Sides.Sell) cqgQuantity *= -1;
 
 				var datetime = DateTime.UtcNow;
-				var key = (datetime - datetime.Date).TotalMilliseconds.ToString("0000000.000");
+				var key = $"[{(datetime - datetime.Date).TotalMilliseconds:0000000.000}]";
 				var task = _taskCompletionManager.CreateCompletableTask<OrderResponse>(key);
 				_cqgCel.CreateOrderByInstrumentName(eOrderType.otMarket, symbol, CqgAccount, cqgQuantity, eOrderSide.osdUndefined, 0, 0, key).Place();
 
@@ -329,8 +336,10 @@ namespace QvaDev.CqgClientApiIntegration
 		private string OrderKey(CQGOrder cqgOrder)
 		{
 			if (string.IsNullOrWhiteSpace(cqgOrder?.UEName)) return null;
-			if (cqgOrder.UEName.Length < 17) return null;
-			return cqgOrder.UEName.Substring(5, 12);
+			var start = cqgOrder.UEName.IndexOf("[", StringComparison.Ordinal);
+			var end = cqgOrder.UEName.IndexOf("]", StringComparison.Ordinal);
+			if (start < 0 || end < 0 || end < start) return null;
+			return cqgOrder.UEName.Substring(start, end - start + 1);
 		}
 
 		~Connector()
