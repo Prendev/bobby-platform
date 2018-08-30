@@ -9,5 +9,7 @@
 		public decimal FilledQuantity { get; set; }
 
 		public bool IsFilled => AveragePrice.HasValue && FilledQuantity > 0;
+
+		public Sides Side { get; set; }
 	}
 }

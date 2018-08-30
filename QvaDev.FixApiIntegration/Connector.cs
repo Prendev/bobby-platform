@@ -128,6 +128,7 @@ namespace QvaDev.FixApiIntegration
 		{
 			try
 			{
+				quantity = Math.Abs(quantity);
 				var response = await FixConnector.MarketOrderAsync(new OrderRequest()
 				{
 					IsLong = side == Sides.Buy,
@@ -141,7 +142,8 @@ namespace QvaDev.FixApiIntegration
 				{
 					OrderedQuantity = quantity,
 					AveragePrice = response.AveragePrice,
-					FilledQuantity = response.FilledQuantity
+					FilledQuantity = response.FilledQuantity,
+					Side = side
 				};
 			}
 			catch (Exception e)
@@ -151,7 +153,8 @@ namespace QvaDev.FixApiIntegration
 				{
 					OrderedQuantity = quantity,
 					AveragePrice = null,
-					FilledQuantity = 0
+					FilledQuantity = 0,
+					Side = side
 				};
 			}
 		}
@@ -165,6 +168,7 @@ namespace QvaDev.FixApiIntegration
 				return await SendMarketOrderRequest(symbol, side, quantity);
 			try
 			{
+				quantity = Math.Abs(quantity);
 				var response = await FixConnector.AggressiveOrderAsync(new AggressiveOrderRequest()
 				{
 					IsLong = side == Sides.Buy,
@@ -185,7 +189,8 @@ namespace QvaDev.FixApiIntegration
 					OrderPrice = limitPrice,
 					OrderedQuantity = quantity,
 					AveragePrice = response.AveragePrice,
-					FilledQuantity = response.FilledQuantity
+					FilledQuantity = response.FilledQuantity,
+					Side = side
 				};
 			}
 			catch (Exception e)
@@ -199,7 +204,8 @@ namespace QvaDev.FixApiIntegration
 					OrderPrice = limitPrice,
 					OrderedQuantity = quantity,
 					AveragePrice = null,
-					FilledQuantity = 0
+					FilledQuantity = 0,
+					Side = side
 				};
 			}
 		}

@@ -146,7 +146,8 @@ namespace QvaDev.CqgClientApiIntegration
 		{
 			try
 			{
-				var cqgQuantity = (int)quantity;
+				quantity = Math.Abs(quantity);
+				var cqgQuantity = (int) quantity;
 				if (side == Sides.Sell) cqgQuantity *= -1;
 
 				var datetime = DateTime.UtcNow;
@@ -154,7 +155,10 @@ namespace QvaDev.CqgClientApiIntegration
 				var task = _taskCompletionManager.CreateCompletableTask<OrderResponse>(key);
 				_cqgCel.CreateOrderByInstrumentName(eOrderType.otMarket, symbol, CqgAccount, cqgQuantity, eOrderSide.osdUndefined, 0, 0, key).Place();
 
-				return await task;
+				var response = await task;
+				response.Side = side;
+				response.OrderedQuantity = quantity;
+				return response;
 			}
 			catch (Exception e)
 			{
@@ -163,7 +167,8 @@ namespace QvaDev.CqgClientApiIntegration
 				{
 					OrderedQuantity = quantity,
 					AveragePrice = null,
-					FilledQuantity = 0
+					FilledQuantity = 0,
+					Side = side
 				};
 			}
 		}
@@ -260,7 +265,7 @@ namespace QvaDev.CqgClientApiIntegration
 			var orderKey = OrderKey(cqgOrder);
 			if (cqgError != null && orderKey != null)
 			{
-				_taskCompletionManager.SetResult(orderKey, new OrderResponse(), true);
+				_taskCompletionManager.SetError(orderKey, new Exception(cqgError.Description));
 				Log.Error($"{Description} Connector._cqgCel_OrderChanged", new Exception(cqgError.Description));
 				return;
 			}
@@ -281,7 +286,7 @@ namespace QvaDev.CqgClientApiIntegration
 			_taskCompletionManager.SetResult(orderKey, new OrderResponse()
 			{
 				AveragePrice = (decimal) cqgFill.Price,
-				FilledQuantity = quantity
+				FilledQuantity = Math.Abs(quantity)
 			}, true);
 		}
 
