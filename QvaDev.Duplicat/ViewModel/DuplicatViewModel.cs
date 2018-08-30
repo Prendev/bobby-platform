@@ -194,7 +194,7 @@ namespace QvaDev.Duplicat.ViewModel
 
 		private void Profiles_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
 		{
-			if(_duplicatContext.Profiles.Local.Any(l => l.Id == SelectedProfile.Id)) return;
+			if (SelectedProfile != null && _duplicatContext.Profiles.Local.Any(l => l.Id == SelectedProfile.Id)) return;
 			LoadLocals();
 		}
 
