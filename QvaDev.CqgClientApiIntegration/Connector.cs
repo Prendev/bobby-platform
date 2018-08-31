@@ -211,7 +211,7 @@ namespace QvaDev.CqgClientApiIntegration
 			//  This event means that the login was successful
 			if (changeType == eAccountChangeType.actAccountsReloaded)
 			{
-				_taskCompletionManager.SetResult(_accountInfo.Description, true, true);
+				_taskCompletionManager.SetCompleted(_accountInfo.Description, true);
 				OnConnectionChanged(GetStatus());
 			}
 			// After successful login open positions are loaded
