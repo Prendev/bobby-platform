@@ -18,9 +18,9 @@ namespace QvaDev.Duplicat.Views
 		
 	    public EventHandler RowDoubleClick;
 
-		public CustomDataGridView()
+	    public CustomDataGridView()
         {
-            MultiSelect = false;
+	        MultiSelect = false;
             AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
             DataSourceChanged += CustomDataGridView_DataSourceChanged;
             RowPrePaint += CustomDataGridView_RowPrePaint;
@@ -72,22 +72,28 @@ namespace QvaDev.Duplicat.Views
         {
 	        if (!(DataSource is IBindingList bindingList)) return;
 
-			var currencyManager = (CurrencyManager)BindingContext[DataSource];
-	        currencyManager.SuspendBinding();
-
 	        CurrentCell = null;
 	        ClearSelection();
 
 			foreach (DataGridViewRow row in Rows)
             {
 	            if (!(row.DataBoundItem is IFilterableEntity filterableEntity)) continue;
-
-	            row.Visible = !filterableEntity.IsFiltered;
+				
 				row.ReadOnly = filterableEntity.IsFiltered;
 				row.DefaultCellStyle.BackColor = filterableEntity.IsFiltered ? Color.LightGray : Color.White;
 			}
 
-			currencyManager.ResumeBinding();
+	        var currencyManager = (CurrencyManager)BindingContext[DataSource];
+	        currencyManager.SuspendBinding();
+
+	        foreach (DataGridViewRow row in Rows)
+	        {
+		        if (!(row.DataBoundItem is IFilterableEntity filterableEntity)) continue;
+
+		        row.Visible = !filterableEntity.IsFiltered;
+	        }
+
+	        currencyManager.ResumeBinding();
 		}
 
 
@@ -95,27 +101,19 @@ namespace QvaDev.Duplicat.Views
         {
 	        if (!(DataSource is IBindingList bindingList)) return;
             if (bindingList.Count <= e.RowIndex) return;
-
-	        if (bindingList[e.RowIndex] is IFilterableEntity filterableEntity)
-	        {
-		        var currencyManager = (CurrencyManager)BindingContext[DataSource];
-		        currencyManager.SuspendBinding();
-
-		        Rows[e.RowIndex].Visible = !filterableEntity.IsFiltered;
-		        Rows[e.RowIndex].ReadOnly = filterableEntity.IsFiltered;
-		        Rows[e.RowIndex].DefaultCellStyle.BackColor = filterableEntity.IsFiltered ? Color.LightGray : Color.White;
-
-				currencyManager.ResumeBinding();
-			}
-
 			if (!(bindingList[e.RowIndex] is Account account)) return;
 
-            if (account.ConnectionState == ConnectionStates.Connected)
+	        var currencyManager = (CurrencyManager)BindingContext[DataSource];
+	        currencyManager.SuspendBinding();
+
+			if (account.ConnectionState == ConnectionStates.Connected)
                 Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.LightGreen;
             else if (account.ConnectionState == ConnectionStates.Error)
                 Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.PaleVioletRed;
             else Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.White;
-        }
+
+	        currencyManager.ResumeBinding();
+		}
 
         private void CustomDataGridView_DataSourceChanged(object sender, EventArgs e)
         {
@@ -153,8 +151,9 @@ namespace QvaDev.Duplicat.Views
 		{
 			if (e.Exception.Message == "DataGridViewComboBoxCell value is not valid.") return;
 			if (e.Exception.Message == "DataGridViewComboBoxCell értéke érvénytelen.") return;
-			throw e.Exception;
-        }
+
+			// TODO logging
+		}
 
         private void UseComboBoxForEnums()
         {

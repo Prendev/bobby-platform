@@ -185,6 +185,7 @@ namespace QvaDev.Orchestration
 
 		public Task ClosingFirst(Pushing pushing)
 		{
+			pushing.PushingDetail.OpenedFutures = 0;
 			pushing.InPanic = false;
 			return Task.Run(() => _pushingService.ClosingFirst(pushing));
 		}

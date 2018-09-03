@@ -6,7 +6,6 @@ using QvaDev.Common.Integration;
 using QvaDev.Common.Services;
 using QvaDev.Data.Models;
 using QvaDev.Orchestration.Services.Strategies;
-using FtConnector = QvaDev.Common.Integration.IFixConnector;
 using MtConnector = QvaDev.Mt4Integration.IConnector;
 
 namespace QvaDev.OrchestrationTests.Services
@@ -120,6 +119,7 @@ namespace QvaDev.OrchestrationTests.Services
 			var pushing = CreatePushing();
 			pushing.PushingDetail.SmallContractSize = 4;
 			pushing.PushingDetail.OpenedFutures = 100;
+			pushing.PushingDetail.PartialClosePercentage = 100;
 			pushing.IsHedgeClose = false;
 
 			// Act
@@ -134,7 +134,7 @@ namespace QvaDev.OrchestrationTests.Services
 		}
 
 		[Test]
-		public async Task OpeningFinishHedge()
+		public async Task OpeningFinishHedgeWithPartialClose()
 		{
 			// Arrange
 			FixConnectorMock
@@ -144,6 +144,7 @@ namespace QvaDev.OrchestrationTests.Services
 			var pushing = CreatePushing();
 			pushing.PushingDetail.SmallContractSize = 4;
 			pushing.PushingDetail.OpenedFutures = 100;
+			pushing.PushingDetail.PartialClosePercentage = 50;
 			pushing.IsHedgeClose = true;
 			pushing.BetaOpenSide = Sides.Buy;
 
@@ -153,7 +154,7 @@ namespace QvaDev.OrchestrationTests.Services
 			// Assert
 			FixConnectorMock.Verify(m => m.SendMarketOrderRequest("ftDummySymbol", Sides.Buy, 4, null), Times.Exactly(7));
 			FixConnectorMock.Verify(m => m.SendMarketOrderRequest("ftDummySymbol", Sides.Buy, 2, null), Times.Exactly(1));
-			FixConnectorMock.Verify(m => m.SendMarketOrderRequest("ftDummySymbol", Sides.Sell, 130, null), Times.Once);
+			FixConnectorMock.Verify(m => m.SendMarketOrderRequest("ftDummySymbol", Sides.Sell, 65, null), Times.Once);
 			FixConnectorMock.Verify(m => m.OrderMultipleCloseBy(It.IsAny<string>()), Times.Never);
 			ThreadServiceMock.Verify(m => m.Sleep(It.IsAny<int>()), Times.Exactly(8));
 		}
@@ -295,6 +296,7 @@ namespace QvaDev.OrchestrationTests.Services
 			var pushing = CreatePushing();
 			pushing.PushingDetail.SmallContractSize = 4;
 			pushing.PushingDetail.OpenedFutures = 100;
+			pushing.PushingDetail.PartialClosePercentage = 100;
 			pushing.IsHedgeClose = false;
 			pushing.FirstCloseSide = Sides.Sell;
 

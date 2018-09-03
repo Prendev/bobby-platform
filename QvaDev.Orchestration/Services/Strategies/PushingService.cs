@@ -36,6 +36,7 @@ namespace QvaDev.Orchestration.Services.Strategies
 
 		public void OpeningBeta(Pushing pushing)
 		{
+			pushing.PushingDetail.OpenedFutures = 0;
 			var betaConnector = (MtConnector)pushing.BetaMaster.Connector;
 			// Open first side and wait a bit
 			pushing.BetaPosition = betaConnector.SendMarketOrderRequest(pushing.BetaSymbol, pushing.BetaOpenSide, pushing.PushingDetail.BetaLots, 0,
@@ -78,14 +79,21 @@ namespace QvaDev.Orchestration.Services.Strategies
 			var contractsNeeded = Math.Abs(pd.MasterSignalContractLimit);
 			await FutureBuildUp(pushing, futureSide, contractsNeeded, false);
 
-			// Close futures
-			await futureConnector.SendMarketOrderRequest(pushing.FutureSymbol, futureSide.Inv(),
-				pushing.PushingDetail.OpenedFutures);
-			pushing.PushingDetail.OpenedFutures = 0;
+			// Partial close
+			var closeSize = pushing.PushingDetail.OpenedFutures;
+			var percentage = Math.Min(pushing.PushingDetail.PartialClosePercentage, 100);
+			percentage = Math.Max(percentage, 0);
+			closeSize = closeSize * percentage / 100;
+
+			if (closeSize <= 0) return;
+			
+			await futureConnector.SendMarketOrderRequest(pushing.FutureSymbol, futureSide.Inv(), closeSize);
+			pushing.PushingDetail.OpenedFutures -= closeSize;
 		}
 
 		public void ClosingFirst(Pushing pushing)
 		{
+			pushing.PushingDetail.OpenedFutures = 0;
 			var firstConnector = pushing.BetaOpenSide == pushing.FirstCloseSide
 				? (MtConnector) pushing.BetaMaster.Connector
 				: (MtConnector) pushing.AlphaMaster.Connector;
@@ -142,26 +150,16 @@ namespace QvaDev.Orchestration.Services.Strategies
 			var contractsNeeded = Math.Abs(pd.MasterSignalContractLimit);
 			await FutureBuildUp(pushing, futureSide, contractsNeeded, false);
 
-			// Close futures if not hedging
-			if (!pushing.IsHedgeClose)
-			{
-				await futureConnector.SendMarketOrderRequest(pushing.FutureSymbol, futureSide.Inv(),
-					pushing.PushingDetail.OpenedFutures);
-				pushing.PushingDetail.OpenedFutures = 0;
-			}
-			// Close futures if hedging with partial close
-			else
-			{
-				var closeSize = pushing.PushingDetail.OpenedFutures;
-				var percentage = Math.Min(pushing.PushingDetail.PartialClosePercentage, 100);
-				percentage = Math.Max(percentage, 0);
-				closeSize = closeSize * percentage / 100;
+			// Partial close
+			var closeSize = pushing.PushingDetail.OpenedFutures;
+			var percentage = Math.Min(pushing.PushingDetail.PartialClosePercentage, 100);
+			percentage = Math.Max(percentage, 0);
+			closeSize = closeSize * percentage / 100;
 
-				if (closeSize <= 0) return;
+			if (closeSize <= 0) return;
 
-				await futureConnector.SendMarketOrderRequest(pushing.FutureSymbol, futureSide.Inv(), closeSize);
-				pushing.PushingDetail.OpenedFutures -= closeSize;
-			}
+			await futureConnector.SendMarketOrderRequest(pushing.FutureSymbol, futureSide.Inv(), closeSize);
+			pushing.PushingDetail.OpenedFutures -= closeSize;
 
 		}
 
