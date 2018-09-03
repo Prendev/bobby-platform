@@ -349,7 +349,7 @@ namespace QvaDev.OrchestrationTests.Services
 			var pushing = CreatePushing();
 			pushing.PushingDetail.SmallContractSize = 4;
 			pushing.PushingDetail.OpenedFutures = 100;
-			pushing.PushingDetail.PartialHedgeClosePercentage = 50;
+			pushing.PushingDetail.PartialClosePercentage = 50;
 			pushing.IsHedgeClose = true;
 			pushing.FirstCloseSide = Sides.Buy;
 

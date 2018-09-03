@@ -35,10 +35,10 @@ namespace QvaDev.FixApiIntegration
 			doc.Load(_accountInfo.ConfigPath);
 
 			var confType = ConnectorHelper.GetConfigurationType(doc.DocumentElement.Name);
-			var configurationTpye = ConnectorHelper.GetConnectorType(confType);
+			var connType = ConnectorHelper.GetConnectorType(confType);
 			var conf = new XmlSerializer(confType).Deserialize(File.OpenRead(_accountInfo.ConfigPath));
 
-			FixConnector = (FixConnectorBase)Activator.CreateInstance(configurationTpye, conf);
+			FixConnector = (FixConnectorBase)Activator.CreateInstance(connType, conf);
 		}
 
 		public Task Connect()
@@ -98,8 +98,10 @@ namespace QvaDev.FixApiIntegration
 
 			try
 			{
-				FixConnector?.PricingSocket?.Close();
-				FixConnector?.TradingSocket?.Close();
+				if (FixConnector?.PricingSocket?.IsConnected == true)
+					FixConnector?.PricingSocket?.Send(new FixMessageBody(FixMessageTypes.Logout));
+				if (FixConnector?.TradingSocket?.IsConnected == true)
+					FixConnector?.TradingSocket?.Send(new FixMessageBody(FixMessageTypes.Logout));
 			}
 			catch (Exception e)
 			{

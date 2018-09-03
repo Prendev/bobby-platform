@@ -4,58 +4,18 @@
         <name>QvaDev.Communication</name>
     </assembly>
     <members>
-        <member name="T:QvaDev.Communication.ConnectionManager">
+        <member name="T:QvaDev.Communication.FixApi.HandlInst">
             <summary>
-            Represents a class, which manages connections.
+            Represents the values of the <see cref="F:QvaDev.Communication.FixApi.KnownField.HandlInst"/> field.
             </summary>
-        </member>
-        <member name="T:QvaDev.Communication.DataReceivedEventArgs">
-            <summary>
-            Represents the data of <see cref="E:QvaDev.Communication.DuplexStreamConcurrentHandler.DataReceived"/> event.
-            </summary>
-        </member>
-        <member name="P:QvaDev.Communication.DataReceivedEventArgs.Buffer">
-            <summary>
-            Gets the buffer of received data. The length of actually received data is returned by <see cref="P:QvaDev.Communication.DataReceivedEventArgs.Length"/> property.
-            </summary>
-        </member>
-        <member name="P:QvaDev.Communication.DataReceivedEventArgs.Length">
-            <summary>
-            Gets the actual length of <see cref="P:QvaDev.Communication.DataReceivedEventArgs.Buffer"/> to process.
-            </summary>
-        </member>
-        <member name="M:QvaDev.Communication.EventHandlerExtensions.InvokeSafe``1(System.EventHandler{``0},System.Object,``0)">
-            <summary>
-            Invoking the user's self subscription without risking the stop of reader/writer thread due to an error in user's event handler.
-            If <see cref="T:System.OperationCanceledException"/> is thrown it is propagated to the caller.
-            </summary>
-        </member>
-        <member name="M:QvaDev.Communication.TypeExtensions.CanAcceptValue(System.Type,System.Object)">
-            <summary>
-            Checks whether a <paramref name="value"/> can be an instance of <paramref name="type"/> when, for example,
-            <paramref name="value"/> is passed to a method with <paramref name="type"/> parameter type.
-            </summary>
-        </member>
-        <member name="M:QvaDev.Communication.TypeExtensions.IsNullable(System.Type)">
-            <summary>
-            Gets whether given <paramref name="type"/> is a <see cref="T:System.Nullable`1"/> type.
-            </summary>
-            <param name="type">The type to check</param>
-            <returns><c>true</c>, if <paramref name="type"/> is a <see cref="T:System.Nullable`1"/> type; otherwise, <c>false</c>.</returns>
-        </member>
-        <member name="M:QvaDev.Communication.WaitHandleExtensions.WaitOneAsync(System.Threading.WaitHandle,System.Int32,System.Threading.CancellationToken)">
-            <summary>
-            Waits for a signal asynchronously on the provided <paramref name="handle"/>.
-            </summary>
-        </member>
-        <member name="M:QvaDev.Communication.WaitHandleExtensions.WaitOneAsync(System.Threading.WaitHandle,System.Threading.CancellationToken)">
-            <summary>
-            Waits for a signal asynchronously on the provided <paramref name="handle"/>.
-            </summary>
+            <remarks>
+            See <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_21.html" target="_blank">HandlInst</a>.
+            </remarks>
         </member>
         <member name="T:QvaDev.Communication.FixApi.FixConnectorBase`1">
             <summary>
             Represents a specific FIX API connector that processes broker specific messages.
+            Use this base type for single session connectors or when if pricing and trading configuration use the same host, port and SSL settings.
             </summary>
             <typeparam name="TConfiguration">The type of the configuration.</typeparam>
         </member>
@@ -64,23 +24,32 @@
             Gets the configuration.
             </summary>
         </member>
-        <member name="M:QvaDev.Communication.FixApi.FixConnectorBase`1.#ctor(`0,QvaDev.Communication.FixApi.IFixMessageBuilder,QvaDev.Communication.FixApi.IFixMessageBuilder)">
+        <member name="P:QvaDev.Communication.FixApi.FixConnectorBase`1.ConfigurationType">
+            <summary>
+            Gets the type of the configuration.
+            </summary>
+        </member>
+        <member name="M:QvaDev.Communication.FixApi.FixConnectorBase`1.#ctor(`0,QvaDev.Communication.FixApi.IFixMessageBuilder,QvaDev.Communication.FixApi.IFixMessageBuilder,System.Int32)">
             <summary>
             Initializes a new instance of the <see cref="T:QvaDev.Communication.FixApi.FixConnectorBase`1"/> class.
+            Use this constructor for multi-session connectors.
             </summary>
             <param name="configuration">The configuration.</param>
             <param name="pricingMessageBuilder">The message builder to be used when sending a FIX API message through the <see cref="P:QvaDev.Communication.FixApi.FixConnectorBase.PricingSocket"/>.</param>
             <param name="tradingMessageBuilder">The message builder to be used when sending a FIX API message through the <see cref="P:QvaDev.Communication.FixApi.FixConnectorBase.TradingSocket"/>.</param>
+            <param name="timeout">The timeout, in milliseconds, after the sent FIX API messages without response will be timed out</param>
             <remarks>
             To start listening to the received and to be sent messages call the <see cref="M:QvaDev.Communication.FixApi.FixConnectorBase.ConnectPricingAsync(System.Boolean)" /> and <see cref="M:QvaDev.Communication.FixApi.FixConnectorBase.ConnectTradingAsync(System.Boolean)"/> methods after subscribing events.
             </remarks>
         </member>
-        <member name="M:QvaDev.Communication.FixApi.FixConnectorBase`1.#ctor(`0,QvaDev.Communication.FixApi.IFixMessageBuilder)">
+        <member name="M:QvaDev.Communication.FixApi.FixConnectorBase`1.#ctor(`0,QvaDev.Communication.FixApi.IFixMessageBuilder,System.Int32)">
             <summary>
             Initializes a new instance of the <see cref="T:QvaDev.Communication.FixApi.FixConnectorBase`1"/> class.
+            Use this constructor for single-session connectors.
             </summary>
             <param name="configuration">The configuration.</param>
             <param name="messageBuilder">The common message builder to be used when sending a FIX API message through any socket.</param>
+            <param name="timeout">The timeout, in milliseconds, after the sent FIX API messages without response will be timed out</param>
             <remarks>
             To start listening to the received and to be sent messages call the <see cref="M:QvaDev.Communication.FixApi.FixConnectorBase.ConnectPricingAsync(System.Boolean)" /> and <see cref="M:QvaDev.Communication.FixApi.FixConnectorBase.ConnectTradingAsync(System.Boolean)"/> methods after subscribing events.
             </remarks>
@@ -88,6 +57,7 @@
         <member name="T:QvaDev.Communication.FixApi.FixConnectorBase`3">
             <summary>
             Represents a specific FIX API connector that processes broker specific messages.
+            Use this base type for multi-session connectors if pricing and trading configurations can be different or are more than a simple <see cref="T:QvaDev.Communication.FixApi.IFixSocketConfiguration"/>.
             </summary>
             <typeparam name="TConfiguration">The type of the configuration.</typeparam>
             <typeparam name="TPricingConfig">The type of the Pricing socket configuration</typeparam>
@@ -96,6 +66,11 @@
         <member name="P:QvaDev.Communication.FixApi.FixConnectorBase`3.Configuration">
             <summary>
             Gets the configuration.
+            </summary>
+        </member>
+        <member name="P:QvaDev.Communication.FixApi.FixConnectorBase`3.ConfigurationType">
+            <summary>
+            Gets the type of the configuration.
             </summary>
         </member>
         <member name="M:QvaDev.Communication.FixApi.FixConnectorBase`3.#ctor(`0,QvaDev.Communication.FixApi.IFixMessageBuilder,QvaDev.Communication.FixApi.IFixMessageBuilder)">
@@ -557,9 +532,14 @@
             Gets whether the <see cref="P:QvaDev.Communication.FixApi.FixConnectorBase.TradingSocket"/> is pricing connected.
             </summary>
         </member>
-        <member name="P:QvaDev.Communication.FixApi.FixConnectorBase.Configuration">
+        <member name="P:QvaDev.Communication.FixApi.FixConnectorBase.PricingSocketConfiguration">
             <summary>
-            Gets the configuration.
+            Gets the configuration of the pricing socket.
+            </summary>
+        </member>
+        <member name="P:QvaDev.Communication.FixApi.FixConnectorBase.TradingSocketConfiguration">
+            <summary>
+            Gets the configuration of the trading socket.
             </summary>
         </member>
         <member name="P:QvaDev.Communication.FixApi.FixConnectorBase.PricingSocket">
@@ -572,17 +552,17 @@
             Gets the current trading socket.
             </summary>
         </member>
-        <member name="P:QvaDev.Communication.FixApi.FixConnectorBase.IsSingleSocket">
+        <member name="P:QvaDev.Communication.FixApi.FixConnectorBase.ConfigurationType">
             <summary>
-            Gets whether this connector uses a single socket for pricing and trading connection.
-            From outside the behavior is compatible. Default value is <c>false</c>.
+            Gets the type of the configuration.
             </summary>
         </member>
-        <member name="M:QvaDev.Communication.FixApi.FixConnectorBase.#ctor(QvaDev.Communication.FixApi.IFixConfiguration,QvaDev.Communication.FixApi.IFixMessageBuilder,QvaDev.Communication.FixApi.IFixMessageBuilder,System.Int32)">
+        <member name="M:QvaDev.Communication.FixApi.FixConnectorBase.#ctor(QvaDev.Communication.FixApi.IFixSocketConfiguration,QvaDev.Communication.FixApi.IFixSocketConfiguration,QvaDev.Communication.FixApi.IFixMessageBuilder,QvaDev.Communication.FixApi.IFixMessageBuilder,System.Int32)">
             <summary>
-            Initializes a new instance of the <see cref="T:QvaDev.Communication.FixApi.FixConnectorBase`3"/> class.
+            Initializes a new instance of the <see cref="T:QvaDev.Communication.FixApi.FixConnectorBase"/> class for multi session sockets.
             </summary>
-            <param name="configuration">The configuration.</param>
+            <param name="pricingSocketConfiguration">The configuration of the pricing socket.</param>
+            <param name="tradingSocketConfiguration">The configuration of the trading socket.</param>
             <param name="pricingMessageBuilder">The message builder to be used when sending a FIX API message through the <see cref="P:QvaDev.Communication.FixApi.FixConnectorBase.PricingSocket"/>.</param>
             <param name="tradingMessageBuilder">The message builder to be used when sending a FIX API message through the <see cref="P:QvaDev.Communication.FixApi.FixConnectorBase.TradingSocket"/>.</param>
             <param name="timeout">The timeout, in milliseconds, after the sent FIX API messages without response will be timed out</param>
@@ -590,15 +570,17 @@
             To start listening to the received and to be sent messages call the <see cref="M:QvaDev.Communication.FixApi.FixConnectorBase.ConnectPricingAsync(System.Boolean)" /> and <see cref="M:QvaDev.Communication.FixApi.FixConnectorBase.ConnectTradingAsync(System.Boolean)"/> methods after subscribing events.
             </remarks>
         </member>
-        <member name="M:QvaDev.Communication.FixApi.FixConnectorBase.#ctor(QvaDev.Communication.FixApi.IFixConfiguration,QvaDev.Communication.FixApi.IFixMessageBuilder,System.Int32)">
+        <member name="M:QvaDev.Communication.FixApi.FixConnectorBase.#ctor(QvaDev.Communication.FixApi.IFixSocketConfiguration,QvaDev.Communication.FixApi.IFixMessageBuilder,System.Int32)">
             <summary>
-            Initializes a new instance of the <see cref="T:QvaDev.Communication.FixApi.FixConnectorBase`3"/> class.
+            Initializes a new instance of the <see cref="T:QvaDev.Communication.FixApi.FixConnectorBase"/> class for single session sockets.
             </summary>
-            <param name="configuration">The configuration.</param>
-            <param name="messageBuilder">The common message builder to be used when sending a FIX API message through any socket.</param>
+            <param name="socketConfiguration">The configuration of the single socket to use both for pricing and trading.</param>
+            <param name="messageBuilder">The common message builder to be used when sending a FIX API message through the socket.</param>
             <param name="timeout">The timeout, in milliseconds, after the sent FIX API messages without response will be timed out</param>
             <remarks>
-            To start listening to the received and to be sent messages call the <see cref="M:QvaDev.Communication.FixApi.FixConnectorBase.ConnectPricingAsync(System.Boolean)" /> and <see cref="M:QvaDev.Communication.FixApi.FixConnectorBase.ConnectTradingAsync(System.Boolean)"/> methods after subscribing events.
+            <para>To start listening to the received and to be sent messages call the <see cref="M:QvaDev.Communication.FixApi.FixConnectorBase.ConnectPricingAsync(System.Boolean)"/> and <see cref="M:QvaDev.Communication.FixApi.FixConnectorBase.ConnectTradingAsync(System.Boolean)"/> methods after subscribing events.</para>
+            <para>As this constructor is for creating a single socket configuration, it is enough to call one of <see cref="M:QvaDev.Communication.FixApi.FixConnectorBase.ConnectPricingAsync(System.Boolean)"/>
+            or <see cref="M:QvaDev.Communication.FixApi.FixConnectorBase.ConnectTradingAsync(System.Boolean)" /> methods but their use is transparent for the user of the connector.</para>
             </remarks>
         </member>
         <member name="M:QvaDev.Communication.FixApi.FixConnectorBase.ConnectPricingAsync(System.Boolean)">
@@ -706,7 +688,7 @@
         <member name="M:QvaDev.Communication.FixApi.FixConnectorBase.ClosePricingSocket(System.Exception)">
             <summary>
             Closes the <see cref="P:QvaDev.Communication.FixApi.FixConnectorBase.PricingSocket"/> and cancels the possibly pending logon and market data subscriptions tasks.
-            If <see cref="P:QvaDev.Communication.FixApi.FixConnectorBase.IsSingleSocket"/> is <c>true</c>, then both pricing and trading functionality will be shut down.
+            If <see cref="!:IsSingleSocket"/> is <c>true</c>, then both pricing and trading functionality will be shut down.
             </summary>
             <param name="error">The error to throw from <see cref="M:QvaDev.Communication.FixApi.FixConnectorBase.ConnectPricingAsync(System.Boolean)"/> and <see cref="M:QvaDev.Communication.FixApi.FixConnectorBase.SubscribeMarketDataAsync(QvaDev.Communication.FixApi.Symbol,System.Int32)"/> methods
             if their returned tasks are still not complete or <see langword="null"/> if closing is not due to an error.</param>
@@ -714,7 +696,7 @@
         <member name="M:QvaDev.Communication.FixApi.FixConnectorBase.CloseTradingSocket(System.Exception)">
             <summary>
             Closes the <see cref="P:QvaDev.Communication.FixApi.FixConnectorBase.TradingSocket"/> and cancels possibly started logon and trading tasks.
-            If <see cref="P:QvaDev.Communication.FixApi.FixConnectorBase.IsSingleSocket"/> is <c>true</c>, then both pricing and trading functionality will be shut down.
+            If <see cref="!:IsSingleSocket"/> is <c>true</c>, then both pricing and trading functionality will be shut down.
             </summary>
             <param name="error">The error to throw from <see cref="M:QvaDev.Communication.FixApi.FixConnectorBase.ConnectTradingAsync(System.Boolean)"/>, <see cref="M:QvaDev.Communication.FixApi.FixConnectorBase.NewOrderAsync(QvaDev.Communication.FixApi.NewOrderRequest)"/>, <see cref="M:QvaDev.Communication.FixApi.FixConnectorBase.CancelOrderAsync(System.String)"/> and <see cref="M:QvaDev.Communication.FixApi.FixConnectorBase.GetOrderStatusAsync(System.String)"/> methods
             if their returned tasks are still not complete or <see langword="null"/> if closing is not due to an error.</param>
@@ -753,7 +735,7 @@
             <summary>
             In a derived class gets the body of a <see cref="F:QvaDev.Communication.FixApi.FixMessageTypes.Logon"/> message.
             </summary>
-            <param name="socketConfiguration">The socket configuration to use. It is either the <see cref="P:QvaDev.Communication.FixApi.IFixConfiguration.Pricing"/> or the <see cref="P:QvaDev.Communication.FixApi.IFixConfiguration.Trading"/> property of <see cref="P:QvaDev.Communication.FixApi.FixConnectorBase.Configuration"/>.</param>
+            <param name="socketConfiguration">The socket configuration to use. It is either the <see cref="P:QvaDev.Communication.FixApi.FixConnectorBase.PricingSocketConfiguration"/> or the <see cref="P:QvaDev.Communication.FixApi.FixConnectorBase.TradingSocketConfiguration"/>.</param>
             <returns>A <see cref="T:QvaDev.Communication.FixApi.FixMessageBody"/> instance containing the message body to send.</returns>
         </member>
         <member name="M:QvaDev.Communication.FixApi.FixConnectorBase.GetNewOrderSingleMessageBody(System.String,QvaDev.Communication.FixApi.NewOrderRequest)">
@@ -784,7 +766,7 @@
             <summary>
             Gets the body of a <see cref="F:QvaDev.Communication.FixApi.FixMessageTypes.Logout"/> message.
             </summary>
-            <param name="socketConfiguration">The socket configuration to use. It is either the <see cref="P:QvaDev.Communication.FixApi.IFixConfiguration.Pricing"/> or the <see cref="P:QvaDev.Communication.FixApi.IFixConfiguration.Trading"/> property of <see cref="P:QvaDev.Communication.FixApi.FixConnectorBase.Configuration"/>.</param>
+            <param name="socketConfiguration">The socket configuration to use. It is either the <see cref="P:QvaDev.Communication.FixApi.FixConnectorBase.PricingSocketConfiguration"/> or the <see cref="P:QvaDev.Communication.FixApi.FixConnectorBase.TradingSocketConfiguration"/>.</param>
             <returns>A <see cref="T:QvaDev.Communication.FixApi.FixMessageBody"/> instance containing the message body to send.</returns>
         </member>
         <member name="M:QvaDev.Communication.FixApi.FixConnectorBase.GetHeartbeatMessageBody(System.String)">
@@ -1336,6 +1318,55 @@
         <member name="M:QvaDev.Communication.FixApi.Symbol.GetHashCode">
             <summary>
             Returns a hash code for this instance.
+            </summary>
+        </member>
+        <member name="T:QvaDev.Communication.ConnectionManager">
+            <summary>
+            Represents a class, which manages connections.
+            </summary>
+        </member>
+        <member name="T:QvaDev.Communication.DataReceivedEventArgs">
+            <summary>
+            Represents the data of <see cref="E:QvaDev.Communication.DuplexStreamConcurrentHandler.DataReceived"/> event.
+            </summary>
+        </member>
+        <member name="P:QvaDev.Communication.DataReceivedEventArgs.Buffer">
+            <summary>
+            Gets the buffer of received data. The length of actually received data is returned by <see cref="P:QvaDev.Communication.DataReceivedEventArgs.Length"/> property.
+            </summary>
+        </member>
+        <member name="P:QvaDev.Communication.DataReceivedEventArgs.Length">
+            <summary>
+            Gets the actual length of <see cref="P:QvaDev.Communication.DataReceivedEventArgs.Buffer"/> to process.
+            </summary>
+        </member>
+        <member name="M:QvaDev.Communication.EventHandlerExtensions.InvokeSafe``1(System.EventHandler{``0},System.Object,``0)">
+            <summary>
+            Invoking the user's self subscription without risking the stop of reader/writer thread due to an error in user's event handler.
+            If <see cref="T:System.OperationCanceledException"/> is thrown it is propagated to the caller.
+            </summary>
+        </member>
+        <member name="M:QvaDev.Communication.TypeExtensions.CanAcceptValue(System.Type,System.Object)">
+            <summary>
+            Checks whether a <paramref name="value"/> can be an instance of <paramref name="type"/> when, for example,
+            <paramref name="value"/> is passed to a method with <paramref name="type"/> parameter type.
+            </summary>
+        </member>
+        <member name="M:QvaDev.Communication.TypeExtensions.IsNullable(System.Type)">
+            <summary>
+            Gets whether given <paramref name="type"/> is a <see cref="T:System.Nullable`1"/> type.
+            </summary>
+            <param name="type">The type to check</param>
+            <returns><c>true</c>, if <paramref name="type"/> is a <see cref="T:System.Nullable`1"/> type; otherwise, <c>false</c>.</returns>
+        </member>
+        <member name="M:QvaDev.Communication.WaitHandleExtensions.WaitOneAsync(System.Threading.WaitHandle,System.Int32,System.Threading.CancellationToken)">
+            <summary>
+            Waits for a signal asynchronously on the provided <paramref name="handle"/>.
+            </summary>
+        </member>
+        <member name="M:QvaDev.Communication.WaitHandleExtensions.WaitOneAsync(System.Threading.WaitHandle,System.Threading.CancellationToken)">
+            <summary>
+            Waits for a signal asynchronously on the provided <paramref name="handle"/>.
             </summary>
         </member>
         <member name="M:QvaDev.Communication.DictionaryExtensions.GetValueOrDefault``1(System.Collections.Generic.IDictionary{System.String,System.Object},System.String,``0)">

@@ -68,35 +68,10 @@ namespace QvaDev.Orchestration.Services
         {
             if (slave.Account.MetaTraderAccountId.HasValue) return CopyToMtAccount(e, slave);
             if (slave.Account.CTraderAccountId.HasValue) return CopyToCtAccount(e, slave);
-	        if (slave.Account.FixTraderAccountId.HasValue) return CopyToFtAccount(e, slave);
+	        //if (slave.Account.FixTraderAccountId.HasValue) return CopyToFtAccount(e, slave);
 			if (slave.Account.FixApiAccountId.HasValue) return CopyToFixAccount(e, slave);
 			return Task.FromResult(0);
 		}
-
-	    private Task CopyToFtAccount(NewPositionEventArgs e, Slave slave)
-	    {
-		    if (!(slave.Account?.Connector is Connector slaveConnector)) return Task.CompletedTask;
-
-		    var symbol = slave.SymbolMappings?.Any(m => m.From == e.Position.Symbol) == true
-			    ? slave.SymbolMappings.First(m => m.From == e.Position.Symbol).To
-			    : e.Position.Symbol + (slave.SymbolSuffix ?? "");
-
-		    var tasks = slave.FixApiCopiers.Where(s => s.Run).Select(copier => Task.Factory.StartNew(async () =>
-		    {
-			    if (copier.DelayInMilliseconds > 0) Thread.Sleep(copier.DelayInMilliseconds);
-
-			    var lots = (decimal)Math.Abs(e.Position.Lots) *  copier.CopyRatio;
-			    if (e.Action == NewPositionEventArgs.Actions.Open && copier.OrderType == FixApiCopier.FixApiOrderTypes.Aggressive)
-				    slaveConnector.SendAggressiveOrderRequest(symbol, e.Position.Side, lots, e.Position.OpenPrice, copier.Slippage,
-					    copier.BurstPeriodInMilliseconds, copier.MaxRetryCount, copier.RetryPeriodInMs, $"{slave.Id}-{e.Position.Id}");
-				else if (e.Action == NewPositionEventArgs.Actions.Open && copier.OrderType == FixApiCopier.FixApiOrderTypes.Market)
-					await slaveConnector.SendMarketOrderRequest(symbol, e.Position.Side, lots, $"{slave.Id}-{e.Position.Id}");
-				else if (e.Action == NewPositionEventArgs.Actions.Close)
-					slaveConnector.OrderMultipleCloseBy(symbol);
-
-			}, TaskCreationOptions.LongRunning));
-		    return Task.WhenAll(tasks);
-	    }
 
 		private Task CopyToCtAccount(NewPositionEventArgs e, Slave slave)
         {
@@ -162,13 +137,39 @@ namespace QvaDev.Orchestration.Services
 			{
 				if (copier.DelayInMilliseconds > 0) Thread.Sleep(copier.DelayInMilliseconds);
 
-				var quantity = (decimal)Math.Abs(e.Position.Lots) * copier.CopyRatio;
+				var quantity = (decimal) Math.Abs(e.Position.Lots) * copier.CopyRatio;
+				quantity = Math.Floor(quantity);
+				if (quantity == 0) return;
+
 				if (e.Action == NewPositionEventArgs.Actions.Open && copier.OrderType == FixApiCopier.FixApiOrderTypes.Aggressive)
-					await slaveConnector.SendMarketOrderRequest(symbol, e.Position.Side, quantity);
+				{
+					var response = await slaveConnector.SendAggressiveOrderRequest(symbol, e.Position.Side, quantity, e.Position.OpenPrice,
+						copier.Deviation, copier.TimeWindowInMs, copier.MaxRetryCount, copier.RetryPeriodInMs);
+					copier.OrderResponses[e.Position.Id] = response;
+				}
 				else if (e.Action == NewPositionEventArgs.Actions.Open && copier.OrderType == FixApiCopier.FixApiOrderTypes.Market)
-					await slaveConnector.SendMarketOrderRequest(symbol, e.Position.Side, quantity);
-				else if (e.Action == NewPositionEventArgs.Actions.Close)
-					await slaveConnector.SendMarketOrderRequest(symbol, e.Position.Side.Inv(), quantity);
+				{
+					var response = await slaveConnector.SendMarketOrderRequest(symbol, e.Position.Side, quantity);
+					copier.OrderResponses[e.Position.Id] = response;
+				}
+				else if (e.Action == NewPositionEventArgs.Actions.Close && copier.OrderType == FixApiCopier.FixApiOrderTypes.Aggressive)
+				{
+					if (!copier.OrderResponses.TryGetValue(e.Position.Id, out OrderResponse openResponse)) return;
+					if (!openResponse.IsFilled || openResponse.FilledQuantity == 0) return;
+					var closeResponse = await slaveConnector.SendAggressiveOrderRequest(symbol, e.Position.Side,
+						openResponse.FilledQuantity, e.Position.OpenPrice,
+						copier.Deviation, copier.TimeWindowInMs, copier.MaxRetryCount, copier.RetryPeriodInMs);
+
+					var remainingQuantity = closeResponse.OrderedQuantity - closeResponse.FilledQuantity;
+					if (remainingQuantity == 0) return;
+					await slaveConnector.SendMarketOrderRequest(symbol, e.Position.Side.Inv(), remainingQuantity);
+				}
+				else if (e.Action == NewPositionEventArgs.Actions.Close && copier.OrderType == FixApiCopier.FixApiOrderTypes.Market)
+				{
+					if (!copier.OrderResponses.TryGetValue(e.Position.Id, out OrderResponse openResponse)) return;
+					if (!openResponse.IsFilled || openResponse.FilledQuantity == 0) return;
+					await slaveConnector.SendMarketOrderRequest(symbol, e.Position.Side.Inv(), openResponse.FilledQuantity);
+				}
 
 			}, TaskCreationOptions.LongRunning));
 			return Task.WhenAll(tasks);

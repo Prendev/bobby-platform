@@ -153,7 +153,7 @@ namespace QvaDev.Orchestration.Services.Strategies
 			else
 			{
 				var closeSize = pushing.PushingDetail.OpenedFutures;
-				var percentage = Math.Min(pushing.PushingDetail.PartialHedgeClosePercentage, 100);
+				var percentage = Math.Min(pushing.PushingDetail.PartialClosePercentage, 100);
 				percentage = Math.Max(percentage, 0);
 				closeSize = closeSize * percentage / 100;
 

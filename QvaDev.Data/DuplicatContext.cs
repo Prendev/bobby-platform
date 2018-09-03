@@ -99,6 +99,9 @@ namespace QvaDev.Data
 			modelBuilder.Entity<StratHubArb>().Property(x => x.PipSize).HasPrecision(18, 5);
 			modelBuilder.Entity<StratHubArb>().Property(x => x.Size).HasPrecision(18, 3);
 			modelBuilder.Entity<StratHubArb>().Property(x => x.SlippageInPip).HasPrecision(18, 2);
+
+			modelBuilder.Entity<FixApiCopier>().Property(x => x.PipSize).HasPrecision(18, 5);
+			modelBuilder.Entity<FixApiCopier>().Property(x => x.SlippageInPip).HasPrecision(18, 2);
 		}
 	}
 }

@@ -1,9 +1,12 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.Collections.Generic;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations.Schema;
 using QvaDev.Common.Attributes;
+using QvaDev.Common.Integration;
 
 namespace QvaDev.Data.Models
 {
-    public class FixApiCopier : BaseEntity, IFilterableEntity
+	public class FixApiCopier : BaseEntity, IFilterableEntity
 	{
 		public enum FixApiOrderTypes
 		{
@@ -16,13 +19,21 @@ namespace QvaDev.Data.Models
 
 		public bool Run { get; set; }
 		public decimal CopyRatio { get; set; }
-        public FixApiOrderTypes OrderType { get; set; }
-        public double Slippage { get; set; }
-		public int BurstPeriodInMilliseconds { get; set; }
+		public FixApiOrderTypes OrderType { get; set; }
 		public int DelayInMilliseconds { get; set; }
-        public int MaxRetryCount { get; set; }
-        public int RetryPeriodInMs { get; set; }
 
-        [NotMapped] [InvisibleColumn] public bool IsFiltered { get => Get<bool>(); set => Set(value); }
-    }
+		[DisplayName("MaxRetry")]
+		public int MaxRetryCount { get; set; }
+		[DisplayName("RetryPeriod")]
+		public int RetryPeriodInMs { get; set; }
+		[DisplayName("Slippage")]
+		public decimal SlippageInPip { get; set; }
+		[DisplayName("TimeWindow")]
+		public int TimeWindowInMs { get; set; }
+		public decimal PipSize { get; set; }
+
+		[NotMapped] [InvisibleColumn] public decimal Deviation => SlippageInPip * PipSize;
+		[NotMapped] [InvisibleColumn] public bool IsFiltered { get => Get<bool>(); set => Set(value); }
+		[NotMapped] [InvisibleColumn] public Dictionary<long, OrderResponse> OrderResponses = new Dictionary<long, OrderResponse>();
+	}
 }

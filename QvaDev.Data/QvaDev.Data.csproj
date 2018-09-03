@@ -186,6 +186,10 @@
     <Compile Include="Migrations\201808271350304_HubArb.Designer.cs">
       <DependentUpon>201808271350304_HubArb.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201809030948389_FixApiCopier.cs" />
+    <Compile Include="Migrations\201809030948389_FixApiCopier.Designer.cs">
+      <DependentUpon>201809030948389_FixApiCopier.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\_Strategies\Aggregator.cs" />
     <Compile Include="Models\_Strategies\AggregatorAccount.cs" />
@@ -307,6 +311,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201808271350304_HubArb.resx">
       <DependentUpon>201808271350304_HubArb.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201809030948389_FixApiCopier.resx">
+      <DependentUpon>201809030948389_FixApiCopier.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -58,7 +58,7 @@ namespace QvaDev.FixApiIntegration
 			var result = new List<Type>();
 			foreach (var asm in ConnectorAssemblies)
 			{
-				result.AddRange(asm.GetTypes().Where(t => t.IsClass && !t.IsAbstract && typeof(IFixConfiguration).IsAssignableFrom(t)));
+				result.AddRange(asm.GetTypes().Where(t => t.IsClass && !t.IsAbstract));
 			}
 
 			return result.ToArray();
