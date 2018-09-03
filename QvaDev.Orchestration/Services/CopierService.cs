@@ -7,7 +7,6 @@ using log4net;
 using QvaDev.Common;
 using QvaDev.Common.Integration;
 using QvaDev.Data.Models;
-using QvaDev.FixTraderIntegration;
 
 namespace QvaDev.Orchestration.Services
 {
@@ -32,13 +31,23 @@ namespace QvaDev.Orchestration.Services
         {
 	        _masters = masters;
 
-			foreach (var master in _masters)
-            {
-                master.Account.Connector.NewPosition -= Master_NewPosition;
-                master.Account.Connector.NewPosition += Master_NewPosition;
-            }
+	        foreach (var master in _masters)
+	        {
+		        master.Account.Connector.NewPosition -= Master_NewPosition;
+		        master.Account.Connector.NewPosition += Master_NewPosition;
 
-            _isStarted = true;
+		        var slaves = master.Slaves
+			        .Where(s => s.Account.FixApiAccountId.HasValue &&
+			                    s.Account.Connector != null &&
+								s.Account.Connector.IsConnected);
+
+		        foreach (var slave in slaves)
+		        foreach (var symbolMapping in slave.SymbolMappings)
+			        slave.Account.Connector.Subscribe(symbolMapping.To);
+
+	        }
+
+	        _isStarted = true;
             _log.Info("Copiers are started");
         }
 
@@ -128,7 +137,7 @@ namespace QvaDev.Orchestration.Services
 		private Task CopyToFixAccount(NewPositionEventArgs e, Slave slave)
 		{
 			if (!(slave.Account?.Connector is FixApiIntegration.Connector slaveConnector)) return Task.FromResult(0);
-
+			if (slave.SymbolMappings?.Any(m => m.From == e.Position.Symbol) != true) return Task.FromResult(0);
 			var symbol = slave.SymbolMappings?.Any(m => m.From == e.Position.Symbol) == true
 				? slave.SymbolMappings.First(m => m.From == e.Position.Symbol).To
 				: e.Position.Symbol + (slave.SymbolSuffix ?? "");
@@ -156,8 +165,8 @@ namespace QvaDev.Orchestration.Services
 				{
 					if (!copier.OrderResponses.TryGetValue(e.Position.Id, out OrderResponse openResponse)) return;
 					if (!openResponse.IsFilled || openResponse.FilledQuantity == 0) return;
-					var closeResponse = await slaveConnector.SendAggressiveOrderRequest(symbol, e.Position.Side,
-						openResponse.FilledQuantity, e.Position.OpenPrice,
+					var closeResponse = await slaveConnector.SendAggressiveOrderRequest(symbol, e.Position.Side.Inv(),
+						openResponse.FilledQuantity, e.Position.ClosePrice,
 						copier.Deviation, copier.TimeWindowInMs, copier.MaxRetryCount, copier.RetryPeriodInMs);
 
 					var remainingQuantity = closeResponse.OrderedQuantity - closeResponse.FilledQuantity;

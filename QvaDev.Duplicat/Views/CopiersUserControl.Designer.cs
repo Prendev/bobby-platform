@@ -108,7 +108,7 @@
 			this.groupBox11.Size = new System.Drawing.Size(466, 528);
 			this.groupBox11.TabIndex = 1;
 			this.groupBox11.TabStop = false;
-			this.groupBox11.Text = "Symbol mappings";
+			this.groupBox11.Text = "Symbol mappings (required for FIX API copy)";
 			// 
 			// dgvSymbolMappings
 			// 
