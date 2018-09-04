@@ -792,6 +792,14 @@
             <param name="quoteId">The quoteId to echo back.</param>
             <returns>A <see cref="T:QvaDev.Communication.FixApi.FixMessageBody"/> instance containing the message body to send.</returns>
         </member>
+        <member name="M:QvaDev.Communication.FixApi.FixConnectorBase.ProcessHeartbeatMessage(QvaDev.Communication.FixApi.FixSocket,QvaDev.Communication.FixApi.FixMessage)">
+            <summary>
+            Processes a <see cref="F:QvaDev.Communication.FixApi.FixMessageTypes.Heartbeat"/> FIX API message.
+            </summary>
+            <param name="socket">The sender socket. It is either the <see cref="P:QvaDev.Communication.FixApi.FixConnectorBase.PricingSocket"/> or the <see cref="P:QvaDev.Communication.FixApi.FixConnectorBase.TradingSocket"/>.</param>
+            <param name="message">The message to process.</param>
+            <returns><c>true</c> if the <paramref name="message"/> has been processed; otherwise, <c>false</c>.</returns>
+        </member>
         <member name="M:QvaDev.Communication.FixApi.FixConnectorBase.ProcessTestRequestMessage(QvaDev.Communication.FixApi.FixSocket,QvaDev.Communication.FixApi.FixMessage)">
             <summary>
             Processes a <see cref="F:QvaDev.Communication.FixApi.FixMessageTypes.TestRequest"/> FIX API message.

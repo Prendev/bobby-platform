@@ -16,8 +16,10 @@ namespace QvaDev.Data.Models
 	    [DisplayName("MinInterval")] public int MinIntervalInMs { get; set; }
 	    [DisplayName("MaxInterval")] public int MaxIntervalInMs { get; set; }
 		[DisplayName("HedgeSignal")] public int HedgeSignalContractLimit { get; set; }
-	    [DisplayName("MasterSignal")] public int MasterSignalContractLimit { get; set; }
-	    [DisplayName("FullContract")] public int FullContractSize { get; set; }
+		[DisplayName("MasterSignal")] public int MasterSignalContractLimit { get; set; }
+		[DisplayName("EndingMinInterval")] public int EndingMinIntervalInMs { get; set; }
+		[DisplayName("EndingMaxInterval")] public int EndingMaxIntervalInMs { get; set; }
+		[DisplayName("FullContract")] public int FullContractSize { get; set; }
 		[DisplayName("Close %")] public int PartialClosePercentage { get; set; }
 		public double AlphaLots { get; set; }
 	    public double BetaLots { get; set; }

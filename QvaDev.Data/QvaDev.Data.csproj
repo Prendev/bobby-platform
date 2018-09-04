@@ -190,6 +190,10 @@
     <Compile Include="Migrations\201809030948389_FixApiCopier.Designer.cs">
       <DependentUpon>201809030948389_FixApiCopier.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201809041216532_EndingInterval.cs" />
+    <Compile Include="Migrations\201809041216532_EndingInterval.Designer.cs">
+      <DependentUpon>201809041216532_EndingInterval.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\_Strategies\Aggregator.cs" />
     <Compile Include="Models\_Strategies\AggregatorAccount.cs" />
@@ -314,6 +318,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201809030948389_FixApiCopier.resx">
       <DependentUpon>201809030948389_FixApiCopier.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201809041216532_EndingInterval.resx">
+      <DependentUpon>201809041216532_EndingInterval.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -21,6 +21,17 @@
             Must be stored separately because ClOrderId is too short to encode these data.
             </summary>
         </member>
+        <member name="M:QvaDev.Communication.FixApi.Connectors.OneZero.OneZeroConnector.ProcessSpecialMessage(QvaDev.Communication.FixApi.FixSocket,QvaDev.Communication.FixApi.FixMessage)">
+            <summary>
+            Processes a OneZero specific message.
+            </summary>
+        </member>
+        <member name="M:QvaDev.Communication.FixApi.Connectors.OneZero.OneZeroConnector.ProcessQuoteCancel(QvaDev.Communication.FixApi.FixSocket,QvaDev.Communication.FixApi.FixMessage)">
+            <summary>
+            Processing OneZero QuoteCancel (Z) message.
+            Note: async void intended, caller is not async and execution is not awaited.
+            </summary>
+        </member>
         <member name="T:QvaDev.Communication.FixApi.Connectors.Properties.Resources">
             <summary>
               A strongly-typed resource class, for looking up localized strings, etc.
