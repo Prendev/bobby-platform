@@ -29,7 +29,7 @@
         <member name="M:QvaDev.Communication.FixApi.Connectors.OneZero.OneZeroConnector.ProcessQuoteCancel(QvaDev.Communication.FixApi.FixSocket,QvaDev.Communication.FixApi.FixMessage)">
             <summary>
             Processing OneZero QuoteCancel (Z) message.
-            Note: async void intended, caller is not async and execution is not awaited.
+            Note: We do not do anything but emit a warning
             </summary>
         </member>
         <member name="T:QvaDev.Communication.FixApi.Connectors.Properties.Resources">

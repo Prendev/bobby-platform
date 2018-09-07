@@ -21,3 +21,4 @@ C:\inetpub\wwwroot\QvaDev.CTraderAccess
 Full Access to IIS_IUSRS
 
 Update-Database -Script -SourceMigration:0
+sqlcmd -S localhost\SQLEXPRESS -i C:\migrate.sql -o C:\output.txt
