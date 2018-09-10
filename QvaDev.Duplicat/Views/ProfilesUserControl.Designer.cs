@@ -35,6 +35,8 @@
 			this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
 			this.groupBox6 = new System.Windows.Forms.GroupBox();
 			this.groupBox1 = new System.Windows.Forms.GroupBox();
+			this.dtpFrom = new System.Windows.Forms.DateTimePicker();
+			this.dtpTo = new System.Windows.Forms.DateTimePicker();
 			this.dgvProfiles = new QvaDev.Duplicat.Views.CustomDataGridView();
 			this.dgvAccounts = new QvaDev.Duplicat.Views.CustomDataGridView();
 			this.tlpMain.SuspendLayout();
@@ -64,6 +66,8 @@
 			// 
 			// gbControl
 			// 
+			this.gbControl.Controls.Add(this.dtpTo);
+			this.gbControl.Controls.Add(this.dtpFrom);
 			this.gbControl.Controls.Add(this.btnSaveTheWeekend);
 			this.gbControl.Controls.Add(this.btnLoad);
 			this.gbControl.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -85,7 +89,6 @@
 			this.btnSaveTheWeekend.TabIndex = 16;
 			this.btnSaveTheWeekend.Text = "SAVE THE WEEKEND";
 			this.btnSaveTheWeekend.UseVisualStyleBackColor = true;
-			this.btnSaveTheWeekend.Visible = false;
 			// 
 			// btnLoad
 			// 
@@ -135,6 +138,22 @@
 			this.groupBox1.TabIndex = 1;
 			this.groupBox1.TabStop = false;
 			this.groupBox1.Text = "Accounts";
+			// 
+			// dtpFrom
+			// 
+			this.dtpFrom.Format = System.Windows.Forms.DateTimePickerFormat.Short;
+			this.dtpFrom.Location = new System.Drawing.Point(423, 27);
+			this.dtpFrom.Name = "dtpFrom";
+			this.dtpFrom.Size = new System.Drawing.Size(120, 22);
+			this.dtpFrom.TabIndex = 17;
+			// 
+			// dtpTo
+			// 
+			this.dtpTo.Format = System.Windows.Forms.DateTimePickerFormat.Short;
+			this.dtpTo.Location = new System.Drawing.Point(549, 27);
+			this.dtpTo.Name = "dtpTo";
+			this.dtpTo.Size = new System.Drawing.Size(120, 22);
+			this.dtpTo.TabIndex = 18;
 			// 
 			// dgvProfiles
 			// 
@@ -190,5 +209,7 @@
 		private System.Windows.Forms.GroupBox groupBox1;
 		private CustomDataGridView dgvAccounts;
 		private System.Windows.Forms.Button btnSaveTheWeekend;
+		private System.Windows.Forms.DateTimePicker dtpTo;
+		private System.Windows.Forms.DateTimePicker dtpFrom;
 	}
 }

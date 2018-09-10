@@ -11,7 +11,7 @@ namespace QvaDev.Orchestration.Services
 	public interface IMtAccountImportService
 	{
 		void Import(DuplicatContext duplicatContext);
-		void SaveTheWeekend(DuplicatContext duplicatContext);
+		void SaveTheWeekend(DuplicatContext duplicatContext, DateTime from, DateTime to);
 	}
 
 	public class MtAccountImportService : IMtAccountImportService
@@ -73,21 +73,23 @@ namespace QvaDev.Orchestration.Services
 			}
 		}
 
-		public void SaveTheWeekend(DuplicatContext duplicatContext)
+		public void SaveTheWeekend(DuplicatContext duplicatContext, DateTime from, DateTime to)
 		{
-			using (var streamWriter = new StreamWriter("us.csv"))
+			using (var streamWriter = new StreamWriter("saveTheWeekend.csv"))
 			using (var csvWriter = new CsvHelper.CsvWriter(streamWriter))
 			{
 				var profile = duplicatContext.Profiles.First(p => p.Description == "*Import-Export");
 				var accounts =
 					profile.Accounts.Where(a => a.Run && a.MetaTraderAccountId.HasValue && a.State == Account.States.Connected);
 
+				var symbols = LoadSymbols();
+
 				foreach (var account in accounts)
 				{
 					var conn = (Mt4Integration.Connector)account.Connector;
-					var orders = conn.QuoteClient.DownloadOrderHistory(new DateTime(2018,5,21), new DateTime(2018, 5, 25));
+					var orders = conn.QuoteClient.DownloadOrderHistory(from, to);
 					if(orders?.Length == 0) continue;
-					var us = orders.Where(o => UsSymbols().Contains(o.Symbol));
+					var us = orders.Where(o => symbols.Contains(o.Symbol));
 					us = us.Where(o =>  o.Type == Op.Buy || o.Type == Op.Sell);
 
 					foreach (var order in us)
@@ -119,7 +121,7 @@ namespace QvaDev.Orchestration.Services
 			}
 		}
 
-		private List<string> UsSymbols()
+		private List<string> Symbols()
 		{
 			return new List<string>()
 			{
@@ -157,6 +159,11 @@ namespace QvaDev.Orchestration.Services
 				"US.100.",
 				"US.100.."
 			};
+		}
+
+		private List<string> LoadSymbols()
+		{
+			return File.ReadLines("symbols.csv").ToList();
 		}
 	}
 }

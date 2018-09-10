@@ -217,11 +217,11 @@ namespace QvaDev.Duplicat.ViewModel
 		    IsLoading = false;
 		    IsConfigReadonly = false;
 		}
-	    public async void SaveTheWeekendCommand()
-	    {
+	    public async void SaveTheWeekendCommand(DateTime from, DateTime to)
+		{
 		    IsLoading = true;
 		    IsConfigReadonly = true;
-		    await _orchestrator.SaveTheWeekend(_duplicatContext);
+		    await _orchestrator.SaveTheWeekend(_duplicatContext, from, to);
 
 		    IsLoading = false;
 		    IsConfigReadonly = true;

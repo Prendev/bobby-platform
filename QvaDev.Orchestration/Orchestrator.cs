@@ -25,7 +25,7 @@ namespace QvaDev.Orchestration
 
         Task OrderHistoryExport(DuplicatContext duplicatContext);
 	    void MtAccountImport(DuplicatContext duplicatContext);
-	    Task SaveTheWeekend(DuplicatContext duplicatContext);
+		Task SaveTheWeekend(DuplicatContext duplicatContext, DateTime from, DateTime to);
 
 
 		void TestMarketOrder(Pushing pushing);
@@ -210,11 +210,11 @@ namespace QvaDev.Orchestration
 		    _mtAccountImportService.Import(duplicatContext);
 		}
 
-	    public Task SaveTheWeekend(DuplicatContext duplicatContext)
-	    {
+	    public Task SaveTheWeekend(DuplicatContext duplicatContext, DateTime from, DateTime to)
+		{
 		    return Connect(duplicatContext).ContinueWith(prevTask =>
 		    {
-			    _mtAccountImportService.SaveTheWeekend(duplicatContext);
+			    _mtAccountImportService.SaveTheWeekend(duplicatContext, from, to);
 			});
 	    }
 

@@ -31,7 +31,7 @@ namespace QvaDev.Duplicat.Views
 
 	        btnSaveTheWeekend.Click += (s, e) =>
 	        {
-		        _viewModel.SaveTheWeekendCommand();
+				_viewModel.SaveTheWeekendCommand(dtpFrom.Value, dtpTo.Value);
 	        };
 		}
 
