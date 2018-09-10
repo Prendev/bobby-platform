@@ -152,7 +152,7 @@
 			this.btnSaveTheWeekend.Name = "btnSaveTheWeekend";
 			this.btnSaveTheWeekend.Size = new System.Drawing.Size(200, 28);
 			this.btnSaveTheWeekend.TabIndex = 23;
-			this.btnSaveTheWeekend.Text = "Order history export";
+			this.btnSaveTheWeekend.Text = "Save the weekend";
 			this.btnSaveTheWeekend.UseVisualStyleBackColor = true;
 			// 
 			// dtpFrom
