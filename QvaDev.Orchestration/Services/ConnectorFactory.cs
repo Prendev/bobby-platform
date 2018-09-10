@@ -1,5 +1,5 @@
-﻿using log4net;
-using QvaDev.CTraderIntegration;
+﻿using System.Threading.Tasks;
+using log4net;
 using QvaDev.Data;
 using QvaDev.Data.Models;
 
@@ -7,27 +7,33 @@ namespace QvaDev.Orchestration.Services
 {
 	public class ConnectorFactory : IConnectorFactory
 	{
-		private readonly ICtConnectorFactory _ctConnectorFactory;
+		private readonly CTraderIntegration.ICtConnectorFactory _ctConnectorFactory;
 		private readonly ILog _log;
 
 		public ConnectorFactory(
-			ICtConnectorFactory ctConnectorFactory,
+			CTraderIntegration.ICtConnectorFactory ctConnectorFactory,
 			ILog log)
 		{
 			_log = log;
 			_ctConnectorFactory = ctConnectorFactory;
 		}
-		public void Create(Account account)
+		public async Task Create(Account account)
 		{
 			if (account.MetaTraderAccountId.HasValue) ConnectMtAccount(account);
 			if (account.CTraderAccountId.HasValue) ConenctCtAccount(account);
 			if (account.FixTraderAccountId.HasValue) ConnectFtAccount(account);
-			if (account.FixApiAccountId.HasValue) ConnectFixAccount(account);
+			if (account.FixApiAccountId.HasValue) await ConnectFixAccount(account);
+			if (account.IlyaFastFeedAccountId.HasValue) ConnectIlyaFastFeedAccount(account);
+			if (account.CqgClientApiAccountId.HasValue) ConnectCqgClientApiAccount(account);
 		}
 
 
 		private void ConnectMtAccount(Account account)
 		{
+			if (!(account.Connector is Mt4Integration.Connector) ||
+			    account.Connector.Id != account.MetaTraderAccountId)
+				account.Connector = null;
+
 			if (account.Connector == null)
 				account.Connector = new Mt4Integration.Connector(_log);
 			((Mt4Integration.Connector) account.Connector)
@@ -43,6 +49,10 @@ namespace QvaDev.Orchestration.Services
 
 		private void ConenctCtAccount(Account account)
 		{
+			if (!(account.Connector is CTraderIntegration.Connector) ||
+			    account.Connector.Id != account.CTraderAccountId)
+				account.Connector = null;
+
 			if (account.Connector == null)
 			{
 				account.Connector = (CTraderIntegration.Connector)_ctConnectorFactory.Create(
@@ -68,12 +78,17 @@ namespace QvaDev.Orchestration.Services
 
 		private void ConnectFtAccount(Account account)
 		{
+			if (!(account.Connector is FixTraderIntegration.Connector) ||
+			    account.Connector.Id != account.FixTraderAccountId)
+				account.Connector = null;
+
 			if (account.Connector == null)
 				account.Connector = new FixTraderIntegration.Connector(_log);
 
 			((FixTraderIntegration.Connector) account.Connector)
 				.Connect(new FixTraderIntegration.AccountInfo
 				{
+					DbId = account.FixTraderAccount.Id,
 					Description = account.FixTraderAccount.Description,
 					IpAddress = account.FixTraderAccount.IpAddress,
 					CommandSocketPort = account.FixTraderAccount.CommandSocketPort,
@@ -81,13 +96,58 @@ namespace QvaDev.Orchestration.Services
 				});
 		}
 
-		private void ConnectFixAccount(Account account)
+		private async Task ConnectFixAccount(Account account)
 		{
-			if (account.Connector == null)
-				account.Connector = new FixApiIntegration.Connector();
+			if (!(account.Connector is FixApiIntegration.Connector) ||
+			    account.Connector.Id != account.FixTraderAccountId)
+				account.Connector = null;
 
-			((FixApiIntegration.Connector)account.Connector)
-				.Connect();
+			if (account.Connector == null)
+				account.Connector = new FixApiIntegration.Connector(new FixApiIntegration.AccountInfo
+				{
+					DbId = account.FixApiAccount.Id,
+					Description = account.FixApiAccount.Description,
+					ConfigPath = account.FixApiAccount.ConfigPath,
+				}, _log);
+
+			await ((FixApiIntegration.Connector) account.Connector).Connect();
+		}
+
+		private async void ConnectIlyaFastFeedAccount(Account account)
+		{
+			if (!(account.Connector is IlyaFastFeedIntegration.Connector) ||
+			    account.Connector.Id != account.IlyaFastFeedAccountId)
+				account.Connector = null;
+
+			if (account.Connector == null)
+				account.Connector = new IlyaFastFeedIntegration.Connector(_log);
+
+			await ((IlyaFastFeedIntegration.Connector)account.Connector).Connect(new IlyaFastFeedIntegration.AccountInfo()
+			{
+				DbId = account.IlyaFastFeedAccount.Id,
+				Description = account.IlyaFastFeedAccount.Description,
+				IpAddress = account.IlyaFastFeedAccount.IpAddress,
+				Port = account.IlyaFastFeedAccount.Port,
+				UserName = account.IlyaFastFeedAccount.UserName
+			});
+		}
+
+		private async void ConnectCqgClientApiAccount(Account account)
+		{
+			if (!(account.Connector is CqgClientApiIntegration.Connector) ||
+			    account.Connector.Id != account.IlyaFastFeedAccountId)
+				account.Connector = null;
+
+			if (account.Connector == null)
+				account.Connector = new CqgClientApiIntegration.Connector(new CqgClientApiIntegration.AccountInfo()
+				{
+					DbId = account.CqgClientApiAccount.Id,
+					Description = account.CqgClientApiAccount.Description,
+					UserName = account.CqgClientApiAccount.UserName,
+					Password = account.CqgClientApiAccount.Password
+				}, _log);
+
+			await ((CqgClientApiIntegration.Connector)account.Connector).Connect();
 		}
 	}
 }

@@ -5,8 +5,8 @@ using QvaDev.Duplicat.ViewModel;
 
 namespace QvaDev.Duplicat.Views
 {
-    public partial class CopiersUserControl : UserControl, ITabUserControl
-    {
+    public partial class CopiersUserControl : UserControl, IMvvmUserControl, IFilterable
+	{
         private DuplicatViewModel _viewModel;
 
         public CopiersUserControl()
@@ -26,40 +26,46 @@ namespace QvaDev.Duplicat.Views
 			//dgvSlaves.AddBinding("ReadOnly", _viewModel, nameof(_viewModel.IsConfigReadonly));
 			//dgvCopiers.AddBinding("ReadOnly", _viewModel, nameof(_viewModel.IsConfigReadonly));
 			//dgvFixApiCopiers.AddBinding("ReadOnly", _viewModel, nameof(_viewModel.IsConfigReadonly));
-	        dgvSymbolMappings.AddBinding("ReadOnly", _viewModel, nameof(_viewModel.IsConfigReadonly));
+	        //dgvSymbolMappings.AddBinding("ReadOnly", _viewModel, nameof(_viewModel.IsConfigReadonly));
 
 			dgvMasters.AddBinding("AllowUserToAddRows", _viewModel, nameof(_viewModel.IsConfigReadonly), true);
-	        dgvMasters.AddBinding("AllowUserToDeleteRows", _viewModel, nameof(_viewModel.IsConfigReadonly), true);
-	        dgvSlaves.AddBinding("AllowUserToAddRows", _viewModel, nameof(_viewModel.IsConfigReadonly), true);
-	        dgvSlaves.AddBinding("AllowUserToDeleteRows", _viewModel, nameof(_viewModel.IsConfigReadonly), true);
-			dgvCopiers.AddBinding("AllowUserToAddRows", _viewModel, nameof(_viewModel.IsConfigReadonly), true);
-	        dgvCopiers.AddBinding("AllowUserToDeleteRows", _viewModel, nameof(_viewModel.IsConfigReadonly), true);
-	        dgvFixApiCopiers.AddBinding("AllowUserToAddRows", _viewModel, nameof(_viewModel.IsConfigReadonly), true);
-	        dgvFixApiCopiers.AddBinding("AllowUserToDeleteRows", _viewModel, nameof(_viewModel.IsConfigReadonly), true);
+			dgvMasters.AddBinding("AllowUserToDeleteRows", _viewModel, nameof(_viewModel.IsConfigReadonly), true);
+			dgvSlaves.AddBinding("AllowUserToAddRows", _viewModel, nameof(_viewModel.IsCopierConfigAddEnabled), true);
+	        dgvSlaves.AddBinding("AllowUserToDeleteRows", _viewModel, nameof(_viewModel.IsCopierConfigAddEnabled), true);
+
+			dgvCopiers.AddBinding("AllowUserToAddRows", _viewModel, nameof(_viewModel.IsCopierConfigAddEnabled));
+	        dgvCopiers.AddBinding("AllowUserToDeleteRows", _viewModel, nameof(_viewModel.IsCopierConfigAddEnabled));
+	        dgvFixApiCopiers.AddBinding("AllowUserToAddRows", _viewModel, nameof(_viewModel.IsCopierConfigAddEnabled));
+	        dgvFixApiCopiers.AddBinding("AllowUserToDeleteRows", _viewModel, nameof(_viewModel.IsCopierConfigAddEnabled));
+	        dgvSymbolMappings.AddBinding("AllowUserToAddRows", _viewModel, nameof(_viewModel.IsCopierConfigAddEnabled));
+	        dgvSymbolMappings.AddBinding("AllowUserToDeleteRows", _viewModel, nameof(_viewModel.IsCopierConfigAddEnabled));
+
+	        gbSlaves.AddBinding<Slave, string>("Text", _viewModel, nameof(_viewModel.SelectedSlave),
+		        s => $"Slaves (use double-click) - {s?.ToString() ?? "Save before load!!!"}");
 
 			btnStart.Click += (s, e) => { _viewModel.StartCopiersCommand(); };
             btnStop.Click += (s, e) => { _viewModel.StopCopiersCommand(); };
 
-            btnShowSelectedSlave.Click += (s, e) =>
-            {
-                _viewModel.ShowSelectedSlaveCommand(dgvSlaves.GetSelectedItem<Slave>());
-                FilterRows();
-            };
+	        dgvSlaves.RowDoubleClick += (s, e) =>
+	        {
+		        _viewModel.ShowSelectedSlaveCommand(dgvSlaves.GetSelectedItem<Slave>());
+		        FilterRows();
+	        };
 
-	        dgvMasters.DefaultValuesNeeded += (s, e) => e.Row.Cells["ProfileId"].Value = _viewModel.SelectedProfileId;
-			dgvSymbolMappings.DefaultValuesNeeded += (s, e) => { e.Row.Cells["SlaveId"].Value = _viewModel.SelectedSlaveId; };
+	        dgvMasters.DefaultValuesNeeded += (s, e) => e.Row.Cells["ProfileId"].Value = _viewModel.SelectedProfile.Id;
+			dgvSymbolMappings.DefaultValuesNeeded += (s, e) => { e.Row.Cells["SlaveId"].Value = _viewModel.SelectedSlave.Id; };
             dgvCopiers.DefaultValuesNeeded += (s, e) =>
             {
-                e.Row.Cells["SlaveId"].Value = _viewModel.SelectedSlaveId;
+                e.Row.Cells["SlaveId"].Value = _viewModel.SelectedSlave.Id;
                 e.Row.Cells["SlippageInPips"].Value = 1;
                 e.Row.Cells["MaxRetryCount"].Value = 5;
-                e.Row.Cells["RetryPeriodInMilliseconds"].Value = 25;
+                e.Row.Cells["RetryPeriodInMs"].Value = 25;
             };
 	        dgvFixApiCopiers.DefaultValuesNeeded += (s, e) =>
 	        {
-		        e.Row.Cells["SlaveId"].Value = _viewModel.SelectedSlaveId;
+		        e.Row.Cells["SlaveId"].Value = _viewModel.SelectedSlave.Id;
 		        e.Row.Cells["MaxRetryCount"].Value = 5;
-		        e.Row.Cells["RetryPeriodInMilliseconds"].Value = 25;
+		        e.Row.Cells["RetryPeriodInMs"].Value = 25;
 	        };
 		}
 

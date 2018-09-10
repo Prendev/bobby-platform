@@ -14,20 +14,19 @@ namespace QvaDev.Mt4Integration
 	public interface IConnector : Common.Integration.IConnector
 	{
 		Position SendMarketOrderRequest(string symbol, Sides side, double lots, int magicNumber,
-			string comment, int maxRetryCount, int retryPeriodInMilliseconds);
+			string comment, int maxRetryCount, int retryPeriodInMs);
 
-		bool SendClosePositionRequests(Position position, double? lots, int maxRetryCount, int retryPeriodInMilliseconds);
+		bool SendClosePositionRequests(Position position, double? lots, int maxRetryCount, int retryPeriodInMs);
 	}
 
-    public class Connector : IConnector
-    {
+	public class Connector : ConnectorBase, IConnector
+	{
         public class SymbolHistory
         {
             public ConcurrentDictionary<DateTime, Bar> BarHistory { get; set; } = new ConcurrentDictionary<DateTime, Bar>();
             public Bar LastBar => BarHistory?.OrderByDescending(b => b.Key).FirstOrDefault().Value;
         }
 
-        private readonly ILog _log;
         private readonly ConcurrentDictionary<string, SymbolInfo> _symbolInfos =
             new ConcurrentDictionary<string, SymbolInfo>();
         private readonly ConcurrentDictionary<string, Tick> _lastTicks =
@@ -36,36 +35,41 @@ namespace QvaDev.Mt4Integration
             new ConcurrentDictionary<string, SymbolHistory>();
 		private AccountInfo _accountInfo;
         private List<Tuple<string, int, short>> _symbols;
-        private IEnumerable<Order> _orderHistory;
 
+	    public override int Id => _accountInfo?.DbId ?? 0;
+		public override string Description => _accountInfo?.Description;
+		public override bool IsConnected => QuoteClient?.Connected == true && OrderClient?.Connected == true;
 	    public DateTime? ServerTime => QuoteClient?.ServerTime;
-		public string Description => _accountInfo?.Description;
-        public bool IsConnected => QuoteClient?.Connected == true;
-        public ConcurrentDictionary<long, Position> Positions { get; }
-        public event PositionEventHandler OnPosition;
-        public event BarHistoryEventHandler OnBarHistory;
-        public event TickEventHandler OnTick;
+		public ConcurrentDictionary<long, Position> Positions { get; }
 
 		public QuoteClient QuoteClient;
         public OrderClient OrderClient;
 
-		public Connector(ILog log)
+		public Connector(ILog log) : base(log)
         {
             Positions = new ConcurrentDictionary<long, Position>();
-            _log = log;
         }
 
-        public void Disconnect()
+		public override void Disconnect()
         {
             QuoteClient.OnDisconnect -= QuoteClient_OnDisconnect;
             QuoteClient.OnOrderUpdate -= QuoteClient_OnOrderUpdate;
-			QuoteClient?.Disconnect();
-            OrderClient?.Disconnect();
-            _log.Debug($"{_accountInfo.Description} account ({_accountInfo.User}) disconnected");
+
+	        try
+			{
+				QuoteClient?.Disconnect();
+				OrderClient?.Disconnect();
+			}
+	        catch (Exception e)
+	        {
+		        Log.Error($"{Description} account ERROR during disconnect", e);
+			}
+
+			OnConnectionChanged(ConnectionStates.Disconnected);
 		}
 
 
-        public bool Connect(AccountInfo accountInfo)
+        public void Connect(AccountInfo accountInfo)
         {
             _accountInfo = accountInfo;
 
@@ -83,22 +87,21 @@ namespace QvaDev.Mt4Integration
 			}
 			catch (Exception e)
 			{
-				_log.Error($"{_accountInfo.Description} account ({_accountInfo.User}) FAILED to connect", e);
+				Log.Error($"{_accountInfo.Description} account ({_accountInfo.User}) FAILED to connect", e);
 			}
 			finally
 			{
-				if (!IsConnected) ConnectSlaves(slaves, _accountInfo);
+				if (QuoteClient?.Connected != true) ConnectSlaves(slaves, _accountInfo);
 			}
 
-            if (!IsConnected) return IsConnected;
+	        OrderClient = new OrderClient(QuoteClient);
+	        OrderClient.Connect();
 
-            OrderClient = new OrderClient(QuoteClient);
-            OrderClient.Connect();
-            _log.Debug($"{_accountInfo.Description} account ({_accountInfo.User}) connected");
+			OnConnectionChanged(IsConnected ? ConnectionStates.Connected : ConnectionStates.Error);
+			if (!IsConnected) return;
 
             QuoteClient.OnOrderUpdate -= QuoteClient_OnOrderUpdate;
             QuoteClient.OnOrderUpdate += QuoteClient_OnOrderUpdate;
-
             QuoteClient.OnDisconnect -= QuoteClient_OnDisconnect;
             QuoteClient.OnDisconnect += QuoteClient_OnDisconnect;
 
@@ -118,7 +121,7 @@ namespace QvaDev.Mt4Integration
                     Commission = o.Commission,
                     Swap = o.Swap,
                     OpenTime = o.OpenTime,
-                    OpenPrice = o.OpenPrice,
+                    OpenPrice = (decimal)o.OpenPrice,
                     Comment = o.Comment
                 };
                 Positions.AddOrUpdate(o.Ticket, key => pos, (key, old) =>
@@ -126,20 +129,18 @@ namespace QvaDev.Mt4Integration
                     pos.CloseOrder = old.CloseOrder;
                     return pos;
                 });
-            }
-
-            return IsConnected;
-        }
+			}
+		}
 
 		public Position SendMarketOrderRequest(string symbol, Sides side, double lots, int magicNumber,
-			string comment, int maxRetryCount, int retryPeriodInMilliseconds)
+			string comment, int maxRetryCount, int retryPeriodInMs)
         {
             try
 			{
 				var op = side == Sides.Buy ? Op.Buy : Op.Sell;
-				_log.Info($"{_accountInfo.Description} account ({_accountInfo.User}) OrderClient.OrderSend started...");
+				Log.Info($"{_accountInfo.Description} account ({_accountInfo.User}) OrderClient.OrderSend started...");
 				var o = OrderClient.OrderSend(symbol, op, lots, 0, 0, 0, 0, comment, magicNumber, DateTime.MaxValue);
-				_log.Info($"{_accountInfo.Description} account ({_accountInfo.User}) OrderClient.OrderSend is successful");
+				Log.Info($"{_accountInfo.Description} account ({_accountInfo.User}) OrderClient.OrderSend is successful");
 
 				var position = new Position
 				{
@@ -153,28 +154,20 @@ namespace QvaDev.Mt4Integration
 					Commission = o.Commission,
 					Swap = o.Swap,
 					OpenTime = o.OpenTime,
-					OpenPrice = o.OpenPrice,
+					OpenPrice = (decimal)o.OpenPrice,
 					Comment = o.Comment
 				};
 				Positions.AddOrUpdate(position.Id, t => position, (t, old) => position);
-
-				OnPosition?.Invoke(this, new PositionEventArgs
-				{
-					DbId = _accountInfo.DbId,
-					AccountType = AccountTypes.Mt4,
-					Position = position,
-					Action = PositionEventArgs.Actions.Open,
-				});
 
 				return position;
 			}
             catch (Exception e)
             {
-                _log.Error($"Connector.SendMarketOrderRequest({symbol}, {side}, {lots}, {magicNumber}, {comment}) exception", e);
+                Log.Error($"Connector.SendMarketOrderRequest({symbol}, {side}, {lots}, {magicNumber}, {comment}) exception", e);
 				if (maxRetryCount <= 0) return null;
 
-				Thread.Sleep(retryPeriodInMilliseconds);
-				return SendMarketOrderRequest(symbol, side, lots, magicNumber, comment, --maxRetryCount, retryPeriodInMilliseconds);
+				Thread.Sleep(retryPeriodInMs);
+				return SendMarketOrderRequest(symbol, side, lots, magicNumber, comment, --maxRetryCount, retryPeriodInMs);
 			}
         }
 
@@ -183,39 +176,39 @@ namespace QvaDev.Mt4Integration
 			return SendMarketOrderRequest(symbol, side, lots, magicNumber, comment, 0, 0);
 		}
 
-		public bool SendClosePositionRequests(Position position, double? lots, int maxRetryCount, int retryPeriodInMilliseconds)
+		public bool SendClosePositionRequests(Position position, double? lots, int maxRetryCount, int retryPeriodInMs)
         {
             try
 			{
 				var price = position.Side == Sides.Buy
                     ? QuoteClient.GetQuote(position.Symbol).Bid
                     : QuoteClient.GetQuote(position.Symbol).Ask;
-				_log.Info($"{_accountInfo.Description} account ({_accountInfo.User}) OrderClient.OrderClose started...");
+				Log.Info($"{_accountInfo.Description} account ({_accountInfo.User}) OrderClient.OrderClose started...");
 				OrderClient.OrderClose(position.Symbol, (int) position.Id, lots ?? position.Lots, price, 0);
-				_log.Info($"{_accountInfo.Description} account ({_accountInfo.User}) OrderClient.OrderClose is successful");
+				Log.Info($"{_accountInfo.Description} account ({_accountInfo.User}) OrderClient.OrderClose is successful");
 				return true;
 			}
             catch (Exception e)
             {
-                _log.Error($"Connector.SendClosePositionRequests({position.Id}) exception", e);
+                Log.Error($"Connector.SendClosePositionRequests({position.Id}) exception", e);
 				if (maxRetryCount <= 0) return false;
 
-				Thread.Sleep(retryPeriodInMilliseconds);
-				return SendClosePositionRequests(position, lots, --maxRetryCount, retryPeriodInMilliseconds);
+				Thread.Sleep(retryPeriodInMs);
+				return SendClosePositionRequests(position, lots, --maxRetryCount, retryPeriodInMs);
 			}
         }
 
-        public bool SendClosePositionRequests(string comment, int maxRetryCount , int retryPeriodInMilliseconds)
+        public bool SendClosePositionRequests(string comment, int maxRetryCount , int retryPeriodInMs)
         {
             foreach (var pos in Positions.Where(p => p.Value.Comment == comment && !p.Value.IsClosed))
-                SendClosePositionRequests(pos.Value, null, maxRetryCount, retryPeriodInMilliseconds);
+                SendClosePositionRequests(pos.Value, null, maxRetryCount, retryPeriodInMs);
 			return true;
 		}
 
-	    public bool SendClosePositionRequests(List<Position> positions, int maxRetryCount, int retryPeriodInMilliseconds)
+	    public bool SendClosePositionRequests(List<Position> positions, int maxRetryCount, int retryPeriodInMs)
 	    {
 		    foreach (var pos in positions)
-			    SendClosePositionRequests(pos, null, maxRetryCount, retryPeriodInMilliseconds);
+			    SendClosePositionRequests(pos, null, maxRetryCount, retryPeriodInMs);
 		    return true;
 	    }
 
@@ -224,7 +217,14 @@ namespace QvaDev.Mt4Integration
 			return SendClosePositionRequests(position, lots, 0, 0);
 		}
 
-		public long GetOpenContracts(string symbol)
+	    public bool SendClosePositionRequests(long ticket, int maxRetryCount, int retryPeriodInMs)
+	    {
+		    var position = Positions.FirstOrDefault(p => p.Key == ticket && !p.Value.IsClosed);
+		    if (position.Value == null) return true;
+		    return SendClosePositionRequests(position.Value, null, maxRetryCount, retryPeriodInMs);
+	    }
+
+	    public long GetOpenContracts(string symbol)
         {
             return Positions.Where(p => p.Value.Symbol == symbol && !p.Value.IsClosed).Sum(p => p.Value.RealVolume);
         }
@@ -266,30 +266,9 @@ namespace QvaDev.Mt4Integration
             return Math.Round(GetSymbolInfo(symbol).Point, GetSymbolInfo(symbol).Digits);
         }
 
-        public Tick GetLastTick(string symbol)
+		public override Tick GetLastTick(string symbol)
         {
             return _lastTicks.GetOrAdd(symbol, (Tick)null);
-        }
-
-        public double GetLastActionPrice(string symbol, Sides side, int magicNumber)
-        {
-            var lastPos = Positions.Select(p => p.Value)
-                .Where(p => p.MagicNumber == magicNumber && p.Side == side && p.Symbol == symbol)
-                .OrderByDescending(p => p.IsClosed ? p.CloseTime : p.OpenTime)
-                .FirstOrDefault();
-
-            var opType = side == Sides.Buy ? Op.Buy : Op.Sell;
-            _orderHistory = _orderHistory ?? QuoteClient
-                                .DownloadOrderHistory(DateTime.UtcNow.AddYears(-1), DateTime.UtcNow.AddDays(1))
-                                .OrderByDescending(o => o.CloseTime).ToList();
-            var lastClosed = _orderHistory.FirstOrDefault(o => o.MagicNumber == magicNumber && o.Type == opType && o.Symbol == symbol);
-
-            if (lastPos == null && lastClosed == null) return 0;
-            if (lastPos == null) return lastClosed.ClosePrice;
-            if (lastClosed == null) return lastPos.OpenPrice;
-            if ((lastPos.IsClosed ? lastPos.CloseTime : lastPos.OpenTime) <= lastClosed.CloseTime)
-                return lastClosed.ClosePrice;
-            return lastPos.IsClosed ? lastPos.ClosePrice : lastPos.OpenPrice;
         }
 
         public double CalculateProfit(int magicNumber, string symbol1, Sides side1, string symbol2, Sides side2)
@@ -307,7 +286,12 @@ namespace QvaDev.Mt4Integration
                 .Where(p => (p.Symbol == symbol1 || p.Symbol == symbol2) &&
                             magics?.Any(m => m == p.MagicNumber) == true)
                 .Sum(o => o.Profit + o.Commission + o.Swap);
-        }
+		}
+
+		public override void Subscribe(string symbol)
+		{
+			Subscribe(new List<Tuple<string, int, short>> {new Tuple<string, int, short>(symbol, 1, 1)});
+		}
 
 		public void Subscribe(List<Tuple<string, int, short>> symbols)
         {
@@ -337,7 +321,7 @@ namespace QvaDev.Mt4Integration
 	    {
 		    if (check && QuoteClient.Symbols.All(s => s != symbol.Item1))
 		    {
-			    _log.Error($"{_accountInfo.Description} account ({_accountInfo.User}) Subscribe error, symbol {symbol.Item1} not existing!!!");
+			    Log.Error($"{_accountInfo.Description} account ({_accountInfo.User}) Subscribe error, symbol {symbol.Item1} not existing!!!");
 			    return;
 		    }
 
@@ -369,14 +353,11 @@ namespace QvaDev.Mt4Integration
                     var lastBar = symbolHistory.LastBar;
                     if (lastBar != null && args.Time < lastBar.OpenTime.AddMinutes(2 * (int) timeframe)) continue;
 
-                    Tick lastTick;
-                    if (_lastTicks.TryGetValue(args.Symbol, out lastTick) && lastTick != null)
+	                if (_lastTicks.TryGetValue(args.Symbol, out var lastTick) && lastTick != null)
                     {
                         var openTime = lastTick.Time.RoundDown(TimeSpan.FromMinutes((int) timeframe));
                         symbolHistory.BarHistory[openTime] =
                             new Bar { OpenTime = openTime, Close = lastTick.Bid };
-                        OnBarHistory?.Invoke(this,
-                            new BarHistoryEventArgs { Symbol = args.Symbol, BarHistory = symbolHistory.BarHistory });
                     }
                     else GetBarHistory(args.Symbol, timeframe, DateTime.Now.AddDays(1), 1);
                 }
@@ -385,64 +366,61 @@ namespace QvaDev.Mt4Integration
             var tick = new Tick
             {
                 Symbol = args.Symbol,
-                Ask = args.Ask,
-                Bid = args.Bid,
+                Ask = (decimal)args.Ask,
+                Bid = (decimal)args.Bid,
                 Time = args.Time
             };
             _lastTicks.AddOrUpdate(args.Symbol, key => tick, (key, old) => tick);
-            OnTick?.Invoke(this, new TickEventArgs {Tick = tick});
+            OnNewTick(new NewTickEventArgs {Tick = tick});
         }
 
         private void GetBarHistory(string symbol, Timeframe timeframe, DateTime from, short count)
         {
-            //Task.Factory.StartNew(() =>
-            //{
-                try
+            try
+            {
+                QuoteClient.DownloadQuoteHistory(symbol, timeframe, from, count);
+            }
+            catch (Exception e)
+            {
+                Log.Error($"{symbol}: DownloadQuoteHistory exception => {e.Message}", e);
+                if (e.Message == "Previous request have not sent in 10000 ms")
                 {
-                    QuoteClient.DownloadQuoteHistory(symbol, timeframe, from, count);
+                    Thread.Sleep(new TimeSpan(0, 0, 10));
+                    GetBarHistory(symbol, timeframe, from, count);
                 }
-                catch (Exception e)
-                {
-                    _log.Error($"{symbol}: DownloadQuoteHistory exception => {e.Message}", e);
-                    if (e.Message == "Previous request have not sent in 10000 ms")
-                    {
-                        Thread.Sleep(new TimeSpan(0, 0, 10));
-                        GetBarHistory(symbol, timeframe, from, count);
-                    }
-                }
-            //});
+            }
         }
 
         private void QuoteClient_OnQuoteHistory(object sender, QuoteHistoryEventArgs args)
         {
             if (args.Bars?.Any() != true) return;
             if (args.Bars.First().Time < new DateTime(2000, 1, 1)) return;
-            SymbolHistory symbolHistory;
-            if (!_symbolHistories.TryGetValue(new Tuple<string, int>(args.Symbol, (int)args.Timeframe).ToString(), out symbolHistory)) return;
+	        if (!_symbolHistories.TryGetValue(new Tuple<string, int>(args.Symbol, (int) args.Timeframe).ToString(),
+		        out var symbolHistory)) return;
 
             lock (symbolHistory)
             {
                 foreach (var bar in args.Bars)
                     symbolHistory.BarHistory[bar.Time] = new Bar
                     {
-                        Close = bar.Close,
+                        Close = (decimal)bar.Close,
                         OpenTime = bar.Time
                     };
-                OnBarHistory?.Invoke(this,
-                    new BarHistoryEventArgs { Symbol = args.Symbol, BarHistory = symbolHistory.BarHistory });
             }
         }
 
         private void QuoteClient_OnDisconnect(object sender, DisconnectEventArgs args)
         {
-            _log.Error($"{_accountInfo.Description} account ({_accountInfo.User}) disconnected", args.Exception);
-            while (true)
+			OnConnectionChanged(ConnectionStates.Error);
+            Log.Error($"{_accountInfo.Description} account ({_accountInfo.User}) disconnected", args.Exception);
+            while (!IsConnected)
             {
-                if (IsConnected) return;
-                if (Connect(_accountInfo)) return;
-                Thread.Sleep(new TimeSpan(0, 1, 0));
-            }
-        }
+	            Connect(_accountInfo);
+	            if (IsConnected) return;
+	            Thread.Sleep(new TimeSpan(0, 1, 0));
+			}
+	        OnConnectionChanged(IsConnected ? ConnectionStates.Connected : ConnectionStates.Error);
+		}
 
         private void QuoteClient_OnOrderUpdate(object sender, OrderUpdateEventArgs update)
         {
@@ -457,9 +435,9 @@ namespace QvaDev.Mt4Integration
                 Side = update.Order.Type == Op.Buy ? Sides.Buy : Sides.Sell,
                 RealVolume = (long)(update.Order.Lots * GetSymbolInfo(update.Order.Symbol).ContractSize * (update.Order.Type == Op.Buy ? 1 : -1)),
                 OpenTime = update.Order.OpenTime,
-                OpenPrice = update.Order.OpenPrice,
+                OpenPrice = (decimal)update.Order.OpenPrice,
                 CloseTime = update.Order.CloseTime,
-                ClosePrice = update.Order.ClosePrice,
+                ClosePrice = (decimal)update.Order.ClosePrice,
                 IsClosed = update.Action == UpdateAction.PositionClose,
                 MagicNumber = update.Order.MagicNumber,
                 Profit = update.Order.Profit,
@@ -469,12 +447,12 @@ namespace QvaDev.Mt4Integration
             };
             Positions.AddOrUpdate(update.Order.Ticket, t => position, (t, old) => position);
 
-            OnPosition?.Invoke(sender, new PositionEventArgs
+            OnNewPosition(new NewPositionEventArgs
             {
                 DbId = _accountInfo.DbId,
                 AccountType = AccountTypes.Mt4,
                 Position = position,
-                Action = update.Action == UpdateAction.PositionOpen ? PositionEventArgs.Actions.Open : PositionEventArgs.Actions.Close,
+                Action = update.Action == UpdateAction.PositionOpen ? NewPositionEventArgs.Actions.Open : NewPositionEventArgs.Actions.Close,
 			});
         }
 
@@ -506,7 +484,7 @@ namespace QvaDev.Mt4Integration
                 }
                 catch (Exception e)
                 {
-                    _log.Error($"{_accountInfo.Description} account ({_accountInfo.User}) FAILED to connect", e);
+                    Log.Error($"{_accountInfo.Description} account ({_accountInfo.User}) FAILED to connect", e);
                 }
             }
         }

@@ -2,6 +2,9 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using log4net;
+using QvaDev.Common.Integration;
+using QvaDev.Communication.FixApi;
 using QvaDev.Data;
 using QvaDev.Data.Models;
 using QvaDev.Orchestration.Services;
@@ -27,9 +30,7 @@ namespace QvaDev.Orchestration
 	    void MtAccountImport(DuplicatContext duplicatContext);
 		Task SaveTheWeekend(DuplicatContext duplicatContext, DateTime from, DateTime to);
 
-
-		void TestMarketOrder(Pushing pushing);
-		void TestLimitOrder(Pushing pushing);
+	    void SendPushingFuturesOrder(Pushing pushing, Sides side, decimal contractSize);
 
 		Task OpeningBeta(Pushing pushing);
 		Task OpeningAlpha(Pushing pushing);
@@ -55,9 +56,11 @@ namespace QvaDev.Orchestration
         private readonly IPushingService _pushingService;
 		private readonly ITickerService _tickerService;
 	    private readonly IStrategiesService _strategiesService;
-	    private readonly IConnectorFactory _connectorFactory;
+	    private readonly IHubArbService _hubArbService;
+		private readonly IConnectorFactory _connectorFactory;
 	    private readonly IReportService _reportService;
 	    private readonly IMtAccountImportService _mtAccountImportService;
+	    private readonly ILog _log;
 
 	    public int SelectedAlphaMonitorId { get; set; }
         public int SelectedBetaMonitorId { get; set; }
@@ -69,56 +72,84 @@ namespace QvaDev.Orchestration
             IPushingService pushingService,
 			ITickerService tickerService,
             IStrategiesService strategiesService,
+            IHubArbService hubArbService,
 			IReportService reportService,
-            IMtAccountImportService mtAccountImportService)
+            IMtAccountImportService mtAccountImportService,
+            ILog log)
         {
+	        _log = log;
 	        _mtAccountImportService = mtAccountImportService;
 	        _reportService = reportService;
 	        _connectorFactory = connectorFactory;
 	        _strategiesService = strategiesService;
-	        _tickerService = tickerService;
+	        _hubArbService = hubArbService;
+			_tickerService = tickerService;
             _pushingService = pushingService;
             _copierService = copierService;
             _synchronizationContextFactory = synchronizationContextFactory;
         }
 
-        public Task Connect(DuplicatContext duplicatContext)
+        public async Task Connect(DuplicatContext duplicatContext)
         {
             _duplicatContext = duplicatContext;
             _synchronizationContext = _synchronizationContext ?? _synchronizationContextFactory.Invoke();
 
-	        var accounts = _duplicatContext.Accounts
+	        var accounts = _duplicatContext.Accounts.Local
 		        .Where(pa => pa.Run).ToList()
-		        .Where(pa => pa.State != Account.States.Connected);
+		        .Where(pa => pa.ConnectionState != ConnectionStates.Connected);
 
-	        var tasks = accounts.Select(account => Task.Factory.StartNew(() =>
+	        var tasks = accounts.Select(account => Task.Run(() => _connectorFactory.Create(account))).ToList();
+
+	        await Task.WhenAll(tasks);
+
+	        foreach (var agg in _duplicatContext.Aggregators)
 	        {
-		        _connectorFactory.Create(account);
-		        account.State = account.Connector?.IsConnected == true ? Account.States.Connected : Account.States.Error;
-		        account.RaisePropertyChanged(_synchronizationContext, nameof(account.State));
-	        }));
+		        var groups = agg.Accounts
+			        .Where(a => a.Account.FixApiAccountId.HasValue)
+			        .Select(a =>
+				        new
+				        {
+					        ((FixApiIntegration.Connector) a.Account.Connector).FixConnector,
+					        Symbol = Symbol.Parse(a.Symbol)
+				        }).ToDictionary(x => x.FixConnector, x => x.Symbol);
 
-			return Task.WhenAll(tasks);
+				agg.QuoteAggregator = MarketDataManager.CreateQuoteAggregator(groups);
+			}
         }
 
-        public Task Disconnect()
+		public Task Disconnect()
         {
             _duplicatContext.SaveChanges();
-			var accounts = _duplicatContext.Accounts.ToList()
-				 .Where(pa => pa.State != Account.States.Disconnected);
-			var tasks = accounts.Select(pa => Task.Factory.StartNew(() =>
-			{
-				pa.Connector.Disconnect();
-				pa.State = Account.States.Disconnected;
-				pa.RaisePropertyChanged(_synchronizationContext, nameof(pa.State));
-			}));
+
+	        foreach (var agg in _duplicatContext.Aggregators)
+	        {
+		        agg.QuoteAggregator?.Dispose();
+		        agg.QuoteAggregator = null;
+	        }
+
+			var accounts = _duplicatContext.Accounts.Local.ToList();
+			var tasks = accounts.Select(pa => Task.Run(() => pa.Connector?.Disconnect()));
+
 			return Task.WhenAll(tasks);
 		}
 
         public async Task StartCopiers(DuplicatContext duplicatContext)
-        {
-            await Connect(duplicatContext);
-            _copierService.Start(duplicatContext);
+		{
+			await Connect(duplicatContext);
+
+			var copiers = duplicatContext.Copiers.Local
+				.Where(c => c.Slave.Master.Account.ConnectionState == ConnectionStates.Connected)
+				.Where(c => c.Slave.Account.ConnectionState == ConnectionStates.Connected)
+				.Select(c => c.Slave.Master);
+
+			var fixApiCopiers = duplicatContext.FixApiCopiers.Local
+				.Where(c => c.Slave.Master.Account.ConnectionState == ConnectionStates.Connected)
+				.Where(c => c.Slave.Account.ConnectionState == ConnectionStates.Connected)
+				.Select(c => c.Slave.Master);
+
+			var masters = copiers.Union(fixApiCopiers).Distinct().ToList();
+
+			_copierService.Start(masters);
         }
 
         public void StopCopiers()
@@ -126,19 +157,15 @@ namespace QvaDev.Orchestration
             _copierService.Stop();
         }
 
-        public void TestMarketOrder(Pushing pushing)
-        {
-            var connector = (FixTraderIntegration.Connector)pushing.FutureAccount.Connector;
-            connector.SendMarketOrderRequest(pushing.FutureSymbol, Common.Integration.Sides.Buy, pushing.PushingDetail.SmallContractSize);
-		}
-		public void TestLimitOrder(Pushing pushing)
-		{
-			var connector = (FixTraderIntegration.Connector)pushing.FutureAccount.Connector;
-			connector.SendLimitOrderRequest(pushing.FutureSymbol, Common.Integration.Sides.Buy, pushing.PushingDetail.SmallContractSize, 0);
-		}
+	    public async void SendPushingFuturesOrder(Pushing pushing, Sides side, decimal contractSize)
+	    {
+		    var connector = (IFixConnector)pushing.FutureAccount.Connector;
+		    var response = await connector.SendMarketOrderRequest(pushing.FutureSymbol, side, contractSize);
+	    }
 
 		public Task OpeningBeta(Pushing pushing)
 		{
+			pushing.PushingDetail.OpenedFutures = 0;
 			pushing.InPanic = false;
 			return Task.Run(() => _pushingService.OpeningBeta(pushing));
 		}
@@ -158,6 +185,7 @@ namespace QvaDev.Orchestration
 
 		public Task ClosingFirst(Pushing pushing)
 		{
+			pushing.PushingDetail.OpenedFutures = 0;
 			pushing.InPanic = false;
 			return Task.Run(() => _pushingService.ClosingFirst(pushing));
 		}
@@ -189,39 +217,55 @@ namespace QvaDev.Orchestration
 	    public async Task StartStrategies(DuplicatContext duplicatContext)
 		{
 			await Connect(duplicatContext);
-			_strategiesService.Start(duplicatContext);
+
+			var arbs = duplicatContext.StratDealingArbs.Local
+				.Where(c => c.AlphaAccount?.ConnectionState == ConnectionStates.Connected &&
+				            c.BetaAccount?.ConnectionState == ConnectionStates.Connected)
+				.ToList();
+
+			_strategiesService.Start(arbs);
+
+			var hubArbs = duplicatContext.StratHubArbs.Local.ToList();
+			_hubArbService.Start(hubArbs);
 		}
 
 	    public void StopStrategies()
 	    {
 		    _strategiesService.Stop();
+		    _hubArbService.Stop();
 		}
 
-	    public Task OrderHistoryExport(DuplicatContext duplicatContext)
-        {
-            return Connect(duplicatContext).ContinueWith(prevTask =>
-            {
-                _reportService.OrderHistoryExport(duplicatContext);
-            });
-		}
+	    public async Task OrderHistoryExport(DuplicatContext duplicatContext)
+	    {
+		    await Connect(duplicatContext);
+
+	        var accounts = duplicatContext.Accounts.Local
+		        .Where(a => a.Run && a.Connector?.IsConnected == true && a.MetaTraderAccountId.HasValue)
+		        .ToList();
+
+		    await _reportService.OrderHistoryExport(accounts);
+	    }
 
 	    public void MtAccountImport(DuplicatContext duplicatContext)
 	    {
 		    _mtAccountImportService.Import(duplicatContext);
 		}
 
-	    public Task SaveTheWeekend(DuplicatContext duplicatContext, DateTime from, DateTime to)
+	    public async Task SaveTheWeekend(DuplicatContext duplicatContext, DateTime from, DateTime to)
 		{
-		    return Connect(duplicatContext).ContinueWith(prevTask =>
-		    {
-			    _mtAccountImportService.SaveTheWeekend(duplicatContext, from, to);
-			});
-	    }
+		    await Connect(duplicatContext);
+		    _mtAccountImportService.SaveTheWeekend(duplicatContext, from, to);
+		}
 
 		public async Task StartTickers(DuplicatContext duplicatContext)
 		{
 			await Connect(duplicatContext);
-			_tickerService.Start(duplicatContext);
+
+			var tickers = duplicatContext.Tickers.Local
+				.Where(c => c.MainAccount.ConnectionState == ConnectionStates.Connected)
+				.ToList();
+
+			_tickerService.Start(tickers);
 		}
 
 		public void StopTickers()

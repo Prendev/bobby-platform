@@ -17,5 +17,10 @@ namespace QvaDev.Data.Models
         public List<SymbolMapping> SymbolMappings { get => Get(() => new List<SymbolMapping>()); set => Set(value, false); }
         public List<Copier> Copiers { get => Get(() => new List<Copier>()); set => Set(value, false); }
 	    public List<FixApiCopier> FixApiCopiers { get => Get(() => new List<FixApiCopier>()); set => Set(value, false); }
+
+		public override string ToString()
+		{
+			return $"{(Id == 0 ? "UNSAVED - " : "")}{Master} - {Account}";
+		}
 	}
 }

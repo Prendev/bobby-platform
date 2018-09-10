@@ -2,8 +2,9 @@
 {
 
     public enum Sides
-    {
-        Buy,
+	{
+		None,
+		Buy,
         Sell
     }
 }

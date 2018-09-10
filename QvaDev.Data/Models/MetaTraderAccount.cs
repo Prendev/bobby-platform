@@ -14,7 +14,7 @@ namespace QvaDev.Data.Models
 
 		public override string ToString()
         {
-            return $"{Description} ({User})";
+            return $"{(Id == 0 ? "UNSAVED - " : "")}{Description} ({User})";
         }
     }
 }
