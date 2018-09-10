@@ -409,7 +409,7 @@ namespace QvaDev.Orchestration.Services.Strategies
 
 			if(arb.OrderType == StratDealingArb.StratDealingArbOrderTypes.Market || lastTick == null)
 				return fix.SendMarketOrderRequest(arb.BetaSymbol, side, size);
-;
+
 			return fix.SendAggressiveOrderRequest(arb.BetaSymbol, side, size,
 				lastTick.GetPrice(side), arb.Deviation, arb.TimeWindowInMs, arb.MaxRetryCount, arb.RetryPeriodInMs);
 		}
