@@ -30,20 +30,23 @@
         {
 			this.tlpMain = new System.Windows.Forms.TableLayoutPanel();
 			this.groupBox4 = new System.Windows.Forms.GroupBox();
-			this.dgvMtAccounts = new QvaDev.Duplicat.Views.CustomDataGridView();
 			this.tlpLeft = new System.Windows.Forms.TableLayoutPanel();
 			this.groupBox1 = new System.Windows.Forms.GroupBox();
-			this.dgvMtPlatforms = new QvaDev.Duplicat.Views.CustomDataGridView();
 			this.gbControl = new System.Windows.Forms.GroupBox();
-			this.btnExport = new System.Windows.Forms.Button();
 			this.btnAccountImport = new System.Windows.Forms.Button();
+			this.btnExport = new System.Windows.Forms.Button();
+			this.btnSaveTheWeekend = new System.Windows.Forms.Button();
+			this.dtpFrom = new System.Windows.Forms.DateTimePicker();
+			this.dtpTo = new System.Windows.Forms.DateTimePicker();
+			this.dgvMtAccounts = new QvaDev.Duplicat.Views.CustomDataGridView();
+			this.dgvMtPlatforms = new QvaDev.Duplicat.Views.CustomDataGridView();
 			this.tlpMain.SuspendLayout();
 			this.groupBox4.SuspendLayout();
-			((System.ComponentModel.ISupportInitialize)(this.dgvMtAccounts)).BeginInit();
 			this.tlpLeft.SuspendLayout();
 			this.groupBox1.SuspendLayout();
-			((System.ComponentModel.ISupportInitialize)(this.dgvMtPlatforms)).BeginInit();
 			this.gbControl.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)(this.dgvMtAccounts)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.dgvMtPlatforms)).BeginInit();
 			this.SuspendLayout();
 			// 
 			// tlpMain
@@ -59,34 +62,22 @@
 			this.tlpMain.Name = "tlpMain";
 			this.tlpMain.RowCount = 1;
 			this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-			this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 585F));
-			this.tlpMain.Size = new System.Drawing.Size(1235, 679);
+			this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 714F));
+			this.tlpMain.Size = new System.Drawing.Size(1392, 714);
 			this.tlpMain.TabIndex = 1;
 			// 
 			// groupBox4
 			// 
 			this.groupBox4.Controls.Add(this.dgvMtAccounts);
 			this.groupBox4.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.groupBox4.Location = new System.Drawing.Point(621, 4);
+			this.groupBox4.Location = new System.Drawing.Point(700, 4);
 			this.groupBox4.Margin = new System.Windows.Forms.Padding(4);
 			this.groupBox4.Name = "groupBox4";
 			this.groupBox4.Padding = new System.Windows.Forms.Padding(4);
-			this.groupBox4.Size = new System.Drawing.Size(610, 671);
+			this.groupBox4.Size = new System.Drawing.Size(688, 706);
 			this.groupBox4.TabIndex = 0;
 			this.groupBox4.TabStop = false;
 			this.groupBox4.Text = "Accounts";
-			// 
-			// dgvMtAccounts
-			// 
-			this.dgvMtAccounts.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
-			this.dgvMtAccounts.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-			this.dgvMtAccounts.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.dgvMtAccounts.Location = new System.Drawing.Point(4, 19);
-			this.dgvMtAccounts.Margin = new System.Windows.Forms.Padding(4);
-			this.dgvMtAccounts.MultiSelect = false;
-			this.dgvMtAccounts.Name = "dgvMtAccounts";
-			this.dgvMtAccounts.Size = new System.Drawing.Size(602, 648);
-			this.dgvMtAccounts.TabIndex = 0;
 			// 
 			// tlpLeft
 			// 
@@ -99,39 +90,29 @@
 			this.tlpLeft.Margin = new System.Windows.Forms.Padding(4);
 			this.tlpLeft.Name = "tlpLeft";
 			this.tlpLeft.RowCount = 2;
-			this.tlpLeft.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 64F));
+			this.tlpLeft.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 100F));
 			this.tlpLeft.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-			this.tlpLeft.Size = new System.Drawing.Size(609, 671);
+			this.tlpLeft.Size = new System.Drawing.Size(688, 706);
 			this.tlpLeft.TabIndex = 1;
 			// 
 			// groupBox1
 			// 
 			this.groupBox1.Controls.Add(this.dgvMtPlatforms);
 			this.groupBox1.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.groupBox1.Location = new System.Drawing.Point(4, 68);
+			this.groupBox1.Location = new System.Drawing.Point(4, 104);
 			this.groupBox1.Margin = new System.Windows.Forms.Padding(4);
 			this.groupBox1.Name = "groupBox1";
 			this.groupBox1.Padding = new System.Windows.Forms.Padding(4);
-			this.groupBox1.Size = new System.Drawing.Size(601, 599);
+			this.groupBox1.Size = new System.Drawing.Size(680, 598);
 			this.groupBox1.TabIndex = 2;
 			this.groupBox1.TabStop = false;
 			this.groupBox1.Text = "Platforms (automatically loaded from .srv files)";
 			// 
-			// dgvMtPlatforms
-			// 
-			this.dgvMtPlatforms.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
-			this.dgvMtPlatforms.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-			this.dgvMtPlatforms.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.dgvMtPlatforms.Location = new System.Drawing.Point(4, 19);
-			this.dgvMtPlatforms.Margin = new System.Windows.Forms.Padding(4);
-			this.dgvMtPlatforms.MultiSelect = false;
-			this.dgvMtPlatforms.Name = "dgvMtPlatforms";
-			this.dgvMtPlatforms.ReadOnly = true;
-			this.dgvMtPlatforms.Size = new System.Drawing.Size(593, 576);
-			this.dgvMtPlatforms.TabIndex = 0;
-			// 
 			// gbControl
 			// 
+			this.gbControl.Controls.Add(this.dtpTo);
+			this.gbControl.Controls.Add(this.dtpFrom);
+			this.gbControl.Controls.Add(this.btnSaveTheWeekend);
 			this.gbControl.Controls.Add(this.btnAccountImport);
 			this.gbControl.Controls.Add(this.btnExport);
 			this.gbControl.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -139,20 +120,10 @@
 			this.gbControl.Margin = new System.Windows.Forms.Padding(4);
 			this.gbControl.Name = "gbControl";
 			this.gbControl.Padding = new System.Windows.Forms.Padding(4);
-			this.gbControl.Size = new System.Drawing.Size(601, 56);
+			this.gbControl.Size = new System.Drawing.Size(680, 92);
 			this.gbControl.TabIndex = 3;
 			this.gbControl.TabStop = false;
 			this.gbControl.Text = "Control";
-			// 
-			// btnExport
-			// 
-			this.btnExport.Location = new System.Drawing.Point(8, 23);
-			this.btnExport.Margin = new System.Windows.Forms.Padding(4);
-			this.btnExport.Name = "btnExport";
-			this.btnExport.Size = new System.Drawing.Size(200, 28);
-			this.btnExport.TabIndex = 21;
-			this.btnExport.Text = "Order history export";
-			this.btnExport.UseVisualStyleBackColor = true;
 			// 
 			// btnAccountImport
 			// 
@@ -164,6 +135,67 @@
 			this.btnAccountImport.Text = "Account import";
 			this.btnAccountImport.UseVisualStyleBackColor = true;
 			// 
+			// btnExport
+			// 
+			this.btnExport.Location = new System.Drawing.Point(8, 23);
+			this.btnExport.Margin = new System.Windows.Forms.Padding(4);
+			this.btnExport.Name = "btnExport";
+			this.btnExport.Size = new System.Drawing.Size(200, 28);
+			this.btnExport.TabIndex = 21;
+			this.btnExport.Text = "Order history export";
+			this.btnExport.UseVisualStyleBackColor = true;
+			// 
+			// btnSaveTheWeekend
+			// 
+			this.btnSaveTheWeekend.Location = new System.Drawing.Point(8, 56);
+			this.btnSaveTheWeekend.Margin = new System.Windows.Forms.Padding(4);
+			this.btnSaveTheWeekend.Name = "btnSaveTheWeekend";
+			this.btnSaveTheWeekend.Size = new System.Drawing.Size(200, 28);
+			this.btnSaveTheWeekend.TabIndex = 23;
+			this.btnSaveTheWeekend.Text = "Order history export";
+			this.btnSaveTheWeekend.UseVisualStyleBackColor = true;
+			// 
+			// dtpFrom
+			// 
+			this.dtpFrom.Format = System.Windows.Forms.DateTimePickerFormat.Short;
+			this.dtpFrom.Location = new System.Drawing.Point(215, 58);
+			this.dtpFrom.Name = "dtpFrom";
+			this.dtpFrom.Size = new System.Drawing.Size(120, 22);
+			this.dtpFrom.TabIndex = 24;
+			// 
+			// dtpTo
+			// 
+			this.dtpTo.Format = System.Windows.Forms.DateTimePickerFormat.Short;
+			this.dtpTo.Location = new System.Drawing.Point(341, 58);
+			this.dtpTo.Name = "dtpTo";
+			this.dtpTo.Size = new System.Drawing.Size(120, 22);
+			this.dtpTo.TabIndex = 25;
+			// 
+			// dgvMtAccounts
+			// 
+			this.dgvMtAccounts.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
+			this.dgvMtAccounts.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+			this.dgvMtAccounts.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.dgvMtAccounts.Location = new System.Drawing.Point(4, 19);
+			this.dgvMtAccounts.Margin = new System.Windows.Forms.Padding(4);
+			this.dgvMtAccounts.MultiSelect = false;
+			this.dgvMtAccounts.Name = "dgvMtAccounts";
+			this.dgvMtAccounts.Size = new System.Drawing.Size(680, 683);
+			this.dgvMtAccounts.TabIndex = 0;
+			// 
+			// dgvMtPlatforms
+			// 
+			this.dgvMtPlatforms.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
+			this.dgvMtPlatforms.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+			this.dgvMtPlatforms.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.dgvMtPlatforms.Location = new System.Drawing.Point(4, 19);
+			this.dgvMtPlatforms.Margin = new System.Windows.Forms.Padding(4);
+			this.dgvMtPlatforms.MultiSelect = false;
+			this.dgvMtPlatforms.Name = "dgvMtPlatforms";
+			this.dgvMtPlatforms.ReadOnly = true;
+			this.dgvMtPlatforms.Size = new System.Drawing.Size(672, 575);
+			this.dgvMtPlatforms.TabIndex = 0;
+			// 
 			// MtAccountsUserControl
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -171,14 +203,14 @@
 			this.Controls.Add(this.tlpMain);
 			this.Margin = new System.Windows.Forms.Padding(4);
 			this.Name = "MtAccountsUserControl";
-			this.Size = new System.Drawing.Size(1235, 679);
+			this.Size = new System.Drawing.Size(1392, 714);
 			this.tlpMain.ResumeLayout(false);
 			this.groupBox4.ResumeLayout(false);
-			((System.ComponentModel.ISupportInitialize)(this.dgvMtAccounts)).EndInit();
 			this.tlpLeft.ResumeLayout(false);
 			this.groupBox1.ResumeLayout(false);
-			((System.ComponentModel.ISupportInitialize)(this.dgvMtPlatforms)).EndInit();
 			this.gbControl.ResumeLayout(false);
+			((System.ComponentModel.ISupportInitialize)(this.dgvMtAccounts)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.dgvMtPlatforms)).EndInit();
 			this.ResumeLayout(false);
 
         }
@@ -194,5 +226,8 @@
         private System.Windows.Forms.GroupBox gbControl;
         private System.Windows.Forms.Button btnExport;
 		private System.Windows.Forms.Button btnAccountImport;
+		private System.Windows.Forms.Button btnSaveTheWeekend;
+		private System.Windows.Forms.DateTimePicker dtpTo;
+		private System.Windows.Forms.DateTimePicker dtpFrom;
 	}
 }

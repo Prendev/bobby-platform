@@ -20,10 +20,10 @@ namespace QvaDev.Duplicat.Views
             dgvMtAccounts.AddBinding("ReadOnly", _viewModel, nameof(_viewModel.IsConfigReadonly));
 			dgvMtPlatforms.AddBinding("ReadOnly", _viewModel, nameof(_viewModel.IsConfigReadonly));
 			gbControl.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsLoading), true);
-            //gbControl.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsConnected));
 
             btnExport.Click += (s, e) => { _viewModel.OrderHistoryExportCommand(); };
 			btnAccountImport.Click += (s, e) => { _viewModel.MtAccountImportCommand(); };
+			btnSaveTheWeekend.Click += (s, e) => _viewModel.SaveTheWeekendCommand(dtpFrom.Value, dtpTo.Value);
 		}
 
         public void AttachDataSources()

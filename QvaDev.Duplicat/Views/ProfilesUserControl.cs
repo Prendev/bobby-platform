@@ -18,8 +18,6 @@ namespace QvaDev.Duplicat.Views
         {
             _viewModel = viewModel;
 
-            btnLoad.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsConfigReadonly), true);
-            gbControl.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsLoading), true);
             dgvProfiles.AddBinding("ReadOnly", _viewModel, nameof(_viewModel.IsConfigReadonly));
 	        dgvAccounts.AddBinding<Profile>("Enabled", _viewModel, nameof(_viewModel.SelectedProfile), p => p != null);
 	        gbProfile.AddBinding<Profile, string>("Text", _viewModel, nameof(_viewModel.SelectedProfile),
@@ -28,8 +26,6 @@ namespace QvaDev.Duplicat.Views
 			dgvAccounts.DefaultValuesNeeded += (s, e) => e.Row.Cells["ProfileId"].Value = _viewModel.SelectedProfile.Id;
 
 	        dgvProfiles.RowDoubleClick += (s, e) => _viewModel.LoadProfileCommand(dgvProfiles.GetSelectedItem<Profile>());
-			btnLoad.Click += (s, e) => _viewModel.LoadProfileCommand(dgvProfiles.GetSelectedItem<Profile>());
-			btnSaveTheWeekend.Click += (s, e) => _viewModel.SaveTheWeekendCommand(dtpFrom.Value, dtpTo.Value);
 		}
 
         public void AttachDataSources()
