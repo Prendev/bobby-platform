@@ -12,6 +12,6 @@ namespace QvaDev.Common.Integration
         public DateTime Time { get; }
         public int RetryCount { get; set; }
         public int MaxRetryCount { get; set; }
-        public int RetryPeriodInMilliseconds { get; set; }
+        public int RetryPeriodInMs { get; set; }
     }
 }

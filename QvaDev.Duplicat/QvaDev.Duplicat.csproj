@@ -8,9 +8,10 @@
     <OutputType>WinExe</OutputType>
     <RootNamespace>QvaDev.Duplicat</RootNamespace>
     <AssemblyName>QvaDev.Duplicat</AssemblyName>
-    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -56,6 +57,12 @@
     <Reference Include="Autofac, Version=4.6.1.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
       <HintPath>..\packages\Autofac.4.6.1\lib\net45\Autofac.dll</HintPath>
     </Reference>
+    <Reference Include="Common.Logging, Version=3.4.1.0, Culture=neutral, PublicKeyToken=af08829b84f0328e, processorArchitecture=MSIL">
+      <HintPath>..\packages\Common.Logging.3.4.1\lib\net40\Common.Logging.dll</HintPath>
+    </Reference>
+    <Reference Include="Common.Logging.Core, Version=3.4.1.0, Culture=neutral, PublicKeyToken=af08829b84f0328e, processorArchitecture=MSIL">
+      <HintPath>..\packages\Common.Logging.Core.3.4.1\lib\net40\Common.Logging.Core.dll</HintPath>
+    </Reference>
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.dll</HintPath>
     </Reference>
@@ -64,6 +71,13 @@
     </Reference>
     <Reference Include="log4net, Version=2.0.8.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
       <HintPath>..\packages\log4net.2.0.8\lib\net45-full\log4net.dll</HintPath>
+    </Reference>
+    <Reference Include="QvaDev.Communication, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Externals\QvaDev.Communication.FixApi.Connectors\QvaDev.Communication.dll</HintPath>
+    </Reference>
+    <Reference Include="QvaDev.Communication.FixApi.Connectors">
+      <HintPath>..\Externals\QvaDev.Communication.FixApi.Connectors\QvaDev.Communication.FixApi.Connectors.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
@@ -82,17 +96,42 @@
   <ItemGroup>
     <Compile Include="ViewModel\DuplicatViewModel.PushingCommands.cs" />
     <Compile Include="ViewModel\DuplicatViewModel.Commands.cs" />
+    <Compile Include="Views\AggregatorUserControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Views\AggregatorUserControl.Designer.cs">
+      <DependentUpon>AggregatorUserControl.cs</DependentUpon>
+    </Compile>
     <Compile Include="Views\CopiersUserControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="Views\CopiersUserControl.Designer.cs">
       <DependentUpon>CopiersUserControl.cs</DependentUpon>
     </Compile>
-    <Compile Include="Views\CtAccountsUserControl.cs">
+    <Compile Include="Views\HubArbUserControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Views\CtAccountsUserControl.Designer.cs">
+    <Compile Include="Views\HubArbUserControl.Designer.cs">
+      <DependentUpon>HubArbUserControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\IFilterable.cs" />
+    <Compile Include="Views\_Accounts\CqgAccountsUserControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Views\_Accounts\CqgAccountsUserControl.Designer.cs">
+      <DependentUpon>CqgAccountsUserControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\_Accounts\CtAccountsUserControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Views\_Accounts\CtAccountsUserControl.Designer.cs">
       <DependentUpon>CtAccountsUserControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\_Accounts\IffAccountsUserControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Views\_Accounts\IffAccountsUserControl.Designer.cs">
+      <DependentUpon>IffAccountsUserControl.cs</DependentUpon>
     </Compile>
     <Compile Include="Views\PushingUserControl.cs">
       <SubType>UserControl</SubType>
@@ -100,7 +139,7 @@
     <Compile Include="Views\PushingUserControl.Designer.cs">
       <DependentUpon>PushingUserControl.cs</DependentUpon>
     </Compile>
-    <Compile Include="Views\ITabUserControl.cs" />
+    <Compile Include="Views\IMvvmUserControl.cs" />
     <Compile Include="TextBoxAppender.cs" />
     <Compile Include="UrlHelper.cs" />
     <Compile Include="ViewModel\BaseViewModel.cs" />
@@ -122,16 +161,16 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="ViewModel\DuplicatViewModel.cs" />
-    <Compile Include="Views\FtAccountsUserControl.cs">
+    <Compile Include="Views\_Accounts\FtAccountsUserControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Views\FtAccountsUserControl.Designer.cs">
+    <Compile Include="Views\_Accounts\FtAccountsUserControl.Designer.cs">
       <DependentUpon>FtAccountsUserControl.cs</DependentUpon>
     </Compile>
-    <Compile Include="Views\MtAccountsUserControl.cs">
+    <Compile Include="Views\_Accounts\MtAccountsUserControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Views\MtAccountsUserControl.Designer.cs">
+    <Compile Include="Views\_Accounts\MtAccountsUserControl.Designer.cs">
       <DependentUpon>MtAccountsUserControl.cs</DependentUpon>
     </Compile>
     <Compile Include="Views\ProfilesUserControl.cs">
@@ -152,11 +191,23 @@
     <Compile Include="Views\TickersUserControl.Designer.cs">
       <DependentUpon>TickersUserControl.cs</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="Views\AggregatorUserControl.resx">
+      <DependentUpon>AggregatorUserControl.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Views\CopiersUserControl.resx">
       <DependentUpon>CopiersUserControl.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Views\CtAccountsUserControl.resx">
+    <EmbeddedResource Include="Views\HubArbUserControl.resx">
+      <DependentUpon>HubArbUserControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\_Accounts\CqgAccountsUserControl.resx">
+      <DependentUpon>CqgAccountsUserControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\_Accounts\CtAccountsUserControl.resx">
       <DependentUpon>CtAccountsUserControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\_Accounts\IffAccountsUserControl.resx">
+      <DependentUpon>IffAccountsUserControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\PushingUserControl.resx">
       <DependentUpon>PushingUserControl.cs</DependentUpon>
@@ -172,11 +223,12 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
-    <EmbeddedResource Include="Views\FtAccountsUserControl.resx">
+    <EmbeddedResource Include="Views\_Accounts\FtAccountsUserControl.resx">
       <DependentUpon>FtAccountsUserControl.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Views\MtAccountsUserControl.resx">
+    <EmbeddedResource Include="Views\_Accounts\MtAccountsUserControl.resx">
       <DependentUpon>MtAccountsUserControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\ProfilesUserControl.resx">
@@ -190,6 +242,7 @@
     </EmbeddedResource>
     <None Include="log4net.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
     </None>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
@@ -203,7 +256,9 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\QvaDev.Common\QvaDev.Common.csproj">

@@ -11,6 +11,7 @@
     <AssemblyName>QvaDev.Common</AssemblyName>
     <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -48,16 +49,23 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Common.Logging, Version=3.4.1.0, Culture=neutral, PublicKeyToken=af08829b84f0328e, processorArchitecture=MSIL">
+      <HintPath>..\packages\Common.Logging.3.4.1\lib\net40\Common.Logging.dll</HintPath>
+    </Reference>
+    <Reference Include="Common.Logging.Core, Version=3.4.1.0, Culture=neutral, PublicKeyToken=af08829b84f0328e, processorArchitecture=MSIL">
+      <HintPath>..\packages\Common.Logging.Core.3.4.1\lib\net40\Common.Logging.Core.dll</HintPath>
+    </Reference>
     <Reference Include="log4net, Version=2.0.8.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\log4net.2.0.8\lib\net40-full\log4net.dll</HintPath>
     </Reference>
-    <Reference Include="RestSharp">
-      <HintPath>..\..\Mt4ToIgCopier\packages\RestSharp.105.2.3\lib\net46\RestSharp.dll</HintPath>
+    <Reference Include="RestSharp, Version=106.3.1.0, Culture=neutral, PublicKeyToken=598062e77f915f75, processorArchitecture=MSIL">
+      <HintPath>..\packages\RestSharp.106.3.1\lib\net452\RestSharp.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Web" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -69,19 +77,27 @@
     <Compile Include="Attributes\DisplayIndexAttribute.cs" />
     <Compile Include="Attributes\ReadOnlyColumnAttribute.cs" />
     <Compile Include="Attributes\InvisibleColumnAttribute.cs" />
+    <Compile Include="DependecyManager.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="Integration\AccountTypes.cs" />
+    <Compile Include="Integration\ConnectionChangedEventHandler.cs" />
+    <Compile Include="Integration\FixApiConnectorBase.cs" />
+    <Compile Include="Integration\ConnectorBase.cs" />
+    <Compile Include="Integration\IFixConnector.cs" />
+    <Compile Include="Integration\OrderResponse.cs" />
+    <Compile Include="Integration\SymbolData.cs" />
     <Compile Include="Integration\Tick.cs" />
     <Compile Include="Integration\Bar.cs" />
     <Compile Include="Integration\BarHistoryEventArgs.cs" />
     <Compile Include="Integration\BaseAccountInfo.cs" />
     <Compile Include="Integration\IConnector.cs" />
     <Compile Include="Integration\MarketOrder.cs" />
-    <Compile Include="Integration\PositionEventArgs.cs" />
+    <Compile Include="Integration\NewPositionEventArgs.cs" />
     <Compile Include="Integration\Position.cs" />
     <Compile Include="Integration\RetryOrder.cs" />
     <Compile Include="Integration\Sides.cs" />
-    <Compile Include="Integration\TickEventArgs.cs" />
+    <Compile Include="Integration\NewTickEventArgs.cs" />
+    <Compile Include="Logging\LogAdapter.cs" />
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\ExchangeRatesService.cs" />
@@ -89,6 +105,9 @@
     <Compile Include="Services\ThreadService.cs" />
     <Compile Include="Services\XmlService.cs" />
     <Compile Include="UnexpectedStatusCodeException.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

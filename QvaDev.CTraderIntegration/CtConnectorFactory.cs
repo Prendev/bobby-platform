@@ -32,7 +32,7 @@ namespace QvaDev.CTraderIntegration
         private readonly ITradingAccountsService _tradingAccountsService;
 
         public CtConnectorFactory(
-            ILog log,
+	        ILog log,
             ITradingAccountsService tradingAccountsService)
         {
             _tradingAccountsService = tradingAccountsService;

@@ -1,64 +1,308 @@
 ﻿using System;
-using System.Collections.Concurrent;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Xml;
+using System.Xml.Serialization;
+using log4net;
 using QvaDev.Common.Integration;
+using QvaDev.Communication.FixApi;
+using QvaDev.Communication.FixApi.Connectors.Strategies;
+using QvaDev.Communication.FixApi.Connectors.Strategies.AggressiveOrder;
+using QvaDev.Communication.FixApi.Connectors.Strategies.MarketOrder;
+using OrderResponse = QvaDev.Common.Integration.OrderResponse;
 
 namespace QvaDev.FixApiIntegration
 {
-	public class Connector : IConnector
+	public class Connector : FixApiConnectorBase
 	{
-		public string Description { get; }
-		public bool IsConnected => true;
-		public ConcurrentDictionary<long, Position> Positions { get; }
-		public event PositionEventHandler OnPosition;
-		public event BarHistoryEventHandler OnBarHistory;
-		public event TickEventHandler OnTick;
+		private readonly AccountInfo _accountInfo;
 
-		public void Disconnect()
+		private readonly Object _lock = new Object();
+		private volatile bool _isConnecting;
+		private volatile bool _shouldConnect;
+
+		public override int Id => _accountInfo?.DbId ?? 0;
+		public override string Description => _accountInfo?.Description ?? "";
+		public override bool IsConnected => FixConnector?.IsPricingConnected == true && FixConnector?.IsTradingConnected == true;
+		public readonly FixConnectorBase FixConnector;
+
+		public Connector(AccountInfo accountInfo, ILog log) : base(log)
 		{
+			_accountInfo = accountInfo;
+
+			var doc = new XmlDocument();
+			doc.Load(_accountInfo.ConfigPath);
+
+			var confType = ConnectorHelper.GetConfigurationType(doc.DocumentElement.Name);
+			var connType = ConnectorHelper.GetConnectorType(confType);
+			var conf = new XmlSerializer(confType).Deserialize(File.OpenRead(_accountInfo.ConfigPath));
+
+			FixConnector = (FixConnectorBase)Activator.CreateInstance(connType, conf);
 		}
 
-		public long GetOpenContracts(string symbol)
+		public Task Connect()
 		{
-			throw new NotImplementedException();
+			lock (_lock) _shouldConnect = true;
+			return InnerConnect();
 		}
 
-		public double GetBalance()
+		private async Task InnerConnect()
 		{
-			throw new NotImplementedException();
+			lock (_lock)
+			{
+				if (!_shouldConnect) return;
+				if (_isConnecting) return;
+				_isConnecting = true;
+			}
+
+			FixConnector.PricingSocketClosed -= FixConnector_SocketClosed;
+			FixConnector.TradingSocketClosed -= FixConnector_SocketClosed;
+			FixConnector.Quote -= FixConnector_Quote;
+			FixConnector.ExecutionReport -= FixConnector_ExecutionReport;
+
+			FixConnector.PricingSocketClosed += FixConnector_SocketClosed;
+			FixConnector.TradingSocketClosed += FixConnector_SocketClosed;
+			FixConnector.Quote += FixConnector_Quote;
+			FixConnector.ExecutionReport += FixConnector_ExecutionReport;
+
+			try
+			{
+				var subscribe = FixConnector.PricingSocket?.IsConnected != true;
+				await FixConnector.ConnectPricingAsync();
+				await FixConnector.ConnectTradingAsync();
+				if (subscribe)
+				{
+					lock (Subscribes) Subscribes.Clear();
+					await Task.WhenAll(SymbolInfos.Keys.Select(InnerSubscribe));
+				}
+			}
+			catch (Exception e)
+			{
+				Log.Error($"{Description} FIX account FAILED to connect", e);
+				Reconnect();
+			}
+
+			OnConnectionChanged(IsConnected ? ConnectionStates.Connected : ConnectionStates.Error);
+			_isConnecting = false;
 		}
 
-		public double GetFloatingProfit()
+		public override void Disconnect()
 		{
-			throw new NotImplementedException();
+			lock (_lock) _shouldConnect = false;
+
+			FixConnector.PricingSocketClosed -= FixConnector_SocketClosed;
+			FixConnector.TradingSocketClosed -= FixConnector_SocketClosed;
+			FixConnector.Quote -= FixConnector_Quote;
+			FixConnector.ExecutionReport -= FixConnector_ExecutionReport;
+
+			try
+			{
+				if (FixConnector?.PricingSocket?.IsConnected == true)
+					FixConnector?.PricingSocket?.Send(new FixMessageBody(FixMessageTypes.Logout));
+				if (FixConnector?.TradingSocket?.IsConnected == true)
+					FixConnector?.TradingSocket?.Send(new FixMessageBody(FixMessageTypes.Logout));
+			}
+			catch (Exception e)
+			{
+				Log.Error($"{Description} account ERROR during disconnect", e);
+			}
+
+			OnConnectionChanged(ConnectionStates.Disconnected);
 		}
 
-		public double GetPnl(DateTime @from, DateTime to)
+		private void FixConnector_SocketClosed(object sender, ClosedEventArgs e)
 		{
-			throw new NotImplementedException();
+			Task.Run(() => Reconnect(5000));
 		}
 
-		public string GetCurrency()
+		private void FixConnector_Quote(object sender, QuoteEventArgs e)
 		{
-			throw new NotImplementedException();
+			Task.Run(() => Quote(e));
 		}
 
-		public int GetDigits(string symbol)
+		private void FixConnector_ExecutionReport(object sender, ExecutionReportEventArgs e)
 		{
-			throw new NotImplementedException();
+			Task.Run(() => ExecutionReport(e));
 		}
 
-		public double GetPoint(string symbol)
+		public override async Task<OrderResponse> SendMarketOrderRequest(string symbol, Sides side, decimal quantity, string comment = null)
 		{
-			throw new NotImplementedException();
+			try
+			{
+				quantity = Math.Abs(quantity);
+				var response = await FixConnector.MarketOrderAsync(new OrderRequest()
+				{
+					IsLong = side == Sides.Buy,
+					Symbol = Symbol.Parse(symbol),
+					Quantity = quantity
+				});
+
+				Log.Debug(
+					$"{Description} Connector.SendMarketOrderRequest({symbol}, {side}, {quantity}, {comment}) opened {response.FilledQuantity} at avg price {response.AveragePrice}");
+				return new OrderResponse()
+				{
+					OrderedQuantity = quantity,
+					AveragePrice = response.AveragePrice,
+					FilledQuantity = response.FilledQuantity,
+					Side = side
+				};
+			}
+			catch (Exception e)
+			{
+				Log.Error($"{Description} Connector.SendMarketOrderRequest({symbol}, {side}, {quantity}, {comment}) exception", e);
+				return new OrderResponse()
+				{
+					OrderedQuantity = quantity,
+					AveragePrice = null,
+					FilledQuantity = 0,
+					Side = side
+				};
+			}
 		}
 
-		public Tick GetLastTick(string symbol)
+		public override async Task<OrderResponse> SendAggressiveOrderRequest(
+			string symbol, Sides side, decimal quantity,
+			decimal limitPrice, decimal deviation, int timeout,
+			int? retryCount = null, int? retryPeriod = null)
 		{
-			throw new NotImplementedException();
+			if (!FixConnector.IsAggressiveOrderSupported())
+				return await SendMarketOrderRequest(symbol, side, quantity);
+			try
+			{
+				quantity = Math.Abs(quantity);
+				var response = await FixConnector.AggressiveOrderAsync(new AggressiveOrderRequest()
+				{
+					IsLong = side == Sides.Buy,
+					Symbol = Symbol.Parse(symbol),
+					Quantity = quantity,
+					LimitPrice = limitPrice,
+					Deviation = deviation,
+					Timeout = timeout
+				});
+
+				Log.Debug(
+					$"{Description} Connector.SendAggressiveOrderRequest({symbol}, {side}, {quantity}, " +
+					$"{limitPrice}, {deviation}, {timeout}, {retryCount}, {retryPeriod}) " +
+					$"opened {response.FilledQuantity} at avg price {response.AveragePrice}");
+
+				return new OrderResponse()
+				{
+					OrderPrice = limitPrice,
+					OrderedQuantity = quantity,
+					AveragePrice = response.AveragePrice,
+					FilledQuantity = response.FilledQuantity,
+					Side = side
+				};
+			}
+			catch (Exception e)
+			{
+				Log.Error(
+					$"{Description} Connector.SendAggressiveOrderRequest({symbol}, {side}, {quantity}, " +
+					$"{limitPrice}, {deviation}, {timeout}, {retryCount}, {retryPeriod}) exception", e);
+
+				return new OrderResponse()
+				{
+					OrderPrice = limitPrice,
+					OrderedQuantity = quantity,
+					AveragePrice = null,
+					FilledQuantity = 0,
+					Side = side
+				};
+			}
 		}
 
-		public void Connect()
+		public override async void OrderMultipleCloseBy(string symbol)
 		{
+			var symbolInfo = GetSymbolInfo(symbol);
+			if (symbolInfo.SumContracts == 0) return;
+			var side = symbolInfo.SumContracts > 0 ? Sides.Sell : Sides.Buy;
+			await SendMarketOrderRequest(symbol, side, Math.Abs(symbolInfo.SumContracts));
+		}
+
+		public override async void Subscribe(string symbol)
+		{
+			await InnerSubscribe(symbol);
+		}
+
+		private async Task InnerSubscribe(string symbol)
+		{
+			try
+			{
+				lock (Subscribes)
+				{
+					if (Subscribes.Contains(symbol)) return;
+					Subscribes.Add(symbol);
+				}
+
+				await FixConnector.SubscribeMarketDataAsync(Symbol.Parse(symbol), 1);
+			}
+			catch (ObjectDisposedException e)
+			{
+				Log.Error($"{Description} Connector.Subscribe({symbol}) ObjectDisposedException", e);
+				Reconnect(1000);
+			}
+			catch (Exception e)
+			{
+				Log.Error($"{Description} Connector.Subscribe({symbol}) exception", e);
+			}
+		}
+
+		private async void Reconnect(int delay = 30000)
+		{
+			OnConnectionChanged(ConnectionStates.Error);
+			await Task.Delay(delay);
+
+			_isConnecting = false;
+			await InnerConnect();
+		}
+
+		private void Quote(QuoteEventArgs e)
+		{
+			var ask = e.QuoteSet.Entries.First().Ask;
+			var bid = e.QuoteSet.Entries.First().Bid;
+			var symbol = e.QuoteSet.Symbol.ToString();
+
+			SymbolInfos.AddOrUpdate(symbol,
+				new SymbolData { Bid = bid ?? 0, Ask = ask ?? 0 },
+				(key, oldValue) =>
+				{
+					oldValue.Bid = bid ?? oldValue.Bid;
+					oldValue.Ask = ask ?? oldValue.Ask;
+					return oldValue;
+				});
+
+			if (!ask.HasValue || !bid.HasValue) return;
+
+			var tick = new Tick
+			{
+				Symbol = symbol,
+				Ask = (decimal)ask,
+				Bid = (decimal)bid,
+				Time = DateTime.UtcNow
+			};
+			LastTicks.AddOrUpdate(symbol, key => tick, (key, old) => tick);
+			OnNewTick(new NewTickEventArgs { Tick = tick });
+		}
+
+		private void ExecutionReport(ExecutionReportEventArgs e)
+		{
+			if (!e.ExecutionReport.FulfilledQuantity.HasValue) return;
+			if (e.ExecutionReport.Side != Side.Buy && e.ExecutionReport.Side != Side.Sell) return;
+
+			//if (new[] { ExecType.Fill, ExecType.PartialFill, ExecType.Trade }
+			//		.Contains(e.ExecutionReport.ExecutionType) == false) return;
+
+			var quantity = e.ExecutionReport.FulfilledQuantity.Value;
+			if (e.ExecutionReport.Side == Side.Sell) quantity *= -1;
+
+			SymbolInfos.AddOrUpdate(e.ExecutionReport.Symbol.ToString(),
+				new SymbolData { SumContracts = quantity },
+				(key, oldValue) =>
+				{
+					oldValue.SumContracts += quantity;
+					return oldValue;
+				});
 		}
 	}
 }

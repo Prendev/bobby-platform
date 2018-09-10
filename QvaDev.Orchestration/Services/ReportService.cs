@@ -1,10 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using log4net;
-using QvaDev.Data;
 using QvaDev.Data.Models;
 using QvaDev.Mt4Integration;
 
@@ -12,7 +12,7 @@ namespace QvaDev.Orchestration.Services
 {
     public interface IReportService
     {
-        Task OrderHistoryExport(DuplicatContext duplicatContext);
+        Task OrderHistoryExport(List<Account> accounts);
     }
 
     public class ReportService : IReportService
@@ -24,13 +24,14 @@ namespace QvaDev.Orchestration.Services
             _log = log;
         }
 
-        public Task OrderHistoryExport(DuplicatContext duplicatContext)
+        public async Task OrderHistoryExport(List<Account> accounts)
         {
-            var accounts = duplicatContext.Accounts.ToList().Where(
-                    a => a.Run && a.Connector?.IsConnected == true && a.MetaTraderAccountId.HasValue);
-            var tasks = accounts.Select(account => Task.Factory.StartNew(() => Export(account)));
-            return Task.WhenAll(Task.WhenAll(tasks)).ContinueWith(prevTask =>
-                _log.Debug("Order history export is READY!"));
+	        var mtAccounts = accounts
+		        .Where(a => a.Run && a.Connector?.IsConnected == true && a.MetaTraderAccountId.HasValue);
+            var tasks = mtAccounts.Select(account => Task.Run(() => Export(account)));
+
+	        await Task.WhenAll(tasks);
+	        _log.Debug("Order history export is READY!");
         }
 
         private void Export(Account account)

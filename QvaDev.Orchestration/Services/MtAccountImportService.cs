@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using QvaDev.Common.Integration;
 using QvaDev.Data;
 using QvaDev.Data.Models;
 using TradingAPI.MT4Server;
@@ -80,7 +81,7 @@ namespace QvaDev.Orchestration.Services
 			{
 				var profile = duplicatContext.Profiles.First(p => p.Description == "*Import-Export");
 				var accounts =
-					profile.Accounts.Where(a => a.Run && a.MetaTraderAccountId.HasValue && a.State == Account.States.Connected);
+					profile.Accounts.Where(a => a.Run && a.MetaTraderAccountId.HasValue && a.ConnectionState == ConnectionStates.Connected);
 
 				var symbols = LoadSymbols();
 

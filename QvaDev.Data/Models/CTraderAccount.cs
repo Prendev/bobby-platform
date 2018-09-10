@@ -15,7 +15,7 @@ namespace QvaDev.Data.Models
 
 		public override string ToString()
         {
-            return $"{Description} ({AccountNumber})";
+            return $"{(Id == 0 ? "UNSAVED - " : "")}{Description} ({AccountNumber})";
         }
     }
 }

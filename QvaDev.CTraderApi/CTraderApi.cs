@@ -8,7 +8,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using log4net;
-using SocketException = System.Net.Sockets.SocketException;
 
 namespace QvaDev.CTraderApi
 {

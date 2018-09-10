@@ -5,7 +5,6 @@ using System.IO;
 using System.Linq;
 using log4net;
 using QvaDev.Common.Integration;
-using QvaDev.Data;
 using QvaDev.Data.Models;
 using MtConnector = QvaDev.Mt4Integration.Connector;
 
@@ -13,7 +12,7 @@ namespace QvaDev.Orchestration.Services
 {
     public interface ITickerService
     {
-        void Start(DuplicatContext duplicatContext);
+        void Start(List<Ticker> tickers);
         void Stop();
     }
 
@@ -22,17 +21,17 @@ namespace QvaDev.Orchestration.Services
 		public class CsvRow
 		{
 			public string Time { get; set; }
-			public double Ask { get; set; }
-			public double Bid { get; set; }
+			public decimal Ask { get; set; }
+			public decimal Bid { get; set; }
 		}
 
 		public class CsvRowPair
 		{
 			public string Time { get; set; }
-			public double Ask { get; set; }
-			public double Bid { get; set; }
-			public double PairAsk { get; set; }
-			public double PairBid { get; set; }
+			public decimal Ask { get; set; }
+			public decimal Bid { get; set; }
+			public decimal PairAsk { get; set; }
+			public decimal PairBid { get; set; }
 		}
 
 		public class Writer
@@ -66,35 +65,17 @@ namespace QvaDev.Orchestration.Services
             _log = log;
         }
 
-        public void Start(DuplicatContext duplicatContext)
+        public void Start(List<Ticker> tickers)
         {
-			_tickers = duplicatContext.Tickers.Local
-				.Where(c => c.MainAccount.State == Account.States.Connected).ToList();
+			_tickers = tickers;
 
 			foreach (var ticker in _tickers)
-            {
-				if (ticker.MainAccount.Connector?.IsConnected == true && ticker.MainAccount.Connector is MtConnector)
-				{
-					var connector = (MtConnector)ticker.MainAccount.Connector;
-					connector.Subscribe(new List<Tuple<string, int, short>> { new Tuple<string, int, short>(ticker.MainSymbol, 1, 1) });
-				}
-				if (ticker.PairAccount?.Connector?.IsConnected == true && ticker.PairAccount.Connector is MtConnector)
-				{
-					var connector = (MtConnector)ticker.PairAccount.Connector;
-					connector.Subscribe(new List<Tuple<string, int, short>> { new Tuple<string, int, short>(ticker.PairSymbol, 1, 1) });
-				}
-			}
-
-			foreach (var ft in _tickers.Where(t => t.MainAccount.FixTraderAccountId.HasValue).Select(t => t.MainAccount).Distinct())
 			{
-				ft.Connector.OnTick -= Connector_OnTick;
-				ft.Connector.OnTick += Connector_OnTick;
-			}
+				ticker.MainAccount.Connector.NewTick -= Connector_NewTick;
+				ticker.MainAccount.Connector.NewTick += Connector_NewTick;
 
-			foreach (var mt in _tickers.Where(t => t.MainAccount.MetaTraderAccountId.HasValue).Select(t => t.MainAccount).Distinct())
-			{
-				mt.Connector.OnTick -= Connector_OnTick;
-				mt.Connector.OnTick += Connector_OnTick;
+				ticker.MainAccount?.Connector?.Subscribe(ticker.MainSymbol);
+				ticker.PairAccount?.Connector?.Subscribe(ticker.PairSymbol);
 			}
 
 			_isStarted = true;
@@ -109,7 +90,7 @@ namespace QvaDev.Orchestration.Services
 			_csvWriters.Clear();
 		}
 
-		private void Connector_OnTick(object sender, TickEventArgs e)
+		private void Connector_NewTick(object sender, NewTickEventArgs e)
 		{
 			if (!_isStarted) return;
 			var connector = (IConnector)sender;
@@ -145,6 +126,9 @@ namespace QvaDev.Orchestration.Services
 
 		private string GetCsvFile(string id, string symbol)
 		{
+			symbol = Path.GetInvalidFileNameChars()
+				.Aggregate(symbol, (current, c) => current.Replace(c, '_'));
+
 			return $"Tickers/{id}_{symbol}_{DateTime.UtcNow.Date:yyyyMMdd}.csv";
 		}
 

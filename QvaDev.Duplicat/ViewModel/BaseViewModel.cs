@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Runtime.CompilerServices;
-using System.Threading;
+using QvaDev.Common;
 using QvaDev.Common.Annotations;
 
 namespace QvaDev.Duplicat.ViewModel
@@ -13,7 +12,6 @@ namespace QvaDev.Duplicat.ViewModel
         private readonly Dictionary<string, object> _propertyValues = new Dictionary<string, object>();
 
         public event PropertyChangedEventHandler PropertyChanged;
-        public SynchronizationContext SynchronizationContext { get; set; }
 
         [NotifyPropertyChangedInvocator]
         protected T Get<T>(Func<T> defaultValueFactory = null, [CallerMemberName] string propertyName = null)
@@ -33,7 +31,7 @@ namespace QvaDev.Duplicat.ViewModel
             if (string.IsNullOrEmpty(propertyName)) return;
 
             var oldValue = Get<T>(null, propertyName);
-            if (value.Equals(oldValue)) return;
+            if (value?.Equals(oldValue) == true) return;
 
             _propertyValues[propertyName] = value;
 
@@ -43,10 +41,7 @@ namespace QvaDev.Duplicat.ViewModel
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
-            lock (SynchronizationContext)
-            {
-                SynchronizationContext.Post(o => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName)), null);
-            }
-        }
+			DependecyManager.SynchronizationContext.Post(o => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName)), null);
+		}
     }
 }

@@ -3,10 +3,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace QvaDev.Data.Models
 {
-    public class FixTraderAccount : BaseDescriptionEntity
+	public class FixTraderAccount : BaseDescriptionEntity
 	{
-        [Required]
-        public string IpAddress { get; set; }
+        [Required] public string IpAddress { get; set; }
         public int CommandSocketPort { get; set; }
         public int EventsSocketPort { get; set; }
 
