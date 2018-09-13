@@ -212,6 +212,8 @@
     <Compile Include="Models\PushingDetail.cs" />
     <Compile Include="Models\FixTraderAccount.cs" />
     <Compile Include="Models\IFilterableEntity.cs" />
+    <Compile Include="Models\_Strategies\StratHubArbPosition.cs" />
+    <Compile Include="Models\_Strategies\StratPosition.cs" />
     <Compile Include="Models\_Strategies\StratHubArb.cs" />
     <Compile Include="Models\_Strategies\StratDealingArbPosition.cs" />
     <Compile Include="Models\_Strategies\StratDealingArb.cs" />

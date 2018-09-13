@@ -32,9 +32,34 @@ namespace QvaDev.Duplicat.Views
 				if (CurrentRow?.DataBoundItem == null) return;
 				RowDoubleClick?.Invoke(this, null);
 			};
+			CellClick += CustomDataGridView_CellClick;
+			CellValidating += CustomDataGridView_CellValidating;
 		}
 
-		public void AddComboBoxColumn<T>(ObservableCollection<T> list, string name = null) where T : class
+		// Non-selectable unsaved entities
+		private void CustomDataGridView_CellValidating(object sender, DataGridViewCellValidatingEventArgs e)
+		{
+			if (!(Rows[e.RowIndex].Cells[e.ColumnIndex] is DataGridViewComboBoxCell cb)) return;
+			if (!(cb.DataSource is IBindingList bindingList)) return;
+			foreach (var item in bindingList)
+			{
+				if (!(item is BaseEntity entity)) return;
+				if (entity.DisplayMember != e.FormattedValue.ToString()) continue;
+				if (entity.Id > 0) return;
+				e.Cancel = true;
+				return;
+			}
+		}
+
+		// Removable entity relations
+		private void CustomDataGridView_CellClick(object sender, DataGridViewCellEventArgs e)
+		{
+			if (e.ColumnIndex < 0 || e.RowIndex < 0) return;
+			if ((ModifierKeys & Keys.Alt) == 0 || (ModifierKeys & Keys.Control) == 0) return;
+			Rows[e.RowIndex].Cells[e.ColumnIndex].Value = null;
+		}
+
+		public void AddComboBoxColumn<T>(ObservableCollection<T> list, string name = null) where T : BaseEntity
 		{
 			name = name ?? typeof(T).Name;
 			if (!_invisibleColumns.Contains(name))
@@ -157,9 +182,8 @@ namespace QvaDev.Duplicat.Views
 						{
 							Value = (int) v,
 							Name = Enum.GetName(x.ValueType, v)
-						}).OrderBy(v => v.Value).ToList()
+						}).OrderBy(v => v.Value).ToList(),
 					};
-
 					var index = x.Index;
 					Columns.RemoveAt(index);
 					Columns.Insert(index, c);
