@@ -39,6 +39,7 @@ namespace QvaDev.Duplicat.Views
 		// Non-selectable unsaved entities
 		private void CustomDataGridView_CellValidating(object sender, DataGridViewCellValidatingEventArgs e)
 		{
+			if (string.IsNullOrWhiteSpace(e.FormattedValue.ToString())) return;
 			if (!(Rows[e.RowIndex].Cells[e.ColumnIndex] is DataGridViewComboBoxCell cb)) return;
 			if (!(cb.DataSource is IBindingList bindingList)) return;
 			foreach (var item in bindingList)
