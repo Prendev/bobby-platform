@@ -56,6 +56,11 @@
             AUD/JPY,4008,AUD/JPY,10000,0.001,10,09/07/2010,,JPY,1.5,2530,17:05 Sun - 17:0 [rest of string was truncated]&quot;;.
              </summary>
         </member>
+        <member name="M:QvaDev.Communication.FixApi.Connectors.Xenfin.XenfinConnector.ProcessSpecialMessage(QvaDev.Communication.FixApi.FixSocket,QvaDev.Communication.FixApi.FixMessage)">
+            <summary>
+            Processes a Xenfin specific message.
+            </summary>
+        </member>
         <member name="M:QvaDev.Communication.FixApi.Connectors.OrderIdHelper.GetCommonNewOrderId(QvaDev.Communication.FixApi.NewOrderRequest,System.Func{QvaDev.Communication.FixApi.Symbol,System.String})">
             <summary>
             Gets an Order id with Side, Quantity and Symbol information can be parsed back by <see cref="M:QvaDev.Communication.FixApi.Connectors.OrderIdHelper.ParseOrderId(System.String)"/> method.
