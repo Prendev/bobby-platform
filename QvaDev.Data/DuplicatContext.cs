@@ -1,8 +1,8 @@
-﻿using System.Configuration;
+﻿using System;
+using System.Configuration;
 using System.IO;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using QvaDev.Data.Models;
 
 namespace QvaDev.Data
@@ -12,7 +12,13 @@ namespace QvaDev.Data
 		protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 		{
 			var connectionString = ConfigurationManager.ConnectionStrings["DuplicatContext"].ConnectionString;
-			optionsBuilder.UseSqlite(connectionString);
+			connectionString =
+				connectionString.Replace("|DataDirectory|", AppDomain.CurrentDomain.GetData("DataDirectory").ToString());
+
+			if (connectionString.StartsWith("Server"))
+				optionsBuilder.UseSqlServer(connectionString);
+			else if (connectionString.StartsWith("Data Source"))
+				optionsBuilder.UseSqlite(connectionString);
 		}
 
 		public DbSet<MetaTraderPlatform> MetaTraderPlatforms { get; set; }
