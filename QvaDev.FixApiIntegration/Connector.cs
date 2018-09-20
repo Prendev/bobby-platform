@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -73,8 +74,13 @@ namespace QvaDev.FixApiIntegration
 				await FixConnector.ConnectTradingAsync();
 				if (subscribe)
 				{
-					lock (Subscribes) Subscribes.Clear();
-					await Task.WhenAll(SymbolInfos.Keys.Select(InnerSubscribe));
+					var reSubscribes = new List<string>();
+					lock (Subscribes)
+					{
+						reSubscribes.AddRange(Subscribes);
+						Subscribes.Clear();
+					}
+					await Task.WhenAll(reSubscribes.Select(InnerSubscribe));
 				}
 			}
 			catch (Exception e)
