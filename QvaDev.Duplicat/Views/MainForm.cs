@@ -22,7 +22,7 @@ namespace QvaDev.Duplicat.Views
             Load += MainForm_Load;
             InitializeComponent();
             TextBoxAppender.ConfigureTextBoxAppender(rtbGeneral, "General");
-            TextBoxAppender.ConfigureTextBoxAppender(rtbFix, "FIX", "35=0", "35=1", "35=W", "35=i", "35=b");
+            TextBoxAppender.ConfigureTextBoxAppender(rtbFix, "FIX");
 			//TextBoxAppender.ConfigureTextBoxAppender(rtbAll, null);
 		}
 
