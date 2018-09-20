@@ -1,12 +1,19 @@
 ﻿using System.Data.Entity;
 using System.IO;
 using System.Linq;
+using QvaDev.Data.Migrations;
 using QvaDev.Data.Models;
 
 namespace QvaDev.Data
 {
     public class DuplicatContext : DbContext
 	{
+		static DuplicatContext()
+		{
+			//Database.SetInitializer(new CreateDatabaseIfNotExists<DuplicatContext>());
+			Database.SetInitializer(new MigrateDatabaseToLatestVersion<DuplicatContext, Configuration>(true));
+		}
+
 		public DbSet<MetaTraderPlatform> MetaTraderPlatforms { get; set; }
         public DbSet<CTraderPlatform> CTraderPlatforms { get; set; }
         public DbSet<MetaTraderAccount> MetaTraderAccounts { get; set; }
@@ -42,9 +49,6 @@ namespace QvaDev.Data
 
 		public void Init()
 		{
-			var exists = Database.Exists();
-			if (!exists) Database.Create();
-
 			try
 			{
 				foreach (var name in Directory.GetFiles(".\\Mt4SrvFiles", "*.srv").Select(Path.GetFileNameWithoutExtension))

@@ -47,9 +47,9 @@ namespace QvaDev.Data.Models
 		[DisplayName("ReOpenInterval")]
 		public int ReOpenIntervalInMinutes { get; set; }
 
-		[InvisibleColumn] public TimeSpan? EarliestOpenTime { get; set; }
-		[InvisibleColumn] public TimeSpan? LatestOpenTime { get; set; }
-		[InvisibleColumn] public TimeSpan? LatestCloseTime { get; set; }
+		[InvisibleColumn] public int? EarliestOpenTime { get; set; }
+		[InvisibleColumn] public int? LatestOpenTime { get; set; }
+		[InvisibleColumn] public int? LatestCloseTime { get; set; }
 
 		public StratDealingArbOrderTypes OrderType { get; set; }
 		[DisplayName("MaxRetry")]
@@ -96,7 +96,7 @@ namespace QvaDev.Data.Models
 		public decimal BetaSize { get; set; }
 
 		public decimal? ShiftInPip { get => Get<decimal?>(); set => Set(value); }
-		public TimeSpan ShiftCalcInterval { get; set; }
+		public int ShiftCalcIntervalInMinutes { get; set; }
 
 		public decimal PipSize { get; set; }
 		[InvisibleColumn] public int MagicNumber { get; set; }

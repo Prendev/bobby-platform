@@ -12,6 +12,8 @@
     <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -72,6 +74,18 @@
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data.Linq" />
+    <Reference Include="System.Data.SQLite, Version=1.0.109.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Data.SQLite.Core.1.0.109.1\lib\net46\System.Data.SQLite.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Data.SQLite.EF6, Version=1.0.109.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Data.SQLite.EF6.1.0.109.0\lib\net46\System.Data.SQLite.EF6.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Data.SQLite.EF6.Migrations, Version=1.0.102.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SQLite3.EF6.Migrations.1.0.105\lib\System.Data.SQLite.EF6.Migrations.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Data.SQLite.Linq, Version=1.0.109.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Data.SQLite.Linq.1.0.109.0\lib\net46\System.Data.SQLite.Linq.dll</HintPath>
+    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -82,117 +96,9 @@
   <ItemGroup>
     <Compile Include="DuplicatContext.cs" />
     <Compile Include="IConnectorFactory.cs" />
-    <Compile Include="Migrations\201806041444522_Init.cs" />
-    <Compile Include="Migrations\201806041444522_Init.Designer.cs">
-      <DependentUpon>201806041444522_Init.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201806060757445_AddFixApiAccountTable.cs" />
-    <Compile Include="Migrations\201806060757445_AddFixApiAccountTable.Designer.cs">
-      <DependentUpon>201806060757445_AddFixApiAccountTable.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201806190914297_RefactoringDecimal.cs" />
-    <Compile Include="Migrations\201806190914297_RefactoringDecimal.Designer.cs">
-      <DependentUpon>201806190914297_RefactoringDecimal.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201806270943172_DealingArbUpdate.cs" />
-    <Compile Include="Migrations\201806270943172_DealingArbUpdate.Designer.cs">
-      <DependentUpon>201806270943172_DealingArbUpdate.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201806271213252_DealingArbUpdate2.cs" />
-    <Compile Include="Migrations\201806271213252_DealingArbUpdate2.Designer.cs">
-      <DependentUpon>201806271213252_DealingArbUpdate2.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201806280757598_DealingArbOrderType.cs" />
-    <Compile Include="Migrations\201806280757598_DealingArbOrderType.Designer.cs">
-      <DependentUpon>201806280757598_DealingArbOrderType.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201807020645147_DealingArbReOpenInterval.cs" />
-    <Compile Include="Migrations\201807020645147_DealingArbReOpenInterval.Designer.cs">
-      <DependentUpon>201807020645147_DealingArbReOpenInterval.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201807021205577_DealingArbAggressiveParameters.cs" />
-    <Compile Include="Migrations\201807021205577_DealingArbAggressiveParameters.Designer.cs">
-      <DependentUpon>201807021205577_DealingArbAggressiveParameters.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201807090918330_IlyaFastFeedAccount.cs" />
-    <Compile Include="Migrations\201807090918330_IlyaFastFeedAccount.Designer.cs">
-      <DependentUpon>201807090918330_IlyaFastFeedAccount.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201807090933579_IlyaFastFeedAccount2.cs" />
-    <Compile Include="Migrations\201807090933579_IlyaFastFeedAccount2.Designer.cs">
-      <DependentUpon>201807090933579_IlyaFastFeedAccount2.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201807100935234_DecimalFix.cs" />
-    <Compile Include="Migrations\201807100935234_DecimalFix.Designer.cs">
-      <DependentUpon>201807100935234_DecimalFix.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201807131010465_DealingArbLastOpenTime.cs" />
-    <Compile Include="Migrations\201807131010465_DealingArbLastOpenTime.Designer.cs">
-      <DependentUpon>201807131010465_DealingArbLastOpenTime.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201807161351278_DealingArbClosePrices.cs" />
-    <Compile Include="Migrations\201807161351278_DealingArbClosePrices.Designer.cs">
-      <DependentUpon>201807161351278_DealingArbClosePrices.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201807161434179_DealingArbSignalPrices.cs" />
-    <Compile Include="Migrations\201807161434179_DealingArbSignalPrices.Designer.cs">
-      <DependentUpon>201807161434179_DealingArbSignalPrices.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201807161457578_DealingArbSignalPricesFix.cs" />
-    <Compile Include="Migrations\201807161457578_DealingArbSignalPricesFix.Designer.cs">
-      <DependentUpon>201807161457578_DealingArbSignalPricesFix.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201807170953586_DealingArbSlippage.cs" />
-    <Compile Include="Migrations\201807170953586_DealingArbSlippage.Designer.cs">
-      <DependentUpon>201807170953586_DealingArbSlippage.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201807170958146_DealingArbTimeWindow.cs" />
-    <Compile Include="Migrations\201807170958146_DealingArbTimeWindow.Designer.cs">
-      <DependentUpon>201807170958146_DealingArbTimeWindow.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201807181014018_PushingModes.cs" />
-    <Compile Include="Migrations\201807181014018_PushingModes.Designer.cs">
-      <DependentUpon>201807181014018_PushingModes.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201807231427459_DealingArbRemainingSize.cs" />
-    <Compile Include="Migrations\201807231427459_DealingArbRemainingSize.Designer.cs">
-      <DependentUpon>201807231427459_DealingArbRemainingSize.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201807240652470_DealingArbCloseTime.cs" />
-    <Compile Include="Migrations\201807240652470_DealingArbCloseTime.Designer.cs">
-      <DependentUpon>201807240652470_DealingArbCloseTime.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201808201219225_CqgClientApiAccount.cs" />
-    <Compile Include="Migrations\201808201219225_CqgClientApiAccount.Designer.cs">
-      <DependentUpon>201808201219225_CqgClientApiAccount.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201808201249082_CqgClientApiAccount2.cs" />
-    <Compile Include="Migrations\201808201249082_CqgClientApiAccount2.Designer.cs">
-      <DependentUpon>201808201249082_CqgClientApiAccount2.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201808221353183_PartialHedgeClosePercentage.cs" />
-    <Compile Include="Migrations\201808221353183_PartialHedgeClosePercentage.Designer.cs">
-      <DependentUpon>201808221353183_PartialHedgeClosePercentage.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201808231221539_Aggregator.cs" />
-    <Compile Include="Migrations\201808231221539_Aggregator.Designer.cs">
-      <DependentUpon>201808231221539_Aggregator.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201808240852115_AggregatorSymbol.cs" />
-    <Compile Include="Migrations\201808240852115_AggregatorSymbol.Designer.cs">
-      <DependentUpon>201808240852115_AggregatorSymbol.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201808271350304_HubArb.cs" />
-    <Compile Include="Migrations\201808271350304_HubArb.Designer.cs">
-      <DependentUpon>201808271350304_HubArb.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201809030948389_FixApiCopier.cs" />
-    <Compile Include="Migrations\201809030948389_FixApiCopier.Designer.cs">
-      <DependentUpon>201809030948389_FixApiCopier.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201809041216532_EndingInterval.cs" />
-    <Compile Include="Migrations\201809041216532_EndingInterval.Designer.cs">
-      <DependentUpon>201809041216532_EndingInterval.cs</DependentUpon>
+    <Compile Include="Migrations\201809200839215_ReInitForSqlite.cs" />
+    <Compile Include="Migrations\201809200839215_ReInitForSqlite.Designer.cs">
+      <DependentUpon>201809200839215_ReInitForSqlite.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\_Strategies\Aggregator.cs" />
@@ -240,90 +146,16 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Migrations\201806041444522_Init.resx">
-      <DependentUpon>201806041444522_Init.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201806060757445_AddFixApiAccountTable.resx">
-      <DependentUpon>201806060757445_AddFixApiAccountTable.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201806190914297_RefactoringDecimal.resx">
-      <DependentUpon>201806190914297_RefactoringDecimal.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201806270943172_DealingArbUpdate.resx">
-      <DependentUpon>201806270943172_DealingArbUpdate.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201806271213252_DealingArbUpdate2.resx">
-      <DependentUpon>201806271213252_DealingArbUpdate2.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201806280757598_DealingArbOrderType.resx">
-      <DependentUpon>201806280757598_DealingArbOrderType.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201807020645147_DealingArbReOpenInterval.resx">
-      <DependentUpon>201807020645147_DealingArbReOpenInterval.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201807021205577_DealingArbAggressiveParameters.resx">
-      <DependentUpon>201807021205577_DealingArbAggressiveParameters.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201807090918330_IlyaFastFeedAccount.resx">
-      <DependentUpon>201807090918330_IlyaFastFeedAccount.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201807090933579_IlyaFastFeedAccount2.resx">
-      <DependentUpon>201807090933579_IlyaFastFeedAccount2.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201807100935234_DecimalFix.resx">
-      <DependentUpon>201807100935234_DecimalFix.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201807131010465_DealingArbLastOpenTime.resx">
-      <DependentUpon>201807131010465_DealingArbLastOpenTime.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201807161351278_DealingArbClosePrices.resx">
-      <DependentUpon>201807161351278_DealingArbClosePrices.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201807161434179_DealingArbSignalPrices.resx">
-      <DependentUpon>201807161434179_DealingArbSignalPrices.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201807161457578_DealingArbSignalPricesFix.resx">
-      <DependentUpon>201807161457578_DealingArbSignalPricesFix.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201807170953586_DealingArbSlippage.resx">
-      <DependentUpon>201807170953586_DealingArbSlippage.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201807170958146_DealingArbTimeWindow.resx">
-      <DependentUpon>201807170958146_DealingArbTimeWindow.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201807181014018_PushingModes.resx">
-      <DependentUpon>201807181014018_PushingModes.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201807231427459_DealingArbRemainingSize.resx">
-      <DependentUpon>201807231427459_DealingArbRemainingSize.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201807240652470_DealingArbCloseTime.resx">
-      <DependentUpon>201807240652470_DealingArbCloseTime.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201808201219225_CqgClientApiAccount.resx">
-      <DependentUpon>201808201219225_CqgClientApiAccount.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201808201249082_CqgClientApiAccount2.resx">
-      <DependentUpon>201808201249082_CqgClientApiAccount2.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201808221353183_PartialHedgeClosePercentage.resx">
-      <DependentUpon>201808221353183_PartialHedgeClosePercentage.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201808231221539_Aggregator.resx">
-      <DependentUpon>201808231221539_Aggregator.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201808240852115_AggregatorSymbol.resx">
-      <DependentUpon>201808240852115_AggregatorSymbol.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201808271350304_HubArb.resx">
-      <DependentUpon>201808271350304_HubArb.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201809030948389_FixApiCopier.resx">
-      <DependentUpon>201809030948389_FixApiCopier.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201809041216532_EndingInterval.resx">
-      <DependentUpon>201809041216532_EndingInterval.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\201809200839215_ReInitForSqlite.resx">
+      <DependentUpon>201809200839215_ReInitForSqlite.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="..\packages\System.Data.SQLite.Core.1.0.109.1\build\net46\System.Data.SQLite.Core.targets" Condition="Exists('..\packages\System.Data.SQLite.Core.1.0.109.1\build\net46\System.Data.SQLite.Core.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\System.Data.SQLite.Core.1.0.109.1\build\net46\System.Data.SQLite.Core.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\System.Data.SQLite.Core.1.0.109.1\build\net46\System.Data.SQLite.Core.targets'))" />
+  </Target>
 </Project>

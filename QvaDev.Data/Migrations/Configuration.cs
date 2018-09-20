@@ -1,3 +1,5 @@
+using System.Data.SQLite.EF6.Migrations;
+
 namespace QvaDev.Data.Migrations
 {
     using System;
@@ -9,8 +11,10 @@ namespace QvaDev.Data.Migrations
     {
         public Configuration()
         {
-            AutomaticMigrationsEnabled = false;
-        }
+            AutomaticMigrationsEnabled = true;
+	        SetSqlGenerator("System.Data.SQLite", new SQLiteMigrationSqlGenerator());
+	        SetSqlGenerator("System.Data.SQLite.EF6", new SQLiteMigrationSqlGenerator());
+		}
 
         protected override void Seed(QvaDev.Data.DuplicatContext context)
         {

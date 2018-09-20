@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Windows.Forms;
 using Autofac;
 using QvaDev.Data;
@@ -14,7 +15,7 @@ namespace QvaDev.Duplicat
         [STAThread]
         static void Main()
         {
-			//AppDomain.CurrentDomain.SetData("DataDirectory", Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory));
+			AppDomain.CurrentDomain.SetData("DataDirectory", Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory));
 			using (var c = new DuplicatContext()) c.Init();
 
 			Application.EnableVisualStyles();
