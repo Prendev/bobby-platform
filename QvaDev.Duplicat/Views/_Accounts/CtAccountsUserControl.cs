@@ -1,5 +1,5 @@
-﻿using System.Data.Entity;
-using System.Windows.Forms;
+﻿using System.Windows.Forms;
+using Microsoft.EntityFrameworkCore;
 using QvaDev.Data.Models;
 using QvaDev.Duplicat.ViewModel;
 

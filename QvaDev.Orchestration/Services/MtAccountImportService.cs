@@ -34,7 +34,7 @@ namespace QvaDev.Orchestration.Services
 				var records = csvReader.GetRecords<Record>().ToList();
 
 				var profile = duplicatContext.Profiles.FirstOrDefault(p => p.Description == "*Import-Export") ??
-				              duplicatContext.Profiles.Add(new Profile() {Description = "*Import-Export"});
+				              duplicatContext.Profiles.Add(new Profile() {Description = "*Import-Export"}).Entity;
 
 				foreach (var srv in records.Select(r => r.Server).Distinct())
 				{
@@ -63,7 +63,7 @@ namespace QvaDev.Orchestration.Services
 							User = user,
 							Password = record.Pass,
 							MetaTraderPlatform = platform
-						});
+						}).Entity;
 					}
 
 					if (mtAccount.Accounts.All(a => a.Profile != profile))

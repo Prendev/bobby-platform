@@ -1,6 +1,5 @@
-﻿using System;
-using System.Data.Entity;
-using System.Windows.Forms;
+﻿using System.Windows.Forms;
+using Microsoft.EntityFrameworkCore;
 using QvaDev.Duplicat.ViewModel;
 
 namespace QvaDev.Duplicat.Views

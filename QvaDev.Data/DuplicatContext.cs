@@ -1,17 +1,18 @@
-﻿using System.Data.Entity;
+﻿using System.Configuration;
 using System.IO;
 using System.Linq;
-using QvaDev.Data.Migrations;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using QvaDev.Data.Models;
 
 namespace QvaDev.Data
 {
     public class DuplicatContext : DbContext
 	{
-		static DuplicatContext()
+		protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 		{
-			//Database.SetInitializer(new CreateDatabaseIfNotExists<DuplicatContext>());
-			Database.SetInitializer(new MigrateDatabaseToLatestVersion<DuplicatContext, Configuration>(true));
+			var connectionString = ConfigurationManager.ConnectionStrings["DuplicatContext"].ConnectionString;
+			optionsBuilder.UseSqlite(connectionString);
 		}
 
 		public DbSet<MetaTraderPlatform> MetaTraderPlatforms { get; set; }
@@ -49,6 +50,9 @@ namespace QvaDev.Data
 
 		public void Init()
 		{
+			if (bool.TryParse(ConfigurationManager.AppSettings["AllowDatabaseMigration"], out bool migrate) && migrate)
+				Database.Migrate();
+
 			try
 			{
 				foreach (var name in Directory.GetFiles(".\\Mt4SrvFiles", "*.srv").Select(Path.GetFileNameWithoutExtension))
@@ -82,7 +86,7 @@ namespace QvaDev.Data
 			catch { }
 		}
 
-		protected override void OnModelCreating(DbModelBuilder modelBuilder)
+		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
 			modelBuilder.Entity<StratDealingArb>().Property(x => x.PipSize).HasPrecision(18, 5);
 			modelBuilder.Entity<StratDealingArb>().Property(x => x.AlphaSize).HasPrecision(18, 3);
@@ -109,6 +113,8 @@ namespace QvaDev.Data
 
 			modelBuilder.Entity<FixApiCopier>().Property(x => x.PipSize).HasPrecision(18, 5);
 			modelBuilder.Entity<FixApiCopier>().Property(x => x.SlippageInPip).HasPrecision(18, 2);
+
+			modelBuilder.Entity<AggregatorAccount>().HasKey(c => new { c.AggregatorId, c.AccountId });
 		}
 	}
 }
