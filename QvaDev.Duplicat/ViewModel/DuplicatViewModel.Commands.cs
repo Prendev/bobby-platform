@@ -50,11 +50,12 @@ namespace QvaDev.Duplicat.ViewModel
 
                 using (var context = new DuplicatContext())
                 {
-                    var dbName = context.Database.SqlQuery<string>("SELECT DB_NAME()").First();
-                    string sqlCommand =
-                        $"BACKUP DATABASE {dbName} TO  DISK = N'{backupPath}'";
-                    context.Database.ExecuteSqlCommand(System.Data.Entity.TransactionalBehavior.DoNotEnsureTransaction, sqlCommand);
-                    _log.Debug($"Database ({dbName}) backup is ready at {backupPath}");
+					// TODO
+                    //var dbName = context.Database.SqlQuery<string>("SELECT DB_NAME()").First();
+                    //string sqlCommand =
+                    //    $"BACKUP DATABASE {dbName} TO  DISK = N'{backupPath}'";
+                    //context.Database.ExecuteSqlCommand(System.Data.Entity.TransactionalBehavior.DoNotEnsureTransaction, sqlCommand);
+                    //_log.Debug($"Database ({dbName}) backup is ready at {backupPath}");
                 }
             }
         }
@@ -77,22 +78,23 @@ namespace QvaDev.Duplicat.ViewModel
 			    IsConfigReadonly = true;
 
 			    var backupPath = sfd.FileName;
-			    await Task.Run(() =>
-			    {
-				    var dbName = _duplicatContext.Database.SqlQuery<string>("SELECT DB_NAME()").First();
-				    var connectionString = ConfigurationManager.ConnectionStrings["DuplicatContext"].ConnectionString;
-				    using (var conn = new SqlConnection(connectionString))
-				    {
-					    conn.Open();
-					    _duplicatContext.Dispose();
-					    new SqlCommand("USE master", conn).ExecuteNonQuery();
-					    new SqlCommand($"ALTER DATABASE {dbName} SET SINGLE_USER WITH ROLLBACK IMMEDIATE", conn)
-						    .ExecuteNonQuery();
-					    new SqlCommand($"RESTORE DATABASE {dbName} FROM DISK = N'{backupPath}' WITH REPLACE", conn)
-						    .ExecuteNonQuery();
-					    _log.Debug($"Database ({dbName}) restore is ready from {backupPath}");
-				    }
-			    });
+				// TODO
+			    //await Task.Run(() =>
+			    //{
+				   // var dbName = _duplicatContext.Database.SqlQuery<string>("SELECT DB_NAME()").First();
+				   // var connectionString = ConfigurationManager.ConnectionStrings["DuplicatContext"].ConnectionString;
+				   // using (var conn = new SqlConnection(connectionString))
+				   // {
+					  //  conn.Open();
+					  //  _duplicatContext.Dispose();
+					  //  new SqlCommand("USE master", conn).ExecuteNonQuery();
+					  //  new SqlCommand($"ALTER DATABASE {dbName} SET SINGLE_USER WITH ROLLBACK IMMEDIATE", conn)
+						 //   .ExecuteNonQuery();
+					  //  new SqlCommand($"RESTORE DATABASE {dbName} FROM DISK = N'{backupPath}' WITH REPLACE", conn)
+						 //   .ExecuteNonQuery();
+					  //  _log.Debug($"Database ({dbName}) restore is ready from {backupPath}");
+				   // }
+			    //});
 
 			    IsLoading = false;
 			    IsConfigReadonly = false;

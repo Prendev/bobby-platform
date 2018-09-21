@@ -29,8 +29,8 @@ namespace QvaDev.Data.Models
 		[NotMapped] public decimal? BetaBid { get => Get<decimal?>(); set => Set(value); }
 		[NotMapped] public decimal? BetaAsk { get => Get<decimal?>(); set => Set(value); }
 		[NotMapped] public decimal? AlphaBid { get => Get<decimal?>(); set => Set(value); }
-		[NotMapped] [InvisibleColumn]  public Tick AlphaTick { get; set; }
-		[NotMapped] [InvisibleColumn]  public Tick BetaTick { get; set; }
+		[NotMapped] [InvisibleColumn] public Tick AlphaTick { get; set; }
+		[NotMapped] [InvisibleColumn] public Tick BetaTick { get; set; }
 
 		[DisplayName("MaxPos")]
 		public int MaxNumberOfPositions { get; set; }

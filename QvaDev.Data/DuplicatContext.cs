@@ -1,12 +1,34 @@
-﻿using System.Data.Entity;
+﻿using System;
+using System.Configuration;
 using System.IO;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using QvaDev.Data.Models;
 
 namespace QvaDev.Data
 {
     public class DuplicatContext : DbContext
 	{
+		protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+		{
+			var connectionString = ConfigurationManager.ConnectionStrings["DuplicatContext"].ConnectionString;
+
+			try
+			{
+				connectionString =
+					connectionString.Replace("|DataDirectory|", AppDomain.CurrentDomain.GetData("DataDirectory").ToString());
+			}
+			catch
+			{
+			}
+
+			if (connectionString.StartsWith("Server"))
+				optionsBuilder.UseSqlServer(connectionString);
+			else if (connectionString.StartsWith("Data Source"))
+				optionsBuilder.UseSqlite(connectionString);
+		}
+
 		public DbSet<MetaTraderPlatform> MetaTraderPlatforms { get; set; }
         public DbSet<CTraderPlatform> CTraderPlatforms { get; set; }
         public DbSet<MetaTraderAccount> MetaTraderAccounts { get; set; }
@@ -42,8 +64,8 @@ namespace QvaDev.Data
 
 		public void Init()
 		{
-			var exists = Database.Exists();
-			if (!exists) Database.Create();
+			if (bool.TryParse(ConfigurationManager.AppSettings["AllowDatabaseMigration"], out bool migrate) && migrate)
+				Database.Migrate();
 
 			try
 			{
@@ -78,7 +100,7 @@ namespace QvaDev.Data
 			catch { }
 		}
 
-		protected override void OnModelCreating(DbModelBuilder modelBuilder)
+		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
 			modelBuilder.Entity<StratDealingArb>().Property(x => x.PipSize).HasPrecision(18, 5);
 			modelBuilder.Entity<StratDealingArb>().Property(x => x.AlphaSize).HasPrecision(18, 3);
@@ -105,6 +127,21 @@ namespace QvaDev.Data
 
 			modelBuilder.Entity<FixApiCopier>().Property(x => x.PipSize).HasPrecision(18, 5);
 			modelBuilder.Entity<FixApiCopier>().Property(x => x.SlippageInPip).HasPrecision(18, 2);
+
+			modelBuilder.Entity<AggregatorAccount>().HasKey(c => new { c.AggregatorId, c.AccountId });
+
+			var timeSpanConverter = new ValueConverter<TimeSpan, long>(v => v.Ticks, v => new TimeSpan(v));
+			var nullTimeSpanConverter = new ValueConverter<TimeSpan?, long?>(v => v != null ? v.Value.Ticks : (long?) null,
+				v => v != null ? new TimeSpan(v.Value) : (TimeSpan?) null);
+
+			foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+			foreach (var property in entityType.GetProperties())
+			{
+				if (property.ClrType == typeof(TimeSpan) || property.ClrType == typeof(TimeSpan?))
+					property.SetValueConverter(timeSpanConverter);
+				else if (property.ClrType == typeof(TimeSpan?))
+					property.SetValueConverter(nullTimeSpanConverter);
+			}
 		}
 	}
 }

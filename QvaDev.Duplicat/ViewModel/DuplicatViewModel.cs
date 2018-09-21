@@ -1,8 +1,8 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Data.Entity;
 using System.Linq;
 using log4net;
+using Microsoft.EntityFrameworkCore;
 using QvaDev.Common.Services;
 using QvaDev.Data;
 using QvaDev.Data.Models;
@@ -157,29 +157,29 @@ namespace QvaDev.Duplicat.ViewModel
 			_duplicatContext.StratDealingArbPositions.Where(e => e.StratDealingArb.ProfileId == p).Load();
 		    _duplicatContext.StratHubArbs.Where(e => e.Aggregator.ProfileId == p).Load();
 
-			MtPlatforms = _duplicatContext.MetaTraderPlatforms.Local;
-			CtPlatforms = _duplicatContext.CTraderPlatforms.Local;
-			MtAccounts = _duplicatContext.MetaTraderAccounts.Local;
-			CtAccounts = _duplicatContext.CTraderAccounts.Local;
-			FtAccounts = _duplicatContext.FixTraderAccounts.Local;
-			FixAccounts = _duplicatContext.FixApiAccounts.Local;
-			IlyaFastFeedAccounts = _duplicatContext.IlyaFastFeedAccounts.Local;
-			CqgClientApiAccounts = _duplicatContext.CqgClientApiAccounts.Local;
-			Profiles = _duplicatContext.Profiles.Local;
-			Accounts = _duplicatContext.Accounts.Local;
-			Aggregators = _duplicatContext.Aggregators.Local;
-			AggregatorAccounts = _duplicatContext.AggregatorAccounts.Local;
-			Masters = _duplicatContext.Masters.Local;
-			Slaves = _duplicatContext.Slaves.Local;
-			SymbolMappings = _duplicatContext.SymbolMappings.Local;
-			Copiers = _duplicatContext.Copiers.Local;
-			FixApiCopiers = _duplicatContext.FixApiCopiers.Local;
-			Pushings = _duplicatContext.Pushings.Local;
-			PushingDetails = _duplicatContext.PushingDetails.Local;
-			Tickers = _duplicatContext.Tickers.Local;
-			StratDealingArbs = _duplicatContext.StratDealingArbs.Local;
-			StratDealingArbPositions = _duplicatContext.StratDealingArbPositions.Local;
-		    StratHubArbs = _duplicatContext.StratHubArbs.Local;
+			MtPlatforms = _duplicatContext.MetaTraderPlatforms.Local.ToObservableCollection();
+			CtPlatforms = _duplicatContext.CTraderPlatforms.Local.ToObservableCollection();
+			MtAccounts = _duplicatContext.MetaTraderAccounts.Local.ToObservableCollection();
+			CtAccounts = _duplicatContext.CTraderAccounts.Local.ToObservableCollection();
+			FtAccounts = _duplicatContext.FixTraderAccounts.Local.ToObservableCollection();
+			FixAccounts = _duplicatContext.FixApiAccounts.Local.ToObservableCollection();
+			IlyaFastFeedAccounts = _duplicatContext.IlyaFastFeedAccounts.Local.ToObservableCollection();
+			CqgClientApiAccounts = _duplicatContext.CqgClientApiAccounts.Local.ToObservableCollection();
+			Profiles = _duplicatContext.Profiles.Local.ToObservableCollection();
+			Accounts = _duplicatContext.Accounts.Local.ToObservableCollection();
+			Aggregators = _duplicatContext.Aggregators.Local.ToObservableCollection();
+			AggregatorAccounts = _duplicatContext.AggregatorAccounts.Local.ToObservableCollection();
+			Masters = _duplicatContext.Masters.Local.ToObservableCollection();
+			Slaves = _duplicatContext.Slaves.Local.ToObservableCollection();
+			SymbolMappings = _duplicatContext.SymbolMappings.Local.ToObservableCollection();
+			Copiers = _duplicatContext.Copiers.Local.ToObservableCollection();
+			FixApiCopiers = _duplicatContext.FixApiCopiers.Local.ToObservableCollection();
+			Pushings = _duplicatContext.Pushings.Local.ToObservableCollection();
+			PushingDetails = _duplicatContext.PushingDetails.Local.ToObservableCollection();
+			Tickers = _duplicatContext.Tickers.Local.ToObservableCollection();
+			StratDealingArbs = _duplicatContext.StratDealingArbs.Local.ToObservableCollection();
+			StratDealingArbPositions = _duplicatContext.StratDealingArbPositions.Local.ToObservableCollection();
+			StratHubArbs = _duplicatContext.StratHubArbs.Local.ToObservableCollection();
 
 			foreach (var e in AggregatorAccounts) e.IsFiltered = e.AggregatorId != SelectedAggregator?.Id;
 			foreach (var e in SymbolMappings) e.IsFiltered = e.SlaveId != SelectedSlave?.Id;
@@ -202,7 +202,7 @@ namespace QvaDev.Duplicat.ViewModel
 		{
 			var p = SelectedProfile?.Id;
 			_duplicatContext.StratDealingArbPositions.Where(e => e.StratDealingArb.ProfileId == p).Load();
-			StratDealingArbPositions = _duplicatContext.StratDealingArbPositions.Local;
+			StratDealingArbPositions = _duplicatContext.StratDealingArbPositions.Local.ToObservableCollection();
 			foreach (var e in StratDealingArbPositions) e.IsFiltered = e.StratDealingArbId != SelectedDealingArb?.Id;
 			foreach (var e in StratDealingArbs) e.SetNetProfits();
 		}
