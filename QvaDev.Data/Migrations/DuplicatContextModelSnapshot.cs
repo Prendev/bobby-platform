@@ -313,8 +313,6 @@ namespace QvaDev.Data.Migrations
                     b.Property<string>("Password")
                         .IsRequired();
 
-                    b.Property<int>("RohadjaLe");
-
                     b.Property<long>("User");
 
                     b.HasKey("Id");
@@ -493,13 +491,13 @@ namespace QvaDev.Data.Migrations
                     b.Property<string>("Description")
                         .IsRequired();
 
-                    b.Property<int?>("EarliestOpenTime");
+                    b.Property<long?>("EarliestOpenTime");
 
                     b.Property<DateTime?>("LastOpenTime");
 
-                    b.Property<int?>("LatestCloseTime");
+                    b.Property<long?>("LatestCloseTime");
 
-                    b.Property<int?>("LatestOpenTime");
+                    b.Property<long?>("LatestOpenTime");
 
                     b.Property<int>("MagicNumber");
 
@@ -522,7 +520,7 @@ namespace QvaDev.Data.Migrations
 
                     b.Property<bool>("Run");
 
-                    b.Property<int>("ShiftCalcIntervalInMinutes");
+                    b.Property<long>("ShiftCalcInterval");
 
                     b.Property<decimal?>("ShiftInPip");
 
@@ -622,11 +620,11 @@ namespace QvaDev.Data.Migrations
                     b.Property<string>("Description")
                         .IsRequired();
 
-                    b.Property<int?>("EarliestOpenTime");
+                    b.Property<long?>("EarliestOpenTime");
 
-                    b.Property<int?>("LatestCloseTime");
+                    b.Property<long?>("LatestCloseTime");
 
-                    b.Property<int?>("LatestOpenTime");
+                    b.Property<long?>("LatestOpenTime");
 
                     b.Property<int>("MaxNumberOfPositions");
 

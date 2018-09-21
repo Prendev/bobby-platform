@@ -1,10 +1,9 @@
 ﻿using System;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace QvaDev.Data.Migrations
 {
-    public partial class ReInitForEFCore : Migration
+    public partial class ReInitForSqlite : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -13,7 +12,7 @@ namespace QvaDev.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                        .Annotation("Sqlite:Autoincrement", true),
                     Description = table.Column<string>(nullable: false),
                     UserName = table.Column<string>(nullable: false),
                     Password = table.Column<string>(nullable: false)
@@ -28,7 +27,7 @@ namespace QvaDev.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                        .Annotation("Sqlite:Autoincrement", true),
                     Description = table.Column<string>(nullable: false),
                     AccountsApi = table.Column<string>(nullable: false),
                     TradingHost = table.Column<string>(nullable: false),
@@ -47,7 +46,7 @@ namespace QvaDev.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                        .Annotation("Sqlite:Autoincrement", true),
                     Description = table.Column<string>(nullable: false),
                     ConfigPath = table.Column<string>(nullable: true)
                 },
@@ -61,7 +60,7 @@ namespace QvaDev.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                        .Annotation("Sqlite:Autoincrement", true),
                     Description = table.Column<string>(nullable: false),
                     IpAddress = table.Column<string>(nullable: false),
                     CommandSocketPort = table.Column<int>(nullable: false),
@@ -77,7 +76,7 @@ namespace QvaDev.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                        .Annotation("Sqlite:Autoincrement", true),
                     Description = table.Column<string>(nullable: false),
                     IpAddress = table.Column<string>(nullable: false),
                     Port = table.Column<int>(nullable: false),
@@ -93,7 +92,7 @@ namespace QvaDev.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                        .Annotation("Sqlite:Autoincrement", true),
                     Description = table.Column<string>(nullable: false),
                     SrvFilePath = table.Column<string>(nullable: true)
                 },
@@ -107,7 +106,7 @@ namespace QvaDev.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                        .Annotation("Sqlite:Autoincrement", true),
                     Description = table.Column<string>(nullable: false)
                 },
                 constraints: table =>
@@ -120,7 +119,7 @@ namespace QvaDev.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                        .Annotation("Sqlite:Autoincrement", true),
                     SmallContractSize = table.Column<int>(nullable: false),
                     BigContractSize = table.Column<int>(nullable: false),
                     BigPercentage = table.Column<int>(nullable: false),
@@ -149,7 +148,7 @@ namespace QvaDev.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                        .Annotation("Sqlite:Autoincrement", true),
                     Description = table.Column<string>(nullable: false),
                     AccountNumber = table.Column<long>(nullable: false),
                     AccessToken = table.Column<string>(nullable: false),
@@ -171,7 +170,7 @@ namespace QvaDev.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                        .Annotation("Sqlite:Autoincrement", true),
                     Description = table.Column<string>(nullable: false),
                     User = table.Column<long>(nullable: false),
                     Password = table.Column<string>(nullable: false),
@@ -193,7 +192,7 @@ namespace QvaDev.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                        .Annotation("Sqlite:Autoincrement", true),
                     Description = table.Column<string>(nullable: false),
                     ProfileId = table.Column<int>(nullable: false)
                 },
@@ -213,7 +212,7 @@ namespace QvaDev.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                        .Annotation("Sqlite:Autoincrement", true),
                     ProfileId = table.Column<int>(nullable: false),
                     Run = table.Column<bool>(nullable: false),
                     CTraderAccountId = table.Column<int>(nullable: true),
@@ -275,7 +274,7 @@ namespace QvaDev.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                        .Annotation("Sqlite:Autoincrement", true),
                     Description = table.Column<string>(nullable: false),
                     AggregatorId = table.Column<int>(nullable: false),
                     Run = table.Column<bool>(nullable: false),
@@ -285,9 +284,9 @@ namespace QvaDev.Data.Migrations
                     TargetInPip = table.Column<decimal>(nullable: false),
                     MinOpenTimeInMinutes = table.Column<int>(nullable: false),
                     ReOpenIntervalInMinutes = table.Column<int>(nullable: false),
-                    EarliestOpenTime = table.Column<int>(nullable: true),
-                    LatestOpenTime = table.Column<int>(nullable: true),
-                    LatestCloseTime = table.Column<int>(nullable: true),
+                    EarliestOpenTime = table.Column<long>(nullable: true),
+                    LatestOpenTime = table.Column<long>(nullable: true),
+                    LatestCloseTime = table.Column<long>(nullable: true),
                     OrderType = table.Column<int>(nullable: false),
                     MaxRetryCount = table.Column<int>(nullable: false),
                     RetryPeriodInMs = table.Column<int>(nullable: false),
@@ -330,7 +329,7 @@ namespace QvaDev.Data.Migrations
                         column: x => x.Aggregator_Id,
                         principalTable: "Aggregators",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.NoAction);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -338,7 +337,7 @@ namespace QvaDev.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                        .Annotation("Sqlite:Autoincrement", true),
                     ProfileId = table.Column<int>(nullable: false),
                     Run = table.Column<bool>(nullable: false),
                     AccountId = table.Column<int>(nullable: false)
@@ -357,7 +356,7 @@ namespace QvaDev.Data.Migrations
                         column: x => x.ProfileId,
                         principalTable: "Profiles",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.NoAction);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -365,7 +364,7 @@ namespace QvaDev.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                        .Annotation("Sqlite:Autoincrement", true),
                     Description = table.Column<string>(nullable: false),
                     ProfileId = table.Column<int>(nullable: false),
                     FutureExecutionMode = table.Column<int>(nullable: false),
@@ -387,31 +386,31 @@ namespace QvaDev.Data.Migrations
                         column: x => x.AlphaMasterId,
                         principalTable: "Accounts",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.NoAction);
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Pushings_Accounts_BetaMasterId",
                         column: x => x.BetaMasterId,
                         principalTable: "Accounts",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.NoAction);
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Pushings_Accounts_FutureAccountId",
                         column: x => x.FutureAccountId,
                         principalTable: "Accounts",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.NoAction);
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Pushings_Accounts_HedgeAccountId",
                         column: x => x.HedgeAccountId,
                         principalTable: "Accounts",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.NoAction);
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Pushings_Profiles_ProfileId",
                         column: x => x.ProfileId,
                         principalTable: "Profiles",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.NoAction);
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Pushings_PushingDetails_PushingDetailId",
                         column: x => x.PushingDetailId,
@@ -425,7 +424,7 @@ namespace QvaDev.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                        .Annotation("Sqlite:Autoincrement", true),
                     Description = table.Column<string>(nullable: false),
                     ProfileId = table.Column<int>(nullable: false),
                     Run = table.Column<bool>(nullable: false),
@@ -435,9 +434,9 @@ namespace QvaDev.Data.Migrations
                     TargetInPip = table.Column<decimal>(nullable: false),
                     MinOpenTimeInMinutes = table.Column<int>(nullable: false),
                     ReOpenIntervalInMinutes = table.Column<int>(nullable: false),
-                    EarliestOpenTime = table.Column<int>(nullable: true),
-                    LatestOpenTime = table.Column<int>(nullable: true),
-                    LatestCloseTime = table.Column<int>(nullable: true),
+                    EarliestOpenTime = table.Column<long>(nullable: true),
+                    LatestOpenTime = table.Column<long>(nullable: true),
+                    LatestCloseTime = table.Column<long>(nullable: true),
                     OrderType = table.Column<int>(nullable: false),
                     MaxRetryCount = table.Column<int>(nullable: false),
                     RetryPeriodInMs = table.Column<int>(nullable: false),
@@ -450,7 +449,7 @@ namespace QvaDev.Data.Migrations
                     BetaSymbol = table.Column<string>(nullable: false),
                     BetaSize = table.Column<decimal>(type: "decimal(18,3)", nullable: false),
                     ShiftInPip = table.Column<decimal>(nullable: true),
-                    ShiftCalcIntervalInMinutes = table.Column<int>(nullable: false),
+                    ShiftCalcInterval = table.Column<long>(nullable: false),
                     PipSize = table.Column<decimal>(type: "decimal(18,5)", nullable: false),
                     MagicNumber = table.Column<int>(nullable: false),
                     LastOpenTime = table.Column<DateTime>(nullable: true)
@@ -463,13 +462,13 @@ namespace QvaDev.Data.Migrations
                         column: x => x.AlphaAccountId,
                         principalTable: "Accounts",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.NoAction);
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_StratDealingArbs_Accounts_BetaAccountId",
                         column: x => x.BetaAccountId,
                         principalTable: "Accounts",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.NoAction);
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_StratDealingArbs_Profiles_ProfileId",
                         column: x => x.ProfileId,
@@ -483,7 +482,7 @@ namespace QvaDev.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                        .Annotation("Sqlite:Autoincrement", true),
                     ProfileId = table.Column<int>(nullable: false),
                     MainAccountId = table.Column<int>(nullable: false),
                     MainSymbol = table.Column<string>(nullable: true),
@@ -510,7 +509,7 @@ namespace QvaDev.Data.Migrations
                         column: x => x.ProfileId,
                         principalTable: "Profiles",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.NoAction);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -518,7 +517,7 @@ namespace QvaDev.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                        .Annotation("Sqlite:Autoincrement", true),
                     Run = table.Column<bool>(nullable: false),
                     MasterId = table.Column<int>(nullable: false),
                     AccountId = table.Column<int>(nullable: false),
@@ -538,7 +537,7 @@ namespace QvaDev.Data.Migrations
                         column: x => x.MasterId,
                         principalTable: "Masters",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.NoAction);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -546,7 +545,7 @@ namespace QvaDev.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                        .Annotation("Sqlite:Autoincrement", true),
                     OpenTime = table.Column<DateTime>(nullable: false),
                     CloseTime = table.Column<DateTime>(nullable: true),
                     AlphaOpenSignal = table.Column<decimal>(type: "decimal(18,5)", nullable: false),
@@ -584,7 +583,7 @@ namespace QvaDev.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                        .Annotation("Sqlite:Autoincrement", true),
                     SlaveId = table.Column<int>(nullable: false),
                     Run = table.Column<bool>(nullable: false),
                     CopyRatio = table.Column<decimal>(nullable: false),
@@ -610,7 +609,7 @@ namespace QvaDev.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                        .Annotation("Sqlite:Autoincrement", true),
                     SlaveId = table.Column<int>(nullable: false),
                     Run = table.Column<bool>(nullable: false),
                     CopyRatio = table.Column<decimal>(nullable: false),
@@ -638,7 +637,7 @@ namespace QvaDev.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                        .Annotation("Sqlite:Autoincrement", true),
                     SlaveId = table.Column<int>(nullable: false),
                     From = table.Column<string>(nullable: true),
                     To = table.Column<string>(nullable: true)

@@ -52,9 +52,9 @@ namespace QvaDev.Data.Models
 		[DisplayName("ReOpenInterval")]
 		public int ReOpenIntervalInMinutes { get; set; }
 
-		[InvisibleColumn] public int? EarliestOpenTime { get; set; }
-		[InvisibleColumn] public int? LatestOpenTime { get; set; }
-		[InvisibleColumn] public int? LatestCloseTime { get; set; }
+		[InvisibleColumn] public TimeSpan? EarliestOpenTime { get; set; }
+		[InvisibleColumn] public TimeSpan? LatestOpenTime { get; set; }
+		[InvisibleColumn] public TimeSpan? LatestCloseTime { get; set; }
 
 		public StratHubArbOrderTypes OrderType { get; set; }
 		[DisplayName("MaxRetry")]

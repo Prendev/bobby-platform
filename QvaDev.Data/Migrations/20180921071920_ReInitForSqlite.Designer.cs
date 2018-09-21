@@ -2,7 +2,6 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using QvaDev.Data;
@@ -10,22 +9,19 @@ using QvaDev.Data;
 namespace QvaDev.Data.Migrations
 {
     [DbContext(typeof(DuplicatContext))]
-    [Migration("20180920143431_ReInitForEFCore")]
-    partial class ReInitForEFCore
+    [Migration("20180921071920_ReInitForSqlite")]
+    partial class ReInitForSqlite
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "2.1.3-rtm-32065")
-                .HasAnnotation("Relational:MaxIdentifierLength", 128)
-                .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                .HasAnnotation("ProductVersion", "2.1.3-rtm-32065");
 
             modelBuilder.Entity("QvaDev.Data.Models.Account", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .ValueGeneratedOnAdd();
 
                     b.Property<int?>("CTraderAccountId");
 
@@ -65,8 +61,7 @@ namespace QvaDev.Data.Migrations
             modelBuilder.Entity("QvaDev.Data.Models.Aggregator", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .ValueGeneratedOnAdd();
 
                     b.Property<string>("Description")
                         .IsRequired();
@@ -101,8 +96,7 @@ namespace QvaDev.Data.Migrations
             modelBuilder.Entity("QvaDev.Data.Models.Copier", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .ValueGeneratedOnAdd();
 
                     b.Property<decimal>("CopyRatio");
 
@@ -130,8 +124,7 @@ namespace QvaDev.Data.Migrations
             modelBuilder.Entity("QvaDev.Data.Models.CqgClientApiAccount", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .ValueGeneratedOnAdd();
 
                     b.Property<string>("Description")
                         .IsRequired();
@@ -150,8 +143,7 @@ namespace QvaDev.Data.Migrations
             modelBuilder.Entity("QvaDev.Data.Models.CTraderAccount", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .ValueGeneratedOnAdd();
 
                     b.Property<string>("AccessToken")
                         .IsRequired();
@@ -173,8 +165,7 @@ namespace QvaDev.Data.Migrations
             modelBuilder.Entity("QvaDev.Data.Models.CTraderPlatform", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .ValueGeneratedOnAdd();
 
                     b.Property<string>("AccessBaseUrl")
                         .IsRequired();
@@ -205,8 +196,7 @@ namespace QvaDev.Data.Migrations
             modelBuilder.Entity("QvaDev.Data.Models.FixApiAccount", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .ValueGeneratedOnAdd();
 
                     b.Property<string>("ConfigPath");
 
@@ -221,8 +211,7 @@ namespace QvaDev.Data.Migrations
             modelBuilder.Entity("QvaDev.Data.Models.FixApiCopier", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .ValueGeneratedOnAdd();
 
                     b.Property<decimal>("CopyRatio");
 
@@ -256,8 +245,7 @@ namespace QvaDev.Data.Migrations
             modelBuilder.Entity("QvaDev.Data.Models.FixTraderAccount", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .ValueGeneratedOnAdd();
 
                     b.Property<int>("CommandSocketPort");
 
@@ -277,8 +265,7 @@ namespace QvaDev.Data.Migrations
             modelBuilder.Entity("QvaDev.Data.Models.IlyaFastFeedAccount", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .ValueGeneratedOnAdd();
 
                     b.Property<string>("Description")
                         .IsRequired();
@@ -298,8 +285,7 @@ namespace QvaDev.Data.Migrations
             modelBuilder.Entity("QvaDev.Data.Models.Master", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .ValueGeneratedOnAdd();
 
                     b.Property<int>("AccountId");
 
@@ -319,8 +305,7 @@ namespace QvaDev.Data.Migrations
             modelBuilder.Entity("QvaDev.Data.Models.MetaTraderAccount", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .ValueGeneratedOnAdd();
 
                     b.Property<string>("Description")
                         .IsRequired();
@@ -342,8 +327,7 @@ namespace QvaDev.Data.Migrations
             modelBuilder.Entity("QvaDev.Data.Models.MetaTraderPlatform", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .ValueGeneratedOnAdd();
 
                     b.Property<string>("Description")
                         .IsRequired();
@@ -358,8 +342,7 @@ namespace QvaDev.Data.Migrations
             modelBuilder.Entity("QvaDev.Data.Models.Profile", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .ValueGeneratedOnAdd();
 
                     b.Property<string>("Description")
                         .IsRequired();
@@ -372,8 +355,7 @@ namespace QvaDev.Data.Migrations
             modelBuilder.Entity("QvaDev.Data.Models.Pushing", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .ValueGeneratedOnAdd();
 
                     b.Property<int>("AlphaMasterId");
 
@@ -424,8 +406,7 @@ namespace QvaDev.Data.Migrations
             modelBuilder.Entity("QvaDev.Data.Models.PushingDetail", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .ValueGeneratedOnAdd();
 
                     b.Property<double>("AlphaLots");
 
@@ -469,8 +450,7 @@ namespace QvaDev.Data.Migrations
             modelBuilder.Entity("QvaDev.Data.Models.Slave", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .ValueGeneratedOnAdd();
 
                     b.Property<int>("AccountId");
 
@@ -492,8 +472,7 @@ namespace QvaDev.Data.Migrations
             modelBuilder.Entity("QvaDev.Data.Models.StratDealingArb", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .ValueGeneratedOnAdd();
 
                     b.Property<int>("AlphaAccountId");
 
@@ -514,13 +493,13 @@ namespace QvaDev.Data.Migrations
                     b.Property<string>("Description")
                         .IsRequired();
 
-                    b.Property<int?>("EarliestOpenTime");
+                    b.Property<long?>("EarliestOpenTime");
 
                     b.Property<DateTime?>("LastOpenTime");
 
-                    b.Property<int?>("LatestCloseTime");
+                    b.Property<long?>("LatestCloseTime");
 
-                    b.Property<int?>("LatestOpenTime");
+                    b.Property<long?>("LatestOpenTime");
 
                     b.Property<int>("MagicNumber");
 
@@ -543,7 +522,7 @@ namespace QvaDev.Data.Migrations
 
                     b.Property<bool>("Run");
 
-                    b.Property<int>("ShiftCalcIntervalInMinutes");
+                    b.Property<long>("ShiftCalcInterval");
 
                     b.Property<decimal?>("ShiftInPip");
 
@@ -572,8 +551,7 @@ namespace QvaDev.Data.Migrations
             modelBuilder.Entity("QvaDev.Data.Models.StratDealingArbPosition", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .ValueGeneratedOnAdd();
 
                     b.Property<decimal?>("AlphaClosePrice")
                         .HasColumnType("decimal(18,5)");
@@ -637,19 +615,18 @@ namespace QvaDev.Data.Migrations
             modelBuilder.Entity("QvaDev.Data.Models.StratHubArb", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .ValueGeneratedOnAdd();
 
                     b.Property<int>("AggregatorId");
 
                     b.Property<string>("Description")
                         .IsRequired();
 
-                    b.Property<int?>("EarliestOpenTime");
+                    b.Property<long?>("EarliestOpenTime");
 
-                    b.Property<int?>("LatestCloseTime");
+                    b.Property<long?>("LatestCloseTime");
 
-                    b.Property<int?>("LatestOpenTime");
+                    b.Property<long?>("LatestOpenTime");
 
                     b.Property<int>("MaxNumberOfPositions");
 
@@ -692,8 +669,7 @@ namespace QvaDev.Data.Migrations
             modelBuilder.Entity("QvaDev.Data.Models.SymbolMapping", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .ValueGeneratedOnAdd();
 
                     b.Property<string>("From");
 
@@ -711,8 +687,7 @@ namespace QvaDev.Data.Migrations
             modelBuilder.Entity("QvaDev.Data.Models.Ticker", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .ValueGeneratedOnAdd();
 
                     b.Property<int>("MainAccountId");
 

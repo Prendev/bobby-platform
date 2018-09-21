@@ -177,9 +177,9 @@
     <Compile Include="DuplicatContext.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="IConnectorFactory.cs" />
-    <Compile Include="Migrations\20180920143431_ReInitForEFCore.cs" />
-    <Compile Include="Migrations\20180920143431_ReInitForEFCore.designer.cs">
-      <DependentUpon>20180920143431_ReInitForEFCore.cs</DependentUpon>
+    <Compile Include="Migrations\20180921071920_ReInitForSqlite.cs" />
+    <Compile Include="Migrations\20180921071920_ReInitForSqlite.designer.cs">
+      <DependentUpon>20180921071920_ReInitForSqlite.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\DuplicatContextModelSnapshot.cs" />
     <Compile Include="Models\_Strategies\Aggregator.cs" />

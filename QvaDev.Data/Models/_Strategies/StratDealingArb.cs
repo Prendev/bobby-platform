@@ -29,8 +29,8 @@ namespace QvaDev.Data.Models
 		[NotMapped] public decimal? BetaBid { get => Get<decimal?>(); set => Set(value); }
 		[NotMapped] public decimal? BetaAsk { get => Get<decimal?>(); set => Set(value); }
 		[NotMapped] public decimal? AlphaBid { get => Get<decimal?>(); set => Set(value); }
-		[NotMapped] [InvisibleColumn]  public Tick AlphaTick { get; set; }
-		[NotMapped] [InvisibleColumn]  public Tick BetaTick { get; set; }
+		[NotMapped] [InvisibleColumn] public Tick AlphaTick { get; set; }
+		[NotMapped] [InvisibleColumn] public Tick BetaTick { get; set; }
 
 		[DisplayName("MaxPos")]
 		public int MaxNumberOfPositions { get; set; }
@@ -47,9 +47,9 @@ namespace QvaDev.Data.Models
 		[DisplayName("ReOpenInterval")]
 		public int ReOpenIntervalInMinutes { get; set; }
 
-		[InvisibleColumn] public int? EarliestOpenTime { get; set; }
-		[InvisibleColumn] public int? LatestOpenTime { get; set; }
-		[InvisibleColumn] public int? LatestCloseTime { get; set; }
+		[InvisibleColumn] public TimeSpan? EarliestOpenTime { get; set; }
+		[InvisibleColumn] public TimeSpan? LatestOpenTime { get; set; }
+		[InvisibleColumn] public TimeSpan? LatestCloseTime { get; set; }
 
 		public StratDealingArbOrderTypes OrderType { get; set; }
 		[DisplayName("MaxRetry")]
@@ -96,7 +96,7 @@ namespace QvaDev.Data.Models
 		public decimal BetaSize { get; set; }
 
 		public decimal? ShiftInPip { get => Get<decimal?>(); set => Set(value); }
-		public int ShiftCalcIntervalInMinutes { get; set; }
+		public TimeSpan ShiftCalcInterval { get; set; }
 
 		public decimal PipSize { get; set; }
 		[InvisibleColumn] public int MagicNumber { get; set; }

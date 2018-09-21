@@ -112,7 +112,7 @@ namespace QvaDev.Orchestration.Services.Strategies
 				arb.ShiftDiffSumInPip = 0;
 			}
 
-			if (arb.ShiftCalcStopwatch.Elapsed < new TimeSpan(0, 0, arb.ShiftCalcIntervalInMinutes))
+			if (arb.ShiftCalcStopwatch.Elapsed < arb.ShiftCalcInterval)
 			{
 				arb.ShiftTickCount++;
 				arb.ShiftDiffSumInPip += ((betaTick.Ask + betaTick.Bid) / 2 - (alphaTick.Ask + alphaTick.Bid) / 2) / arb.PipSize;
@@ -414,11 +414,9 @@ namespace QvaDev.Orchestration.Services.Strategies
 				lastTick.GetPrice(side), arb.Deviation, arb.TimeWindowInMs, arb.MaxRetryCount, arb.RetryPeriodInMs);
 		}
 
-		private bool IsTime(TimeSpan current, int? startHour, int? endHour)
+		private bool IsTime(TimeSpan current, TimeSpan? start, TimeSpan? end)
 		{
-			if (!startHour.HasValue || !endHour.HasValue) return false;
-			var start = new TimeSpan(0, startHour.Value, 0);
-			var end = new TimeSpan(0, endHour.Value, 0);
+			if (!start.HasValue || !end.HasValue) return false;
 			var startOk = current >= start;
 			var endOk = current < end;
 
