@@ -120,6 +120,7 @@ namespace QvaDev.FixApiIntegration
 
 		private void FixConnector_SocketClosed(object sender, ClosedEventArgs e)
 		{
+			if (_isConnecting) return;
 			Task.Run(() => Reconnect(5000));
 		}
 
