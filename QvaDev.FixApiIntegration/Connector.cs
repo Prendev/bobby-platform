@@ -86,11 +86,12 @@ namespace QvaDev.FixApiIntegration
 			catch (Exception e)
 			{
 				Log.Error($"{Description} FIX account FAILED to connect", e);
+				lock (_lock) _isConnecting = false;
 				Reconnect();
 			}
 
 			OnConnectionChanged(IsConnected ? ConnectionStates.Connected : ConnectionStates.Error);
-			_isConnecting = false;
+			lock (_lock) _isConnecting = false;
 		}
 
 		public override void Disconnect()
@@ -119,6 +120,7 @@ namespace QvaDev.FixApiIntegration
 
 		private void FixConnector_SocketClosed(object sender, ClosedEventArgs e)
 		{
+			if (_isConnecting) return;
 			Task.Run(() => Reconnect(5000));
 		}
 
@@ -243,11 +245,6 @@ namespace QvaDev.FixApiIntegration
 
 				await FixConnector.SubscribeMarketDataAsync(Symbol.Parse(symbol), 1);
 			}
-			catch (ObjectDisposedException e)
-			{
-				Log.Error($"{Description} Connector.Subscribe({symbol}) ObjectDisposedException", e);
-				Reconnect(1000);
-			}
 			catch (Exception e)
 			{
 				Log.Error($"{Description} Connector.Subscribe({symbol}) exception", e);
@@ -258,8 +255,6 @@ namespace QvaDev.FixApiIntegration
 		{
 			OnConnectionChanged(ConnectionStates.Error);
 			await Task.Delay(delay);
-
-			_isConnecting = false;
 			await InnerConnect();
 		}
 
