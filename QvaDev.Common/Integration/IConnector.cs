@@ -11,5 +11,6 @@
 		void Disconnect();
 	    Tick GetLastTick(string symbol);
 	    void Subscribe(string symbol);
+		bool Is(object o);
 	}
 }

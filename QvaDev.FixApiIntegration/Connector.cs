@@ -233,6 +233,11 @@ namespace QvaDev.FixApiIntegration
 			await InnerSubscribe(symbol);
 		}
 
+		public override bool Is(object o)
+		{
+			return o as FixConnectorBase == FixConnector;
+		}
+
 		private async Task InnerSubscribe(string symbol)
 		{
 			try

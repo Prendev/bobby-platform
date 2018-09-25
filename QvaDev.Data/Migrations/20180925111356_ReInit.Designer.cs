@@ -9,8 +9,8 @@ using QvaDev.Data;
 namespace QvaDev.Data.Migrations
 {
     [DbContext(typeof(DuplicatContext))]
-    [Migration("20180921071920_ReInitForSqlite")]
-    partial class ReInitForSqlite
+    [Migration("20180925111356_ReInit")]
+    partial class ReInit
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -624,13 +624,15 @@ namespace QvaDev.Data.Migrations
 
                     b.Property<long?>("EarliestOpenTime");
 
+                    b.Property<DateTime?>("LastOpenTime");
+
                     b.Property<long?>("LatestCloseTime");
 
                     b.Property<long?>("LatestOpenTime");
 
-                    b.Property<int>("MaxNumberOfPositions");
-
                     b.Property<int>("MaxRetryCount");
+
+                    b.Property<decimal>("MaxSizePerAccount");
 
                     b.Property<int>("MinOpenTimeInMinutes");
 
@@ -639,23 +641,17 @@ namespace QvaDev.Data.Migrations
                     b.Property<decimal>("PipSize")
                         .HasColumnType("decimal(18,5)");
 
-                    b.Property<int>("ReOpenIntervalInMinutes");
-
                     b.Property<int>("RetryPeriodInMs");
 
                     b.Property<bool>("Run");
 
                     b.Property<decimal>("SignalDiffInPip");
 
-                    b.Property<decimal>("SignalStepInPip");
-
                     b.Property<decimal>("Size")
                         .HasColumnType("decimal(18,3)");
 
                     b.Property<decimal>("SlippageInPip")
                         .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("TargetInPip");
 
                     b.Property<int>("TimeWindowInMs");
 
@@ -664,6 +660,48 @@ namespace QvaDev.Data.Migrations
                     b.HasIndex("AggregatorId");
 
                     b.ToTable("StratHubArbs");
+                });
+
+            modelBuilder.Entity("QvaDev.Data.Models.StratHubArbPosition", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<int>("PositionId");
+
+                    b.Property<int>("StratHubArbId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PositionId");
+
+                    b.HasIndex("StratHubArbId");
+
+                    b.ToTable("StratHubArbPositions");
+                });
+
+            modelBuilder.Entity("QvaDev.Data.Models.StratPosition", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<int>("AccountId");
+
+                    b.Property<decimal>("AvgPrice");
+
+                    b.Property<DateTime>("OpenTime");
+
+                    b.Property<int>("Side");
+
+                    b.Property<decimal>("Size");
+
+                    b.Property<string>("Symbol");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AccountId");
+
+                    b.ToTable("Positions");
                 });
 
             modelBuilder.Entity("QvaDev.Data.Models.SymbolMapping", b =>
@@ -885,6 +923,27 @@ namespace QvaDev.Data.Migrations
                     b.HasOne("QvaDev.Data.Models.Aggregator", "Aggregator")
                         .WithMany()
                         .HasForeignKey("AggregatorId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("QvaDev.Data.Models.StratHubArbPosition", b =>
+                {
+                    b.HasOne("QvaDev.Data.Models.StratPosition", "Position")
+                        .WithMany()
+                        .HasForeignKey("PositionId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("QvaDev.Data.Models.StratHubArb", "StratHubArb")
+                        .WithMany("StratHubArbPositions")
+                        .HasForeignKey("StratHubArbId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("QvaDev.Data.Models.StratPosition", b =>
+                {
+                    b.HasOne("QvaDev.Data.Models.Account", "Account")
+                        .WithMany()
+                        .HasForeignKey("AccountId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 

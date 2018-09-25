@@ -1,17 +1,11 @@
 ﻿namespace QvaDev.Data.Models
 {
-	public class StratHubArbPosition
+	public class StratHubArbPosition : BaseEntity
 	{
-		public int LongOpenPositionId { get; set; }
-		public StratPosition LongOpenPosition { get; set; }
+		public int StratHubArbId { get; set; }
+		public StratHubArb StratHubArb { get; set; }
 
-		public int? LongClosePositionId { get; set; }
-		public StratPosition LongClosePosition { get; set; }
-
-		public int ShortOpenPositionId { get; set; }
-		public StratPosition ShortOpenPosition { get; set; }
-
-		public int? ShortClosePositionId { get; set; }
-		public StratPosition ShortClosePosition { get; set; }
+		public int PositionId { get; set; }
+		public StratPosition Position { get; set; }
 	}
 }

@@ -6,7 +6,6 @@ using System.Linq;
 using log4net;
 using QvaDev.Common.Integration;
 using QvaDev.Data.Models;
-using MtConnector = QvaDev.Mt4Integration.Connector;
 
 namespace QvaDev.Orchestration.Services
 {

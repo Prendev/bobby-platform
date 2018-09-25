@@ -8,7 +8,7 @@ namespace QvaDev.Data.Models
 {
 	public class Aggregator : BaseDescriptionEntity
 	{
-		public event EventHandler<GroupQuoteEventArgs> GroupQuote;
+		public event EventHandler<AggregatorQuoteEventArgs> AggregatedQuote;
 
 		[InvisibleColumn] public int ProfileId { get; set; }
 		[InvisibleColumn] public Profile Profile { get; set; }
@@ -35,7 +35,36 @@ namespace QvaDev.Data.Models
 
 		private void QuoteAggregator_GroupQuote(object sender, GroupQuoteEventArgs e)
 		{
-			GroupQuote?.Invoke(this, e);
+			var aggQuote = new AggregatorQuoteEventArgs() {Quotes = new List<AggregatorQuoteEventArgs.Quote>()};
+			foreach (var bookTop in e.BookTops)
+			{
+				if (bookTop.Ask == null) continue;
+				if (bookTop.Bid == null) continue;
+				if (bookTop.AskVolume == null) continue;
+				if (bookTop.BidVolume == null) continue;
+
+				var account = GetAccount(bookTop.Connector);
+				if (account == null) continue;
+
+				aggQuote.Quotes.Add(new AggregatorQuoteEventArgs.Quote()
+				{
+					Account = account,
+					GroupQuoteEntry = bookTop
+				});
+			}
+
+			AggregatedQuote?.Invoke(this, aggQuote);
+		}
+
+		private Account GetAccount(FixConnectorBase fixConnector)
+		{
+			foreach (var aggregatorAccount in Accounts)
+			{
+				if (!aggregatorAccount.Account.Connector.Is(fixConnector)) continue;
+				return aggregatorAccount.Account;
+			}
+
+			return null;
 		}
 	}
 }

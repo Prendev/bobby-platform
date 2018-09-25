@@ -22,6 +22,10 @@ namespace QvaDev.Common.Integration
 		public abstract void Disconnect();
 		public abstract Tick GetLastTick(string symbol);
 		public abstract void Subscribe(string symbol);
+		public virtual bool Is(object o)
+		{
+			return false;
+		}
 
 		protected void OnNewPosition(NewPositionEventArgs e) => NewPosition?.Invoke(this, e);
 		protected void OnNewTick(NewTickEventArgs e) => NewTick?.Invoke(this, e);

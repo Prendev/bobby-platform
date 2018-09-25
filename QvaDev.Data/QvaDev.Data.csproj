@@ -177,9 +177,9 @@
     <Compile Include="DuplicatContext.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="IConnectorFactory.cs" />
-    <Compile Include="Migrations\20180921071920_ReInitForSqlite.cs" />
-    <Compile Include="Migrations\20180921071920_ReInitForSqlite.designer.cs">
-      <DependentUpon>20180921071920_ReInitForSqlite.cs</DependentUpon>
+    <Compile Include="Migrations\20180925111356_ReInit.cs" />
+    <Compile Include="Migrations\20180925111356_ReInit.designer.cs">
+      <DependentUpon>20180925111356_ReInit.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\DuplicatContextModelSnapshot.cs" />
     <Compile Include="Models\_Strategies\Aggregator.cs" />
@@ -199,6 +199,8 @@
     <Compile Include="Models\PushingDetail.cs" />
     <Compile Include="Models\FixTraderAccount.cs" />
     <Compile Include="Models\IFilterableEntity.cs" />
+    <Compile Include="Models\_Strategies\StratHubArbQuoteEventArgs.cs" />
+    <Compile Include="Models\_Strategies\AggregatorQuoteEventArgs.cs" />
     <Compile Include="Models\_Strategies\StratHubArbPosition.cs" />
     <Compile Include="Models\_Strategies\StratPosition.cs" />
     <Compile Include="Models\_Strategies\StratHubArb.cs" />

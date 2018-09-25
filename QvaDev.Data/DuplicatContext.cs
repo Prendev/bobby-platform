@@ -57,10 +57,10 @@ namespace QvaDev.Data
 
 	    public DbSet<StratDealingArb> StratDealingArbs { get; set; }
 	    public DbSet<StratDealingArbPosition> StratDealingArbPositions { get; set; }
-	    public DbSet<StratHubArb> StratHubArbs { get; set; }
 
-	    //public DbSet<Position> Positions { get; set; }
-	    //public DbSet<StratHubArbPosition> StratHubArbPositions { get; set; }
+		public DbSet<StratPosition> Positions { get; set; }
+		public DbSet<StratHubArb> StratHubArbs { get; set; }
+		public DbSet<StratHubArbPosition> StratHubArbPositions { get; set; }
 
 		public void Init()
 		{

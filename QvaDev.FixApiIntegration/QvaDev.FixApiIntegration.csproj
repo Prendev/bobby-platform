@@ -70,52 +70,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="FixApiConfigFiles\ChfClearing_AfxFast.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="FixApiConfigFiles\ChfClearing_Demo.xml" />
-    <Content Include="FixApiConfigFiles\Cqg_EuropeMarketOnly.xml" />
-    <Content Include="FixApiConfigFiles\Dukascopy_Demo1.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="FixApiConfigFiles\Dukascopy_Demo2.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="FixApiConfigFiles\Exante_Account1.xml" />
-    <Content Include="FixApiConfigFiles\Exante_Account2.xml" />
-    <Content Include="FixApiConfigFiles\Fxcm_Demo.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="FixApiConfigFiles\Fxcm_Real.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="FixApiConfigFiles\GainCapital.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="FixApiConfigFiles\PriceMarkets.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="FixApiConfigFiles\PrimeXm_Aura1.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="FixApiConfigFiles\PrimeXm_Aura2.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="FixApiConfigFiles\PrimeXm_RoyalFx.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="FixApiConfigFiles\PrimeXm_Triomarkets.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="FixApiConfigFiles\SmartTradeDemo.xml" />
-    <Content Include="FixApiConfigFiles\SwissQuoteAfxCapital.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="FixApiConfigFiles\SwissQuoteQvaDev.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\QvaDev.Common\QvaDev.Common.csproj">
       <Project>{10a3ef89-12bb-4d00-9950-36bfed281b91}</Project>
       <Name>QvaDev.Common</Name>

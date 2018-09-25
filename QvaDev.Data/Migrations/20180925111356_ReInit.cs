@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace QvaDev.Data.Migrations
 {
-    public partial class ReInitForSqlite : Migration
+    public partial class ReInit : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -278,12 +278,11 @@ namespace QvaDev.Data.Migrations
                     Description = table.Column<string>(nullable: false),
                     AggregatorId = table.Column<int>(nullable: false),
                     Run = table.Column<bool>(nullable: false),
-                    MaxNumberOfPositions = table.Column<int>(nullable: false),
+                    Size = table.Column<decimal>(type: "decimal(18,3)", nullable: false),
+                    MaxSizePerAccount = table.Column<decimal>(nullable: false),
+                    PipSize = table.Column<decimal>(type: "decimal(18,5)", nullable: false),
                     SignalDiffInPip = table.Column<decimal>(nullable: false),
-                    SignalStepInPip = table.Column<decimal>(nullable: false),
-                    TargetInPip = table.Column<decimal>(nullable: false),
                     MinOpenTimeInMinutes = table.Column<int>(nullable: false),
-                    ReOpenIntervalInMinutes = table.Column<int>(nullable: false),
                     EarliestOpenTime = table.Column<long>(nullable: true),
                     LatestOpenTime = table.Column<long>(nullable: true),
                     LatestCloseTime = table.Column<long>(nullable: true),
@@ -292,8 +291,7 @@ namespace QvaDev.Data.Migrations
                     RetryPeriodInMs = table.Column<int>(nullable: false),
                     SlippageInPip = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     TimeWindowInMs = table.Column<int>(nullable: false),
-                    Size = table.Column<decimal>(type: "decimal(18,3)", nullable: false),
-                    PipSize = table.Column<decimal>(type: "decimal(18,5)", nullable: false)
+                    LastOpenTime = table.Column<DateTime>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -355,6 +353,30 @@ namespace QvaDev.Data.Migrations
                         name: "FK_Masters_Profiles_ProfileId",
                         column: x => x.ProfileId,
                         principalTable: "Profiles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Positions",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    AccountId = table.Column<int>(nullable: false),
+                    Symbol = table.Column<string>(nullable: true),
+                    Side = table.Column<int>(nullable: false),
+                    Size = table.Column<decimal>(nullable: false),
+                    OpenTime = table.Column<DateTime>(nullable: false),
+                    AvgPrice = table.Column<decimal>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Positions", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Positions_Accounts_AccountId",
+                        column: x => x.AccountId,
+                        principalTable: "Accounts",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -536,6 +558,32 @@ namespace QvaDev.Data.Migrations
                         name: "FK_Slaves_Masters_MasterId",
                         column: x => x.MasterId,
                         principalTable: "Masters",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "StratHubArbPositions",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    StratHubArbId = table.Column<int>(nullable: false),
+                    PositionId = table.Column<int>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_StratHubArbPositions", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_StratHubArbPositions_Positions_PositionId",
+                        column: x => x.PositionId,
+                        principalTable: "Positions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_StratHubArbPositions_StratHubArbs_StratHubArbId",
+                        column: x => x.StratHubArbId,
+                        principalTable: "StratHubArbs",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -724,6 +772,11 @@ namespace QvaDev.Data.Migrations
                 column: "MetaTraderPlatformId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Positions_AccountId",
+                table: "Positions",
+                column: "AccountId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Pushings_AlphaMasterId",
                 table: "Pushings",
                 column: "AlphaMasterId");
@@ -784,6 +837,16 @@ namespace QvaDev.Data.Migrations
                 column: "ProfileId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_StratHubArbPositions_PositionId",
+                table: "StratHubArbPositions",
+                column: "PositionId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_StratHubArbPositions_StratHubArbId",
+                table: "StratHubArbPositions",
+                column: "StratHubArbId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_StratHubArbs_AggregatorId",
                 table: "StratHubArbs",
                 column: "AggregatorId");
@@ -827,7 +890,7 @@ namespace QvaDev.Data.Migrations
                 name: "StratDealingArbPositions");
 
             migrationBuilder.DropTable(
-                name: "StratHubArbs");
+                name: "StratHubArbPositions");
 
             migrationBuilder.DropTable(
                 name: "SymbolMappings");
@@ -842,10 +905,16 @@ namespace QvaDev.Data.Migrations
                 name: "StratDealingArbs");
 
             migrationBuilder.DropTable(
-                name: "Aggregators");
+                name: "Positions");
+
+            migrationBuilder.DropTable(
+                name: "StratHubArbs");
 
             migrationBuilder.DropTable(
                 name: "Slaves");
+
+            migrationBuilder.DropTable(
+                name: "Aggregators");
 
             migrationBuilder.DropTable(
                 name: "Masters");
