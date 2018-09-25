@@ -113,6 +113,9 @@ namespace QvaDev.Orchestration
 					        Symbol = Symbol.Parse(a.Symbol)
 				        }).ToDictionary(x => x.FixConnector, x => x.Symbol);
 
+		        foreach (var aggAcc in agg.Accounts)
+			        aggAcc.Account.Connector.Subscribe(aggAcc.Symbol);
+
 				agg.QuoteAggregator = MarketDataManager.CreateQuoteAggregator(groups);
 			}
         }

@@ -265,6 +265,8 @@ namespace QvaDev.FixApiIntegration
 
 		private void Quote(QuoteEventArgs e)
 		{
+			if (!e.QuoteSet.Entries.Any()) return;
+
 			var ask = e.QuoteSet.Entries.First().Ask;
 			var bid = e.QuoteSet.Entries.First().Bid;
 			var symbol = e.QuoteSet.Symbol.ToString();

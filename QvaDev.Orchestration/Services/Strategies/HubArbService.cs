@@ -36,9 +36,6 @@ namespace QvaDev.Orchestration.Services.Strategies
 			{
 				arb.ArbQuote -= Arb_ArbQuote;
 				arb.ArbQuote += Arb_ArbQuote;
-
-				foreach (var aggAcc in arb.Aggregator.Accounts)
-					aggAcc.Account.Connector.Subscribe(aggAcc.Symbol);
 			}
 
 			_isStarted = true;
