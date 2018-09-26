@@ -7,6 +7,7 @@ using System.Xml;
 using System.Xml.Serialization;
 using log4net;
 using QvaDev.Common.Integration;
+using QvaDev.Communication;
 using QvaDev.Communication.FixApi;
 using QvaDev.Communication.FixApi.Connectors.Strategies;
 using QvaDev.Communication.FixApi.Connectors.Strategies.AggressiveOrder;

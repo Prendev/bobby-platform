@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using log4net;
 using QvaDev.Common.Integration;
+using QvaDev.Communication;
 using QvaDev.Communication.FixApi;
 using QvaDev.Data;
 using QvaDev.Data.Models;

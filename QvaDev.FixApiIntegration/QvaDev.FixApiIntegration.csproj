@@ -43,6 +43,9 @@
     <Reference Include="QvaDev.Communication">
       <HintPath>..\Externals\QvaDev.Communication.FixApi.Connectors\QvaDev.Communication.dll</HintPath>
     </Reference>
+    <Reference Include="QvaDev.Communication.FixApi">
+      <HintPath>..\Externals\QvaDev.Communication.FixApi.Connectors\QvaDev.Communication.FixApi.dll</HintPath>
+    </Reference>
     <Reference Include="QvaDev.Communication.FixApi.Connectors">
       <HintPath>..\Externals\QvaDev.Communication.FixApi.Connectors\QvaDev.Communication.FixApi.Connectors.dll</HintPath>
     </Reference>

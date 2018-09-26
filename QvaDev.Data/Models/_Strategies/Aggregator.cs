@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using QvaDev.Common.Attributes;
 using QvaDev.Communication.FixApi;
+using QvaDev.Communication.FixApi.Interfaces;
 
 namespace QvaDev.Data.Models
 {

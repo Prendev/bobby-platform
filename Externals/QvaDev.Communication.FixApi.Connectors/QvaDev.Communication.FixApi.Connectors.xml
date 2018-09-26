@@ -61,14 +61,14 @@
             Processes a Xenfin specific message.
             </summary>
         </member>
-        <member name="M:QvaDev.Communication.FixApi.Connectors.OrderIdHelper.GetCommonNewOrderId(QvaDev.Communication.FixApi.NewOrderRequest,System.Func{QvaDev.Communication.FixApi.Symbol,System.String})">
+        <member name="M:QvaDev.Communication.FixApi.Connectors.OrderIdHelper.GetCommonNewOrderId(QvaDev.Communication.FixApi.NewOrderRequest,System.Func{QvaDev.Communication.Symbol,System.String})">
             <summary>
             Gets an Order id with Side, Quantity and Symbol information can be parsed back by <see cref="M:QvaDev.Communication.FixApi.Connectors.OrderIdHelper.ParseOrderId(System.String)"/> method.
             </summary>
         </member>
         <member name="M:QvaDev.Communication.FixApi.Connectors.OrderIdHelper.ParseOrderId(System.String)">
             <summary>
-            Parses the orderId created by <see cref="M:QvaDev.Communication.FixApi.Connectors.OrderIdHelper.GetCommonNewOrderId(QvaDev.Communication.FixApi.NewOrderRequest,System.Func{QvaDev.Communication.FixApi.Symbol,System.String})"/> and retrieves Side, Quantity and Symbol information.
+            Parses the orderId created by <see cref="M:QvaDev.Communication.FixApi.Connectors.OrderIdHelper.GetCommonNewOrderId(QvaDev.Communication.FixApi.NewOrderRequest,System.Func{QvaDev.Communication.Symbol,System.String})"/> and retrieves Side, Quantity and Symbol information.
             </summary>
         </member>
         <member name="F:QvaDev.Communication.FixApi.Connectors.Fxcm.FxcmConnector.orderIdMapping">
