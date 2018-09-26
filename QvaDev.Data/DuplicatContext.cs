@@ -5,6 +5,7 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using QvaDev.Data.Models;
+using QvaDev.FileContextCore.Extensions;
 
 namespace QvaDev.Data
 {
@@ -12,21 +13,20 @@ namespace QvaDev.Data
 	{
 		protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 		{
-			var connectionString = ConfigurationManager.ConnectionStrings["DuplicatContext"].ConnectionString;
+			var connectionString = ConfigurationManager.ConnectionStrings["DuplicatContext"];
+			var cs = connectionString.ConnectionString;
 
-			try
-			{
-				connectionString =
-					connectionString.Replace("|DataDirectory|", AppDomain.CurrentDomain.GetData("DataDirectory").ToString());
-			}
-			catch
-			{
-			}
+			var dd = AppDomain.CurrentDomain.GetData("DataDirectory")?.ToString();
+			if (!string.IsNullOrWhiteSpace(dd) && cs.Contains("|DataDirectory|"))
+				cs = cs.Replace("|DataDirectory|", dd);
 
-			if (connectionString.StartsWith("Server"))
-				optionsBuilder.UseSqlServer(connectionString);
-			else if (connectionString.StartsWith("Data Source"))
-				optionsBuilder.UseSqlite(connectionString);
+			if (connectionString.ProviderName.ToLowerInvariant() == "filecontext")
+				optionsBuilder.UseFileContext(databasename: cs);
+			else if (connectionString.ProviderName.ToLowerInvariant() == "sqlite")
+				optionsBuilder.UseSqlServer(cs);
+			else if (connectionString.ProviderName.ToLowerInvariant() == "mssql")
+				optionsBuilder.UseSqlite(cs);
+			else throw new ArgumentException("ProviderName");
 		}
 
 		public DbSet<MetaTraderPlatform> MetaTraderPlatforms { get; set; }

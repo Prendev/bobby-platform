@@ -227,6 +227,10 @@
       <Project>{10A3EF89-12BB-4D00-9950-36BFED281B91}</Project>
       <Name>QvaDev.Common</Name>
     </ProjectReference>
+    <ProjectReference Include="..\QvaDev.FileContextCore\QvaDev.FileContextCore.csproj">
+      <Project>{b0df0796-17ed-470a-858d-a7cabb3f36f8}</Project>
+      <Name>QvaDev.FileContextCore</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
