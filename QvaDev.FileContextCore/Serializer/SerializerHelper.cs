@@ -11,17 +11,23 @@ namespace QvaDev.FileContextCore.Serializer
             if (String.IsNullOrEmpty(input))
             {
                 return type.GetDefaultValue();
-            }
+			}
 
-            if (type == typeof(TimeSpan))
+			if (type != typeof(string) && type.IsNullableType())
+			{
+				type = Nullable.GetUnderlyingType(type);
+			}
+
+			if (type == typeof(TimeSpan))
             {
                 return TimeSpan.Parse(input, CultureInfo.InvariantCulture);
             }
-            else if (type == typeof(Guid))
+            if (type == typeof(Guid))
             {
                 return Guid.Parse(input);
             }
-            else if (type.IsArray)
+
+			if (type?.IsArray == true)
             {
                 Type arrType = type.GetElementType();
                 List<object> arr = new List<object>();
@@ -33,10 +39,9 @@ namespace QvaDev.FileContextCore.Serializer
 
                 return arr.ToArray();
             }
-            else
-            {
-                return Convert.ChangeType(input, type, CultureInfo.InvariantCulture);
-            }
+
+	        // ReSharper disable once AssignNullToNotNullAttribute
+            return Convert.ChangeType(input, type, CultureInfo.InvariantCulture);
         }
 
         public static string Serialize(this object input)
