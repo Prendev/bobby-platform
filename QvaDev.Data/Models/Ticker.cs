@@ -1,5 +1,4 @@
 ﻿using QvaDev.Common.Attributes;
-using System.ComponentModel.DataAnnotations;
 
 namespace QvaDev.Data.Models
 {

@@ -29,6 +29,8 @@ namespace QvaDev.FixApiIntegration
 		public override bool IsConnected => FixConnector?.IsPricingConnected == true && FixConnector?.IsTradingConnected == true;
 		public readonly FixConnectorBase FixConnector;
 
+		public event EventHandler<QuoteSet> NewQuote;
+
 		public Connector(AccountInfo accountInfo, ILog log) : base(log)
 		{
 			_accountInfo = accountInfo;
@@ -60,12 +62,10 @@ namespace QvaDev.FixApiIntegration
 
 			FixConnector.PricingSocketClosed -= FixConnector_SocketClosed;
 			FixConnector.TradingSocketClosed -= FixConnector_SocketClosed;
-			FixConnector.Quote -= FixConnector_Quote;
 			FixConnector.ExecutionReport -= FixConnector_ExecutionReport;
 
 			FixConnector.PricingSocketClosed += FixConnector_SocketClosed;
 			FixConnector.TradingSocketClosed += FixConnector_SocketClosed;
-			FixConnector.Quote += FixConnector_Quote;
 			FixConnector.ExecutionReport += FixConnector_ExecutionReport;
 
 			try
@@ -101,7 +101,6 @@ namespace QvaDev.FixApiIntegration
 
 			FixConnector.PricingSocketClosed -= FixConnector_SocketClosed;
 			FixConnector.TradingSocketClosed -= FixConnector_SocketClosed;
-			FixConnector.Quote -= FixConnector_Quote;
 			FixConnector.ExecutionReport -= FixConnector_ExecutionReport;
 
 			try
@@ -123,11 +122,6 @@ namespace QvaDev.FixApiIntegration
 		{
 			if (_isConnecting) return;
 			Task.Run(() => Reconnect(5000));
-		}
-
-		private void FixConnector_Quote(object sender, QuoteEventArgs e)
-		{
-			Task.Run(() => Quote(e));
 		}
 
 		private void FixConnector_ExecutionReport(object sender, ExecutionReportEventArgs e)
@@ -249,7 +243,9 @@ namespace QvaDev.FixApiIntegration
 					Subscribes.Add(symbol);
 				}
 
-				await FixConnector.SubscribeMarketDataAsync(Symbol.Parse(symbol), 1);
+				await FixConnector.SubscribeMarketDataAsync(Symbol.Parse(symbol));
+
+				FixConnector.SubscribeBookChange(Symbol.Parse(symbol), Quote);
 			}
 			catch (Exception e)
 			{
@@ -264,13 +260,18 @@ namespace QvaDev.FixApiIntegration
 			await InnerConnect();
 		}
 
-		private void Quote(QuoteEventArgs e)
+		private void Quote(QuoteSet quoteSet)
 		{
-			if (!e.QuoteSet.Entries.Any()) return;
+			Task.Run(() => InnerQuote(quoteSet));
+		}
 
-			var ask = e.QuoteSet.Entries.First().Ask;
-			var bid = e.QuoteSet.Entries.First().Bid;
-			var symbol = e.QuoteSet.Symbol.ToString();
+		private void InnerQuote(QuoteSet quoteSet)
+		{
+			if (!quoteSet.Entries.Any()) return;
+
+			var ask = quoteSet.Entries.First().Ask;
+			var bid = quoteSet.Entries.First().Bid;
+			var symbol = quoteSet.Symbol.ToString();
 
 			SymbolInfos.AddOrUpdate(symbol,
 				new SymbolData { Bid = bid ?? 0, Ask = ask ?? 0 },
@@ -291,7 +292,9 @@ namespace QvaDev.FixApiIntegration
 				Time = DateTime.UtcNow
 			};
 			LastTicks.AddOrUpdate(symbol, key => tick, (key, old) => tick);
+
 			OnNewTick(new NewTickEventArgs { Tick = tick });
+			NewQuote?.Invoke(this, quoteSet);
 		}
 
 		private void ExecutionReport(ExecutionReportEventArgs e)

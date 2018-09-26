@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using log4net;
 using QvaDev.Common.Integration;
+using QvaDev.Communication;
 using QvaDev.Data.Models;
 
 namespace QvaDev.Orchestration.Services
@@ -70,8 +71,16 @@ namespace QvaDev.Orchestration.Services
 
 			foreach (var ticker in _tickers)
 			{
-				ticker.MainAccount.Connector.NewTick -= Connector_NewTick;
-				ticker.MainAccount.Connector.NewTick += Connector_NewTick;
+				if (ticker.PairAccount == null && ticker.MainAccount.Connector is FixApiIntegration.Connector fix)	
+				{
+					fix.NewQuote -= Fix_NewQuote;
+					fix.NewQuote += Fix_NewQuote;
+				}
+				else
+				{
+					ticker.MainAccount.Connector.NewTick -= Connector_NewTick;
+					ticker.MainAccount.Connector.NewTick += Connector_NewTick;
+				}
 
 				ticker.MainAccount?.Connector?.Subscribe(ticker.MainSymbol);
 				ticker.PairAccount?.Connector?.Subscribe(ticker.PairSymbol);
@@ -87,6 +96,17 @@ namespace QvaDev.Orchestration.Services
 			foreach (var csvWriter in _csvWriters)
 				csvWriter.Value.Disconnect();
 			_csvWriters.Clear();
+		}
+
+		private void Fix_NewQuote(object sender, QuoteSet quoteSet)
+		{
+			if (!_isStarted) return;
+			var connector = (IConnector)sender;
+
+			if (quoteSet?.Entries?.Any() != true) return;
+			if (!_tickers.Any(t => t.MainSymbol == quoteSet.Symbol.ToString() || t.MainSymbol == null)) return;
+
+			WriteQuoteCsv(GetCsvFile(connector.Description, quoteSet.Symbol.ToString()), quoteSet);
 		}
 
 		private void Connector_NewTick(object sender, NewTickEventArgs e)
@@ -139,6 +159,28 @@ namespace QvaDev.Orchestration.Services
 			{
 				writer.CsvWriter.WriteRecord(obj);
 				writer.CsvWriter.NextRecord();
+				if (DateTime.UtcNow - writer.LastFlush < new TimeSpan(0, 1, 0)) return;
+				writer.StreamWriter.Flush();
+				writer.LastFlush = DateTime.UtcNow;
+			}
+		}
+
+		private void WriteQuoteCsv(string file, QuoteSet quoteSet)
+		{
+			new FileInfo(file).Directory.Create();
+			var writer = _csvWriters.GetOrAdd(file, key => new Writer(file));
+			lock (writer)
+			{
+				var w = writer.CsvWriter;
+				w.WriteField(DateTime.UtcNow.ToString("yyyy.MM.dd hh:mm:ss.fff"));
+				foreach (var qe in quoteSet.Entries)
+				{
+					w.WriteField(qe.Ask);
+					w.WriteField(qe.Bid);
+					w.WriteField(qe.AskVolume);
+					w.WriteField(qe.BidVolume);
+				}
+				w.NextRecord();
 				if (DateTime.UtcNow - writer.LastFlush < new TimeSpan(0, 1, 0)) return;
 				writer.StreamWriter.Flush();
 				writer.LastFlush = DateTime.UtcNow;
