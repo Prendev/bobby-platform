@@ -140,7 +140,7 @@
     <Compile Include="Query\Internal\IMaterializerFactory.cs" />
     <Compile Include="Query\Internal\MaterializerFactory.cs" />
     <Compile Include="Serializer\ISerializer.cs" />
-    <Compile Include="Serializer\JSONSerializer.cs" />
+    <Compile Include="Serializer\JsonSerializer.cs" />
     <Compile Include="Serializer\SerializerHelper.cs" />
     <Compile Include="SharedTypeExtensions.cs" />
     <Compile Include="Storage\Internal\FileContextDatabase.cs" />

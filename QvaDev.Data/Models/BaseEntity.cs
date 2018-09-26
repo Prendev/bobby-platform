@@ -9,7 +9,7 @@ namespace QvaDev.Data.Models
         [Key]
         [Dapper.Contrib.Extensions.Key]
         [InvisibleColumn]
-        public int Id { get; set; }
+		public int Id { get; set; }
 
         [NotMapped]
         [InvisibleColumn]

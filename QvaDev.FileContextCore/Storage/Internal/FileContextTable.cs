@@ -171,7 +171,7 @@ namespace QvaDev.FileContextCore.Storage.Internal
         {
             filetype = options.Serializer;
 
-            serializer = new JSONSerializer(entityType);
+            serializer = new JsonSerializer(entityType);
 
             string fmgr = options.FileManager;
 
