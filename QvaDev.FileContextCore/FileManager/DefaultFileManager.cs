@@ -1,88 +1,66 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
+using System.Linq;
 using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace QvaDev.FileContextCore.FileManager
 {
     class DefaultFileManager : IFileManager
     {
-        private readonly object thisLock = new object();
+        private readonly object _thisLock = new object();
 
-        IEntityType type;
-        private readonly string filetype;
-		private readonly string databasename;
+	    private readonly IEntityType _type;
+		private readonly string _databasename;
+		private readonly string _baseDirectory;
 
-        public DefaultFileManager(IEntityType _type, string _filetype, string _databasename)
+        public DefaultFileManager(IEntityType type, string databasename, string baseDirectory)
         {
-            type = _type;
-            filetype = _filetype;
-			databasename = _databasename;
+            _type = type;
+			_databasename = databasename;
+	        _baseDirectory = baseDirectory;
         }
 
         public string GetFileName()
         {
-            string name = type.Name;
-
-            foreach(char c in Path.GetInvalidFileNameChars())
-            {
-                name = name.Replace(c, '_');
-            }
-
-			string path = Path.Combine(AppContext.BaseDirectory, "FileContext", databasename);
-            
+            var name = Path.GetInvalidFileNameChars().Aggregate(_type.Name, (current, c) => current.Replace(c, '_'));
+	        var path = Path.Combine(_baseDirectory, "FileContext", _databasename);
             Directory.CreateDirectory(path);
-
-            return Path.Combine(path, name + "." + filetype);
+            return Path.Combine(path, name + ".json");
         }
 
         public string LoadContent()
         {
-            lock (thisLock)
+            lock (_thisLock)
             {
-                string path = GetFileName();
-
-                if (File.Exists(path))
-                {
-                    return File.ReadAllText(path);
-                }
-
-                return "";
+                var path = GetFileName();
+                return File.Exists(path) ? File.ReadAllText(path) : "";
             }
         }
 
         public void SaveContent(string content)
         {
-            lock (thisLock)
+            lock (_thisLock)
             {
-                string path = GetFileName();
+                var path = GetFileName();
                 File.WriteAllText(path, content);
             }
         }
 
         public bool Clear()
         {
-            lock (thisLock)
+            lock (_thisLock)
             {
-                FileInfo fi = new FileInfo(GetFileName());
-
-                if (fi.Exists)
-                {
-                    fi.Delete();
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
+                var fi = new FileInfo(GetFileName());
+	            if (!fi.Exists) return false;
+	            fi.Delete();
+	            return true;
             }
         }
 
         public bool FileExists()
         {
-            lock (thisLock)
+            lock (_thisLock)
             {
-                FileInfo fi = new FileInfo(GetFileName());
-
+                var fi = new FileInfo(GetFileName());
                 return fi.Exists;
             }
         }

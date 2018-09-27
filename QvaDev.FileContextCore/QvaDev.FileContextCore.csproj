@@ -123,9 +123,7 @@
     <Compile Include="Extensions\Internal\FileContextLoggerExtensions.cs" />
     <Compile Include="FileContextStrings.cs" />
     <Compile Include="FileManager\DefaultFileManager.cs" />
-    <Compile Include="FileManager\EncryptedFileManager.cs" />
     <Compile Include="FileManager\IFileManager.cs" />
-    <Compile Include="FileManager\PrivateFileManager.cs" />
     <Compile Include="Infrastructure\FileContextDbContextOptionsBuilder.cs" />
     <Compile Include="Infrastructure\Internal\FileContextOptionsExtension.cs" />
     <Compile Include="MemberInfoExtensions.cs" />

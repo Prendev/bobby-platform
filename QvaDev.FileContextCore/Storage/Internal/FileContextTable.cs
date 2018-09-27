@@ -1,9 +1,5 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
@@ -17,11 +13,7 @@ using QvaDev.FileContextCore.ValueGeneration.Internal;
 
 namespace QvaDev.FileContextCore.Storage.Internal
 {
-    /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-    ///     directly from your code. This API may change or be removed in future releases.
-    /// </summary>
-    class FileContextTable<TKey> : IFileContextTable
+	internal class FileContextTable<TKey> : IFileContextTable
     {
 		private readonly IPrincipalKeyValueFactory<TKey> _keyValueFactory;
         private readonly Dictionary<TKey, object[]> _rows;
@@ -32,12 +24,7 @@ namespace QvaDev.FileContextCore.Storage.Internal
 		
 		private IFileManager _fileManager;
         private ISerializer _serializer;
-        private string _filetype;
 
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
         public FileContextTable(
 	        [NotNull] IPrincipalKeyValueFactory<TKey> keyValueFactory,
 	        IEntityType entityType,
@@ -52,26 +39,14 @@ namespace QvaDev.FileContextCore.Storage.Internal
 			_rows = Init();
 		}
 
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
         public virtual IReadOnlyList<object[]> SnapshotRows()
             => _rows.Values.ToList();
 
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
         public virtual void Create(IUpdateEntry entry)
         {
             _rows.Add(CreateKey(entry), CreateValueBuffer(entry));
         }
 
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
         public virtual void Delete(IUpdateEntry entry)
         {
             var key = CreateKey(entry);
@@ -91,10 +66,6 @@ namespace QvaDev.FileContextCore.Storage.Internal
             _updateMethod(_rows);
         }
 
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
         public virtual void Update(IUpdateEntry entry)
         {
             var key = CreateKey(entry);
@@ -168,33 +139,10 @@ namespace QvaDev.FileContextCore.Storage.Internal
 
         private Dictionary<TKey, object[]> Init()
         {
-            _filetype = _options.Serializer;
-
             _serializer = new JsonSerializer(_entityType);
+			_fileManager = new DefaultFileManager(_entityType, _options.DatabaseName, _options.BaseDirectory);
 
-            var fmgr = _options.FileManager;
-
-            if (fmgr.Length >= 9 && fmgr.Substring(0, 9) == "encrypted")
-            {
-                string password = "";
-
-                if (fmgr.Length > 9)
-                {
-                    password = fmgr.Substring(10);
-                }
-
-                _fileManager = new EncryptedFileManager(_entityType, _filetype, password, _options.DatabaseName);
-            }
-            else if (fmgr == "private")
-            {
-                _fileManager = new PrivateFileManager(_entityType, _filetype, _options.DatabaseName);
-            }
-            else
-            {
-                _fileManager = new DefaultFileManager(_entityType, _filetype, _options.DatabaseName);
-            }
-
-            _updateMethod = list =>
+			_updateMethod = list =>
             {
 				var cnt = _serializer.Serialize(list);
 	            _fileManager.SaveContent(cnt);

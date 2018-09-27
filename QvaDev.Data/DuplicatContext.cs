@@ -10,22 +10,40 @@ using QvaDev.FileContextCore.Extensions;
 namespace QvaDev.Data
 {
     public class DuplicatContext : DbContext
-	{
-		protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+	    private readonly string _connectionString;
+	    private readonly string _providerName;
+	    private readonly string _baseDirectory;
+
+	    public DuplicatContext()
 		{
 			var connectionString = ConfigurationManager.ConnectionStrings["DuplicatContext"];
-			var cs = connectionString.ConnectionString;
+
+			_connectionString = connectionString.ConnectionString;
 
 			var dd = AppDomain.CurrentDomain.GetData("DataDirectory")?.ToString();
-			if (!string.IsNullOrWhiteSpace(dd) && cs.Contains("|DataDirectory|"))
-				cs = cs.Replace("|DataDirectory|", dd);
+			if (!string.IsNullOrWhiteSpace(dd) && _connectionString.Contains("|DataDirectory|"))
+				_connectionString = _connectionString.Replace("|DataDirectory|", dd);
 
-			if (connectionString.ProviderName.ToLowerInvariant() == "filecontext")
-				optionsBuilder.UseFileContext(databasename: cs);
-			else if (connectionString.ProviderName.ToLowerInvariant() == "mssql")
-				optionsBuilder.UseSqlServer(cs);
-			else if (connectionString.ProviderName.ToLowerInvariant() == "sqlite")
-				optionsBuilder.UseSqlite(cs);
+			_providerName = connectionString.ProviderName.ToLowerInvariant();
+			_baseDirectory = AppContext.BaseDirectory;
+		}
+
+		public DuplicatContext(string connectionString, string providerName, string baseDirectory)
+	    {
+		    _providerName = providerName;
+		    _connectionString = connectionString;
+		    _baseDirectory = baseDirectory;
+	    }
+
+		protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+		{
+			if (_providerName == "filecontext")
+				optionsBuilder.UseFileContext(_connectionString, _baseDirectory);
+			else if (_providerName == "mssql")
+				optionsBuilder.UseSqlServer(_connectionString);
+			else if (_providerName == "sqlite")
+				optionsBuilder.UseSqlite(_connectionString);
 			else throw new ArgumentException("ProviderName");
 		}
 
