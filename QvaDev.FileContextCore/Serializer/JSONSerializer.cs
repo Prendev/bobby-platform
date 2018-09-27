@@ -33,8 +33,8 @@ namespace QvaDev.FileContextCore.Serializer
 				    for (var i = 0; i < objKey.Length; i++)
 					    objKey[i] = json.Value<string>(primaryKey[i].Name).Deserialize(primaryKey[i].ClrType);
 
-				    key = (TKey)Convert.ChangeType(objKey, typeof(TKey));
-				}
+				    key = (TKey) (object) objKey;
+			    }
 			    else key = (TKey) json.Value<string>(primaryKey[0].Name).Deserialize(typeof(TKey));
 
 				newList.Add(key, _propertyKeys.Select((t, i) => json.Value<string>(t).Deserialize(_typeList[i])).ToArray());

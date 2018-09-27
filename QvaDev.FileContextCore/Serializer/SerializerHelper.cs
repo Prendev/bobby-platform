@@ -27,6 +27,11 @@ namespace QvaDev.FileContextCore.Serializer
                 return Guid.Parse(input);
             }
 
+	        if (type?.IsEnum == true)
+	        {
+		        return Enum.Parse(type, input);
+	        }
+
 			if (type?.IsArray == true)
             {
                 Type arrType = type.GetElementType();
