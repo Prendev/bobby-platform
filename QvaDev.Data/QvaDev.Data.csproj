@@ -180,9 +180,9 @@
     <Compile Include="DuplicatContext.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="IConnectorFactory.cs" />
-    <Compile Include="Migrations\20180925111356_ReInit.cs" />
-    <Compile Include="Migrations\20180925111356_ReInit.designer.cs">
-      <DependentUpon>20180925111356_ReInit.cs</DependentUpon>
+    <Compile Include="Migrations\20180927095206_ReInit.cs" />
+    <Compile Include="Migrations\20180927095206_ReInit.designer.cs">
+      <DependentUpon>20180927095206_ReInit.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\DuplicatContextModelSnapshot.cs" />
     <Compile Include="Models\_Strategies\Aggregator.cs" />

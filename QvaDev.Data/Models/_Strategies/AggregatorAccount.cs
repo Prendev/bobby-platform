@@ -6,10 +6,10 @@ namespace QvaDev.Data.Models
 {
 	public class AggregatorAccount : BaseNotifyPropertyChange, IFilterableEntity
 	{
-		[InvisibleColumn] [Key, Column("Aggregator_Id", Order = 1)] public int AggregatorId { get; set; }
+		[InvisibleColumn] [Key] public int AggregatorId { get; set; }
 		[InvisibleColumn] public Aggregator Aggregator { get; set; }
 
-		[Key, Column("Account_Id", Order = 2)] public int AccountId { get; set; }
+		[Key] public int AccountId { get; set; }
 		public Account Account { get; set; }
 
 		[Required] public string Symbol { get; set; }

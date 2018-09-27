@@ -22,9 +22,9 @@ namespace QvaDev.Data
 
 			if (connectionString.ProviderName.ToLowerInvariant() == "filecontext")
 				optionsBuilder.UseFileContext(databasename: cs);
-			else if (connectionString.ProviderName.ToLowerInvariant() == "sqlite")
-				optionsBuilder.UseSqlServer(cs);
 			else if (connectionString.ProviderName.ToLowerInvariant() == "mssql")
+				optionsBuilder.UseSqlServer(cs);
+			else if (connectionString.ProviderName.ToLowerInvariant() == "sqlite")
 				optionsBuilder.UseSqlite(cs);
 			else throw new ArgumentException("ProviderName");
 		}

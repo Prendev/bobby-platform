@@ -17,22 +17,33 @@ namespace QvaDev.FileContextCore.Serializer
             _typeList = entityType.GetProperties().Select(p => p.ClrType).ToArray();
         }
 
-	    public Dictionary<TKey, object[]> Deserialize<TKey>(string list, Dictionary<TKey, object[]> newList)
+	    public Dictionary<TKey, object[]> Deserialize<TKey>(string list, Dictionary<TKey, object[]> newList, IReadOnlyList<IProperty> primaryKey)
 	    {
 		    if (string.IsNullOrWhiteSpace(list)) return newList;
 
 		    foreach (var jToken in JArray.Parse(list))
 		    {
 			    var json = (JObject) jToken;
-			    var key = (TKey) json.Value<string>("Id").Deserialize(typeof(TKey));
 
-			    newList.Add(key, _propertyKeys.Select((t, i) => json.Value<string>(t).Deserialize(_typeList[i])).ToArray());
+			    TKey key;
+
+			    if (primaryKey.Count > 1)
+			    {
+				    var objKey = new object[primaryKey.Count];
+				    for (var i = 0; i < objKey.Length; i++)
+					    objKey[i] = json.Value<string>(primaryKey[i].Name).Deserialize(primaryKey[i].ClrType);
+
+				    key = (TKey)Convert.ChangeType(objKey, typeof(TKey));
+				}
+			    else key = (TKey) json.Value<string>(primaryKey[0].Name).Deserialize(typeof(TKey));
+
+				newList.Add(key, _propertyKeys.Select((t, i) => json.Value<string>(t).Deserialize(_typeList[i])).ToArray());
 		    }
 
 		    return newList;
-	    }
+		}
 
-	    public string Serialize<TKey>(Dictionary<TKey, object[]> list)
+		public string Serialize<TKey>(Dictionary<TKey, object[]> list)
 	    {
 		    var array = new JArray();
 
@@ -40,7 +51,7 @@ namespace QvaDev.FileContextCore.Serializer
 		    {
 			    var json = new JObject();
 
-			    for (var i = 0; i < _propertyKeys.Length; i++)
+				for (var i = 0; i < _propertyKeys.Length; i++)
 			    {
 				    var property = new JProperty(_propertyKeys[i], val.Value[i].Serialize());
 				    json.Add(property);
