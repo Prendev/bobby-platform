@@ -104,9 +104,14 @@ namespace QvaDev.Orchestration.Services
 			var connector = (IConnector)sender;
 
 			if (quoteSet?.Entries?.Any() != true) return;
-			if (!_tickers.Any(t => t.MainSymbol == quoteSet.Symbol.ToString() || t.MainSymbol == null)) return;
 
-			WriteQuoteCsv(GetCsvFile(connector.Description, quoteSet.Symbol.ToString()), quoteSet);
+			var tickers = _tickers
+				.Where(t => !t.PairAccountId.HasValue)
+				.Where(t => t.MainAccount.Connector == connector)
+				.Where(t => t.MainSymbol == quoteSet.Symbol.ToString() || t.MainSymbol == null);
+
+			foreach (var ticker in tickers)
+				WriteQuoteCsv(GetCsvFile(connector.Description, quoteSet.Symbol.ToString()), quoteSet, ticker.MarketDepth);
 		}
 
 		private void Connector_NewTick(object sender, NewTickEventArgs e)
@@ -114,14 +119,16 @@ namespace QvaDev.Orchestration.Services
 			if (!_isStarted) return;
 			var connector = (IConnector)sender;
 
-			if (_tickers.Any(t => t.MainSymbol == e.Tick.Symbol || t.MainSymbol == null))
-				WriteCsv(GetCsvFile(connector.Description, e.Tick.Symbol),
-					new CsvRow { Time = e.Tick.Time.ToString("yyyy.MM.dd hh:mm:ss.fff"), Ask = e.Tick.Ask, Bid = e.Tick.Bid });
-
 			foreach (var ticker in _tickers)
 			{
-				if (ticker.MainSymbol != e.Tick.Symbol) continue;
 				if (ticker.MainAccount?.Connector != connector) continue;
+
+				if (!ticker.PairAccountId.HasValue && (ticker.MainSymbol ?? e.Tick.Symbol) == e.Tick.Symbol)
+					WriteCsv(GetCsvFile(connector.Description, e.Tick.Symbol),
+						new CsvRow {Time = e.Tick.Time.ToString("yyyy.MM.dd hh:mm:ss.fff"), Ask = e.Tick.Ask, Bid = e.Tick.Bid});
+
+				if (ticker.MainSymbol != e.Tick.Symbol) continue;
+					
 
 				Tick lastTick = null;
 				string pair = "";
@@ -165,15 +172,16 @@ namespace QvaDev.Orchestration.Services
 			}
 		}
 
-		private void WriteQuoteCsv(string file, QuoteSet quoteSet)
+		private void WriteQuoteCsv(string file, QuoteSet quoteSet, int marketDepth)
 		{
 			new FileInfo(file).Directory.Create();
 			var writer = _csvWriters.GetOrAdd(file, key => new Writer(file));
+			var take = marketDepth <= 0 ? quoteSet.Entries.Count : marketDepth;
 			lock (writer)
 			{
 				var w = writer.CsvWriter;
 				w.WriteField(DateTime.UtcNow.ToString("yyyy.MM.dd hh:mm:ss.fff"));
-				foreach (var qe in quoteSet.Entries)
+				foreach (var qe in quoteSet.Entries.Take(take))
 				{
 					w.WriteField(qe.Ask);
 					w.WriteField(qe.Bid);

@@ -184,6 +184,10 @@
     <Compile Include="Migrations\20180927095206_ReInit.designer.cs">
       <DependentUpon>20180927095206_ReInit.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\20180928132523_TickerMarketDepth.cs" />
+    <Compile Include="Migrations\20180928132523_TickerMarketDepth.designer.cs">
+      <DependentUpon>20180928132523_TickerMarketDepth.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\DuplicatContextModelSnapshot.cs" />
     <Compile Include="Models\_Strategies\Aggregator.cs" />
     <Compile Include="Models\_Strategies\AggregatorAccount.cs" />

@@ -14,5 +14,7 @@ namespace QvaDev.Data.Models
 		public int? PairAccountId { get; set; }
         public Account PairAccount { get; set; }
 		public string PairSymbol { get; set; }
+
+		public int MarketDepth { get; set; }
 	}
 }
