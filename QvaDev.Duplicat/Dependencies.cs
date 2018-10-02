@@ -13,6 +13,7 @@ using QvaDev.Duplicat.Views;
 using QvaDev.Orchestration;
 using QvaDev.Orchestration.Services;
 using QvaDev.Orchestration.Services.Strategies;
+using ConnectorFactory = QvaDev.Orchestration.Services.ConnectorFactory;
 using ExchangeRatesService = QvaDev.Common.Services.ExchangeRatesService;
 using IExchangeRatesService = QvaDev.Common.Services.IExchangeRatesService;
 

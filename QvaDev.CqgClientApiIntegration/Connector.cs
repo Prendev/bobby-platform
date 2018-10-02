@@ -11,7 +11,7 @@ namespace QvaDev.CqgClientApiIntegration
 	{
 		private CQGCEL _cqgCel;
 		private readonly AccountInfo _accountInfo;
-		private readonly TaskCompletionManager _taskCompletionManager;
+		private readonly TaskCompletionManager<string> _taskCompletionManager;
 
 		private readonly Object _lock = new Object();
 		private volatile bool _isConnecting;
@@ -44,7 +44,7 @@ namespace QvaDev.CqgClientApiIntegration
 		public Connector(AccountInfo accountInfo, ILog log) : base(log)
 		{
 			_accountInfo = accountInfo;
-			_taskCompletionManager = new TaskCompletionManager(100, 2000);
+			_taskCompletionManager = new TaskCompletionManager<string>(100, 2000);
 
 			InitializeCqgCel();
 		}

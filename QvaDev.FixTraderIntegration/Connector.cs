@@ -23,7 +23,7 @@ namespace QvaDev.FixTraderIntegration
 		private AccountInfo _accountInfo;
 		private readonly ConcurrentDictionary<string, Tick> _lastTicks =
 			new ConcurrentDictionary<string, Tick>();
-		private readonly TaskCompletionManager _taskCompletionManager;
+		private readonly TaskCompletionManager<string> _taskCompletionManager;
 
 		public override int Id => _accountInfo?.DbId ?? 0;
 		public override string Description => _accountInfo?.Description ?? "";
@@ -34,7 +34,7 @@ namespace QvaDev.FixTraderIntegration
 
 		public Connector(ILog log) : base(log)
 		{
-			_taskCompletionManager = new TaskCompletionManager(100, 1000);
+			_taskCompletionManager = new TaskCompletionManager<string>(100, 1000);
 		}
 
 		public bool Connect(AccountInfo accountInfo)

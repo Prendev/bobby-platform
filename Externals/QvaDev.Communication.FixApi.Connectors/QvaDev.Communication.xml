@@ -4,10 +4,293 @@
         <name>QvaDev.Communication</name>
     </assembly>
     <members>
+        <member name="T:QvaDev.Communication.Interfaces.IConnectorConfiguration">
+            <summary>
+            Represents the configuration of an <see cref="T:QvaDev.Communication.Interfaces.IConnector"/> instance.
+            </summary>
+        </member>
+        <member name="M:QvaDev.Communication.Interfaces.IConnectorConfiguration.GetConnectorType">
+            <summary>
+            Gets the type of the connector this configuration belongs to. Expected to be an <see cref="T:QvaDev.Communication.Interfaces.IConnector"/> implementation with a constructor,
+            which has an argument of the type of this configuration.
+            </summary>
+        </member>
+        <member name="T:QvaDev.Communication.Interfaces.IConnector">
+            <summary>
+            Represents a connector regardless of the used protocol.
+            </summary>
+            <seealso cref="T:System.IDisposable" />
+        </member>
+        <member name="E:QvaDev.Communication.Interfaces.IConnector.Closed">
+            <summary>
+            Occurs when the connector closes (disconnects).
+            </summary>
+        </member>
+        <member name="P:QvaDev.Communication.Interfaces.IConnector.IsConnected">
+            <summary>
+            Gets whether the connector is connected.
+            </summary>
+        </member>
+        <member name="P:QvaDev.Communication.Interfaces.IConnector.IsDisposed">
+            <summary>
+            Gets whether this instance is disposed.
+            </summary>
+        </member>
+        <member name="M:QvaDev.Communication.Interfaces.IConnector.ConnectAsync">
+            <summary>
+            Connects the connector.
+            </summary>
+        </member>
+        <member name="M:QvaDev.Communication.Interfaces.IConnector.DisconnectAsync">
+            <summary>
+            Disconnects the connector.
+            </summary>
+        </member>
+        <member name="M:QvaDev.Communication.ScheduledTaskManager`1.AddOrReplace(`0,System.Action,System.Int32,System.Boolean,System.Boolean)">
+            <summary>
+            Adds a new scheduled task to the manager or replaces an already existing one.
+            </summary>
+            <param name="key">The key. Must not be <see langword="null"/>.</param>
+            <param name="action">The action to execute when scheduled.</param>
+            <param name="interval">The interval in milliseconds to execute the <paramref name="action"/>.</param>
+            <param name="start"><see langword="true"/> to start the timer immediately; otherwise, <see langword="false"/>.</param>
+            <param name="repeating"><see langword="true"/> to allow to execute the <paramref name="action"/> repeatedly; <see langword="false"/> to execute the task only once. The timing can be started again by the <see cref="M:QvaDev.Communication.ScheduledTaskManager`1.Update(`0,System.Nullable{System.Int32},System.Nullable{System.Boolean})"/> method.</param>
+            <exception cref="T:System.ArgumentNullException"><paramref name="key"/> is <see langword="null"/>.</exception>
+        </member>
+        <member name="M:QvaDev.Communication.ScheduledTaskManager`1.Update(`0,System.Nullable{System.Int32},System.Nullable{System.Boolean})">
+            <summary>
+            Updates the interval and active state of specified scheduled task.
+            </summary>
+            <param name="key">The key. Must not be <see langword="null"/>.</param>
+            <param name="interval">If not <see langword="null"/>, the new interval in milliseconds of the corresponding task. If specified for and already running task, then the timer will be reset.</param>
+            <param name="enabled">If not <see langword="null"/>, sets the new enabled status of the corresponding task.</param>
+            <exception cref="T:System.ArgumentNullException"><paramref name="key"/> is <see langword="null"/>.</exception>
+            <exception cref="T:System.ArgumentException">No scheduled task found with the specified <paramref name="key"/>.</exception>
+        </member>
+        <member name="M:QvaDev.Communication.ScheduledTaskManager`1.ResetTimer(`0)">
+            <summary>
+            Resets the timer for the corresponding tasks, meaning, if the task is currently active, then its trigger will not occur before the specified interval.
+            </summary>
+            <param name="key">The key.</param>
+            <exception cref="T:System.ArgumentNullException"><paramref name="key"/> is <see langword="null"/>.</exception>
+            <exception cref="T:System.ArgumentException">No scheduled task found with the specified <paramref name="key"/>.</exception>
+        </member>
+        <member name="M:QvaDev.Communication.ScheduledTaskManager`1.Exists(`0)">
+            <summary>
+            Gets whether a scheduled task with the specified <paramref name="key"/> exists in the scheduler.
+            </summary>
+            <param name="key">The key.</param>
+        </member>
+        <member name="M:QvaDev.Communication.ScheduledTaskManager`1.Remove(`0)">
+            <summary>
+            Removes the task of the specified <paramref name="key"/> from the scheduler.
+            </summary>
+            <exception cref="T:System.ArgumentNullException"><paramref name="key"/> is <see langword="null"/>.</exception>
+        </member>
+        <member name="M:QvaDev.Communication.ScheduledTaskManager`1.IsActive(`0)">
+            <summary>
+            Gets whether a scheduled task with the specified <paramref name="key"/> exists and is currently active in the scheduler, meaning, it will be executed when the specified interval is elapsed.
+            </summary>
+            <param name="key">The key.</param>
+        </member>
+        <member name="M:QvaDev.Communication.ScheduledTaskManager`1.RemoveAll">
+            <summary>
+            Removes all tasks from the scheduler.
+            </summary>
+        </member>
+        <member name="M:QvaDev.Communication.ScheduledTaskManager`1.Dispose">
+            <summary>
+            Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+            </summary>
+        </member>
+        <member name="F:QvaDev.Communication.ManagementRuleType.ConnectionClosed">
+            <summary>
+            Represents a rule for closed connection. The match argument can be <see langword="null"/> or an <see cref="T:System.Exception"/> instance.
+            </summary>
+        </member>
+        <member name="T:QvaDev.Communication.ReconnectIfExceptionMatches">
+            <summary>
+            Represents a rule for reconnecting after a specified time if the connection has been closed with an exception containing a specific message.
+            </summary>
+            <seealso cref="T:QvaDev.Communication.ReconnectAfterDelayRule" />
+        </member>
+        <member name="P:QvaDev.Communication.ReconnectIfExceptionMatches.ContainedMessagePatterns">
+            <summary>
+            Gets or sets the message fragments, which satisfy the rule. Each line is evaluated separately until the rule is satisfied.
+            </summary>
+        </member>
         <member name="T:QvaDev.Communication.ConnectionManager">
             <summary>
-            Represents a class, which manages connections.
+            Adds a management layer to an existing <see cref="T:QvaDev.Communication.Interfaces.IConnector"/> instance.
             </summary>
+        </member>
+        <member name="E:QvaDev.Communication.ConnectionManager.Closed">
+            <summary>
+            Occurs when the wrapped connector closes (disconnects).
+            </summary>
+        </member>
+        <member name="P:QvaDev.Communication.ConnectionManager.Connector">
+            <summary>
+            Gets the wrapped managed connector.
+            </summary>
+        </member>
+        <member name="P:QvaDev.Communication.ConnectionManager.IsDisposed">
+            <summary>
+            Gets whether this instance is disposed.
+            </summary>
+        </member>
+        <member name="P:QvaDev.Communication.ConnectionManager.IsConnected">
+            <summary>
+            Gets whether the wrapped connector is connected.
+            </summary>
+        </member>
+        <member name="M:QvaDev.Communication.ConnectionManager.#ctor(QvaDev.Communication.ConnectionManagerConfiguration)">
+            <summary>
+            Initializes a new instance of the <see cref="T:QvaDev.Communication.ConnectionManager"/> class.
+            </summary>
+            <param name="configuration">The configuration.</param>
+            <exception cref="T:System.ArgumentNullException"><paramref name="configuration"/> is <see langword="null"/>.</exception>
+        </member>
+        <member name="M:QvaDev.Communication.ConnectionManager.#ctor(QvaDev.Communication.Interfaces.IConnectorConfiguration,QvaDev.Communication.ConnectionManagementRulesCollection)">
+            <summary>
+            Initializes a new instance of the <see cref="T:QvaDev.Communication.ConnectionManager"/> class.
+            </summary>
+            <param name="connectorConfig">The connector configuration.</param>
+            <param name="rules">The rules to use.</param>
+        </member>
+        <member name="M:QvaDev.Communication.ConnectionManager.#ctor(QvaDev.Communication.Interfaces.IConnector,QvaDev.Communication.ConnectionManagementRulesCollection)">
+            <summary>
+            Initializes a new instance of the <see cref="T:QvaDev.Communication.ConnectionManager"/> class.
+            </summary>
+            <param name="connector">The connector to manage.</param>
+            <param name="rules">The rules to use.</param>
+            <exception cref="T:System.ArgumentNullException">connector</exception>
+        </member>
+        <member name="M:QvaDev.Communication.ConnectionManager.Dispose">
+            <summary>
+            Closes and releases the managed <see cref="T:QvaDev.Communication.Interfaces.IConnector"/>.
+            </summary>
+        </member>
+        <member name="M:QvaDev.Communication.ConnectionManager.ConnectAsync">
+            <summary>
+            Connects the wrapped connector.
+            </summary>
+        </member>
+        <member name="M:QvaDev.Communication.ConnectionManager.DisconnectAsync">
+            <summary>
+            Disconnects the wrapped connector.
+            </summary>
+        </member>
+        <member name="T:QvaDev.Communication.ConnectionManagerConfiguration">
+            <summary>
+            Represents the configuration of the <see cref="T:QvaDev.Communication.ConnectionManager"/> class.
+            </summary>
+        </member>
+        <member name="P:QvaDev.Communication.ConnectionManagerConfiguration.ConnectorConfiguration">
+            <summary>
+            Gets or sets the configuration of the connector to be managed.
+            </summary>
+        </member>
+        <member name="P:QvaDev.Communication.ConnectionManagerConfiguration.ManagementRules">
+            <summary>
+            Gets or sets the management rules for the maintained connection.
+            </summary>
+        </member>
+        <member name="T:QvaDev.Communication.ConnectorFactory">
+            <summary>
+            Contains factory methods for creating and discovering connectors.
+            </summary>
+        </member>
+        <member name="M:QvaDev.Communication.ConnectorFactory.CreateConnector(QvaDev.Communication.Interfaces.IConnectorConfiguration)">
+            <summary>
+            Creates an <see cref="T:QvaDev.Communication.Interfaces.IConnector"/> instance for the given <paramref name="connectorConfig"/>.
+            </summary>
+            <param name="connectorConfig">The connector configuration.</param>
+            <returns></returns>
+            <exception cref="T:System.ArgumentNullException"><paramref name="connectorConfig"/> is <see langword="null"/>.</exception>
+            <exception cref="T:System.ArgumentException">Invalid connector type, or no proper constructor found.</exception>
+        </member>
+        <member name="M:QvaDev.Communication.ConnectorFactory.RegisterConnectorAssembly(System.Reflection.Assembly)">
+            <summary>
+            Registers the specified <paramref name="assembly"/> in which the <see cref="M:QvaDev.Communication.ConnectorFactory.GetConnectorTypes"/> and <see cref="M:QvaDev.Communication.ConnectorFactory.GetConfigurationTypes"/> methods look for connector and configuration types.
+            </summary>
+            <param name="assembly">The assembly.</param>
+        </member>
+        <member name="M:QvaDev.Communication.ConnectorFactory.GetConnectorTypes">
+            <summary>
+            Gets the connector types from the assemblies registered by the <see cref="M:QvaDev.Communication.ConnectorFactory.RegisterConnectorAssembly(System.Reflection.Assembly)"/> methods including
+            the results of the previous <see cref="M:QvaDev.Communication.ConnectorFactory.GetConfigurationType(System.Type)"/> calls so far.
+            </summary>
+            <returns>A collection of t</returns>
+        </member>
+        <member name="M:QvaDev.Communication.ConnectorFactory.GetConfigurationTypes">
+            <summary>
+            Gets the configuration types from the assemblies registered by the <see cref="M:QvaDev.Communication.ConnectorFactory.RegisterConnectorAssembly(System.Reflection.Assembly)"/> methods including
+            the results of the previous <see cref="M:QvaDev.Communication.ConnectorFactory.GetConfigurationType(System.Type)"/> calls so far.
+            </summary>
+            <returns>A collection of t</returns>
+        </member>
+        <member name="M:QvaDev.Communication.ConnectorFactory.GetConfigurationType(System.Type)">
+            <summary>
+            Gets the type of the configuration of the specified <paramref name="connectorType"/>.
+            </summary>
+            <param name="connectorType">Type of the connector. Must be an <see cref="T:QvaDev.Communication.Interfaces.IConnector"/> implementation.</param>
+            <returns></returns>
+            <exception cref="T:System.ArgumentNullException"><paramref name="connectorType"/> is <see langword="null"/>.</exception>
+            <exception cref="T:System.ArgumentException"><paramref name="connectorType"/> is not an implementation of <see cref="T:QvaDev.Communication.Interfaces.IConnector"/> or
+            does not have a constructor with a single parameter of an <see cref="T:QvaDev.Communication.Interfaces.IConnectorConfiguration"/> parameter.</exception>
+        </member>
+        <member name="M:QvaDev.Communication.ConnectorFactory.GetConfigurationCtor(System.Type,System.Boolean)">
+            <summary>
+            Gets the configuration constructor for a connector type.
+            </summary>
+        </member>
+        <member name="T:QvaDev.Communication.ConnectionManagementRuleBase">
+            <summary>
+            Represents a connection management rule.
+            </summary>
+        </member>
+        <member name="P:QvaDev.Communication.ConnectionManagementRuleBase.Description">
+            <summary>
+            Gets or sets the description of the rule.
+            </summary>
+        </member>
+        <member name="M:QvaDev.Communication.ConnectionManagementRuleBase.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:QvaDev.Communication.ConnectionManagementRuleBase"/> class.
+            </summary>
+        </member>
+        <member name="M:QvaDev.Communication.ConnectionManagementRuleBase.ToString">
+            <summary>
+            Returns a <see cref="T:System.String" /> that represents this instance.
+            </summary>
+        </member>
+        <member name="M:QvaDev.Communication.ConnectionManagementRuleBase.IsMatch(QvaDev.Communication.ManagementRuleType,System.Object)">
+            <summary>
+            Determines whether this instance matches the specified rule type and condition argument.
+            </summary>
+        </member>
+        <member name="T:QvaDev.Communication.ReconnectAfterDelayRule">
+            <summary>
+            Represents a rule for reconnecting after a specified time if the connection has been closed.
+            </summary>
+        </member>
+        <member name="P:QvaDev.Communication.ReconnectAfterDelayRule.Delay">
+            <summary>
+            Gets or sets the delay in seconds.
+            </summary>
+        </member>
+        <member name="P:QvaDev.Communication.ClosedEventArgs.Error">
+            <summary>
+            If the closing occurred due to an error gets the causing exception.
+            If closing occurred due to user request this property returns null.
+            </summary>
+        </member>
+        <member name="M:QvaDev.Communication.ClosedEventArgs.#ctor(System.Exception)">
+            <summary>
+            Initializes a new instance of the <see cref="T:QvaDev.Communication.ClosedEventArgs"/> class.
+            </summary>
+            <param name="exception">The exception or <see langword="null"/> if no error occurred.</param>
         </member>
         <member name="T:QvaDev.Communication.DataReceivedEventArgs">
             <summary>
@@ -79,21 +362,21 @@
             <typeparam name="TActualValue">The actual type of the stored value.</typeparam>
             <returns>The found value or <paramref name="defaultValue"/> if <paramref name="key"/> not found or its type is wrong.</returns>
         </member>
-        <member name="T:QvaDev.Communication.TaskCompletionManager">
+        <member name="T:QvaDev.Communication.TaskCompletionManager`1">
             <summary>
             Represents a manager for completable <see cref="T:System.Threading.Tasks.Task"/> instances, which automatically timed out if their result is not set in a specified time interval.
             </summary>
             <seealso cref="T:System.IDisposable" />
         </member>
-        <member name="M:QvaDev.Communication.TaskCompletionManager.#ctor(System.Int32,System.Int32,System.Boolean)">
+        <member name="M:QvaDev.Communication.TaskCompletionManager`1.#ctor(System.Int32,System.Int32,System.Boolean)">
             <summary>
-            Initializes a new instance of the <see cref="T:QvaDev.Communication.TaskCompletionManager"/> class.
+            Initializes a new instance of the <see cref="T:QvaDev.Communication.TaskCompletionManager`1"/> class.
             </summary>
             <param name="interval">The interval, in milliseconds, for checking task statuses.</param>
             <param name="timeout">The interval, in milliseconds, after an uncompleted task will timeout.</param>
             <param name="throwErrorOnTimeout">If <c>true</c>, a <see cref="T:System.TimeoutException"/> will be thrown on timeout. If <c>false</c>, the created task will be completed by setting the default result.</param>
         </member>
-        <member name="M:QvaDev.Communication.TaskCompletionManager.IsCompleted(System.Object)">
+        <member name="M:QvaDev.Communication.TaskCompletionManager`1.IsCompleted(`0)">
             <summary>
             Gets whether the <see cref="T:System.Threading.Tasks.Task"/> of the specified <paramref name="key"/> is completed.
             </summary>
@@ -102,112 +385,112 @@
             <c>true</c> if the corresponding <see cref="T:System.Threading.Tasks.Task"/> is completed,
             <c>false</c> if the corresponding <see cref="T:System.Threading.Tasks.Task"/> is not completed.</returns>
         </member>
-        <member name="M:QvaDev.Communication.TaskCompletionManager.CreateCompletableTask``1(System.Object)">
+        <member name="M:QvaDev.Communication.TaskCompletionManager`1.CreateCompletableTask``1(`0)">
             <summary>
-            Creates a <see cref="T:System.Threading.Tasks.Task`1"/>, which can be completed by using the public methods of this <see cref="T:QvaDev.Communication.TaskCompletionManager"/> instance.
+            Creates a <see cref="T:System.Threading.Tasks.Task`1"/>, which can be completed by using the public methods of this <see cref="T:QvaDev.Communication.TaskCompletionManager`1"/> instance.
             </summary>
             <typeparam name="TResult">The type of the result.</typeparam>
-            <param name="key">The key, which can be used to complete the result <see cref="T:System.Threading.Tasks.Task`1"/> by calling the methods of this <see cref="T:QvaDev.Communication.TaskCompletionManager"/> instance.
+            <param name="key">The key, which can be used to complete the result <see cref="T:System.Threading.Tasks.Task`1"/> by calling the methods of this <see cref="T:QvaDev.Communication.TaskCompletionManager`1"/> instance.
             If the same key is re-used multiple times, the possibly not completed previous task will be canceled.</param>
             <returns>A not completed <see cref="T:System.Threading.Tasks.Task`1"/> instance.</returns>
         </member>
-        <member name="M:QvaDev.Communication.TaskCompletionManager.CreateCompletableTask(System.Object)">
+        <member name="M:QvaDev.Communication.TaskCompletionManager`1.CreateCompletableTask(`0)">
             <summary>
-            Creates a <see cref="T:System.Threading.Tasks.Task"/>, which can be completed by using the public methods of this <see cref="T:QvaDev.Communication.TaskCompletionManager"/> instance.
+            Creates a <see cref="T:System.Threading.Tasks.Task"/>, which can be completed by using the public methods of this <see cref="T:QvaDev.Communication.TaskCompletionManager`1"/> instance.
             </summary>
-            <param name="key">The key, which can be used to complete the result <see cref="T:System.Threading.Tasks.Task"/> by calling the methods of this <see cref="T:QvaDev.Communication.TaskCompletionManager"/> instance.
+            <param name="key">The key, which can be used to complete the result <see cref="T:System.Threading.Tasks.Task"/> by calling the methods of this <see cref="T:QvaDev.Communication.TaskCompletionManager`1"/> instance.
             If the same key is re-used multiple times, the possibly not completed previous task will be canceled.</param>
             <returns>A not completed <see cref="T:System.Threading.Tasks.Task"/> instance.</returns>
         </member>
-        <member name="M:QvaDev.Communication.TaskCompletionManager.ReplaceCompletableTask``1(System.Object,``0,System.Exception)">
+        <member name="M:QvaDev.Communication.TaskCompletionManager`1.ReplaceCompletableTask``1(`0,``0,System.Exception)">
             <summary>
-            Creates a <see cref="T:System.Threading.Tasks.Task`1"/>, which can be completed by using the public methods of this <see cref="T:QvaDev.Communication.TaskCompletionManager"/> instance.
+            Creates a <see cref="T:System.Threading.Tasks.Task`1"/>, which can be completed by using the public methods of this <see cref="T:QvaDev.Communication.TaskCompletionManager`1"/> instance.
             </summary>
             <typeparam name="TResult">The type of the result.</typeparam>
-            <param name="key">The key, which can be used to complete the result <see cref="T:System.Threading.Tasks.Task`1"/> by calling the methods of this <see cref="T:QvaDev.Communication.TaskCompletionManager"/> instance.
+            <param name="key">The key, which can be used to complete the result <see cref="T:System.Threading.Tasks.Task`1"/> by calling the methods of this <see cref="T:QvaDev.Communication.TaskCompletionManager`1"/> instance.
             If the same key is re-used multiple times, the possibly not completed previous task will be canceled.</param>
             <param name="oldTaskResult">If there is an old task to replace, then </param>
             <returns>A not completed <see cref="T:System.Threading.Tasks.Task`1"/> instance.</returns>
         </member>
-        <member name="M:QvaDev.Communication.TaskCompletionManager.ReplaceCompletableTask(System.Object,System.Exception)">
+        <member name="M:QvaDev.Communication.TaskCompletionManager`1.ReplaceCompletableTask(`0,System.Exception)">
             <summary>
-            Creates a <see cref="T:System.Threading.Tasks.Task`1"/>, which can be completed by using the public methods of this <see cref="T:QvaDev.Communication.TaskCompletionManager"/> instance.
+            Creates a <see cref="T:System.Threading.Tasks.Task`1"/>, which can be completed by using the public methods of this <see cref="T:QvaDev.Communication.TaskCompletionManager`1"/> instance.
             </summary>
             <typeparam name="TResult">The type of the result.</typeparam>
-            <param name="key">The key, which can be used to complete the result <see cref="T:System.Threading.Tasks.Task`1"/> by calling the methods of this <see cref="T:QvaDev.Communication.TaskCompletionManager"/> instance.
+            <param name="key">The key, which can be used to complete the result <see cref="T:System.Threading.Tasks.Task`1"/> by calling the methods of this <see cref="T:QvaDev.Communication.TaskCompletionManager`1"/> instance.
             If the same key is re-used multiple times, the possibly not completed previous task will be canceled.</param>
             <returns>A not completed <see cref="T:System.Threading.Tasks.Task`1"/> instance.</returns>
         </member>
-        <member name="M:QvaDev.Communication.TaskCompletionManager.RemoveAll(System.Func{System.Object,System.Boolean},System.Exception)">
+        <member name="M:QvaDev.Communication.TaskCompletionManager`1.RemoveAll(System.Func{`0,System.Boolean},System.Exception)">
             <summary>
-            Removes all <see cref="T:System.Threading.Tasks.Task"/>s from the <see cref="T:QvaDev.Communication.TaskCompletionManager"/> selected by the provided <paramref name="predicate"/>
+            Removes all <see cref="T:System.Threading.Tasks.Task"/>s from the <see cref="T:QvaDev.Communication.TaskCompletionManager`1"/> selected by the provided <paramref name="predicate"/>
             and cancels all of the removed unfinished tasks.
             </summary>
             <param name="predicate">The predicate, which selects the entries to remove.</param>
             <param name="error">If <see langword="null"/>, then the unfinished tasks to remove will be canceled; otherwise, they will be finished with error.</param>
         </member>
-        <member name="M:QvaDev.Communication.TaskCompletionManager.Clear">
+        <member name="M:QvaDev.Communication.TaskCompletionManager`1.Clear">
             <summary>
-            Removes all <see cref="T:System.Threading.Tasks.Task"/>s from the <see cref="T:QvaDev.Communication.TaskCompletionManager"/> and cancels all of the removed unfinished tasks.
+            Removes all <see cref="T:System.Threading.Tasks.Task"/>s from the <see cref="T:QvaDev.Communication.TaskCompletionManager`1"/> and cancels all of the removed unfinished tasks.
             </summary>
         </member>
-        <member name="M:QvaDev.Communication.TaskCompletionManager.Dispose">
+        <member name="M:QvaDev.Communication.TaskCompletionManager`1.Dispose">
             <summary>
-            Disposes this <see cref="T:QvaDev.Communication.TaskCompletionManager"/> instance.
+            Disposes this <see cref="T:QvaDev.Communication.TaskCompletionManager`1"/> instance.
             </summary>
         </member>
-        <member name="M:QvaDev.Communication.TaskCompletionManager.ContainsKey(System.Object)">
+        <member name="M:QvaDev.Communication.TaskCompletionManager`1.ContainsKey(`0)">
             <summary>
-            Determines whether the <see cref="T:QvaDev.Communication.TaskCompletionManager"/> contains a <see cref="T:System.Threading.Tasks.Task"/> with specified <paramref name="key"/>.
+            Determines whether the <see cref="T:QvaDev.Communication.TaskCompletionManager`1"/> contains a <see cref="T:System.Threading.Tasks.Task"/> with specified <paramref name="key"/>.
             </summary>
             <param name="key">The key to check.</param>
-            <returns><c>true</c> if the specified <paramref name="key"/> exists in current <see cref="T:QvaDev.Communication.TaskCompletionManager"/>; otherwise, <c>false</c>.</returns>
+            <returns><c>true</c> if the specified <paramref name="key"/> exists in current <see cref="T:QvaDev.Communication.TaskCompletionManager`1"/>; otherwise, <c>false</c>.</returns>
         </member>
-        <member name="M:QvaDev.Communication.TaskCompletionManager.TryGetTask(System.Object,System.Threading.Tasks.Task@)">
+        <member name="M:QvaDev.Communication.TaskCompletionManager`1.TryGetTask(`0,System.Threading.Tasks.Task@)">
             <summary>
             Tries the get a <see cref="T:System.Threading.Tasks.Task"/> with specified <paramref name="key"/>.
             </summary>
             <param name="key">The key of the <see cref="T:System.Threading.Tasks.Task"/> to get.</param>
             <param name="task">The result <see cref="T:System.Threading.Tasks.Task"/> if the return value is <c>true</c>;otherwise, <see langword="null"/>.</param>
-            <returns><c>true</c>, if <paramref name="key"/> exists in current <see cref="T:QvaDev.Communication.TaskCompletionManager"/>; otherwise, <c>false</c>.</returns>
+            <returns><c>true</c>, if <paramref name="key"/> exists in current <see cref="T:QvaDev.Communication.TaskCompletionManager`1"/>; otherwise, <c>false</c>.</returns>
         </member>
-        <member name="M:QvaDev.Communication.TaskCompletionManager.TryGetTask``1(System.Object,System.Threading.Tasks.Task{``0}@)">
+        <member name="M:QvaDev.Communication.TaskCompletionManager`1.TryGetTask``1(`0,System.Threading.Tasks.Task{``0}@)">
             <summary>
             Tries the get a <see cref="T:System.Threading.Tasks.Task`1"/> with specified <paramref name="key"/>.
             </summary>
             <param name="key">The key of the <see cref="T:System.Threading.Tasks.Task`1"/> to get.</param>
             <param name="task">The result <see cref="T:System.Threading.Tasks.Task`1"/> if the return value is <c>true</c>;otherwise, <see langword="null"/>.</param>
-            <returns><c>true</c>, if <paramref name="key"/> exists in current <see cref="T:QvaDev.Communication.TaskCompletionManager"/>; otherwise, <c>false</c>.</returns>
+            <returns><c>true</c>, if <paramref name="key"/> exists in current <see cref="T:QvaDev.Communication.TaskCompletionManager`1"/>; otherwise, <c>false</c>.</returns>
         </member>
-        <member name="M:QvaDev.Communication.TaskCompletionManager.SetCompleted(System.Object,System.Boolean)">
+        <member name="M:QvaDev.Communication.TaskCompletionManager`1.SetCompleted(`0,System.Boolean)">
             <summary>
-            Sets a <see cref="T:System.Threading.Tasks.Task"/> completed of the specified <paramref name="key"/>, which was created by the <see cref="M:QvaDev.Communication.TaskCompletionManager.CreateCompletableTask(System.Object)"/> method.
+            Sets a <see cref="T:System.Threading.Tasks.Task"/> completed of the specified <paramref name="key"/>, which was created by the <see cref="M:QvaDev.Communication.TaskCompletionManager`1.CreateCompletableTask(`0)"/> method.
             </summary>
             <param name="key">The key of the <see cref="T:System.Threading.Tasks.Task"/> to complete.</param>
-            <param name="remove"><c>true</c> to remove the completed <see cref="T:System.Threading.Tasks.Task"/> from the <see cref="T:QvaDev.Communication.TaskCompletionManager"/>; otherwise, <c>false</c>.</param>
+            <param name="remove"><c>true</c> to remove the completed <see cref="T:System.Threading.Tasks.Task"/> from the <see cref="T:QvaDev.Communication.TaskCompletionManager`1"/>; otherwise, <c>false</c>.</param>
         </member>
-        <member name="M:QvaDev.Communication.TaskCompletionManager.SetResult``1(System.Object,``0,System.Boolean)">
+        <member name="M:QvaDev.Communication.TaskCompletionManager`1.SetResult``1(`0,``0,System.Boolean)">
             <summary>
-            Sets the result of a <see cref="T:System.Threading.Tasks.Task`1"/> of the specified <paramref name="key"/>, which was created by the <see cref="M:QvaDev.Communication.TaskCompletionManager.CreateCompletableTask``1(System.Object)"/> method.
+            Sets the result of a <see cref="T:System.Threading.Tasks.Task`1"/> of the specified <paramref name="key"/>, which was created by the <see cref="M:QvaDev.Communication.TaskCompletionManager`1.CreateCompletableTask``1(`0)"/> method.
             </summary>
             <param name="key">The key of the <see cref="T:System.Threading.Tasks.Task`1"/> to complete.</param>
             <param name="result">The desired result of the <see cref="T:System.Threading.Tasks.Task`1"/> to set.</param>
-            <param name="remove"><c>true</c> to remove the completed <see cref="T:System.Threading.Tasks.Task`1"/> from the <see cref="T:QvaDev.Communication.TaskCompletionManager"/>; otherwise, <c>false</c>.</param>
+            <param name="remove"><c>true</c> to remove the completed <see cref="T:System.Threading.Tasks.Task`1"/> from the <see cref="T:QvaDev.Communication.TaskCompletionManager`1"/>; otherwise, <c>false</c>.</param>
         </member>
-        <member name="M:QvaDev.Communication.TaskCompletionManager.SetCanceled(System.Object,System.Boolean)">
+        <member name="M:QvaDev.Communication.TaskCompletionManager`1.SetCanceled(`0,System.Boolean)">
             <summary>
             Cancels the <see cref="T:System.Threading.Tasks.Task"/> of the specified <paramref name="key"/>.
             </summary>
             <param name="key">The key of the <see cref="T:System.Threading.Tasks.Task"/> to cancel.</param>
-            <param name="remove"><c>true</c> to remove the completed <see cref="T:System.Threading.Tasks.Task`1"/> from the <see cref="T:QvaDev.Communication.TaskCompletionManager"/>; otherwise, <c>false</c>.</param>
+            <param name="remove"><c>true</c> to remove the completed <see cref="T:System.Threading.Tasks.Task`1"/> from the <see cref="T:QvaDev.Communication.TaskCompletionManager`1"/>; otherwise, <c>false</c>.</param>
         </member>
-        <member name="M:QvaDev.Communication.TaskCompletionManager.SetError(System.Object,System.Exception,System.Boolean)">
+        <member name="M:QvaDev.Communication.TaskCompletionManager`1.SetError(`0,System.Exception,System.Boolean)">
             <summary>
             Fails the <see cref="T:System.Threading.Tasks.Task"/> of the specified <paramref name="key"/> with the provided <paramref name="error"/>.
             </summary>
             <param name="key">The key of the <see cref="T:System.Threading.Tasks.Task"/> to fail.</param>
             <param name="error">The <see cref="T:System.Exception"/> to set.</param>
-            <param name="remove"><c>true</c> to remove the completed <see cref="T:System.Threading.Tasks.Task`1"/> from the <see cref="T:QvaDev.Communication.TaskCompletionManager"/>; otherwise, <c>false</c>.</param>
+            <param name="remove"><c>true</c> to remove the completed <see cref="T:System.Threading.Tasks.Task`1"/> from the <see cref="T:QvaDev.Communication.TaskCompletionManager`1"/>; otherwise, <c>false</c>.</param>
         </member>
         <member name="T:QvaDev.Communication.CurrencyPair">
             <summary>
