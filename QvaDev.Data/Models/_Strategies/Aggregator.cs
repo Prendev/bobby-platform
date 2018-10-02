@@ -14,6 +14,8 @@ namespace QvaDev.Data.Models
 		[InvisibleColumn] public int ProfileId { get; set; }
 		[InvisibleColumn] public Profile Profile { get; set; }
 
+		public bool Run { get; set; }
+
 		[InvisibleColumn] public List<AggregatorAccount> Accounts { get => Get(() => new List<AggregatorAccount>()); set => Set(value, false); }
 
 		private IQuoteAggregator _quoteAggregator;
@@ -61,7 +63,7 @@ namespace QvaDev.Data.Models
 		{
 			foreach (var aggregatorAccount in Accounts)
 			{
-				if (!aggregatorAccount.Account.Connector.Is(fixConnector)) continue;
+				if (aggregatorAccount.Account.Connector?.Is(fixConnector) != true) continue;
 				return aggregatorAccount.Account;
 			}
 

@@ -103,19 +103,23 @@ namespace QvaDev.Orchestration
 
 	        await Task.WhenAll(tasks);
 
-	        foreach (var agg in _duplicatContext.Aggregators)
+	        foreach (var agg in _duplicatContext.Aggregators.Where(a => a.Run))
 	        {
-		        var groups = agg.Accounts
+		        var aggAccounts = agg.Accounts
+			        .Where(a => a.Account.Run)
 			        .Where(a => a.Account.FixApiAccountId.HasValue)
-			        .Select(a =>
+			        .Where(a => a.Account.Connector is FixApiIntegration.Connector)
+			        .ToList();
+
+		        foreach (var aggAccount in aggAccounts)
+			        aggAccount.Account.Connector.Subscribe(aggAccount.Symbol);
+
+				var groups = aggAccounts.Select(a =>
 				        new
 				        {
 					        ((FixApiIntegration.Connector) a.Account.Connector).FixConnector,
 					        Symbol = Symbol.Parse(a.Symbol)
 				        }).ToDictionary(x => x.FixConnector, x => x.Symbol);
-
-		        foreach (var aggAcc in agg.Accounts)
-			        aggAcc.Account.Connector.Subscribe(aggAcc.Symbol);
 
 				agg.QuoteAggregator = MarketDataManager.CreateQuoteAggregator(groups);
 			}

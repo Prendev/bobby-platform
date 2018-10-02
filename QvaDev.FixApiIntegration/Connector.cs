@@ -18,16 +18,20 @@ namespace QvaDev.FixApiIntegration
 {
 	public class Connector : FixApiConnectorBase
 	{
-		private readonly AccountInfo _accountInfo;
+		private static readonly ConnectionManagementRulesCollection ConnectionManagementRules =
+			new ConnectionManagementRulesCollection()
+			{
+				new ReconnectAfterDelayRule() {Delay = 30}
+			};
 
-		private readonly Object _lock = new Object();
-		private volatile bool _isConnecting;
-		private volatile bool _shouldConnect;
+		private readonly AccountInfo _accountInfo;
 
 		public override int Id => _accountInfo?.DbId ?? 0;
 		public override string Description => _accountInfo?.Description ?? "";
-		public override bool IsConnected => FixConnector?.IsPricingConnected == true && FixConnector?.IsTradingConnected == true;
+		public override bool IsConnected => ConnectionManager?.IsConnected == true;
+
 		public readonly FixConnectorBase FixConnector;
+		public readonly ConnectionManager ConnectionManager;
 
 		public event EventHandler<QuoteSet> NewQuote;
 
@@ -43,72 +47,30 @@ namespace QvaDev.FixApiIntegration
 			var conf = new XmlSerializer(confType).Deserialize(File.OpenRead(_accountInfo.ConfigPath));
 
 			FixConnector = (FixConnectorBase)Activator.CreateInstance(connType, conf);
-		}
-
-		public Task Connect()
-		{
-			lock (_lock) _shouldConnect = true;
-			return InnerConnect();
-		}
-
-		private async Task InnerConnect()
-		{
-			lock (_lock)
-			{
-				if (!_shouldConnect) return;
-				if (_isConnecting) return;
-				_isConnecting = true;
-			}
-
-			FixConnector.PricingSocketClosed -= FixConnector_SocketClosed;
-			FixConnector.TradingSocketClosed -= FixConnector_SocketClosed;
-			FixConnector.ExecutionReport -= FixConnector_ExecutionReport;
-
-			FixConnector.PricingSocketClosed += FixConnector_SocketClosed;
-			FixConnector.TradingSocketClosed += FixConnector_SocketClosed;
 			FixConnector.ExecutionReport += FixConnector_ExecutionReport;
 
+			ConnectionManager = new ConnectionManager(FixConnector, ConnectionManagementRules);
+			ConnectionManager.Connected += ConnectionManager_Connected;
+			ConnectionManager.Closed += ConnectionManager_Closed;
+		}
+
+		public async Task Connect()
+		{
 			try
 			{
-				var subscribe = FixConnector.PricingSocket?.IsConnected != true;
-				await FixConnector.ConnectPricingAsync();
-				await FixConnector.ConnectTradingAsync();
-				if (subscribe)
-				{
-					var reSubscribes = new List<string>();
-					lock (Subscribes)
-					{
-						reSubscribes.AddRange(Subscribes);
-						Subscribes.Clear();
-					}
-					await Task.WhenAll(reSubscribes.Select(InnerSubscribe));
-				}
+				await ConnectionManager.ConnectAsync();
 			}
 			catch (Exception e)
 			{
 				Log.Error($"{Description} FIX account FAILED to connect", e);
-				lock (_lock) _isConnecting = false;
-				Reconnect();
 			}
-
-			OnConnectionChanged(IsConnected ? ConnectionStates.Connected : ConnectionStates.Error);
-			lock (_lock) _isConnecting = false;
 		}
 
-		public override void Disconnect()
+		public override async void Disconnect()
 		{
-			lock (_lock) _shouldConnect = false;
-
-			FixConnector.PricingSocketClosed -= FixConnector_SocketClosed;
-			FixConnector.TradingSocketClosed -= FixConnector_SocketClosed;
-			FixConnector.ExecutionReport -= FixConnector_ExecutionReport;
-
 			try
 			{
-				if (FixConnector?.PricingSocket?.IsConnected == true)
-					FixConnector?.PricingSocket?.Send(new FixMessageBody(FixMessageTypes.Logout));
-				if (FixConnector?.TradingSocket?.IsConnected == true)
-					FixConnector?.TradingSocket?.Send(new FixMessageBody(FixMessageTypes.Logout));
+				await ConnectionManager.DisconnectAsync();
 			}
 			catch (Exception e)
 			{
@@ -116,17 +78,6 @@ namespace QvaDev.FixApiIntegration
 			}
 
 			OnConnectionChanged(ConnectionStates.Disconnected);
-		}
-
-		private void FixConnector_SocketClosed(object sender, ClosedEventArgs e)
-		{
-			if (_isConnecting) return;
-			Task.Run(() => Reconnect(5000));
-		}
-
-		private void FixConnector_ExecutionReport(object sender, ExecutionReportEventArgs e)
-		{
-			Task.Run(() => ExecutionReport(e));
 		}
 
 		public override async Task<OrderResponse> SendMarketOrderRequest(string symbol, Sides side, decimal quantity, string comment = null)
@@ -233,6 +184,33 @@ namespace QvaDev.FixApiIntegration
 			return o as FixConnectorBase == FixConnector;
 		}
 
+		private void ConnectionManager_Connected(object sender, EventArgs e)
+		{
+			OnConnectionChanged(ConnectionStates.Connected);
+			Task.Run(ReSubscribe);
+		}
+
+		private void ConnectionManager_Closed(object sender, ClosedEventArgs e)
+		{
+			OnConnectionChanged(e.Error == null ? ConnectionStates.Disconnected : ConnectionStates.Error);
+		}
+
+		private void FixConnector_ExecutionReport(object sender, ExecutionReportEventArgs e)
+		{
+			Task.Run(() => ExecutionReport(e));
+		}
+
+		private async Task ReSubscribe()
+		{
+			var reSubscribes = new List<string>();
+			lock (Subscribes)
+			{
+				reSubscribes.AddRange(Subscribes);
+				Subscribes.Clear();
+			}
+			await Task.WhenAll(reSubscribes.Select(InnerSubscribe));
+		}
+
 		private async Task InnerSubscribe(string symbol)
 		{
 			try
@@ -251,13 +229,6 @@ namespace QvaDev.FixApiIntegration
 			{
 				Log.Error($"{Description} Connector.Subscribe({symbol}) exception", e);
 			}
-		}
-
-		private async void Reconnect(int delay = 30000)
-		{
-			OnConnectionChanged(ConnectionStates.Error);
-			await Task.Delay(delay);
-			await InnerConnect();
 		}
 
 		private void Quote(QuoteSet quoteSet)
@@ -301,9 +272,6 @@ namespace QvaDev.FixApiIntegration
 		{
 			if (!e.ExecutionReport.FulfilledQuantity.HasValue) return;
 			if (e.ExecutionReport.Side != Side.Buy && e.ExecutionReport.Side != Side.Sell) return;
-
-			//if (new[] { ExecType.Fill, ExecType.PartialFill, ExecType.Trade }
-			//		.Contains(e.ExecutionReport.ExecutionType) == false) return;
 
 			var quantity = e.ExecutionReport.FulfilledQuantity.Value;
 			if (e.ExecutionReport.Side == Side.Sell) quantity *= -1;

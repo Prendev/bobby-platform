@@ -26,6 +26,11 @@
             Occurs when the connector closes (disconnects).
             </summary>
         </member>
+        <member name="E:QvaDev.Communication.Interfaces.IConnector.Connected">
+            <summary>
+            Occurs when the connector connected. If this <see cref="T:QvaDev.Communication.Interfaces.IConnector"/> is a managed one it can occur without calling the <see cref="M:QvaDev.Communication.Interfaces.IConnector.ConnectAsync"/> explicitly.
+            </summary>
+        </member>
         <member name="P:QvaDev.Communication.Interfaces.IConnector.IsConnected">
             <summary>
             Gets whether the connector is connected.
@@ -125,6 +130,11 @@
             </summary>
         </member>
         <member name="E:QvaDev.Communication.ConnectionManager.Closed">
+            <summary>
+            Occurs when the wrapped connector closes (disconnects).
+            </summary>
+        </member>
+        <member name="E:QvaDev.Communication.ConnectionManager.Connected">
             <summary>
             Occurs when the wrapped connector closes (disconnects).
             </summary>

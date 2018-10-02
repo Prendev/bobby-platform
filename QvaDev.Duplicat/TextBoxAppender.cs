@@ -16,9 +16,11 @@ namespace QvaDev.Duplicat
 
 		private RichTextBox _textBox;
 		private readonly List<string> _filters;
+		private readonly int _maxLines;
 
-		public TextBoxAppender(RichTextBox textBox, params string[] filters)
+		public TextBoxAppender(RichTextBox textBox, int maxLines, params string[] filters)
         {
+	        _maxLines = maxLines;
 	        _filters = (filters ?? new string[] { }).ToList();
 
 			var frm = textBox.FindForm();
@@ -36,10 +38,10 @@ namespace QvaDev.Duplicat
 
         public string Name { get; set; }
 
-        public static void ConfigureTextBoxAppender(RichTextBox textBox, string loggerNameFilter, params string[] filters)
+        public static void ConfigureTextBoxAppender(RichTextBox textBox, string loggerNameFilter, int maxLines, params string[] filters)
         {
             var hierarchy = (Hierarchy) LogManager.GetRepository();
-            var appender = new TextBoxAppender(textBox, filters){ LoggerNameFilter = loggerNameFilter};
+            var appender = new TextBoxAppender(textBox, maxLines, filters){ LoggerNameFilter = loggerNameFilter};
             hierarchy.Root.AddAppender(appender);
         }
 
@@ -84,6 +86,9 @@ namespace QvaDev.Duplicat
 		{
 			if (_textBox == null || _textBox.IsDisposed)
 				return;
+
+			if (_textBox.Lines.Length > _maxLines)
+				_textBox.Clear();
 
 			Color color;
 			if (level == Level.Trace) color = Color.Gray;
