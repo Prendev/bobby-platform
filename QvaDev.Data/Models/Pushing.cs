@@ -105,7 +105,7 @@ namespace QvaDev.Data.Models
 		[Required] public string HedgeSymbol { get; set; }
 
         [InvisibleColumn] public int PushingDetailId { get; set; }
-        [InvisibleColumn] public PushingDetail PushingDetail { get; set; }
+		[InvisibleColumn] public PushingDetail PushingDetail { get; set; }
 
         [NotMapped] [InvisibleColumn] public Sides BetaOpenSide { get; set; }
         [NotMapped] [InvisibleColumn] public Sides FirstCloseSide { get; set; }

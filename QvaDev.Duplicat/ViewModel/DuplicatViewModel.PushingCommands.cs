@@ -17,10 +17,20 @@ namespace QvaDev.Duplicat.ViewModel
 			if (IsLoading) return;
 
 			SelectedPushing = pushing;
-            foreach (var e in PushingDetails) e.IsFiltered = e.Id != SelectedPushing.PushingDetailId;
-        }
+			foreach (var e in PushingDetails)
+				e.IsFiltered = true;
+			if (pushing.Id == 0) return;
 
-        public async void PushingOpenCommand(Pushing pushing, Sides firstBetaOpenSide)
+			if (pushing.PushingDetail == null)
+			{
+				pushing.PushingDetail = new PushingDetail() {IsFiltered = false};
+				PushingDetails.Add(pushing.PushingDetail);
+			}
+
+			pushing.PushingDetail.IsFiltered = false;
+		}
+
+		public async void PushingOpenCommand(Pushing pushing, Sides firstBetaOpenSide)
 		{
 			PushingState = PushingStates.Busy;
 			pushing.BetaOpenSide = firstBetaOpenSide;
