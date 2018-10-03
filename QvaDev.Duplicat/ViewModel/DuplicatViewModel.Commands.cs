@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Configuration;
 using System.Data.SqlClient;
 using System.Diagnostics;
@@ -296,5 +297,10 @@ namespace QvaDev.Duplicat.ViewModel
 			SelectedDealingArb = arb;
 			LoadStratDealingArbPositions();
 		}
+
+	    public IList GetArbStatistics(StratHubArb arb)
+	    {
+		    return arb.CalculateStatistics();
+	    }
 	}
 }

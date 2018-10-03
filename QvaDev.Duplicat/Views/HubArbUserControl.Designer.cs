@@ -30,14 +30,18 @@
 		{
 			this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
 			this.gbControl = new System.Windows.Forms.GroupBox();
-			this.gbHubArb = new System.Windows.Forms.GroupBox();
-			this.dgvHubArb = new QvaDev.Duplicat.Views.CustomDataGridView();
 			this.btnStop = new System.Windows.Forms.Button();
 			this.btnStart = new System.Windows.Forms.Button();
+			this.gbHubArb = new System.Windows.Forms.GroupBox();
+			this.dgvHubArb = new QvaDev.Duplicat.Views.CustomDataGridView();
+			this.groupBox1 = new System.Windows.Forms.GroupBox();
+			this.dgvStatistics = new System.Windows.Forms.DataGridView();
 			this.tableLayoutPanel1.SuspendLayout();
 			this.gbControl.SuspendLayout();
 			this.gbHubArb.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.dgvHubArb)).BeginInit();
+			this.groupBox1.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)(this.dgvStatistics)).BeginInit();
 			this.SuspendLayout();
 			// 
 			// tableLayoutPanel1
@@ -46,6 +50,7 @@
 			this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
 			this.tableLayoutPanel1.Controls.Add(this.gbControl, 0, 0);
 			this.tableLayoutPanel1.Controls.Add(this.gbHubArb, 0, 1);
+			this.tableLayoutPanel1.Controls.Add(this.groupBox1, 0, 2);
 			this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
 			this.tableLayoutPanel1.Name = "tableLayoutPanel1";
@@ -68,29 +73,6 @@
 			this.gbControl.TabStop = false;
 			this.gbControl.Text = "Control";
 			// 
-			// gbHubArb
-			// 
-			this.gbHubArb.Controls.Add(this.dgvHubArb);
-			this.gbHubArb.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.gbHubArb.Location = new System.Drawing.Point(3, 67);
-			this.gbHubArb.Name = "gbHubArb";
-			this.gbHubArb.Size = new System.Drawing.Size(1115, 322);
-			this.gbHubArb.TabIndex = 1;
-			this.gbHubArb.TabStop = false;
-			this.gbHubArb.Text = "Hub arbs";
-			// 
-			// dgvHubArb
-			// 
-			this.dgvHubArb.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
-			this.dgvHubArb.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-			this.dgvHubArb.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.dgvHubArb.Location = new System.Drawing.Point(3, 18);
-			this.dgvHubArb.MultiSelect = false;
-			this.dgvHubArb.Name = "dgvHubArb";
-			this.dgvHubArb.RowTemplate.Height = 24;
-			this.dgvHubArb.Size = new System.Drawing.Size(1109, 301);
-			this.dgvHubArb.TabIndex = 0;
-			// 
 			// btnStop
 			// 
 			this.btnStop.Location = new System.Drawing.Point(215, 22);
@@ -111,6 +93,53 @@
 			this.btnStart.Text = "Start";
 			this.btnStart.UseVisualStyleBackColor = true;
 			// 
+			// gbHubArb
+			// 
+			this.gbHubArb.Controls.Add(this.dgvHubArb);
+			this.gbHubArb.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.gbHubArb.Location = new System.Drawing.Point(3, 67);
+			this.gbHubArb.Name = "gbHubArb";
+			this.gbHubArb.Size = new System.Drawing.Size(1115, 322);
+			this.gbHubArb.TabIndex = 1;
+			this.gbHubArb.TabStop = false;
+			this.gbHubArb.Text = "Hub arbs (use double-click for current stat)";
+			// 
+			// dgvHubArb
+			// 
+			this.dgvHubArb.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
+			this.dgvHubArb.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+			this.dgvHubArb.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.dgvHubArb.Location = new System.Drawing.Point(3, 18);
+			this.dgvHubArb.MultiSelect = false;
+			this.dgvHubArb.Name = "dgvHubArb";
+			this.dgvHubArb.RowTemplate.Height = 24;
+			this.dgvHubArb.Size = new System.Drawing.Size(1109, 301);
+			this.dgvHubArb.TabIndex = 0;
+			// 
+			// groupBox1
+			// 
+			this.groupBox1.Controls.Add(this.dgvStatistics);
+			this.groupBox1.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.groupBox1.Location = new System.Drawing.Point(3, 395);
+			this.groupBox1.Name = "groupBox1";
+			this.groupBox1.Size = new System.Drawing.Size(1115, 323);
+			this.groupBox1.TabIndex = 2;
+			this.groupBox1.TabStop = false;
+			this.groupBox1.Text = "Statistics";
+			// 
+			// dgvStatistics
+			// 
+			this.dgvStatistics.AllowUserToAddRows = false;
+			this.dgvStatistics.AllowUserToDeleteRows = false;
+			this.dgvStatistics.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+			this.dgvStatistics.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.dgvStatistics.Location = new System.Drawing.Point(3, 18);
+			this.dgvStatistics.Name = "dgvStatistics";
+			this.dgvStatistics.ReadOnly = true;
+			this.dgvStatistics.RowTemplate.Height = 24;
+			this.dgvStatistics.Size = new System.Drawing.Size(1109, 302);
+			this.dgvStatistics.TabIndex = 0;
+			// 
 			// HubArbUserControl
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -122,6 +151,8 @@
 			this.gbControl.ResumeLayout(false);
 			this.gbHubArb.ResumeLayout(false);
 			((System.ComponentModel.ISupportInitialize)(this.dgvHubArb)).EndInit();
+			this.groupBox1.ResumeLayout(false);
+			((System.ComponentModel.ISupportInitialize)(this.dgvStatistics)).EndInit();
 			this.ResumeLayout(false);
 
 		}
@@ -134,5 +165,7 @@
 		private CustomDataGridView dgvHubArb;
 		private System.Windows.Forms.Button btnStop;
 		private System.Windows.Forms.Button btnStart;
+		private System.Windows.Forms.GroupBox groupBox1;
+		private System.Windows.Forms.DataGridView dgvStatistics;
 	}
 }
