@@ -44,8 +44,6 @@ namespace QvaDev.Data.Models
 			}
 
 			_propertyValues[propertyName] = value;
-
-			if (typeof(T).IsGenericTypeDefinition && typeof(T).GetGenericTypeDefinition() == typeof(List<>)) return;
 			OnPropertyChanged(propertyName);
 		}
 

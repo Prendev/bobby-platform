@@ -12,9 +12,9 @@ namespace QvaDev.Data.Models
         public int AccountId { get; set; }
         public Account Account { get; set; }
 
-        public List<Slave> Slaves { get => Get(() => new List<Slave>()); set => Set(value); }
+        public List<Slave> Slaves { get; } = new List<Slave>();
 
-        public override string ToString()
+		public override string ToString()
         {
             return (Id == 0 ? "UNSAVED - " : "") + Account;
         }

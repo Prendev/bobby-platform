@@ -192,6 +192,10 @@
     <Compile Include="Migrations\20181002115906_AggregatorRun.designer.cs">
       <DependentUpon>20181002115906_AggregatorRun.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\20181003163456_StratHubArbPositionFix.cs" />
+    <Compile Include="Migrations\20181003163456_StratHubArbPositionFix.designer.cs">
+      <DependentUpon>20181003163456_StratHubArbPositionFix.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\DuplicatContextModelSnapshot.cs" />
     <Compile Include="Models\_Strategies\Aggregator.NotMapped.cs" />
     <Compile Include="Models\_Strategies\Aggregator.cs" />

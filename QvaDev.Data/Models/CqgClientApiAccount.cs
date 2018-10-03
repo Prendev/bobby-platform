@@ -8,6 +8,6 @@ namespace QvaDev.Data.Models
 		[Required] public string UserName { get; set; }
 		[Required] public string Password { get; set; }
 
-		public List<Account> Accounts { get => Get(() => new List<Account>()); set => Set(value); }
+		public List<Account> Accounts { get; } = new List<Account>();
 	}
 }

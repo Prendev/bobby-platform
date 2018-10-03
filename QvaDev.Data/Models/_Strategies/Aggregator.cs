@@ -10,6 +10,6 @@ namespace QvaDev.Data.Models
 
 		public bool Run { get; set; }
 
-		[InvisibleColumn] public List<AggregatorAccount> Accounts { get => Get(() => new List<AggregatorAccount>()); set => Set(value); }
+		[InvisibleColumn] public List<AggregatorAccount> Accounts { get; } = new List<AggregatorAccount>();
 	}
 }

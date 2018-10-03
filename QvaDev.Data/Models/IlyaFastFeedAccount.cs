@@ -9,6 +9,6 @@ namespace QvaDev.Data.Models
 		public int Port { get; set; }
 		public string UserName { get; set; }
 
-		public List<Account> Accounts { get => Get(() => new List<Account>()); set => Set(value); }
+		public List<Account> Accounts { get; } = new List<Account>();
 	}
 }

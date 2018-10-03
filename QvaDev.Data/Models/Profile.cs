@@ -4,8 +4,8 @@ namespace QvaDev.Data.Models
 {
     public class Profile : BaseDescriptionEntity
     {
-        public List<Pushing> Pushings { get => Get(() => new List<Pushing>()); set => Set(value); }
-		public List<Account> Accounts { get => Get(() => new List<Account>()); set => Set(value); }
-		public List<Master> Masters { get => Get(() => new List<Master>()); set => Set(value); }
+        public List<Pushing> Pushings { get; } = new List<Pushing>();
+		public List<Account> Accounts { get; } = new List<Account>();
+		public List<Master> Masters { get; } = new List<Master>();
 	}
 }

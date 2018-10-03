@@ -103,7 +103,7 @@ namespace QvaDev.Data.Models
 
 		[InvisibleColumn] public DateTime? LastOpenTime { get => Get<DateTime?>(); set => Set(value); }
 
-		public List<StratDealingArbPosition> Positions { get => Get(() => new List<StratDealingArbPosition>()); set => Set(value); }
+		public List<StratDealingArbPosition> Positions { get; } = new List<StratDealingArbPosition>();
 
 		[NotMapped] [InvisibleColumn] public decimal ShiftDiffSumInPip { get; set; }
 		[NotMapped] [InvisibleColumn] public Stopwatch ShiftCalcStopwatch { get; set; }

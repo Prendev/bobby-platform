@@ -10,7 +10,7 @@ namespace QvaDev.Data.Models
         public int MetaTraderPlatformId { get; set; }
         public MetaTraderPlatform MetaTraderPlatform { get; set; }
 
-		public List<Account> Accounts { get => Get(() => new List<Account>()); set => Set(value); }
+		public List<Account> Accounts { get; } = new List<Account>();
 
 		public override string ToString()
         {

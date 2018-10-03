@@ -155,7 +155,8 @@ namespace QvaDev.Duplicat.ViewModel
 			_duplicatContext.Tickers.Where(e => e.ProfileId == p).Load();
 			_duplicatContext.StratDealingArbs.Where(e => e.ProfileId == p).Load();
 			_duplicatContext.StratDealingArbPositions.Where(e => e.StratDealingArb.ProfileId == p).Load();
-		    _duplicatContext.StratHubArbs.Where(e => e.Aggregator.ProfileId == p).Load();
+		    _duplicatContext.StratHubArbs.Where(e => e.Aggregator.ProfileId == p)
+			    .Include(e => e.StratHubArbPositions).ThenInclude(e => e.Position).Load();
 
 			MtPlatforms = _duplicatContext.MetaTraderPlatforms.Local.ToObservableCollection();
 			CtPlatforms = _duplicatContext.CTraderPlatforms.Local.ToObservableCollection();

@@ -1,11 +1,13 @@
-﻿namespace QvaDev.Data.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace QvaDev.Data.Models
 {
-	public class StratHubArbPosition : BaseEntity
+	public class StratHubArbPosition : BaseNotifyPropertyChange
 	{
-		public int StratHubArbId { get; set; }
+		[Key] public int StratHubArbId { get; set; }
 		public StratHubArb StratHubArb { get; set; }
 
-		public int PositionId { get; set; }
+		[Key] public int PositionId { get; set; }
 		public StratPosition Position { get; set; }
 	}
 }

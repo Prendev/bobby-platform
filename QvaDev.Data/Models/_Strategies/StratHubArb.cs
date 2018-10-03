@@ -42,7 +42,8 @@ namespace QvaDev.Data.Models
 		[DisplayName("TimeWindow")]
 		public int TimeWindowInMs { get; set; }
 
-		[InvisibleColumn] public List<StratHubArbPosition> StratHubArbPositions { get => Get(() => new List<StratHubArbPosition>()); set => Set(value); }
 		[InvisibleColumn] public DateTime? LastOpenTime { get => Get<DateTime?>(); set => Set(value); }
+
+		[InvisibleColumn] public List<StratHubArbPosition> StratHubArbPositions { get; } = new List<StratHubArbPosition>();
 	}
 }

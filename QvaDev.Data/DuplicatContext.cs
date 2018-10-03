@@ -146,7 +146,22 @@ namespace QvaDev.Data
 			modelBuilder.Entity<FixApiCopier>().Property(x => x.PipSize).HasPrecision(18, 5);
 			modelBuilder.Entity<FixApiCopier>().Property(x => x.SlippageInPip).HasPrecision(18, 2);
 
-			modelBuilder.Entity<AggregatorAccount>().HasKey(c => new { c.AggregatorId, c.AccountId });
+			modelBuilder.Entity<AggregatorAccount>().HasKey(x => new { x.AggregatorId, x.AccountId });
+			//modelBuilder.Entity<AggregatorAccount>()
+			//	.HasOne(x => x.Aggregator).WithMany(x => x.Accounts)
+			//	.HasForeignKey(x => x.AggregatorId);
+			//modelBuilder.Entity<AggregatorAccount>()
+			//	.HasOne(x => x.Account).WithMany(x => x.Aggregators)
+			//	.HasForeignKey(x => x.AccountId);
+
+			modelBuilder.Entity<StratHubArbPosition>().HasKey(x => new { x.StratHubArbId, x.PositionId });
+			//modelBuilder.Entity<StratHubArbPosition>()
+			//	.HasOne(x => x.StratHubArb).WithMany(x => x.StratHubArbPositions)
+			//	.HasForeignKey(x => x.StratHubArbId);
+			//modelBuilder.Entity<StratHubArbPosition>()
+			//	.HasOne(x => x.Position).WithMany(x => x.StratHubArbPositions)
+			//	.HasForeignKey(x => x.PositionId);
+
 
 			var timeSpanConverter = new ValueConverter<TimeSpan, long>(v => v.Ticks, v => new TimeSpan(v));
 			var nullTimeSpanConverter = new ValueConverter<TimeSpan?, long?>(v => v != null ? v.Value.Ticks : (long?) null,
