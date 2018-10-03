@@ -6,6 +6,6 @@ namespace QvaDev.Data.Models
 	{
 		public string ConfigPath { get; set; }
 
-		public List<Account> Accounts { get => Get(() => new List<Account>()); set => Set(value, false); }
+		public List<Account> Accounts { get => Get(() => new List<Account>()); set => Set(value); }
 	}
 }

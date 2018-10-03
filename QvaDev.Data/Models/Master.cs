@@ -12,7 +12,7 @@ namespace QvaDev.Data.Models
         public int AccountId { get; set; }
         public Account Account { get; set; }
 
-        public List<Slave> Slaves { get => Get(() => new List<Slave>()); set => Set(value, false); }
+        public List<Slave> Slaves { get => Get(() => new List<Slave>()); set => Set(value); }
 
         public override string ToString()
         {

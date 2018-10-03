@@ -11,7 +11,7 @@ namespace QvaDev.Data.Models
         public int CTraderPlatformId { get; set; }
         public CTraderPlatform CTraderPlatform { get; set; }
 
-		public List<Account> Accounts { get => Get(() => new List<Account>()); set => Set(value, false); }
+		public List<Account> Accounts { get => Get(() => new List<Account>()); set => Set(value); }
 
 		public override string ToString()
         {

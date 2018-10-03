@@ -34,7 +34,7 @@ namespace QvaDev.Data.Models
 		public int? CqgClientApiAccountId { get; set; }
 		public CqgClientApiAccount CqgClientApiAccount { get; set; }
 
-		public List<AggregatorAccount> Aggregators { get => Get(() => new List<AggregatorAccount>()); set => Set(value, false); }
+		public List<AggregatorAccount> Aggregators { get => Get(() => new List<AggregatorAccount>()); set => Set(value); }
 
 		[NotMapped] [ReadOnly(true)] public ConnectionStates ConnectionState { get => Get<ConnectionStates>(); set => Set(value); }
 

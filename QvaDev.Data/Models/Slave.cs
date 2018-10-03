@@ -14,9 +14,9 @@ namespace QvaDev.Data.Models
 
 		public string SymbolSuffix { get; set; }
 
-        public List<SymbolMapping> SymbolMappings { get => Get(() => new List<SymbolMapping>()); set => Set(value, false); }
-        public List<Copier> Copiers { get => Get(() => new List<Copier>()); set => Set(value, false); }
-	    public List<FixApiCopier> FixApiCopiers { get => Get(() => new List<FixApiCopier>()); set => Set(value, false); }
+        public List<SymbolMapping> SymbolMappings { get => Get(() => new List<SymbolMapping>()); set => Set(value); }
+        public List<Copier> Copiers { get => Get(() => new List<Copier>()); set => Set(value); }
+	    public List<FixApiCopier> FixApiCopiers { get => Get(() => new List<FixApiCopier>()); set => Set(value); }
 
 		public override string ToString()
 		{

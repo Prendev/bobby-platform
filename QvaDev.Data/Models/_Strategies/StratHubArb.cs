@@ -1,15 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
 using QvaDev.Common.Attributes;
-using QvaDev.Common.Integration;
-using QvaDev.Communication.FixApi;
 
 namespace QvaDev.Data.Models
 {
-	public class StratHubArb : BaseDescriptionEntity
+	public partial class StratHubArb : BaseDescriptionEntity
 	{
 		public enum StratHubArbOrderTypes
 		{
@@ -17,25 +13,8 @@ namespace QvaDev.Data.Models
 			Aggressive
 		}
 
-		public event EventHandler<StratHubArbQuoteEventArgs> ArbQuote;
-
 		[InvisibleColumn] public int AggregatorId { get; set; }
-		private Aggregator _aggregator;
-		[InvisibleColumn]
-		public Aggregator Aggregator
-		{
-			get => _aggregator;
-			set
-			{
-				if (_aggregator != null)
-					_aggregator.AggregatedQuote -= Aggregator_AggregatedQuote;
-
-				if (value != null)
-					value.AggregatedQuote += Aggregator_AggregatedQuote; ;
-
-				_aggregator = value;
-			}
-		}
+		[InvisibleColumn] public Aggregator Aggregator { get => Get<Aggregator>(); set => Set(value); }
 
 		public bool Run { get => Get<bool>(); set => Set(value); }
 
@@ -63,39 +42,7 @@ namespace QvaDev.Data.Models
 		[DisplayName("TimeWindow")]
 		public int TimeWindowInMs { get; set; }
 
-		[NotMapped] [InvisibleColumn] public bool HasTiming => EarliestOpenTime.HasValue && LatestOpenTime.HasValue && LatestCloseTime.HasValue;
-		[NotMapped] [InvisibleColumn] public decimal Deviation => SlippageInPip * PipSize;
-
-		[NotMapped]
-		[InvisibleColumn]
-		public bool IsBusy
-		{
-			get => _isBusy;
-			set => _isBusy = value;
-		}
-		private volatile bool _isBusy;
-
-		[InvisibleColumn] public List<StratHubArbPosition> StratHubArbPositions { get => Get(() => new List<StratHubArbPosition>()); set => Set(value, false); }
+		[InvisibleColumn] public List<StratHubArbPosition> StratHubArbPositions { get => Get(() => new List<StratHubArbPosition>()); set => Set(value); }
 		[InvisibleColumn] public DateTime? LastOpenTime { get => Get<DateTime?>(); set => Set(value); }
-
-		private void Aggregator_AggregatedQuote(object sender, AggregatorQuoteEventArgs e)
-		{
-			var arbQuote = new StratHubArbQuoteEventArgs() {Quotes = new List<StratHubArbQuoteEventArgs.Quote>()};
-			foreach (var aggQuote in e.Quotes)
-			{
-				arbQuote.Quotes.Add(new StratHubArbQuoteEventArgs.Quote()
-				{
-					GroupQuoteEntry = aggQuote.GroupQuoteEntry,
-					Account = aggQuote.Account,
-					Sum = PositionSum(aggQuote.Account)
-				});
-			}
-			ArbQuote?.Invoke(this, arbQuote);
-		}
-
-		private decimal PositionSum(Account account)
-		{
-			return StratHubArbPositions?.Where(e => e.Position.AccountId == account.Id).Sum(e => e.Position.SignedSize) ?? 0;
-		}
 	}
 }

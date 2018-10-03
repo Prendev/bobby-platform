@@ -193,6 +193,7 @@
       <DependentUpon>20181002115906_AggregatorRun.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\DuplicatContextModelSnapshot.cs" />
+    <Compile Include="Models\_Strategies\Aggregator.NotMapped.cs" />
     <Compile Include="Models\_Strategies\Aggregator.cs" />
     <Compile Include="Models\_Strategies\AggregatorAccount.cs" />
     <Compile Include="Models\BaseEntity.cs" />
@@ -210,6 +211,7 @@
     <Compile Include="Models\PushingDetail.cs" />
     <Compile Include="Models\FixTraderAccount.cs" />
     <Compile Include="Models\IFilterableEntity.cs" />
+    <Compile Include="Models\_Strategies\StratHubArb.NotMapped.cs" />
     <Compile Include="Models\_Strategies\StratHubArbQuoteEventArgs.cs" />
     <Compile Include="Models\_Strategies\AggregatorQuoteEventArgs.cs" />
     <Compile Include="Models\_Strategies\StratHubArbPosition.cs" />
