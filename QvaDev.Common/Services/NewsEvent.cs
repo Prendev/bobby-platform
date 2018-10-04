@@ -10,6 +10,11 @@ namespace QvaDev.Common.Services
 	{
 		[XmlElement("event")]
 		public List<NewsEvent> Events { get; } = new List<NewsEvent>();
+
+		public void Parse()
+		{
+			foreach (var ev in Events) ev.Parse();
+		}
 	}
 
 	public class NewsEvent
@@ -38,8 +43,8 @@ namespace QvaDev.Common.Services
 		[XmlElement("impact")]
 		public string Impact { get; set; }
 
-		public DateTime EventTimeUtc => ParseDateTime();
-		public ImpactTypes ImpactType => ParseImpact();
+		public DateTime EventTimeUtc { get; set; }
+		public ImpactTypes ImpactType { get; set; }
 
 		private DateTime ParseDateTime()
 		{
@@ -53,6 +58,12 @@ namespace QvaDev.Common.Services
 		{
 			if (!Enum.TryParse(Impact, out ImpactTypes impactType)) impactType = ImpactTypes.Unknown;
 			return impactType;
+		}
+
+		public void Parse()
+		{
+			EventTimeUtc = ParseDateTime();
+			ImpactType = ParseImpact();
 		}
 	}
 }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using log4net;
 using QvaDev.Common.Integration;
+using QvaDev.Common.Services;
 using QvaDev.Data.Models;
 using static QvaDev.Data.Models.StratHubArbQuoteEventArgs;
 
@@ -19,10 +20,14 @@ namespace QvaDev.Orchestration.Services.Strategies
 	{
 		private bool _isStarted;
 		private readonly ILog _log;
+		private readonly INewsCalendarService _newsCalendarService;
 		private List<StratHubArb> _arbs;
 
-		public HubArbService(ILog log)
+		public HubArbService(
+			ILog log,
+			INewsCalendarService newsCalendarService)
 		{
+			_newsCalendarService = newsCalendarService;
 			_log = log;
 			_isStarted = true;
 			_log.Info("Hub arbs are started");
@@ -49,6 +54,7 @@ namespace QvaDev.Orchestration.Services.Strategies
 
 			if (!arb.Run) return;
 			if (arb.IsBusy) return;
+			if (_newsCalendarService.IsHighRiskTime(DateTime.UtcNow, 5)) return;
 
 			if (IsTimingClose(arb)) return;
 			if (arb.LastOpenTime.HasValue &&
