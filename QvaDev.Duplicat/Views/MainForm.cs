@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Threading;
 using System.Windows.Forms;
 using QvaDev.Common;
+using QvaDev.Common.Services;
 using QvaDev.Data.Models;
 using QvaDev.Duplicat.ViewModel;
 
@@ -13,9 +14,11 @@ namespace QvaDev.Duplicat.Views
         private readonly DuplicatViewModel _viewModel;
 
         public MainForm(
-            DuplicatViewModel viewModel
-        )
+            DuplicatViewModel viewModel,
+            INewsCalendarService newsCalendarService
+		)
 		{
+			newsCalendarService.Start();
 			DependecyManager.SynchronizationContext = SynchronizationContext.Current;
 			_viewModel = viewModel;
 
