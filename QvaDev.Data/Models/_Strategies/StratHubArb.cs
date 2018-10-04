@@ -25,12 +25,14 @@ namespace QvaDev.Data.Models
 
 		[DisplayName("SignalDiff")]
 		public decimal SignalDiffInPip { get; set; }
-		[DisplayName("MinOpenTime")]
-		public int MinOpenTimeInMinutes { get; set; }
+		[DisplayName("HighRiskDiff")]
+		public decimal? HighRiskSignalDiffInPip { get; set; }
+		[DisplayName("RestingPeriod")] // Resting period per account
+		public int RestingPeriodInMinutes { get; set; }
 
-		[InvisibleColumn] public TimeSpan? EarliestOpenTime { get; set; }
-		[InvisibleColumn] public TimeSpan? LatestOpenTime { get; set; }
-		[InvisibleColumn] public TimeSpan? LatestCloseTime { get; set; }
+		public TimeSpan? EarliestOpenTime { get; set; }
+		public TimeSpan? LatestOpenTime { get; set; }
+		public TimeSpan? LatestCloseTime { get; set; }
 
 		public StratHubArbOrderTypes OrderType { get; set; }
 		[DisplayName("MaxRetry")]

@@ -142,7 +142,7 @@ namespace QvaDev.Duplicat.ViewModel
 			_duplicatContext.IlyaFastFeedAccounts.Load();
 			_duplicatContext.CqgClientApiAccounts.Load();
 			_duplicatContext.Profiles.Load();
-			_duplicatContext.Accounts.Where(e => e.ProfileId == p).Load();
+			_duplicatContext.Accounts.Where(e => e.ProfileId == p).Include(e => e.StratPositions).Load();
 			_duplicatContext.Aggregators.Where(e => e.ProfileId == p).Load();
 			_duplicatContext.AggregatorAccounts.Where(e => e.Aggregator.ProfileId == p).Load();
 			_duplicatContext.Masters.Where(e => e.ProfileId == p).Load();

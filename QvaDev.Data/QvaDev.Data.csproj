@@ -196,6 +196,10 @@
     <Compile Include="Migrations\20181003163456_StratHubArbPositionFix.designer.cs">
       <DependentUpon>20181003163456_StratHubArbPositionFix.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\20181004143449_StratHubArbHighRiskSignalDiffInPip.cs" />
+    <Compile Include="Migrations\20181004143449_StratHubArbHighRiskSignalDiffInPip.designer.cs">
+      <DependentUpon>20181004143449_StratHubArbHighRiskSignalDiffInPip.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\DuplicatContextModelSnapshot.cs" />
     <Compile Include="Models\_Strategies\Aggregator.NotMapped.cs" />
     <Compile Include="Models\_Strategies\Aggregator.cs" />

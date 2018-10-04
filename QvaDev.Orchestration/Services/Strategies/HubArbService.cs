@@ -54,11 +54,7 @@ namespace QvaDev.Orchestration.Services.Strategies
 
 			if (!arb.Run) return;
 			if (arb.IsBusy) return;
-			if (_newsCalendarService.IsHighRiskTime(DateTime.UtcNow, 5)) return;
-
 			if (IsTimingClose(arb)) return;
-			if (arb.LastOpenTime.HasValue &&
-			    (DateTime.UtcNow - arb.LastOpenTime.Value).Minutes < arb.MinOpenTimeInMinutes) return;
 
 			CheckOpen(arb, e);
 		}
@@ -108,29 +104,62 @@ namespace QvaDev.Orchestration.Services.Strategies
 
 		private void CheckOpen(StratHubArb arb, StratHubArbQuoteEventArgs e)
 		{
-			if (IsTime(DateTime.UtcNow.TimeOfDay, arb.LatestOpenTime, arb.EarliestOpenTime)) return;
+			var now = DateTime.UtcNow;
+			if (IsTime(now.TimeOfDay, arb.LatestOpenTime, arb.EarliestOpenTime)) return;
 
-			var buyQuote = e.Quotes
+			// No HighRiskSignalDiffInPip then no trade
+			var isHighRisk = _newsCalendarService.IsHighRiskTime(now, 5);
+			if (isHighRisk && !arb.HighRiskSignalDiffInPip.HasValue) return;
+
+			//if (arb.LastOpenTime.HasValue &&
+			//    (DateTime.UtcNow - arb.LastOpenTime.Value).Minutes < arb.RestingPeriodInMinutes) return;
+
+			// Quotes where there were no orders in the last x minutes
+			var quotes = e.Quotes
+				.Where(q => CheckAccount(arb, q.Account, now)).ToList();
+			var buyQuote = quotes
 				.OrderBy(q => q.GroupQuoteEntry.Ask)
 				.FirstOrDefault(q => q.Sum < arb.MaxSizePerAccount - arb.Size);
-			var sellQuote = e.Quotes
+			var sellQuote = quotes
 				.OrderByDescending(q => q.GroupQuoteEntry.Bid)
 				.FirstOrDefault(q => q.Sum > -arb.MaxSizePerAccount + arb.Size);
 			if (buyQuote == null || sellQuote == null) return;
 
+			// During high risk different signal diff
 			var diffInPip = (sellQuote.GroupQuoteEntry.Bid - buyQuote.GroupQuoteEntry.Ask) / arb.PipSize;
-			if (diffInPip < arb.SignalDiffInPip) return;
+			var signalDiff = isHighRisk ? arb.HighRiskSignalDiffInPip.Value : arb.SignalDiffInPip;
+			if (diffInPip < signalDiff) return;
 
 			Open(arb, buyQuote, sellQuote);
+		}
+
+		private bool CheckAccount(StratHubArb arb, Account account, DateTime now)
+		{
+			if (account.IsBusy) return false;
+
+			var openTime = account.StratPositions
+				.OrderByDescending(x => x.OpenTime)
+				.FirstOrDefault()?.OpenTime;
+
+			if (openTime.HasValue && (now - openTime.Value).Minutes < arb.RestingPeriodInMinutes)
+				return false;
+			return true;
 		}
 
 		private void Open(StratHubArb arb, Quote buyQuote, Quote sellQuote)
 		{
 			lock (arb)
+			lock (buyQuote.Account)
+			lock (sellQuote.Account)
 			{
 				if (arb.IsBusy) return;
+				if (buyQuote.Account.IsBusy) return;
+				if (sellQuote.Account.IsBusy) return;
+
 				arb.LastOpenTime = DateTime.UtcNow;
 				arb.IsBusy = true;
+				buyQuote.Account.IsBusy = true;
+				sellQuote.Account.IsBusy = true;
 			}
 
 			Task.Factory.StartNew(async () =>
@@ -170,6 +199,8 @@ namespace QvaDev.Orchestration.Services.Strategies
 				finally
 				{
 					arb.IsBusy = false;
+					buyQuote.Account.IsBusy = false;
+					sellQuote.Account.IsBusy = false;
 				}
 			}, TaskCreationOptions.LongRunning);
 		}
@@ -177,18 +208,18 @@ namespace QvaDev.Orchestration.Services.Strategies
 		private void PersistPosition(StratHubArb arb, Account account, string symbol, OrderResponse closePos)
 		{
 			var side = closePos.Side == Sides.Buy ? StratPosition.Sides.Buy : StratPosition.Sides.Sell;
-			arb.StratHubArbPositions.Add(new StratHubArbPosition()
+
+			var pos = new StratPosition()
 			{
-				Position = new StratPosition()
-				{
-					AccountId = account.Id,
-					AvgPrice = closePos.AveragePrice ?? 0,
-					OpenTime = arb.LastOpenTime ?? DateTime.UtcNow,
-					Side = side,
-					Size = closePos.FilledQuantity,
-					Symbol = symbol
-				}
-			});
+				AccountId = account.Id,
+				AvgPrice = closePos.AveragePrice ?? 0,
+				OpenTime = arb.LastOpenTime ?? DateTime.UtcNow,
+				Side = side,
+				Size = closePos.FilledQuantity,
+				Symbol = symbol
+			};
+			arb.StratHubArbPositions.Add(new StratHubArbPosition {Position = pos});
+			account.StratPositions.Add(pos);
 		}
 
 		private Task<OrderResponse> SendPosition(StratHubArb arb, Sides side, Quote quote, decimal size, bool forceMarket = false)

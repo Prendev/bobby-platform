@@ -8,6 +8,15 @@ namespace QvaDev.Data.Models
 {
 	public class Account : BaseEntity
 	{
+		[NotMapped]
+		[InvisibleColumn]
+		public bool IsBusy
+		{
+			get => _isBusy;
+			set => _isBusy = value;
+		}
+		private volatile bool _isBusy;
+
 		public event NewTickEventHandler NewTick;
 		public event ConnectionChangedEventHandler ConnectionChanged;
 
@@ -35,6 +44,7 @@ namespace QvaDev.Data.Models
 		public CqgClientApiAccount CqgClientApiAccount { get; set; }
 
 		public List<AggregatorAccount> Aggregators { get; } = new List<AggregatorAccount>();
+		public List<StratPosition> StratPositions { get; } = new List<StratPosition>();
 
 		[NotMapped] [ReadOnly(true)] public ConnectionStates ConnectionState { get => Get<ConnectionStates>(); set => Set(value); }
 
