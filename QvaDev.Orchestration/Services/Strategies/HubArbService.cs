@@ -212,6 +212,7 @@ namespace QvaDev.Orchestration.Services.Strategies
 			var pos = new StratPosition()
 			{
 				AccountId = account.Id,
+				Account = account,
 				AvgPrice = closePos.AveragePrice ?? 0,
 				OpenTime = arb.LastOpenTime ?? DateTime.UtcNow,
 				Side = side,
