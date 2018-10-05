@@ -28,6 +28,7 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
+			System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
 			this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
 			this.gbControl = new System.Windows.Forms.GroupBox();
 			this.btnStop = new System.Windows.Forms.Button();
@@ -131,7 +132,17 @@
 			// 
 			this.dgvStatistics.AllowUserToAddRows = false;
 			this.dgvStatistics.AllowUserToDeleteRows = false;
+			this.dgvStatistics.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
+			this.dgvStatistics.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.AllCells;
 			this.dgvStatistics.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+			dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+			dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Window;
+			dataGridViewCellStyle1.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.ControlText;
+			dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+			dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+			dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+			this.dgvStatistics.DefaultCellStyle = dataGridViewCellStyle1;
 			this.dgvStatistics.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.dgvStatistics.Location = new System.Drawing.Point(3, 18);
 			this.dgvStatistics.Name = "dgvStatistics";

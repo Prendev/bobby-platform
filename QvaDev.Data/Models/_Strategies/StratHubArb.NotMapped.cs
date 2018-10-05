@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Internal;
 using QvaDev.Common.Attributes;
 
 namespace QvaDev.Data.Models
@@ -43,16 +44,22 @@ namespace QvaDev.Data.Models
 			var sellAvg = sells.Sum(p => p.Position.Size * p.Position.AvgPrice);
 			if (sellTotal > 0) sellAvg /= sellTotal;
 
+			var accountTotals = StratHubArbPositions
+				.GroupBy(p => p.Position.Account)
+				.Select(x => $"{x.Key.ToString()}: {x.Sum(p => p.Position.SignedSize):0}")
+				.Join(Environment.NewLine);
 
 
-			var stat = new Dictionary<string, decimal>
+
+			var stat = new Dictionary<string, string>
 			{
-				["BuyTotal"] = buyTotal,
-				["BuyAvg"] = buyAvg,
-				["SellTotal"] = sellTotal,
-				["SellAvg"] = sellAvg,
-				["Total"] = buyTotal - sellTotal,
-				["Pip"] = (sellAvg - buyAvg) / PipSize,
+				["BuyTotal"] = buyTotal.ToString("0"),
+				["BuyAvg"] = buyAvg.ToString("F5"),
+				["SellTotal"] = sellTotal.ToString("0"),
+				["SellAvg"] = sellAvg.ToString("F5"),
+				["Total"] = (buyTotal - sellTotal).ToString("0"),
+				["Pip"] = ((sellAvg - buyAvg) / PipSize).ToString("F2"),
+				["Totals"] = accountTotals
 			};
 
 			return stat.Select(v => new {Name = v.Key, Value = v.Value}).ToList();

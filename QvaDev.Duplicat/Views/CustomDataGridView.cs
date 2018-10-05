@@ -96,7 +96,7 @@ namespace QvaDev.Duplicat.Views
 
 		public void FilterRows()
 		{
-			if (!(DataSource is IBindingList bindingList)) return;
+			if (!(DataSource is IBindingList)) return;
 			foreach (DataGridViewRow row in Rows)
 			{
 				if (!(row.DataBoundItem is IFilterableEntity filterableEntity)) continue;
