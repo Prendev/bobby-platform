@@ -127,26 +127,36 @@ namespace QvaDev.Duplicat.Views
 
 		private void CustomDataGridView_DataSourceChanged(object sender, EventArgs e)
 		{
-			UseComboBoxForEnums();
 			var genericArgs = DataSource?.GetType().GetGenericArguments();
-			if (genericArgs?.Length > 0)
-			{
-				foreach (var prop in genericArgs[0].GetProperties())
-				{
-					foreach (var attr in prop.GetCustomAttributes(true))
-					{
-						if (!Columns.Contains(prop.Name)) continue;
-						if (attr is InvisibleColumnAttribute) Columns[prop.Name].Visible = false;
-						if (attr is DisplayIndexAttribute) Columns[prop.Name].DisplayIndex = ((DisplayIndexAttribute)attr).Index;
-					}
-				}
-			}
+			if (genericArgs?.Length > 0 != true) return;
+
+			UseComboBoxForEnums();
 
 			// Set invisible columns
+			foreach (var prop in genericArgs[0].GetProperties().Where(p => Columns.Contains(p.Name)))
+			{
+				if (prop.GetCustomAttributes(true).FirstOrDefault(a => a is InvisibleColumnAttribute) == null) continue;
+
+				if (!_invisibleColumns.Contains(prop.Name))
+					_invisibleColumns.Add(prop.Name);
+				if (Columns.Contains($"{prop.Name}*") && !_invisibleColumns.Contains($"{prop.Name}*"))
+					_invisibleColumns.Add($"{prop.Name}*");
+			}
 			foreach (var name in _invisibleColumns)
 			{
 				if (!Columns.Contains(name)) continue;
 				Columns[name].Visible = false;
+			}
+
+			// Set order
+			var properties = genericArgs[0].GetProperties()
+				.Where(p => Columns.Contains(p.Name) || Columns.Contains($"{p.Name}*"))
+				.OrderBy(p => p, new PropertyComparer()).ToList();
+			for (var i = 0; i < properties.Count; i++)
+			{
+				var p = properties[i];
+				if (Columns.Contains(p.Name)) Columns[p.Name].DisplayIndex = i;
+				if (Columns.Contains($"{p.Name}*")) Columns[$"{p.Name}*"].DisplayIndex = i;
 			}
 
 			// Set ToolTips for short named columns

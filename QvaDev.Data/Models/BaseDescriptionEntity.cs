@@ -6,7 +6,7 @@ namespace QvaDev.Data.Models
     public abstract class BaseDescriptionEntity : BaseEntity
     {
         [Required]
-        [DisplayIndex(0)]
+        [DisplayPriority(0)]
         public string Description { get; set; }
 
         public override string ToString()

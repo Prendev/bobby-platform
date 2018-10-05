@@ -16,7 +16,7 @@ namespace QvaDev.Data.Models
 		[InvisibleColumn] public int AggregatorId { get; set; }
 		[InvisibleColumn] public Aggregator Aggregator { get => Get<Aggregator>(); set => Set(value); }
 
-		public bool Run { get => Get<bool>(); set => Set(value); }
+		[DisplayPriority(-1)] public bool Run { get; set; }
 
 		public decimal Size { get; set; }
 		[DisplayName("MaxSize")]

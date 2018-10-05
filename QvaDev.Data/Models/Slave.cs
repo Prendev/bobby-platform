@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
+using QvaDev.Common.Attributes;
 
 namespace QvaDev.Data.Models
 {
     public class Slave : BaseEntity
 	{
-		public bool Run { get; set; }
+		[DisplayPriority(-1)] public bool Run { get; set; }
 
         public int MasterId { get; set; }
         public Master Master { get; set; }

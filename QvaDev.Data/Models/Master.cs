@@ -8,7 +8,7 @@ namespace QvaDev.Data.Models
 		[InvisibleColumn] public int ProfileId { get; set; }
 		[InvisibleColumn] public Profile Profile { get; set; }
 
-		public bool Run { get; set; }
+		[DisplayPriority(-1)] public bool Run { get; set; }
         public int AccountId { get; set; }
         public Account Account { get; set; }
 

@@ -201,6 +201,8 @@
       <DependentUpon>20181004143449_StratHubArbHighRiskSignalDiffInPip.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\DuplicatContextModelSnapshot.cs" />
+    <Compile Include="Models\Account.NotMapped.cs" />
+    <Compile Include="Models\Pushing.NotMapped.cs" />
     <Compile Include="Models\_Strategies\Aggregator.NotMapped.cs" />
     <Compile Include="Models\_Strategies\Aggregator.cs" />
     <Compile Include="Models\_Strategies\AggregatorAccount.cs" />

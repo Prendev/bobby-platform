@@ -17,7 +17,7 @@ namespace QvaDev.Data.Models
 		[InvisibleColumn] public int SlaveId { get; set; }
 		[InvisibleColumn] public Slave Slave { get; set; }
 
-		public bool Run { get; set; }
+		[DisplayPriority(-1)] public bool Run { get; set; }
 		public decimal CopyRatio { get; set; }
 		public FixApiOrderTypes OrderType { get; set; }
 		public int DelayInMilliseconds { get; set; }
