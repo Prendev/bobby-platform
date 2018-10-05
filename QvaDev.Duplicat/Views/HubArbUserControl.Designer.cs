@@ -37,6 +37,7 @@
 			this.dgvHubArb = new QvaDev.Duplicat.Views.CustomDataGridView();
 			this.groupBox1 = new System.Windows.Forms.GroupBox();
 			this.dgvStatistics = new System.Windows.Forms.DataGridView();
+			this.btnGoFlatAll = new System.Windows.Forms.Button();
 			this.tableLayoutPanel1.SuspendLayout();
 			this.gbControl.SuspendLayout();
 			this.gbHubArb.SuspendLayout();
@@ -64,6 +65,7 @@
 			// 
 			// gbControl
 			// 
+			this.gbControl.Controls.Add(this.btnGoFlatAll);
 			this.gbControl.Controls.Add(this.btnStop);
 			this.gbControl.Controls.Add(this.btnStart);
 			this.gbControl.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -151,6 +153,16 @@
 			this.dgvStatistics.Size = new System.Drawing.Size(1109, 302);
 			this.dgvStatistics.TabIndex = 0;
 			// 
+			// btnGoFlatAll
+			// 
+			this.btnGoFlatAll.Location = new System.Drawing.Point(423, 22);
+			this.btnGoFlatAll.Margin = new System.Windows.Forms.Padding(4);
+			this.btnGoFlatAll.Name = "btnGoFlatAll";
+			this.btnGoFlatAll.Size = new System.Drawing.Size(200, 28);
+			this.btnGoFlatAll.TabIndex = 28;
+			this.btnGoFlatAll.Text = "Go flat all";
+			this.btnGoFlatAll.UseVisualStyleBackColor = true;
+			// 
 			// HubArbUserControl
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -178,5 +190,6 @@
 		private System.Windows.Forms.Button btnStart;
 		private System.Windows.Forms.GroupBox groupBox1;
 		private System.Windows.Forms.DataGridView dgvStatistics;
+		private System.Windows.Forms.Button btnGoFlatAll;
 	}
 }

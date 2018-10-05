@@ -25,6 +25,7 @@ namespace QvaDev.Duplicat.Views
 
 			btnStart.Click += (s, e) => { _viewModel.StartStrategiesCommand(); };
 			btnStop.Click += (s, e) => { _viewModel.StopStrategiesCommand(); };
+			btnGoFlatAll.Click += (s, e) => { _viewModel.HubArbsGoFlatCommand(); };
 
 			dgvHubArb.RowDoubleClick += (s, e) =>
 				dgvStatistics.DataSource = _viewModel.GetArbStatistics(dgvHubArb.GetSelectedItem<StratHubArb>());

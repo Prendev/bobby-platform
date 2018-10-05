@@ -14,6 +14,8 @@ namespace QvaDev.Orchestration.Services.Strategies
 	{
 		void Start(List<StratHubArb> arbs);
 		void Stop();
+		void GoFlat(List<StratHubArb> arbs);
+		void GoFlat(StratHubArb arb);
 	}
 
 	public class HubArbService : IHubArbService
@@ -47,6 +49,12 @@ namespace QvaDev.Orchestration.Services.Strategies
 			_log.Info("Hub arbs are started");
 		}
 
+		public void GoFlat(List<StratHubArb> arbs)
+		{
+			foreach (var arb in arbs) GoFlat(arb);
+			_log.Info("Hub arbs are going flat!!!");
+		}
+
 		private void Arb_ArbQuote(object sender, StratHubArbQuoteEventArgs e)
 		{
 			if (!_isStarted) return;
@@ -54,23 +62,27 @@ namespace QvaDev.Orchestration.Services.Strategies
 
 			if (!arb.Run) return;
 			if (arb.IsBusy) return;
-			if (IsTimingClose(arb)) return;
+			if (IsCloseTime(arb)) return;
 
 			CheckOpen(arb, e);
 		}
 
-		private bool IsTimingClose(StratHubArb arb)
+		private bool IsCloseTime(StratHubArb arb)
 		{
-			var timingClose = arb.HasTiming && IsTime(DateTime.UtcNow.TimeOfDay, arb.LatestCloseTime, arb.EarliestOpenTime);
-			if (!timingClose) return false;
+			if (!arb.HasTiming) return false;
+			if (IsTime(DateTime.UtcNow.TimeOfDay, arb.EarliestOpenTime, arb.LatestCloseTime)) return false;
+			GoFlat(arb);
+			return true;
+		}
 
+		public void GoFlat(StratHubArb arb)
+		{
 			lock (arb)
 			{
-				if (arb.IsBusy) return true;
+				if (arb.IsBusy) return;
 				arb.IsBusy = true;
 			}
 
-			// Go to flat
 			Task.Factory.StartNew(async () =>
 			{
 				try
@@ -98,8 +110,6 @@ namespace QvaDev.Orchestration.Services.Strategies
 					arb.IsBusy = false;
 				}
 			}, TaskCreationOptions.LongRunning);
-
-			return true;
 		}
 
 		private void CheckOpen(StratHubArb arb, StratHubArbQuoteEventArgs e)

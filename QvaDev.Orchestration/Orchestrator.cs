@@ -46,7 +46,8 @@ namespace QvaDev.Orchestration
 
 	    Task StartStrategies(DuplicatContext duplicatContext);
 	    void StopStrategies();
-	}
+	    void HubArbsGoFlat(DuplicatContext duplicatContext);
+    }
 
     public class Orchestrator : IOrchestrator
     {
@@ -243,7 +244,13 @@ namespace QvaDev.Orchestration
 		    _hubArbService.Stop();
 		}
 
-	    public async Task OrderHistoryExport(DuplicatContext duplicatContext)
+	    public void HubArbsGoFlat(DuplicatContext duplicatContext)
+	    {
+		    var hubArbs = duplicatContext.StratHubArbs.Local.ToList();
+		    _hubArbService.GoFlat(hubArbs);
+	    }
+
+		public async Task OrderHistoryExport(DuplicatContext duplicatContext)
 	    {
 		    await Connect(duplicatContext);
 

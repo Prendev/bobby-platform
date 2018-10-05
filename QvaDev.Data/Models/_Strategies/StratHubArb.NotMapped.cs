@@ -46,6 +46,7 @@ namespace QvaDev.Data.Models
 
 			var accountTotals = StratHubArbPositions
 				.GroupBy(p => p.Position.Account)
+				.OrderBy(x => x.Key.ToString())
 				.Select(x => $"{x.Key.ToString()}: {x.Sum(p => p.Position.SignedSize):0}")
 				.Join(Environment.NewLine);
 

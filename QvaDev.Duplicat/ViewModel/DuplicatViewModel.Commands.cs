@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections;
 using System.Configuration;
-using System.Data.SqlClient;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using QvaDev.Data;
 using QvaDev.Data.Models;
@@ -277,7 +275,11 @@ namespace QvaDev.Duplicat.ViewModel
 		    _orchestrator.StopStrategies();
 		    AreStrategiesStarted = false;
 		}
-	    public void StrategyTestOpenSide1Command(StratDealingArb arb)
+	    public void HubArbsGoFlatCommand()
+	    {
+		    _orchestrator.HubArbsGoFlat(_duplicatContext);
+	    }
+		public void StrategyTestOpenSide1Command(StratDealingArb arb)
 	    {
 		    arb.DoOpenSide1 = true;
 		}
