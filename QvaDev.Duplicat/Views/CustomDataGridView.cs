@@ -94,24 +94,6 @@ namespace QvaDev.Duplicat.Views
 			return CurrentRow?.DataBoundItem as T;
 		}
 
-		public void FilterRows()
-		{
-			if (!(DataSource is IBindingList)) return;
-			foreach (DataGridViewRow row in Rows)
-			{
-				if (!(row.DataBoundItem is IFilterableEntity filterableEntity)) continue;
-
-				row.ReadOnly = filterableEntity.IsFiltered;
-				row.DefaultCellStyle.BackColor = filterableEntity.IsFiltered ? Color.LightGray : Color.White;
-
-				var currencyManager = (CurrencyManager)BindingContext[DataSource];
-				currencyManager.SuspendBinding();
-				row.Visible = !filterableEntity.IsFiltered;
-				currencyManager.ResumeBinding();
-			}
-		}
-
-
 		private void CustomDataGridView_RowPrePaint(object sender, DataGridViewRowPrePaintEventArgs e)
 		{
 			if (!(DataSource is IBindingList bindingList)) return;
@@ -163,8 +145,6 @@ namespace QvaDev.Duplicat.Views
 			foreach (DataGridViewColumn column in Columns)
 				if (column.HeaderText != column.DataPropertyName && !column.HeaderText.Contains('*'))
 					column.ToolTipText = column.DataPropertyName;
-
-			FilterRows();
 		}
 
 		private void DataGridView_DataError(object sender, DataGridViewDataErrorEventArgs e)

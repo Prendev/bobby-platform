@@ -1,8 +1,10 @@
-﻿using System.Collections.ObjectModel;
+﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using log4net;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using QvaDev.Common.Services;
 using QvaDev.Data;
 using QvaDev.Data.Models;
@@ -49,18 +51,19 @@ namespace QvaDev.Duplicat.ViewModel
 		public ObservableCollection<Profile> Profiles { get; private set; }
 		public ObservableCollection<Account> Accounts { get; private set; }
 		public ObservableCollection<Aggregator> Aggregators { get; private set; }
-		public ObservableCollection<AggregatorAccount> AggregatorAccounts { get; private set; }
+	    public ObservableCollection<AggregatorAccount> AggregatorAccounts { get; private set; }
 		public ObservableCollection<Master> Masters { get; private set; }
         public ObservableCollection<Slave> Slaves { get; private set; }
-        public ObservableCollection<SymbolMapping> SymbolMappings { get; private set; }
-        public ObservableCollection<Copier> Copiers { get; private set; }
+	    public ObservableCollection<SymbolMapping> SymbolMappings { get; private set; }
+	    public ObservableCollection<Copier> CopiersFiltered { get; private set; }
 	    public ObservableCollection<FixApiCopier> FixApiCopiers { get; private set; }
-        public ObservableCollection<Pushing> Pushings { get; private set; }
-        public ObservableCollection<PushingDetail> PushingDetails { get; private set; }
+		public ObservableCollection<Pushing> Pushings { get; private set; }
+	    public ObservableCollection<PushingDetail> PushingDetails { get; private set; }
 		public ObservableCollection<Ticker> Tickers { get; private set; }
 	    public ObservableCollection<StratDealingArb> StratDealingArbs { get; private set; }
 	    public ObservableCollection<StratDealingArbPosition> StratDealingArbPositions { get; private set; }
-	    public ObservableCollection<StratHubArb> StratHubArbs { get; private set; }
+		public ObservableCollection<StratHubArb> StratHubArbs { get; private set; }
+
 
 		public event DataContextChangedEventHandler DataContextChanged;
         
@@ -169,25 +172,18 @@ namespace QvaDev.Duplicat.ViewModel
 			Profiles = _duplicatContext.Profiles.Local.ToObservableCollection();
 			Accounts = _duplicatContext.Accounts.Local.ToObservableCollection();
 			Aggregators = _duplicatContext.Aggregators.Local.ToObservableCollection();
-			AggregatorAccounts = _duplicatContext.AggregatorAccounts.Local.ToObservableCollection();
+		    AggregatorAccounts = _duplicatContext.AggregatorAccounts.Local.ToObservableCollection(e => e.Aggregator == SelectedAggregator);
 			Masters = _duplicatContext.Masters.Local.ToObservableCollection();
 			Slaves = _duplicatContext.Slaves.Local.ToObservableCollection();
-			SymbolMappings = _duplicatContext.SymbolMappings.Local.ToObservableCollection();
-			Copiers = _duplicatContext.Copiers.Local.ToObservableCollection();
-			FixApiCopiers = _duplicatContext.FixApiCopiers.Local.ToObservableCollection();
+		    SymbolMappings = _duplicatContext.SymbolMappings.Local.ToObservableCollection(e => e.Slave == SelectedSlave);
+		    CopiersFiltered = _duplicatContext.Copiers.Local.ToObservableCollection(e => e.Slave == SelectedSlave);
+		    FixApiCopiers = _duplicatContext.FixApiCopiers.Local.ToObservableCollection(e => e.Slave == SelectedSlave);
 			Pushings = _duplicatContext.Pushings.Local.ToObservableCollection();
-			PushingDetails = _duplicatContext.PushingDetails.Local.ToObservableCollection();
+		    PushingDetails = _duplicatContext.PushingDetails.Local.ToObservableCollection(e => e == SelectedPushing?.PushingDetail);
 			Tickers = _duplicatContext.Tickers.Local.ToObservableCollection();
 			StratDealingArbs = _duplicatContext.StratDealingArbs.Local.ToObservableCollection();
-			StratDealingArbPositions = _duplicatContext.StratDealingArbPositions.Local.ToObservableCollection();
+		    StratDealingArbPositions = _duplicatContext.StratDealingArbPositions.Local.ToObservableCollection(e => e.StratDealingArb == SelectedDealingArb);
 			StratHubArbs = _duplicatContext.StratHubArbs.Local.ToObservableCollection();
-
-			foreach (var e in AggregatorAccounts) e.IsFiltered = e.AggregatorId != SelectedAggregator?.Id;
-			foreach (var e in SymbolMappings) e.IsFiltered = e.SlaveId != SelectedSlave?.Id;
-			foreach (var e in Copiers) e.IsFiltered = e.SlaveId != SelectedSlave?.Id;
-			foreach (var e in FixApiCopiers) e.IsFiltered = e.SlaveId != SelectedSlave?.Id;
-			foreach (var e in PushingDetails) e.IsFiltered = e.Id != SelectedPushing?.PushingDetailId;
-			foreach (var e in StratDealingArbPositions) e.IsFiltered = e.StratDealingArbId != SelectedDealingArb?.Id;
 
 			_duplicatContext.Profiles.Local.CollectionChanged -= Profiles_CollectionChanged;
 			_duplicatContext.Profiles.Local.CollectionChanged += Profiles_CollectionChanged;
@@ -203,8 +199,11 @@ namespace QvaDev.Duplicat.ViewModel
 		{
 			var p = SelectedProfile?.Id;
 			_duplicatContext.StratDealingArbPositions.Where(e => e.StratDealingArb.ProfileId == p).Load();
-			StratDealingArbPositions = _duplicatContext.StratDealingArbPositions.Local.ToObservableCollection();
-			foreach (var e in StratDealingArbPositions) e.IsFiltered = e.StratDealingArbId != SelectedDealingArb?.Id;
+
+			StratDealingArbPositions.Clear();
+			foreach (var e in _duplicatContext.StratDealingArbPositions.Local.Where(e => e.StratDealingArbId == SelectedDealingArb?.Id))
+				StratDealingArbPositions.Add(e);
+
 			foreach (var e in StratDealingArbs) e.SetNetProfits();
 		}
 	}

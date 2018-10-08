@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace QvaDev.Duplicat
@@ -30,5 +33,23 @@ namespace QvaDev.Duplicat
 			binding.Format += (s, e) => e.Value = format((T)e.Value);
 			control.DataBindings.Add(binding);
 		}
-	}
+
+	    public static ObservableCollection<T> ToObservableCollection<T>(this ICollection<T> local, Func<T, bool> filter)
+		    where T : class
+	    {
+		    var oc = new ObservableCollection<T>(local.Where(filter));
+		    oc.CollectionChanged += (sender, args) =>
+		    {
+			    if (args.NewItems != null)
+				    foreach (var item in args.NewItems)
+					    if (!local.Contains(item))
+						    local.Add(item as T);
+
+			    if (args.OldItems != null)
+				    foreach (var item in args.OldItems)
+					    local.Remove(item as T);
+		    };
+		    return oc;
+	    }
+    }
 }

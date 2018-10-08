@@ -5,7 +5,7 @@ using QvaDev.Duplicat.ViewModel;
 
 namespace QvaDev.Duplicat.Views
 {
-    public partial class CopiersUserControl : UserControl, IMvvmUserControl, IFilterable
+    public partial class CopiersUserControl : UserControl, IMvvmUserControl
 	{
         private DuplicatViewModel _viewModel;
 
@@ -46,11 +46,7 @@ namespace QvaDev.Duplicat.Views
 			btnStart.Click += (s, e) => { _viewModel.StartCopiersCommand(); };
             btnStop.Click += (s, e) => { _viewModel.StopCopiersCommand(); };
 
-	        dgvSlaves.RowDoubleClick += (s, e) =>
-	        {
-		        _viewModel.ShowSelectedSlaveCommand(dgvSlaves.GetSelectedItem<Slave>());
-		        FilterRows();
-	        };
+	        dgvSlaves.RowDoubleClick += (s, e) => _viewModel.ShowSelectedSlaveCommand(dgvSlaves.GetSelectedItem<Slave>());
 
 	        dgvMasters.DefaultValuesNeeded += (s, e) => e.Row.Cells["ProfileId"].Value = _viewModel.SelectedProfile.Id;
 			dgvSymbolMappings.DefaultValuesNeeded += (s, e) => { e.Row.Cells["SlaveId"].Value = _viewModel.SelectedSlave.Id; };
@@ -78,15 +74,8 @@ namespace QvaDev.Duplicat.Views
 			dgvMasters.DataSource = _viewModel.Masters.ToBindingList();
             dgvSlaves.DataSource = _viewModel.Slaves.ToBindingList();
             dgvSymbolMappings.DataSource = _viewModel.SymbolMappings.ToBindingList();
-            dgvCopiers.DataSource = _viewModel.Copiers.ToBindingList();
+            dgvCopiers.DataSource = _viewModel.CopiersFiltered.ToBindingList();
 	        dgvFixApiCopiers.DataSource = _viewModel.FixApiCopiers.ToBindingList();
 		}
-
-        public void FilterRows()
-        {
-            dgvCopiers.FilterRows();
-	        dgvFixApiCopiers.FilterRows();
-			dgvSymbolMappings.FilterRows();
-        }
     }
 }

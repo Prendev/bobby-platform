@@ -1,9 +1,8 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-using QvaDev.Common.Attributes;
+﻿using QvaDev.Common.Attributes;
 
 namespace QvaDev.Data.Models
 {
-    public class Copier : BaseEntity, IFilterableEntity
+    public class Copier : BaseEntity
 	{
 		public enum CopierOrderTypes
 		{
@@ -21,7 +20,5 @@ namespace QvaDev.Data.Models
         public int MaxRetryCount { get; set; }
         public int RetryPeriodInMs { get; set; }
         public int DelayInMilliseconds { get; set; }
-
-	    [NotMapped] [InvisibleColumn] public bool IsFiltered { get => Get<bool>(); set => Set(value); }
     }
 }

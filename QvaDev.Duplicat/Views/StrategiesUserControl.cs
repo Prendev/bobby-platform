@@ -6,7 +6,7 @@ using QvaDev.Duplicat.ViewModel;
 
 namespace QvaDev.Duplicat.Views
 {
-	public partial class StrategiesUserControl : UserControl, IMvvmUserControl, IFilterable
+	public partial class StrategiesUserControl : UserControl, IMvvmUserControl
 	{
 		private DuplicatViewModel _viewModel;
 
@@ -33,19 +33,9 @@ namespace QvaDev.Duplicat.Views
 			btnTestOpenSide1.Click += (s, e) => { _viewModel.StrategyTestOpenSide1Command(dgvDealingArb.GetSelectedItem<StratDealingArb>()); };
 			btnTestOpenSide2.Click += (s, e) => { _viewModel.StrategyTestOpenSide2Command(dgvDealingArb.GetSelectedItem<StratDealingArb>()); };
 			btnTestClose.Click += (s, e) => { _viewModel.StrategyTestCloseCommand(dgvDealingArb.GetSelectedItem<StratDealingArb>()); };
-			dgvDealingArb.RowDoubleClick += Load_Click;
+			dgvDealingArb.RowDoubleClick += (s, e) => _viewModel.ShowArbPositionsCommand(dgvDealingArb.GetSelectedItem<StratDealingArb>());
 
-			dgvDealingArbPos.DefaultValuesNeeded += (s, e) =>
-			{
-				e.Row.Cells["StratDealingArbId"].Value = _viewModel.SelectedDealingArb.Id;
-			};
-		}
-
-		private void Load_Click(object sender, System.EventArgs e)
-		{
-			var arb = dgvDealingArb.GetSelectedItem<StratDealingArb>();
-			_viewModel.ShowArbPositionsCommand(arb);
-			FilterRows();
+			dgvDealingArbPos.DefaultValuesNeeded += (s, e) => e.Row.Cells["StratDealingArbId"].Value = _viewModel.SelectedDealingArb.Id;
 		}
 
 		public void AttachDataSources()
@@ -55,11 +45,6 @@ namespace QvaDev.Duplicat.Views
 			dgvDealingArb.DataSource = _viewModel.StratDealingArbs.ToBindingList();
 
 			dgvDealingArbPos.DataSource = _viewModel.StratDealingArbPositions.ToBindingList();
-		}
-
-		public void FilterRows()
-		{
-			dgvDealingArbPos.FilterRows();
 		}
 	}
 }

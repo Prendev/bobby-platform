@@ -1,10 +1,9 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
-using QvaDev.Common.Attributes;
 
 namespace QvaDev.Data.Models
 {
-    public class PushingDetail : BaseEntity, IFilterableEntity
+    public class PushingDetail : BaseEntity
 	{
 		[NotMapped] public decimal OpenedFutures { get => Get<decimal>(); set => Set(value); }
 		[NotMapped] public decimal? PriceLimit { get => Get<decimal?>(); set => Set(value); }
@@ -26,7 +25,5 @@ namespace QvaDev.Data.Models
 		public double HedgeLots { get; set; }
 		public int MaxRetryCount { get; set; }
 	    [DisplayName("RetryPeriod")] public int RetryPeriodInMs { get; set; }
-
-		[NotMapped] [InvisibleColumn] public bool IsFiltered { get => Get<bool>(); set => Set(value); }
     }
 }

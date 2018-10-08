@@ -5,7 +5,7 @@ using QvaDev.Duplicat.ViewModel;
 
 namespace QvaDev.Duplicat.Views
 {
-	public partial class AggregatorUserControl : UserControl, IMvvmUserControl, IFilterable
+	public partial class AggregatorUserControl : UserControl, IMvvmUserControl
 	{
 		private DuplicatViewModel _viewModel;
 
@@ -24,11 +24,7 @@ namespace QvaDev.Duplicat.Views
 			gbAggregators.AddBinding<Aggregator, string>("Text", _viewModel, nameof(_viewModel.SelectedAggregator),
 				s => $"Aggregators (use double-click) - {s?.Description ?? "Save before load!!!"}");
 
-			dgvAggregators.RowDoubleClick += (s, e) =>
-			{
-				_viewModel.ShowSelectedAggregatorCommand(dgvAggregators.GetSelectedItem<Aggregator>());
-				FilterRows();
-			};
+			dgvAggregators.RowDoubleClick += (s, e) => _viewModel.ShowSelectedAggregatorCommand(dgvAggregators.GetSelectedItem<Aggregator>());
 
 			dgvAggregators.DefaultValuesNeeded += (s, e) => e.Row.Cells["ProfileId"].Value = _viewModel.SelectedProfile.Id;
 			dgvAggregatorAccounts.DefaultValuesNeeded += (s, e) => e.Row.Cells["AggregatorId"].Value = _viewModel.SelectedAggregator.Id;
@@ -40,11 +36,6 @@ namespace QvaDev.Duplicat.Views
 
 			dgvAggregators.DataSource = _viewModel.Aggregators.ToBindingList();
 			dgvAggregatorAccounts.DataSource = _viewModel.AggregatorAccounts.ToBindingList();
-		}
-
-		public void FilterRows()
-		{
-			dgvAggregatorAccounts.FilterRows();
 		}
 	}
 }

@@ -161,19 +161,29 @@ namespace QvaDev.Duplicat.ViewModel
 	    public void ShowSelectedAggregatorCommand(Aggregator aggregator)
 		{
 			if (IsLoading) return;
-
 			SelectedAggregator = aggregator;
-			foreach (var e in AggregatorAccounts) e.IsFiltered = e.AggregatorId != SelectedAggregator?.Id;
+
+			AggregatorAccounts.Clear();
+			foreach (var e in _duplicatContext.AggregatorAccounts.Local.Where(e => e.Aggregator == SelectedAggregator))
+				AggregatorAccounts.Add(e);
 		}
 
 		public void ShowSelectedSlaveCommand(Slave slave)
 		{
 			if (IsLoading) return;
-
             SelectedSlave = slave;
-			foreach (var e in SymbolMappings) e.IsFiltered = e.SlaveId != SelectedSlave?.Id;
-            foreach (var e in Copiers) e.IsFiltered = e.SlaveId != SelectedSlave?.Id;
-			foreach (var e in FixApiCopiers) e.IsFiltered = e.SlaveId != SelectedSlave?.Id;
+
+			SymbolMappings.Clear();
+			foreach (var e in _duplicatContext.SymbolMappings.Local.Where(e => e.Slave == SelectedSlave))
+				SymbolMappings.Add(e);
+
+			CopiersFiltered.Clear();
+			foreach (var e in _duplicatContext.Copiers.Local.Where(e => e.Slave == SelectedSlave))
+				CopiersFiltered.Add(e);
+
+			FixApiCopiers.Clear();
+			foreach (var symbolMapping in _duplicatContext.FixApiCopiers.Local.Where(e => e.Slave == SelectedSlave))
+				FixApiCopiers.Add(symbolMapping);
 		}
 
         public void AccessNewCTraderCommand(CTraderPlatform p)

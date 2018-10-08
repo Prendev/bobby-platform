@@ -7,7 +7,7 @@ using QvaDev.Duplicat.ViewModel;
 
 namespace QvaDev.Duplicat.Views
 {
-    public partial class PushingUserControl : UserControl, IMvvmUserControl, IFilterable
+    public partial class PushingUserControl : UserControl, IMvvmUserControl
 	{
         private DuplicatViewModel _viewModel;
 
@@ -80,7 +80,6 @@ namespace QvaDev.Duplicat.Views
 			btnRushCloseFinish.Click += (s, e) => { _viewModel.PushingPanicCommand(dgvPushings.GetSelectedItem<Pushing>()); };
 			btnReset.Click += (s, e) => { _viewModel.PushingResetCommand(); };
 
-			dgvPushingDetail.DataSourceChanged += (s, e) => FilterRows();
 			dgvPushings.RowDoubleClick += Load_Click;
 		}
 
@@ -91,7 +90,6 @@ namespace QvaDev.Duplicat.Views
 			_viewModel.ShowPushingCommand(pushing);
 			cbHedge.DataBindings.Clear();
 			cbHedge.DataBindings.Add("Checked", pushing, "IsHedgeClose");
-			FilterRows();
 		}
 
 		public void AttachDataSources()
@@ -102,11 +100,6 @@ namespace QvaDev.Duplicat.Views
             dgvPushings.AddComboBoxColumn(_viewModel.Accounts, "HedgeAccount");
             dgvPushings.DataSource = _viewModel.Pushings.ToBindingList();
             dgvPushingDetail.DataSource = _viewModel.PushingDetails.ToBindingList();
-        }
-
-        public void FilterRows()
-        {
-	        dgvPushingDetail.FilterRows();
         }
     }
 }

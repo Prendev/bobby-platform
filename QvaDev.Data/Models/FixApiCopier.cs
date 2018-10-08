@@ -6,7 +6,7 @@ using QvaDev.Common.Integration;
 
 namespace QvaDev.Data.Models
 {
-	public class FixApiCopier : BaseEntity, IFilterableEntity
+	public class FixApiCopier : BaseEntity
 	{
 		public enum FixApiOrderTypes
 		{

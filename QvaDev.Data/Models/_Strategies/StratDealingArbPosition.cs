@@ -4,7 +4,7 @@ using QvaDev.Common.Attributes;
 
 namespace QvaDev.Data.Models
 {
-	public class StratDealingArbPosition : BaseEntity, IFilterableEntity
+	public class StratDealingArbPosition : BaseEntity
 	{
 		public enum Sides
 		{
@@ -39,7 +39,5 @@ namespace QvaDev.Data.Models
 
 		[InvisibleColumn] public int StratDealingArbId { get; set; }
 		[InvisibleColumn] public StratDealingArb StratDealingArb { get; set; }
-
-		[NotMapped] [InvisibleColumn] public bool IsFiltered { get => Get<bool>(); set => Set(value); }
 	}
 }

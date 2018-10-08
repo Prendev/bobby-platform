@@ -1,5 +1,6 @@
 ﻿using QvaDev.Data.Models;
 using System;
+using System.Linq;
 using System.Windows.Forms;
 using QvaDev.Common.Integration;
 
@@ -15,19 +16,17 @@ namespace QvaDev.Duplicat.ViewModel
 		public void ShowPushingCommand(Pushing pushing)
 		{
 			if (IsLoading) return;
-
 			SelectedPushing = pushing;
-			foreach (var e in PushingDetails)
-				e.IsFiltered = true;
-			if (pushing.Id == 0) return;
 
 			if (pushing.PushingDetail == null)
 			{
-				pushing.PushingDetail = new PushingDetail() {IsFiltered = false};
+				pushing.PushingDetail = new PushingDetail();
 				PushingDetails.Add(pushing.PushingDetail);
 			}
 
-			pushing.PushingDetail.IsFiltered = false;
+			PushingDetails.Clear();
+			foreach (var e in _duplicatContext.PushingDetails.Local.Where(e => e.Id == SelectedPushing?.PushingDetailId))
+				PushingDetails.Add(e);
 		}
 
 		public async void PushingOpenCommand(Pushing pushing, Sides firstBetaOpenSide)

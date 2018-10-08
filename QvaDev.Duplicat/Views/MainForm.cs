@@ -63,25 +63,12 @@ namespace QvaDev.Duplicat.Views
             btnSave.Click += (s, e) => { _viewModel.SaveCommand(); };
             btnBackup.Click += (s, e) => { _viewModel.BackupCommand(); };
             btnRestore.Click += (s, e) => { _viewModel.RestoreCommand(); };
-	        tabControlMain.SelectedIndexChanged += (s, e) => FilterRows(tabControlMain.SelectedTab);
-
 
 			_viewModel.DataContextChanged += () => AttachDataSources(this);
 
 	        InitViews(this);
 	        AttachDataSources(this);
         }
-
-	    private void FilterRows(Control parent)
-	    {
-		    if (parent == null) return;
-			foreach (Control c in parent.Controls)
-			{
-				if (!(c is IFilterable filterable))
-					FilterRows(c);
-				else filterable.FilterRows();
-			}
-		}
 
 		private void AttachDataSources(Control parent)
 		{
