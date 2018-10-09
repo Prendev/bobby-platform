@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -8,6 +7,7 @@ using System.Xml.Serialization;
 using log4net;
 using QvaDev.Common.Integration;
 using QvaDev.Communication;
+using QvaDev.Communication.ConnectionManagementRules;
 using QvaDev.Communication.FixApi;
 using QvaDev.Communication.FixApi.Connectors.Strategies;
 using QvaDev.Communication.FixApi.Connectors.Strategies.AggressiveOrder;
@@ -18,12 +18,7 @@ namespace QvaDev.FixApiIntegration
 {
 	public class Connector : FixApiConnectorBase
 	{
-		private static readonly ConnectionManagementRulesCollection ConnectionManagementRules =
-			new ConnectionManagementRulesCollection()
-			{
-				new ReconnectAfterDelayRule() {Delay = 30}
-			};
-
+		private readonly SubscribeMarketData _subscribeMarketData = new SubscribeMarketData();
 		private readonly AccountInfo _accountInfo;
 
 		public override int Id => _accountInfo?.DbId ?? 0;
@@ -49,7 +44,8 @@ namespace QvaDev.FixApiIntegration
 			FixConnector = (FixConnectorBase)Activator.CreateInstance(connType, conf);
 			FixConnector.ExecutionReport += FixConnector_ExecutionReport;
 
-			ConnectionManager = new ConnectionManager(FixConnector, ConnectionManagementRules);
+			ConnectionManager = new ConnectionManager(FixConnector,
+				new RulesCollection {new ReconnectAfterDelay(), _subscribeMarketData});
 			ConnectionManager.Connected += ConnectionManager_Connected;
 			ConnectionManager.Closed += ConnectionManager_Closed;
 		}
@@ -176,6 +172,7 @@ namespace QvaDev.FixApiIntegration
 
 		public override async void Subscribe(string symbol)
 		{
+			_subscribeMarketData.Subscriptions.Add(new MarketDataSubscription {Symbol = Symbol.Parse(symbol)});
 			await InnerSubscribe(symbol);
 		}
 
@@ -187,7 +184,6 @@ namespace QvaDev.FixApiIntegration
 		private void ConnectionManager_Connected(object sender, EventArgs e)
 		{
 			OnConnectionChanged(ConnectionStates.Connected);
-			Task.Run(ReSubscribe);
 		}
 
 		private void ConnectionManager_Closed(object sender, ClosedEventArgs e)
@@ -198,17 +194,6 @@ namespace QvaDev.FixApiIntegration
 		private void FixConnector_ExecutionReport(object sender, ExecutionReportEventArgs e)
 		{
 			Task.Run(() => ExecutionReport(e));
-		}
-
-		private async Task ReSubscribe()
-		{
-			var reSubscribes = new List<string>();
-			lock (Subscribes)
-			{
-				reSubscribes.AddRange(Subscribes);
-				Subscribes.Clear();
-			}
-			await Task.WhenAll(reSubscribes.Select(InnerSubscribe));
 		}
 
 		private async Task InnerSubscribe(string symbol)

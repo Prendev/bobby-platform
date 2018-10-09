@@ -51,6 +51,70 @@
             Disconnects the connector.
             </summary>
         </member>
+        <member name="M:QvaDev.Communication.Interfaces.IConnector.SubscribeMarketDataAsync(QvaDev.Communication.Symbol,System.Int32)">
+            <summary>
+            Subscribes to the market data of the specified symbol <paramref name="symbol"/>.
+            </summary>
+            <param name="symbol">The symbol to subscribe to.</param>
+            <param name="marketDepth">The market depth to obtain. 0 means full book. This parameter is optional.
+            <br/>Default value: <c>0</c>.</param>
+        </member>
+        <member name="F:QvaDev.Communication.ConnectionManagementRules.RuleType.Connected">
+            <summary>
+            Represents a rule for an established connection. The match argument is always <see langword="null"/>.
+            </summary>
+        </member>
+        <member name="F:QvaDev.Communication.ConnectionManagementRules.RuleType.ConnectionClosed">
+            <summary>
+            Represents a rule for closed connection. The match argument can be <see langword="null"/> or an <see cref="T:System.Exception"/> instance.
+            </summary>
+        </member>
+        <member name="T:QvaDev.Communication.ConnectionManagementRules.ReconnectIfExceptionMatches">
+            <summary>
+            Represents a rule for reconnecting after a specified time if the connection has been closed with an exception containing a specific message.
+            </summary>
+            <seealso cref="T:QvaDev.Communication.ConnectionManagementRules.ReconnectAfterDelay" />
+        </member>
+        <member name="P:QvaDev.Communication.ConnectionManagementRules.ReconnectIfExceptionMatches.ContainedMessagePatterns">
+            <summary>
+            Gets or sets the message fragments, which satisfy the rule. Each line is evaluated separately until the rule is satisfied.
+            </summary>
+        </member>
+        <member name="T:QvaDev.Communication.ConnectionManagementRules.RuleBase">
+            <summary>
+            Represents a connection management rule.
+            </summary>
+        </member>
+        <member name="P:QvaDev.Communication.ConnectionManagementRules.RuleBase.Description">
+            <summary>
+            Gets or sets the description of the rule.
+            </summary>
+        </member>
+        <member name="M:QvaDev.Communication.ConnectionManagementRules.RuleBase.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:QvaDev.Communication.ConnectionManagementRules.RuleBase"/> class.
+            </summary>
+        </member>
+        <member name="M:QvaDev.Communication.ConnectionManagementRules.RuleBase.ToString">
+            <summary>
+            Returns a <see cref="T:System.String" /> that represents this instance.
+            </summary>
+        </member>
+        <member name="M:QvaDev.Communication.ConnectionManagementRules.RuleBase.IsMatch(QvaDev.Communication.ConnectionManagementRules.RuleType,System.Object)">
+            <summary>
+            Determines whether this instance matches the specified rule type and condition argument.
+            </summary>
+        </member>
+        <member name="T:QvaDev.Communication.ConnectionManagementRules.ReconnectAfterDelay">
+            <summary>
+            Represents a rule for reconnecting after a specified time if the connection has been closed.
+            </summary>
+        </member>
+        <member name="P:QvaDev.Communication.ConnectionManagementRules.ReconnectAfterDelay.Delay">
+            <summary>
+            Gets or sets the delay in seconds.
+            </summary>
+        </member>
         <member name="M:QvaDev.Communication.ScheduledTaskManager`1.AddOrReplace(`0,System.Action,System.Int32,System.Boolean,System.Boolean)">
             <summary>
             Adds a new scheduled task to the manager or replaces an already existing one.
@@ -108,22 +172,6 @@
             Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
             </summary>
         </member>
-        <member name="F:QvaDev.Communication.ManagementRuleType.ConnectionClosed">
-            <summary>
-            Represents a rule for closed connection. The match argument can be <see langword="null"/> or an <see cref="T:System.Exception"/> instance.
-            </summary>
-        </member>
-        <member name="T:QvaDev.Communication.ReconnectIfExceptionMatches">
-            <summary>
-            Represents a rule for reconnecting after a specified time if the connection has been closed with an exception containing a specific message.
-            </summary>
-            <seealso cref="T:QvaDev.Communication.ReconnectAfterDelayRule" />
-        </member>
-        <member name="P:QvaDev.Communication.ReconnectIfExceptionMatches.ContainedMessagePatterns">
-            <summary>
-            Gets or sets the message fragments, which satisfy the rule. Each line is evaluated separately until the rule is satisfied.
-            </summary>
-        </member>
         <member name="T:QvaDev.Communication.ConnectionManager">
             <summary>
             Adds a management layer to an existing <see cref="T:QvaDev.Communication.Interfaces.IConnector"/> instance.
@@ -161,14 +209,14 @@
             <param name="configuration">The configuration.</param>
             <exception cref="T:System.ArgumentNullException"><paramref name="configuration"/> is <see langword="null"/>.</exception>
         </member>
-        <member name="M:QvaDev.Communication.ConnectionManager.#ctor(QvaDev.Communication.Interfaces.IConnectorConfiguration,QvaDev.Communication.ConnectionManagementRulesCollection)">
+        <member name="M:QvaDev.Communication.ConnectionManager.#ctor(QvaDev.Communication.Interfaces.IConnectorConfiguration,QvaDev.Communication.ConnectionManagementRules.RulesCollection)">
             <summary>
             Initializes a new instance of the <see cref="T:QvaDev.Communication.ConnectionManager"/> class.
             </summary>
             <param name="connectorConfig">The connector configuration.</param>
             <param name="rules">The rules to use.</param>
         </member>
-        <member name="M:QvaDev.Communication.ConnectionManager.#ctor(QvaDev.Communication.Interfaces.IConnector,QvaDev.Communication.ConnectionManagementRulesCollection)">
+        <member name="M:QvaDev.Communication.ConnectionManager.#ctor(QvaDev.Communication.Interfaces.IConnector,QvaDev.Communication.ConnectionManagementRules.RulesCollection)">
             <summary>
             Initializes a new instance of the <see cref="T:QvaDev.Communication.ConnectionManager"/> class.
             </summary>
@@ -190,6 +238,14 @@
             <summary>
             Disconnects the wrapped connector.
             </summary>
+        </member>
+        <member name="M:QvaDev.Communication.ConnectionManager.SubscribeMarketDataAsync(QvaDev.Communication.Symbol,System.Int32)">
+            <summary>
+            Subscribes to the market data of the specified symbol <paramref name="symbol"/>.
+            </summary>
+            <param name="symbol">The symbol to subscribe to.</param>
+            <param name="marketDepth">The market depth to obtain. 0 means full book. This parameter is optional.
+            <br/>Default value: <c>0</c>.</param>
         </member>
         <member name="T:QvaDev.Communication.ConnectionManagerConfiguration">
             <summary>
@@ -253,41 +309,6 @@
         <member name="M:QvaDev.Communication.ConnectorFactory.GetConfigurationCtor(System.Type,System.Boolean)">
             <summary>
             Gets the configuration constructor for a connector type.
-            </summary>
-        </member>
-        <member name="T:QvaDev.Communication.ConnectionManagementRuleBase">
-            <summary>
-            Represents a connection management rule.
-            </summary>
-        </member>
-        <member name="P:QvaDev.Communication.ConnectionManagementRuleBase.Description">
-            <summary>
-            Gets or sets the description of the rule.
-            </summary>
-        </member>
-        <member name="M:QvaDev.Communication.ConnectionManagementRuleBase.#ctor">
-            <summary>
-            Initializes a new instance of the <see cref="T:QvaDev.Communication.ConnectionManagementRuleBase"/> class.
-            </summary>
-        </member>
-        <member name="M:QvaDev.Communication.ConnectionManagementRuleBase.ToString">
-            <summary>
-            Returns a <see cref="T:System.String" /> that represents this instance.
-            </summary>
-        </member>
-        <member name="M:QvaDev.Communication.ConnectionManagementRuleBase.IsMatch(QvaDev.Communication.ManagementRuleType,System.Object)">
-            <summary>
-            Determines whether this instance matches the specified rule type and condition argument.
-            </summary>
-        </member>
-        <member name="T:QvaDev.Communication.ReconnectAfterDelayRule">
-            <summary>
-            Represents a rule for reconnecting after a specified time if the connection has been closed.
-            </summary>
-        </member>
-        <member name="P:QvaDev.Communication.ReconnectAfterDelayRule.Delay">
-            <summary>
-            Gets or sets the delay in seconds.
             </summary>
         </member>
         <member name="P:QvaDev.Communication.ClosedEventArgs.Error">
