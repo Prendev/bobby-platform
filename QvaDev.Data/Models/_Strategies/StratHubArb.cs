@@ -13,10 +13,10 @@ namespace QvaDev.Data.Models
 			Aggressive
 		}
 
-		[InvisibleColumn] public int AggregatorId { get; set; }
-		[InvisibleColumn] public Aggregator Aggregator { get => Get<Aggregator>(); set => Set(value); }
-
 		[DisplayPriority(-1)] public bool Run { get; set; }
+
+		[InvisibleColumn] public int AggregatorId { get; set; }
+		public Aggregator Aggregator { get => Get<Aggregator>(); set => Set(value); }
 
 		public decimal Size { get; set; }
 		[DisplayName("MaxSize")]
