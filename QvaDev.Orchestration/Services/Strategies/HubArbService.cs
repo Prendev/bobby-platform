@@ -14,8 +14,8 @@ namespace QvaDev.Orchestration.Services.Strategies
 	{
 		void Start(List<StratHubArb> arbs);
 		void Stop();
-		void GoFlat(List<StratHubArb> arbs);
-		void GoFlat(StratHubArb arb);
+		Task GoFlat(List<StratHubArb> arbs);
+		Task GoFlat(StratHubArb arb);
 	}
 
 	public class HubArbService : IHubArbService
@@ -24,6 +24,7 @@ namespace QvaDev.Orchestration.Services.Strategies
 		private readonly ILog _log;
 		private readonly INewsCalendarService _newsCalendarService;
 		private List<StratHubArb> _arbs;
+		private readonly object _syncRoot = new object();
 
 		public HubArbService(
 			ILog log,
@@ -49,9 +50,9 @@ namespace QvaDev.Orchestration.Services.Strategies
 			_log.Info("Hub arbs are started");
 		}
 
-		public void GoFlat(List<StratHubArb> arbs)
+		public async Task GoFlat(List<StratHubArb> arbs)
 		{
-			foreach (var arb in arbs) GoFlat(arb);
+			foreach (var arb in arbs) await GoFlat(arb);
 			_log.Info("Hub arbs are going flat!!!");
 		}
 
@@ -75,18 +76,20 @@ namespace QvaDev.Orchestration.Services.Strategies
 			return true;
 		}
 
-		public void GoFlat(StratHubArb arb)
+		public Task GoFlat(StratHubArb arb)
 		{
-			lock (arb)
+			lock (_syncRoot)
 			{
-				if (arb.IsBusy) return;
+				if (arb.IsBusy) return Task.CompletedTask;
 				arb.IsBusy = true;
 			}
 
-			Task.Factory.StartNew(async () =>
+			return Task.Factory.StartNew(async () =>
 			{
+				var accounts = new List<Account>();
 				try
 				{
+					var tasks = new List<Task>();
 					foreach (var aggAcc in arb.Aggregator.Accounts)
 					{
 						var sum = arb.StratHubArbPositions
@@ -99,17 +102,31 @@ namespace QvaDev.Orchestration.Services.Strategies
 						else if (sum < 0) side = Sides.Buy;
 						else continue;
 
-						var closePos =
-							await SendPosition(arb, aggAcc.Account.Connector as IFixConnector, aggAcc.Symbol, side, Math.Abs(sum));
+						lock (_syncRoot)
+						{
+							if (aggAcc.Account.IsBusy) return;
+							aggAcc.Account.IsBusy = true;
+							accounts.Add(aggAcc.Account);
+						}
 
-						PersistPosition(arb, aggAcc.Account, aggAcc.Symbol, closePos);
+						tasks.Add(InnerGoFlat(arb, aggAcc, side, sum));
 					}
+					await Task.WhenAll(tasks);
 				}
 				finally
 				{
+					foreach (var account in accounts) account.IsBusy = false;
 					arb.IsBusy = false;
 				}
 			}, TaskCreationOptions.LongRunning);
+		}
+
+		private async Task InnerGoFlat(StratHubArb arb, AggregatorAccount aggAcc, Sides side, decimal sum)
+		{
+			var closePos =
+				await SendPosition(arb, aggAcc.Account.Connector as IFixConnector, aggAcc.Symbol, side, Math.Abs(sum));
+
+			PersistPosition(arb, aggAcc.Account, aggAcc.Symbol, closePos);
 		}
 
 		private void CheckOpen(StratHubArb arb, StratHubArbQuoteEventArgs e)
@@ -165,15 +182,11 @@ namespace QvaDev.Orchestration.Services.Strategies
 
 		private void Open(StratHubArb arb, Quote buyQuote, Quote sellQuote, decimal size)
 		{
-			lock (arb)
-			lock (buyQuote.Account)
-			lock (sellQuote.Account)
+			lock (_syncRoot)
 			{
 				if (arb.IsBusy) return;
 				if (buyQuote.Account.IsBusy) return;
 				if (sellQuote.Account.IsBusy) return;
-
-				arb.LastOpenTime = DateTime.UtcNow;
 				arb.IsBusy = true;
 				buyQuote.Account.IsBusy = true;
 				sellQuote.Account.IsBusy = true;
@@ -231,7 +244,7 @@ namespace QvaDev.Orchestration.Services.Strategies
 				AccountId = account.Id,
 				Account = account,
 				AvgPrice = closePos.AveragePrice ?? 0,
-				OpenTime = arb.LastOpenTime ?? DateTime.UtcNow,
+				OpenTime = DateTime.UtcNow,
 				Side = side,
 				Size = closePos.FilledQuantity,
 				Symbol = symbol

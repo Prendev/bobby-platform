@@ -269,10 +269,12 @@ namespace QvaDev.Duplicat.ViewModel
 		    _orchestrator.StopStrategies();
 		    AreStrategiesStarted = false;
 		}
-	    public void HubArbsGoFlatCommand()
-	    {
-		    _orchestrator.HubArbsGoFlat(_duplicatContext);
-	    }
+		public async void HubArbsGoFlatCommand()
+		{
+			IsLoading = true;
+			await _orchestrator.HubArbsGoFlat(_duplicatContext);
+			IsLoading = false;
+		}
 		public void StrategyTestOpenSide1Command(StratDealingArb arb)
 	    {
 		    arb.DoOpenSide1 = true;
