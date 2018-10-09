@@ -162,28 +162,12 @@ namespace QvaDev.Duplicat.ViewModel
 		{
 			if (IsLoading) return;
 			SelectedAggregator = aggregator;
-
-			AggregatorAccounts.Clear();
-			foreach (var e in _duplicatContext.AggregatorAccounts.Local.Where(e => e.Aggregator == SelectedAggregator))
-				AggregatorAccounts.Add(e);
 		}
 
 		public void ShowSelectedSlaveCommand(Slave slave)
 		{
 			if (IsLoading) return;
             SelectedSlave = slave;
-
-			SymbolMappings.Clear();
-			foreach (var e in _duplicatContext.SymbolMappings.Local.Where(e => e.Slave == SelectedSlave))
-				SymbolMappings.Add(e);
-
-			CopiersFiltered.Clear();
-			foreach (var e in _duplicatContext.Copiers.Local.Where(e => e.Slave == SelectedSlave))
-				CopiersFiltered.Add(e);
-
-			FixApiCopiers.Clear();
-			foreach (var symbolMapping in _duplicatContext.FixApiCopiers.Local.Where(e => e.Slave == SelectedSlave))
-				FixApiCopiers.Add(symbolMapping);
 		}
 
         public void AccessNewCTraderCommand(CTraderPlatform p)

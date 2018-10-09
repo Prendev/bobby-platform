@@ -74,7 +74,7 @@ namespace QvaDev.Duplicat.Views
 			dgvMasters.DataSource = _viewModel.Masters.ToBindingList();
             dgvSlaves.DataSource = _viewModel.Slaves.ToBindingList();
             dgvSymbolMappings.DataSource = _viewModel.SymbolMappings.ToBindingList();
-            dgvCopiers.DataSource = _viewModel.CopiersFiltered.ToBindingList();
+            dgvCopiers.DataSource = _viewModel.Copiers.ToBindingList();
 	        dgvFixApiCopiers.DataSource = _viewModel.FixApiCopiers.ToBindingList();
 		}
     }

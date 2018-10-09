@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.ObjectModel;
 using System.Windows.Forms;
 using Microsoft.EntityFrameworkCore;
 using QvaDev.Common.Integration;
@@ -90,6 +91,7 @@ namespace QvaDev.Duplicat.Views
 			_viewModel.ShowPushingCommand(pushing);
 			cbHedge.DataBindings.Clear();
 			cbHedge.DataBindings.Add("Checked", pushing, "IsHedgeClose");
+			dgvPushingDetail.DataSource = new ObservableCollection<PushingDetail> { pushing.PushingDetail};
 		}
 
 		public void AttachDataSources()
@@ -99,7 +101,6 @@ namespace QvaDev.Duplicat.Views
             dgvPushings.AddComboBoxColumn(_viewModel.Accounts, "BetaMaster");
             dgvPushings.AddComboBoxColumn(_viewModel.Accounts, "HedgeAccount");
             dgvPushings.DataSource = _viewModel.Pushings.ToBindingList();
-            dgvPushingDetail.DataSource = _viewModel.PushingDetails.ToBindingList();
         }
     }
 }

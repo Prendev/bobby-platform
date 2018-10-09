@@ -1,10 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
+using System.Linq.Expressions;
 using log4net;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 using QvaDev.Common.Services;
 using QvaDev.Data;
 using QvaDev.Data.Models;
@@ -39,8 +40,9 @@ namespace QvaDev.Duplicat.ViewModel
         private readonly IOrchestrator _orchestrator;
         private readonly IXmlService _xmlService;
         private readonly ILog _log;
+	    private readonly List<PropertyChangedEventHandler> _filteredDelegates = new List<PropertyChangedEventHandler>();
 
-        public ObservableCollection<MetaTraderPlatform> MtPlatforms { get; private set;  }
+		public ObservableCollection<MetaTraderPlatform> MtPlatforms { get; private set;  }
         public ObservableCollection<CTraderPlatform> CtPlatforms { get; private set; }
         public ObservableCollection<MetaTraderAccount> MtAccounts { get; private set; }
         public ObservableCollection<CTraderAccount> CtAccounts { get; private set; }
@@ -55,10 +57,9 @@ namespace QvaDev.Duplicat.ViewModel
 		public ObservableCollection<Master> Masters { get; private set; }
         public ObservableCollection<Slave> Slaves { get; private set; }
 	    public ObservableCollection<SymbolMapping> SymbolMappings { get; private set; }
-	    public ObservableCollection<Copier> CopiersFiltered { get; private set; }
+	    public ObservableCollection<Copier> Copiers { get; private set; }
 	    public ObservableCollection<FixApiCopier> FixApiCopiers { get; private set; }
 		public ObservableCollection<Pushing> Pushings { get; private set; }
-	    public ObservableCollection<PushingDetail> PushingDetails { get; private set; }
 		public ObservableCollection<Ticker> Tickers { get; private set; }
 	    public ObservableCollection<StratDealingArb> StratDealingArbs { get; private set; }
 	    public ObservableCollection<StratDealingArbPosition> StratDealingArbPositions { get; private set; }
@@ -98,7 +99,6 @@ namespace QvaDev.Duplicat.ViewModel
             _log = log;
             _xmlService = xmlService;
             _orchestrator = orchestrator;
-            PropertyChanged += DuplicatViewModel_PropertyChanged;
             InitDataContext();
         }
 
@@ -127,15 +127,18 @@ namespace QvaDev.Duplicat.ViewModel
 		}
 
 		private void InitDataContext()
-        {
-            _duplicatContext?.Dispose();
+		{
+			_duplicatContext?.Dispose();
             _duplicatContext = new DuplicatContext();
-	        LoadLocals();
+			LoadLocals();
         }
 
 	    private void LoadLocals()
 	    {
-		    var p = SelectedProfile?.Id;
+		    foreach (var propertyChangedEventHandler in _filteredDelegates) PropertyChanged -= propertyChangedEventHandler;
+		    _filteredDelegates.Clear();
+
+			var p = SelectedProfile?.Id;
 			_duplicatContext.MetaTraderPlatforms.Load();
 			_duplicatContext.CTraderPlatforms.Load();
 			_duplicatContext.MetaTraderAccounts.Load();
@@ -172,21 +175,22 @@ namespace QvaDev.Duplicat.ViewModel
 			Profiles = _duplicatContext.Profiles.Local.ToObservableCollection();
 			Accounts = _duplicatContext.Accounts.Local.ToObservableCollection();
 			Aggregators = _duplicatContext.Aggregators.Local.ToObservableCollection();
-		    AggregatorAccounts = _duplicatContext.AggregatorAccounts.Local.ToObservableCollection(e => e.Aggregator == SelectedAggregator);
+			AggregatorAccounts = ToFilteredObservableCollection(_duplicatContext.AggregatorAccounts.Local, e => e.Aggregator, () => SelectedAggregator);
 			Masters = _duplicatContext.Masters.Local.ToObservableCollection();
 			Slaves = _duplicatContext.Slaves.Local.ToObservableCollection();
-		    SymbolMappings = _duplicatContext.SymbolMappings.Local.ToObservableCollection(e => e.Slave == SelectedSlave);
-		    CopiersFiltered = _duplicatContext.Copiers.Local.ToObservableCollection(e => e.Slave == SelectedSlave);
-		    FixApiCopiers = _duplicatContext.FixApiCopiers.Local.ToObservableCollection(e => e.Slave == SelectedSlave);
+		    SymbolMappings = ToFilteredObservableCollection(_duplicatContext.SymbolMappings.Local, e => e.Slave, () => SelectedSlave);
+			Copiers = ToFilteredObservableCollection(_duplicatContext.Copiers.Local, e => e.Slave, () => SelectedSlave);
+			FixApiCopiers = ToFilteredObservableCollection(_duplicatContext.FixApiCopiers.Local, e => e.Slave, () => SelectedSlave);
 			Pushings = _duplicatContext.Pushings.Local.ToObservableCollection();
-		    PushingDetails = _duplicatContext.PushingDetails.Local.ToObservableCollection(e => e == SelectedPushing?.PushingDetail);
 			Tickers = _duplicatContext.Tickers.Local.ToObservableCollection();
 			StratDealingArbs = _duplicatContext.StratDealingArbs.Local.ToObservableCollection();
-		    StratDealingArbPositions = _duplicatContext.StratDealingArbPositions.Local.ToObservableCollection(e => e.StratDealingArb == SelectedDealingArb);
+			StratDealingArbPositions = ToFilteredObservableCollection(_duplicatContext.StratDealingArbPositions.Local, e => e.StratDealingArb, () => SelectedDealingArb);
 			StratHubArbs = _duplicatContext.StratHubArbs.Local.ToObservableCollection();
 
 			_duplicatContext.Profiles.Local.CollectionChanged -= Profiles_CollectionChanged;
 			_duplicatContext.Profiles.Local.CollectionChanged += Profiles_CollectionChanged;
+			PropertyChanged -= DuplicatViewModel_PropertyChanged;
+			PropertyChanged += DuplicatViewModel_PropertyChanged;
 		}
 
 		private void Profiles_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
@@ -205,6 +209,43 @@ namespace QvaDev.Duplicat.ViewModel
 				StratDealingArbPositions.Add(e);
 
 			foreach (var e in StratDealingArbs) e.SetNetProfits();
+		}
+
+
+	    private ObservableCollection<T> ToFilteredObservableCollection<T, TProp>(
+		    ICollection<T> local,
+		    Func<T,TProp> property,
+		    Expression<Func<TProp>> selected) where T: class where TProp : class
+	    {
+		    var oc = new ObservableCollection<T>();
+			var sync = true;
+			oc.CollectionChanged += (sender, args) =>
+			{
+				if (!sync) return;
+				if (args.NewItems != null)
+					foreach (var item in args.NewItems)
+						if (!local.Contains(item))
+							local.Add(item as T);
+
+				if (args.OldItems != null)
+					foreach (var item in args.OldItems)
+						local.Remove(item as T);
+			};
+
+		    void PropChanged(object sender, PropertyChangedEventArgs args)
+		    {
+			    var sn = ((MemberExpression) selected.Body).Member.Name;
+			    if (args.PropertyName != sn) return;
+			    sync = false;
+			    oc.Clear();
+			    var sel = selected.Compile().Invoke();
+			    foreach (var e in local.ToList().Where(e => property.Invoke(e) == sel)) oc.Add(e);
+			    sync = true;
+		    }
+
+		    _filteredDelegates.Add(PropChanged);
+			PropertyChanged += PropChanged;
+			return oc;
 		}
 	}
 }
