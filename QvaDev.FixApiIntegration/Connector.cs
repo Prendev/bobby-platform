@@ -45,7 +45,7 @@ namespace QvaDev.FixApiIntegration
 			FixConnector.ExecutionReport += FixConnector_ExecutionReport;
 
 			ConnectionManager = new ConnectionManager(FixConnector,
-				new RulesCollection {new ReconnectAfterDelay(), _subscribeMarketData});
+				new RulesCollection {new ReconnectAfterDelay() {Delay = 30}, _subscribeMarketData});
 			ConnectionManager.Connected += ConnectionManager_Connected;
 			ConnectionManager.Closed += ConnectionManager_Closed;
 		}
