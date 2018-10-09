@@ -129,10 +129,10 @@ namespace QvaDev.Orchestration.Services.Strategies
 				.Where(q => CheckAccount(arb, q.Account, now)).ToList();
 			var buyQuote = quotes
 				.OrderBy(q => q.GroupQuoteEntry.Ask)
-				.FirstOrDefault(q => q.Sum < arb.MaxSizePerAccount - arb.Size);
+				.FirstOrDefault(q => q.Sum < arb.MaxSizePerAccount);
 			var sellQuote = quotes
 				.OrderByDescending(q => q.GroupQuoteEntry.Bid)
-				.FirstOrDefault(q => q.Sum > -arb.MaxSizePerAccount + arb.Size);
+				.FirstOrDefault(q => q.Sum > -arb.MaxSizePerAccount);
 			if (buyQuote == null || sellQuote == null) return;
 
 			// During high risk different signal diff
@@ -140,7 +140,14 @@ namespace QvaDev.Orchestration.Services.Strategies
 			var signalDiff = isHighRisk ? arb.HighRiskSignalDiffInPip.Value : arb.SignalDiffInPip;
 			if (diffInPip < signalDiff) return;
 
-			Open(arb, buyQuote, sellQuote);
+			// Volume check
+			var size = Math.Min(buyQuote.GroupQuoteEntry.AskVolume ?? 0, sellQuote.GroupQuoteEntry.AskVolume ?? 0);
+			size = Math.Min(size, arb.Size);
+			size = Math.Min(size, arb.MaxSizePerAccount - buyQuote.Sum);
+			size = Math.Min(size, sellQuote.Sum + arb.MaxSizePerAccount);
+			if (size <= 0) return;
+
+			Open(arb, buyQuote, sellQuote, size);
 		}
 
 		private bool CheckAccount(StratHubArb arb, Account account, DateTime now)
@@ -156,7 +163,7 @@ namespace QvaDev.Orchestration.Services.Strategies
 			return true;
 		}
 
-		private void Open(StratHubArb arb, Quote buyQuote, Quote sellQuote)
+		private void Open(StratHubArb arb, Quote buyQuote, Quote sellQuote, decimal size)
 		{
 			lock (arb)
 			lock (buyQuote.Account)
@@ -176,8 +183,8 @@ namespace QvaDev.Orchestration.Services.Strategies
 			{
 				try
 				{
-					var buy = SendPosition(arb, Sides.Buy, buyQuote, arb.Size);
-					var sell = SendPosition(arb, Sides.Sell, sellQuote, arb.Size);
+					var buy = SendPosition(arb, Sides.Buy, buyQuote, size);
+					var sell = SendPosition(arb, Sides.Sell, sellQuote, size);
 					await Task.WhenAll(buy, sell);
 					var buyPos = buy.Result;
 					var sellPos = sell.Result;
