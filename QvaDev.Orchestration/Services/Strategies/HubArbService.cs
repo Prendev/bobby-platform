@@ -247,7 +247,7 @@ namespace QvaDev.Orchestration.Services.Strategies
 			var symbol = quote.GroupQuoteEntry.Symbol.ToString();
 			var price = side == Sides.Buy ? quote.GroupQuoteEntry.Ask : quote.GroupQuoteEntry.Bid;
 
-			return SendPosition(arb, fix, symbol, side, size, price);
+			return SendPosition(arb, fix, symbol, side, size, forceMarket ? null : price);
 		}
 
 
