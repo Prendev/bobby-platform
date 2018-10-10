@@ -18,6 +18,7 @@ namespace QvaDev.Data.Models
 			public decimal BuyAvg { get; set; }
 			public decimal Total { get; set; }
 			public decimal Pip { get; set; }
+			public decimal ClosedPip { get; set; }
 		}
 
 		public event EventHandler<StratHubArbQuoteEventArgs> ArbQuote;
@@ -54,18 +55,17 @@ namespace QvaDev.Data.Models
 			var sellAvg = sells.Sum(p => p.Position.Size * p.Position.AvgPrice);
 			if (sellTotal > 0) sellAvg /= sellTotal;
 
-			var statistics = new List<Statistics>
+			var sumStat = new Statistics()
 			{
-				new Statistics()
-				{
-					SellTotal = sellTotal,
-					BuyTotal = buyTotal,
-					SellAvg = sellAvg,
-					BuyAvg = buyAvg,
-					Total = buyTotal - sellTotal,
-					Pip = (sellAvg - buyAvg) / PipSize,
-				}
+				SellTotal = sellTotal,
+				BuyTotal = buyTotal,
+				SellAvg = sellAvg,
+				BuyAvg = buyAvg,
+				Total = buyTotal - sellTotal,
+				Pip = (sellAvg - buyAvg) / PipSize,
 			};
+
+			var statistics = new List<Statistics>();
 
 			var accounts = StratHubArbPositions
 				.GroupBy(p => p.Position.Account)
@@ -84,13 +84,40 @@ namespace QvaDev.Data.Models
 					BuyAvg = account.Where(e => e.Position.Side == StratPosition.Sides.Buy)
 						.Sum(p => p.Position.Size * p.Position.AvgPrice),
 				};
+				statistics.Add(stat);
+
 				if (stat.SellTotal > 0) stat.SellAvg /= stat.SellTotal;
 				if (stat.BuyTotal > 0) stat.BuyAvg /= stat.BuyTotal;
 				stat.Total = stat.BuyTotal - stat.SellTotal;
-				stat.Pip = (stat.SellAvg - stat.BuyAvg) / PipSize;
 
-				statistics.Add(stat);
+				stat.Pip = (stat.SellAvg - stat.BuyAvg) / PipSize;
+				stat.ClosedPip = stat.Pip;
+				if (stat.Total == 0) continue;
+
+				var positions = stat.Total > 0
+					? account.Where(e => e.Position.Side == StratPosition.Sides.Buy).OrderByDescending(p => p.PositionId)
+					: account.Where(e => e.Position.Side == StratPosition.Sides.Sell).OrderByDescending(p => p.PositionId);
+
+				var total = stat.Total > 0 ? stat.BuyTotal : stat.SellTotal;
+				var avg = stat.Total > 0 ? stat.BuyAvg : stat.SellAvg;
+				var diff = Math.Abs(stat.Total);
+				foreach (var pos in positions)
+				{
+					avg = avg * total;
+					var size = Math.Min(diff, pos.Position.Size);
+					avg -= pos.Position.AvgPrice * size;
+					total -= size;
+					if (total > 0) avg /= total;
+					diff -= size;
+					if (diff == 0) break;
+				}
+
+				stat.ClosedPip = stat.Total > 0 ? (stat.SellAvg - avg) / PipSize : (avg - stat.BuyAvg) / PipSize;
 			}
+
+			sumStat.ClosedPip = statistics.Sum(s => s.ClosedPip * Math.Min(s.BuyTotal, s.SellTotal));
+			if (sumStat.ClosedPip != 0) sumStat.ClosedPip /= statistics.Sum(s => Math.Min(s.BuyTotal, s.SellTotal));
+			statistics.Insert(0, sumStat);
 
 			return statistics.Select(s => new
 			{
@@ -101,6 +128,7 @@ namespace QvaDev.Data.Models
 				BuyAvg = s.BuyAvg.ToString("F5"),
 				Total = s.Total.ToString("0"),
 				Pip = s.Pip.ToString("F2"),
+				ClosedPip = s.ClosedPip.ToString("F2"),
 			}).ToList();
 		}
 
