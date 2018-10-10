@@ -90,10 +90,12 @@ namespace QvaDev.Data.Models
 				if (stat.BuyTotal > 0) stat.BuyAvg /= stat.BuyTotal;
 				stat.Total = stat.BuyTotal - stat.SellTotal;
 
+				// Calculate non valid pip with exposure inbalance
 				stat.Pip = (stat.SellAvg - stat.BuyAvg) / PipSize;
 				stat.ClosedPip = stat.Pip;
 				if (stat.Total == 0) continue;
 
+				// Calculate ClosedPip if there is inbalance
 				var positions = stat.Total > 0
 					? account.Where(e => e.Position.Side == StratPosition.Sides.Buy).OrderByDescending(p => p.PositionId)
 					: account.Where(e => e.Position.Side == StratPosition.Sides.Sell).OrderByDescending(p => p.PositionId);
@@ -111,10 +113,10 @@ namespace QvaDev.Data.Models
 					diff -= size;
 					if (diff == 0) break;
 				}
-
 				stat.ClosedPip = stat.Total > 0 ? (stat.SellAvg - avg) / PipSize : (avg - stat.BuyAvg) / PipSize;
 			}
 
+			// Calculate Sum ClosedPip
 			sumStat.ClosedPip = statistics.Sum(s => s.ClosedPip * Math.Min(s.BuyTotal, s.SellTotal));
 			if (sumStat.ClosedPip != 0) sumStat.ClosedPip /= statistics.Sum(s => Math.Min(s.BuyTotal, s.SellTotal));
 			statistics.Insert(0, sumStat);

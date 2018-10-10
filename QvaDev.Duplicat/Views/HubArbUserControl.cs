@@ -1,5 +1,4 @@
-﻿using System;
-using System.Windows.Forms;
+﻿using System.Windows.Forms;
 using Microsoft.EntityFrameworkCore;
 using QvaDev.Data.Models;
 using QvaDev.Duplicat.ViewModel;
@@ -26,6 +25,7 @@ namespace QvaDev.Duplicat.Views
 			btnStart.Click += (s, e) => { _viewModel.StartStrategiesCommand(); };
 			btnStop.Click += (s, e) => { _viewModel.StopStrategiesCommand(); };
 			btnGoFlatAll.Click += (s, e) => { _viewModel.HubArbsGoFlatCommand(); };
+			btnExport.Click += (s, e) => { _viewModel.HubArbsExportCommand(); };
 
 			dgvHubArb.RowDoubleClick += (s, e) =>
 				dgvStatistics.DataSource = _viewModel.GetArbStatistics(dgvHubArb.GetSelectedItem<StratHubArb>());

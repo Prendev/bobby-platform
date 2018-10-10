@@ -275,6 +275,17 @@ namespace QvaDev.Duplicat.ViewModel
 			await _orchestrator.HubArbsGoFlat(_duplicatContext);
 			IsLoading = false;
 		}
+	    public async void HubArbsExportCommand()
+	    {
+		    IsLoading = true;
+		    IsConfigReadonly = true;
+		    await _orchestrator.HubArbsExport(_duplicatContext);
+
+		    IsLoading = false;
+		    IsConfigReadonly = true;
+		    IsConnected = true;
+	    }
+
 		public void StrategyTestOpenSide1Command(StratDealingArb arb)
 	    {
 		    arb.DoOpenSide1 = true;

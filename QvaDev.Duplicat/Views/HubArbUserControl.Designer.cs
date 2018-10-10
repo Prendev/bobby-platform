@@ -28,7 +28,7 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
-			System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+			System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
 			this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
 			this.gbControl = new System.Windows.Forms.GroupBox();
 			this.btnGoFlatAll = new System.Windows.Forms.Button();
@@ -38,6 +38,7 @@
 			this.dgvHubArb = new QvaDev.Duplicat.Views.CustomDataGridView();
 			this.groupBox1 = new System.Windows.Forms.GroupBox();
 			this.dgvStatistics = new System.Windows.Forms.DataGridView();
+			this.btnExport = new System.Windows.Forms.Button();
 			this.tableLayoutPanel1.SuspendLayout();
 			this.gbControl.SuspendLayout();
 			this.gbHubArb.SuspendLayout();
@@ -57,7 +58,7 @@
 			this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
 			this.tableLayoutPanel1.Name = "tableLayoutPanel1";
 			this.tableLayoutPanel1.RowCount = 3;
-			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 64F));
+			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 100F));
 			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
 			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
 			this.tableLayoutPanel1.Size = new System.Drawing.Size(1121, 721);
@@ -65,20 +66,21 @@
 			// 
 			// gbControl
 			// 
+			this.gbControl.Controls.Add(this.btnExport);
 			this.gbControl.Controls.Add(this.btnGoFlatAll);
 			this.gbControl.Controls.Add(this.btnStop);
 			this.gbControl.Controls.Add(this.btnStart);
 			this.gbControl.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.gbControl.Location = new System.Drawing.Point(3, 3);
 			this.gbControl.Name = "gbControl";
-			this.gbControl.Size = new System.Drawing.Size(1115, 58);
+			this.gbControl.Size = new System.Drawing.Size(1115, 94);
 			this.gbControl.TabIndex = 0;
 			this.gbControl.TabStop = false;
 			this.gbControl.Text = "Control";
 			// 
 			// btnGoFlatAll
 			// 
-			this.btnGoFlatAll.Location = new System.Drawing.Point(423, 22);
+			this.btnGoFlatAll.Location = new System.Drawing.Point(631, 22);
 			this.btnGoFlatAll.Margin = new System.Windows.Forms.Padding(4);
 			this.btnGoFlatAll.Name = "btnGoFlatAll";
 			this.btnGoFlatAll.Size = new System.Drawing.Size(200, 28);
@@ -110,9 +112,9 @@
 			// 
 			this.gbHubArb.Controls.Add(this.dgvHubArb);
 			this.gbHubArb.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.gbHubArb.Location = new System.Drawing.Point(3, 67);
+			this.gbHubArb.Location = new System.Drawing.Point(3, 103);
 			this.gbHubArb.Name = "gbHubArb";
-			this.gbHubArb.Size = new System.Drawing.Size(1115, 322);
+			this.gbHubArb.Size = new System.Drawing.Size(1115, 304);
 			this.gbHubArb.TabIndex = 1;
 			this.gbHubArb.TabStop = false;
 			this.gbHubArb.Text = "Hub arbs (use double-click for current stat)";
@@ -126,16 +128,16 @@
 			this.dgvHubArb.MultiSelect = false;
 			this.dgvHubArb.Name = "dgvHubArb";
 			this.dgvHubArb.RowTemplate.Height = 24;
-			this.dgvHubArb.Size = new System.Drawing.Size(1109, 301);
+			this.dgvHubArb.Size = new System.Drawing.Size(1109, 283);
 			this.dgvHubArb.TabIndex = 0;
 			// 
 			// groupBox1
 			// 
 			this.groupBox1.Controls.Add(this.dgvStatistics);
 			this.groupBox1.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.groupBox1.Location = new System.Drawing.Point(3, 395);
+			this.groupBox1.Location = new System.Drawing.Point(3, 413);
 			this.groupBox1.Name = "groupBox1";
-			this.groupBox1.Size = new System.Drawing.Size(1115, 323);
+			this.groupBox1.Size = new System.Drawing.Size(1115, 305);
 			this.groupBox1.TabIndex = 2;
 			this.groupBox1.TabStop = false;
 			this.groupBox1.Text = "Statistics";
@@ -147,22 +149,32 @@
 			this.dgvStatistics.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
 			this.dgvStatistics.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.AllCells;
 			this.dgvStatistics.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-			dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-			dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Window;
-			dataGridViewCellStyle1.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.ControlText;
-			dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-			dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-			dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-			this.dgvStatistics.DefaultCellStyle = dataGridViewCellStyle1;
+			dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+			dataGridViewCellStyle3.BackColor = System.Drawing.SystemColors.Window;
+			dataGridViewCellStyle3.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			dataGridViewCellStyle3.ForeColor = System.Drawing.SystemColors.ControlText;
+			dataGridViewCellStyle3.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+			dataGridViewCellStyle3.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+			dataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+			this.dgvStatistics.DefaultCellStyle = dataGridViewCellStyle3;
 			this.dgvStatistics.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.dgvStatistics.Location = new System.Drawing.Point(3, 18);
 			this.dgvStatistics.Name = "dgvStatistics";
 			this.dgvStatistics.ReadOnly = true;
 			this.dgvStatistics.RowTemplate.DefaultCellStyle.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
 			this.dgvStatistics.RowTemplate.Height = 24;
-			this.dgvStatistics.Size = new System.Drawing.Size(1109, 302);
+			this.dgvStatistics.Size = new System.Drawing.Size(1109, 284);
 			this.dgvStatistics.TabIndex = 0;
+			// 
+			// btnExport
+			// 
+			this.btnExport.Location = new System.Drawing.Point(7, 58);
+			this.btnExport.Margin = new System.Windows.Forms.Padding(4);
+			this.btnExport.Name = "btnExport";
+			this.btnExport.Size = new System.Drawing.Size(200, 28);
+			this.btnExport.TabIndex = 29;
+			this.btnExport.Text = "Detailed export";
+			this.btnExport.UseVisualStyleBackColor = true;
 			// 
 			// HubArbUserControl
 			// 
@@ -192,5 +204,6 @@
 		private System.Windows.Forms.GroupBox groupBox1;
 		private System.Windows.Forms.DataGridView dgvStatistics;
 		private System.Windows.Forms.Button btnGoFlatAll;
+		private System.Windows.Forms.Button btnExport;
 	}
 }

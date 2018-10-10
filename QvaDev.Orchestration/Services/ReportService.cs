@@ -13,6 +13,7 @@ namespace QvaDev.Orchestration.Services
     public interface IReportService
     {
         Task OrderHistoryExport(List<Account> accounts);
+        Task HubArbsExport(List<StratHubArbPosition> arbPositions);
     }
 
     public class ReportService : IReportService
@@ -22,7 +23,8 @@ namespace QvaDev.Orchestration.Services
         public ReportService(ILog log)
         {
             _log = log;
-        }
+	        ICSharpCode.SharpZipLib.Zip.ZipConstants.DefaultCodePage = 437;
+		}
 
         public async Task OrderHistoryExport(List<Account> accounts)
         {
@@ -34,7 +36,54 @@ namespace QvaDev.Orchestration.Services
 	        _log.Debug("Order history export is READY!");
         }
 
-        private void Export(Account account)
+	    public Task HubArbsExport(List<StratHubArbPosition> arbPositions)
+	    {
+			return Task.Run(() => InnerHubArbsExport(arbPositions));
+		}
+	    private void InnerHubArbsExport(List<StratHubArbPosition> arbPositions)
+		{
+			try
+			{
+				var templatePath = $@"{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}\Templates\HubArbsReport.xlsx";
+				var filePath = $@"{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}\Reports\HubArbs\hubArbsReport_{DateTime.UtcNow:yyyyMMdd_hhmmss}.xlsx";
+				new FileInfo(filePath).Directory?.Create();
+				using (var stream = new FileStream(filePath, FileMode.OpenOrCreate, FileAccess.ReadWrite))
+				{
+					var wb = new CustomWorkbook(templatePath);
+					var sheet = wb.GetSheetAt(0);
+
+					var r = 0;
+					foreach (var arbPos in arbPositions)
+					{
+						var c = 0;
+						var row = sheet.GetRow(++r) ?? sheet.CreateRow(r);
+
+						wb.CreateCell(row, c++, arbPos.StratHubArbId);
+						wb.CreateTextCell(row, c++, arbPos.StratHubArb.Description);
+
+						wb.CreateCell(row, c++, arbPos.Position.AccountId);
+						wb.CreateTextCell(row, c++, arbPos.Position.Account.ToString());
+
+						wb.CreateCell(row, c++, arbPos.PositionId);
+						wb.CreateCell(row, c++, arbPos.Position.OpenTime);
+						wb.CreateTextCell(row, c++, arbPos.Position.Symbol);
+						wb.CreateTextCell(row, c++, arbPos.Position.Side.ToString());
+						wb.CreateCell(row, c++, arbPos.Position.AvgPrice);
+						wb.CreateCell(row, c++, arbPos.Position.SignedSize);
+					}
+
+					wb.Write(stream);
+				}
+
+				_log.Debug($"Hub arbs export is READY!{Environment.NewLine}{filePath}");
+			}
+			catch (Exception e)
+			{
+				_log.Error("Hub arbs export exception", e);
+			}
+	    }
+
+		private void Export(Account account)
         {
             var connector = (Connector) account.Connector;
             var templatePath = $@"{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}\Templates\OrderHistory.xlsx";
