@@ -31,13 +31,13 @@
 			System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
 			this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
 			this.gbControl = new System.Windows.Forms.GroupBox();
+			this.btnGoFlatAll = new System.Windows.Forms.Button();
 			this.btnStop = new System.Windows.Forms.Button();
 			this.btnStart = new System.Windows.Forms.Button();
 			this.gbHubArb = new System.Windows.Forms.GroupBox();
 			this.dgvHubArb = new QvaDev.Duplicat.Views.CustomDataGridView();
 			this.groupBox1 = new System.Windows.Forms.GroupBox();
 			this.dgvStatistics = new System.Windows.Forms.DataGridView();
-			this.btnGoFlatAll = new System.Windows.Forms.Button();
 			this.tableLayoutPanel1.SuspendLayout();
 			this.gbControl.SuspendLayout();
 			this.gbHubArb.SuspendLayout();
@@ -75,6 +75,16 @@
 			this.gbControl.TabIndex = 0;
 			this.gbControl.TabStop = false;
 			this.gbControl.Text = "Control";
+			// 
+			// btnGoFlatAll
+			// 
+			this.btnGoFlatAll.Location = new System.Drawing.Point(423, 22);
+			this.btnGoFlatAll.Margin = new System.Windows.Forms.Padding(4);
+			this.btnGoFlatAll.Name = "btnGoFlatAll";
+			this.btnGoFlatAll.Size = new System.Drawing.Size(200, 28);
+			this.btnGoFlatAll.TabIndex = 28;
+			this.btnGoFlatAll.Text = "Go flat all";
+			this.btnGoFlatAll.UseVisualStyleBackColor = true;
 			// 
 			// btnStop
 			// 
@@ -149,19 +159,10 @@
 			this.dgvStatistics.Location = new System.Drawing.Point(3, 18);
 			this.dgvStatistics.Name = "dgvStatistics";
 			this.dgvStatistics.ReadOnly = true;
+			this.dgvStatistics.RowTemplate.DefaultCellStyle.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
 			this.dgvStatistics.RowTemplate.Height = 24;
 			this.dgvStatistics.Size = new System.Drawing.Size(1109, 302);
 			this.dgvStatistics.TabIndex = 0;
-			// 
-			// btnGoFlatAll
-			// 
-			this.btnGoFlatAll.Location = new System.Drawing.Point(423, 22);
-			this.btnGoFlatAll.Margin = new System.Windows.Forms.Padding(4);
-			this.btnGoFlatAll.Name = "btnGoFlatAll";
-			this.btnGoFlatAll.Size = new System.Drawing.Size(200, 28);
-			this.btnGoFlatAll.TabIndex = 28;
-			this.btnGoFlatAll.Text = "Go flat all";
-			this.btnGoFlatAll.UseVisualStyleBackColor = true;
 			// 
 			// HubArbUserControl
 			// 

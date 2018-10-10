@@ -3,13 +3,23 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.Internal;
 using QvaDev.Common.Attributes;
 
 namespace QvaDev.Data.Models
 {
 	public partial class StratHubArb
 	{
+		public class Statistics
+		{
+			public Account Account { get; set; }
+			public decimal SellTotal { get; set; }
+			public decimal BuyTotal { get; set; }
+			public decimal SellAvg { get; set; }
+			public decimal BuyAvg { get; set; }
+			public decimal Total { get; set; }
+			public decimal Pip { get; set; }
+		}
+
 		public event EventHandler<StratHubArbQuoteEventArgs> ArbQuote;
 
 		[NotMapped]
@@ -44,26 +54,54 @@ namespace QvaDev.Data.Models
 			var sellAvg = sells.Sum(p => p.Position.Size * p.Position.AvgPrice);
 			if (sellTotal > 0) sellAvg /= sellTotal;
 
-			var accountTotals = StratHubArbPositions
-				.GroupBy(p => p.Position.Account)
-				.OrderBy(x => x.Key.ToString())
-				.Select(x => $"{x.Key.ToString()}: {x.Sum(p => p.Position.SignedSize):0}")
-				.Join(Environment.NewLine);
-
-
-
-			var stat = new Dictionary<string, string>
+			var statistics = new List<Statistics>
 			{
-				["BuyTotal"] = buyTotal.ToString("0"),
-				["BuyAvg"] = buyAvg.ToString("F5"),
-				["SellTotal"] = sellTotal.ToString("0"),
-				["SellAvg"] = sellAvg.ToString("F5"),
-				["Total"] = (buyTotal - sellTotal).ToString("0"),
-				["Pip"] = ((sellAvg - buyAvg) / PipSize).ToString("F2"),
-				["Totals"] = accountTotals
+				new Statistics()
+				{
+					SellTotal = sellTotal,
+					BuyTotal = buyTotal,
+					SellAvg = sellAvg,
+					BuyAvg = buyAvg,
+					Total = buyTotal - sellTotal,
+					Pip = (sellAvg - buyAvg) / PipSize,
+				}
 			};
 
-			return stat.Select(v => new {Name = v.Key, Value = v.Value}).ToList();
+			var accounts = StratHubArbPositions
+				.GroupBy(p => p.Position.Account)
+				.OrderBy(x => x.Key.ToString())
+				.ToList();
+
+			foreach (var account in accounts)
+			{
+				var stat = new Statistics()
+				{
+					Account = account.Key,
+					SellTotal = account.Where(e => e.Position.Side == StratPosition.Sides.Sell).Sum(p => p.Position.Size),
+					BuyTotal = account.Where(e => e.Position.Side == StratPosition.Sides.Buy).Sum(p => p.Position.Size),
+					SellAvg = account.Where(e => e.Position.Side == StratPosition.Sides.Sell)
+						.Sum(p => p.Position.Size * p.Position.AvgPrice),
+					BuyAvg = account.Where(e => e.Position.Side == StratPosition.Sides.Buy)
+						.Sum(p => p.Position.Size * p.Position.AvgPrice),
+				};
+				if (stat.SellTotal > 0) stat.SellAvg /= stat.SellTotal;
+				if (stat.BuyTotal > 0) stat.BuyAvg /= stat.BuyTotal;
+				stat.Total = stat.BuyTotal - stat.SellTotal;
+				stat.Pip = (stat.SellAvg - stat.BuyAvg) / PipSize;
+
+				statistics.Add(stat);
+			}
+
+			return statistics.Select(s => new
+			{
+				Account = s.Account?.ToString() ?? "*",
+				SellTotal = s.SellTotal.ToString("0"),
+				BuyTotal = s.BuyTotal.ToString("0"),
+				SellAvg = s.SellAvg.ToString("F5"),
+				BuyAvg = s.BuyAvg.ToString("F5"),
+				Total = s.Total.ToString("0"),
+				Pip = s.Pip.ToString("F2"),
+			}).ToList();
 		}
 
 		private void Aggregator_AggregatedQuote(object sender, AggregatorQuoteEventArgs e)
