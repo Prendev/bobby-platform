@@ -44,8 +44,6 @@ namespace QvaDev.Data.Models
 		[DisplayName("TimeWindow")]
 		public int TimeWindowInMs { get; set; }
 
-		public bool EmailAlert { get; set; }
-
 		[InvisibleColumn] public List<StratHubArbPosition> StratHubArbPositions { get; } = new List<StratHubArbPosition>();
 	}
 }

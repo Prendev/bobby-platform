@@ -17,8 +17,12 @@ namespace QvaDev.Common.Services
 		{
 			Task.Run(() =>
 			{
+				if (!bool.TryParse(ConfigurationManager.AppSettings["EmailService.IsEnabled"], out bool isEnabled) ||
+				    !isEnabled) return;
+
 				lock (_syncRoot)
 				{
+
 					var host = ConfigurationManager.AppSettings["EmailService.Host"];
 					var user = ConfigurationManager.AppSettings["EmailService.User"];
 					var password = ConfigurationManager.AppSettings["EmailService.Password"];
