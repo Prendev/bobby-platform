@@ -54,6 +54,7 @@ namespace QvaDev.Duplicat
 			builder.RegisterType<XmlService>().As<IXmlService>();
 		    builder.RegisterType<ExchangeRatesService>().As<IExchangeRatesService>();
 		    builder.RegisterType<NewsCalendarService>().As<INewsCalendarService>();
+		    builder.RegisterType<EmailService>().As<IEmailService>();
 		}
 
 		private static void RegisterData(ContainerBuilder builder)
