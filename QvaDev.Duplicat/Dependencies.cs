@@ -40,7 +40,7 @@ namespace QvaDev.Duplicat
         {
 	        var generalLog = log4net.LogManager.GetLogger("General");
 	        var fixLog = log4net.LogManager.GetLogger("FIX");
-			Logger.Instance = new LogAdapter(fixLog);
+			Logger.AddLogger(new LogAdapter(fixLog));
 			builder.RegisterInstance(generalLog);
 			builder.RegisterType<MainForm>().AsSelf().InstancePerLifetimeScope();
             builder.RegisterType<ViewModel.DuplicatViewModel>().AsSelf().InstancePerLifetimeScope();

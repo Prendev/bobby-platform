@@ -59,14 +59,63 @@
             <param name="marketDepth">The market depth to obtain. 0 means full book. This parameter is optional.
             <br/>Default value: <c>0</c>.</param>
         </member>
-        <member name="F:QvaDev.Communication.ConnectionManagementRules.RuleType.Connected">
+        <member name="T:QvaDev.Communication.ConnectionManagementRules.LogRule">
             <summary>
-            Represents a rule for an established connection. The match argument is always <see langword="null"/>.
+            Represents a logging rule can be attached to a <see cref="T:QvaDev.Communication.ConnectionManagementRules.RuleBase"/> instance. Can be used to emit a log if the associated rule matches.
             </summary>
         </member>
-        <member name="F:QvaDev.Communication.ConnectionManagementRules.RuleType.ConnectionClosed">
+        <member name="P:QvaDev.Communication.ConnectionManagementRules.LogRule.Level">
             <summary>
-            Represents a rule for closed connection. The match argument can be <see langword="null"/> or an <see cref="T:System.Exception"/> instance.
+            Gets or sets the log level for the associated rule.
+            </summary>
+        </member>
+        <member name="P:QvaDev.Communication.ConnectionManagementRules.LogRule.Message">
+            <summary>
+            Gets or sets a message for this <see cref="T:QvaDev.Communication.ConnectionManagementRules.LogRule"/> if <see cref="P:QvaDev.Communication.ConnectionManagementRules.LogRule.LogMessageFactory"/> is <see langword="null"/>.
+            </summary>
+        </member>
+        <member name="P:QvaDev.Communication.ConnectionManagementRules.LogRule.LogMessageFactory">
+            <summary>
+            Gets or sets the log message factory for this <see cref="T:QvaDev.Communication.ConnectionManagementRules.LogRule"/>.
+            <br/>The first parameter is the <see cref="T:QvaDev.Communication.ConnectionManagementRules.RuleBase"/> this <see cref="T:QvaDev.Communication.ConnectionManagementRules.LogRule"/> belongs to.
+            <br/>The second parameter is the managed <see cref="T:QvaDev.Communication.Interfaces.IConnector"/> instance.
+            <br/>The third parameter is the argument object was used to evaluate the <see cref="T:QvaDev.Communication.ConnectionManagementRules.LogRule"/> instance.
+            <br/>If the returned object is <see langword="null"/>, then no log will be emitted. Otherwise, the returned object will be passed to the <see cref="T:QvaDev.Communication.Logger"/>.
+            </summary>
+        </member>
+        <member name="T:QvaDev.Communication.ConnectionManagementRules.ConnectionManagementContext">
+            <summary>
+            Represents a context when evaluating connection management rules.
+            </summary>
+        </member>
+        <member name="F:QvaDev.Communication.ConnectionManagementRules.ConnectionManagementContext.UserConnecting">
+            <summary>
+            The managed <see cref="T:QvaDev.Communication.Interfaces.IConnector"/> is being connected explicitly.
+            The additional argument of the <see cref="M:QvaDev.Communication.ConnectionManagementRules.RuleBase.IsMatch(QvaDev.Communication.ConnectionManagementRules.ConnectionManagementContext,System.Object)"/> and <see cref="M:QvaDev.Communication.ConnectionManagementRules.RuleBase.Execute(QvaDev.Communication.ConnectionManagementRules.ConnectionManagementContext,QvaDev.Communication.Interfaces.IConnector,System.Object)"/> methods is always <see langword="null"/>.
+            </summary>
+        </member>
+        <member name="F:QvaDev.Communication.ConnectionManagementRules.ConnectionManagementContext.UserDisconnecting">
+            <summary>
+            The managed <see cref="T:QvaDev.Communication.Interfaces.IConnector"/> is being disconnected explicitly.
+            The additional argument of the <see cref="M:QvaDev.Communication.ConnectionManagementRules.RuleBase.IsMatch(QvaDev.Communication.ConnectionManagementRules.ConnectionManagementContext,System.Object)"/> and <see cref="M:QvaDev.Communication.ConnectionManagementRules.RuleBase.Execute(QvaDev.Communication.ConnectionManagementRules.ConnectionManagementContext,QvaDev.Communication.Interfaces.IConnector,System.Object)"/> methods is always <see langword="null"/>.
+            </summary>
+        </member>
+        <member name="F:QvaDev.Communication.ConnectionManagementRules.ConnectionManagementContext.Connected">
+            <summary>
+            The managed <see cref="T:QvaDev.Communication.Interfaces.IConnector"/> has been connected.
+            The additional argument of the <see cref="M:QvaDev.Communication.ConnectionManagementRules.RuleBase.IsMatch(QvaDev.Communication.ConnectionManagementRules.ConnectionManagementContext,System.Object)"/> and <see cref="M:QvaDev.Communication.ConnectionManagementRules.RuleBase.Execute(QvaDev.Communication.ConnectionManagementRules.ConnectionManagementContext,QvaDev.Communication.Interfaces.IConnector,System.Object)"/> methods is always <see langword="null"/>.
+            </summary>
+        </member>
+        <member name="F:QvaDev.Communication.ConnectionManagementRules.ConnectionManagementContext.Disconnected">
+            <summary>
+            The managed <see cref="T:QvaDev.Communication.Interfaces.IConnector"/> has been disconnected.
+            The additional argument of the <see cref="M:QvaDev.Communication.ConnectionManagementRules.RuleBase.IsMatch(QvaDev.Communication.ConnectionManagementRules.ConnectionManagementContext,System.Object)"/> and <see cref="M:QvaDev.Communication.ConnectionManagementRules.RuleBase.Execute(QvaDev.Communication.ConnectionManagementRules.ConnectionManagementContext,QvaDev.Communication.Interfaces.IConnector,System.Object)"/> methods is <see langword="null"/> if there was no error; otherwise, it is an <see cref="T:System.Exception"/> instance.
+            </summary>
+        </member>
+        <member name="F:QvaDev.Communication.ConnectionManagementRules.ConnectionManagementContext.Disposed">
+            <summary>
+            The <see cref="T:QvaDev.Communication.ConnectionManager"/> instance has been disposed.
+            The additional argument of the <see cref="M:QvaDev.Communication.ConnectionManagementRules.RuleBase.IsMatch(QvaDev.Communication.ConnectionManagementRules.ConnectionManagementContext,System.Object)"/> and <see cref="M:QvaDev.Communication.ConnectionManagementRules.RuleBase.Execute(QvaDev.Communication.ConnectionManagementRules.ConnectionManagementContext,QvaDev.Communication.Interfaces.IConnector,System.Object)"/> methods is always <see langword="null"/>.
             </summary>
         </member>
         <member name="T:QvaDev.Communication.ConnectionManagementRules.ReconnectIfExceptionMatches">
@@ -90,6 +139,11 @@
             Gets or sets the description of the rule.
             </summary>
         </member>
+        <member name="P:QvaDev.Communication.ConnectionManagementRules.RuleBase.LogRule">
+            <summary>
+            Gets or sets a custom log rule for this rule. Will be emitted if the rule is activated.
+            </summary>
+        </member>
         <member name="M:QvaDev.Communication.ConnectionManagementRules.RuleBase.#ctor">
             <summary>
             Initializes a new instance of the <see cref="T:QvaDev.Communication.ConnectionManagementRules.RuleBase"/> class.
@@ -100,19 +154,52 @@
             Returns a <see cref="T:System.String" /> that represents this instance.
             </summary>
         </member>
-        <member name="M:QvaDev.Communication.ConnectionManagementRules.RuleBase.IsMatch(QvaDev.Communication.ConnectionManagementRules.RuleType,System.Object)">
+        <member name="M:QvaDev.Communication.ConnectionManagementRules.RuleBase.IsMatch(QvaDev.Communication.ConnectionManagementRules.ConnectionManagementContext,System.Object)">
             <summary>
-            Determines whether this instance matches the specified rule type and condition argument.
+            Determines whether this rule matches the specified context and argument.
             </summary>
+            <param name="context">The context of the evaluation.</param>
+            <param name="arg">An optional additional argument. See the <see cref="T:QvaDev.Communication.ConnectionManagementRules.ConnectionManagementContext"/> for details.</param>
+            <returns><see langword="true"/> if the current instance matches; otherwise, <see langword="false"/>.</returns>
+        </member>
+        <member name="M:QvaDev.Communication.ConnectionManagementRules.RuleBase.Execute(QvaDev.Communication.ConnectionManagementRules.ConnectionManagementContext,QvaDev.Communication.Interfaces.IConnector,System.Object)">
+            <summary>
+            Executes the current rule actions. The base implementation handles the logging. Call the base implementation for the default log handling.
+            </summary>
+            <param name="context">The context of the evaluation.</param>
+            <param name="arg">An optional additional argument. See the <see cref="T:QvaDev.Communication.ConnectionManagementRules.ConnectionManagementContext"/> for details.</param>
+            <param name="connector">The managed connector instance.</param>
+            <returns><see langword="true"/>To continue the evaluation of the other rules in the same context; <see langword="false"/> to break the evaluation.
+            The base implementation returns <see langword="true"/>.</returns>
         </member>
         <member name="T:QvaDev.Communication.ConnectionManagementRules.ReconnectAfterDelay">
             <summary>
             Represents a rule for reconnecting after a specified time if the connection has been closed.
+            The log is processed only context is <see cref="F:QvaDev.Communication.ConnectionManagementRules.ConnectionManagementContext.Disconnected"/>.
+            The rules processing is continued only if context is not <see cref="F:QvaDev.Communication.ConnectionManagementRules.ConnectionManagementContext.Disconnected"/>.
             </summary>
         </member>
         <member name="P:QvaDev.Communication.ConnectionManagementRules.ReconnectAfterDelay.Delay">
             <summary>
             Gets or sets the delay in seconds.
+            </summary>
+        </member>
+        <member name="T:QvaDev.Communication.ConnectionManagementRules.SubscribeMarketData">
+            <summary>
+            Represents a rule, which makes possible auto subscription for market data.
+            Triggered only in <see cref="F:QvaDev.Communication.ConnectionManagementRules.ConnectionManagementContext.Connected"/> context.
+            Processing other rules are continued if <see cref="P:QvaDev.Communication.ConnectionManagementRules.SubscribeMarketData.ContinueProcessing"/> is <see langword="true"/>.
+            </summary>
+            <seealso cref="T:QvaDev.Communication.ConnectionManagementRules.RuleBase" />
+        </member>
+        <member name="P:QvaDev.Communication.ConnectionManagementRules.SubscribeMarketData.Subscriptions">
+            <summary>
+            Gets the subscriptions for this rule.
+            </summary>
+        </member>
+        <member name="P:QvaDev.Communication.ConnectionManagementRules.SubscribeMarketData.ContinueProcessing">
+            <summary>
+            Gets or sets whether the evaluation of rules can be continued if this rule is executed.
             </summary>
         </member>
         <member name="M:QvaDev.Communication.ScheduledTaskManager`1.AddOrReplace(`0,System.Action,System.Int32,System.Boolean,System.Boolean)">
@@ -609,13 +696,134 @@
         </member>
         <member name="T:QvaDev.Communication.Logger">
             <summary>
-            The technology independent logger of the application.
+            The technology independent logger of the application. Logger instances can be added by the <see cref="M:QvaDev.Communication.Logger.AddLogger(Common.Logging.ILog)"/> method.
             </summary>
         </member>
-        <member name="P:QvaDev.Communication.Logger.Instance">
+        <member name="M:QvaDev.Communication.Logger.AddLogger(Common.Logging.ILog)">
             <summary>
-            Gets or sets the logger instance for the current application.
+            Adds a logger to the application.
             </summary>
+            <param name="logger">The logger instance to add.</param>
+        </member>
+        <member name="M:QvaDev.Communication.Logger.Trace(System.Object,System.Exception)">
+            <summary>
+            Log a message object with the <see cref="F:Common.Logging.LogLevel.Trace" /> level including
+            the stack trace of the <see cref="T:System.Exception" /> passed
+            as a parameter.
+            </summary>
+            <param name="message">The message object to log.</param>
+            <param name="exception">The exception to log, including its stack trace.</param>
+        </member>
+        <member name="M:QvaDev.Communication.Logger.Trace(System.Action{Common.Logging.FormatMessageHandler},System.Exception)">
+            <summary>
+            Log a message with the <see cref="F:Common.Logging.LogLevel.Trace" /> level using a callback to obtain the message
+            </summary>
+            <remarks>
+            Using this method avoids the cost of creating a message and evaluating message arguments
+            that probably won't be logged due to loglevel settings.
+            </remarks>
+            <param name="formatMessageCallback">A callback used by the logger to obtain the message if log level is matched</param>
+            <param name="exception">The exception to log, including its stack trace.</param>
+        </member>
+        <member name="M:QvaDev.Communication.Logger.Debug(System.Object,System.Exception)">
+            <summary>
+            Log a message object with the <see cref="F:Common.Logging.LogLevel.Debug" /> level including
+            the stack trace of the <see cref="T:System.Exception" /> passed
+            as a parameter.
+            </summary>
+            <param name="message">The message object to log.</param>
+            <param name="exception">The exception to log, including its stack trace.</param>
+        </member>
+        <member name="M:QvaDev.Communication.Logger.Debug(System.Action{Common.Logging.FormatMessageHandler},System.Exception)">
+            <summary>
+            Log a message with the <see cref="F:Common.Logging.LogLevel.Debug" /> level using a callback to obtain the message
+            </summary>
+            <remarks>
+            Using this method avoids the cost of creating a message and evaluating message arguments
+            that probably won't be logged due to loglevel settings.
+            </remarks>
+            <param name="formatMessageCallback">A callback used by the logger to obtain the message if log level is matched</param>
+            <param name="exception">The exception to log, including its stack trace.</param>
+        </member>
+        <member name="M:QvaDev.Communication.Logger.Info(System.Object,System.Exception)">
+            <summary>
+            Log a message object with the <see cref="F:Common.Logging.LogLevel.Info" /> level including
+            the stack trace of the <see cref="T:System.Exception" /> passed
+            as a parameter.
+            </summary>
+            <param name="message">The message object to log.</param>
+            <param name="exception">The exception to log, including its stack trace.</param>
+        </member>
+        <member name="M:QvaDev.Communication.Logger.Info(System.Action{Common.Logging.FormatMessageHandler},System.Exception)">
+            <summary>
+            Log a message with the <see cref="F:Common.Logging.LogLevel.Info" /> level using a callback to obtain the message
+            </summary>
+            <remarks>
+            Using this method avoids the cost of creating a message and evaluating message arguments
+            that probably won't be logged due to loglevel settings.
+            </remarks>
+            <param name="formatMessageCallback">A callback used by the logger to obtain the message if log level is matched</param>
+            <param name="exception">The exception to log, including its stack trace.</param>
+        </member>
+        <member name="M:QvaDev.Communication.Logger.Warn(System.Object,System.Exception)">
+            <summary>
+            Log a message object with the <see cref="F:Common.Logging.LogLevel.Warn" /> level including
+            the stack trace of the <see cref="T:System.Exception" /> passed
+            as a parameter.
+            </summary>
+            <param name="message">The message object to log.</param>
+            <param name="exception">The exception to log, including its stack trace.</param>
+        </member>
+        <member name="M:QvaDev.Communication.Logger.Warn(System.Action{Common.Logging.FormatMessageHandler},System.Exception)">
+            <summary>
+            Log a message with the <see cref="F:Common.Logging.LogLevel.Warn" /> level using a callback to obtain the message
+            </summary>
+            <remarks>
+            Using this method avoids the cost of creating a message and evaluating message arguments
+            that probably won't be logged due to loglevel settings.
+            </remarks>
+            <param name="formatMessageCallback">A callback used by the logger to obtain the message if log level is matched</param>
+            <param name="exception">The exception to log, including its stack trace.</param>
+        </member>
+        <member name="M:QvaDev.Communication.Logger.Error(System.Object,System.Exception)">
+            <summary>
+            Log a message object with the <see cref="F:Common.Logging.LogLevel.Error" /> level including
+            the stack trace of the <see cref="T:System.Exception" /> passed
+            as a parameter.
+            </summary>
+            <param name="message">The message object to log.</param>
+            <param name="exception">The exception to log, including its stack trace.</param>
+        </member>
+        <member name="M:QvaDev.Communication.Logger.Error(System.Action{Common.Logging.FormatMessageHandler},System.Exception)">
+            <summary>
+            Log a message with the <see cref="F:Common.Logging.LogLevel.Error" /> level using a callback to obtain the message
+            </summary>
+            <remarks>
+            Using this method avoids the cost of creating a message and evaluating message arguments
+            that probably won't be logged due to loglevel settings.
+            </remarks>
+            <param name="formatMessageCallback">A callback used by the logger to obtain the message if log level is matched</param>
+            <param name="exception">The exception to log, including its stack trace.</param>
+        </member>
+        <member name="M:QvaDev.Communication.Logger.Fatal(System.Object,System.Exception)">
+            <summary>
+            Log a message object with the <see cref="F:Common.Logging.LogLevel.Fatal" /> level including
+            the stack trace of the <see cref="T:System.Exception" /> passed
+            as a parameter.
+            </summary>
+            <param name="message">The message object to log.</param>
+            <param name="exception">The exception to log, including its stack trace.</param>
+        </member>
+        <member name="M:QvaDev.Communication.Logger.Fatal(System.Action{Common.Logging.FormatMessageHandler},System.Exception)">
+            <summary>
+            Log a message with the <see cref="F:Common.Logging.LogLevel.Fatal" /> level using a callback to obtain the message
+            </summary>
+            <remarks>
+            Using this method avoids the cost of creating a message and evaluating message arguments
+            that probably won't be logged due to loglevel settings.
+            </remarks>
+            <param name="formatMessageCallback">A callback used by the logger to obtain the message if log level is matched</param>
+            <param name="exception">The exception to log, including its stack trace.</param>
         </member>
         <member name="T:QvaDev.Communication.DuplexStreamConcurrentHandler">
             <summary>
