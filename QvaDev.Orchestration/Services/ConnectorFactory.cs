@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using log4net;
+using QvaDev.Common.Services;
 using QvaDev.Data;
 using QvaDev.Data.Models;
 
@@ -9,11 +10,14 @@ namespace QvaDev.Orchestration.Services
 	{
 		private readonly CTraderIntegration.ICtConnectorFactory _ctConnectorFactory;
 		private readonly ILog _log;
+		private readonly IEmailService _emailService;
 
 		public ConnectorFactory(
 			CTraderIntegration.ICtConnectorFactory ctConnectorFactory,
+			IEmailService emailService,
 			ILog log)
 		{
+			_emailService = emailService;
 			_log = log;
 			_ctConnectorFactory = ctConnectorFactory;
 		}
@@ -108,7 +112,7 @@ namespace QvaDev.Orchestration.Services
 					DbId = account.FixApiAccount.Id,
 					Description = account.FixApiAccount.Description,
 					ConfigPath = account.FixApiAccount.ConfigPath,
-				}, _log);
+				}, _emailService, _log);
 
 			await ((FixApiIntegration.Connector) account.Connector).Connect();
 		}

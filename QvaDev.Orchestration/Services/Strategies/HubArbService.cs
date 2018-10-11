@@ -23,13 +23,16 @@ namespace QvaDev.Orchestration.Services.Strategies
 		private bool _isStarted;
 		private readonly ILog _log;
 		private readonly INewsCalendarService _newsCalendarService;
+		private readonly IEmailService _emailService;
 		private List<StratHubArb> _arbs;
 		private readonly object _syncRoot = new object();
 
 		public HubArbService(
 			ILog log,
-			INewsCalendarService newsCalendarService)
+			INewsCalendarService newsCalendarService,
+			IEmailService emailService)
 		{
+			_emailService = emailService;
 			_newsCalendarService = newsCalendarService;
 			_log = log;
 		}
@@ -229,7 +232,16 @@ namespace QvaDev.Orchestration.Services.Strategies
 			OrderResponse response;
 
 			if (price == null || arb.OrderType == StratHubArb.StratHubArbOrderTypes.Market)
+			{
 				response = await fix.SendMarketOrderRequest(symbol, side, size);
+				if (!response.IsFilled)
+					_emailService.Send("ALERT - Market order failed",
+						$"{arb.Description}" + Environment.NewLine +
+						$"{account}" + Environment.NewLine +
+						$"{symbol}" + Environment.NewLine +
+						$"{side.ToString()}" + Environment.NewLine +
+						$"{size:0}");
+			}
 			else
 				response = await fix.SendAggressiveOrderRequest(symbol, side, size, price.Value, arb.Deviation, arb.TimeWindowInMs,
 					arb.MaxRetryCount, arb.RetryPeriodInMs);

@@ -6,6 +6,7 @@ using System.Xml;
 using System.Xml.Serialization;
 using log4net;
 using QvaDev.Common.Integration;
+using QvaDev.Common.Services;
 using QvaDev.Communication;
 using QvaDev.Communication.ConnectionManagementRules;
 using QvaDev.Communication.FixApi;
@@ -20,6 +21,7 @@ namespace QvaDev.FixApiIntegration
 	{
 		private readonly SubscribeMarketData _subscribeMarketData = new SubscribeMarketData();
 		private readonly AccountInfo _accountInfo;
+		private readonly IEmailService _emailService;
 
 		public override int Id => _accountInfo?.DbId ?? 0;
 		public override string Description => _accountInfo?.Description ?? "";
@@ -30,8 +32,12 @@ namespace QvaDev.FixApiIntegration
 
 		public event EventHandler<QuoteSet> NewQuote;
 
-		public Connector(AccountInfo accountInfo, ILog log) : base(log)
+		public Connector(
+			AccountInfo accountInfo,
+			IEmailService emailService,
+			ILog log) : base(log)
 		{
+			_emailService = emailService;
 			_accountInfo = accountInfo;
 
 			var doc = new XmlDocument();
@@ -189,6 +195,10 @@ namespace QvaDev.FixApiIntegration
 		private void ConnectionManager_Closed(object sender, ClosedEventArgs e)
 		{
 			OnConnectionChanged(e.Error == null ? ConnectionStates.Disconnected : ConnectionStates.Error);
+			if (e.Error == null) return;
+			_emailService.Send("ALERT - account disconnected",
+				$"{_accountInfo.Description}" + Environment.NewLine +
+				$"{e.Error.Message}");
 		}
 
 		private void FixConnector_ExecutionReport(object sender, ExecutionReportEventArgs e)
