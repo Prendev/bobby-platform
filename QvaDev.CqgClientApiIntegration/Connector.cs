@@ -2,6 +2,7 @@
 using log4net;
 using QvaDev.Common.Integration;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using QvaDev.Communication;
 
@@ -12,6 +13,7 @@ namespace QvaDev.CqgClientApiIntegration
 		private CQGCEL _cqgCel;
 		private readonly AccountInfo _accountInfo;
 		private readonly TaskCompletionManager<string> _taskCompletionManager;
+		private readonly List<string> _subscribes = new List<string>();
 
 		private readonly Object _lock = new Object();
 		private volatile bool _isConnecting;
@@ -101,7 +103,7 @@ namespace QvaDev.CqgClientApiIntegration
 				//_cqgCel.LogOn(_accountInfo.UserName, _accountInfo.Password);
 				CqgAccount = _cqgCel.Accounts.ItemByIndex[0];
 
-				lock (Subscribes) Subscribes.Clear();
+				lock (_subscribes) _subscribes.Clear();
 				foreach (var symbol in SymbolInfos.Keys)
 					Subscribe(symbol);
 			}
@@ -135,10 +137,10 @@ namespace QvaDev.CqgClientApiIntegration
 		{
 			try
 			{
-				lock (Subscribes)
+				lock (_subscribes)
 				{
-					if (Subscribes.Contains(symbol)) return;
-					Subscribes.Add(symbol);
+					if (_subscribes.Contains(symbol)) return;
+					_subscribes.Add(symbol);
 				}
 
 				_cqgCel.NewInstrument(symbol);

@@ -1,5 +1,4 @@
 ﻿using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using log4net;
 
@@ -11,7 +10,6 @@ namespace QvaDev.Common.Integration
 			new ConcurrentDictionary<string, Tick>();
 		protected readonly ConcurrentDictionary<string, SymbolData> SymbolInfos =
 			new ConcurrentDictionary<string, SymbolData>();
-		protected readonly List<string> Subscribes = new List<string>();
 
 		protected FixApiConnectorBase(ILog log) : base(log)
 		{

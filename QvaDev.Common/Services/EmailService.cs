@@ -22,7 +22,6 @@ namespace QvaDev.Common.Services
 
 				lock (_syncRoot)
 				{
-
 					var host = ConfigurationManager.AppSettings["EmailService.Host"];
 					var user = ConfigurationManager.AppSettings["EmailService.User"];
 					var password = ConfigurationManager.AppSettings["EmailService.Password"];

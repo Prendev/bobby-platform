@@ -19,9 +19,9 @@ namespace QvaDev.FixApiIntegration
 {
 	public class Connector : FixApiConnectorBase
 	{
-		private readonly SubscribeMarketData _subscribeMarketData = new SubscribeMarketData();
 		private readonly AccountInfo _accountInfo;
 		private readonly IEmailService _emailService;
+		private readonly SubscribeMarketData _subscribeMarketData = new SubscribeMarketData();
 
 		public override int Id => _accountInfo?.DbId ?? 0;
 		public override string Description => _accountInfo?.Description ?? "";
@@ -178,8 +178,22 @@ namespace QvaDev.FixApiIntegration
 
 		public override async void Subscribe(string symbol)
 		{
-			_subscribeMarketData.Subscriptions.Add(new MarketDataSubscription {Symbol = Symbol.Parse(symbol)});
-			await InnerSubscribe(symbol);
+			lock (_subscribeMarketData)
+			{
+				if (_subscribeMarketData.Subscriptions.Any(s => s.Symbol == Symbol.Parse(symbol))) return;
+				_subscribeMarketData.Subscriptions.Add(new MarketDataSubscription {Symbol = Symbol.Parse(symbol)});
+			}
+			if (!IsConnected) return;
+
+			try
+			{
+				await FixConnector.SubscribeMarketDataAsync(Symbol.Parse(symbol));
+				FixConnector.SubscribeBookChange(Symbol.Parse(symbol), Quote);
+			}
+			catch (Exception e)
+			{
+				Log.Error($"{Description} Connector.Subscribe({symbol}) exception", e);
+			}
 		}
 
 		public override bool Is(object o)
@@ -204,26 +218,6 @@ namespace QvaDev.FixApiIntegration
 		private void FixConnector_ExecutionReport(object sender, ExecutionReportEventArgs e)
 		{
 			Task.Run(() => ExecutionReport(e));
-		}
-
-		private async Task InnerSubscribe(string symbol)
-		{
-			try
-			{
-				lock (Subscribes)
-				{
-					if (Subscribes.Contains(symbol)) return;
-					Subscribes.Add(symbol);
-				}
-
-				await FixConnector.SubscribeMarketDataAsync(Symbol.Parse(symbol));
-
-				FixConnector.SubscribeBookChange(Symbol.Parse(symbol), Quote);
-			}
-			catch (Exception e)
-			{
-				Log.Error($"{Description} Connector.Subscribe({symbol}) exception", e);
-			}
 		}
 
 		private void Quote(QuoteSet quoteSet)
