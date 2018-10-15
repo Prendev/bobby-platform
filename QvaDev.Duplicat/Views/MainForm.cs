@@ -36,7 +36,7 @@ namespace QvaDev.Duplicat.Views
 
         private void InitView()
         {
-            btnRestore.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsConfigReadonly), true);
+            //btnRestore.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsConfigReadonly), true);
             gbControl.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsLoading), true);
             btnConnect.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsConnected), true);
             btnDisconnect.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsConnected));
@@ -61,8 +61,8 @@ namespace QvaDev.Duplicat.Views
             DataBindings.Add(titleBinding);
 
             btnSave.Click += (s, e) => { _viewModel.SaveCommand(); };
-            btnBackup.Click += (s, e) => { _viewModel.BackupCommand(); };
-            btnRestore.Click += (s, e) => { _viewModel.RestoreCommand(); };
+            //btnBackup.Click += (s, e) => { _viewModel.BackupCommand(); };
+            //btnRestore.Click += (s, e) => { _viewModel.RestoreCommand(); };
 
 			_viewModel.DataContextChanged += () => AttachDataSources(this);
 

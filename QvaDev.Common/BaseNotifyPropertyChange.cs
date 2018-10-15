@@ -28,7 +28,7 @@ namespace QvaDev.Data.Models
 		}
 
 		[NotifyPropertyChangedInvocator]
-		protected void Set<T>(T value, [CallerMemberName] string propertyName = null)
+		protected void Set<T>(T value, bool raiseEvent = true, [CallerMemberName] string propertyName = null)
 		{
 			if (string.IsNullOrWhiteSpace(propertyName)) return;
 
@@ -44,14 +44,14 @@ namespace QvaDev.Data.Models
 			}
 
 			_propertyValues[propertyName] = value;
-			OnPropertyChanged(propertyName);
+
+			if (raiseEvent) OnPropertyChanged(propertyName);
 		}
 
 		[NotifyPropertyChangedInvocator]
 		protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
 		{
-			DependecyManager.SynchronizationContext?.Post(
-				o => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName)), null);
+			DependecyManager.SynchronizationContext?.Post(o => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName)), null);
 		}
 
 

@@ -208,7 +208,6 @@
     <Compile Include="Models\_Strategies\AggregatorAccount.cs" />
     <Compile Include="Models\BaseEntity.cs" />
     <Compile Include="Models\BaseDescriptionEntity.cs" />
-    <Compile Include="Models\BaseNotifyPropertyChange.cs" />
     <Compile Include="Models\CqgClientApiAccount.cs" />
     <Compile Include="Models\FixApiAccount.cs" />
     <Compile Include="Models\FixApiCopier.cs" />
@@ -226,8 +225,6 @@
     <Compile Include="Models\_Strategies\StratHubArbPosition.cs" />
     <Compile Include="Models\_Strategies\StratPosition.cs" />
     <Compile Include="Models\_Strategies\StratHubArb.cs" />
-    <Compile Include="Models\_Strategies\StratDealingArbPosition.cs" />
-    <Compile Include="Models\_Strategies\StratDealingArb.cs" />
     <Compile Include="Models\Ticker.cs" />
     <Compile Include="Models\Slave.cs" />
     <Compile Include="Models\MetaTraderPlatform.cs" />

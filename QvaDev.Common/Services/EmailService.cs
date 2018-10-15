@@ -1,6 +1,8 @@
-﻿using System.Configuration;
+﻿using System;
+using System.Configuration;
 using System.Threading.Tasks;
 using AegisImplicitMail;
+using log4net;
 
 namespace QvaDev.Common.Services
 {
@@ -12,36 +14,49 @@ namespace QvaDev.Common.Services
 	public class EmailService : IEmailService
 	{
 		private readonly object _syncRoot = new object();
+		private readonly ILog _log;
+
+		public EmailService(ILog log)
+		{
+			_log = log;
+		}
 
 		public void Send(string subject, string body)
 		{
 			Task.Run(() =>
 			{
-				if (!bool.TryParse(ConfigurationManager.AppSettings["EmailService.IsEnabled"], out bool isEnabled) ||
-				    !isEnabled) return;
-
-				lock (_syncRoot)
+				try
 				{
-					var host = ConfigurationManager.AppSettings["EmailService.Host"];
-					var user = ConfigurationManager.AppSettings["EmailService.User"];
-					var password = ConfigurationManager.AppSettings["EmailService.Password"];
-					var to = ConfigurationManager.AppSettings["EmailService.To"];
+					if (!bool.TryParse(ConfigurationManager.AppSettings["EmailService.IsEnabled"], out bool isEnabled) ||
+					    !isEnabled) return;
 
-					using (var mailer = new MimeMailer(host))
+					lock (_syncRoot)
 					{
-						mailer.User = user;
-						mailer.Password = password;
-						mailer.SslType = SslMode.Ssl;
-						mailer.AuthenticationMode = AuthenticationType.Base64;
+						var host = ConfigurationManager.AppSettings["EmailService.Host"];
+						var user = ConfigurationManager.AppSettings["EmailService.User"];
+						var password = ConfigurationManager.AppSettings["EmailService.Password"];
+						var to = ConfigurationManager.AppSettings["EmailService.To"];
 
-						var mail = new MimeMailMessage();
-						mail.From = new MimeMailAddress(mailer.User);
-						mail.To.Add(to);
-						mail.Subject = subject;
-						mail.Body = body;
+						using (var mailer = new MimeMailer(host))
+						{
+							mailer.User = user;
+							mailer.Password = password;
+							mailer.SslType = SslMode.Ssl;
+							mailer.AuthenticationMode = AuthenticationType.Base64;
 
-						mailer.Send(mail);
+							var mail = new MimeMailMessage();
+							mail.From = new MimeMailAddress(mailer.User);
+							mail.To.Add(to);
+							mail.Subject = subject;
+							mail.Body = body;
+
+							mailer.Send(mail);
+						}
 					}
+				}
+				catch (Exception e)
+				{
+					_log.Error("EmailService.Send exception", e);
 				}
 			});
 		}

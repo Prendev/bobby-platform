@@ -71,14 +71,11 @@ namespace QvaDev.Data
         public DbSet<Pushing> Pushings { get; set; }
         public DbSet<PushingDetail> PushingDetails { get; set; }
 
-		public DbSet<Ticker> Tickers { get; set; }
-
-	    public DbSet<StratDealingArb> StratDealingArbs { get; set; }
-	    public DbSet<StratDealingArbPosition> StratDealingArbPositions { get; set; }
-
 		public DbSet<StratPosition> Positions { get; set; }
 		public DbSet<StratHubArb> StratHubArbs { get; set; }
 		public DbSet<StratHubArbPosition> StratHubArbPositions { get; set; }
+
+		public DbSet<Ticker> Tickers { get; set; }
 
 		public void Init()
 		{
@@ -120,25 +117,6 @@ namespace QvaDev.Data
 
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
-			modelBuilder.Entity<StratDealingArb>().Property(x => x.PipSize).HasPrecision(18, 5);
-			modelBuilder.Entity<StratDealingArb>().Property(x => x.AlphaSize).HasPrecision(18, 3);
-			modelBuilder.Entity<StratDealingArb>().Property(x => x.BetaSize).HasPrecision(18, 3);
-			modelBuilder.Entity<StratDealingArb>().Property(x => x.SlippageInPip).HasPrecision(18, 2);
-
-			modelBuilder.Entity<StratDealingArbPosition>().Property(x => x.AlphaOpenPrice).HasPrecision(18, 5);
-			modelBuilder.Entity<StratDealingArbPosition>().Property(x => x.BetaOpenPrice).HasPrecision(18, 5);
-			modelBuilder.Entity<StratDealingArbPosition>().Property(x => x.AlphaClosePrice).HasPrecision(18, 5);
-			modelBuilder.Entity<StratDealingArbPosition>().Property(x => x.BetaClosePrice).HasPrecision(18, 5);
-			modelBuilder.Entity<StratDealingArbPosition>().Property(x => x.AlphaOpenSignal).HasPrecision(18, 5);
-			modelBuilder.Entity<StratDealingArbPosition>().Property(x => x.BetaOpenSignal).HasPrecision(18, 5);
-			modelBuilder.Entity<StratDealingArbPosition>().Property(x => x.AlphaCloseSignal).HasPrecision(18, 5);
-			modelBuilder.Entity<StratDealingArbPosition>().Property(x => x.BetaCloseSignal).HasPrecision(18, 5);
-
-			modelBuilder.Entity<StratDealingArbPosition>().Property(x => x.AlphaSize).HasPrecision(18, 3);
-			modelBuilder.Entity<StratDealingArbPosition>().Property(x => x.BetaSize).HasPrecision(18, 3);
-			modelBuilder.Entity<StratDealingArbPosition>().Property(x => x.RemainingAlpha).HasPrecision(18, 3);
-			modelBuilder.Entity<StratDealingArbPosition>().Property(x => x.RemainingBeta).HasPrecision(18, 3);
-
 			modelBuilder.Entity<StratHubArb>().Property(x => x.PipSize).HasPrecision(18, 5);
 			modelBuilder.Entity<StratHubArb>().Property(x => x.Size).HasPrecision(18, 3);
 			modelBuilder.Entity<StratHubArb>().Property(x => x.SlippageInPip).HasPrecision(18, 2);

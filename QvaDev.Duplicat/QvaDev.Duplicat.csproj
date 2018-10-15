@@ -56,6 +56,9 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>icon.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Autofac, Version=4.6.1.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
       <HintPath>..\packages\Autofac.4.6.1\lib\net45\Autofac.dll</HintPath>
@@ -231,7 +234,6 @@
     <Compile Include="Views\IMvvmUserControl.cs" />
     <Compile Include="TextBoxAppender.cs" />
     <Compile Include="UrlHelper.cs" />
-    <Compile Include="ViewModel\BaseViewModel.cs" />
     <Compile Include="Views\CustomDataGridView.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -267,12 +269,6 @@
     </Compile>
     <Compile Include="Views\ProfilesUserControl.Designer.cs">
       <DependentUpon>ProfilesUserControl.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Views\StrategiesUserControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Views\StrategiesUserControl.Designer.cs">
-      <DependentUpon>StrategiesUserControl.cs</DependentUpon>
     </Compile>
     <Compile Include="Views\TickersUserControl.cs">
       <SubType>UserControl</SubType>
@@ -323,9 +319,6 @@
     <EmbeddedResource Include="Views\ProfilesUserControl.resx">
       <DependentUpon>ProfilesUserControl.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Views\StrategiesUserControl.resx">
-      <DependentUpon>StrategiesUserControl.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Views\TickersUserControl.resx">
       <DependentUpon>TickersUserControl.cs</DependentUpon>
     </EmbeddedResource>
@@ -372,6 +365,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="icon.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="todo.txt" />
   </ItemGroup>
   <ItemGroup />

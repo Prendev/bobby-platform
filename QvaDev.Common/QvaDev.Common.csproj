@@ -81,6 +81,7 @@
     <Compile Include="Attributes\DisplayPriorityAttribute.cs" />
     <Compile Include="Attributes\ReadOnlyColumnAttribute.cs" />
     <Compile Include="Attributes\InvisibleColumnAttribute.cs" />
+    <Compile Include="BaseNotifyPropertyChange.cs" />
     <Compile Include="DependecyManager.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="Integration\AccountTypes.cs" />

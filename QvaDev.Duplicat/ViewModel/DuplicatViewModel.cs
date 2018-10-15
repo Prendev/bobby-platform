@@ -13,7 +13,7 @@ using QvaDev.Orchestration;
 
 namespace QvaDev.Duplicat.ViewModel
 {
-    public partial class DuplicatViewModel : BaseViewModel
+    public partial class DuplicatViewModel : BaseNotifyPropertyChange
     {
         public enum PushingStates
         {
@@ -61,10 +61,7 @@ namespace QvaDev.Duplicat.ViewModel
 	    public ObservableCollection<FixApiCopier> FixApiCopiers { get; private set; }
 		public ObservableCollection<Pushing> Pushings { get; private set; }
 		public ObservableCollection<Ticker> Tickers { get; private set; }
-	    public ObservableCollection<StratDealingArb> StratDealingArbs { get; private set; }
-	    public ObservableCollection<StratDealingArbPosition> StratDealingArbPositions { get; private set; }
 		public ObservableCollection<StratHubArb> StratHubArbs { get; private set; }
-
 
 		public event DataContextChangedEventHandler DataContextChanged;
         
@@ -85,11 +82,6 @@ namespace QvaDev.Duplicat.ViewModel
 	    public Aggregator SelectedAggregator { get => Get<Aggregator>(); set => Set(value); }
 	    public Slave SelectedSlave { get => Get<Slave>(); set => Set(value); }
 	    public Pushing SelectedPushing { get => Get<Pushing>(); set => Set(value); }
-	    public StratDealingArb SelectedDealingArb { get => Get<StratDealingArb>(); set => Set(value); }
-
-        public int SelectedAlphaMonitorId { get => Get<int>(); set => Set(value); }
-        public int SelectedBetaMonitorId { get => Get<int>(); set => Set(value); }
-        public int SelectedTradingAccountId { get => Get<int>(); set => Set(value); }
 
         public DuplicatViewModel(
 	        ILog log,
@@ -104,11 +96,7 @@ namespace QvaDev.Duplicat.ViewModel
 
         private void DuplicatViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-			if (e.PropertyName == nameof(SelectedAlphaMonitorId))
-				_orchestrator.SelectedAlphaMonitorId = SelectedAlphaMonitorId;
-			else if (e.PropertyName == nameof(SelectedBetaMonitorId))
-				_orchestrator.SelectedBetaMonitorId = SelectedBetaMonitorId;
-			else if (e.PropertyName == nameof(SelectedPushing))
+			if (e.PropertyName == nameof(SelectedPushing))
 			{
 				IsPushingEnabled = SelectedPushing?.IsConnected == true;
 				if (SelectedPushing != null)
@@ -159,8 +147,6 @@ namespace QvaDev.Duplicat.ViewModel
 			_duplicatContext.Pushings.Where(e => e.ProfileId == p).Load();
 			_duplicatContext.Pushings.Where(e => e.ProfileId == p).Select(e => e.PushingDetail).Load();
 			_duplicatContext.Tickers.Where(e => e.ProfileId == p).Load();
-			_duplicatContext.StratDealingArbs.Where(e => e.ProfileId == p).Load();
-			_duplicatContext.StratDealingArbPositions.Where(e => e.StratDealingArb.ProfileId == p).Load();
 		    _duplicatContext.StratHubArbs.Where(e => e.Aggregator.ProfileId == p)
 			    .Include(e => e.StratHubArbPositions).ThenInclude(e => e.Position).Load();
 
@@ -183,8 +169,6 @@ namespace QvaDev.Duplicat.ViewModel
 			FixApiCopiers = ToFilteredObservableCollection(_duplicatContext.FixApiCopiers.Local, e => e.Slave, () => SelectedSlave);
 			Pushings = _duplicatContext.Pushings.Local.ToObservableCollection();
 			Tickers = _duplicatContext.Tickers.Local.ToObservableCollection();
-			StratDealingArbs = _duplicatContext.StratDealingArbs.Local.ToObservableCollection();
-			StratDealingArbPositions = ToFilteredObservableCollection(_duplicatContext.StratDealingArbPositions.Local, e => e.StratDealingArb, () => SelectedDealingArb);
 			StratHubArbs = _duplicatContext.StratHubArbs.Local.ToObservableCollection();
 
 			_duplicatContext.Profiles.Local.CollectionChanged -= Profiles_CollectionChanged;
@@ -198,19 +182,6 @@ namespace QvaDev.Duplicat.ViewModel
 			if (SelectedProfile != null && _duplicatContext.Profiles.Local.Any(l => l.Id == SelectedProfile.Id)) return;
 			LoadLocals();
 		}
-
-		private void LoadStratDealingArbPositions()
-		{
-			var p = SelectedProfile?.Id;
-			_duplicatContext.StratDealingArbPositions.Where(e => e.StratDealingArb.ProfileId == p).Load();
-
-			StratDealingArbPositions.Clear();
-			foreach (var e in _duplicatContext.StratDealingArbPositions.Local.Where(e => e.StratDealingArbId == SelectedDealingArb?.Id))
-				StratDealingArbPositions.Add(e);
-
-			foreach (var e in StratDealingArbs) e.SetNetProfits();
-		}
-
 
 	    private ObservableCollection<T> ToFilteredObservableCollection<T, TProp>(
 		    ICollection<T> local,

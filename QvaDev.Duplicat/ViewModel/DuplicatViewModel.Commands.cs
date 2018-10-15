@@ -2,10 +2,7 @@
 using System.Collections;
 using System.Configuration;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
-using System.Windows.Forms;
-using QvaDev.Data;
 using QvaDev.Data.Models;
 
 namespace QvaDev.Duplicat.ViewModel
@@ -31,76 +28,6 @@ namespace QvaDev.Duplicat.ViewModel
 	        timer.Elapsed += (s, e) => SaveState = SaveStates.Default;
 			timer.Start();
 		}
-
-		public void BackupCommand()
-        {
-			var dir = $"{AppDomain.CurrentDomain.BaseDirectory}Backups";
-			if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
-			using (var sfd = new SaveFileDialog
-				{
-					Filter = "Backup file (*.bak)|*.bak",
-					FilterIndex = 1,
-					RestoreDirectory = true,
-					InitialDirectory = dir
-				})
-            {
-                if (sfd.ShowDialog() != DialogResult.OK) return;
-                var backupPath = sfd.FileName;
-
-                using (var context = new DuplicatContext())
-                {
-					// TODO
-                    //var dbName = context.Database.SqlQuery<string>("SELECT DB_NAME()").First();
-                    //string sqlCommand =
-                    //    $"BACKUP DATABASE {dbName} TO  DISK = N'{backupPath}'";
-                    //context.Database.ExecuteSqlCommand(System.Data.Entity.TransactionalBehavior.DoNotEnsureTransaction, sqlCommand);
-                    //_log.Debug($"Database ({dbName}) backup is ready at {backupPath}");
-                }
-            }
-        }
-
-	    public async void RestoreCommand()
-	    {
-		    var dir = $"{AppDomain.CurrentDomain.BaseDirectory}Backups";
-		    if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
-
-		    using (var sfd = new OpenFileDialog
-		    {
-			    Filter = "Backup file (*.bak)|*.bak",
-			    FilterIndex = 1,
-			    RestoreDirectory = true,
-			    InitialDirectory = dir
-		    })
-		    {
-			    if (sfd.ShowDialog() != DialogResult.OK) return;
-			    IsLoading = true;
-			    IsConfigReadonly = true;
-
-			    var backupPath = sfd.FileName;
-				// TODO
-			    //await Task.Run(() =>
-			    //{
-				   // var dbName = _duplicatContext.Database.SqlQuery<string>("SELECT DB_NAME()").First();
-				   // var connectionString = ConfigurationManager.ConnectionStrings["DuplicatContext"].ConnectionString;
-				   // using (var conn = new SqlConnection(connectionString))
-				   // {
-					  //  conn.Open();
-					  //  _duplicatContext.Dispose();
-					  //  new SqlCommand("USE master", conn).ExecuteNonQuery();
-					  //  new SqlCommand($"ALTER DATABASE {dbName} SET SINGLE_USER WITH ROLLBACK IMMEDIATE", conn)
-						 //   .ExecuteNonQuery();
-					  //  new SqlCommand($"RESTORE DATABASE {dbName} FROM DISK = N'{backupPath}' WITH REPLACE", conn)
-						 //   .ExecuteNonQuery();
-					  //  _log.Debug($"Database ({dbName}) restore is ready from {backupPath}");
-				   // }
-			    //});
-
-			    IsLoading = false;
-			    IsConfigReadonly = false;
-			    InitDataContext();
-			    DataContextChanged?.Invoke();
-		    }
-	    }
 
 	    public async void QuickStartCommand()
 		{
@@ -285,27 +212,6 @@ namespace QvaDev.Duplicat.ViewModel
 		    IsConfigReadonly = true;
 		    IsConnected = true;
 	    }
-
-		public void StrategyTestOpenSide1Command(StratDealingArb arb)
-	    {
-		    arb.DoOpenSide1 = true;
-		}
-	    public void StrategyTestOpenSide2Command(StratDealingArb arb)
-		{
-			arb.DoOpenSide2 = true;
-		}
-	    public void StrategyTestCloseCommand(StratDealingArb arb)
-		{
-			arb.DoClose = true;
-		}
-
-	    public void ShowArbPositionsCommand(StratDealingArb arb)
-		{
-			if (IsLoading) return;
-
-			SelectedDealingArb = arb;
-			LoadStratDealingArbPositions();
-		}
 
 	    public IList GetArbStatistics(StratHubArb arb)
 	    {
