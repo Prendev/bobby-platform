@@ -35,6 +35,7 @@ namespace QvaDev.Common.Services
 						var host = ConfigurationManager.AppSettings["EmailService.Host"];
 						var user = ConfigurationManager.AppSettings["EmailService.User"];
 						var password = ConfigurationManager.AppSettings["EmailService.Password"];
+						var from = ConfigurationManager.AppSettings["EmailService.From"];
 						var to = ConfigurationManager.AppSettings["EmailService.To"];
 
 						using (var mailer = new MimeMailer(host))
@@ -45,7 +46,7 @@ namespace QvaDev.Common.Services
 							mailer.AuthenticationMode = AuthenticationType.Base64;
 
 							var mail = new MimeMailMessage();
-							mail.From = new MimeMailAddress(mailer.User);
+							mail.From = new MimeMailAddress(from);
 							mail.To.Add(to);
 							mail.Subject = subject;
 							mail.Body = body;
