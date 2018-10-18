@@ -108,7 +108,8 @@ namespace QvaDev.Orchestration
         {
             _duplicatContext.SaveChanges();
 
-	        foreach (var agg in _duplicatContext.Aggregators)
+	        _proxyService.Stop();
+			foreach (var agg in _duplicatContext.Aggregators)
 	        {
 		        agg.QuoteAggregator?.Dispose();
 		        agg.QuoteAggregator = null;

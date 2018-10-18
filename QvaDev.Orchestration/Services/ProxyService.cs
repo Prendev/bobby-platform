@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
 using System.Threading.Tasks;
 using log4net;
 using QvaDev.Data.Models;
@@ -66,11 +67,13 @@ namespace QvaDev.Orchestration.Services
 			{
 				foreach (var pp in _profileProxies) Check(pp);
 				foreach (var acc in _accounts) Check(acc);
+				Thread.Sleep(1000);
 			}
 		}
 
 		private void Check(ProfileProxy pp)
 		{
+			if (!_isStarted) return;
 			if (!Uri.TryCreate($"https://{pp.Proxy.Url}", UriKind.Absolute, out Uri proxy)) return;
 			if (!Uri.TryCreate($"https://{pp.Destination}", UriKind.Absolute, out Uri local)) return;
 			StartForwarding(pp.Proxy, proxy, local, pp.Listener);
@@ -78,6 +81,7 @@ namespace QvaDev.Orchestration.Services
 
 		private void Check(Account acc)
 		{
+			if (!_isStarted) return;
 			if (string.IsNullOrWhiteSpace(acc.Destination)) return;
 			if (!Uri.TryCreate($"https://{acc.ProfileProxy.Proxy.Url}", UriKind.Absolute, out Uri proxy)) return;
 			if (!Uri.TryCreate($"https://{acc.Destination}", UriKind.Absolute, out Uri local)) return;
@@ -86,7 +90,8 @@ namespace QvaDev.Orchestration.Services
 
 		private void StartForwarding(Proxy proxy, Uri proxyUri, Uri localUri, TcpListener listener)
 		{
-			if (listener == null || !listener.Pending()) return;
+			if (listener == null) return;
+			if (!listener.Pending()) return;
 
 			IProxyClient proxyClient = null;
 			if (proxy.Type == Proxy.ProxyTypes.Socks4)
@@ -103,19 +108,25 @@ namespace QvaDev.Orchestration.Services
 			var forwardClient = proxyClient.CreateConnection(localUri.Host, localUri.Port);
 			var localClient = listener.AcceptTcpClient();
 
-			Task.Factory.StartNew(() => StreamFromTo(localClient.GetStream(), forwardClient.GetStream()),
-				TaskCreationOptions.LongRunning);
-			Task.Factory.StartNew(() => StreamFromTo(forwardClient.GetStream(), localClient.GetStream()),
-				TaskCreationOptions.LongRunning);
+			Task.Factory.StartNew(() => StreamFromTo(localClient, forwardClient), TaskCreationOptions.LongRunning);
+			Task.Factory.StartNew(() => StreamFromTo(forwardClient, localClient), TaskCreationOptions.LongRunning);
 		}
 
-		void StreamFromTo(NetworkStream from, NetworkStream to)
+		void StreamFromTo(TcpClient from, TcpClient to)
 		{
+			var fs = from.GetStream();
+			var ts = to.GetStream();
+
 			while (_isStarted)
 			{
-				if (!from.DataAvailable) continue;
-				from.CopyTo(to);
+				if (!fs.DataAvailable) continue;
+				fs.CopyTo(ts);
 			}
+
+			from.Close();
+			to.Close();
+			from.Dispose();
+			to.Dispose();
 		}
 	}
 }
