@@ -10,7 +10,6 @@ using QvaDev.Common;
 using QvaDev.Common.Services;
 using QvaDev.Data.Models;
 using QvaDev.Duplicat.ViewModel;
-using Starksoft.Aspen.Proxy;
 
 namespace QvaDev.Duplicat.Views
 {
@@ -23,7 +22,6 @@ namespace QvaDev.Duplicat.Views
             INewsCalendarService newsCalendarService
 		)
         {
-	        Listen();
 			newsCalendarService.Start();
 			DependecyManager.SynchronizationContext = SynchronizationContext.Current;
 			_viewModel = viewModel;
@@ -34,38 +32,6 @@ namespace QvaDev.Duplicat.Views
             TextBoxAppender.ConfigureTextBoxAppender(rtbFix, "FIX", 1000);
 			//TextBoxAppender.ConfigureTextBoxAppender(rtbAll, null);
 		}
-
-	    private void Listen()
-	    {
-		    var listen = new TcpListener(IPAddress.Any, 8080);
-		    listen.Start();
-		    Task.Factory.StartNew(() =>
-		    {
-			    while (true)
-			    {
-					if(!listen.Pending()) continue;
-				    PortForward(listen.AcceptTcpClient());
-			    }
-		    }, TaskCreationOptions.LongRunning);
-	    }
-
-	    private void PortForward(TcpClient tcpClient)
-	    {
-		    var proxyClient = new Socks4ProxyClient("194.105.25.25", 9999);
-		    var forwardClient = proxyClient.CreateConnection("185.97.161.72", 1950);
-
-			Task.Factory.StartNew(() => StreamFromTo(tcpClient.GetStream(), forwardClient.GetStream()), TaskCreationOptions.LongRunning);
-		    Task.Factory.StartNew(() => StreamFromTo(forwardClient.GetStream(), tcpClient.GetStream()), TaskCreationOptions.LongRunning);
-		}
-
-	    void StreamFromTo(NetworkStream from, NetworkStream to)
-	    {
-		    while (true)
-		    {
-				if (!from.DataAvailable) continue;
-				from.CopyTo(to);
-		    }
-	    }
 
 		private void MainForm_Load(object sender, EventArgs e)
         {

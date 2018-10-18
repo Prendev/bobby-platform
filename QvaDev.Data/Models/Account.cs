@@ -28,6 +28,9 @@ namespace QvaDev.Data.Models
 		[InvisibleColumn] public int? IlyaFastFeedAccountId { get; set; }
 		[InvisibleColumn] public IlyaFastFeedAccount IlyaFastFeedAccount { get; set; }
 
+		public int? ProfileProxyId { get; set; }
+		public ProfileProxy ProfileProxy { get; set; }
+
 		public List<AggregatorAccount> Aggregators { get; } = new List<AggregatorAccount>();
 		public List<StratPosition> StratPositions { get; } = new List<StratPosition>();
 	}

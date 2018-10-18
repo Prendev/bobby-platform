@@ -44,6 +44,7 @@ namespace QvaDev.Mt4Integration
 
 		public QuoteClient QuoteClient;
         public OrderClient OrderClient;
+		private Action<string> _destinationSetter;
 
 		public Connector(ILog log) : base(log)
         {
@@ -69,9 +70,10 @@ namespace QvaDev.Mt4Integration
 		}
 
 
-        public void Connect(AccountInfo accountInfo)
+        public void Connect(AccountInfo accountInfo, Action<string> destinationSetter)
         {
-            _accountInfo = accountInfo;
+	        _destinationSetter = destinationSetter;
+	        _accountInfo = accountInfo;
 
             Server[] slaves = null;
 			try
@@ -415,7 +417,7 @@ namespace QvaDev.Mt4Integration
             Log.Error($"{_accountInfo.Description} account ({_accountInfo.User}) disconnected", args.Exception);
             while (!IsConnected)
             {
-	            Connect(_accountInfo);
+	            Connect(_accountInfo, _destinationSetter);
 	            if (IsConnected) return;
 	            Thread.Sleep(new TimeSpan(0, 1, 0));
 			}
@@ -463,7 +465,8 @@ namespace QvaDev.Mt4Integration
 
         private QuoteClient CreateQuoteClient(AccountInfo accountInfo, string host, int port)
         {
-            var client = new QuoteClient(accountInfo.User, accountInfo.Password, host, port);
+	        _destinationSetter?.Invoke($"{host}:{port}");
+			var client = new QuoteClient(accountInfo.User, accountInfo.Password, host, port);
 
             //quoteClient.OnDisconnect += (sender, args) => Connect(accountInfo);
 
@@ -477,8 +480,8 @@ namespace QvaDev.Mt4Integration
             foreach (var srv in slaves)
             {
                 try
-                {
-                    QuoteClient = CreateQuoteClient(accountInfo, srv.Host, srv.Port);
+				{
+					QuoteClient = CreateQuoteClient(accountInfo, srv.Host, srv.Port);
                     QuoteClient.Connect();
                     if (IsConnected) return;
                 }

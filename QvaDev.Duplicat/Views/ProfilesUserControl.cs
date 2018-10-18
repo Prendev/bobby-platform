@@ -1,5 +1,4 @@
-﻿
-using System.Windows.Forms;
+﻿using System.Windows.Forms;
 using Microsoft.EntityFrameworkCore;
 using QvaDev.Data.Models;
 using QvaDev.Duplicat.ViewModel;
@@ -37,6 +36,7 @@ namespace QvaDev.Duplicat.Views
 	        dgvAccounts.AddComboBoxColumn(_viewModel.FixAccounts);
 	        dgvAccounts.AddComboBoxColumn(_viewModel.IlyaFastFeedAccounts);
 	        dgvAccounts.AddComboBoxColumn(_viewModel.CqgClientApiAccounts);
+	        dgvAccounts.AddComboBoxColumn(_viewModel.ProfileProxies);
 
 			dgvProfiles.DataSource = _viewModel.Profiles.ToBindingList();
 			dgvAccounts.DataSource = _viewModel.Accounts.ToBindingList();

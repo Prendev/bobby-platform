@@ -60,6 +60,8 @@ namespace QvaDev.Data
 		public DbSet<Account> Accounts { get; set; }
 		public DbSet<Aggregator> Aggregators { get; set; }
 		public DbSet<AggregatorAccount> AggregatorAccounts { get; set; }
+	    public DbSet<Proxy> Proxies { get; set; }
+	    public DbSet<ProfileProxy> ProfileProxies { get; set; }
 
 		public DbSet<Master> Masters { get; set; }
         public DbSet<Slave> Slaves { get; set; }
@@ -140,6 +142,8 @@ namespace QvaDev.Data
 			//	.HasOne(x => x.Position).WithMany(x => x.StratHubArbPositions)
 			//	.HasForeignKey(x => x.PositionId);
 
+
+			modelBuilder.Entity<ProfileProxy>().HasKey(x => new { x.ProfileId, x.ProxyId });
 
 			var timeSpanConverter = new ValueConverter<TimeSpan, long>(v => v.Ticks, v => new TimeSpan(v));
 			var nullTimeSpanConverter = new ValueConverter<TimeSpan?, long?>(v => v != null ? v.Value.Ticks : (long?) null,

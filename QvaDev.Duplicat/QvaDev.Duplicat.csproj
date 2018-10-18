@@ -145,9 +145,6 @@
     <Reference Include="SQLitePCLRaw.provider.e_sqlite3, Version=1.1.11.121, Culture=neutral, PublicKeyToken=9c301db686d0bd12, processorArchitecture=MSIL">
       <HintPath>..\packages\SQLitePCLRaw.provider.e_sqlite3.net45.1.1.11\lib\net45\SQLitePCLRaw.provider.e_sqlite3.dll</HintPath>
     </Reference>
-    <Reference Include="starksoft.aspen, Version=1.1.5.0, Culture=neutral, PublicKeyToken=56b8923a24d03eb3, processorArchitecture=MSIL">
-      <HintPath>..\packages\starksoft.aspen.1.1.6\lib\net45\starksoft.aspen.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Buffers, Version=4.0.2.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Buffers.4.4.0\lib\netstandard2.0\System.Buffers.dll</HintPath>
@@ -210,6 +207,12 @@
       <DependentUpon>HubArbUserControl.cs</DependentUpon>
     </Compile>
     <Compile Include="Views\PropertyComparer.cs" />
+    <Compile Include="Views\ProxyUserControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Views\ProxyUserControl.Designer.cs">
+      <DependentUpon>ProxyUserControl.cs</DependentUpon>
+    </Compile>
     <Compile Include="Views\_Accounts\CqgAccountsUserControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -287,6 +290,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Views\HubArbUserControl.resx">
       <DependentUpon>HubArbUserControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\ProxyUserControl.resx">
+      <DependentUpon>ProxyUserControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\_Accounts\CqgAccountsUserControl.resx">
       <DependentUpon>CqgAccountsUserControl.cs</DependentUpon>

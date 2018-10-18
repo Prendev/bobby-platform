@@ -31,9 +31,10 @@ namespace QvaDev.Orchestration.Services
 			if (account.CqgClientApiAccountId.HasValue) ConnectCqgClientApiAccount(account);
 		}
 
-
 		private void ConnectMtAccount(Account account)
 		{
+			void DestinationSetter(string d) => account.Destination = d;
+
 			if (!(account.Connector is Mt4Integration.Connector) ||
 			    account.Connector.Id != account.MetaTraderAccountId)
 				account.Connector = null;
@@ -48,7 +49,7 @@ namespace QvaDev.Orchestration.Services
 					User = (uint) account.MetaTraderAccount.User,
 					Password = account.MetaTraderAccount.Password,
 					Srv = account.MetaTraderAccount.MetaTraderPlatform.SrvFilePath
-				});
+				}, DestinationSetter);
 		}
 
 		private void ConenctCtAccount(Account account)

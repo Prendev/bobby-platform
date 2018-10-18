@@ -40,9 +40,10 @@ namespace QvaDev.Orchestration
 		private readonly IConnectorFactory _connectorFactory;
 	    private readonly IReportService _reportService;
 	    private readonly IMtAccountImportService _mtAccountImportService;
-	    private readonly ILog _log;
+	    private readonly IProxyService _proxyService;
+		private readonly ILog _log;
 
-        public Orchestrator(
+	    public Orchestrator(
             Func<SynchronizationContext> synchronizationContextFactory,
 			IConnectorFactory connectorFactory,
             ICopierService copierService,
@@ -51,10 +52,12 @@ namespace QvaDev.Orchestration
             IHubArbService hubArbService,
 			IReportService reportService,
             IMtAccountImportService mtAccountImportService,
+			IProxyService proxyService,
             ILog log)
         {
 	        _log = log;
-	        _mtAccountImportService = mtAccountImportService;
+	        _proxyService = proxyService;
+			_mtAccountImportService = mtAccountImportService;
 	        _reportService = reportService;
 	        _connectorFactory = connectorFactory;
 	        _hubArbService = hubArbService;
@@ -69,11 +72,14 @@ namespace QvaDev.Orchestration
             _duplicatContext = duplicatContext;
             _synchronizationContext = _synchronizationContext ?? _synchronizationContextFactory.Invoke();
 
-	        var accounts = _duplicatContext.Accounts.Local
+			var accounts = _duplicatContext.Accounts.Local
 		        .Where(pa => pa.Run).ToList()
-		        .Where(pa => pa.ConnectionState != ConnectionStates.Connected);
+		        .Where(pa => pa.ConnectionState != ConnectionStates.Connected)
+		        .ToList();
 
-	        var tasks = accounts.Select(account => Task.Run(() => _connectorFactory.Create(account))).ToList();
+	        _proxyService.Start(duplicatContext.ProfileProxies.Local.Where(a => a.Run).ToList(), accounts);
+
+			var tasks = accounts.Select(account => Task.Run(() => _connectorFactory.Create(account))).ToList();
 
 	        await Task.WhenAll(tasks);
 

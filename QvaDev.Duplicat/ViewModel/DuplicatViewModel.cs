@@ -54,6 +54,9 @@ namespace QvaDev.Duplicat.ViewModel
 		public ObservableCollection<Account> Accounts { get; private set; }
 		public ObservableCollection<Aggregator> Aggregators { get; private set; }
 	    public ObservableCollection<AggregatorAccount> AggregatorAccounts { get; private set; }
+	    public ObservableCollection<Proxy> Proxies { get; private set; }
+	    public ObservableCollection<ProfileProxy> ProfileProxies { get; private set; }
+
 		public ObservableCollection<Master> Masters { get; private set; }
         public ObservableCollection<Slave> Slaves { get; private set; }
 	    public ObservableCollection<SymbolMapping> SymbolMappings { get; private set; }
@@ -139,6 +142,9 @@ namespace QvaDev.Duplicat.ViewModel
 			_duplicatContext.Accounts.Where(e => e.ProfileId == p).Include(e => e.StratPositions).Load();
 			_duplicatContext.Aggregators.Where(e => e.ProfileId == p).Load();
 			_duplicatContext.AggregatorAccounts.Where(e => e.Aggregator.ProfileId == p).Load();
+		    _duplicatContext.Proxies.Load();
+		    _duplicatContext.ProfileProxies.Where(e => e.ProfileId == p).Load();
+
 			_duplicatContext.Masters.Where(e => e.ProfileId == p).Load();
 			_duplicatContext.Slaves.Where(e => e.Master.ProfileId == p).Load();
 			_duplicatContext.Copiers.Where(e => e.Slave.Master.ProfileId == p).Load();
@@ -162,6 +168,9 @@ namespace QvaDev.Duplicat.ViewModel
 			Accounts = _duplicatContext.Accounts.Local.ToObservableCollection();
 			Aggregators = _duplicatContext.Aggregators.Local.ToObservableCollection();
 			AggregatorAccounts = ToFilteredObservableCollection(_duplicatContext.AggregatorAccounts.Local, e => e.Aggregator, () => SelectedAggregator);
+		    Proxies = _duplicatContext.Proxies.Local.ToObservableCollection();
+		    ProfileProxies = _duplicatContext.ProfileProxies.Local.ToObservableCollection();
+
 			Masters = _duplicatContext.Masters.Local.ToObservableCollection();
 			Slaves = _duplicatContext.Slaves.Local.ToObservableCollection();
 		    SymbolMappings = ToFilteredObservableCollection(_duplicatContext.SymbolMappings.Local, e => e.Slave, () => SelectedSlave);
