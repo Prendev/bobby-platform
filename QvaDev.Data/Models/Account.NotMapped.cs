@@ -2,7 +2,6 @@
 using QvaDev.Common.Integration;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Net.Sockets;
 
 namespace QvaDev.Data.Models
 {
@@ -22,8 +21,8 @@ namespace QvaDev.Data.Models
 
 		[DisplayPriority(0, true)] [NotMapped] [ReadOnly(true)] public ConnectionStates ConnectionState { get => Get<ConnectionStates>(); set => Set(value); }
 		[NotMapped] [InvisibleColumn] public IConnector Connector { get => Get<IConnector>(); set => Set(value); }
-		[NotMapped] [InvisibleColumn] public TcpListener Listener { get => Get<TcpListener>(); set => Set(value); }
-		[NotMapped] [InvisibleColumn] public string Destination { get => Get<string>(); set => Set(value); }
+		[NotMapped] [InvisibleColumn] public string DestinationHost { get => Get<string>(); set => Set(value); }
+		[NotMapped] [InvisibleColumn] public int DestinationPort { get => Get<int>(); set => Set(value); }
 
 		public Account()
 		{

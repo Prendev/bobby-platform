@@ -14,6 +14,12 @@ namespace QvaDev.Data.Models
 
 		public int LocalPort { get; set; }
 
-		public string Destination { get; set; }
+		public string DestinationHost { get; set; }
+		public int DestinationPort { get; set; }
+
+		public override string ToString()
+		{
+			return $"{(Id == 0 ? "UNSAVED - " : "")}localhost:{LocalPort}";
+		}
 	}
 }

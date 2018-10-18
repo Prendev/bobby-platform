@@ -31,7 +31,7 @@ namespace QvaDev.Orchestration.Services
 
 		public void Start(List<ProfileProxy> profileProxies, List<Account> accounts)
 		{
-			_accounts = accounts.Where(a => a.ProfileProxyId.HasValue).ToList();
+			_accounts = accounts.Where(a => a.Run && a.ProfileProxyId.HasValue).ToList();
 			_profileProxies = profileProxies;
 
 			foreach (var profileProxy in _profileProxies)
@@ -54,11 +54,6 @@ namespace QvaDev.Orchestration.Services
 				profileProxy.Listener?.Stop();
 				profileProxy.Listener = null;
 			}
-			foreach (var account in _accounts)
-			{
-				account.Listener?.Stop();
-				account.Listener = null;
-			}
 		}
 
 		private void InnerStart()
@@ -74,25 +69,27 @@ namespace QvaDev.Orchestration.Services
 		private void Check(ProfileProxy pp)
 		{
 			if (!_isStarted) return;
-			if (!Uri.TryCreate($"https://{pp.Proxy.Url}", UriKind.Absolute, out Uri proxy)) return;
-			if (!Uri.TryCreate($"https://{pp.Destination}", UriKind.Absolute, out Uri local)) return;
-			StartForwarding(pp.Proxy, proxy, local, pp.Listener);
+			Check(pp, pp.DestinationHost, pp.DestinationPort);
 		}
 
 		private void Check(Account acc)
 		{
 			if (!_isStarted) return;
-			if (string.IsNullOrWhiteSpace(acc.Destination)) return;
-			if (!Uri.TryCreate($"https://{acc.ProfileProxy.Proxy.Url}", UriKind.Absolute, out Uri proxy)) return;
-			if (!Uri.TryCreate($"https://{acc.Destination}", UriKind.Absolute, out Uri local)) return;
-			StartForwarding(acc.ProfileProxy.Proxy, proxy, local, acc.Listener);
+			if (string.IsNullOrWhiteSpace(acc.DestinationHost)) return;
+			Check(acc.ProfileProxy, acc.DestinationHost, acc.DestinationPort);
 		}
 
-		private void StartForwarding(Proxy proxy, Uri proxyUri, Uri localUri, TcpListener listener)
+		private void Check(ProfileProxy pp, string destHost, int destPort)
 		{
-			if (listener == null) return;
-			if (!listener.Pending()) return;
+			if (!Uri.TryCreate($"https://{pp.Proxy.Host}:{pp.Proxy.Port}", UriKind.Absolute, out Uri proxyUri)) return;
+			if (!Uri.TryCreate($"https://{destHost}:{destPort}", UriKind.Absolute, out Uri dest)) return;
+			if (pp.Listener?.Pending() != true) return;
+			StartForwarding(pp, proxyUri, dest);
+		}
 
+		private void StartForwarding(ProfileProxy pp, Uri proxyUri, Uri destUri)
+		{
+			var proxy = pp.Proxy;
 			IProxyClient proxyClient = null;
 			if (proxy.Type == Proxy.ProxyTypes.Socks4)
 				proxyClient = string.IsNullOrWhiteSpace(proxy.User)
@@ -102,11 +99,10 @@ namespace QvaDev.Orchestration.Services
 				proxyClient = string.IsNullOrWhiteSpace(proxy.User)
 					? new Socks5ProxyClient(proxyUri.Host, proxyUri.Port)
 					: new Socks5ProxyClient(proxyUri.Host, proxyUri.Port, proxy.User, proxy.Password);
-
 			if (proxyClient == null) return;
 
-			var forwardClient = proxyClient.CreateConnection(localUri.Host, localUri.Port);
-			var localClient = listener.AcceptTcpClient();
+			var forwardClient = proxyClient.CreateConnection(destUri.Host, destUri.Port);
+			var localClient = pp.Listener.AcceptTcpClient();
 
 			Task.Factory.StartNew(() => StreamFromTo(localClient, forwardClient), TaskCreationOptions.LongRunning);
 			Task.Factory.StartNew(() => StreamFromTo(forwardClient, localClient), TaskCreationOptions.LongRunning);
@@ -117,10 +113,15 @@ namespace QvaDev.Orchestration.Services
 			var fs = from.GetStream();
 			var ts = to.GetStream();
 
+			var byteSize = 4096;
+			var buffer = new byte[byteSize];
+			int read;
+
 			while (_isStarted)
 			{
-				if (!fs.DataAvailable) continue;
-				fs.CopyTo(ts);
+				read = fs.Read(buffer, 0, buffer.Length);
+				if (read <= 0) continue;
+				ts.Write(buffer, 0, read);
 			}
 
 			from.Close();

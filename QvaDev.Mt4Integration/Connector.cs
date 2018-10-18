@@ -44,7 +44,7 @@ namespace QvaDev.Mt4Integration
 
 		public QuoteClient QuoteClient;
         public OrderClient OrderClient;
-		private Action<string> _destinationSetter;
+		private Action<string, int> _destinationSetter;
 
 		public Connector(ILog log) : base(log)
         {
@@ -70,7 +70,7 @@ namespace QvaDev.Mt4Integration
 		}
 
 
-        public void Connect(AccountInfo accountInfo, Action<string> destinationSetter)
+        public void Connect(AccountInfo accountInfo, Action<string, int> destinationSetter)
         {
 	        _destinationSetter = destinationSetter;
 	        _accountInfo = accountInfo;
@@ -465,10 +465,9 @@ namespace QvaDev.Mt4Integration
 
         private QuoteClient CreateQuoteClient(AccountInfo accountInfo, string host, int port)
         {
-	        _destinationSetter?.Invoke($"{host}:{port}");
-			var client = new QuoteClient(accountInfo.User, accountInfo.Password, host, port);
-
-            //quoteClient.OnDisconnect += (sender, args) => Connect(accountInfo);
+	        _destinationSetter?.Invoke(host, port);
+	        var client = new QuoteClient(accountInfo.User, accountInfo.Password,
+		        accountInfo.LocalPortForProxy.HasValue ? "localhost" : host, accountInfo.LocalPortForProxy ?? port);
 
             return client;
         }

@@ -33,7 +33,11 @@ namespace QvaDev.Orchestration.Services
 
 		private void ConnectMtAccount(Account account)
 		{
-			void DestinationSetter(string d) => account.Destination = d;
+			void DestinationSetter(string host, int port)
+			{
+				account.DestinationHost = host;
+				account.DestinationPort = port;
+			}
 
 			if (!(account.Connector is Mt4Integration.Connector) ||
 			    account.Connector.Id != account.MetaTraderAccountId)
@@ -48,7 +52,8 @@ namespace QvaDev.Orchestration.Services
 					Description = account.MetaTraderAccount.Description,
 					User = (uint) account.MetaTraderAccount.User,
 					Password = account.MetaTraderAccount.Password,
-					Srv = account.MetaTraderAccount.MetaTraderPlatform.SrvFilePath
+					Srv = account.MetaTraderAccount.MetaTraderPlatform.SrvFilePath,
+					LocalPortForProxy = account.ProfileProxyId.HasValue ? account.ProfileProxy.LocalPort : (int?) null
 				}, DestinationSetter);
 		}
 

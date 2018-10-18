@@ -142,9 +142,6 @@ namespace QvaDev.Data
 			//	.HasOne(x => x.Position).WithMany(x => x.StratHubArbPositions)
 			//	.HasForeignKey(x => x.PositionId);
 
-
-			modelBuilder.Entity<ProfileProxy>().HasKey(x => new { x.ProfileId, x.ProxyId });
-
 			var timeSpanConverter = new ValueConverter<TimeSpan, long>(v => v.Ticks, v => new TimeSpan(v));
 			var nullTimeSpanConverter = new ValueConverter<TimeSpan?, long?>(v => v != null ? v.Value.Ticks : (long?) null,
 				v => v != null ? new TimeSpan(v.Value) : (TimeSpan?) null);
