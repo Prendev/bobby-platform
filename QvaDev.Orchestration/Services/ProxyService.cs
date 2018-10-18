@@ -19,10 +19,20 @@ namespace QvaDev.Orchestration.Services
 
 	public class ProxyService : IProxyService
 	{
+		private class Forward
+		{
+			public ProfileProxy ProfileProxy { get; set; }
+			public Uri ProxyUri { get; set; }
+			public Uri DestUri { get; set; }
+			public TcpClient LocalClient { get; set; }
+			public TcpClient ForwardClient { get; set; }
+		}
+
 		private volatile bool _isStarted;
 		private readonly ILog _log;
 		private List<ProfileProxy> _profileProxies;
 		private List<Account> _accounts;
+		private List<Forward> _forwards = new List<Forward>();
 
 		public ProxyService(ILog log)
 		{
@@ -49,10 +59,24 @@ namespace QvaDev.Orchestration.Services
 		{
 			_isStarted = false;
 
-			foreach (var profileProxy in _profileProxies)
+			try
 			{
-				profileProxy.Listener?.Stop();
-				profileProxy.Listener = null;
+				foreach (var profileProxy in _profileProxies)
+				{
+					profileProxy.Listener?.Stop();
+					profileProxy.Listener = null;
+				}
+
+				foreach (var forward in _forwards)
+				{
+					forward.LocalClient?.Dispose();
+					forward.ForwardClient?.Dispose();
+				}
+				_forwards.Clear();
+			}
+			catch (Exception e)
+			{
+				_log.Error("Proxies stopped exception", e);
 			}
 		}
 
@@ -87,8 +111,22 @@ namespace QvaDev.Orchestration.Services
 			StartForwarding(pp, proxyUri, dest);
 		}
 
+
 		private void StartForwarding(ProfileProxy pp, Uri proxyUri, Uri destUri)
 		{
+			Forward forward;
+			lock (_forwards)
+			{
+				if (_forwards.Any(f => f.ProfileProxy == pp && f.ProxyUri == proxyUri && f.DestUri == destUri)) return;
+				forward = new Forward()
+				{
+					ProfileProxy = pp,
+					ProxyUri = proxyUri,
+					DestUri = destUri
+				};
+				_forwards.Add(forward);
+			}
+
 			var proxy = pp.Proxy;
 			IProxyClient proxyClient = null;
 			if (proxy.Type == Proxy.ProxyTypes.Socks4)
@@ -101,11 +139,11 @@ namespace QvaDev.Orchestration.Services
 					: new Socks5ProxyClient(proxyUri.Host, proxyUri.Port, proxy.User, proxy.Password);
 			if (proxyClient == null) return;
 
-			var forwardClient = proxyClient.CreateConnection(destUri.Host, destUri.Port);
-			var localClient = pp.Listener.AcceptTcpClient();
+			forward.ForwardClient = proxyClient.CreateConnection(destUri.Host, destUri.Port);
+			forward.LocalClient = pp.Listener.AcceptTcpClient();
 
-			Task.Factory.StartNew(() => StreamFromTo(localClient, forwardClient), TaskCreationOptions.LongRunning);
-			Task.Factory.StartNew(() => StreamFromTo(forwardClient, localClient), TaskCreationOptions.LongRunning);
+			Task.Factory.StartNew(() => StreamFromTo(forward.LocalClient, forward.ForwardClient), TaskCreationOptions.LongRunning);
+			Task.Factory.StartNew(() => StreamFromTo(forward.ForwardClient, forward.LocalClient), TaskCreationOptions.LongRunning);
 		}
 
 		void StreamFromTo(TcpClient from, TcpClient to)
