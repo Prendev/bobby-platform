@@ -41,6 +41,7 @@ namespace QvaDev.Orchestration.Services
 
 		public void Start(List<ProfileProxy> profileProxies, List<Account> accounts)
 		{
+			if (_isStarted) return;
 			_accounts = accounts.Where(a => a.Run && a.ProfileProxyId.HasValue).ToList();
 			_profileProxies = profileProxies;
 
