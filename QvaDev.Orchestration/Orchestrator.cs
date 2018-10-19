@@ -104,7 +104,7 @@ namespace QvaDev.Orchestration
 				agg.QuoteAggregator = MarketDataManager.CreateQuoteAggregator(groups);
 			}
         }
-		public Task Disconnect()
+		public async Task Disconnect()
         {
             _duplicatContext.SaveChanges();
 
@@ -118,7 +118,7 @@ namespace QvaDev.Orchestration
 			var accounts = _duplicatContext.Accounts.Local.ToList();
 			var tasks = accounts.Select(pa => Task.Run(() => pa.Connector?.Disconnect()));
 
-			return Task.WhenAll(tasks);
+			await Task.WhenAll(tasks);
 		}
 
         public async Task StartCopiers(DuplicatContext duplicatContext)

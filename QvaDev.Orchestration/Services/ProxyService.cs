@@ -24,8 +24,7 @@ namespace QvaDev.Orchestration.Services
 			public ProfileProxy ProfileProxy { get; set; }
 			public Uri ProxyUri { get; set; }
 			public Uri DestUri { get; set; }
-			public TcpClient LocalClient { get; set; }
-			public TcpClient ForwardClient { get; set; }
+			public Task Forwarding { get; set; }
 		}
 
 		private volatile bool _isStarted;
@@ -60,25 +59,20 @@ namespace QvaDev.Orchestration.Services
 		{
 			_isStarted = false;
 
-			try
+			foreach (var profileProxy in _profileProxies)
 			{
-				foreach (var profileProxy in _profileProxies)
+				try
 				{
 					profileProxy.Listener?.Stop();
 					profileProxy.Listener = null;
 				}
-
-				foreach (var forward in _forwards)
+				catch (Exception e)
 				{
-					forward.LocalClient?.Dispose();
-					forward.ForwardClient?.Dispose();
+					_log.Error("Proxy stopped exception", e);
 				}
-				_forwards.Clear();
 			}
-			catch (Exception e)
-			{
-				_log.Error("Proxies stopped exception", e);
-			}
+
+			_forwards.Clear();
 		}
 
 		private void InnerStart()
@@ -118,55 +112,80 @@ namespace QvaDev.Orchestration.Services
 			Forward forward;
 			lock (_forwards)
 			{
-				if (_forwards.Any(f => f.ProfileProxy == pp && f.ProxyUri == proxyUri && f.DestUri == destUri)) return;
-				forward = new Forward()
+				forward = _forwards.FirstOrDefault(f => f.ProfileProxy == pp && f.ProxyUri == proxyUri && f.DestUri == destUri);
+				if (forward == null)
 				{
-					ProfileProxy = pp,
-					ProxyUri = proxyUri,
-					DestUri = destUri
-				};
-				_forwards.Add(forward);
+					forward = new Forward()
+					{
+						ProfileProxy = pp,
+						ProxyUri = proxyUri,
+						DestUri = destUri
+					};
+					_forwards.Add(forward);
+				}
+
+				if (forward.Forwarding?.IsCompleted == true) return;
 			}
 
-			var proxy = pp.Proxy;
+			forward.Forwarding = StartForwardingInner(pp, proxyUri, destUri);
+		}
+
+		private async Task StartForwardingInner(ProfileProxy pp, Uri proxyUri, Uri destUri)
+		{
+			TcpClient forwardClient = null;
+			TcpClient localClient = null;
+			try
+			{
+				var proxyClient = GetProxyClient(pp.Proxy, proxyUri);
+				// ReSharper disable once PossibleNullReferenceException
+				forwardClient = proxyClient.CreateConnection(destUri.Host, destUri.Port);
+				localClient = pp.Listener.AcceptTcpClient();
+
+				var t1 = StreamFromTo(localClient.GetStream(), forwardClient.GetStream(), new byte[4096]);
+				var t2 = StreamFromTo(forwardClient.GetStream(), localClient.GetStream(), new byte[4096]);
+				await Task.WhenAll(t1, t2);
+			}
+			catch (Exception e)
+			{
+				_log.Error($"ProxyService.StartForwardingInner({pp}) exception", e);
+			}
+			finally
+			{
+				localClient?.Close();
+				forwardClient?.Close();
+			}
+
+		}
+
+		private async Task StreamFromTo(NetworkStream from, NetworkStream to, byte[] buffer)
+		{
+			if (!_isStarted) return;
+			var read = await from.ReadAsync(buffer, 0, buffer.Length);
+			if (!_isStarted) return;
+			if (read > 0) await to.WriteAsync(buffer, 0, read);
+			await StreamFromTo(from, to, buffer);
+		}
+
+		private IProxyClient GetProxyClient(Proxy proxy, Uri proxyUri)
+		{
 			IProxyClient proxyClient = null;
-			if (proxy.Type == Proxy.ProxyTypes.Socks4)
+
+			if (proxy.Type == Proxy.ProxyTypes.Http)
+				proxyClient = string.IsNullOrWhiteSpace(proxy.User)
+					? new HttpProxyClient(proxyUri.Host, proxyUri.Port)
+					: new HttpProxyClient(proxyUri.Host, proxyUri.Port, proxy.User, proxy.Password);
+
+			else if (proxy.Type == Proxy.ProxyTypes.Socks4)
 				proxyClient = string.IsNullOrWhiteSpace(proxy.User)
 					? new Socks4ProxyClient(proxyUri.Host, proxyUri.Port)
 					: new Socks4ProxyClient(proxyUri.Host, proxyUri.Port, proxy.User);
+
 			else if (proxy.Type == Proxy.ProxyTypes.Socks5)
 				proxyClient = string.IsNullOrWhiteSpace(proxy.User)
 					? new Socks5ProxyClient(proxyUri.Host, proxyUri.Port)
 					: new Socks5ProxyClient(proxyUri.Host, proxyUri.Port, proxy.User, proxy.Password);
-			if (proxyClient == null) return;
 
-			forward.ForwardClient = proxyClient.CreateConnection(destUri.Host, destUri.Port);
-			forward.LocalClient = pp.Listener.AcceptTcpClient();
-
-			Task.Factory.StartNew(() => StreamFromTo(forward.LocalClient, forward.ForwardClient), TaskCreationOptions.LongRunning);
-			Task.Factory.StartNew(() => StreamFromTo(forward.ForwardClient, forward.LocalClient), TaskCreationOptions.LongRunning);
-		}
-
-		void StreamFromTo(TcpClient from, TcpClient to)
-		{
-			var fs = from.GetStream();
-			var ts = to.GetStream();
-
-			var byteSize = 4096;
-			var buffer = new byte[byteSize];
-			int read;
-
-			while (_isStarted)
-			{
-				read = fs.Read(buffer, 0, buffer.Length);
-				if (read <= 0) continue;
-				ts.Write(buffer, 0, read);
-			}
-
-			from.Close();
-			to.Close();
-			from.Dispose();
-			to.Dispose();
+			return proxyClient;
 		}
 	}
 }

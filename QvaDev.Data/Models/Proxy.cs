@@ -6,6 +6,7 @@ namespace QvaDev.Data.Models
 	{
 		public enum ProxyTypes
 		{
+			Http,
 			Socks4,
 			Socks5
 		}
