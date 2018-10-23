@@ -183,7 +183,7 @@ namespace QvaDev.CqgClientApiIntegration
 		}
 
 		public override Task<OrderResponse> SendAggressiveOrderRequest(string symbol, Sides side, decimal quantity, decimal limitPrice, decimal deviation,
-			int timeout, int? retryCount = null, int? retryPeriod = null)
+			int timeout, int retryCount, int retryPeriod)
 		{
 			throw new NotImplementedException();
 		}

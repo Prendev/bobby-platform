@@ -120,7 +120,7 @@ namespace QvaDev.FixApiIntegration
 		public override async Task<OrderResponse> SendAggressiveOrderRequest(
 			string symbol, Sides side, decimal quantity,
 			decimal limitPrice, decimal deviation, int timeout,
-			int? retryCount = null, int? retryPeriod = null)
+			int retryCount, int retryPeriod)
 		{
 			if (!FixConnector.IsAggressiveOrderSupported())
 				return await SendMarketOrderRequest(symbol, side, quantity);
@@ -134,7 +134,9 @@ namespace QvaDev.FixApiIntegration
 					Quantity = quantity,
 					LimitPrice = limitPrice,
 					Deviation = deviation,
-					Timeout = timeout
+					Timeout = timeout,
+					RetryCount = retryCount,
+					RetryDelay = retryPeriod
 				});
 
 				Log.Debug(

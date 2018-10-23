@@ -9,7 +9,7 @@ namespace QvaDev.Common.Integration
 		Task<OrderResponse> SendAggressiveOrderRequest(
 			string symbol, Sides side, decimal quantity,
 			decimal limitPrice, decimal deviation, int timeout,
-			int? retryCount = null, int? retryPeriod = null);
+			int retryCount, int retryPeriod);
 
 		void OrderMultipleCloseBy(string symbol);
 		SymbolData GetSymbolInfo(string symbol);

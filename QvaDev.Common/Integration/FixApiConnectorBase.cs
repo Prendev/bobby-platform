@@ -28,7 +28,7 @@ namespace QvaDev.Common.Integration
 		public abstract Task<OrderResponse> SendMarketOrderRequest(string symbol, Sides side, decimal quantity, string comment = null);
 
 		public abstract Task<OrderResponse> SendAggressiveOrderRequest(string symbol, Sides side, decimal quantity, decimal limitPrice, decimal deviation,
-			int timeout, int? retryCount = null, int? retryPeriod = null);
+			int timeout, int retryCount, int retryPeriod);
 
 		public abstract void OrderMultipleCloseBy(string symbol);
 	}
