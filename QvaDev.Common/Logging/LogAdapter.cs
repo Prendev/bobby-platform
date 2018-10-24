@@ -38,7 +38,7 @@ namespace QvaDev.Common.Logging
 			}
 		}
 
-		public override bool IsTraceEnabled { get; } = false;
+		public override bool IsTraceEnabled { get; } = true;
 		public override bool IsDebugEnabled { get; } = true;
 		public override bool IsErrorEnabled { get; } = true;
 		public override bool IsFatalEnabled { get; } = true;

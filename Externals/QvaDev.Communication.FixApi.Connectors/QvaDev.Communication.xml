@@ -699,6 +699,12 @@
             The technology independent logger of the application. Logger instances can be added by the <see cref="M:QvaDev.Communication.Logger.AddLogger(Common.Logging.ILog)"/> method.
             </summary>
         </member>
+        <member name="P:QvaDev.Communication.Logger.DisplayContent">
+            <summary>
+            Gets or sets a callback, which is called when the content of an object is needed to be dumped created by the <see cref="M:QvaDev.Communication.Logger.ToContentPresenter(System.Object,System.String)"/> method.
+            If not set, a default logic will be used.
+            </summary>
+        </member>
         <member name="M:QvaDev.Communication.Logger.AddLogger(Common.Logging.ILog)">
             <summary>
             Adds a logger to the application.
@@ -824,6 +830,15 @@
             </remarks>
             <param name="formatMessageCallback">A callback used by the logger to obtain the message if log level is matched</param>
             <param name="exception">The exception to log, including its stack trace.</param>
+        </member>
+        <member name="M:QvaDev.Communication.Logger.ToContentPresenter(System.Object,System.String)">
+            <summary>
+            Returns a class, whose <see cref="M:System.Object.ToString"/> method dumps the content of the provided class. The default implementation displays the top-level public properties
+            but this can be overridden by setting the <see cref="P:QvaDev.Communication.Logger.DisplayContent"/> delegate.
+            </summary>
+            <param name="obj">The object whose content should be dumped.</param>
+            <param name="message">A message, by which the object content will be prefixed in the log.</param>
+            <returns></returns>
         </member>
         <member name="T:QvaDev.Communication.DuplexStreamConcurrentHandler">
             <summary>

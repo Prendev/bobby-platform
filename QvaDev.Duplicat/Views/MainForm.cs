@@ -1,10 +1,6 @@
 ﻿using System;
 using System.Drawing;
-using System.IO;
-using System.Net;
-using System.Net.Sockets;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using QvaDev.Common;
 using QvaDev.Common.Services;
@@ -29,7 +25,8 @@ namespace QvaDev.Duplicat.Views
             Load += MainForm_Load;
             InitializeComponent();
             TextBoxAppender.ConfigureTextBoxAppender(rtbGeneral, "General", 1000);
-            TextBoxAppender.ConfigureTextBoxAppender(rtbFix, "FIX", 1000);
+            TextBoxAppender.ConfigureTextBoxAppender(rtbFix, "FIX", 1000,
+	            "35=0", "35=1", "35=W", "35=i", "35=b", "bytes", "has been started");
 			//TextBoxAppender.ConfigureTextBoxAppender(rtbAll, null);
 		}
 
