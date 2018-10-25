@@ -219,15 +219,22 @@ namespace QvaDev.FixApiIntegration
 
 		private void FixConnector_ExecutionReport(object sender, ExecutionReportEventArgs e)
 		{
-			Task.Run(() => ExecutionReport(e));
+			if (!e.ExecutionReport.FulfilledQuantity.HasValue) return;
+			if (e.ExecutionReport.Side != Side.Buy && e.ExecutionReport.Side != Side.Sell) return;
+
+			var quantity = e.ExecutionReport.FulfilledQuantity.Value;
+			if (e.ExecutionReport.Side == Side.Sell) quantity *= -1;
+
+			SymbolInfos.AddOrUpdate(e.ExecutionReport.Symbol.ToString(),
+				new SymbolData { SumContracts = quantity },
+				(key, oldValue) =>
+				{
+					oldValue.SumContracts += quantity;
+					return oldValue;
+				});
 		}
 
 		private void Quote(QuoteSet quoteSet)
-		{
-			Task.Run(() => InnerQuote(quoteSet));
-		}
-
-		private void InnerQuote(QuoteSet quoteSet)
 		{
 			if (!quoteSet.Entries.Any()) return;
 
@@ -257,23 +264,6 @@ namespace QvaDev.FixApiIntegration
 
 			OnNewTick(new NewTickEventArgs { Tick = tick });
 			NewQuote?.Invoke(this, quoteSet);
-		}
-
-		private void ExecutionReport(ExecutionReportEventArgs e)
-		{
-			if (!e.ExecutionReport.FulfilledQuantity.HasValue) return;
-			if (e.ExecutionReport.Side != Side.Buy && e.ExecutionReport.Side != Side.Sell) return;
-
-			var quantity = e.ExecutionReport.FulfilledQuantity.Value;
-			if (e.ExecutionReport.Side == Side.Sell) quantity *= -1;
-
-			SymbolInfos.AddOrUpdate(e.ExecutionReport.Symbol.ToString(),
-				new SymbolData { SumContracts = quantity },
-				(key, oldValue) =>
-				{
-					oldValue.SumContracts += quantity;
-					return oldValue;
-				});
 		}
 	}
 }
