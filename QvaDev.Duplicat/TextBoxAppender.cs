@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Threading;
 using System.Windows.Forms;
 using log4net;
 using log4net.Appender;
@@ -10,42 +12,65 @@ using log4net.Repository.Hierarchy;
 
 namespace QvaDev.Duplicat
 {
-    public class TextBoxAppender : IAppender
+	public class TextBoxAppender : IAppender
 	{
+		private class LogQueueEntry
+		{
+			public TextBoxAppender Appender { get; set; }
+			public LoggingEvent LoggingEvent { get; set; }
+		}
+
 		public string LoggerNameFilter { get; set; }
 
 		private RichTextBox _textBox;
 		private readonly List<string> _filters;
 		private readonly int _maxLines;
 
+		private static readonly ConcurrentQueue<LogQueueEntry> LogQueue = new ConcurrentQueue<LogQueueEntry>();
+
+		public string Name { get; set; }
+
+		static TextBoxAppender()
+		{
+			var logThread = new Thread(LoggingLoop) { IsBackground = true };
+			logThread.Start();
+		}
+
+		private static void LoggingLoop()
+		{
+			while (true)
+			{
+				while (LogQueue.TryDequeue(out var le)) Append(le);
+				Thread.Sleep(10);
+			}
+		}
+
 		public TextBoxAppender(RichTextBox textBox, int maxLines, params string[] filters)
-        {
-	        _maxLines = maxLines;
-	        _filters = (filters ?? new string[] { }).ToList();
+		{
+			_maxLines = maxLines;
+			_filters = (filters ?? new string[] { }).ToList();
 
 			var frm = textBox.FindForm();
-            if (frm == null)
-                return;
+			if (frm == null)
+				return;
 
-            frm.FormClosing += delegate
-            {
-                Close();
-            };
+			frm.FormClosing += delegate
+			{
+				Close();
+			};
 
-            _textBox = textBox;
-            Name = "TextBoxAppender";
-        }
+			_textBox = textBox;
+			Name = "TextBoxAppender";
+		}
 
-        public string Name { get; set; }
+		public static void ConfigureTextBoxAppender(RichTextBox textBox, string loggerNameFilter, int maxLines, params string[] filters)
+		{
+			var hierarchy = (Hierarchy)LogManager.GetRepository();
+			var appender = new TextBoxAppender(textBox, maxLines, filters) { LoggerNameFilter = loggerNameFilter };
+			hierarchy.Root.AddAppender(appender);
+		}
 
-        public static void ConfigureTextBoxAppender(RichTextBox textBox, string loggerNameFilter, int maxLines, params string[] filters)
-        {
-            var hierarchy = (Hierarchy) LogManager.GetRepository();
-            var appender = new TextBoxAppender(textBox, maxLines, filters){ LoggerNameFilter = loggerNameFilter};
-            hierarchy.Root.AddAppender(appender);
-        }
-
-        public void Close()
+		public void Close()
 		{
 			if (_textBox == null || _textBox.IsDisposed)
 				return;
@@ -57,38 +82,46 @@ namespace QvaDev.Duplicat
 			hierarchy.Root.RemoveAppender(this);
 		}
 
-        public void DoAppend(LoggingEvent loggingEvent)
+		public void DoAppend(LoggingEvent loggingEvent)
 		{
-			if (_textBox == null || _textBox.IsDisposed)
-				return;
-
-			if (!string.IsNullOrWhiteSpace(LoggerNameFilter) && !loggingEvent.LoggerName.StartsWith(LoggerNameFilter))
-		        return;
-
-			if (loggingEvent.LoggerName.Contains("NHibernate"))
-				return;
-
-			if (_filters.Any(f => loggingEvent.RenderedMessage?.Contains(f) == true))
-				return;
-
-			var msg = $"{loggingEvent.TimeStamp:yyyy-MM-dd HH:mm:ss,fff} [{loggingEvent.ThreadName}] {loggingEvent.RenderedMessage}{Environment.NewLine}";
-			if (loggingEvent.ExceptionObject != null)
-				msg += loggingEvent.ExceptionObject + Environment.NewLine;
-
-			Action<Level, string> write = WriteLogEntry;
-			if (_textBox.InvokeRequired)
-				_textBox.BeginInvoke(write, loggingEvent.Level, msg);
-			else
-				write.Invoke(loggingEvent.Level, msg);
+			LogQueue.Enqueue(new LogQueueEntry { Appender = this, LoggingEvent = loggingEvent });
 		}
 
-		private void WriteLogEntry(Level level, string message)
+		private static void Append(LogQueueEntry entry)
 		{
-			if (_textBox == null || _textBox.IsDisposed)
+			if (entry?.Appender == null || entry.LoggingEvent == null) return;
+
+			var le = entry.LoggingEvent;
+			var app = entry.Appender;
+
+			if (app._textBox == null || app._textBox.IsDisposed) return;
+
+			if (!string.IsNullOrWhiteSpace(app.LoggerNameFilter) && !le.LoggerName.StartsWith(app.LoggerNameFilter))
 				return;
 
-			if (_textBox.Lines.Length > _maxLines)
-				_textBox.Clear();
+			if (le.LoggerName.Contains("NHibernate"))
+				return;
+
+			if (app._filters.Any(f => le.RenderedMessage?.Contains(f) == true))
+				return;
+
+			var msg = $"{le.TimeStamp:yyyy-MM-dd HH:mm:ss,fff} [{le.ThreadName}] {le.RenderedMessage}{Environment.NewLine}";
+			if (le.ExceptionObject != null)
+				msg += le.ExceptionObject + Environment.NewLine;
+
+			Action<TextBoxAppender, Level, string> write = app.WriteLogEntry;
+			if (app._textBox.InvokeRequired)
+				app._textBox.BeginInvoke(write, app, le.Level, msg);
+			else write.Invoke(app, le.Level, msg);
+		}
+
+		private void WriteLogEntry(TextBoxAppender app, Level level, string message)
+		{
+			if (app._textBox == null || app._textBox.IsDisposed)
+				return;
+
+			if (app._textBox.Lines.Length > app._maxLines)
+				app._textBox.Clear();
 
 			Color color;
 			if (level == Level.Trace) color = Color.Gray;
@@ -99,18 +132,18 @@ namespace QvaDev.Duplicat
 			else if (level == Level.Fatal) color = Color.Maroon;
 			else color = SystemColors.WindowText;
 
-			var selStart = _textBox.SelectionStart;
-			var selLength = _textBox.SelectionLength;
-			var resetSelection = selStart != _textBox.TextLength;
+			var selStart = app._textBox.SelectionStart;
+			var selLength = app._textBox.SelectionLength;
+			var resetSelection = selStart != app._textBox.TextLength;
 
-			_textBox.SelectionStart = _textBox.TextLength;
-			_textBox.SelectionLength = 0;
-			_textBox.SelectionColor = color;
-			_textBox.AppendText(message);
+			app._textBox.SelectionStart = app._textBox.TextLength;
+			app._textBox.SelectionLength = 0;
+			app._textBox.SelectionColor = color;
+			app._textBox.AppendText(message);
 
 			if (!resetSelection) return;
-			_textBox.SelectionStart = selStart;
-			_textBox.SelectionLength = selLength;
+			app._textBox.SelectionStart = selStart;
+			app._textBox.SelectionLength = selLength;
 		}
 	}
 }
