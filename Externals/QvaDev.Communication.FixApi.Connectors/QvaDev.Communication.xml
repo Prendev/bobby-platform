@@ -442,6 +442,12 @@
             </summary>
             <param name="arg">The argument.</param>
         </member>
+        <member name="M:QvaDev.Communication.EventHandlerExtensions.InvokeSafe``1(System.EventHandler,System.Object,``0)">
+            <summary>
+            Invoking the user's self subscription without risking the stop of reader/writer thread due to an error in user's event handler.
+            If <see cref="T:System.OperationCanceledException"/> is thrown it is propagated to the caller.
+            </summary>
+        </member>
         <member name="M:QvaDev.Communication.EventHandlerExtensions.InvokeSafe``1(System.EventHandler{``0},System.Object,``0)">
             <summary>
             Invoking the user's self subscription without risking the stop of reader/writer thread due to an error in user's event handler.

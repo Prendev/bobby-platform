@@ -32,35 +32,8 @@ namespace QvaDev.Duplicat
 
 		static TextBoxAppender()
 		{
-			var logThread = new Thread(LoggingLoop) { IsBackground = true };
+			var logThread = new Thread(LoggingLoop) { Name = "Logging", IsBackground = true };
 			logThread.Start();
-		}
-
-		private static void LoggingLoop()
-		{
-			while (true)
-			{
-				while (LogQueue.TryDequeue(out var le)) Append(le);
-				Thread.Sleep(10);
-			}
-		}
-
-		public TextBoxAppender(RichTextBox textBox, int maxLines, params string[] filters)
-		{
-			_maxLines = maxLines;
-			_filters = (filters ?? new string[] { }).ToList();
-
-			var frm = textBox.FindForm();
-			if (frm == null)
-				return;
-
-			frm.FormClosing += delegate
-			{
-				Close();
-			};
-
-			_textBox = textBox;
-			Name = "TextBoxAppender";
 		}
 
 		public static void ConfigureTextBoxAppender(RichTextBox textBox, string loggerNameFilter, int maxLines, params string[] filters)
@@ -68,6 +41,18 @@ namespace QvaDev.Duplicat
 			var hierarchy = (Hierarchy)LogManager.GetRepository();
 			var appender = new TextBoxAppender(textBox, maxLines, filters) { LoggerNameFilter = loggerNameFilter };
 			hierarchy.Root.AddAppender(appender);
+		}
+
+		public TextBoxAppender(RichTextBox textBox, int maxLines, params string[] filters)
+		{
+			Name = "TextBoxAppender";
+			_maxLines = maxLines;
+			_filters = (filters ?? new string[] { }).ToList();
+			_textBox = textBox;
+
+			var frm = textBox.FindForm();
+			if (frm == null) return;
+			frm.FormClosing += (sender, args) => Close();
 		}
 
 		public void Close()
@@ -82,9 +67,15 @@ namespace QvaDev.Duplicat
 			hierarchy.Root.RemoveAppender(this);
 		}
 
-		public void DoAppend(LoggingEvent loggingEvent)
+		public void DoAppend(LoggingEvent loggingEvent) => LogQueue.Enqueue(new LogQueueEntry { Appender = this, LoggingEvent = loggingEvent });
+
+		private static void LoggingLoop()
 		{
-			LogQueue.Enqueue(new LogQueueEntry { Appender = this, LoggingEvent = loggingEvent });
+			while (true)
+			{
+				while (LogQueue.TryDequeue(out var le)) Append(le);
+				Thread.Sleep(10);
+			}
 		}
 
 		private static void Append(LogQueueEntry entry)
@@ -109,13 +100,13 @@ namespace QvaDev.Duplicat
 			if (le.ExceptionObject != null)
 				msg += le.ExceptionObject + Environment.NewLine;
 
-			Action<TextBoxAppender, Level, string> write = app.WriteLogEntry;
+			Action<TextBoxAppender, Level, string> write = WriteLogEntry;
 			if (app._textBox.InvokeRequired)
 				app._textBox.BeginInvoke(write, app, le.Level, msg);
 			else write.Invoke(app, le.Level, msg);
 		}
 
-		private void WriteLogEntry(TextBoxAppender app, Level level, string message)
+		private static void WriteLogEntry(TextBoxAppender app, Level level, string message)
 		{
 			if (app._textBox == null || app._textBox.IsDisposed)
 				return;
