@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using Autofac;
+using log4net;
 using QvaDev.Common;
 using QvaDev.Common.Logging;
 using QvaDev.Common.Services;
@@ -38,8 +39,8 @@ namespace QvaDev.Duplicat
 
         private static void RegisterApp(ContainerBuilder builder)
         {
-	        var generalLog = log4net.LogManager.GetLogger("General");
-	        var fixLog = log4net.LogManager.GetLogger("FIX");
+	        ILog generalLog = new AsyncLogQueueDecorator(LogManager.GetLogger("General"));
+	        ILog fixLog = new AsyncLogQueueDecorator(LogManager.GetLogger("FIX"));
 			Logger.AddLogger(new LogAdapter(fixLog));
 			builder.RegisterInstance(generalLog);
 			builder.RegisterType<MainForm>().AsSelf().InstancePerLifetimeScope();
