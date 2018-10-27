@@ -71,7 +71,7 @@ namespace QvaDev.Duplicat
 			if (_filters.Any(f => loggingEvent.RenderedMessage?.Contains(f) == true))
 				return;
 
-			var msg = $"{loggingEvent.TimeStamp:yyyy-MM-dd HH:mm:ss,fff} [{loggingEvent.ThreadName}] {loggingEvent.RenderedMessage}{Environment.NewLine}";
+			var msg = $"{loggingEvent.RenderedMessage}{Environment.NewLine}";
 			if (loggingEvent.ExceptionObject != null)
 				msg += loggingEvent.ExceptionObject + Environment.NewLine;
 
