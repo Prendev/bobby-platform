@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -22,6 +23,7 @@ namespace QvaDev.FixApiIntegration
 		private readonly AccountInfo _accountInfo;
 		private readonly IEmailService _emailService;
 		private readonly SubscribeMarketData _subscribeMarketData = new SubscribeMarketData();
+		private readonly HashSet<string> _unfinishedOrderIds = new HashSet<string>();
 
 		public override int Id => _accountInfo?.DbId ?? 0;
 		public override string Description => _accountInfo?.Description ?? "";
@@ -94,6 +96,9 @@ namespace QvaDev.FixApiIntegration
 					Quantity = quantity
 				});
 
+				if (!string.IsNullOrWhiteSpace(response.UnfinishedOrderId))
+					_unfinishedOrderIds.Add(response.UnfinishedOrderId);
+
 				Log.Debug(
 					$"{Description} Connector.SendMarketOrderRequest({symbol}, {side}, {quantity}, {comment}) opened {response.FilledQuantity} at avg price {response.AveragePrice}");
 				return new OrderResponse()
@@ -138,6 +143,9 @@ namespace QvaDev.FixApiIntegration
 					RetryCount = retryCount,
 					RetryDelay = retryPeriod
 				});
+
+				if (!string.IsNullOrWhiteSpace(response.UnfinishedOrderId))
+					_unfinishedOrderIds.Add(response.UnfinishedOrderId);
 
 				Log.Debug(
 					$"{Description} Connector.SendAggressiveOrderRequest({symbol}, {side}, {quantity}, " +
@@ -219,8 +227,14 @@ namespace QvaDev.FixApiIntegration
 
 		private void FixConnector_ExecutionReport(object sender, ExecutionReportEventArgs e)
 		{
-			if (!e.ExecutionReport.FulfilledQuantity.HasValue) return;
+			if ((e.ExecutionReport.FulfilledQuantity ?? 0) == 0) return;
 			if (e.ExecutionReport.Side != Side.Buy && e.ExecutionReport.Side != Side.Sell) return;
+
+			if (_unfinishedOrderIds.Contains(e.ExecutionReport.OrderId))
+			{
+				var side = e.ExecutionReport.Side == Side.Buy ? Sides.Sell : Sides.Buy;
+				SendMarketOrderRequest(e.ExecutionReport.Symbol.ToString(), side, e.ExecutionReport.FulfilledQuantity.Value);
+			}
 
 			var quantity = e.ExecutionReport.FulfilledQuantity.Value;
 			if (e.ExecutionReport.Side == Side.Sell) quantity *= -1;
