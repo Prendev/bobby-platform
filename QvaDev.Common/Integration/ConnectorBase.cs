@@ -4,6 +4,7 @@ namespace QvaDev.Common.Integration
 {
 	public abstract class ConnectorBase : IConnector
 	{
+		private ConnectionStates _lastState = ConnectionStates.Disconnected;
 		protected readonly ILog Log;
 
 		public abstract int Id { get; }
@@ -16,7 +17,12 @@ namespace QvaDev.Common.Integration
 		protected ConnectorBase(ILog log)
 		{
 			Log = log;
-			ConnectionChanged += (sender, state) => Log.Debug($"{Description} account {state}");
+			ConnectionChanged += (sender, state) =>
+			{
+				if (_lastState == state) return;
+				_lastState = state;
+				Log.Debug($"{Description} account {state}");
+			};
 		}
 
 		public abstract void Disconnect();
