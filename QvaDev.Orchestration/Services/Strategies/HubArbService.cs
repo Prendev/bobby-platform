@@ -23,16 +23,13 @@ namespace QvaDev.Orchestration.Services.Strategies
 		private bool _isStarted;
 		private readonly ILog _log;
 		private readonly INewsCalendarService _newsCalendarService;
-		private readonly IEmailService _emailService;
 		private List<StratHubArb> _arbs;
 		private readonly object _syncRoot = new object();
 
 		public HubArbService(
 			ILog log,
-			INewsCalendarService newsCalendarService,
-			IEmailService emailService)
+			INewsCalendarService newsCalendarService)
 		{
-			_emailService = emailService;
 			_newsCalendarService = newsCalendarService;
 			_log = log;
 		}
@@ -188,8 +185,8 @@ namespace QvaDev.Orchestration.Services.Strategies
 			{
 				try
 				{
-					var buy = SendPosition(arb, buyQuote, Sides.Buy, size);
-					var sell = SendPosition(arb, sellQuote, Sides.Sell, size);
+					var buy = Task.Run(() => SendPosition(arb, buyQuote, Sides.Buy, size));
+					var sell = Task.Run(() => SendPosition(arb, sellQuote, Sides.Sell, size));
 					await Task.WhenAll(buy, sell);
 					var buyPos = buy.Result;
 					var sellPos = sell.Result;
@@ -232,16 +229,7 @@ namespace QvaDev.Orchestration.Services.Strategies
 			OrderResponse response;
 
 			if (price == null || arb.OrderType == StratHubArb.StratHubArbOrderTypes.Market)
-			{
 				response = await fix.SendMarketOrderRequest(symbol, side, size);
-				if (!response.IsFilled)
-					_emailService.Send("ALERT - Market order failed",
-						$"{arb.Description}" + Environment.NewLine +
-						$"{account}" + Environment.NewLine +
-						$"{symbol}" + Environment.NewLine +
-						$"{side.ToString()}" + Environment.NewLine +
-						$"{size:0}");
-			}
 			else
 				response = await fix.SendAggressiveOrderRequest(symbol, side, size, price.Value, arb.Deviation, arb.TimeWindowInMs,
 					arb.MaxRetryCount, arb.RetryPeriodInMs);

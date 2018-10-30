@@ -1,8 +1,10 @@
-﻿using System;
+﻿using log4net;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Threading.Tasks;
 using System.Timers;
 using System.Xml.Serialization;
 
@@ -27,13 +29,19 @@ namespace QvaDev.Common.Services
 		private int? _firstKey;
 		private int? _lastKey ;
 		private readonly Dictionary<int, int> _weeklyHighImpactDistances = new Dictionary<int, int>();
+		private readonly ILog _log;
+
+		public NewsCalendarService(ILog log)
+		{
+			_log = log;
+		}
 
 		public void Start()
 		{
 			var timer = new Timer(TimerInterval) {AutoReset = true};
 			timer.Elapsed += (sender, args) => Do();
 			timer.Start();
-			Do();
+			Task.Run(() => Do());
 		}
 
 		public List<NewsEvent> GetWeeklyEvents()
@@ -65,18 +73,29 @@ namespace QvaDev.Common.Services
 
 		private void Do()
 		{
-			if (!IsDownloadNeeded()) return;
+			try
+			{
+				if (!IsDownloadNeeded()) return;
 
-			string xml;
-			using (var webClient = new WebClient())
-				xml = webClient.DownloadString(ForexFactoryUrl);
+				string xml;
+				using (var webClient = new WebClient())
+					xml = webClient.DownloadString(ForexFactoryUrl);
 
-			using (var reader = new StringReader(xml))
-				_weeklyEvents = (WeeklyEvents) new XmlSerializer(typeof(WeeklyEvents)).Deserialize(reader);
-			_weeklyEvents.Parse();
+				using (var reader = new StringReader(xml))
+					_weeklyEvents = (WeeklyEvents)new XmlSerializer(typeof(WeeklyEvents)).Deserialize(reader);
+				_weeklyEvents.Parse();
 
-			GenerateOptimizedDictionary();
-			_lastDownload = DateTime.UtcNow;
+				GenerateOptimizedDictionary();
+				_log.Debug("NewsCalendarService update SUCCESS");
+			}
+			catch(Exception e)
+			{
+				_log.Error("NewsCalendarService exception", e);
+			}
+			finally
+			{
+				_lastDownload = DateTime.UtcNow;
+			}
 		}
 
 		private void GenerateOptimizedDictionary()

@@ -86,6 +86,14 @@ namespace QvaDev.FixApiIntegration
 
 		public override async Task<OrderResponse> SendMarketOrderRequest(string symbol, Sides side, decimal quantity, string comment = null)
 		{
+			var retValue = new OrderResponse()
+			{
+				OrderedQuantity = quantity,
+				AveragePrice = null,
+				FilledQuantity = 0,
+				Side = side
+			};
+
 			try
 			{
 				quantity = Math.Abs(quantity);
@@ -99,27 +107,25 @@ namespace QvaDev.FixApiIntegration
 				if (!string.IsNullOrWhiteSpace(response.UnfinishedOrderId))
 					_unfinishedOrderIds.Add(response.UnfinishedOrderId);
 
+				retValue.AveragePrice = response.AveragePrice;
+				retValue.FilledQuantity = response.FilledQuantity;
+
 				Log.Debug(
-					$"{Description} Connector.SendMarketOrderRequest({symbol}, {side}, {quantity}, {comment}) opened {response.FilledQuantity} at avg price {response.AveragePrice}");
-				return new OrderResponse()
-				{
-					OrderedQuantity = quantity,
-					AveragePrice = response.AveragePrice,
-					FilledQuantity = response.FilledQuantity,
-					Side = side
-				};
+					$"{Description} Connector.SendMarketOrderRequest({symbol}, {side}, {quantity}, {comment}) opened {retValue.FilledQuantity} at avg price {retValue.AveragePrice}");
 			}
 			catch (Exception e)
 			{
 				Log.Error($"{Description} Connector.SendMarketOrderRequest({symbol}, {side}, {quantity}, {comment}) exception", e);
-				return new OrderResponse()
-				{
-					OrderedQuantity = quantity,
-					AveragePrice = null,
-					FilledQuantity = 0,
-					Side = side
-				};
 			}
+
+			if (!retValue.IsFilled)
+				_emailService.Send("ALERT - Market order failed",
+					$"{Description}" + Environment.NewLine +
+					$"{symbol}" + Environment.NewLine +
+					$"{side.ToString()}" + Environment.NewLine +
+					$"{quantity:0}");
+
+			return retValue;
 		}
 
 		public override async Task<OrderResponse> SendAggressiveOrderRequest(
@@ -129,6 +135,15 @@ namespace QvaDev.FixApiIntegration
 		{
 			if (!FixConnector.IsAggressiveOrderSupported())
 				return await SendMarketOrderRequest(symbol, side, quantity);
+
+			var retValue = new OrderResponse()
+			{
+				OrderedQuantity = quantity,
+				AveragePrice = null,
+				FilledQuantity = 0,
+				Side = side
+			};
+
 			try
 			{
 				quantity = Math.Abs(quantity);
@@ -147,35 +162,22 @@ namespace QvaDev.FixApiIntegration
 				if (!string.IsNullOrWhiteSpace(response.UnfinishedOrderId))
 					_unfinishedOrderIds.Add(response.UnfinishedOrderId);
 
+				retValue.AveragePrice = response.AveragePrice;
+				retValue.FilledQuantity = response.FilledQuantity;
+
 				Log.Debug(
 					$"{Description} Connector.SendAggressiveOrderRequest({symbol}, {side}, {quantity}, " +
 					$"{limitPrice}, {deviation}, {timeout}, {retryCount}, {retryPeriod}) " +
 					$"opened {response.FilledQuantity} at avg price {response.AveragePrice}");
-
-				return new OrderResponse()
-				{
-					OrderPrice = limitPrice,
-					OrderedQuantity = quantity,
-					AveragePrice = response.AveragePrice,
-					FilledQuantity = response.FilledQuantity,
-					Side = side
-				};
 			}
 			catch (Exception e)
 			{
 				Log.Error(
 					$"{Description} Connector.SendAggressiveOrderRequest({symbol}, {side}, {quantity}, " +
 					$"{limitPrice}, {deviation}, {timeout}, {retryCount}, {retryPeriod}) exception", e);
-
-				return new OrderResponse()
-				{
-					OrderPrice = limitPrice,
-					OrderedQuantity = quantity,
-					AveragePrice = null,
-					FilledQuantity = 0,
-					Side = side
-				};
 			}
+
+			return retValue;
 		}
 
 		public override async void OrderMultipleCloseBy(string symbol)
@@ -220,6 +222,7 @@ namespace QvaDev.FixApiIntegration
 		{
 			OnConnectionChanged(e.Error == null ? ConnectionStates.Disconnected : ConnectionStates.Error);
 			if (e.Error == null) return;
+
 			_emailService.Send("ALERT - account disconnected",
 				$"{_accountInfo.Description}" + Environment.NewLine +
 				$"{e.Error.Message}");
