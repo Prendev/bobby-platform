@@ -251,7 +251,6 @@ namespace QvaDev.CTraderIntegration
 
             NewPosition?.Invoke(this, new NewPositionEventArgs
             {
-                DbId = _accountInfo.DbId,
                 AccountType = AccountTypes.Ct,
                 Position = position,
                 Action = p.PositionStatus == ProtoOAPositionStatus.OA_POSITION_STATUS_OPEN ? NewPositionEventArgs.Actions.Open : NewPositionEventArgs.Actions.Close,
@@ -262,10 +261,7 @@ namespace QvaDev.CTraderIntegration
         {
             var clientMsgId = position.Comment;
             if (string.IsNullOrWhiteSpace(clientMsgId)) return;
-
-            MarketOrder order;
-            if (!_marketOrders.TryGetValue(clientMsgId, out order)) return;
-
+	        if (!_marketOrders.TryGetValue(clientMsgId, out var order)) return;
             if (order.Volume == position.Volume)
             {
                 _marketOrders.TryRemove(clientMsgId, out order);

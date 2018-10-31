@@ -3,20 +3,15 @@ using QvaDev.Common.Attributes;
 
 namespace QvaDev.Data.Models
 {
-    public class Master : BaseEntity
+    public partial class Master : BaseEntity
 	{
 		[InvisibleColumn] public int ProfileId { get; set; }
 		[InvisibleColumn] public Profile Profile { get; set; }
 
 		[DisplayPriority(-1)] public bool Run { get; set; }
-        public int AccountId { get; set; }
-        public Account Account { get; set; }
+		[InvisibleColumn] public int AccountId { get; set; }
+        public Account Account { get => Get<Account>(); set => Set(value); }
 
-        public List<Slave> Slaves { get; } = new List<Slave>();
-
-		public override string ToString()
-        {
-            return (Id == 0 ? "UNSAVED - " : "") + Account;
-        }
+		public List<Slave> Slaves { get; } = new List<Slave>();
     }
 }

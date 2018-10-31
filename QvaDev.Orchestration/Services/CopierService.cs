@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -18,11 +19,15 @@ namespace QvaDev.Orchestration.Services
 
     public class CopierService : ICopierService
     {
-        private bool _isStarted;
-        private readonly ILog _log;
+	    private volatile CancellationTokenSource _cancellation;
+
+		private readonly ILog _log;
         private IEnumerable<Master> _masters;
 
-        public CopierService(ILog log)
+	    private readonly Dictionary<int, BlockingCollection<NewPositionEventArgs>> _masterQueues =
+		    new Dictionary<int, BlockingCollection<NewPositionEventArgs>>();
+
+		public CopierService(ILog log)
         {
             _log = log;
         }
@@ -30,13 +35,15 @@ namespace QvaDev.Orchestration.Services
         public void Start(List<Master> masters)
         {
 	        _masters = masters;
+			_cancellation?.Dispose();
+			_cancellation = new CancellationTokenSource();
 
-	        foreach (var master in _masters)
+			foreach (var master in _masters)
 	        {
-		        master.Account.Connector.NewPosition -= Master_NewPosition;
-		        master.Account.Connector.NewPosition += Master_NewPosition;
+		        master.NewPosition -= Master_NewPosition;
+		        master.NewPosition += Master_NewPosition;
 
-		        var slaves = master.Slaves
+				var slaves = master.Slaves
 			        .Where(s => s.Account.FixApiAccountId.HasValue &&
 			                    s.Account.Connector != null &&
 								s.Account.Connector.IsConnected);
@@ -45,38 +52,62 @@ namespace QvaDev.Orchestration.Services
 		        foreach (var symbolMapping in slave.SymbolMappings)
 			        slave.Account.Connector.Subscribe(symbolMapping.To);
 
-	        }
+		        new Thread(() => CopyLoop(master)) { IsBackground = true }.Start();
+			}
 
-	        _isStarted = true;
             _log.Info("Copiers are started");
         }
 
         public void Stop()
         {
-            _isStarted = false;
-        }
+	        _cancellation?.Cancel(true);
+	        _log.Info("Copiers are stopped");
+		}
 
-        private void Master_NewPosition(object sender, NewPositionEventArgs e)
+	    private async void CopyLoop(Master master)
+		{
+			var queue = new BlockingCollection<NewPositionEventArgs>();
+			_masterQueues[master.Id] = queue;
+
+			while (!_cancellation.IsCancellationRequested)
+			{
+				try
+				{
+					var newPos = queue.Take(_cancellation.Token);
+
+					_log.Info($"Master {newPos.Action:F} {newPos.Position.Side:F} signal on " +
+					          $"{newPos.Position.Symbol} with open time: {newPos.Position.OpenTime:o}");
+
+					var slaves = master.Slaves.Where(s => s.Run);
+					await Task.WhenAll(slaves.Select(slave => CopyToAccount(newPos, slave)));
+				}
+				catch (OperationCanceledException)
+				{
+					break;
+				}
+				catch (Exception e)
+				{
+					_log.Error("CopierService.CopyLoop exception", e);
+				}
+			}
+
+			_masterQueues[master.Id].Dispose();
+			_masterQueues.Remove(master.Id);
+		}
+
+		private void Master_NewPosition(object sender, NewPositionEventArgs e)
         {
-            if (!_isStarted) return;
-			Task.Factory.StartNew(() =>
-            {
-                lock (sender)
-                {
-                    _log.Info($"Master {e.Action:F} {e.Position.Side:F} signal on " +
-                              $"{e.Position.Symbol} with open time: {e.Position.OpenTime:o}");
+            if (_cancellation.IsCancellationRequested) return;
+	        if (!(sender is Master master)) return;
+	        if (!master.Run) return;
 
-	                var slaves = _masters.Where(m => m.Run && m.Account.MetaTraderAccountId == e.DbId)
-		                .SelectMany(m => m.Slaves).Where(s => s.Run);
-					Task.WhenAll(slaves.Select(slave => CopyToAccount(e, slave))).Wait();
-                }
-            });
+	        _masterQueues[master.Id].Add(e);
         }
 
         private Task CopyToAccount(NewPositionEventArgs e, Slave slave)
         {
             if (slave.Account.MetaTraderAccountId.HasValue) return CopyToMtAccount(e, slave);
-            if (slave.Account.CTraderAccountId.HasValue) return CopyToCtAccount(e, slave);;
+            if (slave.Account.CTraderAccountId.HasValue) return CopyToCtAccount(e, slave);
 			if (slave.Account.FixApiAccountId.HasValue) return CopyToFixAccount(e, slave);
 			return Task.FromResult(0);
 		}
@@ -89,10 +120,8 @@ namespace QvaDev.Orchestration.Services
                 ? slave.SymbolMappings.First(m => m.From == e.Position.Symbol).To
                 : e.Position.Symbol + (slave.SymbolSuffix ?? "");
 
-            var tasks = slave.Copiers.Where(s => s.Run).Select(copier => Task.Factory.StartNew(() =>
+            var tasks = slave.Copiers.Where(s => s.Run).Select(copier => DelayedRun(() =>
 			{
-				if (copier.DelayInMilliseconds > 0) Thread.Sleep(copier.DelayInMilliseconds);
-
 				var volume = (long)(100 * Math.Abs(e.Position.RealVolume * copier.CopyRatio));
 				var side = copier.CopyRatio < 0 ? e.Position.Side.Inv() : e.Position.Side;
 				var type = side == Sides.Buy ? ProtoTradeSide.BUY : ProtoTradeSide.SELL;
@@ -107,7 +136,7 @@ namespace QvaDev.Orchestration.Services
                     slaveConnector.SendClosePositionRequests($"{slave.Id}-{e.Position.Id}",
                         copier.MaxRetryCount, copier.RetryPeriodInMs);
 
-            }, TaskCreationOptions.LongRunning));
+            }, copier.DelayInMilliseconds));
             return Task.WhenAll(tasks);
         }
 
@@ -119,21 +148,20 @@ namespace QvaDev.Orchestration.Services
                 ? slave.SymbolMappings.First(m => m.From == e.Position.Symbol).To
                 : e.Position.Symbol + (slave.SymbolSuffix ?? "");
 
-            var tasks = slave.Copiers.Where(s => s.Run).Select(copier => Task.Factory.StartNew(() =>
-            {
-                if (copier.DelayInMilliseconds > 0) Thread.Sleep(copier.DelayInMilliseconds);
-				// TODO
-				//var lots = Math.Abs(e.Position.RealVolume) / slaveConnector.GetContractSize(symbol) *
-				//           (double) copier.CopyRatio;
-				var lots = Math.Abs(e.Position.Lots * (double)copier.CopyRatio);
-				var side = copier.CopyRatio < 0 ? e.Position.Side.Inv() : e.Position.Side;
-	            var comment = $"{slave.Id}-{e.Position.Id}-{copier.Id}";
-	            if (e.Action == NewPositionEventArgs.Actions.Open)
-		            slaveConnector.SendMarketOrderRequest(symbol, side, lots, e.Position.MagicNumber,
-			            comment, copier.MaxRetryCount, copier.RetryPeriodInMs);
-	            else if (e.Action == NewPositionEventArgs.Actions.Close)
-		            slaveConnector.SendClosePositionRequests(comment, copier.MaxRetryCount, copier.RetryPeriodInMs);
-            }, TaskCreationOptions.LongRunning));
+	        var tasks = slave.Copiers.Where(s => s.Run).Select(copier => DelayedRun(() =>
+	        {
+		        // TODO
+		        //var lots = Math.Abs(e.Position.RealVolume) / slaveConnector.GetContractSize(symbol) *
+		        //           (double) copier.CopyRatio;
+		        var lots = Math.Abs(e.Position.Lots * (double) copier.CopyRatio);
+		        var side = copier.CopyRatio < 0 ? e.Position.Side.Inv() : e.Position.Side;
+		        var comment = $"{slave.Id}-{e.Position.Id}-{copier.Id}";
+		        if (e.Action == NewPositionEventArgs.Actions.Open)
+			        slaveConnector.SendMarketOrderRequest(symbol, side, lots, e.Position.MagicNumber,
+				        comment, copier.MaxRetryCount, copier.RetryPeriodInMs);
+		        else if (e.Action == NewPositionEventArgs.Actions.Close)
+			        slaveConnector.SendClosePositionRequests(comment, copier.MaxRetryCount, copier.RetryPeriodInMs);
+	        }, copier.DelayInMilliseconds));
             return Task.WhenAll(tasks);
 		}
 
@@ -145,10 +173,8 @@ namespace QvaDev.Orchestration.Services
 				? slave.SymbolMappings.First(m => m.From == e.Position.Symbol).To
 				: e.Position.Symbol + (slave.SymbolSuffix ?? "");
 
-			var tasks = slave.FixApiCopiers.Where(s => s.Run).Select(copier => Task.Factory.StartNew(async () =>
+			var tasks = slave.FixApiCopiers.Where(s => s.Run).Select(copier => DelayedRun(async () =>
 			{
-				if (copier.DelayInMilliseconds > 0) Thread.Sleep(copier.DelayInMilliseconds);
-
 				var quantity = Math.Abs((decimal)e.Position.Lots * copier.CopyRatio);
 				quantity = Math.Floor(quantity);
 				if (quantity == 0) return;
@@ -184,8 +210,14 @@ namespace QvaDev.Orchestration.Services
 					await slaveConnector.SendMarketOrderRequest(symbol, side.Inv(), openResponse.FilledQuantity);
 				}
 
-			}, TaskCreationOptions.LongRunning));
+			}, copier.DelayInMilliseconds));
 			return Task.WhenAll(tasks);
 		}
-	}
+
+	    private async Task DelayedRun(Action action, int millisecondsDelay)
+	    {
+		    if (millisecondsDelay > 0) await Task.Delay(millisecondsDelay);
+		    await Task.Run(action);
+	    }
+    }
 }

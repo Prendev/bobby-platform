@@ -202,6 +202,7 @@
     </Compile>
     <Compile Include="Migrations\DuplicatContextModelSnapshot.cs" />
     <Compile Include="Models\Account.NotMapped.cs" />
+    <Compile Include="Models\Master.NotMapped.cs" />
     <Compile Include="Models\ProfileProxy.NotMapped.cs" />
     <Compile Include="Models\Proxy.cs" />
     <Compile Include="Models\Pushing.NotMapped.cs" />

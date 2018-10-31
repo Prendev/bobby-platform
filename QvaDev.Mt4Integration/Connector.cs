@@ -139,10 +139,10 @@ namespace QvaDev.Mt4Integration
         {
             try
 			{
+				Log.Debug($"{_accountInfo.Description} account ({_accountInfo.User}, {comment}) OrderClient.OrderSend started...");
 				var op = side == Sides.Buy ? Op.Buy : Op.Sell;
-				Log.Info($"{_accountInfo.Description} account ({_accountInfo.User}) OrderClient.OrderSend started...");
 				var o = OrderClient.OrderSend(symbol, op, lots, 0, 0, 0, 0, comment, magicNumber, DateTime.MaxValue);
-				Log.Info($"{_accountInfo.Description} account ({_accountInfo.User}) OrderClient.OrderSend is successful");
+				Log.Info($"{_accountInfo.Description} account ({_accountInfo.User}, {comment}) OrderClient.OrderSend is successful");
 
 				var position = new Position
 				{
@@ -182,17 +182,19 @@ namespace QvaDev.Mt4Integration
         {
             try
 			{
+				Log.Debug($"{_accountInfo.Description} account ({_accountInfo.User}, {position.Comment}) OrderClient.OrderClose started...");
+
 				var price = position.Side == Sides.Buy
                     ? QuoteClient.GetQuote(position.Symbol).Bid
                     : QuoteClient.GetQuote(position.Symbol).Ask;
-				Log.Info($"{_accountInfo.Description} account ({_accountInfo.User}) OrderClient.OrderClose started...");
 				OrderClient.OrderClose(position.Symbol, (int) position.Id, lots ?? position.Lots, price, 0);
-				Log.Info($"{_accountInfo.Description} account ({_accountInfo.User}) OrderClient.OrderClose is successful");
+
+				Log.Info($"{_accountInfo.Description} account ({_accountInfo.User}, {position.Comment}) OrderClient.OrderClose is successful");
 				return true;
 			}
             catch (Exception e)
             {
-                Log.Error($"Connector.SendClosePositionRequests({position.Id}) exception", e);
+                Log.Error($"Connector.SendClosePositionRequests({position.Id}, {position.Comment}) exception", e);
 				if (maxRetryCount <= 0) return false;
 
 				Thread.Sleep(retryPeriodInMs);
@@ -450,7 +452,6 @@ namespace QvaDev.Mt4Integration
 
             OnNewPosition(new NewPositionEventArgs
             {
-                DbId = _accountInfo.DbId,
                 AccountType = AccountTypes.Mt4,
                 Position = position,
                 Action = update.Action == UpdateAction.PositionOpen ? NewPositionEventArgs.Actions.Open : NewPositionEventArgs.Actions.Close,

@@ -18,6 +18,7 @@ namespace QvaDev.Data.Models
 
 		public event NewTickEventHandler NewTick;
 		public event ConnectionChangedEventHandler ConnectionChanged;
+		public event NewPositionEventHandler NewPosition;
 
 		[DisplayPriority(0, true)] [NotMapped] [ReadOnly(true)] public ConnectionStates ConnectionState { get => Get<ConnectionStates>(); set => Set(value); }
 		[NotMapped] [InvisibleColumn] public IConnector Connector { get => Get<IConnector>(); set => Set(value); }
@@ -32,23 +33,29 @@ namespace QvaDev.Data.Models
 					if (x == null) return;
 					x.NewTick -= Connector_NewTick;
 					x.ConnectionChanged -= Connector_ConnectionChanged;
+					x.NewPosition -= Connector_NewPosition;
 				},
 				x =>
 				{
 					if (x == null) return;
 					x.NewTick += Connector_NewTick;
 					x.ConnectionChanged += Connector_ConnectionChanged;
+					x.NewPosition += Connector_NewPosition;
 				});
 		}
 
 		public Tick GetLastTick(string symbol) => Connector?.GetLastTick(symbol);
+
+		private void Connector_NewTick(object sender, NewTickEventArgs e) => NewTick?.Invoke(this, e);
 
 		private void Connector_ConnectionChanged(object sender, ConnectionStates connectionState)
 		{
 			ConnectionState = connectionState;
 			ConnectionChanged?.Invoke(this, ConnectionState);
 		}
-		private void Connector_NewTick(object sender, NewTickEventArgs e) => NewTick?.Invoke(this, e);
+
+		private void Connector_NewPosition(object sender, NewPositionEventArgs newPositionEventArgs)
+			=> NewPosition?.Invoke(this, newPositionEventArgs);
 
 		public override string ToString()
 		{
