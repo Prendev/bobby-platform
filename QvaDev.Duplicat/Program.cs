@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Configuration;
 using System.IO;
+using System.Threading;
 using System.Windows.Forms;
 using Autofac;
 using log4net;
@@ -16,7 +18,10 @@ namespace QvaDev.Duplicat
         [STAThread]
         static void Main()
         {
-			AppDomain.CurrentDomain.SetData("DataDirectory", Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory));
+	        int.TryParse(ConfigurationManager.AppSettings["ThreadPool.MinThreads"], out var minThreads);
+	        ThreadPool.GetMinThreads(out var wokerThreads, out var completionPortThreads);
+	        ThreadPool.SetMinThreads(Math.Max(minThreads, wokerThreads), completionPortThreads);
+
 			using (var c = new DuplicatContext()) c.Init();
 
 			Application.EnableVisualStyles();
@@ -24,12 +29,13 @@ namespace QvaDev.Duplicat
             using (var scope = Dependencies.GetContainer().BeginLifetimeScope())
             {
 	            var log = scope.Resolve<ILog>();
-	            Application.ThreadException += (s, e) => Application_ThreadException(e, log);
+
+				Application.ThreadException += (s, e) => Application_ThreadException(e, log);
 				Application.Run(scope.Resolve<MainForm>());
-            }
+			}
         }
 
-		private static void Application_ThreadException(System.Threading.ThreadExceptionEventArgs e, ILog log)
+		private static void Application_ThreadException(ThreadExceptionEventArgs e, ILog log)
 		{
 			log.Error("Unhandled exception", e.Exception);
 		}

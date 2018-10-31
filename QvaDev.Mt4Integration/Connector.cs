@@ -347,8 +347,7 @@ namespace QvaDev.Mt4Integration
         {
             foreach (var timeframe in (Timeframe[]) Enum.GetValues(typeof(Timeframe)))
             {
-                SymbolHistory symbolHistory;
-                if (!_symbolHistories.TryGetValue(new Tuple<string, int>(args.Symbol, (int)timeframe).ToString(), out symbolHistory)) continue;
+	            if (!_symbolHistories.TryGetValue(new Tuple<string, int>(args.Symbol, (int)timeframe).ToString(), out var symbolHistory)) continue;
 
                 lock (symbolHistory)
                 {

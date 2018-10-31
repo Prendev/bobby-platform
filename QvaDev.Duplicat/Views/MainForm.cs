@@ -1,7 +1,7 @@
-﻿using System;
-using System.Drawing;
+﻿using System.Drawing;
 using System.Threading;
 using System.Windows.Forms;
+using log4net;
 using QvaDev.Common;
 using QvaDev.Common.Services;
 using QvaDev.Data.Models;
@@ -12,29 +12,30 @@ namespace QvaDev.Duplicat.Views
     public partial class MainForm : Form
     {
         private readonly DuplicatViewModel _viewModel;
+	    private readonly ILog _log;
 
-        public MainForm(
+	    public MainForm(
             DuplicatViewModel viewModel,
-            INewsCalendarService newsCalendarService
+            INewsCalendarService newsCalendarService,
+			ILog log
 		)
-        {
-			newsCalendarService.Start();
-			DependecyManager.SynchronizationContext = SynchronizationContext.Current;
+		{
 			_viewModel = viewModel;
+			_log = log;
+			DependecyManager.SynchronizationContext = SynchronizationContext.Current;
 
-            Load += MainForm_Load;
-            InitializeComponent();
+            Load += (sender, args) => InitView();
+			InitializeComponent();
             TextBoxAppender.ConfigureTextBoxAppender(rtbGeneral, "General", 1000);
             TextBoxAppender.ConfigureTextBoxAppender(rtbFix, "FIX", 1000);
 			TextBoxAppender.ConfigureTextBoxAppender(rtbAll, null, 1000);
+
+	        ThreadPool.GetMinThreads(out var wokerThreads, out var completionPortThreads);
+	        _log.Debug($"ThreadPool.GetMinThreads(out {wokerThreads}, out {completionPortThreads})");
+			newsCalendarService.Start();
 		}
 
-		private void MainForm_Load(object sender, EventArgs e)
-        {
-			InitView();
-        }
-
-        private void InitView()
+		private void InitView()
         {
             //btnRestore.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsConfigReadonly), true);
             gbControl.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsLoading), true);
