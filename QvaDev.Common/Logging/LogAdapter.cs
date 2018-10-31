@@ -32,13 +32,10 @@ namespace QvaDev.Common.Logging
 				case LogLevel.Fatal:
 					_log4NetLog.Fatal(message, exception);
 					break;
-				default:
-					_log4NetLog.Debug(message, exception);
-					break;
 			}
 		}
 
-		public override bool IsTraceEnabled { get; } = true;
+		public override bool IsTraceEnabled { get; } = false;
 		public override bool IsDebugEnabled { get; } = true;
 		public override bool IsErrorEnabled { get; } = true;
 		public override bool IsFatalEnabled { get; } = true;

@@ -25,9 +25,8 @@ namespace QvaDev.Duplicat.Views
             Load += MainForm_Load;
             InitializeComponent();
             TextBoxAppender.ConfigureTextBoxAppender(rtbGeneral, "General", 1000);
-            TextBoxAppender.ConfigureTextBoxAppender(rtbFix, "FIX", 1000,
-	            "35=0", "35=1", "35=W", "35=i", "35=b", "bytes", "has been started");
-			//TextBoxAppender.ConfigureTextBoxAppender(rtbAll, null);
+            TextBoxAppender.ConfigureTextBoxAppender(rtbFix, "FIX", 1000);
+			TextBoxAppender.ConfigureTextBoxAppender(rtbAll, null, 1000);
 		}
 
 		private void MainForm_Load(object sender, EventArgs e)

@@ -127,11 +127,12 @@ namespace QvaDev.Orchestration.Services
 				//           (double) copier.CopyRatio;
 				var lots = Math.Abs(e.Position.Lots * (double)copier.CopyRatio);
 				var side = copier.CopyRatio < 0 ? e.Position.Side.Inv() : e.Position.Side;
-				if (e.Action == NewPositionEventArgs.Actions.Open)
-                    slaveConnector.SendMarketOrderRequest(symbol, side, lots, e.Position.MagicNumber,
-                        $"{slave.Id}-{e.Position.Id}", copier.MaxRetryCount, copier.RetryPeriodInMs);
-                else if (e.Action == NewPositionEventArgs.Actions.Close)
-                    slaveConnector.SendClosePositionRequests($"{slave.Id}-{e.Position.Id}", copier.MaxRetryCount, copier.RetryPeriodInMs);
+	            var comment = $"{slave.Id}-{e.Position.Id}-{copier.Id}";
+	            if (e.Action == NewPositionEventArgs.Actions.Open)
+		            slaveConnector.SendMarketOrderRequest(symbol, side, lots, e.Position.MagicNumber,
+			            comment, copier.MaxRetryCount, copier.RetryPeriodInMs);
+	            else if (e.Action == NewPositionEventArgs.Actions.Close)
+		            slaveConnector.SendClosePositionRequests(comment, copier.MaxRetryCount, copier.RetryPeriodInMs);
             }, TaskCreationOptions.LongRunning));
             return Task.WhenAll(tasks);
 		}
