@@ -95,7 +95,7 @@ namespace QvaDev.Common
 				new Thread(() => Loop(token)) {Name = $"{description}_{i}", IsBackground = true}.Start();
 		}
 
-		private async void Loop(CancellationToken token)
+		private void Loop(CancellationToken token)
 		{
 			while (!token.IsCancellationRequested)
 			{
@@ -115,7 +115,7 @@ namespace QvaDev.Common
 				try
 				{
 					Interlocked.Increment(ref _busyCount);
-					var result = await action();
+					var result = action().Result;
 					if (_taskCompletionManager.TryRemove(action, out var source)) source.TrySetResult(result);
 				}
 				catch (Exception e)
@@ -131,7 +131,8 @@ namespace QvaDev.Common
 
 		public async Task<T> Run(Func<Task<T>> action)
 		{
-			if (_busyCount >= _size) return await Task.Run(action);
+			if (_busyCount >= _size)
+				return await Task.Run(action);
 
 			var source = new TaskCompletionSource<T>();
 			_taskCompletionManager[action] = source;
