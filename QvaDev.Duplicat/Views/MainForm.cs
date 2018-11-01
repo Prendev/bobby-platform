@@ -37,8 +37,8 @@ namespace QvaDev.Duplicat.Views
 
 		private void InitView()
         {
-            //btnRestore.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsConfigReadonly), true);
-            gbControl.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsLoading), true);
+			//btnRestore.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsConfigReadonly), true);
+			gbControl.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsLoading), true);
             btnConnect.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsConnected), true);
             btnDisconnect.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsConnected));
 			btnSave.AddBinding<DuplicatViewModel.SaveStates, Color>("ForeColor", _viewModel,

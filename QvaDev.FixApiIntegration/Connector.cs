@@ -146,6 +146,10 @@ namespace QvaDev.FixApiIntegration
 
 			try
 			{
+				Log.Debug(
+					$"{Description} Connector.SendAggressiveOrderRequest({symbol}, {side}, {quantity}, " +
+					$"{limitPrice}, {deviation}, {timeout}, {retryCount}, {retryPeriod}) ");
+
 				quantity = Math.Abs(quantity);
 				var response = await FixConnector.AggressiveOrderAsync(new AggressiveOrderRequest()
 				{

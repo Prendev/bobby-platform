@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using log4net;
+using QvaDev.Common;
 using QvaDev.Common.Integration;
 using QvaDev.Common.Services;
 using QvaDev.Data.Models;
@@ -20,11 +23,16 @@ namespace QvaDev.Orchestration.Services.Strategies
 
 	public class HubArbService : IHubArbService
 	{
-		private bool _isStarted;
+		private volatile CancellationTokenSource _cancellation;
+		private CustomThreadPool<OrderResponse> _orderPool;
+
 		private readonly ILog _log;
 		private readonly INewsCalendarService _newsCalendarService;
 		private List<StratHubArb> _arbs;
 		private readonly object _syncRoot = new object();
+
+		private readonly Dictionary<int, BlockingCollection<Action>> _arbQueues =
+			new Dictionary<int, BlockingCollection<Action>>();
 
 		public HubArbService(
 			ILog log,
@@ -36,15 +44,23 @@ namespace QvaDev.Orchestration.Services.Strategies
 
 		public void Start(List<StratHubArb> arbs)
 		{
+			_cancellation?.Dispose();
+			_orderPool?.Dispose();
+
 			_arbs = arbs;
+			_cancellation = new CancellationTokenSource();
+
+			var threadCount = _arbs.SelectMany(a => a.Aggregator.Accounts).Distinct().Count();
+			_orderPool = new CustomThreadPool<OrderResponse>(threadCount, "ArbOrderPool", _cancellation.Token);
 
 			foreach (var arb in _arbs)
 			{
 				arb.ArbQuote -= Arb_ArbQuote;
+				new Thread(() => ArbLoop(arb, _cancellation.Token)) {Name = $"Arb_{arb.Id}", IsBackground = true}
+					.Start();
 				arb.ArbQuote += Arb_ArbQuote;
 			}
 
-			_isStarted = true;
 			_log.Info("Hub arbs are started");
 		}
 
@@ -56,7 +72,7 @@ namespace QvaDev.Orchestration.Services.Strategies
 
 		private void Arb_ArbQuote(object sender, StratHubArbQuoteEventArgs e)
 		{
-			if (!_isStarted) return;
+			if (_cancellation.IsCancellationRequested) return;
 			var arb = (StratHubArb) sender;
 
 			if (!arb.Run) return;
@@ -153,7 +169,17 @@ namespace QvaDev.Orchestration.Services.Strategies
 			size = Math.Min(size, sellQuote.Sum + arb.MaxSizePerAccount);
 			if (size <= 0) return;
 
-			Open(arb, buyQuote, sellQuote, size);
+			// Is busy?
+			lock (_syncRoot)
+			{
+				if (arb.IsBusy) return;
+				if (buyQuote.Account.IsBusy) return;
+				if (sellQuote.Account.IsBusy) return;
+				arb.IsBusy = true;
+				buyQuote.Account.IsBusy = true;
+				sellQuote.Account.IsBusy = true;
+			}
+			_arbQueues[arb.Id].Add(() => Open(arb, buyQuote, sellQuote, size));
 		}
 
 		private bool CheckAccount(StratHubArb arb, Account account, DateTime now)
@@ -169,50 +195,39 @@ namespace QvaDev.Orchestration.Services.Strategies
 			return true;
 		}
 
-		private void Open(StratHubArb arb, Quote buyQuote, Quote sellQuote, decimal size)
+		private async void Open(StratHubArb arb, Quote buyQuote, Quote sellQuote, decimal size)
 		{
-			lock (_syncRoot)
+			try
 			{
-				if (arb.IsBusy) return;
-				if (buyQuote.Account.IsBusy) return;
-				if (sellQuote.Account.IsBusy) return;
-				arb.IsBusy = true;
-				buyQuote.Account.IsBusy = true;
-				sellQuote.Account.IsBusy = true;
+				_log.Info($"{arb.Description} arb is opening!!!");
+
+				var buy = _orderPool.Run(() => SendPosition(arb, buyQuote, Sides.Buy, size));
+				var sell = _orderPool.Run(() => SendPosition(arb, sellQuote, Sides.Sell, size));
+				await Task.WhenAll(buy, sell);
+				var buyPos = buy.Result;
+				var sellPos = sell.Result;
+
+				if (buyPos.FilledQuantity > sellPos.FilledQuantity)
+				{
+					_log.Error($"{arb.Description} arb opening size mismatch!!!");
+					await SendPosition(arb, buyQuote, Sides.Sell, buyPos.FilledQuantity - sellPos.FilledQuantity, true);
+				}
+				else if (buyPos.FilledQuantity < sellPos.FilledQuantity)
+				{
+					_log.Error($"{arb.Description} arb opening size mismatch!!!");
+					await SendPosition(arb, sellQuote, Sides.Buy, sellPos.FilledQuantity - buyPos.FilledQuantity, true);
+				}
+
+				if (buyPos.FilledQuantity == 0 || sellPos.FilledQuantity == 0) return;
+
+				_log.Info($"{arb.Description} arb opened!!!");
 			}
-
-			Task.Factory.StartNew(async () =>
+			finally
 			{
-				try
-				{
-					var buy = Task.Run(() => SendPosition(arb, buyQuote, Sides.Buy, size));
-					var sell = Task.Run(() => SendPosition(arb, sellQuote, Sides.Sell, size));
-					await Task.WhenAll(buy, sell);
-					var buyPos = buy.Result;
-					var sellPos = sell.Result;
-
-					if (buyPos.FilledQuantity > sellPos.FilledQuantity)
-					{
-						_log.Error($"{arb.Description} arb opening size mismatch!!!");
-						await SendPosition(arb, buyQuote, Sides.Sell, buyPos.FilledQuantity - sellPos.FilledQuantity, true);
-					}
-					else if (buyPos.FilledQuantity < sellPos.FilledQuantity)
-					{
-						_log.Error($"{arb.Description} arb opening size mismatch!!!");
-						await SendPosition(arb, sellQuote, Sides.Buy, sellPos.FilledQuantity - buyPos.FilledQuantity, true);
-					}
-
-					if (buyPos.FilledQuantity == 0 || sellPos.FilledQuantity == 0) return;
-
-					_log.Info($"{arb.Description} arb opened!!!");
-				}
-				finally
-				{
-					arb.IsBusy = false;
-					buyQuote.Account.IsBusy = false;
-					sellQuote.Account.IsBusy = false;
-				}
-			}, TaskCreationOptions.LongRunning);
+				arb.IsBusy = false;
+				buyQuote.Account.IsBusy = false;
+				sellQuote.Account.IsBusy = false;
+			}
 		}
 
 		private Task<OrderResponse> SendPosition(StratHubArb arb, Quote quote, Sides side, decimal size, bool forceMarket = false)
@@ -256,9 +271,36 @@ namespace QvaDev.Orchestration.Services.Strategies
 			account.StratPositions.Add(pos);
 		}
 
+		private void ArbLoop(StratHubArb arb, CancellationToken token)
+		{
+			var queue = new BlockingCollection<Action>();
+			_arbQueues[arb.Id] = queue;
+
+			while (!token.IsCancellationRequested)
+			{
+				try
+				{
+					var action = queue.Take(token);
+					action();
+				}
+				catch (OperationCanceledException)
+				{
+					break;
+				}
+				catch (Exception e)
+				{
+					_log.Error("HubArbService.ArbLoop exception", e);
+				}
+			}
+
+			_arbQueues[arb.Id].Dispose();
+			_arbQueues.Remove(arb.Id);
+		}
+
 		public void Stop()
 		{
-			_isStarted = false;
+			_cancellation?.Cancel(true);
+			_log.Info("Hub arbs are stopped");
 		}
 
 		private bool IsTime(TimeSpan current, TimeSpan? start, TimeSpan? end)

@@ -20,14 +20,13 @@ namespace QvaDev.Orchestration.Services
     public class CopierService : ICopierService
     {
 	    private volatile CancellationTokenSource _cancellation;
-	    private CustomThreadPool _customThreadPool;
+	    private CustomThreadPool _copyPool;
 
 		private readonly ILog _log;
         private IEnumerable<Master> _masters;
 
 	    private readonly Dictionary<int, BlockingCollection<NewPositionEventArgs>> _masterQueues =
 		    new Dictionary<int, BlockingCollection<NewPositionEventArgs>>();
-
 
 		public CopierService(ILog log)
         {
@@ -37,13 +36,13 @@ namespace QvaDev.Orchestration.Services
         public void Start(List<Master> masters)
 		{
 			_cancellation?.Dispose();
-			_customThreadPool?.Dispose();
+			_copyPool?.Dispose();
 
 			_masters = masters;
 			_cancellation = new CancellationTokenSource();
 
 			var threadCount = _masters.Sum(m => m.Slaves.Sum(s => s.Copiers.Count + s.FixApiCopiers.Count));
-			_customThreadPool = new CustomThreadPool(threadCount, _cancellation.Token);
+			_copyPool = new CustomThreadPool(threadCount, "CopyPool", _cancellation.Token);
 
 			foreach (var master in _masters)
 	        {
@@ -224,7 +223,7 @@ namespace QvaDev.Orchestration.Services
 	    private async Task DelayedRun(Action action, int millisecondsDelay)
 	    {
 		    if (millisecondsDelay > 0) await Task.Delay(millisecondsDelay);
-		    await _customThreadPool.Run(action);
+		    await _copyPool.Run(action);
 	    }
     }
 }
