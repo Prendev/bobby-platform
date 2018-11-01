@@ -20,6 +20,7 @@ namespace QvaDev.Orchestration.Services
     public class CopierService : ICopierService
     {
 	    private volatile CancellationTokenSource _cancellation;
+	    private CustomThreadPool _customThreadPool;
 
 		private readonly ILog _log;
         private IEnumerable<Master> _masters;
@@ -27,16 +28,22 @@ namespace QvaDev.Orchestration.Services
 	    private readonly Dictionary<int, BlockingCollection<NewPositionEventArgs>> _masterQueues =
 		    new Dictionary<int, BlockingCollection<NewPositionEventArgs>>();
 
+
 		public CopierService(ILog log)
         {
             _log = log;
         }
 
         public void Start(List<Master> masters)
-        {
-	        _masters = masters;
+		{
 			_cancellation?.Dispose();
+			_customThreadPool?.Dispose();
+
+			_masters = masters;
 			_cancellation = new CancellationTokenSource();
+
+			var threadCount = _masters.Sum(m => m.Slaves.Sum(s => s.Copiers.Count + s.FixApiCopiers.Count));
+			_customThreadPool = new CustomThreadPool(threadCount, _cancellation.Token);
 
 			foreach (var master in _masters)
 	        {
@@ -52,7 +59,7 @@ namespace QvaDev.Orchestration.Services
 		        foreach (var symbolMapping in slave.SymbolMappings)
 			        slave.Account.Connector.Subscribe(symbolMapping.To);
 
-		        new Thread(() => CopyLoop(master)) { IsBackground = true }.Start();
+		        new Thread(() => MasterLoop(master, _cancellation.Token)) { IsBackground = true }.Start();
 			}
 
             _log.Info("Copiers are started");
@@ -61,19 +68,19 @@ namespace QvaDev.Orchestration.Services
         public void Stop()
         {
 	        _cancellation?.Cancel(true);
-	        _log.Info("Copiers are stopped");
+			_log.Info("Copiers are stopped");
 		}
 
-	    private async void CopyLoop(Master master)
+	    private async void MasterLoop(Master master, CancellationToken token)
 		{
 			var queue = new BlockingCollection<NewPositionEventArgs>();
 			_masterQueues[master.Id] = queue;
 
-			while (!_cancellation.IsCancellationRequested)
+			while (!token.IsCancellationRequested)
 			{
 				try
 				{
-					var newPos = queue.Take(_cancellation.Token);
+					var newPos = queue.Take(token);
 
 					_log.Info($"Master {newPos.Action:F} {newPos.Position.Side:F} signal on " +
 					          $"{newPos.Position.Symbol} with open time: {newPos.Position.OpenTime:o}");
@@ -87,7 +94,7 @@ namespace QvaDev.Orchestration.Services
 				}
 				catch (Exception e)
 				{
-					_log.Error("CopierService.CopyLoop exception", e);
+					_log.Error("CopierService.MasterLoop exception", e);
 				}
 			}
 
@@ -217,7 +224,7 @@ namespace QvaDev.Orchestration.Services
 	    private async Task DelayedRun(Action action, int millisecondsDelay)
 	    {
 		    if (millisecondsDelay > 0) await Task.Delay(millisecondsDelay);
-		    await Task.Run(action);
+		    await _customThreadPool.Run(action);
 	    }
     }
 }
