@@ -25,8 +25,8 @@ namespace QvaDev.Orchestration.Services
 		private readonly ILog _log;
         private IEnumerable<Master> _masters;
 
-	    private readonly Dictionary<int, BlockingCollection<NewPositionEventArgs>> _masterQueues =
-		    new Dictionary<int, BlockingCollection<NewPositionEventArgs>>();
+	    private readonly ConcurrentDictionary<int, BlockingCollection<NewPositionEventArgs>> _masterQueues =
+		    new ConcurrentDictionary<int, BlockingCollection<NewPositionEventArgs>>();
 
 		public CopierService(ILog log)
         {
@@ -72,8 +72,7 @@ namespace QvaDev.Orchestration.Services
 
 	    private async void MasterLoop(Master master, CancellationToken token)
 		{
-			var queue = new BlockingCollection<NewPositionEventArgs>();
-			_masterQueues[master.Id] = queue;
+			var queue = _masterQueues.GetOrAdd(master.Id, new BlockingCollection<NewPositionEventArgs>());
 
 			while (!token.IsCancellationRequested)
 			{
@@ -97,8 +96,8 @@ namespace QvaDev.Orchestration.Services
 				}
 			}
 
-			_masterQueues[master.Id].Dispose();
-			_masterQueues.Remove(master.Id);
+			queue.Dispose();
+			_masterQueues.TryRemove(master.Id, out queue);
 		}
 
 		private void Master_NewPosition(object sender, NewPositionEventArgs e)

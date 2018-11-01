@@ -31,8 +31,8 @@ namespace QvaDev.Orchestration.Services.Strategies
 		private List<StratHubArb> _arbs;
 		private readonly object _syncRoot = new object();
 
-		private readonly Dictionary<int, BlockingCollection<Action>> _arbQueues =
-			new Dictionary<int, BlockingCollection<Action>>();
+		private readonly ConcurrentDictionary<int, BlockingCollection<Action>> _arbQueues =
+			new ConcurrentDictionary<int, BlockingCollection<Action>>();
 
 		public HubArbService(
 			ILog log,
@@ -273,8 +273,8 @@ namespace QvaDev.Orchestration.Services.Strategies
 
 		private void ArbLoop(StratHubArb arb, CancellationToken token)
 		{
-			var queue = new BlockingCollection<Action>();
-			_arbQueues[arb.Id] = queue;
+			var queue = _arbQueues.GetOrAdd(arb.Id, new BlockingCollection<Action>());
+			_arbQueues.GetOrAdd(arb.Id, queue);
 
 			while (!token.IsCancellationRequested)
 			{
@@ -293,8 +293,8 @@ namespace QvaDev.Orchestration.Services.Strategies
 				}
 			}
 
-			_arbQueues[arb.Id].Dispose();
-			_arbQueues.Remove(arb.Id);
+			queue.Dispose();
+			_arbQueues.TryRemove(arb.Id, out queue);
 		}
 
 		public void Stop()
