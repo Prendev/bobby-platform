@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Threading;
-using log4net;
 using log4net.Core;
 
 namespace QvaDev.Common.Logging
 {
-	public class AsyncLogQueueDecorator : ILogExtended
+	public class AsyncLogQueueDecorator : ILog
 	{
 		private class LogEntry
 		{
@@ -41,7 +40,7 @@ namespace QvaDev.Common.Logging
 			}
 		}
 
-		private readonly ILog _log;
+		private readonly log4net.ILog _log;
 
 		public ILogger Logger => _log.Logger;
 
@@ -71,7 +70,7 @@ namespace QvaDev.Common.Logging
 			}
 		}
 
-		public AsyncLogQueueDecorator(ILog log)
+		public AsyncLogQueueDecorator(log4net.ILog log)
 		{
 			_log = log;
 		}

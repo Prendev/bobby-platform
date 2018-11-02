@@ -7,7 +7,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using log4net;
+using QvaDev.Common.Logging;
 
 namespace QvaDev.CTraderApi
 {

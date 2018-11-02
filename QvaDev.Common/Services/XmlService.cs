@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Xml.Serialization;
-using log4net;
+using QvaDev.Common.Logging;
 
 namespace QvaDev.Common.Services
 {

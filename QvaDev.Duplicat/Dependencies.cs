@@ -17,6 +17,7 @@ using QvaDev.Orchestration.Services.Strategies;
 using ConnectorFactory = QvaDev.Orchestration.Services.ConnectorFactory;
 using ExchangeRatesService = QvaDev.Common.Services.ExchangeRatesService;
 using IExchangeRatesService = QvaDev.Common.Services.IExchangeRatesService;
+using ILog = QvaDev.Common.Logging.ILog;
 
 namespace QvaDev.Duplicat
 {
@@ -39,12 +40,12 @@ namespace QvaDev.Duplicat
 
         private static void RegisterApp(ContainerBuilder builder)
         {
-	        ILogExtended generalLog = new AsyncLogQueueDecorator(LogManager.GetLogger("General"));
-	        ILogExtended fixLog = new AsyncLogQueueDecorator(LogManager.GetLogger("FIX"));
-	        ILogExtended traceLog = new AsyncLogQueueDecorator(LogManager.GetLogger("Trace"));
+	        ILog generalLog = new AsyncLogQueueDecorator(LogManager.GetLogger("General"));
+	        ILog fixLog = new AsyncLogQueueDecorator(LogManager.GetLogger("FIX"));
+	        ILog traceLog = new AsyncLogQueueDecorator(LogManager.GetLogger("Trace"));
 			Logger.AddLogger(new LogAdapter(fixLog));
 			Logger.AddLogger(new LogAdapter(traceLog, true));
-			builder.RegisterInstance(generalLog).As<ILog>();
+			builder.RegisterInstance(generalLog);
 			builder.RegisterType<MainForm>().AsSelf().InstancePerLifetimeScope();
             builder.RegisterType<ViewModel.DuplicatViewModel>().AsSelf().InstancePerLifetimeScope();
             builder.Register((c, p) => new Func<SynchronizationContext>(() => DependecyManager.SynchronizationContext));

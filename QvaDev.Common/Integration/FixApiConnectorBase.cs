@@ -1,6 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using System.Threading.Tasks;
-using log4net;
+using QvaDev.Common.Logging;
 
 namespace QvaDev.Common.Integration
 {

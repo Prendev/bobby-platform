@@ -2,7 +2,7 @@
 using System.Configuration;
 using System.Threading.Tasks;
 using AegisImplicitMail;
-using log4net;
+using QvaDev.Common.Logging;
 
 namespace QvaDev.Common.Services
 {

@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using log4net;
 using QvaDev.Common;
 using QvaDev.Common.Integration;
+using QvaDev.Common.Logging;
 using QvaDev.Data.Models;
 
 namespace QvaDev.Orchestration.Services

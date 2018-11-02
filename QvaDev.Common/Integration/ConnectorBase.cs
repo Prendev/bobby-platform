@@ -1,4 +1,4 @@
-﻿using log4net;
+﻿using QvaDev.Common.Logging;
 
 namespace QvaDev.Common.Integration
 {

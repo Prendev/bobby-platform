@@ -5,8 +5,8 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using log4net;
 using QvaDev.Common.Integration;
+using QvaDev.Common.Logging;
 using QvaDev.Communication;
 
 namespace QvaDev.IlyaFastFeedIntegration

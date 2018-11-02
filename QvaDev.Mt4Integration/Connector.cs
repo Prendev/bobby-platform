@@ -3,9 +3,9 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using log4net;
 using QvaDev.Common;
 using QvaDev.Common.Integration;
+using QvaDev.Common.Logging;
 using TradingAPI.MT4Server;
 using Bar = QvaDev.Common.Integration.Bar;
 

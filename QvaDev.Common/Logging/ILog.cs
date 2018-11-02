@@ -1,9 +1,8 @@
 ﻿using System;
-using log4net;
 
 namespace QvaDev.Common.Logging
 {
-	public interface ILogExtended : ILog
+	public interface ILog : log4net.ILog
 	{
 		void Trace(object message, Exception exception);
 		void Trace(object message);

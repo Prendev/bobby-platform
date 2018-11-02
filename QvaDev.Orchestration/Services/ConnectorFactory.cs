@@ -1,5 +1,5 @@
 ﻿using System.Threading.Tasks;
-using log4net;
+using QvaDev.Common.Logging;
 using QvaDev.Common.Services;
 using QvaDev.Data;
 using QvaDev.Data.Models;

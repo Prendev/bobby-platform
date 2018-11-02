@@ -4,8 +4,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
-using log4net;
 using QvaDev.Common.Integration;
+using QvaDev.Common.Logging;
 using QvaDev.Communication;
 using QvaDev.Data.Models;
 

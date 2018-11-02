@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using log4net;
+using QvaDev.Common.Logging;
 using QvaDev.Data.Models;
 using QvaDev.Mt4Integration;
 

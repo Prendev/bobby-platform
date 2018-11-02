@@ -1,8 +1,8 @@
 ﻿using System.Drawing;
 using System.Threading;
 using System.Windows.Forms;
-using log4net;
 using QvaDev.Common;
+using QvaDev.Common.Logging;
 using QvaDev.Common.Services;
 using QvaDev.Data.Models;
 using QvaDev.Duplicat.ViewModel;

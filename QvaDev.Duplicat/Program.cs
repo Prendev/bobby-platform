@@ -7,7 +7,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Windows.Forms;
 using Autofac;
-using log4net;
+using QvaDev.Common.Logging;
 using QvaDev.Data;
 using QvaDev.Duplicat.Views;
 

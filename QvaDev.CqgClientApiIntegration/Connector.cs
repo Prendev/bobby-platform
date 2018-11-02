@@ -1,9 +1,9 @@
 ﻿using CQG;
-using log4net;
 using QvaDev.Common.Integration;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using QvaDev.Common.Logging;
 using QvaDev.Communication;
 
 namespace QvaDev.CqgClientApiIntegration

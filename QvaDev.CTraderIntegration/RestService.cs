@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
-using log4net;
 using QvaDev.Common;
+using QvaDev.Common.Logging;
 using RestSharp;
 
 namespace QvaDev.CTraderIntegration

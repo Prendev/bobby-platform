@@ -6,9 +6,9 @@ namespace QvaDev.Common.Logging
 {
 	public class LogAdapter : AbstractLogger
 	{
-		private readonly ILogExtended _log;
+		private readonly ILog _log;
 
-		public LogAdapter(ILogExtended log, bool isTraceEnabled = false)
+		public LogAdapter(ILog log, bool isTraceEnabled = false)
 		{
 			IsTraceEnabled = isTraceEnabled;
 			_log = log;

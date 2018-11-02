@@ -3,8 +3,8 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using log4net;
 using QvaDev.Common.Integration;
+using QvaDev.Common.Logging;
 using QvaDev.CTraderIntegration.Dto;
 using QvaDev.CTraderIntegration.Services;
 

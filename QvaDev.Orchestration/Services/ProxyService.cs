@@ -5,7 +5,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
-using log4net;
+using QvaDev.Common.Logging;
 using QvaDev.Data.Models;
 using Starksoft.Aspen.Proxy;
 
