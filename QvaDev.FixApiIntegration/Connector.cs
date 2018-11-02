@@ -214,7 +214,7 @@ namespace QvaDev.FixApiIntegration
 
 		public override bool Is(object o)
 		{
-			return o as FixConnectorBase == FixConnector;
+			return o == FixConnector;
 		}
 
 		private void ConnectionManager_Connected(object sender, EventArgs e)
@@ -256,6 +256,10 @@ namespace QvaDev.FixApiIntegration
 		}
 
 		private void Quote(QuoteSet quoteSet)
+		{
+			Task.Run(() => InnerQuote(quoteSet));
+		}
+		private void InnerQuote(QuoteSet quoteSet)
 		{
 			if (!quoteSet.Entries.Any()) return;
 

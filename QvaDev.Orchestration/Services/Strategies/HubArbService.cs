@@ -190,9 +190,8 @@ namespace QvaDev.Orchestration.Services.Strategies
 				.OrderByDescending(x => x.OpenTime)
 				.FirstOrDefault()?.OpenTime;
 
-			if (openTime.HasValue && (now - openTime.Value).Minutes < arb.RestingPeriodInMinutes)
-				return false;
-			return true;
+			if (!openTime.HasValue) return true;
+			return (now - openTime.Value).Minutes >= arb.RestingPeriodInMinutes;
 		}
 
 		private async void Open(StratHubArb arb, Quote buyQuote, Quote sellQuote, decimal size)

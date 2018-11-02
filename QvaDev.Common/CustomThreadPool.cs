@@ -115,6 +115,7 @@ namespace QvaDev.Common
 				try
 				{
 					Interlocked.Increment(ref _busyCount);
+					// We use .Result intentionally so the original thread stays intact
 					var result = action().Result;
 					if (_taskCompletionManager.TryRemove(action, out var source)) source.TrySetResult(result);
 				}
