@@ -59,6 +59,7 @@ namespace QvaDev.Duplicat
 
 		public void DoAppend(LoggingEvent loggingEvent)
 		{
+			if (loggingEvent.Level.Value < Level.Debug.Value) return;
 			if (_textBox == null || _textBox.IsDisposed)
 				return;
 

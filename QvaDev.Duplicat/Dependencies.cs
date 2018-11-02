@@ -42,9 +42,7 @@ namespace QvaDev.Duplicat
         {
 	        ILog generalLog = new AsyncLogQueueDecorator(LogManager.GetLogger("General"));
 	        ILog fixLog = new AsyncLogQueueDecorator(LogManager.GetLogger("FIX"));
-	        ILog traceLog = new AsyncLogQueueDecorator(LogManager.GetLogger("Trace"));
 			Logger.AddLogger(new LogAdapter(fixLog));
-			Logger.AddLogger(new LogAdapter(traceLog, true));
 			builder.RegisterInstance(generalLog);
 			builder.RegisterType<MainForm>().AsSelf().InstancePerLifetimeScope();
             builder.RegisterType<ViewModel.DuplicatViewModel>().AsSelf().InstancePerLifetimeScope();

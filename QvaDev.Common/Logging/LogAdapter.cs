@@ -8,9 +8,8 @@ namespace QvaDev.Common.Logging
 	{
 		private readonly ILog _log;
 
-		public LogAdapter(ILog log, bool isTraceEnabled = false)
+		public LogAdapter(ILog log)
 		{
-			IsTraceEnabled = isTraceEnabled;
 			_log = log;
 		}
 
@@ -19,27 +18,27 @@ namespace QvaDev.Common.Logging
 			switch (level)
 			{
 				case LogLevel.Trace:
-					if (IsTraceEnabled) _log.Trace(message, exception);
+					_log.Trace(message, exception);
 					break;
 				case LogLevel.Debug:
-					if (IsDebugEnabled) _log.Debug(message, exception);
+					_log.Debug(message, exception);
 					break;
 				case LogLevel.Info:
-					if (IsInfoEnabled) _log.Info(message, exception);
+					_log.Info(message, exception);
 					break;
 				case LogLevel.Warn:
-					if (IsWarnEnabled) _log.Warn(message, exception);
+					_log.Warn(message, exception);
 					break;
 				case LogLevel.Error:
-					if (IsErrorEnabled) _log.Error(message, exception);
+					_log.Error(message, exception);
 					break;
 				case LogLevel.Fatal:
-					if (IsFatalEnabled) _log.Fatal(message, exception);
+					_log.Fatal(message, exception);
 					break;
 			}
 		}
 
-		public override bool IsTraceEnabled { get; }
+		public override bool IsTraceEnabled { get; } = true;
 		public override bool IsDebugEnabled { get; } = true;
 		public override bool IsErrorEnabled { get; } = true;
 		public override bool IsFatalEnabled { get; } = true;
