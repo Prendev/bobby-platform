@@ -6,36 +6,40 @@ namespace QvaDev.Common.Logging
 {
 	public class LogAdapter : AbstractLogger
 	{
-		private readonly log4net.ILog _log4NetLog;
+		private readonly ILogExtended _log;
 
-		public LogAdapter(log4net.ILog log4NetLog)
+		public LogAdapter(ILogExtended log, bool isTraceEnabled = false)
 		{
-			_log4NetLog = log4NetLog;
+			IsTraceEnabled = isTraceEnabled;
+			_log = log;
 		}
 
 		protected override void WriteInternal(LogLevel level, object message, Exception exception)
 		{
 			switch (level)
 			{
+				case LogLevel.Trace:
+					if (IsTraceEnabled) _log.Trace(message, exception);
+					break;
 				case LogLevel.Debug:
-					_log4NetLog.Debug(message, exception);
+					if (IsDebugEnabled) _log.Debug(message, exception);
 					break;
 				case LogLevel.Info:
-					_log4NetLog.Info(message, exception);
+					if (IsInfoEnabled) _log.Info(message, exception);
 					break;
 				case LogLevel.Warn:
-					_log4NetLog.Warn(message, exception);
+					if (IsWarnEnabled) _log.Warn(message, exception);
 					break;
 				case LogLevel.Error:
-					_log4NetLog.Error(message, exception);
+					if (IsErrorEnabled) _log.Error(message, exception);
 					break;
 				case LogLevel.Fatal:
-					_log4NetLog.Fatal(message, exception);
+					if (IsFatalEnabled) _log.Fatal(message, exception);
 					break;
 			}
 		}
 
-		public override bool IsTraceEnabled { get; } = false;
+		public override bool IsTraceEnabled { get; }
 		public override bool IsDebugEnabled { get; } = true;
 		public override bool IsErrorEnabled { get; } = true;
 		public override bool IsFatalEnabled { get; } = true;

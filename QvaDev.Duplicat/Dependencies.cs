@@ -39,10 +39,12 @@ namespace QvaDev.Duplicat
 
         private static void RegisterApp(ContainerBuilder builder)
         {
-	        ILog generalLog = new AsyncLogQueueDecorator(LogManager.GetLogger("General"));
-	        ILog fixLog = new AsyncLogQueueDecorator(LogManager.GetLogger("FIX"));
+	        ILogExtended generalLog = new AsyncLogQueueDecorator(LogManager.GetLogger("General"));
+	        ILogExtended fixLog = new AsyncLogQueueDecorator(LogManager.GetLogger("FIX"));
+	        ILogExtended traceLog = new AsyncLogQueueDecorator(LogManager.GetLogger("Trace"));
 			Logger.AddLogger(new LogAdapter(fixLog));
-			builder.RegisterInstance(generalLog);
+			Logger.AddLogger(new LogAdapter(traceLog, true));
+			builder.RegisterInstance(generalLog).As<ILog>();
 			builder.RegisterType<MainForm>().AsSelf().InstancePerLifetimeScope();
             builder.RegisterType<ViewModel.DuplicatViewModel>().AsSelf().InstancePerLifetimeScope();
             builder.Register((c, p) => new Func<SynchronizationContext>(() => DependecyManager.SynchronizationContext));

@@ -62,7 +62,7 @@ namespace QvaDev.Duplicat
 			if (_textBox == null || _textBox.IsDisposed)
 				return;
 
-			if (!string.IsNullOrWhiteSpace(LoggerNameFilter) && !loggingEvent.LoggerName.StartsWith(LoggerNameFilter))
+			if (!string.IsNullOrWhiteSpace(LoggerNameFilter) && !LoggerNameFilter.Split('|').Contains(loggingEvent.LoggerName))
 				return;
 
 			if (loggingEvent.LoggerName.Contains("NHibernate"))

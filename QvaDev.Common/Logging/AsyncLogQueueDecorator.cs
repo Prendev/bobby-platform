@@ -6,11 +6,11 @@ using log4net.Core;
 
 namespace QvaDev.Common.Logging
 {
-	public class AsyncLogQueueDecorator : ILog
+	public class AsyncLogQueueDecorator : ILogExtended
 	{
 		private class LogEntry
 		{
-			public LogEntry(object message, Exception exception, Action<string, Exception> action)
+			public LogEntry(object message, Exception exception, Action<object, Exception> action)
 			{
 				Message = message;
 				Exception = exception;
@@ -21,9 +21,24 @@ namespace QvaDev.Common.Logging
 
 			public object Message { get; }
 			public Exception Exception { get; }
-			public Action<string, Exception> Action { get; }
+			public Action<object, Exception> Action { get; }
 			public DateTime TimeStamp { get; }
 			public Thread Thread { get; }
+		}
+
+		private class LazyMessage
+		{
+			private readonly Func<string> _message;
+
+			public LazyMessage(Func<string> message)
+			{
+				_message = message;
+			}
+
+			public override string ToString()
+			{
+				return _message();
+			}
 		}
 
 		private readonly ILog _log;
@@ -50,9 +65,9 @@ namespace QvaDev.Common.Logging
 			while (true)
 			{
 				var entry = LogQueue.Take();
-				var message =
-					$"{entry.TimeStamp:yyyy-MM-dd HH:mm:ss.fff} [{entry.Thread.Name ?? entry.Thread.ManagedThreadId.ToString()}] {entry.Message}";
-				entry.Action(message, entry.Exception);
+				var lazyMessage = new LazyMessage(() =>
+					$"{entry.TimeStamp:yyyy-MM-dd HH:mm:ss.fff} [{entry.Thread.Name ?? entry.Thread.ManagedThreadId.ToString()}] {entry.Message}");
+				entry.Action(lazyMessage, entry.Exception);
 			}
 		}
 
@@ -110,5 +125,16 @@ namespace QvaDev.Common.Logging
 		public void FatalFormat(string format, object arg0, object arg1) => throw new NotImplementedException();
 		public void FatalFormat(string format, object arg0, object arg1, object arg2) => throw new NotImplementedException();
 		public void FatalFormat(IFormatProvider provider, string format, params object[] args) => throw new NotImplementedException();
+
+		public void Trace(object message) => Trace(message, null);
+		public void Trace(object message, Exception exception) =>
+			LogQueue.Add(new LogEntry(message, exception, TraceInner));
+
+		public void Verbose(object message) => Verbose(message, null);
+		public void Verbose(object message, Exception exception) =>
+			LogQueue.Add(new LogEntry(message, exception, VerboseInner));
+
+		private void TraceInner(object message, Exception exception) => Logger.Log(GetType(), Level.Trace, message, exception);
+		private void VerboseInner(object message, Exception exception) => Logger.Log(GetType(), Level.Verbose, message, exception);
 	}
 }

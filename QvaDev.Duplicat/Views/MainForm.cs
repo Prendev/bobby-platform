@@ -28,7 +28,7 @@ namespace QvaDev.Duplicat.Views
 			InitializeComponent();
             TextBoxAppender.ConfigureTextBoxAppender(rtbGeneral, "General", 1000);
             TextBoxAppender.ConfigureTextBoxAppender(rtbFix, "FIX", 1000);
-			TextBoxAppender.ConfigureTextBoxAppender(rtbAll, null, 1000);
+			TextBoxAppender.ConfigureTextBoxAppender(rtbAll, "General|FIX", 1000);
 
 	        ThreadPool.GetMinThreads(out var wokerThreads, out var completionPortThreads);
 	        _log.Debug($"ThreadPool.GetMinThreads(out {wokerThreads}, out {completionPortThreads})");
