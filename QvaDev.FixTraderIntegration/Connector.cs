@@ -32,7 +32,7 @@ namespace QvaDev.FixTraderIntegration
 		public ConcurrentDictionary<string, SymbolData> SymbolInfos { get; set; } =
 			new ConcurrentDictionary<string, SymbolData>();
 
-		public Connector(ILog log) : base(log)
+		public Connector(ICustomLog log) : base(log)
 		{
 			_taskCompletionManager = new TaskCompletionManager<string>(100, 1000);
 		}

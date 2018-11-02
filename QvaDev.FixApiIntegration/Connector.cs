@@ -37,7 +37,7 @@ namespace QvaDev.FixApiIntegration
 		public Connector(
 			AccountInfo accountInfo,
 			IEmailService emailService,
-			ILog log) : base(log)
+			ICustomLog log) : base(log)
 		{
 			_emailService = emailService;
 			_accountInfo = accountInfo;

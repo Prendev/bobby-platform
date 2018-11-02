@@ -18,9 +18,9 @@ namespace QvaDev.Orchestration.Services
 
     public class ReportService : IReportService
     {
-        private readonly ILog _log;
+        private readonly ICustomLog _log;
 
-        public ReportService(ILog log)
+        public ReportService(ICustomLog log)
         {
             _log = log;
 	        ICSharpCode.SharpZipLib.Zip.ZipConstants.DefaultCodePage = 437;

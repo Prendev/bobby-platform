@@ -29,9 +29,9 @@ namespace QvaDev.Common.Services
 		private int? _firstKey;
 		private int? _lastKey ;
 		private readonly Dictionary<int, int> _weeklyHighImpactDistances = new Dictionary<int, int>();
-		private readonly ILog _log;
+		private readonly ICustomLog _log;
 
-		public NewsCalendarService(ILog log)
+		public NewsCalendarService(ICustomLog log)
 		{
 			_log = log;
 		}

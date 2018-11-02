@@ -36,14 +36,14 @@ namespace QvaDev.Duplicat
             Application.SetCompatibleTextRenderingDefault(false);
             using (var scope = Dependencies.GetContainer().BeginLifetimeScope())
             {
-	            var log = scope.Resolve<ILog>();
+	            var log = scope.Resolve<ICustomLog>();
 
 				Application.ThreadException += (s, e) => Application_ThreadException(e, log);
 				Application.Run(scope.Resolve<MainForm>());
 			}
         }
 
-		private static void Application_ThreadException(ThreadExceptionEventArgs e, ILog log)
+		private static void Application_ThreadException(ThreadExceptionEventArgs e, ICustomLog log)
 		{
 			log.Error("Unhandled exception", e.Exception);
 		}

@@ -9,13 +9,13 @@ namespace QvaDev.Orchestration.Services
 	public class ConnectorFactory : IConnectorFactory
 	{
 		private readonly CTraderIntegration.ICtConnectorFactory _ctConnectorFactory;
-		private readonly ILog _log;
+		private readonly ICustomLog _log;
 		private readonly IEmailService _emailService;
 
 		public ConnectorFactory(
 			CTraderIntegration.ICtConnectorFactory ctConnectorFactory,
 			IEmailService emailService,
-			ILog log)
+			ICustomLog log)
 		{
 			_emailService = emailService;
 			_log = log;

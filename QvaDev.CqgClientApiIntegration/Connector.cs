@@ -43,7 +43,7 @@ namespace QvaDev.CqgClientApiIntegration
 			}
 		}
 
-		public Connector(AccountInfo accountInfo, ILog log) : base(log)
+		public Connector(AccountInfo accountInfo, ICustomLog log) : base(log)
 		{
 			_accountInfo = accountInfo;
 			_taskCompletionManager = new TaskCompletionManager<string>(100, 2000);

@@ -26,7 +26,7 @@ namespace QvaDev.IlyaFastFeedIntegration
 		public override string Description => _accountInfo.Description;
 		public override bool IsConnected => _isConnected;
 
-		public Connector(ILog log) : base(log)
+		public Connector(ICustomLog log) : base(log)
 		{
 			_taskCompletionManager = new TaskCompletionManager<string>(100, 1000);
 		}

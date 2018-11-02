@@ -6,9 +6,9 @@ namespace QvaDev.Common.Logging
 {
 	public class LogAdapter : AbstractLogger
 	{
-		private readonly ILog _log;
+		private readonly ICustomLog _log;
 
-		public LogAdapter(ILog log)
+		public LogAdapter(ICustomLog log)
 		{
 			_log = log;
 		}

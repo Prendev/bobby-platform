@@ -17,7 +17,6 @@ using QvaDev.Orchestration.Services.Strategies;
 using ConnectorFactory = QvaDev.Orchestration.Services.ConnectorFactory;
 using ExchangeRatesService = QvaDev.Common.Services.ExchangeRatesService;
 using IExchangeRatesService = QvaDev.Common.Services.IExchangeRatesService;
-using ILog = QvaDev.Common.Logging.ILog;
 
 namespace QvaDev.Duplicat
 {
@@ -40,8 +39,8 @@ namespace QvaDev.Duplicat
 
         private static void RegisterApp(ContainerBuilder builder)
         {
-	        ILog generalLog = new AsyncLogQueueDecorator(LogManager.GetLogger("General"));
-	        ILog fixLog = new AsyncLogQueueDecorator(LogManager.GetLogger("FIX"));
+	        ICustomLog generalLog = new AsyncLogQueueDecorator(LogManager.GetLogger("General"));
+	        ICustomLog fixLog = new AsyncLogQueueDecorator(LogManager.GetLogger("FIX"));
 			Logger.AddLogger(new LogAdapter(fixLog));
 			builder.RegisterInstance(generalLog);
 			builder.RegisterType<MainForm>().AsSelf().InstancePerLifetimeScope();

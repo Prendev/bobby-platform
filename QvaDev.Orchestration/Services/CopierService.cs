@@ -22,13 +22,13 @@ namespace QvaDev.Orchestration.Services
 	    private volatile CancellationTokenSource _cancellation;
 	    private CustomThreadPool _copyPool;
 
-		private readonly ILog _log;
+		private readonly ICustomLog _log;
         private IEnumerable<Master> _masters;
 
 	    private readonly ConcurrentDictionary<int, BlockingCollection<NewPositionEventArgs>> _masterQueues =
 		    new ConcurrentDictionary<int, BlockingCollection<NewPositionEventArgs>>();
 
-		public CopierService(ILog log)
+		public CopierService(ICustomLog log)
         {
             _log = log;
         }

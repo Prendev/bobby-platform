@@ -17,9 +17,9 @@ namespace QvaDev.CTraderIntegration
     {
         private readonly ConcurrentDictionary<string, RestClient> _restClients =
             new ConcurrentDictionary<string, RestClient>();
-        private readonly ILog _log;
+        private readonly ICustomLog _log;
 
-        public RestService(ILog log)
+        public RestService(ICustomLog log)
         {
             _log = log;
         }

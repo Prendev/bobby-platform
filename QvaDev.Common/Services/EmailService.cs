@@ -14,9 +14,9 @@ namespace QvaDev.Common.Services
 	public class EmailService : IEmailService
 	{
 		private readonly object _syncRoot = new object();
-		private readonly ILog _log;
+		private readonly ICustomLog _log;
 
-		public EmailService(ILog log)
+		public EmailService(ICustomLog log)
 		{
 			_log = log;
 		}

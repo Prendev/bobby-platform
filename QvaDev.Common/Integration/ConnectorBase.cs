@@ -5,7 +5,7 @@ namespace QvaDev.Common.Integration
 	public abstract class ConnectorBase : IConnector
 	{
 		private ConnectionStates _lastState = ConnectionStates.Disconnected;
-		protected readonly ILog Log;
+		protected readonly ICustomLog Log;
 
 		public abstract int Id { get; }
 		public abstract string Description { get; }
@@ -14,7 +14,7 @@ namespace QvaDev.Common.Integration
 		public event NewTickEventHandler NewTick;
 		public event ConnectionChangedEventHandler ConnectionChanged;
 
-		protected ConnectorBase(ILog log)
+		protected ConnectorBase(ICustomLog log)
 		{
 			Log = log;
 			ConnectionChanged += (sender, state) =>

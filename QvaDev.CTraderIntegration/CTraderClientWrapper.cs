@@ -11,7 +11,7 @@ namespace QvaDev.CTraderIntegration
 
         public CTraderClientWrapper(
             PlatformInfo platformInfo,
-            ILog log)
+            ICustomLog log)
         {
             PlatformInfo = platformInfo;
             CTraderClient = new CTraderClient(log);

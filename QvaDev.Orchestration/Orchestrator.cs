@@ -41,7 +41,7 @@ namespace QvaDev.Orchestration
 	    private readonly IReportService _reportService;
 	    private readonly IMtAccountImportService _mtAccountImportService;
 	    private readonly IProxyService _proxyService;
-		private readonly ILog _log;
+		private readonly ICustomLog _log;
 
 	    public Orchestrator(
             Func<SynchronizationContext> synchronizationContextFactory,
@@ -53,7 +53,7 @@ namespace QvaDev.Orchestration
 			IReportService reportService,
             IMtAccountImportService mtAccountImportService,
 			IProxyService proxyService,
-            ILog log)
+            ICustomLog log)
         {
 	        _log = log;
 	        _proxyService = proxyService;

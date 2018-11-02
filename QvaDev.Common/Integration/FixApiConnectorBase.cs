@@ -11,7 +11,7 @@ namespace QvaDev.Common.Integration
 		protected readonly ConcurrentDictionary<string, SymbolData> SymbolInfos =
 			new ConcurrentDictionary<string, SymbolData>();
 
-		protected FixApiConnectorBase(ILog log) : base(log)
+		protected FixApiConnectorBase(ICustomLog log) : base(log)
 		{
 		}
 

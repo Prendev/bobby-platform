@@ -46,7 +46,7 @@ namespace QvaDev.Mt4Integration
         public OrderClient OrderClient;
 		private Action<string, int> _destinationSetter;
 
-		public Connector(ILog log) : base(log)
+		public Connector(ICustomLog log) : base(log)
         {
             Positions = new ConcurrentDictionary<long, Position>();
         }

@@ -5,7 +5,7 @@ using log4net.Core;
 
 namespace QvaDev.Common.Logging
 {
-	public class AsyncLogQueueDecorator : ILog
+	public class AsyncLogQueueDecorator : ICustomLog
 	{
 		private class LogEntry
 		{

@@ -110,13 +110,13 @@ namespace QvaDev.Orchestration.Services
 		}
 
 		private bool _isStarted;
-        private readonly ILog _log;
+        private readonly ICustomLog _log;
         private IEnumerable<Ticker> _tickers;
 
 		private readonly ConcurrentDictionary<string, Writer> _csvWriters =
 			new ConcurrentDictionary<string, Writer>();
 
-		public TickerService(ILog log)
+		public TickerService(ICustomLog log)
         {
             _log = log;
         }

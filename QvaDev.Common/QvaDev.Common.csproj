@@ -104,7 +104,7 @@
     <Compile Include="Integration\RetryOrder.cs" />
     <Compile Include="Integration\Sides.cs" />
     <Compile Include="Integration\NewTickEventArgs.cs" />
-    <Compile Include="Logging\ILog.cs" />
+    <Compile Include="Logging\ICustomLog.cs" />
     <Compile Include="Logging\LogAdapter.cs" />
     <Compile Include="Logging\AsyncLogQueueDecorator.cs" />
     <Compile Include="Properties\Annotations.cs" />

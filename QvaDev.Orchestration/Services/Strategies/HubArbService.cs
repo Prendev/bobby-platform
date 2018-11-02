@@ -26,7 +26,7 @@ namespace QvaDev.Orchestration.Services.Strategies
 		private volatile CancellationTokenSource _cancellation;
 		private CustomThreadPool<OrderResponse> _orderPool;
 
-		private readonly ILog _log;
+		private readonly ICustomLog _log;
 		private readonly INewsCalendarService _newsCalendarService;
 		private List<StratHubArb> _arbs;
 		private readonly object _syncRoot = new object();
@@ -35,7 +35,7 @@ namespace QvaDev.Orchestration.Services.Strategies
 			new ConcurrentDictionary<int, BlockingCollection<Action>>();
 
 		public HubArbService(
-			ILog log,
+			ICustomLog log,
 			INewsCalendarService newsCalendarService)
 		{
 			_newsCalendarService = newsCalendarService;

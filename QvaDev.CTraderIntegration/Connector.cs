@@ -36,7 +36,7 @@ namespace QvaDev.CTraderIntegration
             AccountInfo accountInfo,
             CTraderClientWrapper cTraderClientWrapper,
             ITradingAccountsService tradingAccountsService,
-            ILog log) : base(log)
+            ICustomLog log) : base(log)
         {
             _tradingAccountsService = tradingAccountsService;
             _accountInfo = accountInfo;

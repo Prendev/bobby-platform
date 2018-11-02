@@ -13,9 +13,9 @@ namespace QvaDev.Common.Services
 
     public class XmlService : IXmlService
     {
-        private readonly ILog _log;
+        private readonly ICustomLog _log;
 
-        public XmlService(ILog log)
+        public XmlService(ICustomLog log)
         {
             _log = log;
         }

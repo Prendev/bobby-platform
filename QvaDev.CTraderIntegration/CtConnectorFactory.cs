@@ -28,11 +28,11 @@ namespace QvaDev.CTraderIntegration
         private static readonly ConcurrentDictionary<string, Lazy<List<AccountData>>> Accounts =
             new ConcurrentDictionary<string, Lazy<List<AccountData>>>();
 
-        private readonly ILog _log;
+        private readonly ICustomLog _log;
         private readonly ITradingAccountsService _tradingAccountsService;
 
         public CtConnectorFactory(
-	        ILog log,
+	        ICustomLog log,
             ITradingAccountsService tradingAccountsService)
         {
             _tradingAccountsService = tradingAccountsService;

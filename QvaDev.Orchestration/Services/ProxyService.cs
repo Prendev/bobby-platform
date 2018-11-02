@@ -28,12 +28,12 @@ namespace QvaDev.Orchestration.Services
 		}
 
 		private volatile bool _isStarted;
-		private readonly ILog _log;
+		private readonly ICustomLog _log;
 		private List<ProfileProxy> _profileProxies;
 		private List<Account> _accounts;
 		private List<Forward> _forwards = new List<Forward>();
 
-		public ProxyService(ILog log)
+		public ProxyService(ICustomLog log)
 		{
 			_log = log;
 		}

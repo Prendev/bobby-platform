@@ -12,12 +12,12 @@ namespace QvaDev.Duplicat.Views
     public partial class MainForm : Form
     {
         private readonly DuplicatViewModel _viewModel;
-	    private readonly ILog _log;
+	    private readonly ICustomLog _log;
 
 	    public MainForm(
             DuplicatViewModel viewModel,
             INewsCalendarService newsCalendarService,
-			ILog log
+			ICustomLog log
 		)
 		{
 			_viewModel = viewModel;

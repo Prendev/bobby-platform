@@ -21,7 +21,7 @@ namespace QvaDev.CTraderApi
         private readonly ConcurrentQueue<byte[]> _writeQueue = new ConcurrentQueue<byte[]>();
         private readonly ConcurrentQueue<byte[]> _readQueue = new ConcurrentQueue<byte[]>();
 
-        private readonly ILog _log;
+        private readonly ICustomLog _log;
 
         private SslStream _sslStream;
 	    private Task _pingTask;
@@ -322,7 +322,7 @@ namespace QvaDev.CTraderApi
         }
 //-------------------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------------------
-        public CTraderClient(ILog log)
+        public CTraderClient(ICustomLog log)
         {
             _log = log;
         }
