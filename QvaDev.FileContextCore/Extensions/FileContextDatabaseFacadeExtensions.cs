@@ -4,7 +4,6 @@
 using System;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using QvaDev.FileContextCore;
 using QvaDev.FileContextCore.Infrastructure.Internal;
 
 // ReSharper disable once CheckNamespace

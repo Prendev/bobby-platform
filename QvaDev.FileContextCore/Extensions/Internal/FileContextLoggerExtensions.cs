@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Update;
-using QvaDev.FileContextCore;
 
 // ReSharper disable once CheckNamespace
 namespace QvaDev.FileContextCore.Extensions.Internal

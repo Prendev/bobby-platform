@@ -7,7 +7,6 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using QvaDev.Common.Logging;
 
 namespace QvaDev.CTraderApi
 {
@@ -20,8 +19,6 @@ namespace QvaDev.CTraderApi
 
         private readonly ConcurrentQueue<byte[]> _writeQueue = new ConcurrentQueue<byte[]>();
         private readonly ConcurrentQueue<byte[]> _readQueue = new ConcurrentQueue<byte[]>();
-
-        private readonly ICustomLog _log;
 
         private SslStream _sslStream;
 	    private Task _pingTask;
@@ -80,7 +77,7 @@ namespace QvaDev.CTraderApi
 					if (length <= 0) continue;
 					if (length > MaxSiz) throw new IndexOutOfRangeException();
 
-					if (Debug) _log.Debug($"Data received: {GetHexadecimal(lengthMessage)}");
+					if (Debug) Logger.Debug($"Data received: {GetHexadecimal(lengthMessage)}");
 
 					var dataMessage = new byte[length];
 					readBytes = 0;
@@ -90,13 +87,13 @@ namespace QvaDev.CTraderApi
 						readBytes += _sslStream.Read(dataMessage, readBytes, dataMessage.Length - readBytes);
 					}
 
-					if (Debug) _log.Debug($"Data received: {GetHexadecimal(dataMessage)}");
+					if (Debug) Logger.Debug($"Data received: {GetHexadecimal(dataMessage)}");
 
 					_readQueue.Enqueue(dataMessage);
 				}
 				catch (Exception e)
 				{
-					_log.Error("Listener throws exception: {0}", e);
+					Logger.Error("Listener throws exception: {0}", e);
 					Reconnect();
 				}
 			}
@@ -118,12 +115,12 @@ namespace QvaDev.CTraderApi
                     _sslStream.Write(lengthMessage);
                     _sslStream.Write(dataMessage);
 
-	                if (Debug) _log.Debug($"Data sent: {GetHexadecimal(lengthMessage)}");
-					if (Debug) _log.Debug($"Data sent: {GetHexadecimal(dataMessage)}");
+	                if (Debug) Logger.Debug($"Data sent: {GetHexadecimal(lengthMessage)}");
+					if (Debug) Logger.Debug($"Data sent: {GetHexadecimal(dataMessage)}");
                 }
                 catch (Exception e)
                 {
-                    _log.Error("Transmitter throws exception: {0}", e);
+                    Logger.Error("Transmitter throws exception: {0}", e);
 	                Reconnect();
                 }
             }
@@ -147,7 +144,7 @@ namespace QvaDev.CTraderApi
                 }
                 catch (Exception e)
                 {
-                    _log.Error("DataProcessor throws exception: {0}", e);
+                    Logger.Error("DataProcessor throws exception: {0}", e);
                 }
             }
         }
@@ -158,7 +155,7 @@ namespace QvaDev.CTraderApi
             var msg = _inMsgFactory.GetMessage(rawData);
 
             if (Debug)
-                _log.Debug($"ProcessIncomingDataStream() Message received:\n{MessagesPresentation.ToString(msg)}");
+                Logger.Debug($"ProcessIncomingDataStream() Message received:\n{MessagesPresentation.ToString(msg)}");
 
             if (_cancellationTokenSource.Token.IsCancellationRequested || !msg.HasPayload)
             {
@@ -222,7 +219,7 @@ namespace QvaDev.CTraderApi
         {
             var msg = _outMsgFactory.CreateAuthorizationRequest(clientId, secret);
             if (Debug)
-                _log.Debug($"SendAuthorizationRequest() Message to be send:\n{MessagesPresentation.ToString(msg)}");
+                Logger.Debug($"SendAuthorizationRequest() Message to be send:\n{MessagesPresentation.ToString(msg)}");
             _writeQueue.Enqueue(msg.ToByteArray());
         }
 
@@ -232,7 +229,7 @@ namespace QvaDev.CTraderApi
         {
             var msg = _outMsgFactory.CreateSubscribeForSpotsRequest(accountId, accessToken, symbol, comment);
             if (Debug)
-                _log.Debug($"SendSubscribeForSpotsRequest() Message to be send:\n{MessagesPresentation.ToString(msg)}");
+                Logger.Debug($"SendSubscribeForSpotsRequest() Message to be send:\n{MessagesPresentation.ToString(msg)}");
             _writeQueue.Enqueue(msg.ToByteArray());
         }
 
@@ -241,7 +238,7 @@ namespace QvaDev.CTraderApi
         {
             var msg = _outMsgFactory.CreateSubscribeForTradingEventsRequest(accountId, accessToken);
             if (Debug)
-                _log.Debug(
+                Logger.Debug(
                     $"SendSubscribeForTradingEventsRequest() Message to be send:\n{MessagesPresentation.ToString(msg)}");
             _writeQueue.Enqueue(msg.ToByteArray());
         }
@@ -251,7 +248,7 @@ namespace QvaDev.CTraderApi
         {
             var msg = _outMsgFactory.CreateUnsubscribeForTradingEventsRequest(accountId);
             if (Debug)
-                _log.Debug(
+                Logger.Debug(
                     $"SendUnsubscribeForTradingEventsRequest() Message to be send:\n{MessagesPresentation.ToString(msg)}");
             _writeQueue.Enqueue(msg.ToByteArray());
         }
@@ -262,7 +259,7 @@ namespace QvaDev.CTraderApi
         {
             var msg = _outMsgFactory.CreateMarketOrderRequest(accountId, accessToken, symbol, type, volume, clientMsgId);
             if (Debug)
-                _log.Debug($"SendMarketOrderRequest() Message to be send:\n{MessagesPresentation.ToString(msg)}");
+                Logger.Debug($"SendMarketOrderRequest() Message to be send:\n{MessagesPresentation.ToString(msg)}");
             _writeQueue.Enqueue(msg.ToByteArray());
         }
 
@@ -274,7 +271,7 @@ namespace QvaDev.CTraderApi
             var msg = _outMsgFactory.CreateMarketRangeOrderRequest(accountId, accessToken, symbol, type, volume, price,
                 range, clientMsgId);
             if (Debug)
-                _log.Debug($"SendMarketRangeOrderRequest() Message to be send:\n{MessagesPresentation.ToString(msg)}");
+                Logger.Debug($"SendMarketRangeOrderRequest() Message to be send:\n{MessagesPresentation.ToString(msg)}");
             _writeQueue.Enqueue(msg.ToByteArray());
         }
 
@@ -286,7 +283,7 @@ namespace QvaDev.CTraderApi
             var msg = _outMsgFactory.CreateLimitOrderRequest(accountId, accessToken, symbol, type, volume, price,
                 clientMsgId);
             if (Debug)
-                _log.Debug($"SendLimitOrderRequest() Message to be send:\n{MessagesPresentation.ToString(msg)}");
+                Logger.Debug($"SendLimitOrderRequest() Message to be send:\n{MessagesPresentation.ToString(msg)}");
             _writeQueue.Enqueue(msg.ToByteArray());
         }
 
@@ -298,7 +295,7 @@ namespace QvaDev.CTraderApi
             var msg = _outMsgFactory.CreateStopOrderRequest(accountId, accessToken, symbol, type, volume, price,
                 clientMsgId);
             if (Debug)
-                _log.Debug($"SendStopOrderRequest() Message to be send:\n{MessagesPresentation.ToString(msg)}");
+                Logger.Debug($"SendStopOrderRequest() Message to be send:\n{MessagesPresentation.ToString(msg)}");
             _writeQueue.Enqueue(msg.ToByteArray());
         }
 
@@ -308,7 +305,7 @@ namespace QvaDev.CTraderApi
         {
             var msg = _outMsgFactory.CreateClosePositionRequest(accountId, accessToken, position, volume, clientMsgId);
             if (Debug)
-                _log.Debug($"SendClosePositionRequest() Message to be send:\n{MessagesPresentation.ToString(msg)}");
+                Logger.Debug($"SendClosePositionRequest() Message to be send:\n{MessagesPresentation.ToString(msg)}");
             _writeQueue.Enqueue(msg.ToByteArray());
         }
 
@@ -317,22 +314,17 @@ namespace QvaDev.CTraderApi
         {
             var msg = _outMsgFactory.CreateHeartbeatEvent(clientMsgId);
             if (Debug)
-                _log.Debug($"SendHearthbeatRequest() Message to be send:\n{MessagesPresentation.ToString(msg)}");
+                Logger.Debug($"SendHearthbeatRequest() Message to be send:\n{MessagesPresentation.ToString(msg)}");
             _writeQueue.Enqueue(msg.ToByteArray());
         }
 //-------------------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------------------
-        public CTraderClient(ICustomLog log)
-        {
-            _log = log;
-        }
 
-//-------------------------------------------------------------------------------------------------
         bool ValidateServerCertificate(object sender, X509Certificate certificate, X509Chain chain,
             SslPolicyErrors sslPolicyErrors)
         {
             if (sslPolicyErrors == SslPolicyErrors.None) return true;
-            if (Debug) _log.Error($"Certificate error: {sslPolicyErrors}");
+            if (Debug) Logger.Error($"Certificate error: {sslPolicyErrors}");
             return false;
         }
 
@@ -366,10 +358,10 @@ namespace QvaDev.CTraderApi
 			}
             catch (Exception e)
             {
-                if (Debug) _log.Error("Establishing SSL connection error: {0}", e);
+                if (Debug) Logger.Error("Establishing SSL connection error: {0}", e);
                 return false;
 			}
-	        _log.Debug($"{cd.Description} cTrader platform connected");
+	        Logger.Debug($"{cd.Description} cTrader platform connected");
 			return true;
         }
 
@@ -380,7 +372,7 @@ namespace QvaDev.CTraderApi
 
 		public void Reconnect()
 		{
-			_log.Debug($"{_connectionDetails.Description} cTrader platform reconnect...");
+			Logger.Debug($"{_connectionDetails.Description} cTrader platform reconnect...");
 			Disconnect();
 			Connect(_connectionDetails);
 		}

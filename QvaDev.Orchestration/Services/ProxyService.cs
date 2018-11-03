@@ -5,7 +5,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
-using QvaDev.Common.Logging;
+using QvaDev.Communication;
 using QvaDev.Data.Models;
 using Starksoft.Aspen.Proxy;
 
@@ -28,15 +28,9 @@ namespace QvaDev.Orchestration.Services
 		}
 
 		private volatile bool _isStarted;
-		private readonly ICustomLog _log;
 		private List<ProfileProxy> _profileProxies;
 		private List<Account> _accounts;
 		private List<Forward> _forwards = new List<Forward>();
-
-		public ProxyService(ICustomLog log)
-		{
-			_log = log;
-		}
 
 		public void Start(List<ProfileProxy> profileProxies, List<Account> accounts)
 		{
@@ -52,7 +46,7 @@ namespace QvaDev.Orchestration.Services
 			Task.Factory.StartNew(InnerStart, TaskCreationOptions.LongRunning);
 
 			_isStarted = true;
-			_log.Info("Proxies are started");
+			Logger.Info("Proxies are started");
 		}
 
 		public void Stop()
@@ -68,7 +62,7 @@ namespace QvaDev.Orchestration.Services
 				}
 				catch (Exception e)
 				{
-					_log.Error("Proxy stopped exception", e);
+					Logger.Error("Proxy stopped exception", e);
 				}
 			}
 
@@ -147,7 +141,7 @@ namespace QvaDev.Orchestration.Services
 			}
 			catch (Exception e)
 			{
-				_log.Error($"ProxyService.StartForwardingInner({pp}) exception", e);
+				Logger.Error($"ProxyService.StartForwardingInner({pp}) exception", e);
 			}
 			finally
 			{

@@ -6,8 +6,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using QvaDev.Common;
 using QvaDev.Common.Integration;
-using QvaDev.Common.Logging;
 using QvaDev.Common.Services;
+using QvaDev.Communication;
 using QvaDev.Data.Models;
 using static QvaDev.Data.Models.StratHubArbQuoteEventArgs;
 
@@ -26,7 +26,6 @@ namespace QvaDev.Orchestration.Services.Strategies
 		private volatile CancellationTokenSource _cancellation;
 		private CustomThreadPool<OrderResponse> _orderPool;
 
-		private readonly ICustomLog _log;
 		private readonly INewsCalendarService _newsCalendarService;
 		private List<StratHubArb> _arbs;
 		private readonly object _syncRoot = new object();
@@ -34,12 +33,9 @@ namespace QvaDev.Orchestration.Services.Strategies
 		private readonly ConcurrentDictionary<int, BlockingCollection<Action>> _arbQueues =
 			new ConcurrentDictionary<int, BlockingCollection<Action>>();
 
-		public HubArbService(
-			ICustomLog log,
-			INewsCalendarService newsCalendarService)
+		public HubArbService(INewsCalendarService newsCalendarService)
 		{
 			_newsCalendarService = newsCalendarService;
-			_log = log;
 		}
 
 		public void Start(List<StratHubArb> arbs)
@@ -61,12 +57,12 @@ namespace QvaDev.Orchestration.Services.Strategies
 				arb.ArbQuote += Arb_ArbQuote;
 			}
 
-			_log.Info("Hub arbs are started");
+			Logger.Info("Hub arbs are started");
 		}
 
 		public async Task GoFlat(List<StratHubArb> arbs)
 		{
-			_log.Info("Hub arbs are going flat!!!");
+			Logger.Info("Hub arbs are going flat!!!");
 			foreach (var arb in arbs.Where(a => a.Run)) await GoFlat(arb);
 		}
 
@@ -198,7 +194,7 @@ namespace QvaDev.Orchestration.Services.Strategies
 		{
 			try
 			{
-				_log.Info($"{arb.Description} arb is opening!!!");
+				Logger.Info($"{arb.Description} arb is opening!!!");
 
 				var buy = _orderPool.Run(() => SendPosition(arb, buyQuote, Sides.Buy, size));
 				var sell = _orderPool.Run(() => SendPosition(arb, sellQuote, Sides.Sell, size));
@@ -208,18 +204,18 @@ namespace QvaDev.Orchestration.Services.Strategies
 
 				if (buyPos.FilledQuantity > sellPos.FilledQuantity)
 				{
-					_log.Error($"{arb.Description} arb opening size mismatch!!!");
+					Logger.Error($"{arb.Description} arb opening size mismatch!!!");
 					await SendPosition(arb, buyQuote, Sides.Sell, buyPos.FilledQuantity - sellPos.FilledQuantity, true);
 				}
 				else if (buyPos.FilledQuantity < sellPos.FilledQuantity)
 				{
-					_log.Error($"{arb.Description} arb opening size mismatch!!!");
+					Logger.Error($"{arb.Description} arb opening size mismatch!!!");
 					await SendPosition(arb, sellQuote, Sides.Buy, sellPos.FilledQuantity - buyPos.FilledQuantity, true);
 				}
 
 				if (buyPos.FilledQuantity == 0 || sellPos.FilledQuantity == 0) return;
 
-				_log.Info($"{arb.Description} arb opened!!!");
+				Logger.Info($"{arb.Description} arb opened!!!");
 			}
 			finally
 			{
@@ -288,7 +284,7 @@ namespace QvaDev.Orchestration.Services.Strategies
 				}
 				catch (Exception e)
 				{
-					_log.Error("HubArbService.ArbLoop exception", e);
+					Logger.Error("HubArbService.ArbLoop exception", e);
 				}
 			}
 
@@ -299,7 +295,7 @@ namespace QvaDev.Orchestration.Services.Strategies
 		public void Stop()
 		{
 			_cancellation?.Cancel(true);
-			_log.Info("Hub arbs are stopped");
+			Logger.Info("Hub arbs are stopped");
 		}
 
 		private bool IsTime(TimeSpan current, TimeSpan? start, TimeSpan? end)

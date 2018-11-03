@@ -1,5 +1,4 @@
-﻿using QvaDev.Common.Logging;
-using QvaDev.CTraderApi;
+﻿using QvaDev.CTraderApi;
 
 namespace QvaDev.CTraderIntegration
 {
@@ -10,11 +9,10 @@ namespace QvaDev.CTraderIntegration
         public CTraderClient CTraderClient { get; }
 
         public CTraderClientWrapper(
-            PlatformInfo platformInfo,
-            ICustomLog log)
+            PlatformInfo platformInfo)
         {
             PlatformInfo = platformInfo;
-            CTraderClient = new CTraderClient(log);
+            CTraderClient = new CTraderClient();
 	        IsConnected = CTraderClient.Connect(new ConnectionDetails()
 	        {
 		        Description = platformInfo.Description,

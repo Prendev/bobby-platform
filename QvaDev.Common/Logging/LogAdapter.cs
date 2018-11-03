@@ -1,24 +1,25 @@
 ﻿using System;
 using Common.Logging;
-using Common.Logging.Factory;
+using log4net.Core;
+using ILog = log4net.ILog;
 
 namespace QvaDev.Common.Logging
 {
-	public class LogAdapter : AbstractLogger
+	public class LogAdapter : AsyncQueueLoggerBase
 	{
-		private readonly ICustomLog _log;
+		private readonly ILog _log;
 
-		public LogAdapter(ICustomLog log)
+		public LogAdapter(ILog log)
 		{
 			_log = log;
 		}
 
-		protected override void WriteInternal(LogLevel level, object message, Exception exception)
+		protected override void Log(LogLevel level, object message, Exception exception)
 		{
 			switch (level)
 			{
 				case LogLevel.Trace:
-					_log.Trace(message, exception);
+					_log.Logger.Log(GetType(), Level.Trace, message, exception);
 					break;
 				case LogLevel.Debug:
 					_log.Debug(message, exception);

@@ -6,7 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using QvaDev.Common;
 using QvaDev.Common.Integration;
-using QvaDev.Common.Logging;
+using QvaDev.Communication;
 using QvaDev.Data.Models;
 
 namespace QvaDev.Orchestration.Services
@@ -22,16 +22,10 @@ namespace QvaDev.Orchestration.Services
 	    private volatile CancellationTokenSource _cancellation;
 	    private CustomThreadPool _copyPool;
 
-		private readonly ICustomLog _log;
         private IEnumerable<Master> _masters;
 
 	    private readonly ConcurrentDictionary<int, BlockingCollection<NewPositionEventArgs>> _masterQueues =
 		    new ConcurrentDictionary<int, BlockingCollection<NewPositionEventArgs>>();
-
-		public CopierService(ICustomLog log)
-        {
-            _log = log;
-        }
 
         public void Start(List<Master> masters)
 		{
@@ -61,13 +55,13 @@ namespace QvaDev.Orchestration.Services
 		        new Thread(() => MasterLoop(master, _cancellation.Token)) { IsBackground = true }.Start();
 			}
 
-            _log.Info("Copiers are started");
+			Logger.Info("Copiers are started");
         }
 
         public void Stop()
         {
 	        _cancellation?.Cancel(true);
-			_log.Info("Copiers are stopped");
+	        Logger.Info("Copiers are stopped");
 		}
 
 	    private async void MasterLoop(Master master, CancellationToken token)
@@ -80,7 +74,7 @@ namespace QvaDev.Orchestration.Services
 				{
 					var newPos = queue.Take(token);
 
-					_log.Info($"Master {newPos.Action:F} {newPos.Position.Side:F} signal on " +
+					Logger.Info($"Master {newPos.Action:F} {newPos.Position.Side:F} signal on " +
 					          $"{newPos.Position.Symbol} with open time: {newPos.Position.OpenTime:o}");
 
 					var slaves = master.Slaves.Where(s => s.Run);
@@ -92,7 +86,7 @@ namespace QvaDev.Orchestration.Services
 				}
 				catch (Exception e)
 				{
-					_log.Error("CopierService.MasterLoop exception", e);
+					Logger.Error("CopierService.MasterLoop exception", e);
 				}
 			}
 

@@ -2,7 +2,6 @@
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
 using QvaDev.Common;
-using QvaDev.Common.Logging;
 using RestSharp;
 
 namespace QvaDev.CTraderIntegration
@@ -17,12 +16,6 @@ namespace QvaDev.CTraderIntegration
     {
         private readonly ConcurrentDictionary<string, RestClient> _restClients =
             new ConcurrentDictionary<string, RestClient>();
-        private readonly ICustomLog _log;
-
-        public RestService(ICustomLog log)
-        {
-            _log = log;
-        }
 
         public T Get<T>(string resource, string accessToken, string baseUrl,
             long fromTimestamp = 0, long toTimestamp = 0) where T : new()

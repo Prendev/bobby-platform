@@ -31,18 +31,21 @@ namespace QvaDev.Duplicat
 
         private static void Register(ContainerBuilder builder)
         {
-            RegisterApp(builder);
+	        RegisterLoggers();
+			RegisterApp(builder);
 	        RegisterCommon(builder);
             RegisterData(builder);
             RegisterOrchestration(builder);
         }
 
+	    private static void RegisterLoggers()
+	    {
+		    Logger.AddLogger(new LogAdapter(LogManager.GetLogger("General")), filePathExclude: "QvaDev.Communication");
+		    Logger.AddLogger(new LogAdapter(LogManager.GetLogger("FIX")), filePathInclude: "QvaDev.Communication");
+	    }
+
         private static void RegisterApp(ContainerBuilder builder)
         {
-	        ICustomLog generalLog = new AsyncLogQueueDecorator(LogManager.GetLogger("General"));
-	        ICustomLog fixLog = new AsyncLogQueueDecorator(LogManager.GetLogger("FIX"));
-			Logger.AddLogger(new LogAdapter(fixLog));
-			builder.RegisterInstance(generalLog);
 			builder.RegisterType<MainForm>().AsSelf().InstancePerLifetimeScope();
             builder.RegisterType<ViewModel.DuplicatViewModel>().AsSelf().InstancePerLifetimeScope();
             builder.Register((c, p) => new Func<SynchronizationContext>(() => DependecyManager.SynchronizationContext));

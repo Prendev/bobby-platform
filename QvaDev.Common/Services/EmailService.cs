@@ -2,7 +2,6 @@
 using System.Configuration;
 using System.Threading.Tasks;
 using AegisImplicitMail;
-using QvaDev.Common.Logging;
 
 namespace QvaDev.Common.Services
 {
@@ -14,12 +13,6 @@ namespace QvaDev.Common.Services
 	public class EmailService : IEmailService
 	{
 		private readonly object _syncRoot = new object();
-		private readonly ICustomLog _log;
-
-		public EmailService(ICustomLog log)
-		{
-			_log = log;
-		}
 
 		public void Send(string subject, string body)
 		{
@@ -57,7 +50,7 @@ namespace QvaDev.Common.Services
 				}
 				catch (Exception e)
 				{
-					_log.Error("EmailService.Send exception", e);
+					Logger.Error("EmailService.Send exception", e);
 				}
 			});
 		}

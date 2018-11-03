@@ -7,7 +7,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Windows.Forms;
 using Autofac;
-using QvaDev.Common.Logging;
+using QvaDev.Communication;
 using QvaDev.Data;
 using QvaDev.Duplicat.Views;
 
@@ -36,16 +36,14 @@ namespace QvaDev.Duplicat
             Application.SetCompatibleTextRenderingDefault(false);
             using (var scope = Dependencies.GetContainer().BeginLifetimeScope())
             {
-	            var log = scope.Resolve<ICustomLog>();
-
-				Application.ThreadException += (s, e) => Application_ThreadException(e, log);
+				Application.ThreadException += (s, e) => Application_ThreadException(e);
 				Application.Run(scope.Resolve<MainForm>());
 			}
         }
 
-		private static void Application_ThreadException(ThreadExceptionEventArgs e, ICustomLog log)
+		private static void Application_ThreadException(ThreadExceptionEventArgs e)
 		{
-			log.Error("Unhandled exception", e.Exception);
+			Logger.Error("Unhandled exception", e.Exception);
 		}
 
 	    private static void PrepareAssemblies()

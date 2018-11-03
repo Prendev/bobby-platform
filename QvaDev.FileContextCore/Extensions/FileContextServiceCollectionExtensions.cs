@@ -9,7 +9,6 @@ using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Microsoft.Extensions.DependencyInjection;
-using QvaDev.FileContextCore;
 using QvaDev.FileContextCore.Infrastructure.Internal;
 using QvaDev.FileContextCore.Query.ExpressionVisitors.Internal;
 using QvaDev.FileContextCore.Query.Internal;

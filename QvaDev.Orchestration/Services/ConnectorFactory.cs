@@ -1,5 +1,4 @@
 ﻿using System.Threading.Tasks;
-using QvaDev.Common.Logging;
 using QvaDev.Common.Services;
 using QvaDev.Data;
 using QvaDev.Data.Models;
@@ -9,16 +8,13 @@ namespace QvaDev.Orchestration.Services
 	public class ConnectorFactory : IConnectorFactory
 	{
 		private readonly CTraderIntegration.ICtConnectorFactory _ctConnectorFactory;
-		private readonly ICustomLog _log;
 		private readonly IEmailService _emailService;
 
 		public ConnectorFactory(
 			CTraderIntegration.ICtConnectorFactory ctConnectorFactory,
-			IEmailService emailService,
-			ICustomLog log)
+			IEmailService emailService)
 		{
 			_emailService = emailService;
-			_log = log;
 			_ctConnectorFactory = ctConnectorFactory;
 		}
 		public async Task Create(Account account)
@@ -44,7 +40,7 @@ namespace QvaDev.Orchestration.Services
 				account.Connector = null;
 
 			if (account.Connector == null)
-				account.Connector = new Mt4Integration.Connector(_log);
+				account.Connector = new Mt4Integration.Connector();
 			((Mt4Integration.Connector) account.Connector)
 				.Connect(new Mt4Integration.AccountInfo()
 				{
@@ -93,7 +89,7 @@ namespace QvaDev.Orchestration.Services
 				account.Connector = null;
 
 			if (account.Connector == null)
-				account.Connector = new FixTraderIntegration.Connector(_log);
+				account.Connector = new FixTraderIntegration.Connector();
 
 			((FixTraderIntegration.Connector) account.Connector)
 				.Connect(new FixTraderIntegration.AccountInfo
@@ -118,7 +114,7 @@ namespace QvaDev.Orchestration.Services
 					DbId = account.FixApiAccount.Id,
 					Description = account.FixApiAccount.Description,
 					ConfigPath = account.FixApiAccount.ConfigPath,
-				}, _emailService, _log);
+				}, _emailService);
 
 			await ((FixApiIntegration.Connector) account.Connector).Connect();
 		}
@@ -130,7 +126,7 @@ namespace QvaDev.Orchestration.Services
 				account.Connector = null;
 
 			if (account.Connector == null)
-				account.Connector = new IlyaFastFeedIntegration.Connector(_log);
+				account.Connector = new IlyaFastFeedIntegration.Connector();
 
 			await ((IlyaFastFeedIntegration.Connector)account.Connector).Connect(new IlyaFastFeedIntegration.AccountInfo()
 			{
@@ -155,7 +151,7 @@ namespace QvaDev.Orchestration.Services
 					Description = account.CqgClientApiAccount.Description,
 					UserName = account.CqgClientApiAccount.UserName,
 					Password = account.CqgClientApiAccount.Password
-				}, _log);
+				});
 
 			await ((CqgClientApiIntegration.Connector)account.Connector).Connect();
 		}

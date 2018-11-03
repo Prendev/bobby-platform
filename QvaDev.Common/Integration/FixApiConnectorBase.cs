@@ -1,6 +1,5 @@
 ﻿using System.Collections.Concurrent;
 using System.Threading.Tasks;
-using QvaDev.Common.Logging;
 
 namespace QvaDev.Common.Integration
 {
@@ -10,10 +9,6 @@ namespace QvaDev.Common.Integration
 			new ConcurrentDictionary<string, Tick>();
 		protected readonly ConcurrentDictionary<string, SymbolData> SymbolInfos =
 			new ConcurrentDictionary<string, SymbolData>();
-
-		protected FixApiConnectorBase(ICustomLog log) : base(log)
-		{
-		}
 
 		public override Tick GetLastTick(string symbol)
 		{

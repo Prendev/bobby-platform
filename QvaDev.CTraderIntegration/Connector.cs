@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using QvaDev.Common.Integration;
-using QvaDev.Common.Logging;
 using QvaDev.CTraderIntegration.Dto;
 using QvaDev.CTraderIntegration.Services;
 
@@ -35,8 +34,7 @@ namespace QvaDev.CTraderIntegration
 		public Connector(
             AccountInfo accountInfo,
             CTraderClientWrapper cTraderClientWrapper,
-            ITradingAccountsService tradingAccountsService,
-            ICustomLog log) : base(log)
+            ITradingAccountsService tradingAccountsService)
         {
             _tradingAccountsService = tradingAccountsService;
             _accountInfo = accountInfo;
@@ -52,7 +50,7 @@ namespace QvaDev.CTraderIntegration
             {
                 _cTraderClientWrapper.CTraderClient.SendUnsubscribeForTradingEventsRequest(AccountId);
             }
-            Log.Debug($"{_accountInfo.Description} account ({_accountInfo.AccountNumber}) disconnected");
+            Logger.Debug($"{_accountInfo.Description} account ({_accountInfo.AccountNumber}) disconnected");
         }
 
 		public override Tick GetLastTick(string symbol)
@@ -69,10 +67,10 @@ namespace QvaDev.CTraderIntegration
         {
             if (!IsConnected)
             {
-                Log.Error($"{_accountInfo.Description} account ({_accountInfo.AccountNumber}) FAILED to connect");
+                Logger.Error($"{_accountInfo.Description} account ({_accountInfo.AccountNumber}) FAILED to connect");
                 return false;
             }
-            Log.Debug($"{_accountInfo.Description} account ({_accountInfo.AccountNumber}) connected");
+            Logger.Debug($"{_accountInfo.Description} account ({_accountInfo.AccountNumber}) connected");
 
             _cTraderClientWrapper.CTraderClient.SendUnsubscribeForTradingEventsRequest(AccountId);
             _cTraderClientWrapper.CTraderClient.SendSubscribeForTradingEventsRequest(_accountInfo.AccessToken, AccountId);
@@ -88,7 +86,7 @@ namespace QvaDev.CTraderIntegration
                 BaseUrl = _cTraderClientWrapper.PlatformInfo.AccountsApi,
                 AccountId = AccountId
             });
-            Log.Debug($"{_accountInfo.Description} account ({_accountInfo.AccountNumber}) positions acquired");
+            Logger.Debug($"{_accountInfo.Description} account ({_accountInfo.AccountNumber}) positions acquired");
 
             foreach (var p in positions)
             {
@@ -126,7 +124,7 @@ namespace QvaDev.CTraderIntegration
                             BaseUrl = _cTraderClientWrapper.PlatformInfo.AccountsApi
                         });
 
-                    Log.Debug($"Accounts acquired for access token: {accessToken}");
+                    Logger.Debug($"Accounts acquired for access token: {accessToken}");
                     return accs;
                 }, true));
 
@@ -164,7 +162,7 @@ namespace QvaDev.CTraderIntegration
                             BaseUrl = _cTraderClientWrapper.PlatformInfo.AccountsApi
                         });
 
-                    Log.Debug($"Accounts acquired for access token: {accessToken}");
+                    Logger.Debug($"Accounts acquired for access token: {accessToken}");
                     return accs;
                 }, true));
 
@@ -290,7 +288,7 @@ namespace QvaDev.CTraderIntegration
             MarketOrder marketOrder;
             if (_marketOrders.TryGetValue(clientMsgId, out marketOrder))
             {
-                Log.Info($"cTrader error: {error.Description}");
+                Logger.Info($"cTrader error: {error.Description}");
                 RetryMarketOrder(marketOrder, clientMsgId);
                 return;
             }

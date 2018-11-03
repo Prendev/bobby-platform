@@ -3,8 +3,6 @@ using QvaDev.Common.Integration;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using QvaDev.Common.Logging;
-using QvaDev.Communication;
 
 namespace QvaDev.CqgClientApiIntegration
 {
@@ -43,7 +41,7 @@ namespace QvaDev.CqgClientApiIntegration
 			}
 		}
 
-		public Connector(AccountInfo accountInfo, ICustomLog log) : base(log)
+		public Connector(AccountInfo accountInfo)
 		{
 			_accountInfo = accountInfo;
 			_taskCompletionManager = new TaskCompletionManager<string>(100, 2000);
@@ -109,7 +107,7 @@ namespace QvaDev.CqgClientApiIntegration
 			}
 			catch (Exception e)
 			{
-				Log.Error($"{_accountInfo.Description} account FAILED to connect", e);
+				Logger.Error($"{_accountInfo.Description} account FAILED to connect", e);
 				Reconnect();
 			}
 
@@ -127,7 +125,7 @@ namespace QvaDev.CqgClientApiIntegration
 			}
 			catch (Exception e)
 			{
-				Log.Error($"{Description} account ERROR during disconnect", e);
+				Logger.Error($"{Description} account ERROR during disconnect", e);
 			}
 
 			OnConnectionChanged(ConnectionStates.Disconnected);
@@ -147,7 +145,7 @@ namespace QvaDev.CqgClientApiIntegration
 			}
 			catch (Exception e)
 			{
-				Log.Error($"{Description} Connector.Subscribe({symbol}) exception", e);
+				Logger.Error($"{Description} Connector.Subscribe({symbol}) exception", e);
 			}
 		}
 
@@ -171,7 +169,7 @@ namespace QvaDev.CqgClientApiIntegration
 			}
 			catch (Exception e)
 			{
-				Log.Error($"{Description} Connector.SendMarketOrderRequest({symbol}, {side}, {quantity}, {comment}) exception", e);
+				Logger.Error($"{Description} Connector.SendMarketOrderRequest({symbol}, {side}, {quantity}, {comment}) exception", e);
 				return new OrderResponse()
 				{
 					OrderedQuantity = quantity,
@@ -275,7 +273,7 @@ namespace QvaDev.CqgClientApiIntegration
 			if (cqgError != null && orderKey != null)
 			{
 				_taskCompletionManager.SetError(orderKey, new Exception(cqgError.Description));
-				Log.Error($"{Description} Connector._cqgCel_OrderChanged", new Exception(cqgError.Description));
+				Logger.Error($"{Description} Connector._cqgCel_OrderChanged", new Exception(cqgError.Description));
 				return;
 			}
 
@@ -331,7 +329,7 @@ namespace QvaDev.CqgClientApiIntegration
 		private void _cqgCel_InstrumentResolved(string symbol, CQGInstrument cqgInstrument, CQGError cqgError)
 		{
 			if (cqgError == null) return;
-			Log.Error($"{Description} Connector.Subscribe({symbol}) InstrumentResolved error",
+			Logger.Error($"{Description} Connector.Subscribe({symbol}) InstrumentResolved error",
 				new Exception(cqgError.Description));
 		}
 

@@ -1,11 +1,8 @@
-﻿using QvaDev.Common.Logging;
-
-namespace QvaDev.Common.Integration
+﻿namespace QvaDev.Common.Integration
 {
 	public abstract class ConnectorBase : IConnector
 	{
 		private ConnectionStates _lastState = ConnectionStates.Disconnected;
-		protected readonly ICustomLog Log;
 
 		public abstract int Id { get; }
 		public abstract string Description { get; }
@@ -14,14 +11,13 @@ namespace QvaDev.Common.Integration
 		public event NewTickEventHandler NewTick;
 		public event ConnectionChangedEventHandler ConnectionChanged;
 
-		protected ConnectorBase(ICustomLog log)
+		protected ConnectorBase()
 		{
-			Log = log;
 			ConnectionChanged += (sender, state) =>
 			{
 				if (_lastState == state) return;
 				_lastState = state;
-				Log.Debug($"{Description} account {state}");
+				Logger.Debug($"{Description} account {state}");
 			};
 		}
 

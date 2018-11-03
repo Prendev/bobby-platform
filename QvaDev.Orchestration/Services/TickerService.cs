@@ -5,7 +5,6 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using QvaDev.Common.Integration;
-using QvaDev.Common.Logging;
 using QvaDev.Communication;
 using QvaDev.Data.Models;
 
@@ -110,16 +109,10 @@ namespace QvaDev.Orchestration.Services
 		}
 
 		private bool _isStarted;
-        private readonly ICustomLog _log;
         private IEnumerable<Ticker> _tickers;
 
 		private readonly ConcurrentDictionary<string, Writer> _csvWriters =
 			new ConcurrentDictionary<string, Writer>();
-
-		public TickerService(ICustomLog log)
-        {
-            _log = log;
-        }
 
         public void Start(List<Ticker> tickers)
         {
@@ -145,7 +138,7 @@ namespace QvaDev.Orchestration.Services
 			}
 
 			_isStarted = true;
-            _log.Info("Tickers are started");
+	        Logger.Info("Tickers are started");
         }
 
 		public void Stop()

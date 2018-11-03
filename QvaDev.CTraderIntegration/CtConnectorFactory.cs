@@ -3,7 +3,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using QvaDev.Common.Integration;
-using QvaDev.Common.Logging;
 using QvaDev.CTraderIntegration.Dto;
 using QvaDev.CTraderIntegration.Services;
 
@@ -28,15 +27,11 @@ namespace QvaDev.CTraderIntegration
         private static readonly ConcurrentDictionary<string, Lazy<List<AccountData>>> Accounts =
             new ConcurrentDictionary<string, Lazy<List<AccountData>>>();
 
-        private readonly ICustomLog _log;
         private readonly ITradingAccountsService _tradingAccountsService;
 
-        public CtConnectorFactory(
-	        ICustomLog log,
-            ITradingAccountsService tradingAccountsService)
+        public CtConnectorFactory(ITradingAccountsService tradingAccountsService)
         {
             _tradingAccountsService = tradingAccountsService;
-            _log = log;
         }
 
         public IConnector Create(PlatformInfo platformInfo, AccountInfo accountInfo)
@@ -56,9 +51,9 @@ namespace QvaDev.CTraderIntegration
                     }
                     catch (Exception e)
                     {
-                        _log.Error("Get accounts exception", e);
+	                    Logger.Error("Get accounts exception", e);
                     }
-                    _log.Debug($"Accounts acquired for access token: {accessToken}");
+	                Logger.Debug($"Accounts acquired for access token: {accessToken}");
                     return null;
                 }, true));
 
@@ -66,10 +61,9 @@ namespace QvaDev.CTraderIntegration
                 .FirstOrDefault(a => a.accountNumber == accountInfo.AccountNumber)?.accountId ?? 0;
 
             var cTraderClientWrapper = CTraderClientWrappers.GetOrAdd(platformInfo.Description,
-                key => new Lazy<CTraderClientWrapper>(() => new CTraderClientWrapper(platformInfo, _log), true));
+                key => new Lazy<CTraderClientWrapper>(() => new CTraderClientWrapper(platformInfo), true));
 
-            var connector = new Connector(accountInfo, cTraderClientWrapper.Value,
-                _tradingAccountsService, _log);
+            var connector = new Connector(accountInfo, cTraderClientWrapper.Value, _tradingAccountsService);
 
             return connector;
         }

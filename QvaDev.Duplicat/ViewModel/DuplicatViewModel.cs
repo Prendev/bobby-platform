@@ -5,7 +5,6 @@ using System.ComponentModel;
 using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
-using QvaDev.Common.Logging;
 using QvaDev.Common.Services;
 using QvaDev.Data;
 using QvaDev.Data.Models;
@@ -39,7 +38,6 @@ namespace QvaDev.Duplicat.ViewModel
         private DuplicatContext _duplicatContext;
         private readonly IOrchestrator _orchestrator;
         private readonly IXmlService _xmlService;
-        private readonly ICustomLog _log;
 	    private readonly List<PropertyChangedEventHandler> _filteredDelegates = new List<PropertyChangedEventHandler>();
 
 		public ObservableCollection<MetaTraderPlatform> MtPlatforms { get; private set;  }
@@ -87,11 +85,9 @@ namespace QvaDev.Duplicat.ViewModel
 	    public Pushing SelectedPushing { get => Get<Pushing>(); set => Set(value); }
 
         public DuplicatViewModel(
-	        ICustomLog log,
             IOrchestrator orchestrator,
             IXmlService xmlService)
         {
-            _log = log;
             _xmlService = xmlService;
             _orchestrator = orchestrator;
             InitDataContext();

@@ -9,8 +9,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using QvaDev.Common.Integration;
-using QvaDev.Common.Logging;
-using QvaDev.Communication;
 
 namespace QvaDev.FixTraderIntegration
 {
@@ -32,7 +30,7 @@ namespace QvaDev.FixTraderIntegration
 		public ConcurrentDictionary<string, SymbolData> SymbolInfos { get; set; } =
 			new ConcurrentDictionary<string, SymbolData>();
 
-		public Connector(ICustomLog log) : base(log)
+		public Connector()
 		{
 			_taskCompletionManager = new TaskCompletionManager<string>(100, 1000);
 		}
@@ -56,7 +54,7 @@ namespace QvaDev.FixTraderIntegration
 			}
 			catch (Exception e)
 			{
-				Log.Error($"{_accountInfo.Description} account FAILED to connect", e);
+				Logger.Error($"{_accountInfo.Description} account FAILED to connect", e);
 			}
 			return false;
 		}
@@ -139,7 +137,7 @@ namespace QvaDev.FixTraderIntegration
 				}
 				catch (Exception e)
 				{
-					Log.Error($"Connector.RunReceiver exception", e);
+					Logger.Error($"Connector.RunReceiver exception", e);
 				}
 			}
 		}
@@ -183,7 +181,7 @@ namespace QvaDev.FixTraderIntegration
 			}
 			catch (Exception e)
 			{
-				Log.Error($"Connector.SendMarketOrderRequest({symbol}, {side}, {quantity}, {comment}) exception", e);
+				Logger.Error($"Connector.SendMarketOrderRequest({symbol}, {side}, {quantity}, {comment}) exception", e);
 				return new OrderResponse()
 				{
 					OrderedQuantity = quantity,
@@ -228,7 +226,7 @@ namespace QvaDev.FixTraderIntegration
 			}
 			catch (Exception e)
 			{
-				Log.Error($"Connector.SendLimitOrderRequest({symbol}, {side}, {lots}, {comment}) exception", e);
+				Logger.Error($"Connector.SendLimitOrderRequest({symbol}, {side}, {lots}, {comment}) exception", e);
 			}
 		}
 
@@ -277,7 +275,7 @@ namespace QvaDev.FixTraderIntegration
 			}
 			catch (Exception e)
 			{
-				Log.Error($"Connector.SendLimitOrderRequest({symbol}, {side}, {lots}, {comment}) exception", e);
+				Logger.Error($"Connector.SendLimitOrderRequest({symbol}, {side}, {lots}, {comment}) exception", e);
 			}
 		}
 
@@ -302,7 +300,7 @@ namespace QvaDev.FixTraderIntegration
 			}
 			catch (Exception e)
 			{
-				Log.Error($"Connector.OrderMultipleCloseBy({symbol}) exception", e);
+				Logger.Error($"Connector.OrderMultipleCloseBy({symbol}) exception", e);
 			}
 		}
 

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Configuration;
 using System.Diagnostics;
 using System.Linq;
+using QvaDev.Communication;
 using QvaDev.Data.Models;
 
 namespace QvaDev.Duplicat.ViewModel
@@ -15,12 +16,12 @@ namespace QvaDev.Duplicat.ViewModel
             try
             {
                 _duplicatContext.SaveChanges();
-                _log.Debug($"Database is saved");
+	            Logger.Debug($"Database is saved");
 				SaveState = SaveStates.Success;
 			}
             catch (Exception e)
             {
-                _log.Error("Database save ERROR!!!", e);
+	            Logger.Error("Database save ERROR!!!", e);
 				SaveState = SaveStates.Error;
 			}
 

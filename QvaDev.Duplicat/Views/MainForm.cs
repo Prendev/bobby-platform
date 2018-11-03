@@ -2,8 +2,8 @@
 using System.Threading;
 using System.Windows.Forms;
 using QvaDev.Common;
-using QvaDev.Common.Logging;
 using QvaDev.Common.Services;
+using QvaDev.Communication;
 using QvaDev.Data.Models;
 using QvaDev.Duplicat.ViewModel;
 
@@ -12,16 +12,13 @@ namespace QvaDev.Duplicat.Views
     public partial class MainForm : Form
     {
         private readonly DuplicatViewModel _viewModel;
-	    private readonly ICustomLog _log;
 
 	    public MainForm(
             DuplicatViewModel viewModel,
-            INewsCalendarService newsCalendarService,
-			ICustomLog log
+            INewsCalendarService newsCalendarService
 		)
 		{
 			_viewModel = viewModel;
-			_log = log;
 			DependecyManager.SynchronizationContext = SynchronizationContext.Current;
 
             Load += (sender, args) => InitView();
@@ -31,7 +28,7 @@ namespace QvaDev.Duplicat.Views
 			TextBoxAppender.ConfigureTextBoxAppender(rtbAll, "General|FIX", 1000);
 
 	        ThreadPool.GetMinThreads(out var wokerThreads, out var completionPortThreads);
-	        _log.Debug($"ThreadPool.GetMinThreads(out {wokerThreads}, out {completionPortThreads})");
+			Logger.Debug($"ThreadPool.GetMinThreads(out {wokerThreads}, out {completionPortThreads})");
 			newsCalendarService.Start();
 		}
 

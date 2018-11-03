@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using QvaDev.Common.Logging;
+using QvaDev.Communication;
 using QvaDev.Data.Models;
 using QvaDev.Mt4Integration;
 
@@ -18,11 +18,8 @@ namespace QvaDev.Orchestration.Services
 
     public class ReportService : IReportService
     {
-        private readonly ICustomLog _log;
-
-        public ReportService(ICustomLog log)
+        public ReportService()
         {
-            _log = log;
 	        ICSharpCode.SharpZipLib.Zip.ZipConstants.DefaultCodePage = 437;
 		}
 
@@ -33,7 +30,7 @@ namespace QvaDev.Orchestration.Services
             var tasks = mtAccounts.Select(account => Task.Run(() => Export(account)));
 
 	        await Task.WhenAll(tasks);
-	        _log.Debug("Order history export is READY!");
+	        Logger.Debug("Order history export is READY!");
         }
 
 	    public Task HubArbsExport(List<StratHubArbPosition> arbPositions)
@@ -75,11 +72,11 @@ namespace QvaDev.Orchestration.Services
 					wb.Write(stream);
 				}
 
-				_log.Debug($"Hub arbs export is READY!{Environment.NewLine}{filePath}");
+				Logger.Debug($"Hub arbs export is READY!{Environment.NewLine}{filePath}");
 			}
 			catch (Exception e)
 			{
-				_log.Error("Hub arbs export exception", e);
+				Logger.Error("Hub arbs export exception", e);
 			}
 	    }
 

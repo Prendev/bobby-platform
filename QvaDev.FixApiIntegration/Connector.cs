@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Serialization;
 using QvaDev.Common.Integration;
-using QvaDev.Common.Logging;
 using QvaDev.Common.Services;
 using QvaDev.Communication;
 using QvaDev.Communication.ConnectionManagementRules;
@@ -36,8 +35,7 @@ namespace QvaDev.FixApiIntegration
 
 		public Connector(
 			AccountInfo accountInfo,
-			IEmailService emailService,
-			ICustomLog log) : base(log)
+			IEmailService emailService)
 		{
 			_emailService = emailService;
 			_accountInfo = accountInfo;
@@ -66,7 +64,7 @@ namespace QvaDev.FixApiIntegration
 			}
 			catch (Exception e)
 			{
-				Log.Error($"{Description} FIX account FAILED to connect", e);
+				Logger.Error($"{Description} FIX account FAILED to connect", e);
 			}
 		}
 
@@ -78,7 +76,7 @@ namespace QvaDev.FixApiIntegration
 			}
 			catch (Exception e)
 			{
-				Log.Error($"{Description} account ERROR during disconnect", e);
+				Logger.Error($"{Description} account ERROR during disconnect", e);
 			}
 
 			OnConnectionChanged(ConnectionStates.Disconnected);
@@ -110,12 +108,12 @@ namespace QvaDev.FixApiIntegration
 				retValue.AveragePrice = response.AveragePrice;
 				retValue.FilledQuantity = response.FilledQuantity;
 
-				Log.Debug(
+				Logger.Debug(
 					$"{Description} Connector.SendMarketOrderRequest({symbol}, {side}, {quantity}, {comment}) opened {retValue.FilledQuantity} at avg price {retValue.AveragePrice}");
 			}
 			catch (Exception e)
 			{
-				Log.Error($"{Description} Connector.SendMarketOrderRequest({symbol}, {side}, {quantity}, {comment}) exception", e);
+				Logger.Error($"{Description} Connector.SendMarketOrderRequest({symbol}, {side}, {quantity}, {comment}) exception", e);
 			}
 
 			if (!retValue.IsFilled)
@@ -146,7 +144,7 @@ namespace QvaDev.FixApiIntegration
 
 			try
 			{
-				Log.Debug(
+				Logger.Debug(
 					$"{Description} Connector.SendAggressiveOrderRequest({symbol}, {side}, {quantity}, " +
 					$"{limitPrice}, {deviation}, {timeout}, {retryCount}, {retryPeriod}) ");
 
@@ -169,14 +167,14 @@ namespace QvaDev.FixApiIntegration
 				retValue.AveragePrice = response.AveragePrice;
 				retValue.FilledQuantity = response.FilledQuantity;
 
-				Log.Debug(
+				Logger.Debug(
 					$"{Description} Connector.SendAggressiveOrderRequest({symbol}, {side}, {quantity}, " +
 					$"{limitPrice}, {deviation}, {timeout}, {retryCount}, {retryPeriod}) " +
 					$"opened {response.FilledQuantity} at avg price {response.AveragePrice}");
 			}
 			catch (Exception e)
 			{
-				Log.Error(
+				Logger.Error(
 					$"{Description} Connector.SendAggressiveOrderRequest({symbol}, {side}, {quantity}, " +
 					$"{limitPrice}, {deviation}, {timeout}, {retryCount}, {retryPeriod}) exception", e);
 			}
@@ -208,7 +206,7 @@ namespace QvaDev.FixApiIntegration
 			}
 			catch (Exception e)
 			{
-				Log.Error($"{Description} Connector.Subscribe({symbol}) exception", e);
+				Logger.Error($"{Description} Connector.Subscribe({symbol}) exception", e);
 			}
 		}
 

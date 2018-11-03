@@ -6,8 +6,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using QvaDev.Common.Integration;
-using QvaDev.Common.Logging;
-using QvaDev.Communication;
 
 namespace QvaDev.IlyaFastFeedIntegration
 {
@@ -26,7 +24,7 @@ namespace QvaDev.IlyaFastFeedIntegration
 		public override string Description => _accountInfo.Description;
 		public override bool IsConnected => _isConnected;
 
-		public Connector(ICustomLog log) : base(log)
+		public Connector()
 		{
 			_taskCompletionManager = new TaskCompletionManager<string>(100, 1000);
 		}
@@ -55,7 +53,7 @@ namespace QvaDev.IlyaFastFeedIntegration
 			}
 			catch (Exception e)
 			{
-				Log.Error($"{_accountInfo.Description} account FAILED to connect", e);
+				Logger.Error($"{_accountInfo.Description} account FAILED to connect", e);
 				_isConnected = false;
 			}
 			OnConnectionChanged(IsConnected ? ConnectionStates.Connected : ConnectionStates.Error);
@@ -110,7 +108,7 @@ namespace QvaDev.IlyaFastFeedIntegration
 			// Disconnect
 			if (ret <= 0)
 			{
-				Log.Error($"{_accountInfo.Description} feeder closed connection");
+				Logger.Error($"{_accountInfo.Description} feeder closed connection");
 				Reconnect();
 			}
 			// Admin
@@ -123,11 +121,11 @@ namespace QvaDev.IlyaFastFeedIntegration
 				}
 				catch (Exception e)
 				{
-					Log.Error($"{_accountInfo.Description} admin message parse error", e);
+					Logger.Error($"{_accountInfo.Description} admin message parse error", e);
 					return;
 				}
 
-				Log.Debug($"{_accountInfo.Description} admin message: {result}");
+				Logger.Debug($"{_accountInfo.Description} admin message: {result}");
 
 				var badMessages = new[]
 					{"User is already autorized!!!=#=", "License is blocked, or expired or do not exist!!!=#=", "User Logoff=#="};
@@ -139,7 +137,7 @@ namespace QvaDev.IlyaFastFeedIntegration
 
 				if (result.Trim().Equals("OK!!!=#="))
 				{
-					Log.Info($"{_accountInfo.Description} admin message auth OK");
+					Logger.Info($"{_accountInfo.Description} admin message auth OK");
 					_taskCompletionManager.SetResult(_accountInfo.Description, true);
 				}
 			}
@@ -187,7 +185,7 @@ namespace QvaDev.IlyaFastFeedIntegration
 
 		private void OnMessageDisconnect(string message)
 		{
-			Log.Error($"{_accountInfo.Description} admin message disconnect reason: {message}");
+			Logger.Error($"{_accountInfo.Description} admin message disconnect reason: {message}");
 			Disconnect();
 		}
 

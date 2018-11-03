@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using QvaDev.Common.Integration;
-using QvaDev.Common.Logging;
 using QvaDev.Communication;
 using QvaDev.Communication.FixApi;
 using QvaDev.Data;
@@ -41,7 +40,6 @@ namespace QvaDev.Orchestration
 	    private readonly IReportService _reportService;
 	    private readonly IMtAccountImportService _mtAccountImportService;
 	    private readonly IProxyService _proxyService;
-		private readonly ICustomLog _log;
 
 	    public Orchestrator(
             Func<SynchronizationContext> synchronizationContextFactory,
@@ -52,10 +50,8 @@ namespace QvaDev.Orchestration
             IHubArbService hubArbService,
 			IReportService reportService,
             IMtAccountImportService mtAccountImportService,
-			IProxyService proxyService,
-            ICustomLog log)
+			IProxyService proxyService)
         {
-	        _log = log;
 	        _proxyService = proxyService;
 			_mtAccountImportService = mtAccountImportService;
 	        _reportService = reportService;

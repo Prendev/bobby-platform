@@ -6,7 +6,6 @@ using System.Net;
 using System.Threading.Tasks;
 using System.Timers;
 using System.Xml.Serialization;
-using QvaDev.Common.Logging;
 
 namespace QvaDev.Common.Services
 {
@@ -29,12 +28,6 @@ namespace QvaDev.Common.Services
 		private int? _firstKey;
 		private int? _lastKey ;
 		private readonly Dictionary<int, int> _weeklyHighImpactDistances = new Dictionary<int, int>();
-		private readonly ICustomLog _log;
-
-		public NewsCalendarService(ICustomLog log)
-		{
-			_log = log;
-		}
 
 		public void Start()
 		{
@@ -86,11 +79,11 @@ namespace QvaDev.Common.Services
 				_weeklyEvents.Parse();
 
 				GenerateOptimizedDictionary();
-				_log.Debug("NewsCalendarService update SUCCESS");
+				Logger.Debug("NewsCalendarService update SUCCESS");
 			}
 			catch(Exception e)
 			{
-				_log.Error("NewsCalendarService exception", e);
+				Logger.Error("NewsCalendarService exception", e);
 			}
 			finally
 			{

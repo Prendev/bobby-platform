@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading;
 using QvaDev.Common;
 using QvaDev.Common.Integration;
-using QvaDev.Common.Logging;
 using TradingAPI.MT4Server;
 using Bar = QvaDev.Common.Integration.Bar;
 
@@ -46,7 +45,7 @@ namespace QvaDev.Mt4Integration
         public OrderClient OrderClient;
 		private Action<string, int> _destinationSetter;
 
-		public Connector(ICustomLog log) : base(log)
+		public Connector()
         {
             Positions = new ConcurrentDictionary<long, Position>();
         }
@@ -63,7 +62,7 @@ namespace QvaDev.Mt4Integration
 			}
 	        catch (Exception e)
 	        {
-		        Log.Error($"{Description} account ERROR during disconnect", e);
+		        Logger.Error($"{Description} account ERROR during disconnect", e);
 			}
 
 			OnConnectionChanged(ConnectionStates.Disconnected);
@@ -89,7 +88,7 @@ namespace QvaDev.Mt4Integration
 			}
 			catch (Exception e)
 			{
-				Log.Error($"{_accountInfo.Description} account ({_accountInfo.User}) FAILED to connect", e);
+				Logger.Error($"{_accountInfo.Description} account ({_accountInfo.User}) FAILED to connect", e);
 			}
 			finally
 			{
@@ -139,10 +138,10 @@ namespace QvaDev.Mt4Integration
         {
             try
 			{
-				Log.Debug($"{_accountInfo.Description} account ({_accountInfo.User}, {comment}) OrderClient.OrderSend started...");
+				Logger.Debug($"{_accountInfo.Description} account ({_accountInfo.User}, {comment}) OrderClient.OrderSend started...");
 				var op = side == Sides.Buy ? Op.Buy : Op.Sell;
 				var o = OrderClient.OrderSend(symbol, op, lots, 0, 0, 0, 0, comment, magicNumber, DateTime.MaxValue);
-				Log.Info($"{_accountInfo.Description} account ({_accountInfo.User}, {comment}) OrderClient.OrderSend is successful");
+				Logger.Info($"{_accountInfo.Description} account ({_accountInfo.User}, {comment}) OrderClient.OrderSend is successful");
 
 				var position = new Position
 				{
@@ -165,7 +164,7 @@ namespace QvaDev.Mt4Integration
 			}
             catch (Exception e)
             {
-                Log.Error($"Connector.SendMarketOrderRequest({symbol}, {side}, {lots}, {magicNumber}, {comment}) exception", e);
+                Logger.Error($"Connector.SendMarketOrderRequest({symbol}, {side}, {lots}, {magicNumber}, {comment}) exception", e);
 				if (maxRetryCount <= 0) return null;
 
 				Thread.Sleep(retryPeriodInMs);
@@ -182,19 +181,19 @@ namespace QvaDev.Mt4Integration
         {
             try
 			{
-				Log.Debug($"{_accountInfo.Description} account ({_accountInfo.User}, {position.Comment}) OrderClient.OrderClose started...");
+				Logger.Debug($"{_accountInfo.Description} account ({_accountInfo.User}, {position.Comment}) OrderClient.OrderClose started...");
 
 				var price = position.Side == Sides.Buy
                     ? QuoteClient.GetQuote(position.Symbol).Bid
                     : QuoteClient.GetQuote(position.Symbol).Ask;
 				OrderClient.OrderClose(position.Symbol, (int) position.Id, lots ?? position.Lots, price, 0);
 
-				Log.Info($"{_accountInfo.Description} account ({_accountInfo.User}, {position.Comment}) OrderClient.OrderClose is successful");
+				Logger.Info($"{_accountInfo.Description} account ({_accountInfo.User}, {position.Comment}) OrderClient.OrderClose is successful");
 				return true;
 			}
             catch (Exception e)
             {
-                Log.Error($"Connector.SendClosePositionRequests({position.Id}, {position.Comment}) exception", e);
+                Logger.Error($"Connector.SendClosePositionRequests({position.Id}, {position.Comment}) exception", e);
 				if (maxRetryCount <= 0) return false;
 
 				Thread.Sleep(retryPeriodInMs);
@@ -325,7 +324,7 @@ namespace QvaDev.Mt4Integration
 	    {
 		    if (check && QuoteClient.Symbols.All(s => s != symbol.Item1))
 		    {
-			    Log.Error($"{_accountInfo.Description} account ({_accountInfo.User}) Subscribe error, symbol {symbol.Item1} not existing!!!");
+			    Logger.Error($"{_accountInfo.Description} account ({_accountInfo.User}) Subscribe error, symbol {symbol.Item1} not existing!!!");
 			    return;
 		    }
 
@@ -385,7 +384,7 @@ namespace QvaDev.Mt4Integration
             }
             catch (Exception e)
             {
-                Log.Error($"{symbol}: DownloadQuoteHistory exception => {e.Message}", e);
+                Logger.Error($"{symbol}: DownloadQuoteHistory exception => {e.Message}", e);
                 if (e.Message == "Previous request have not sent in 10000 ms")
                 {
                     Thread.Sleep(new TimeSpan(0, 0, 10));
@@ -415,7 +414,7 @@ namespace QvaDev.Mt4Integration
         private void QuoteClient_OnDisconnect(object sender, DisconnectEventArgs args)
         {
 			OnConnectionChanged(ConnectionStates.Error);
-            Log.Error($"{_accountInfo.Description} account ({_accountInfo.User}) disconnected", args.Exception);
+            Logger.Error($"{_accountInfo.Description} account ({_accountInfo.User}) disconnected", args.Exception);
             while (!IsConnected)
             {
 	            Connect(_accountInfo, _destinationSetter);
@@ -486,7 +485,7 @@ namespace QvaDev.Mt4Integration
                 }
                 catch (Exception e)
                 {
-                    Log.Error($"{_accountInfo.Description} account ({_accountInfo.User}) FAILED to connect", e);
+                    Logger.Error($"{_accountInfo.Description} account ({_accountInfo.User}) FAILED to connect", e);
                 }
             }
         }

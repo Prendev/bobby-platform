@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Xml.Serialization;
-using QvaDev.Common.Logging;
 
 namespace QvaDev.Common.Services
 {
@@ -13,13 +12,6 @@ namespace QvaDev.Common.Services
 
     public class XmlService : IXmlService
     {
-        private readonly ICustomLog _log;
-
-        public XmlService(ICustomLog log)
-        {
-            _log = log;
-        }
-
         public T DeserializeXmlFile<T>(string path)
         {
             var returnObject = default(T);
@@ -35,8 +27,8 @@ namespace QvaDev.Common.Services
             }
             catch (Exception e)
             {
-                _log?.Error("Failed to deserialize config file");
-                _log?.Info("DeserializeXmlFile", e);
+	            Logger.Error("Failed to deserialize config file");
+	            Logger.Info("DeserializeXmlFile", e);
             }
             return returnObject;
         }
@@ -55,8 +47,8 @@ namespace QvaDev.Common.Services
             }
             catch (Exception e)
             {
-                _log?.Error("Failed to serialize config file");
-                _log?.Info("SerializeXmlFile", e);
+	            Logger.Error("Failed to serialize config file");
+	            Logger.Info("SerializeXmlFile", e);
             }
         }
     }
