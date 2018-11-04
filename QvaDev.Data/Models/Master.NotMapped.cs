@@ -1,10 +1,11 @@
-﻿using QvaDev.Common.Integration;
+﻿using System;
+using QvaDev.Common.Integration;
 
 namespace QvaDev.Data.Models
 {
     public partial class Master
 	{
-		public event NewPositionEventHandler NewPosition;
+		public event EventHandler<NewPosition> NewPosition;
 
 		public Master()
 		{
@@ -21,8 +22,8 @@ namespace QvaDev.Data.Models
 				});
 		}
 
-		private void Account_NewPosition(object sender, NewPositionEventArgs newPositionEventArgs)
-			=> NewPosition?.Invoke(this, newPositionEventArgs);
+		private void Account_NewPosition(object sender, NewPosition newPosition)
+			=> NewPosition?.Invoke(this, newPosition);
 
 		public override string ToString()
         {

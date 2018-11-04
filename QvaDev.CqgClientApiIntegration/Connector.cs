@@ -323,7 +323,7 @@ namespace QvaDev.CqgClientApiIntegration
 				Time = DateTime.UtcNow
 			};
 			LastTicks.AddOrUpdate(symbol, key => tick, (key, old) => tick);
-			OnNewTick(new NewTickEventArgs { Tick = tick });
+			OnNewTick(new NewTick { Tick = tick });
 		}
 
 		private void _cqgCel_InstrumentResolved(string symbol, CQGInstrument cqgInstrument, CQGError cqgError)

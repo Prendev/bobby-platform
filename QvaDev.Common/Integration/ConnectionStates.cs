@@ -6,6 +6,4 @@
 		Connected,
 		Error
 	}
-
-	public delegate void ConnectionChangedEventHandler(object sender, ConnectionStates connectionStates);
 }

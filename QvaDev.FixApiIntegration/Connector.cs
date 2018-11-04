@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Serialization;
@@ -23,6 +25,7 @@ namespace QvaDev.FixApiIntegration
 		private readonly IEmailService _emailService;
 		private readonly SubscribeMarketData _subscribeMarketData = new SubscribeMarketData();
 		private readonly HashSet<string> _unfinishedOrderIds = new HashSet<string>();
+		private readonly BlockingCollection<QuoteSet> _quoteQueue = new BlockingCollection<QuoteSet>();
 
 		public override int Id => _accountInfo?.DbId ?? 0;
 		public override string Description => _accountInfo?.Description ?? "";
@@ -54,6 +57,8 @@ namespace QvaDev.FixApiIntegration
 				new RulesCollection {new ReconnectAfterDelay() {Delay = 30}, _subscribeMarketData});
 			ConnectionManager.Connected += ConnectionManager_Connected;
 			ConnectionManager.Closed += ConnectionManager_Closed;
+
+			new Thread(QuoteLoop) { IsBackground = true }.Start();
 		}
 
 		public async Task Connect()
@@ -202,7 +207,7 @@ namespace QvaDev.FixApiIntegration
 			try
 			{
 				await FixConnector.SubscribeMarketDataAsync(Symbol.Parse(symbol));
-				FixConnector.SubscribeBookChange(Symbol.Parse(symbol), Quote);
+				FixConnector.SubscribeBookChange(Symbol.Parse(symbol), qs => _quoteQueue.Add(qs));
 			}
 			catch (Exception e)
 			{
@@ -253,11 +258,23 @@ namespace QvaDev.FixApiIntegration
 				});
 		}
 
-		private void Quote(QuoteSet quoteSet)
+
+		private void QuoteLoop()
 		{
-			Task.Run(() => InnerQuote(quoteSet));
+			while (true)
+			{
+				try
+				{
+					Quote(_quoteQueue.Take());
+				}
+				catch (Exception e)
+				{
+					Logger.Error($"{Description} Connector.OnQuote exception", e);
+				}
+			}
 		}
-		private void InnerQuote(QuoteSet quoteSet)
+
+		private void Quote(QuoteSet quoteSet)
 		{
 			if (!quoteSet.Entries.Any()) return;
 
@@ -285,7 +302,7 @@ namespace QvaDev.FixApiIntegration
 			};
 			LastTicks.AddOrUpdate(symbol, key => tick, (key, old) => tick);
 
-			OnNewTick(new NewTickEventArgs { Tick = tick });
+			OnNewTick(new NewTick { Tick = tick });
 			NewQuote?.Invoke(this, quoteSet);
 		}
 	}

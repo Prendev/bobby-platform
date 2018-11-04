@@ -1,5 +1,6 @@
 ﻿using QvaDev.Common.Attributes;
 using QvaDev.Common.Integration;
+using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -16,9 +17,9 @@ namespace QvaDev.Data.Models
 		}
 		private volatile bool _isBusy;
 
-		public event NewTickEventHandler NewTick;
-		public event ConnectionChangedEventHandler ConnectionChanged;
-		public event NewPositionEventHandler NewPosition;
+		public event EventHandler<NewTick> NewTick;
+		public event EventHandler<ConnectionStates> ConnectionChanged;
+		public event EventHandler<NewPosition> NewPosition;
 
 		[DisplayPriority(0, true)] [NotMapped] [ReadOnly(true)] public ConnectionStates ConnectionState { get => Get<ConnectionStates>(); set => Set(value); }
 		[NotMapped] [InvisibleColumn] public IConnector Connector { get => Get<IConnector>(); set => Set(value); }
@@ -46,7 +47,7 @@ namespace QvaDev.Data.Models
 
 		public Tick GetLastTick(string symbol) => Connector?.GetLastTick(symbol);
 
-		private void Connector_NewTick(object sender, NewTickEventArgs e) => NewTick?.Invoke(this, e);
+		private void Connector_NewTick(object sender, NewTick e) => NewTick?.Invoke(this, e);
 
 		private void Connector_ConnectionChanged(object sender, ConnectionStates connectionState)
 		{
@@ -54,8 +55,8 @@ namespace QvaDev.Data.Models
 			ConnectionChanged?.Invoke(this, ConnectionState);
 		}
 
-		private void Connector_NewPosition(object sender, NewPositionEventArgs newPositionEventArgs)
-			=> NewPosition?.Invoke(this, newPositionEventArgs);
+		private void Connector_NewPosition(object sender, NewPosition newPosition)
+			=> NewPosition?.Invoke(this, newPosition);
 
 		public override string ToString()
 		{

@@ -129,8 +129,8 @@ namespace QvaDev.Orchestration.Services
 				}
 				else
 				{
-					ticker.MainAccount.Connector.NewTick -= Connector_NewTick;
-					ticker.MainAccount.Connector.NewTick += Connector_NewTick;
+					ticker.MainAccount.NewTick -= Connector_NewTick;
+					ticker.MainAccount.NewTick += Connector_NewTick;
 				}
 
 				ticker.MainAccount?.Connector?.Subscribe(ticker.MainSymbol);
@@ -192,7 +192,7 @@ namespace QvaDev.Orchestration.Services
 				WriteQuoteCsv(GetCsvFile(connector.Description, quoteSet.Symbol.ToString()), quoteSet, ticker.MarketDepth);
 		}
 
-		private void Connector_NewTick(object sender, NewTickEventArgs e)
+		private void Connector_NewTick(object sender, NewTick e)
 		{
 			if (!_isStarted) return;
 			CheckArchive();

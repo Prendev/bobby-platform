@@ -1,4 +1,6 @@
-﻿namespace QvaDev.Common.Integration
+﻿using System;
+
+namespace QvaDev.Common.Integration
 {
 	public abstract class ConnectorBase : IConnector
 	{
@@ -7,9 +9,19 @@
 		public abstract int Id { get; }
 		public abstract string Description { get; }
 		public abstract bool IsConnected { get; }
-		public event NewPositionEventHandler NewPosition;
-		public event NewTickEventHandler NewTick;
-		public event ConnectionChangedEventHandler ConnectionChanged;
+
+		/// <summary>
+		/// Do NOT use it, only from Account
+		/// </summary>
+		public event EventHandler<NewPosition> NewPosition;
+		/// <summary>
+		/// Do NOT use it, only from Account
+		/// </summary>
+		public event EventHandler<NewTick> NewTick;
+		/// <summary>
+		/// Do NOT use it, only from Account
+		/// </summary>
+		public event EventHandler<ConnectionStates> ConnectionChanged;
 
 		protected ConnectorBase()
 		{
@@ -29,8 +41,8 @@
 			return false;
 		}
 
-		protected void OnNewPosition(NewPositionEventArgs e) => NewPosition?.Invoke(this, e);
-		protected void OnNewTick(NewTickEventArgs e) => NewTick?.Invoke(this, e);
+		protected void OnNewPosition(NewPosition e) => NewPosition?.Invoke(this, e);
+		protected void OnNewTick(NewTick e) => NewTick?.Invoke(this, e);
 		protected void OnConnectionChanged(ConnectionStates e) => ConnectionChanged?.Invoke(this, e);
 	}
 }

@@ -170,7 +170,7 @@ namespace QvaDev.IlyaFastFeedIntegration
 						Time = DateTime.UtcNow
 					};
 					_lastTicks.AddOrUpdate(symbol, key => tick, (key, old) => tick);
-					OnNewTick(new NewTickEventArgs { Tick = tick });
+					OnNewTick(new NewTick { Tick = tick });
 
 				}
 			}

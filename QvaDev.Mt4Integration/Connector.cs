@@ -373,7 +373,7 @@ namespace QvaDev.Mt4Integration
                 Time = args.Time
             };
             _lastTicks.AddOrUpdate(args.Symbol, key => tick, (key, old) => tick);
-            OnNewTick(new NewTickEventArgs {Tick = tick});
+            OnNewTick(new NewTick {Tick = tick});
         }
 
         private void GetBarHistory(string symbol, Timeframe timeframe, DateTime from, short count)
@@ -449,11 +449,11 @@ namespace QvaDev.Mt4Integration
             };
             Positions.AddOrUpdate(update.Order.Ticket, t => position, (t, old) => position);
 
-            OnNewPosition(new NewPositionEventArgs
+            OnNewPosition(new NewPosition
             {
                 AccountType = AccountTypes.Mt4,
                 Position = position,
-                Action = update.Action == UpdateAction.PositionOpen ? NewPositionEventArgs.Actions.Open : NewPositionEventArgs.Actions.Close,
+                Action = update.Action == UpdateAction.PositionOpen ? NewPositionActions.Open : NewPositionActions.Close,
 			});
         }
 

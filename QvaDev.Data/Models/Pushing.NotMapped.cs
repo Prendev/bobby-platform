@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using System;
+using System.ComponentModel.DataAnnotations.Schema;
 using QvaDev.Common.Attributes;
 using QvaDev.Common.Integration;
 
@@ -6,7 +7,7 @@ namespace QvaDev.Data.Models
 {
     public partial class Pushing
 	{
-		public event ConnectionChangedEventHandler ConnectionChanged;
+		public event EventHandler<ConnectionStates> ConnectionChanged;
 
 		[NotMapped] [InvisibleColumn] public Sides BetaOpenSide { get; set; }
 		[NotMapped] [InvisibleColumn] public Sides FirstCloseSide { get; set; }

@@ -27,9 +27,6 @@ namespace QvaDev.CTraderIntegration
 		public override string Description => _accountInfo?.Description;
 		public override bool IsConnected => _cTraderClientWrapper?.IsConnected == true && AccountId > 0;
         public ConcurrentDictionary<long, Position> Positions { get; }
-        public event NewPositionEventHandler NewPosition;
-		public event NewTickEventHandler NewTick;
-		public event ConnectionChangedEventHandler ConnectionChanged;
 
 		public Connector(
             AccountInfo accountInfo,
@@ -247,11 +244,11 @@ namespace QvaDev.CTraderIntegration
             CheckMarketOrder(p);
             CheckCloseOrder(p, position);
 
-            NewPosition?.Invoke(this, new NewPositionEventArgs
+            OnNewPosition(new NewPosition
             {
                 AccountType = AccountTypes.Ct,
                 Position = position,
-                Action = p.PositionStatus == ProtoOAPositionStatus.OA_POSITION_STATUS_OPEN ? NewPositionEventArgs.Actions.Open : NewPositionEventArgs.Actions.Close,
+                Action = p.PositionStatus == ProtoOAPositionStatus.OA_POSITION_STATUS_OPEN ? NewPositionActions.Open : NewPositionActions.Close,
             });
         }
 

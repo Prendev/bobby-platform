@@ -111,7 +111,7 @@ namespace QvaDev.FixTraderIntegration
 								Time = DateTime.UtcNow
 							};
 							_lastTicks.AddOrUpdate(symbol, key => tick, (key, old) => tick);
-							OnNewTick(new NewTickEventArgs { Tick = tick });
+							OnNewTick(new NewTick { Tick = tick });
 						}
 						else if (commandType == "6")
 						{

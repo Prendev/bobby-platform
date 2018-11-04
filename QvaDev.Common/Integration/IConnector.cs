@@ -1,13 +1,15 @@
-﻿namespace QvaDev.Common.Integration
+﻿using System;
+
+namespace QvaDev.Common.Integration
 {
     public interface IConnector
 	{
 		int Id { get; }
 		string Description { get; }
         bool IsConnected { get; }
-        event NewPositionEventHandler NewPosition;
-		event NewTickEventHandler NewTick;
-		event ConnectionChangedEventHandler ConnectionChanged;
+        event EventHandler<NewPosition> NewPosition;
+		event EventHandler<NewTick> NewTick;
+		event EventHandler<ConnectionStates> ConnectionChanged;
 		void Disconnect();
 	    Tick GetLastTick(string symbol);
 	    void Subscribe(string symbol);
