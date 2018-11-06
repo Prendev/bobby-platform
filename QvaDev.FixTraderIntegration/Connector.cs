@@ -108,7 +108,7 @@ namespace QvaDev.FixTraderIntegration
 								Symbol = symbol,
 								Ask = ask,
 								Bid = bid,
-								Time = DateTime.UtcNow
+								Time = HiResDatetime.UtcNow
 							};
 							_lastTicks.AddOrUpdate(symbol, key => tick, (key, old) => tick);
 							OnNewTick(new NewTick { Tick = tick });
@@ -157,7 +157,7 @@ namespace QvaDev.FixTraderIntegration
 		{
 			try
 			{
-				var unix = (long)(DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, 0)).TotalSeconds;
+				var unix = (long)(HiResDatetime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, 0)).TotalSeconds;
 				var tags = new List<string>
 				{
 					$"1=1",
@@ -201,7 +201,7 @@ namespace QvaDev.FixTraderIntegration
 		{
 			try
 			{
-				var unix = (long)(DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, 0)).TotalSeconds;
+				var unix = (long)(HiResDatetime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, 0)).TotalSeconds;
 				var symbolInfo = SymbolInfos.GetOrAdd(symbol, new SymbolData());
 				var price = side == Sides.Buy ? symbolInfo.Ask : symbolInfo.Bid;
 
@@ -235,7 +235,7 @@ namespace QvaDev.FixTraderIntegration
 		{
 			try
 			{
-				var unix = (long)(DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, 0)).TotalSeconds;
+				var unix = (long)(HiResDatetime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, 0)).TotalSeconds;
 				var symbolInfo = SymbolInfos.GetOrAdd(symbol, new SymbolData());
 
 				var stopwatch = new Stopwatch();
@@ -245,7 +245,7 @@ namespace QvaDev.FixTraderIntegration
 				while (symbolInfo.SumContracts * (side == Sides.Buy ? 1 : -1) < contractsNeeded && maxRetryCount-- > 0 &&
 				       stopwatch.ElapsedMilliseconds < burstPeriodInMilliseconds)
 				{
-					var expDate = DateTime.UtcNow.AddMilliseconds(retryPeriodInMs);
+					var expDate = HiResDatetime.UtcNow.AddMilliseconds(retryPeriodInMs);
 					var sumLots = symbolInfo.SumContracts * (side == Sides.Buy ? 1 : -1);
 					var diff = contractsNeeded - sumLots;
 
@@ -269,7 +269,7 @@ namespace QvaDev.FixTraderIntegration
 					var buffer = encoder.GetBytes($"|{string.Join("|", tags)}|\n");
 					ns.Write(buffer, 0, buffer.Length);
 
-					while (symbolInfo.SumContracts == sumLots && DateTime.UtcNow < expDate)
+					while (symbolInfo.SumContracts == sumLots && HiResDatetime.UtcNow < expDate)
 						Thread.Sleep(1);
 				}
 			}
@@ -281,7 +281,7 @@ namespace QvaDev.FixTraderIntegration
 
 		public void OrderMultipleCloseBy(string symbol)
 		{
-			long unix = (long)(DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, 0)).TotalSeconds;
+			long unix = (long)(HiResDatetime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, 0)).TotalSeconds;
 			var tags = new List<string>
 			{
 				$"1=6",

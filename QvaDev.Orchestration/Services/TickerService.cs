@@ -151,7 +151,7 @@ namespace QvaDev.Orchestration.Services
 
 	    private void CheckArchive()
 	    {
-		    var now = DateTime.UtcNow;
+		    var now = HiResDatetime.UtcNow;
 
 			var toArchive = _csvWriters
 			 .Where(w => !w.Value.Archived)
@@ -235,13 +235,13 @@ namespace QvaDev.Orchestration.Services
 			symbol = Path.GetInvalidFileNameChars()
 				.Aggregate(symbol, (current, c) => current.Replace(c, '_'));
 
-			return $"Tickers/{id}_{symbol}_{DateTime.UtcNow.Date:yyyyMMdd}_{DateTime.UtcNow:hh}.csv";
+			return $"Tickers/{id}_{symbol}_{HiResDatetime.UtcNow.Date:yyyyMMdd}_{HiResDatetime.UtcNow:hh}.csv";
 		}
 
 		private void WriteCsv<T>(string file, T obj)
 		{
 			new FileInfo(file).Directory.Create();
-			var writer = _csvWriters.GetOrAdd(file, key => new Writer(file) {LastFlush = DateTime.UtcNow});
+			var writer = _csvWriters.GetOrAdd(file, key => new Writer(file) {LastFlush = HiResDatetime.UtcNow});
 			lock (writer)
 			{
 				if (obj.Equals(writer.LastRecord)) return;
@@ -249,16 +249,16 @@ namespace QvaDev.Orchestration.Services
 				writer.CsvWriter.WriteRecord(obj);
 				writer.CsvWriter.NextRecord();
 
-				if (DateTime.UtcNow - writer.LastFlush < new TimeSpan(0, 1, 0)) return;
+				if (HiResDatetime.UtcNow - writer.LastFlush < new TimeSpan(0, 1, 0)) return;
 				writer.StreamWriter.Flush();
-				writer.LastFlush = DateTime.UtcNow;
+				writer.LastFlush = HiResDatetime.UtcNow;
 			}
 		}
 
 		private void WriteQuoteCsv(string file, QuoteSet quoteSet, int marketDepth)
 		{
 			new FileInfo(file).Directory.Create();
-			var writer = _csvWriters.GetOrAdd(file, key => new Writer(file) { LastFlush = DateTime.UtcNow });
+			var writer = _csvWriters.GetOrAdd(file, key => new Writer(file) { LastFlush = HiResDatetime.UtcNow });
 			var take = marketDepth <= 0 ? quoteSet.Entries.Count : marketDepth;
 			var forLastRecord = ToLastRecord(quoteSet, take);
 
@@ -268,7 +268,7 @@ namespace QvaDev.Orchestration.Services
 				writer.LastRecord = forLastRecord;
 
 				var w = writer.CsvWriter;
-				w.WriteField(DateTime.UtcNow.ToString("yyyy.MM.dd hh:mm:ss.fff"));
+				w.WriteField(HiResDatetime.UtcNow.ToString("yyyy.MM.dd hh:mm:ss.fff"));
 				foreach (var qe in quoteSet.Entries.Take(take))
 				{
 					w.WriteField(qe.Ask);
@@ -278,9 +278,9 @@ namespace QvaDev.Orchestration.Services
 				}
 				w.NextRecord();
 
-				if (DateTime.UtcNow - writer.LastFlush < new TimeSpan(0, 1, 0)) return;
+				if (HiResDatetime.UtcNow - writer.LastFlush < new TimeSpan(0, 1, 0)) return;
 				writer.StreamWriter.Flush();
-				writer.LastFlush = DateTime.UtcNow;
+				writer.LastFlush = HiResDatetime.UtcNow;
 			}
 		}
 

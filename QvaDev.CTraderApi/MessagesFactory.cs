@@ -265,7 +265,7 @@ namespace QvaDev.CTraderApi
             msg.SetLimitPrice(limitPrice);
             msg.SetComment("TradingApiTest.CreateLimitOrderRequest");
             DateTime epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-            msg.SetExpirationTimestamp((long)(DateTime.UtcNow.AddHours(1) - epoch).TotalMilliseconds);
+            msg.SetExpirationTimestamp((long)(HiResDatetime.UtcNow.AddHours(1) - epoch).TotalMilliseconds);
             return CreateMessage((uint)msg.PayloadType, msg.Build().ToByteString(), clientMsgId);
         }
         public ProtoMessage CreateStopOrderRequest(long accountId, string accessToken, string symbolName, ProtoTradeSide tradeSide, long volume, double stopPrice, string clientMsgId = null)

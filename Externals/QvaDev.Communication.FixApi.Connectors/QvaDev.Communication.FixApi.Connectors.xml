@@ -16,6 +16,11 @@
             </summary>
             <remarks>No need to define the zero value because used only as a nullable type.</remarks>
         </member>
+        <member name="M:QvaDev.Communication.FixApi.Connectors.Finstek.FinstekConnector.GetNewOrderId(QvaDev.Communication.FixApi.NewOrderRequest)">
+            <summary>
+            Generates an identifier for a new order. Finstek's limitation is 50 chars excluding &lt;>\"'%;()&amp;
+            </summary>
+        </member>
         <member name="F:QvaDev.Communication.FixApi.Connectors.Lmax.LmaxConnector.orders">
             <summary>
             Must be stored separately because ClOrderId is too short to encode these data.

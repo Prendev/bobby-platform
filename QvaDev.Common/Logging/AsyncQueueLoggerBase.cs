@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Threading;
+using System.Threading.Tasks.Dataflow;
 using Common.Logging;
 using Common.Logging.Factory;
 
@@ -16,7 +16,7 @@ namespace QvaDev.Common.Logging
 				Level = level;
 				Message = message;
 				Exception = exception;
-				TimeStamp = DateTime.UtcNow;
+				TimeStamp = HiResDatetime.UtcNow;
 				Thread = Thread.CurrentThread;
 			}
 
@@ -42,8 +42,8 @@ namespace QvaDev.Common.Logging
 				return _message();
 			}
 		}
-		private static readonly BlockingCollection<LogEntry> LogQueue =
-			new BlockingCollection<LogEntry>();
+		private static readonly BufferBlock<LogEntry> LogQueue =
+			new BufferBlock<LogEntry>();
 
 		static AsyncQueueLoggerBase()
 		{
@@ -55,16 +55,16 @@ namespace QvaDev.Common.Logging
 		{
 			while (true)
 			{
-				var entry = LogQueue.Take();
+				var entry = LogQueue.ReceiveAsync().Result;
 				var lazyMessage = new LazyMessage(() =>
-					$"{entry.TimeStamp:yyyy-MM-dd HH:mm:ss.fff} [{entry.Thread.Name ?? entry.Thread.ManagedThreadId.ToString()}] {entry.Message}");
+					$"{entry.TimeStamp:yyyy-MM-dd HH:mm:ss.ffff} [{entry.Thread.Name ?? entry.Thread.ManagedThreadId.ToString()}] {entry.Message}");
 				entry.Logger.Log(entry.Level, lazyMessage, entry.Exception);
 			}
 		}
 
 		protected sealed override void WriteInternal(LogLevel level, object message, Exception exception)
 		{
-			LogQueue.Add(new LogEntry(this, level, message, exception));
+			LogQueue.Post(new LogEntry(this, level, message, exception));
 		}
 
 		protected virtual void Log(LogLevel level, object message, Exception exception)

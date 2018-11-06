@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace QvaDev.Data.Models
 {
@@ -10,5 +11,6 @@ namespace QvaDev.Data.Models
 		}
 
 		public List<Quote> Quotes { get; set; }
+		public DateTime TimeStamp { get; set; }
 	}
 }

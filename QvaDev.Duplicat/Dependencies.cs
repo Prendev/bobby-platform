@@ -5,7 +5,6 @@ using log4net;
 using QvaDev.Common;
 using QvaDev.Common.Logging;
 using QvaDev.Common.Services;
-using QvaDev.Communication;
 using QvaDev.CTraderIntegration;
 using QvaDev.CTraderIntegration.Services;
 using QvaDev.Data;

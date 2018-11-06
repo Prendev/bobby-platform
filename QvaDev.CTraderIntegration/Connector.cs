@@ -301,7 +301,7 @@ namespace QvaDev.CTraderIntegration
         {
             order.RetryCount++;
             if (order.RetryCount > order.MaxRetryCount) return;
-            if (DateTime.UtcNow - order.Time > new TimeSpan(0, 0, 0, 0, order.RetryPeriodInMs)) return;
+            if (HiResDatetime.UtcNow - order.Time > new TimeSpan(0, 0, 0, 0, order.RetryPeriodInMs)) return;
 
             lock (_cTraderClientWrapper.CTraderClient)
             {
@@ -318,7 +318,7 @@ namespace QvaDev.CTraderIntegration
             if (ctPos.CloseOrder == null) return;
             ctPos.CloseOrder.RetryCount++;
             if (ctPos.CloseOrder.RetryCount > ctPos.CloseOrder.MaxRetryCount) return;
-            if (DateTime.UtcNow - ctPos.CloseOrder.Time > new TimeSpan(0, 0, 0, 0, ctPos.CloseOrder.RetryPeriodInMs)) return;
+            if (HiResDatetime.UtcNow - ctPos.CloseOrder.Time > new TimeSpan(0, 0, 0, 0, ctPos.CloseOrder.RetryPeriodInMs)) return;
 
             lock (_cTraderClientWrapper.CTraderClient)
             {

@@ -167,7 +167,7 @@ namespace QvaDev.IlyaFastFeedIntegration
 						Symbol = symbol,
 						Ask = (decimal)ask,
 						Bid = (decimal)bid,
-						Time = DateTime.UtcNow
+						Time = HiResDatetime.UtcNow
 					};
 					_lastTicks.AddOrUpdate(symbol, key => tick, (key, old) => tick);
 					OnNewTick(new NewTick { Tick = tick });

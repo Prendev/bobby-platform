@@ -2,12 +2,13 @@
 using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Threading.Tasks.Dataflow;
 
 namespace QvaDev.Common
 {
-	public class CustomThreadPool : IDisposable
+	public class CustomThreadPool
 	{
-		private readonly BlockingCollection<Action> _queue = new BlockingCollection<Action>();
+		private readonly BufferBlock<Action> _queue = new BufferBlock<Action>();
 		private readonly ConcurrentDictionary<Action, TaskCompletionSource<object>> _taskCompletionManager =
 			new ConcurrentDictionary<Action, TaskCompletionSource<object>>();
 
@@ -31,7 +32,7 @@ namespace QvaDev.Common
 				Action action = null;
 				try
 				{
-					action = _queue.Take(token);
+					action = _queue.ReceiveAsync(token).Result;
 				}
 				catch (Exception e)
 				{
@@ -65,21 +66,16 @@ namespace QvaDev.Common
 			{
 				var source = new TaskCompletionSource<object>();
 				_taskCompletionManager[action] = source;
-				_queue.Add(action);
+				_queue.Post(action);
 				await source.Task;
 			}
-		}
-
-		public void Dispose()
-		{
-			_queue?.Dispose();
 		}
 	}
 
 
-	public class CustomThreadPool<T> : IDisposable
+	public class CustomThreadPool<T>
 	{
-		private readonly BlockingCollection<Func<Task<T>>> _queue = new BlockingCollection<Func<Task<T>>>();
+		private readonly BufferBlock<Func<Task<T>>> _queue = new BufferBlock<Func<Task<T>>>();
 		private readonly ConcurrentDictionary<object, TaskCompletionSource<T>> _taskCompletionManager =
 			new ConcurrentDictionary<object, TaskCompletionSource<T>>();
 
@@ -103,7 +99,7 @@ namespace QvaDev.Common
 				Func<Task<T>> action = null;
 				try
 				{
-					action = _queue.Take(token);
+					action = _queue.ReceiveAsync(token).Result;
 				}
 				catch (Exception e)
 				{
@@ -137,13 +133,8 @@ namespace QvaDev.Common
 
 			var source = new TaskCompletionSource<T>();
 			_taskCompletionManager[action] = source;
-			_queue.Add(action);
+			_queue.Post(action);
 			return await source.Task;
-		}
-
-		public void Dispose()
-		{
-			_queue?.Dispose();
 		}
 	}
 }

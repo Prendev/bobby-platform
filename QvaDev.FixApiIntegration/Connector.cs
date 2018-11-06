@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Threading.Tasks.Dataflow;
 using System.Xml;
 using System.Xml.Serialization;
 using QvaDev.Common.Integration;
@@ -25,7 +27,8 @@ namespace QvaDev.FixApiIntegration
 		private readonly IEmailService _emailService;
 		private readonly SubscribeMarketData _subscribeMarketData = new SubscribeMarketData();
 		private readonly HashSet<string> _unfinishedOrderIds = new HashSet<string>();
-		private readonly BlockingCollection<QuoteSet> _quoteQueue = new BlockingCollection<QuoteSet>();
+		private readonly BufferBlock<QuoteSet> _quoteQueue = new BufferBlock<QuoteSet>();
+		private readonly int _marketDepth;
 
 		public override int Id => _accountInfo?.DbId ?? 0;
 		public override string Description => _accountInfo?.Description ?? "";
@@ -40,6 +43,7 @@ namespace QvaDev.FixApiIntegration
 			AccountInfo accountInfo,
 			IEmailService emailService)
 		{
+			int.TryParse(ConfigurationManager.AppSettings["Connector.MarketDepth"], out _marketDepth);
 			_emailService = emailService;
 			_accountInfo = accountInfo;
 
@@ -200,14 +204,14 @@ namespace QvaDev.FixApiIntegration
 			lock (_subscribeMarketData)
 			{
 				if (_subscribeMarketData.Subscriptions.Any(s => s.Symbol == Symbol.Parse(symbol))) return;
-				_subscribeMarketData.Subscriptions.Add(new MarketDataSubscription {Symbol = Symbol.Parse(symbol)});
+				_subscribeMarketData.Subscriptions.Add(new MarketDataSubscription {Symbol = Symbol.Parse(symbol), MarketDepth = _marketDepth });
 			}
 			if (!IsConnected) return;
 
 			try
 			{
-				await FixConnector.SubscribeMarketDataAsync(Symbol.Parse(symbol));
-				FixConnector.SubscribeBookChange(Symbol.Parse(symbol), qs => _quoteQueue.Add(qs));
+				await FixConnector.SubscribeMarketDataAsync(Symbol.Parse(symbol), _marketDepth);
+				FixConnector.SubscribeBookChange(Symbol.Parse(symbol), qs => _quoteQueue.Post(qs));
 			}
 			catch (Exception e)
 			{
@@ -265,7 +269,7 @@ namespace QvaDev.FixApiIntegration
 			{
 				try
 				{
-					Quote(_quoteQueue.Take());
+					Quote(_quoteQueue.ReceiveAsync().Result);
 				}
 				catch (Exception e)
 				{
@@ -298,7 +302,7 @@ namespace QvaDev.FixApiIntegration
 				Symbol = symbol,
 				Ask = (decimal)ask,
 				Bid = (decimal)bid,
-				Time = DateTime.UtcNow
+				Time = HiResDatetime.UtcNow
 			};
 			LastTicks.AddOrUpdate(symbol, key => tick, (key, old) => tick);
 

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Threading.Tasks.Dataflow;
 using QvaDev.Common;
 using QvaDev.Common.Integration;
 using QvaDev.Data.Models;
@@ -23,13 +24,12 @@ namespace QvaDev.Orchestration.Services
 
         private IEnumerable<Master> _masters;
 
-	    private readonly ConcurrentDictionary<int, BlockingCollection<NewPosition>> _masterQueues =
-		    new ConcurrentDictionary<int, BlockingCollection<NewPosition>>();
+	    private readonly ConcurrentDictionary<int, BufferBlock<NewPosition>> _masterQueues =
+		    new ConcurrentDictionary<int, BufferBlock<NewPosition>>();
 
         public void Start(List<Master> masters)
 		{
 			_cancellation?.Dispose();
-			_copyPool?.Dispose();
 
 			_masters = masters;
 			_cancellation = new CancellationTokenSource();
@@ -65,13 +65,13 @@ namespace QvaDev.Orchestration.Services
 
 	    private async void MasterLoop(Master master, CancellationToken token)
 		{
-			var queue = _masterQueues.GetOrAdd(master.Id, new BlockingCollection<NewPosition>());
+			var queue = _masterQueues.GetOrAdd(master.Id, new BufferBlock<NewPosition>());
 
 			while (!token.IsCancellationRequested)
 			{
 				try
 				{
-					var newPos = queue.Take(token);
+					var newPos = queue.ReceiveAsync(token).Result;
 
 					Logger.Info($"Master {newPos.Action:F} {newPos.Position.Side:F} signal on " +
 					          $"{newPos.Position.Symbol} with open time: {newPos.Position.OpenTime:o}");
@@ -79,9 +79,10 @@ namespace QvaDev.Orchestration.Services
 					var slaves = master.Slaves.Where(s => s.Run);
 					await Task.WhenAll(slaves.Select(slave => CopyToAccount(newPos, slave)));
 				}
-				catch (OperationCanceledException)
+				catch (AggregateException e)
 				{
-					break;
+					if (e.InnerException is TaskCanceledException) break;
+					Logger.Error("CopierService.MasterLoop exception", e);
 				}
 				catch (Exception e)
 				{
@@ -89,7 +90,6 @@ namespace QvaDev.Orchestration.Services
 				}
 			}
 
-			queue.Dispose();
 			_masterQueues.TryRemove(master.Id, out queue);
 		}
 
@@ -99,7 +99,7 @@ namespace QvaDev.Orchestration.Services
 	        if (!(sender is Master master)) return;
 	        if (!master.Run) return;
 
-	        _masterQueues[master.Id].Add(e);
+	        _masterQueues.GetOrAdd(master.Id, new BufferBlock<NewPosition>()).Post(e);
         }
 
         private Task CopyToAccount(NewPosition e, Slave slave)

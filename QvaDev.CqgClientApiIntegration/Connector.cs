@@ -157,7 +157,7 @@ namespace QvaDev.CqgClientApiIntegration
 				var cqgQuantity = (int) quantity;
 				if (side == Sides.Sell) cqgQuantity *= -1;
 
-				var datetime = DateTime.UtcNow;
+				var datetime = HiResDatetime.UtcNow;
 				var key = $"[{(datetime - datetime.Date).TotalMilliseconds:0000000.000}]";
 				var task = _taskCompletionManager.CreateCompletableTask<OrderResponse>(key);
 				_cqgCel.CreateOrderByInstrumentName(eOrderType.otMarket, symbol, CqgAccount, cqgQuantity, eOrderSide.osdUndefined, 0, 0, key).Place();
@@ -320,7 +320,7 @@ namespace QvaDev.CqgClientApiIntegration
 				Symbol = symbol,
 				Ask = (decimal)ask,
 				Bid = (decimal)bid,
-				Time = DateTime.UtcNow
+				Time = HiResDatetime.UtcNow
 			};
 			LastTicks.AddOrUpdate(symbol, key => tick, (key, old) => tick);
 			OnNewTick(new NewTick { Tick = tick });

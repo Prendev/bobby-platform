@@ -136,7 +136,8 @@ namespace QvaDev.Data.Models
 
 		private void Aggregator_AggregatedQuote(object sender, AggregatorQuoteEventArgs e)
 		{
-			var arbQuote = new StratHubArbQuoteEventArgs() { Quotes = new List<StratHubArbQuoteEventArgs.Quote>() };
+			var arbQuote =
+				new StratHubArbQuoteEventArgs() {Quotes = new List<StratHubArbQuoteEventArgs.Quote>(), TimeStamp = e.TimeStamp};
 			foreach (var aggQuote in e.Quotes)
 			{
 				arbQuote.Quotes.Add(new StratHubArbQuoteEventArgs.Quote()

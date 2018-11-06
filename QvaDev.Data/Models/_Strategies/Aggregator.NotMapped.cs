@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using QvaDev.Common.Attributes;
-using QvaDev.Communication;
 using QvaDev.Communication.FixApi;
 using QvaDev.Communication.FixApi.Interfaces;
 
@@ -25,8 +24,10 @@ namespace QvaDev.Data.Models
 		private void QuoteAggregator_GroupQuote(object sender, GroupQuoteEventArgs e)
 		{
 			Logger.Trace(cb =>
-				cb($"QuoteAggregator_GroupQuote {string.Join("|", e.BookTops.Select(bt => $"({bt.Ask}, {bt.Bid})"))}"));
-			var aggQuote = new AggregatorQuoteEventArgs { Quotes = new List<AggregatorQuoteEventArgs.Quote>() };
+				cb($"QuoteAggregator_GroupQuote {e.TriggeringSymbol} {string.Join("|", e.BookTops.Select(bt => $"({bt.Ask}, {bt.Bid}, {bt.AskVolume}, {bt.BidVolume})"))}"));
+
+			var aggQuote =
+				new AggregatorQuoteEventArgs {Quotes = new List<AggregatorQuoteEventArgs.Quote>(), TimeStamp = HiResDatetime.UtcNow};
 			foreach (var bookTop in e.BookTops)
 			{
 				if (bookTop.Ask == null) continue;

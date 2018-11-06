@@ -21,7 +21,7 @@ namespace QvaDev.Common.Services
 		private const string ForexFactoryUrl = "https://www.forexfactory.com/ffcal_week_this.xml";
 		private const double TimerInterval = 1000 * 60 * 60; //1 hour
 
-		private DateTime _lastDownload = DateTime.UtcNow;
+		private DateTime _lastDownload = HiResDatetime.UtcNow;
 		private WeeklyEvents _weeklyEvents;
 		private List<NewsEvent> _weeklyHighImpactEvents;
 
@@ -60,7 +60,7 @@ namespace QvaDev.Common.Services
 		private bool IsDownloadNeeded()
 		{
 			if (_weeklyEvents == null) return true;
-			if (_lastDownload.Date != DateTime.UtcNow.Date) return true;
+			if (_lastDownload.Date != HiResDatetime.UtcNow.Date) return true;
 			return false;
 		}
 
@@ -87,7 +87,7 @@ namespace QvaDev.Common.Services
 			}
 			finally
 			{
-				_lastDownload = DateTime.UtcNow;
+				_lastDownload = HiResDatetime.UtcNow;
 			}
 		}
 

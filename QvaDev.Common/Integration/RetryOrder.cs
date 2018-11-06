@@ -6,7 +6,7 @@ namespace QvaDev.Common.Integration
     {
         public RetryOrder()
         {
-            Time = DateTime.UtcNow;
+            Time = HiResDatetime.UtcNow;
         }
 
         public DateTime Time { get; }

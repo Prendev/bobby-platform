@@ -4,10 +4,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Threading.Tasks.Dataflow;
 using QvaDev.Common;
 using QvaDev.Common.Integration;
 using QvaDev.Common.Services;
-using QvaDev.Communication;
 using QvaDev.Data.Models;
 using static QvaDev.Data.Models.StratHubArbQuoteEventArgs;
 
@@ -30,8 +30,8 @@ namespace QvaDev.Orchestration.Services.Strategies
 		private List<StratHubArb> _arbs;
 		private readonly object _syncRoot = new object();
 
-		private readonly ConcurrentDictionary<int, BlockingCollection<Action>> _arbQueues =
-			new ConcurrentDictionary<int, BlockingCollection<Action>>();
+		private readonly ConcurrentDictionary<int, BufferBlock<Action>> _arbQueues =
+			new ConcurrentDictionary<int, BufferBlock<Action>>();
 
 		public HubArbService(INewsCalendarService newsCalendarService)
 		{
@@ -41,7 +41,6 @@ namespace QvaDev.Orchestration.Services.Strategies
 		public void Start(List<StratHubArb> arbs)
 		{
 			_cancellation?.Dispose();
-			_orderPool?.Dispose();
 
 			_arbs = arbs;
 			_cancellation = new CancellationTokenSource();
@@ -81,7 +80,7 @@ namespace QvaDev.Orchestration.Services.Strategies
 		private bool IsCloseTime(StratHubArb arb)
 		{
 			if (!arb.HasTiming) return false;
-			if (IsTime(DateTime.UtcNow.TimeOfDay, arb.EarliestOpenTime, arb.LatestCloseTime)) return false;
+			if (IsTime(HiResDatetime.UtcNow.TimeOfDay, arb.EarliestOpenTime, arb.LatestCloseTime)) return false;
 			GoFlat(arb);
 			return true;
 		}
@@ -132,7 +131,7 @@ namespace QvaDev.Orchestration.Services.Strategies
 
 		private void CheckOpen(StratHubArb arb, StratHubArbQuoteEventArgs e)
 		{
-			var now = DateTime.UtcNow;
+			var now = HiResDatetime.UtcNow;
 			if (IsTime(now.TimeOfDay, arb.LatestOpenTime, arb.EarliestOpenTime)) return;
 
 			// No HighRiskSignalDiffInPip then no trade
@@ -140,7 +139,7 @@ namespace QvaDev.Orchestration.Services.Strategies
 			if (isHighRisk && !arb.HighRiskSignalDiffInPip.HasValue) return;
 
 			//if (arb.LastOpenTime.HasValue &&
-			//    (DateTime.UtcNow - arb.LastOpenTime.Value).Minutes < arb.RestingPeriodInMinutes) return;
+			//    (HiResDatetime.UtcNow - arb.LastOpenTime.Value).Minutes < arb.RestingPeriodInMinutes) return;
 
 			// Quotes where there were no orders in the last x minutes
 			var quotes = e.Quotes
@@ -175,7 +174,10 @@ namespace QvaDev.Orchestration.Services.Strategies
 				buyQuote.Account.IsBusy = true;
 				sellQuote.Account.IsBusy = true;
 			}
-			_arbQueues[arb.Id].Add(() => Open(arb, buyQuote, sellQuote, size));
+
+			Logger.Trace(cb => cb($"HubArbService.CheckOpen {arb} on QuoteEvent at {e.TimeStamp:yyyy-MM-dd HH:mm:ss.ffffff}"));
+
+			_arbQueues.GetOrAdd(arb.Id, new BufferBlock<Action>()).Post(() => Open(arb, buyQuote, sellQuote, size));
 		}
 
 		private bool CheckAccount(StratHubArb arb, Account account, DateTime now)
@@ -257,7 +259,7 @@ namespace QvaDev.Orchestration.Services.Strategies
 				AccountId = account.Id,
 				Account = account,
 				AvgPrice = closePos.AveragePrice ?? 0,
-				OpenTime = DateTime.UtcNow,
+				OpenTime = HiResDatetime.UtcNow,
 				Side = side,
 				Size = closePos.FilledQuantity,
 				Symbol = symbol
@@ -268,19 +270,19 @@ namespace QvaDev.Orchestration.Services.Strategies
 
 		private void ArbLoop(StratHubArb arb, CancellationToken token)
 		{
-			var queue = _arbQueues.GetOrAdd(arb.Id, new BlockingCollection<Action>());
-			_arbQueues.GetOrAdd(arb.Id, queue);
+			var queue = _arbQueues.GetOrAdd(arb.Id, new BufferBlock<Action>());
 
 			while (!token.IsCancellationRequested)
 			{
 				try
 				{
-					var action = queue.Take(token);
+					var action = queue.ReceiveAsync(token).Result;
 					action();
 				}
-				catch (OperationCanceledException)
+				catch (AggregateException e)
 				{
-					break;
+					if (e.InnerException is TaskCanceledException) break;
+					Logger.Error("HubArbService.ArbLoop exception", e);
 				}
 				catch (Exception e)
 				{
@@ -288,7 +290,6 @@ namespace QvaDev.Orchestration.Services.Strategies
 				}
 			}
 
-			queue.Dispose();
 			_arbQueues.TryRemove(arb.Id, out queue);
 		}
 
