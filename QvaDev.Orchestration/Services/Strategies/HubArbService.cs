@@ -276,13 +276,12 @@ namespace QvaDev.Orchestration.Services.Strategies
 			{
 				try
 				{
-					var action = queue.ReceiveAsync(token).Result;
+					var action = queue.Receive(token);
 					action();
 				}
-				catch (AggregateException e)
+				catch (OperationCanceledException)
 				{
-					if (e.InnerException is TaskCanceledException) break;
-					Logger.Error("HubArbService.ArbLoop exception", e);
+					break;
 				}
 				catch (Exception e)
 				{

@@ -24,7 +24,7 @@ namespace QvaDev.Data.Models
 		private void QuoteAggregator_GroupQuote(object sender, GroupQuoteEventArgs e)
 		{
 			Logger.Trace(cb =>
-				cb($"QuoteAggregator_GroupQuote {e.TriggeringSymbol} {string.Join("|", e.BookTops.Select(bt => $"({bt.Ask}, {bt.Bid}, {bt.AskVolume}, {bt.BidVolume})"))}"));
+				cb($"QuoteAggregator_GroupQuote {e.TriggeringSymbol} {string.Join("|", e.BookTops.Select(bt => $"({bt.Ask}, {bt.Bid}, {bt.AskVolume}, {bt.BidVolume}, {bt.TimeStamp:yyyy-MM-dd HH:mm:ss.ffff})"))}"));
 
 			var aggQuote =
 				new AggregatorQuoteEventArgs {Quotes = new List<AggregatorQuoteEventArgs.Quote>(), TimeStamp = HiResDatetime.UtcNow};

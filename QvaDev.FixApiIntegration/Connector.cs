@@ -269,7 +269,7 @@ namespace QvaDev.FixApiIntegration
 			{
 				try
 				{
-					Quote(_quoteQueue.ReceiveAsync().Result);
+					Quote(_quoteQueue.Receive());
 				}
 				catch (Exception e)
 				{
@@ -280,6 +280,8 @@ namespace QvaDev.FixApiIntegration
 
 		private void Quote(QuoteSet quoteSet)
 		{
+			Logger.Trace(cb =>
+				cb($"{Description} Connector.Quote {quoteSet.Symbol} {string.Join("|", quoteSet.Entries.Select(bt => $"({bt.Ask}, {bt.Bid}, {bt.AskVolume}, {bt.BidVolume}, {bt.TimeStamp:yyyy-MM-dd HH:mm:ss.ffff})"))}"));
 			if (!quoteSet.Entries.Any()) return;
 
 			var ask = quoteSet.Entries.First().Ask;

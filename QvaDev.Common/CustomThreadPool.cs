@@ -32,7 +32,7 @@ namespace QvaDev.Common
 				Action action = null;
 				try
 				{
-					action = _queue.ReceiveAsync(token).Result;
+					action = _queue.Receive(token);
 				}
 				catch (Exception e)
 				{
@@ -99,7 +99,7 @@ namespace QvaDev.Common
 				Func<Task<T>> action = null;
 				try
 				{
-					action = _queue.ReceiveAsync(token).Result;
+					action = _queue.Receive(token);
 				}
 				catch (Exception e)
 				{

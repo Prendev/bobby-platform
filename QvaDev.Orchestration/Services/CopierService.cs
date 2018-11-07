@@ -71,7 +71,7 @@ namespace QvaDev.Orchestration.Services
 			{
 				try
 				{
-					var newPos = queue.ReceiveAsync(token).Result;
+					var newPos = queue.Receive(token);
 
 					Logger.Info($"Master {newPos.Action:F} {newPos.Position.Side:F} signal on " +
 					          $"{newPos.Position.Symbol} with open time: {newPos.Position.OpenTime:o}");
@@ -79,10 +79,9 @@ namespace QvaDev.Orchestration.Services
 					var slaves = master.Slaves.Where(s => s.Run);
 					await Task.WhenAll(slaves.Select(slave => CopyToAccount(newPos, slave)));
 				}
-				catch (AggregateException e)
+				catch (OperationCanceledException)
 				{
-					if (e.InnerException is TaskCanceledException) break;
-					Logger.Error("CopierService.MasterLoop exception", e);
+					break;
 				}
 				catch (Exception e)
 				{
