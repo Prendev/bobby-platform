@@ -211,7 +211,7 @@ namespace QvaDev.FixApiIntegration
 			try
 			{
 				await FixConnector.SubscribeMarketDataAsync(Symbol.Parse(symbol), _marketDepth);
-				FixConnector.SubscribeBookChange(Symbol.Parse(symbol), qs => _quoteQueue.Post(qs));
+				FixConnector.SubscribeBookChange(Symbol.Parse(symbol), (sender, e) => _quoteQueue.Post(e.QuoteSet));
 			}
 			catch (Exception e)
 			{
@@ -281,7 +281,7 @@ namespace QvaDev.FixApiIntegration
 		private void Quote(QuoteSet quoteSet)
 		{
 			Logger.Trace(cb =>
-				cb($"{Description} Connector.Quote {quoteSet.Symbol} {string.Join("|", quoteSet.Entries.Select(bt => $"({bt.Ask}, {bt.Bid}, {bt.AskVolume}, {bt.BidVolume}, {bt.TimeStamp:yyyy-MM-dd HH:mm:ss.ffff})"))}"));
+				cb($"{Description} Connector.BookChange {quoteSet.Symbol} {string.Join("|", quoteSet.Entries.Select(bt => $"({bt.Ask}, {bt.Bid}, {bt.AskVolume}, {bt.BidVolume}, {bt.TimeStamp:yyyy-MM-dd HH:mm:ss.ffff})"))}"));
 			if (!quoteSet.Entries.Any()) return;
 
 			var ask = quoteSet.Entries.First().Ask;
