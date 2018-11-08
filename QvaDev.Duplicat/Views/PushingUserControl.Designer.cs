@@ -53,11 +53,15 @@
 			this.gbPushings = new System.Windows.Forms.GroupBox();
 			this.dgvPushings = new QvaDev.Duplicat.Views.CustomDataGridView();
 			this.gbControl = new System.Windows.Forms.GroupBox();
+			this.nudFuturesContractSize = new System.Windows.Forms.NumericUpDown();
+			this.btnSellFutures = new System.Windows.Forms.Button();
+			this.btnBuyFutures = new System.Windows.Forms.Button();
 			this.btnStopCopiers = new System.Windows.Forms.Button();
 			this.btnStartCopiers = new System.Windows.Forms.Button();
-			this.btnBuyFutures = new System.Windows.Forms.Button();
-			this.btnSellFutures = new System.Windows.Forms.Button();
-			this.nudFuturesContractSize = new System.Windows.Forms.NumericUpDown();
+			this.btnRushOpenPull = new System.Windows.Forms.Button();
+			this.label8 = new System.Windows.Forms.Label();
+			this.btnRushClosePull = new System.Windows.Forms.Button();
+			this.label9 = new System.Windows.Forms.Label();
 			this.tlpMain.SuspendLayout();
 			this.gbFlow.SuspendLayout();
 			this.groupBox2.SuspendLayout();
@@ -90,6 +94,10 @@
 			// 
 			// gbFlow
 			// 
+			this.gbFlow.Controls.Add(this.label9);
+			this.gbFlow.Controls.Add(this.btnRushClosePull);
+			this.gbFlow.Controls.Add(this.label8);
+			this.gbFlow.Controls.Add(this.btnRushOpenPull);
 			this.gbFlow.Controls.Add(this.btnReset);
 			this.gbFlow.Controls.Add(this.label7);
 			this.gbFlow.Controls.Add(this.label6);
@@ -159,7 +167,7 @@
 			// 
 			// btnRushClose
 			// 
-			this.btnRushClose.Location = new System.Drawing.Point(424, 295);
+			this.btnRushClose.Location = new System.Drawing.Point(632, 295);
 			this.btnRushClose.Margin = new System.Windows.Forms.Padding(4);
 			this.btnRushClose.Name = "btnRushClose";
 			this.btnRushClose.Size = new System.Drawing.Size(200, 135);
@@ -169,7 +177,7 @@
 			// 
 			// btnRushCloseFinish
 			// 
-			this.btnRushCloseFinish.Location = new System.Drawing.Point(632, 295);
+			this.btnRushCloseFinish.Location = new System.Drawing.Point(840, 295);
 			this.btnRushCloseFinish.Margin = new System.Windows.Forms.Padding(4);
 			this.btnRushCloseFinish.Name = "btnRushCloseFinish";
 			this.btnRushCloseFinish.Size = new System.Drawing.Size(200, 135);
@@ -179,7 +187,7 @@
 			// 
 			// btnRushOpenFinish
 			// 
-			this.btnRushOpenFinish.Location = new System.Drawing.Point(424, 122);
+			this.btnRushOpenFinish.Location = new System.Drawing.Point(632, 123);
 			this.btnRushOpenFinish.Margin = new System.Windows.Forms.Padding(4);
 			this.btnRushOpenFinish.Name = "btnRushOpenFinish";
 			this.btnRushOpenFinish.Size = new System.Drawing.Size(200, 135);
@@ -190,7 +198,7 @@
 			// label4
 			// 
 			this.label4.AutoSize = true;
-			this.label4.Location = new System.Drawing.Point(216, 275);
+			this.label4.Location = new System.Drawing.Point(424, 275);
 			this.label4.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.label4.Name = "label4";
 			this.label4.Size = new System.Drawing.Size(131, 17);
@@ -199,7 +207,7 @@
 			// 
 			// btnRushHedge
 			// 
-			this.btnRushHedge.Location = new System.Drawing.Point(216, 295);
+			this.btnRushHedge.Location = new System.Drawing.Point(424, 295);
 			this.btnRushHedge.Margin = new System.Windows.Forms.Padding(4);
 			this.btnRushHedge.Name = "btnRushHedge";
 			this.btnRushHedge.Size = new System.Drawing.Size(200, 135);
@@ -210,7 +218,7 @@
 			// label3
 			// 
 			this.label3.AutoSize = true;
-			this.label3.Location = new System.Drawing.Point(212, 103);
+			this.label3.Location = new System.Drawing.Point(421, 103);
 			this.label3.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.label3.Name = "label3";
 			this.label3.Size = new System.Drawing.Size(102, 17);
@@ -219,7 +227,7 @@
 			// 
 			// btnRushOpen
 			// 
-			this.btnRushOpen.Location = new System.Drawing.Point(216, 122);
+			this.btnRushOpen.Location = new System.Drawing.Point(424, 123);
 			this.btnRushOpen.Margin = new System.Windows.Forms.Padding(4);
 			this.btnRushOpen.Name = "btnRushOpen";
 			this.btnRushOpen.Size = new System.Drawing.Size(200, 135);
@@ -369,6 +377,33 @@
 			this.gbControl.TabStop = false;
 			this.gbControl.Text = "Control";
 			// 
+			// nudFuturesContractSize
+			// 
+			this.nudFuturesContractSize.Location = new System.Drawing.Point(424, 63);
+			this.nudFuturesContractSize.Name = "nudFuturesContractSize";
+			this.nudFuturesContractSize.Size = new System.Drawing.Size(120, 22);
+			this.nudFuturesContractSize.TabIndex = 49;
+			// 
+			// btnSellFutures
+			// 
+			this.btnSellFutures.Location = new System.Drawing.Point(215, 59);
+			this.btnSellFutures.Margin = new System.Windows.Forms.Padding(4);
+			this.btnSellFutures.Name = "btnSellFutures";
+			this.btnSellFutures.Size = new System.Drawing.Size(200, 28);
+			this.btnSellFutures.TabIndex = 48;
+			this.btnSellFutures.Text = "Sell futures";
+			this.btnSellFutures.UseVisualStyleBackColor = true;
+			// 
+			// btnBuyFutures
+			// 
+			this.btnBuyFutures.Location = new System.Drawing.Point(7, 59);
+			this.btnBuyFutures.Margin = new System.Windows.Forms.Padding(4);
+			this.btnBuyFutures.Name = "btnBuyFutures";
+			this.btnBuyFutures.Size = new System.Drawing.Size(200, 28);
+			this.btnBuyFutures.TabIndex = 47;
+			this.btnBuyFutures.Text = "Buy futures";
+			this.btnBuyFutures.UseVisualStyleBackColor = true;
+			// 
 			// btnStopCopiers
 			// 
 			this.btnStopCopiers.Location = new System.Drawing.Point(216, 23);
@@ -389,32 +424,45 @@
 			this.btnStartCopiers.Text = "Start copiers";
 			this.btnStartCopiers.UseVisualStyleBackColor = true;
 			// 
-			// btnBuyFutures
+			// btnRushOpenPull
 			// 
-			this.btnBuyFutures.Location = new System.Drawing.Point(7, 59);
-			this.btnBuyFutures.Margin = new System.Windows.Forms.Padding(4);
-			this.btnBuyFutures.Name = "btnBuyFutures";
-			this.btnBuyFutures.Size = new System.Drawing.Size(200, 28);
-			this.btnBuyFutures.TabIndex = 47;
-			this.btnBuyFutures.Text = "Buy futures";
-			this.btnBuyFutures.UseVisualStyleBackColor = true;
+			this.btnRushOpenPull.Location = new System.Drawing.Point(216, 122);
+			this.btnRushOpenPull.Margin = new System.Windows.Forms.Padding(4);
+			this.btnRushOpenPull.Name = "btnRushOpenPull";
+			this.btnRushOpenPull.Size = new System.Drawing.Size(200, 135);
+			this.btnRushOpenPull.TabIndex = 47;
+			this.btnRushOpenPull.Text = "Rush\r\nStop pull\r\nStart pushing";
+			this.btnRushOpenPull.UseVisualStyleBackColor = true;
 			// 
-			// btnSellFutures
+			// label8
 			// 
-			this.btnSellFutures.Location = new System.Drawing.Point(215, 59);
-			this.btnSellFutures.Margin = new System.Windows.Forms.Padding(4);
-			this.btnSellFutures.Name = "btnSellFutures";
-			this.btnSellFutures.Size = new System.Drawing.Size(200, 28);
-			this.btnSellFutures.TabIndex = 48;
-			this.btnSellFutures.Text = "Sell futures";
-			this.btnSellFutures.UseVisualStyleBackColor = true;
+			this.label8.AutoSize = true;
+			this.label8.Location = new System.Drawing.Point(212, 103);
+			this.label8.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+			this.label8.Name = "label8";
+			this.label8.Size = new System.Drawing.Size(88, 17);
+			this.label8.TabIndex = 48;
+			this.label8.Text = "Opening pull";
 			// 
-			// nudFuturesContractSize
+			// btnRushClosePull
 			// 
-			this.nudFuturesContractSize.Location = new System.Drawing.Point(424, 63);
-			this.nudFuturesContractSize.Name = "nudFuturesContractSize";
-			this.nudFuturesContractSize.Size = new System.Drawing.Size(120, 22);
-			this.nudFuturesContractSize.TabIndex = 49;
+			this.btnRushClosePull.Location = new System.Drawing.Point(216, 295);
+			this.btnRushClosePull.Margin = new System.Windows.Forms.Padding(4);
+			this.btnRushClosePull.Name = "btnRushClosePull";
+			this.btnRushClosePull.Size = new System.Drawing.Size(200, 135);
+			this.btnRushClosePull.TabIndex = 49;
+			this.btnRushClosePull.Text = "Rush\r\nStop pull\r\nStart pushing";
+			this.btnRushClosePull.UseVisualStyleBackColor = true;
+			// 
+			// label9
+			// 
+			this.label9.AutoSize = true;
+			this.label9.Location = new System.Drawing.Point(213, 275);
+			this.label9.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+			this.label9.Name = "label9";
+			this.label9.Size = new System.Drawing.Size(80, 17);
+			this.label9.TabIndex = 50;
+			this.label9.Text = "Closing pull";
 			// 
 			// PushingUserControl
 			// 
@@ -469,5 +517,9 @@
 		private System.Windows.Forms.Button btnSellFutures;
 		private System.Windows.Forms.Button btnBuyFutures;
 		private System.Windows.Forms.NumericUpDown nudFuturesContractSize;
+		private System.Windows.Forms.Label label9;
+		private System.Windows.Forms.Button btnRushClosePull;
+		private System.Windows.Forms.Label label8;
+		private System.Windows.Forms.Button btnRushOpenPull;
 	}
 }

@@ -38,6 +38,8 @@ namespace QvaDev.Duplicat.ViewModel
 			}
 
 			PushingState = PushingStates.AfterOpeningBeta;
+			await _orchestrator.OpeningPull(pushing);
+			PushingState = PushingStates.AfterOpeningPull;
 
 			try
 			{
@@ -66,6 +68,8 @@ namespace QvaDev.Duplicat.ViewModel
 			pushing.FirstCloseSide = firstCloseSide;
 			await _orchestrator.ClosingFirst(pushing);
 			PushingState = PushingStates.AfterClosingFirst;
+			await _orchestrator.ClosingPull(pushing);
+			PushingState = PushingStates.AfterClosingPull;
 			await _orchestrator.OpeningHedge(pushing);
 			PushingState = PushingStates.AfterOpeningHedge;
 			await _orchestrator.ClosingSecond(pushing);

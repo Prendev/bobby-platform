@@ -12,9 +12,11 @@ namespace QvaDev.Orchestration
 
 		Task OpeningBeta(Pushing pushing);
 		Task OpeningAlpha(Pushing pushing);
+	    Task OpeningPull(Pushing pushing);
 		Task OpeningFinish(Pushing pushing);
 
 		Task ClosingFirst(Pushing pushing);
+	    Task ClosingPull(Pushing pushing);
 		Task OpeningHedge(Pushing pushing);
 		Task ClosingSecond(Pushing pushing);
 		Task ClosingFinish(Pushing pushing);
@@ -43,6 +45,12 @@ namespace QvaDev.Orchestration
 			return Task.Run(() => _pushingService.OpeningBeta(pushing));
 		}
 
+	    public Task OpeningPull(Pushing pushing)
+	    {
+		    pushing.InPanic = false;
+		    return Task.Run(() => _pushingService.OpeningPull(pushing));
+	    }
+
 		public Task OpeningAlpha(Pushing pushing)
 		{
 			pushing.InPanic = false;
@@ -62,6 +70,12 @@ namespace QvaDev.Orchestration
 			pushing.InPanic = false;
 			return Task.Run(() => _pushingService.ClosingFirst(pushing));
 		}
+
+	    public Task ClosingPull(Pushing pushing)
+	    {
+		    pushing.InPanic = false;
+		    return Task.Run(() => _pushingService.ClosingPull(pushing));
+	    }
 
 		public Task OpeningHedge(Pushing pushing)
 		{

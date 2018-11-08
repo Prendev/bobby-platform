@@ -18,9 +18,11 @@ namespace QvaDev.Duplicat.ViewModel
         {
             NotRunning,
             AfterOpeningBeta,
+	        AfterOpeningPull,
 			AfterOpeningAlpha,
 			BeforeClosing,
             AfterClosingFirst,
+	        AfterClosingPull,
 			AfterOpeningHedge,
 			AfterClosingSecond,
 			Busy

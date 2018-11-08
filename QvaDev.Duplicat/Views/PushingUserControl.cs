@@ -35,8 +35,10 @@ namespace QvaDev.Duplicat.Views
                 nameof(_viewModel.PushingState), p => p == DuplicatViewModel.PushingStates.NotRunning);
             btnSellBeta.AddBinding<DuplicatViewModel.PushingStates>("Enabled", _viewModel,
                 nameof(_viewModel.PushingState), p => p == DuplicatViewModel.PushingStates.NotRunning);
-            btnRushOpen.AddBinding<DuplicatViewModel.PushingStates>("Enabled", _viewModel,
-                nameof(_viewModel.PushingState), p => p == DuplicatViewModel.PushingStates.AfterOpeningBeta);
+	        btnRushOpenPull.AddBinding<DuplicatViewModel.PushingStates>("Enabled", _viewModel,
+		        nameof(_viewModel.PushingState), p => p == DuplicatViewModel.PushingStates.AfterOpeningBeta);
+			btnRushOpen.AddBinding<DuplicatViewModel.PushingStates>("Enabled", _viewModel,
+                nameof(_viewModel.PushingState), p => p == DuplicatViewModel.PushingStates.AfterOpeningPull);
 			btnRushOpenFinish.AddBinding<DuplicatViewModel.PushingStates>("Enabled", _viewModel,
 				nameof(_viewModel.PushingState), p => p == DuplicatViewModel.PushingStates.AfterOpeningAlpha);
 
@@ -44,8 +46,10 @@ namespace QvaDev.Duplicat.Views
                 nameof(_viewModel.PushingState), p => p == DuplicatViewModel.PushingStates.BeforeClosing);
             btnCloseShortBuyFutures.AddBinding<DuplicatViewModel.PushingStates>("Enabled", _viewModel,
                 nameof(_viewModel.PushingState), p => p == DuplicatViewModel.PushingStates.BeforeClosing);
-            btnRushHedge.AddBinding<DuplicatViewModel.PushingStates>("Enabled", _viewModel,
-                nameof(_viewModel.PushingState), p => p == DuplicatViewModel.PushingStates.AfterClosingFirst);
+	        btnRushClosePull.AddBinding<DuplicatViewModel.PushingStates>("Enabled", _viewModel,
+		        nameof(_viewModel.PushingState), p => p == DuplicatViewModel.PushingStates.AfterClosingFirst);
+			btnRushHedge.AddBinding<DuplicatViewModel.PushingStates>("Enabled", _viewModel,
+                nameof(_viewModel.PushingState), p => p == DuplicatViewModel.PushingStates.AfterClosingPull);
 			btnRushClose.AddBinding<DuplicatViewModel.PushingStates>("Enabled", _viewModel,
 				nameof(_viewModel.PushingState), p => p == DuplicatViewModel.PushingStates.AfterOpeningHedge);
 			btnRushCloseFinish.AddBinding<DuplicatViewModel.PushingStates>("Enabled", _viewModel,
@@ -71,11 +75,13 @@ namespace QvaDev.Duplicat.Views
 
 			btnBuyBeta.Click += (s, e) => { _viewModel.PushingOpenCommand(dgvPushings.GetSelectedItem<Pushing>(), Sides.Buy); };
             btnSellBeta.Click += (s, e) => { _viewModel.PushingOpenCommand(dgvPushings.GetSelectedItem<Pushing>(), Sides.Sell); };
-            btnRushOpen.Click += (s, e) => { _viewModel.PushingPanicCommand(dgvPushings.GetSelectedItem<Pushing>()); };
+	        btnRushOpenPull.Click += (s, e) => { _viewModel.PushingPanicCommand(dgvPushings.GetSelectedItem<Pushing>()); };
+			btnRushOpen.Click += (s, e) => { _viewModel.PushingPanicCommand(dgvPushings.GetSelectedItem<Pushing>()); };
 			btnRushOpenFinish.Click += (s, e) => { _viewModel.PushingPanicCommand(dgvPushings.GetSelectedItem<Pushing>()); };
 
 			btnCloseLongSellFutures.Click += (s, e) => { _viewModel.PushingCloseCommand(dgvPushings.GetSelectedItem<Pushing>(), Sides.Buy); };
             btnCloseShortBuyFutures.Click += (s, e) => { _viewModel.PushingCloseCommand(dgvPushings.GetSelectedItem<Pushing>(), Sides.Sell); };
+            btnRushClosePull.Click += (s, e) => { _viewModel.PushingPanicCommand(dgvPushings.GetSelectedItem<Pushing>()); };
             btnRushHedge.Click += (s, e) => { _viewModel.PushingPanicCommand(dgvPushings.GetSelectedItem<Pushing>()); };
 			btnRushClose.Click += (s, e) => { _viewModel.PushingPanicCommand(dgvPushings.GetSelectedItem<Pushing>()); };
 			btnRushCloseFinish.Click += (s, e) => { _viewModel.PushingPanicCommand(dgvPushings.GetSelectedItem<Pushing>()); };
