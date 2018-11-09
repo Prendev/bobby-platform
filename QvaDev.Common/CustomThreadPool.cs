@@ -3,12 +3,13 @@ using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
+using QvaDev.Collections;
 
 namespace QvaDev.Common
 {
 	public class CustomThreadPool
 	{
-		private readonly BufferBlock<Action> _queue = new BufferBlock<Action>();
+		private readonly FastBlockingCollection<Action> _queue = new FastBlockingCollection<Action>();
 		private readonly ConcurrentDictionary<Action, TaskCompletionSource<object>> _taskCompletionManager =
 			new ConcurrentDictionary<Action, TaskCompletionSource<object>>();
 
@@ -32,7 +33,7 @@ namespace QvaDev.Common
 				Action action = null;
 				try
 				{
-					action = _queue.Receive(token);
+					action = _queue.Take(token);
 				}
 				catch (Exception e)
 				{
@@ -66,7 +67,7 @@ namespace QvaDev.Common
 			{
 				var source = new TaskCompletionSource<object>();
 				_taskCompletionManager[action] = source;
-				_queue.Post(action);
+				_queue.Add(action);
 				await source.Task;
 			}
 		}

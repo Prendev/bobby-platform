@@ -3,7 +3,6 @@ using System.Collections;
 using System.Configuration;
 using System.Diagnostics;
 using System.Linq;
-using QvaDev.Communication;
 using QvaDev.Data.Models;
 
 namespace QvaDev.Duplicat.ViewModel
@@ -84,9 +83,14 @@ namespace QvaDev.Duplicat.ViewModel
 
             InitDataContext();
             DataContextChanged?.Invoke();
-        }
+		}
 
-	    public void ShowSelectedAggregatorCommand(Aggregator aggregator)
+		public async void HeatUp()
+		{
+			await _orchestrator.HeatUp();
+		}
+
+		public void ShowSelectedAggregatorCommand(Aggregator aggregator)
 		{
 			if (IsLoading) return;
 			SelectedAggregator = aggregator;

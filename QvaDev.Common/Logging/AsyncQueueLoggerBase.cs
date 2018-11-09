@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Threading;
-using System.Threading.Tasks.Dataflow;
 using Common.Logging;
 using Common.Logging.Factory;
+using QvaDev.Collections;
 
 namespace QvaDev.Common.Logging
 {
@@ -42,8 +42,8 @@ namespace QvaDev.Common.Logging
 				return _message();
 			}
 		}
-		private static readonly BufferBlock<LogEntry> LogQueue =
-			new BufferBlock<LogEntry>();
+		private static readonly FastBlockingCollection<LogEntry> LogQueue =
+			new FastBlockingCollection<LogEntry>();
 
 		static AsyncQueueLoggerBase()
 		{
@@ -55,7 +55,7 @@ namespace QvaDev.Common.Logging
 		{
 			while (true)
 			{
-				var entry = LogQueue.ReceiveAsync().Result;
+				var entry = LogQueue.Take();
 				var lazyMessage = new LazyMessage(() =>
 					$"{entry.TimeStamp:yyyy-MM-dd HH:mm:ss.ffff} [{entry.Thread.Name ?? entry.Thread.ManagedThreadId.ToString()}] {entry.Message}");
 				entry.Logger.Log(entry.Level, lazyMessage, entry.Exception);
@@ -64,7 +64,7 @@ namespace QvaDev.Common.Logging
 
 		protected sealed override void WriteInternal(LogLevel level, object message, Exception exception)
 		{
-			LogQueue.Post(new LogEntry(this, level, message, exception));
+			LogQueue.Add(new LogEntry(this, level, message, exception));
 		}
 
 		protected virtual void Log(LogLevel level, object message, Exception exception)

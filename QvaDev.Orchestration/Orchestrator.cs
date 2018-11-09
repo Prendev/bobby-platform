@@ -15,6 +15,7 @@ namespace QvaDev.Orchestration
 	{
 		Task Connect(DuplicatContext duplicatContext);
 		Task Disconnect();
+		Task HeatUp();
 
 		Task StartCopiers(DuplicatContext duplicatContext);
         void StopCopiers();
@@ -117,7 +118,19 @@ namespace QvaDev.Orchestration
 			await Task.WhenAll(tasks);
 		}
 
-        public async Task StartCopiers(DuplicatContext duplicatContext)
+	    public async Task HeatUp()
+	    {
+		    var accounts = _duplicatContext.Accounts.Local
+			    .Where(a => a.FixApiAccountId.HasValue)
+			    .Where(a => a.Connector.IsConnected)
+			    .ToList();
+
+		    var tasks = accounts.Select(pa => Task.Run(() => (pa.Connector as FixApiIntegration.Connector)?.HeatUp()));
+
+		    await Task.WhenAll(tasks);
+	    }
+
+		public async Task StartCopiers(DuplicatContext duplicatContext)
 		{
 			await Connect(duplicatContext);
 

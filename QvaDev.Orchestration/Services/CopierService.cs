@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Threading.Tasks.Dataflow;
+using QvaDev.Collections;
 using QvaDev.Common;
 using QvaDev.Common.Integration;
 using QvaDev.Data.Models;
@@ -24,8 +24,8 @@ namespace QvaDev.Orchestration.Services
 
         private IEnumerable<Master> _masters;
 
-	    private readonly ConcurrentDictionary<int, BufferBlock<NewPosition>> _masterQueues =
-		    new ConcurrentDictionary<int, BufferBlock<NewPosition>>();
+	    private readonly ConcurrentDictionary<int, FastBlockingCollection<NewPosition>> _masterQueues =
+		    new ConcurrentDictionary<int, FastBlockingCollection<NewPosition>>();
 
         public void Start(List<Master> masters)
 		{
@@ -65,13 +65,13 @@ namespace QvaDev.Orchestration.Services
 
 	    private async void MasterLoop(Master master, CancellationToken token)
 		{
-			var queue = _masterQueues.GetOrAdd(master.Id, new BufferBlock<NewPosition>());
+			var queue = _masterQueues.GetOrAdd(master.Id, new FastBlockingCollection<NewPosition>());
 
 			while (!token.IsCancellationRequested)
 			{
 				try
 				{
-					var newPos = queue.Receive(token);
+					var newPos = queue.Take(token);
 
 					Logger.Info($"Master {newPos.Action:F} {newPos.Position.Side:F} signal on " +
 					          $"{newPos.Position.Symbol} with open time: {newPos.Position.OpenTime:o}");
@@ -98,7 +98,7 @@ namespace QvaDev.Orchestration.Services
 	        if (!(sender is Master master)) return;
 	        if (!master.Run) return;
 
-	        _masterQueues.GetOrAdd(master.Id, new BufferBlock<NewPosition>()).Post(e);
+	        _masterQueues.GetOrAdd(master.Id, new FastBlockingCollection<NewPosition>()).Add(e);
         }
 
         private Task CopyToAccount(NewPosition e, Slave slave)

@@ -1,14 +1,13 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Threading.Tasks.Dataflow;
 using System.Xml;
 using System.Xml.Serialization;
+using QvaDev.Collections;
 using QvaDev.Common.Integration;
 using QvaDev.Common.Services;
 using QvaDev.Communication;
@@ -27,7 +26,7 @@ namespace QvaDev.FixApiIntegration
 		private readonly IEmailService _emailService;
 		private readonly SubscribeMarketData _subscribeMarketData = new SubscribeMarketData();
 		private readonly HashSet<string> _unfinishedOrderIds = new HashSet<string>();
-		private readonly BufferBlock<QuoteSet> _quoteQueue = new BufferBlock<QuoteSet>();
+		private readonly FastBlockingCollection<QuoteSet> _quoteQueue = new FastBlockingCollection<QuoteSet>();
 		private readonly int _marketDepth;
 
 		public override int Id => _accountInfo?.DbId ?? 0;
@@ -211,12 +210,23 @@ namespace QvaDev.FixApiIntegration
 			try
 			{
 				await FixConnector.SubscribeMarketDataAsync(Symbol.Parse(symbol), _marketDepth);
-				FixConnector.SubscribeBookChange(Symbol.Parse(symbol), (sender, e) => _quoteQueue.Post(e.QuoteSet));
+				FixConnector.SubscribeBookChange(Symbol.Parse(symbol), (sender, e) => _quoteQueue.Add(e.QuoteSet));
 			}
 			catch (Exception e)
 			{
 				Logger.Error($"{Description} Connector.Subscribe({symbol}) exception", e);
 			}
+		}
+
+		public async Task HeatUp()
+		{
+			var symbol = "-TestSymbol-";
+			var entries = new List<QuoteEntry>
+			{
+				new QuoteEntry(HiResDatetime.UtcNow) { Ask = 1, Bid = 1, AskVolume = 100000, BidVolume = 10000 }
+			};
+			MarketDataManager.PostQuoteSet(FixConnector, new QuoteSet(Symbol.Parse(symbol), entries));
+			await SendAggressiveOrderRequest(symbol, Sides.Buy, 1000, 1, 0, 500, 0, 0);
 		}
 
 		public override bool Is(object o)
@@ -269,7 +279,7 @@ namespace QvaDev.FixApiIntegration
 			{
 				try
 				{
-					Quote(_quoteQueue.Receive());
+					Quote(_quoteQueue.Take());
 				}
 				catch (Exception e)
 				{

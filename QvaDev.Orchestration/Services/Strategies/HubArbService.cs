@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Threading.Tasks.Dataflow;
+using QvaDev.Collections;
 using QvaDev.Common;
 using QvaDev.Common.Integration;
 using QvaDev.Common.Services;
@@ -30,8 +30,8 @@ namespace QvaDev.Orchestration.Services.Strategies
 		private List<StratHubArb> _arbs;
 		private readonly object _syncRoot = new object();
 
-		private readonly ConcurrentDictionary<int, BufferBlock<Action>> _arbQueues =
-			new ConcurrentDictionary<int, BufferBlock<Action>>();
+		private readonly ConcurrentDictionary<int, FastBlockingCollection<Action>> _arbQueues =
+			new ConcurrentDictionary<int, FastBlockingCollection<Action>>();
 
 		public HubArbService(INewsCalendarService newsCalendarService)
 		{
@@ -177,7 +177,7 @@ namespace QvaDev.Orchestration.Services.Strategies
 
 			Logger.Trace(cb => cb($"HubArbService.CheckOpen {arb} on QuoteEvent at {e.TimeStamp:yyyy-MM-dd HH:mm:ss.ffffff}"));
 
-			_arbQueues.GetOrAdd(arb.Id, new BufferBlock<Action>()).Post(() => Open(arb, buyQuote, sellQuote, size));
+			_arbQueues.GetOrAdd(arb.Id, new FastBlockingCollection<Action>()).Add(() => Open(arb, buyQuote, sellQuote, size));
 		}
 
 		private bool CheckAccount(StratHubArb arb, Account account, DateTime now)
@@ -270,13 +270,13 @@ namespace QvaDev.Orchestration.Services.Strategies
 
 		private void ArbLoop(StratHubArb arb, CancellationToken token)
 		{
-			var queue = _arbQueues.GetOrAdd(arb.Id, new BufferBlock<Action>());
+			var queue = _arbQueues.GetOrAdd(arb.Id, new FastBlockingCollection<Action>());
 
 			while (!token.IsCancellationRequested)
 			{
 				try
 				{
-					var action = queue.Receive(token);
+					var action = queue.Take(token);
 					action();
 				}
 				catch (OperationCanceledException)

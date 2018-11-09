@@ -18,14 +18,16 @@ namespace QvaDev.Duplicat.Views
         {
             _viewModel = viewModel;
 
-            dgvProfiles.AddBinding("ReadOnly", _viewModel, nameof(_viewModel.IsConfigReadonly));
+	        gbControl.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsLoading), true);
+			dgvProfiles.AddBinding("ReadOnly", _viewModel, nameof(_viewModel.IsConfigReadonly));
 	        dgvAccounts.AddBinding<Profile>("Enabled", _viewModel, nameof(_viewModel.SelectedProfile), p => p != null);
 	        gbProfile.AddBinding<Profile, string>("Text", _viewModel, nameof(_viewModel.SelectedProfile),
 		        p => $"Profiles (use double-click) - {p}");
 
 			dgvAccounts.DefaultValuesNeeded += (s, e) => e.Row.Cells["ProfileId"].Value = _viewModel.SelectedProfile.Id;
 
-	        dgvProfiles.RowDoubleClick += (s, e) => _viewModel.LoadProfileCommand(dgvProfiles.GetSelectedItem<Profile>());
+	        btnHeatUp.Click += (s, e) => { _viewModel.HeatUp(); };
+			dgvProfiles.RowDoubleClick += (s, e) => _viewModel.LoadProfileCommand(dgvProfiles.GetSelectedItem<Profile>());
 		}
 
         public void AttachDataSources()
