@@ -11,7 +11,8 @@ namespace QvaDev.Data.Models
 		public enum FixApiOrderTypes
 		{
 			Market,
-			Aggressive
+			AggressiveOnMasterPrice,
+			AggressiveOnSlavePrice
 		}
 
 		[InvisibleColumn] public int SlaveId { get; set; }
