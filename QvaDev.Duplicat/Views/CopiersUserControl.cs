@@ -30,8 +30,8 @@ namespace QvaDev.Duplicat.Views
 
 			dgvMasters.AddBinding("AllowUserToAddRows", _viewModel, nameof(_viewModel.IsConfigReadonly), true);
 			dgvMasters.AddBinding("AllowUserToDeleteRows", _viewModel, nameof(_viewModel.IsConfigReadonly), true);
-			dgvSlaves.AddBinding("AllowUserToAddRows", _viewModel, nameof(_viewModel.IsCopierConfigAddEnabled), true);
-	        dgvSlaves.AddBinding("AllowUserToDeleteRows", _viewModel, nameof(_viewModel.IsCopierConfigAddEnabled), true);
+			dgvSlaves.AddBinding("AllowUserToAddRows", _viewModel, nameof(_viewModel.IsConfigReadonly), true);
+	        dgvSlaves.AddBinding("AllowUserToDeleteRows", _viewModel, nameof(_viewModel.IsConfigReadonly), true);
 
 			dgvCopiers.AddBinding("AllowUserToAddRows", _viewModel, nameof(_viewModel.IsCopierConfigAddEnabled));
 	        dgvCopiers.AddBinding("AllowUserToDeleteRows", _viewModel, nameof(_viewModel.IsCopierConfigAddEnabled));
