@@ -122,7 +122,7 @@ namespace QvaDev.Orchestration
 	    {
 		    var accounts = _duplicatContext.Accounts.Local
 			    .Where(a => a.FixApiAccountId.HasValue)
-			    .Where(a => a.Connector.IsConnected)
+			    .Where(a => a.Connector?.IsConnected == true)
 			    .ToList();
 
 		    var tasks = accounts.Select(pa => Task.Run(() => (pa.Connector as FixApiIntegration.Connector)?.HeatUp()));
