@@ -11,6 +11,8 @@ namespace QvaDev.Data.Models
 	    [DisplayName("Small")] public int SmallContractSize { get; set; }
 	    [DisplayName("Big")] public int BigContractSize { get; set; }
         public int BigPercentage { get; set; }
+		[DisplayName("PullMinInterval")] public int PullMinIntervalInMs { get; set; }
+		[DisplayName("PullMaxInterval")] public int PullMaxIntervalInMs { get; set; }
 		[DisplayName("PullContract")] public int PullContractSize { get; set; }
 		[DisplayName("FutureOpenDelay")] public int FutureOpenDelayInMs { get; set; }
 	    [DisplayName("MinInterval")] public int MinIntervalInMs { get; set; }

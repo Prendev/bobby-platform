@@ -28,6 +28,13 @@ namespace QvaDev.Orchestration.Services.Strategies
 	    private readonly IRndService _rndService;
 	    private readonly IThreadService _threadService;
 
+		private enum Phases
+		{
+			Pulling,
+			Pushing,
+			Ending,
+		}
+
 	    public PushingService(
 		    IRndService rndService,
 		    IThreadService threadService)
@@ -57,7 +64,7 @@ namespace QvaDev.Orchestration.Services.Strategies
 
 			// Pull the price and wait a bit
 			var contractsNeeded = pd.PullContractSize;
-			await FutureBuildUp(pushing, futureSide, contractsNeeded, false, false, true);
+			await FutureBuildUp(pushing, futureSide, contractsNeeded, Phases.Pulling);
 
 			_threadService.Sleep(pushing.PushingDetail.FutureOpenDelayInMs);
 	    }
@@ -70,7 +77,7 @@ namespace QvaDev.Orchestration.Services.Strategies
 
 			// Build up futures for second side
 			var contractsNeeded = pd.FullContractSize - Math.Abs(pd.MasterSignalContractLimit);
-			await FutureBuildUp(pushing, futureSide, contractsNeeded, true, false, false);
+			await FutureBuildUp(pushing, futureSide, contractsNeeded, Phases.Pushing);
 
 			pushing.AlphaPosition = alphaConnector.SendMarketOrderRequest(pushing.AlphaSymbol, futureSide.Inv(), pd.AlphaLots, 0,
 				null, pushing.PushingDetail.MaxRetryCount, pushing.PushingDetail.RetryPeriodInMs);
@@ -89,7 +96,7 @@ namespace QvaDev.Orchestration.Services.Strategies
 
 			// Build a little more futures
 			var contractsNeeded = Math.Abs(pd.MasterSignalContractLimit);
-			await FutureBuildUp(pushing, futureSide, contractsNeeded, false, true, false);
+			await FutureBuildUp(pushing, futureSide, contractsNeeded, Phases.Ending);
 
 			// Partial close
 			var closeSize = pushing.PushingDetail.OpenedFutures;
@@ -122,7 +129,7 @@ namespace QvaDev.Orchestration.Services.Strategies
 
 		    // Pull the price and wait a bit
 		    var contractsNeeded = pd.PullContractSize;
-		    await FutureBuildUp(pushing, futureSide, contractsNeeded, false, false, true);
+		    await FutureBuildUp(pushing, futureSide, contractsNeeded, Phases.Pulling);
 
 		    _threadService.Sleep(pushing.PushingDetail.FutureOpenDelayInMs);
 	    }
@@ -137,7 +144,7 @@ namespace QvaDev.Orchestration.Services.Strategies
 
 			// Build up futures for hedge
 			var contractsNeeded = pd.FullContractSize - Math.Abs(pd.MasterSignalContractLimit) - Math.Abs(pd.HedgeSignalContractLimit);
-			await FutureBuildUp(pushing, futureSide, contractsNeeded, true, false, false);
+			await FutureBuildUp(pushing, futureSide, contractsNeeded, Phases.Pushing);
 
 			// Open hedge
 			hedgeConnector.SendMarketOrderRequest(pushing.HedgeSymbol, pushing.FirstCloseSide, pd.HedgeLots, 0,
@@ -157,7 +164,7 @@ namespace QvaDev.Orchestration.Services.Strategies
 			decimal contractsNeeded;
 			if (pushing.IsHedgeClose) contractsNeeded = Math.Abs(pd.HedgeSignalContractLimit);
 			else contractsNeeded = pd.FullContractSize - Math.Abs(pd.MasterSignalContractLimit);
-			await FutureBuildUp(pushing, futureSide, contractsNeeded, true, false, false);
+			await FutureBuildUp(pushing, futureSide, contractsNeeded, Phases.Pushing);
 
 			// Close second side
 			secondConnector.SendClosePositionRequests(secondPos, null, pushing.PushingDetail.MaxRetryCount, pushing.PushingDetail.RetryPeriodInMs);
@@ -171,7 +178,7 @@ namespace QvaDev.Orchestration.Services.Strategies
 
 			// Build a little more
 			var contractsNeeded = Math.Abs(pd.MasterSignalContractLimit);
-			await FutureBuildUp(pushing, futureSide, contractsNeeded, false, true, false);
+			await FutureBuildUp(pushing, futureSide, contractsNeeded, Phases.Ending);
 
 			// Partial close
 			var closeSize = pushing.PushingDetail.OpenedFutures;
@@ -186,14 +193,14 @@ namespace QvaDev.Orchestration.Services.Strategies
 
 		}
 
-		private async Task FutureBuildUp(Pushing pushing, Sides side, decimal contractsNeeded, bool priceCheck, bool isEnding, bool isPull)
+		private async Task FutureBuildUp(Pushing pushing, Sides side, decimal contractsNeeded, Phases phase)
 		{
 			if (pushing.FutureExecutionMode == Pushing.FutureExecutionModes.NonConfirmed)
-				await NonConfirmed(pushing, side, contractsNeeded, priceCheck, isEnding, isPull);
-			else await Confirmed(pushing, side, contractsNeeded, priceCheck, isEnding, isPull);
+				await NonConfirmed(pushing, side, contractsNeeded, phase);
+			else await Confirmed(pushing, side, contractsNeeded, phase);
 		}
 
-		private async Task Confirmed(Pushing pushing, Sides side, decimal contractsNeeded, bool priceCheck, bool isEnding, bool isPull)
+		private async Task Confirmed(Pushing pushing, Sides side, decimal contractsNeeded, Phases phase)
 		{
 			var pd = pushing.PushingDetail;
 			var futureConnector = (IFixConnector)pushing.FutureAccount.Connector;
@@ -204,18 +211,18 @@ namespace QvaDev.Orchestration.Services.Strategies
 				var contractSize = (decimal)(_rndService.Next(0, 100) > pd.BigPercentage ? pd.SmallContractSize : pd.BigContractSize);
 				contractSize = Math.Min(contractSize, contractsNeeded - contractsOpened);
 				var orderResponse = await futureConnector.SendMarketOrderRequest(pushing.FutureSymbol, side, contractSize);
-				if (isPull) pushing.PushingDetail.OpenedFutures -= orderResponse.FilledQuantity;
+				if (phase == Phases.Pulling) pushing.PushingDetail.OpenedFutures -= orderResponse.FilledQuantity;
 				else pushing.PushingDetail.OpenedFutures += orderResponse.FilledQuantity;
 				contractsOpened += orderResponse.FilledQuantity;
 
-				FutureInterval(pd, isEnding);
+				FutureInterval(pd, phase);
 				// Rush
 				if (pushing.InPanic) break;
-				if (priceCheck && PriceLimitReached(pushing, side)) break;
+				if (phase == Phases.Pushing && PriceLimitReached(pushing, side)) break;
 			}
 		}
 
-		private async Task NonConfirmed(Pushing pushing, Sides side, decimal contractsNeeded, bool priceCheck, bool isEnding, bool isPull)
+		private async Task NonConfirmed(Pushing pushing, Sides side, decimal contractsNeeded, Phases phase)
 		{
 			var pd = pushing.PushingDetail;
 			var futureConnector = (IFixConnector)pushing.FutureAccount.Connector;
@@ -226,27 +233,27 @@ namespace QvaDev.Orchestration.Services.Strategies
 			{
 				var contractSize = (decimal)(_rndService.Next(0, 100) > pd.BigPercentage ? pd.SmallContractSize : pd.BigContractSize);
 				contractSize = Math.Min(contractSize, contractsNeeded - contractsOpened);
-				if (isPull) pushing.PushingDetail.OpenedFutures -= contractSize;
+				if (phase == Phases.Pulling) pushing.PushingDetail.OpenedFutures -= contractSize;
 				else pushing.PushingDetail.OpenedFutures += contractSize;
 				contractsOpened += contractSize;
 
 				// Collect orders
 				orders.Add(futureConnector.SendMarketOrderRequest(pushing.FutureSymbol, side, contractSize));
 
-				FutureInterval(pd, isEnding);
+				FutureInterval(pd, phase);
 				// Rush
 				if (pushing.InPanic) break;
-				if (priceCheck && PriceLimitReached(pushing, side)) break;
+				if (phase == Phases.Pushing && PriceLimitReached(pushing, side)) break;
 			}
 
 			// Wait for orders and check result
 			await Task.WhenAll(orders);
-			if (isPull) pushing.PushingDetail.OpenedFutures += contractsOpened;
+			if (phase == Phases.Pulling) pushing.PushingDetail.OpenedFutures += contractsOpened;
 			else pushing.PushingDetail.OpenedFutures -= contractsOpened;
 			contractsOpened = 0m;
 			foreach (var order in orders)
 				contractsOpened += order.Result.FilledQuantity;
-			if (isPull) pushing.PushingDetail.OpenedFutures -= contractsOpened;
+			if (phase == Phases.Pulling) pushing.PushingDetail.OpenedFutures -= contractsOpened;
 			else pushing.PushingDetail.OpenedFutures += contractsOpened;
 		}
 
@@ -263,11 +270,21 @@ namespace QvaDev.Orchestration.Services.Strategies
             return false;
         }
 
-		private void FutureInterval(PushingDetail pd, bool isEnding)
+		private void FutureInterval(PushingDetail pd, Phases phase)
 		{
-			if (pd.MaxIntervalInMs <= 0) return;
-			var minValue = isEnding ? Math.Max(0, pd.EndingMinIntervalInMs) : Math.Max(0, pd.MinIntervalInMs);
-			var maxValue = isEnding ? Math.Max(minValue, pd.EndingMaxIntervalInMs) : Math.Max(minValue, pd.MaxIntervalInMs);
+			var maxValue = 0;
+			if (phase == Phases.Pulling) maxValue = pd.PullMaxIntervalInMs;
+			else if (phase == Phases.Pushing) maxValue = pd.MaxIntervalInMs;
+			else if (phase == Phases.Ending) maxValue = pd.EndingMaxIntervalInMs;
+			if (maxValue <= 0) return;
+
+			var minValue = 0;
+			if (phase == Phases.Pulling) minValue = pd.PullMinIntervalInMs;
+			else if (phase == Phases.Pushing) minValue = pd.MinIntervalInMs;
+			else if (phase == Phases.Ending) minValue = pd.EndingMinIntervalInMs;
+
+			minValue = Math.Max(0, minValue);
+			maxValue = Math.Max(minValue, maxValue);
 			_threadService.Sleep(_rndService.Next(minValue, maxValue));
 		}
     }
