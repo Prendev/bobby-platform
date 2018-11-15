@@ -180,6 +180,12 @@ namespace QvaDev.FixApiIntegration
 					$"{limitPrice}, {deviation}, {timeout}, {retryCount}, {retryPeriod}) " +
 					$"opened {response.FilledQuantity} at avg price {response.AveragePrice}");
 			}
+			catch (TimeoutException)
+			{
+				Logger.Warn(
+					$"{Description} Connector.SendAggressiveOrderRequest({symbol}, {side}, {quantity}, " +
+					$"{limitPrice}, {deviation}, {timeout}, {retryCount}, {retryPeriod}) timeout");
+			}
 			catch (Exception e)
 			{
 				Logger.Error(
