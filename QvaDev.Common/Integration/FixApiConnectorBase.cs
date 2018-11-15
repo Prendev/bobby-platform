@@ -20,7 +20,10 @@ namespace QvaDev.Common.Integration
 			return SymbolInfos.GetOrAdd(symbol, new SymbolData());
 		}
 
-		public abstract Task<OrderResponse> SendMarketOrderRequest(string symbol, Sides side, decimal quantity, string comment = null);
+		public abstract Task<OrderResponse> SendMarketOrderRequest(string symbol, Sides side, decimal quantity);
+
+		public abstract Task<OrderResponse> SendMarketOrderRequest(string symbol, Sides side, decimal quantity,
+			int timeout, int retryCount, int retryPeriod);
 
 		public abstract Task<OrderResponse> SendAggressiveOrderRequest(string symbol, Sides side, decimal quantity, decimal limitPrice, decimal deviation,
 			int timeout, int retryCount, int retryPeriod);

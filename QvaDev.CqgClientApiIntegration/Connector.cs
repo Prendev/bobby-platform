@@ -149,7 +149,7 @@ namespace QvaDev.CqgClientApiIntegration
 			}
 		}
 
-		public override async Task<OrderResponse> SendMarketOrderRequest(string symbol, Sides side, decimal quantity, string comment = null)
+		public override async Task<OrderResponse> SendMarketOrderRequest(string symbol, Sides side, decimal quantity)
 		{
 			try
 			{
@@ -169,7 +169,7 @@ namespace QvaDev.CqgClientApiIntegration
 			}
 			catch (Exception e)
 			{
-				Logger.Error($"{Description} Connector.SendMarketOrderRequest({symbol}, {side}, {quantity}, {comment}) exception", e);
+				Logger.Error($"{Description} Connector.SendMarketOrderRequest({symbol}, {side}, {quantity}) exception", e);
 				return new OrderResponse()
 				{
 					OrderedQuantity = quantity,
@@ -178,6 +178,11 @@ namespace QvaDev.CqgClientApiIntegration
 					Side = side
 				};
 			}
+		}
+
+		public override Task<OrderResponse> SendMarketOrderRequest(string symbol, Sides side, decimal quantity, int timeout, int retryCount, int retryPeriod)
+		{
+			throw new NotImplementedException();
 		}
 
 		public override Task<OrderResponse> SendAggressiveOrderRequest(string symbol, Sides side, decimal quantity, decimal limitPrice, decimal deviation,

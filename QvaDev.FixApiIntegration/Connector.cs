@@ -90,7 +90,12 @@ namespace QvaDev.FixApiIntegration
 			OnConnectionChanged(ConnectionStates.Disconnected);
 		}
 
-		public override async Task<OrderResponse> SendMarketOrderRequest(string symbol, Sides side, decimal quantity, string comment = null)
+		public override Task<OrderResponse> SendMarketOrderRequest(string symbol, Sides side, decimal quantity)
+		{
+			return SendMarketOrderRequest(symbol, side, quantity, 0, 0, 0);
+		}
+
+		public override async Task<OrderResponse> SendMarketOrderRequest(string symbol, Sides side, decimal quantity, int timeout, int retryCount, int retryPeriod)
 		{
 			var retValue = new OrderResponse()
 			{
@@ -107,7 +112,10 @@ namespace QvaDev.FixApiIntegration
 				{
 					IsLong = side == Sides.Buy,
 					Symbol = Symbol.Parse(symbol),
-					Quantity = quantity
+					Quantity = quantity,
+					Timeout = timeout,
+					RetryCount = retryCount,
+					RetryDelay = retryPeriod
 				});
 
 				if (!string.IsNullOrWhiteSpace(response.UnfinishedOrderId))
@@ -117,11 +125,11 @@ namespace QvaDev.FixApiIntegration
 				retValue.FilledQuantity = response.FilledQuantity;
 
 				Logger.Debug(
-					$"{Description} Connector.SendMarketOrderRequest({symbol}, {side}, {quantity}, {comment}) opened {retValue.FilledQuantity} at avg price {retValue.AveragePrice}");
+					$"{Description} Connector.SendMarketOrderRequest({symbol}, {side}, {quantity}) opened {retValue.FilledQuantity} at avg price {retValue.AveragePrice}");
 			}
 			catch (Exception e)
 			{
-				Logger.Error($"{Description} Connector.SendMarketOrderRequest({symbol}, {side}, {quantity}, {comment}) exception", e);
+				Logger.Error($"{Description} Connector.SendMarketOrderRequest({symbol}, {side}, {quantity}) exception", e);
 			}
 
 			if (!retValue.IsFilled)
@@ -136,8 +144,8 @@ namespace QvaDev.FixApiIntegration
 
 		public override async Task<OrderResponse> SendAggressiveOrderRequest(
 			string symbol, Sides side, decimal quantity,
-			decimal limitPrice, decimal deviation, int timeout,
-			int retryCount, int retryPeriod)
+			decimal limitPrice, decimal deviation,
+			int timeout, int retryCount, int retryPeriod)
 		{
 			if (!FixConnector.IsAggressiveOrderSupported())
 				return await SendMarketOrderRequest(symbol, side, quantity);

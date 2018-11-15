@@ -181,7 +181,11 @@ namespace QvaDev.Orchestration.Services
 				}
 				var quantity = Math.Abs((decimal)e.Position.Lots * copier.CopyRatio);
 				quantity = Math.Floor(quantity);
-				if (quantity == 0) return;
+				if (quantity == 0)
+				{
+					Logger.Warn($"CopierService.CopyToFixAccount {slave} {symbol} quantity is zero!!!");
+					return;
+				}
 				var side = copier.CopyRatio < 0 ? e.Position.Side.Inv() : e.Position.Side;
 
 				if (e.Action == NewPositionActions.Open && copier.OrderType != FixApiCopier.FixApiOrderTypes.Market)
@@ -194,7 +198,8 @@ namespace QvaDev.Orchestration.Services
 				}
 				else if (e.Action == NewPositionActions.Open && copier.OrderType == FixApiCopier.FixApiOrderTypes.Market)
 				{
-					var response = await slaveConnector.SendMarketOrderRequest(symbol, side, quantity);
+					var response = await slaveConnector.SendMarketOrderRequest(symbol, side, quantity,
+						copier.TimeWindowInMs, copier.MaxRetryCount, copier.RetryPeriodInMs);
 					copier.OrderResponses[e.Position.Id] = response;
 				}
 				else if (e.Action == NewPositionActions.Close && copier.OrderType != FixApiCopier.FixApiOrderTypes.Market)
@@ -212,13 +217,15 @@ namespace QvaDev.Orchestration.Services
 					var remainingQuantity = closeResponse.OrderedQuantity - closeResponse.FilledQuantity;
 					if (remainingQuantity == 0) return;
 
-					await slaveConnector.SendMarketOrderRequest(symbol, side.Inv(), remainingQuantity);
+					await slaveConnector.SendMarketOrderRequest(symbol, side.Inv(), remainingQuantity,
+						copier.TimeWindowInMs, copier.MaxRetryCount, copier.RetryPeriodInMs);
 				}
 				else if (e.Action == NewPositionActions.Close && copier.OrderType == FixApiCopier.FixApiOrderTypes.Market)
 				{
 					if (!copier.OrderResponses.TryGetValue(e.Position.Id, out OrderResponse openResponse)) return;
 					if (!openResponse.IsFilled || openResponse.FilledQuantity == 0) return;
-					await slaveConnector.SendMarketOrderRequest(symbol, side.Inv(), openResponse.FilledQuantity);
+					await slaveConnector.SendMarketOrderRequest(symbol, side.Inv(), openResponse.FilledQuantity,
+						copier.TimeWindowInMs, copier.MaxRetryCount, copier.RetryPeriodInMs);
 				}
 
 			}, copier.DelayInMilliseconds));
