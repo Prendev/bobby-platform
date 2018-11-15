@@ -217,7 +217,8 @@ namespace QvaDev.Orchestration.Services.Strategies
 
 				if (buyPos.FilledQuantity == 0 || sellPos.FilledQuantity == 0) return;
 
-				Logger.Info($"{arb.Description} arb opened!!!");
+				var arbDiff = (sellPos.AveragePrice - buyPos.AveragePrice) / arb.PipSize;
+				Logger.Info($"{arb.Description} arb opened with {arbDiff:F2} pip!!!");
 			}
 			finally
 			{
