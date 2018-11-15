@@ -25,7 +25,7 @@ namespace QvaDev.Common
 				new Thread(() => Loop(token)) { Name = $"{description}_{i}", IsBackground = true}.Start();
 		}
 
-		private async void Loop(CancellationToken token)
+		private void Loop(CancellationToken token)
 		{
 			while (!token.IsCancellationRequested)
 			{
@@ -45,7 +45,8 @@ namespace QvaDev.Common
 				try
 				{
 					Interlocked.Increment(ref _busyCount);
-					await action();
+					var task = action();
+					task.Wait(token);
 					if (_taskCompletionManager.TryRemove(action, out var source)) source.TrySetResult(null);
 				}
 				catch (Exception e)
@@ -92,7 +93,7 @@ namespace QvaDev.Common
 				new Thread(() => Loop(token)) {Name = $"{description}_{i}", IsBackground = true}.Start();
 		}
 
-		private async void Loop(CancellationToken token)
+		private void Loop(CancellationToken token)
 		{
 			while (!token.IsCancellationRequested)
 			{
@@ -113,8 +114,9 @@ namespace QvaDev.Common
 				{
 					Interlocked.Increment(ref _busyCount);
 					// We use .Result intentionally so the original thread stays intact
-					var result = await action();
-					if (_taskCompletionManager.TryRemove(action, out var source)) source.TrySetResult(result);
+					var task = action();
+					task.Wait(token);
+					if (_taskCompletionManager.TryRemove(action, out var source)) source.TrySetResult(task.Result);
 				}
 				catch (Exception e)
 				{
