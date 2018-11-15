@@ -23,13 +23,20 @@ namespace QvaDev.Data.Models
 		public FixApiOrderTypes OrderType { get; set; }
 		public int DelayInMilliseconds { get; set; }
 
-		[DisplayName("MaxRetry")]
+		[DisplayName("MarketMaxRetry")]
+		public int MarketMaxRetryCount { get; set; }
+		[DisplayName("MarketRetryPeriod")]
+		public int MarketRetryPeriodInMs { get; set; }
+		[DisplayName("MarketTimeWindow")]
+		public int MarketTimeWindowInMs { get; set; }
+
+		[DisplayName("AggMaxRetry")]
 		public int MaxRetryCount { get; set; }
-		[DisplayName("RetryPeriod")]
+		[DisplayName("AggRetryPeriod")]
 		public int RetryPeriodInMs { get; set; }
-		[DisplayName("Slippage")]
+		[DisplayName("AggSlippage")]
 		public decimal SlippageInPip { get; set; }
-		[DisplayName("TimeWindow")]
+		[DisplayName("AggTimeWindow")]
 		public int TimeWindowInMs { get; set; }
 		public decimal PipSize { get; set; }
 
