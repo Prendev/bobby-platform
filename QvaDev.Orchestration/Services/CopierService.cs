@@ -103,10 +103,10 @@ namespace QvaDev.Orchestration.Services
 
         private Task CopyToAccount(NewPosition e, Slave slave)
         {
-            if (slave.Account.MetaTraderAccountId.HasValue) return CopyToMtAccount(e, slave);
-            if (slave.Account.CTraderAccountId.HasValue) return CopyToCtAccount(e, slave);
+			if (slave.Account.MetaTraderAccountId.HasValue) return CopyToMtAccount(e, slave);
+			if (slave.Account.CTraderAccountId.HasValue) return CopyToCtAccount(e, slave);
 			if (slave.Account.FixApiAccountId.HasValue) return CopyToFixAccount(e, slave);
-			return Task.FromResult(0);
+	        return Task.FromResult(0);
 		}
 
 		private Task CopyToCtAccount(NewPosition e, Slave slave)
@@ -124,16 +124,16 @@ namespace QvaDev.Orchestration.Services
 				var type = side == Sides.Buy ? ProtoTradeSide.BUY : ProtoTradeSide.SELL;
 
 				if (e.Action == NewPositionActions.Open && copier.OrderType == Copier.CopierOrderTypes.MarketRange)
-                    slaveConnector.SendMarketRangeOrderRequest(symbol, type, volume, e.Position.OpenPrice,
-                        copier.SlippageInPips, $"{slave.Id}-{e.Position.Id}", copier.MaxRetryCount, copier.RetryPeriodInMs);
-                else if (e.Action == NewPositionActions.Open && copier.OrderType == Copier.CopierOrderTypes.Market)
-                    slaveConnector.SendMarketOrderRequest(symbol, type, volume, $"{slave.Id}-{e.Position.Id}",
-                        copier.MaxRetryCount, copier.RetryPeriodInMs);
-                else if (e.Action == NewPositionActions.Close)
-                    slaveConnector.SendClosePositionRequests($"{slave.Id}-{e.Position.Id}",
-                        copier.MaxRetryCount, copier.RetryPeriodInMs);
-
-            }, copier.DelayInMilliseconds));
+					slaveConnector.SendMarketRangeOrderRequest(symbol, type, volume, e.Position.OpenPrice,
+						copier.SlippageInPips, $"{slave.Id}-{e.Position.Id}", copier.MaxRetryCount, copier.RetryPeriodInMs);
+				else if (e.Action == NewPositionActions.Open && copier.OrderType == Copier.CopierOrderTypes.Market)
+					slaveConnector.SendMarketOrderRequest(symbol, type, volume, $"{slave.Id}-{e.Position.Id}",
+						copier.MaxRetryCount, copier.RetryPeriodInMs);
+				else if (e.Action == NewPositionActions.Close)
+					slaveConnector.SendClosePositionRequests($"{slave.Id}-{e.Position.Id}",
+						copier.MaxRetryCount, copier.RetryPeriodInMs);
+				return Task.CompletedTask;
+			}, copier.DelayInMilliseconds));
             return Task.WhenAll(tasks);
         }
 
@@ -158,7 +158,8 @@ namespace QvaDev.Orchestration.Services
 				        comment, copier.MaxRetryCount, copier.RetryPeriodInMs);
 		        else if (e.Action == NewPositionActions.Close)
 			        slaveConnector.SendClosePositionRequests(comment, copier.MaxRetryCount, copier.RetryPeriodInMs);
-	        }, copier.DelayInMilliseconds));
+		        return Task.CompletedTask;
+			}, copier.DelayInMilliseconds));
             return Task.WhenAll(tasks);
 		}
 
@@ -172,6 +173,12 @@ namespace QvaDev.Orchestration.Services
 
 			var tasks = slave.FixApiCopiers.Where(s => s.Run).Select(copier => DelayedRun(async () =>
 			{
+				var lastTicket = slaveConnector.GetLastTick(symbol);
+				if (lastTicket == null)
+				{
+					Logger.Warn($"CopierService.CopyToFixAccount {slave} {symbol} no last ticket!!!");
+					return;
+				}
 				var quantity = Math.Abs((decimal)e.Position.Lots * copier.CopyRatio);
 				quantity = Math.Floor(quantity);
 				if (quantity == 0) return;
@@ -180,7 +187,7 @@ namespace QvaDev.Orchestration.Services
 				if (e.Action == NewPositionActions.Open && copier.OrderType != FixApiCopier.FixApiOrderTypes.Market)
 				{
 					var limitPrice = copier.OrderType == FixApiCopier.FixApiOrderTypes.AggressiveOnMasterPrice ? e.Position.OpenPrice :
-						side == Sides.Buy ? slaveConnector.GetLastTick(symbol).Ask : slaveConnector.GetLastTick(symbol).Bid;
+						side == Sides.Buy ? lastTicket.Ask : lastTicket.Bid;
 					var response = await slaveConnector.SendAggressiveOrderRequest(symbol, side, quantity, limitPrice,
 						copier.Deviation, copier.TimeWindowInMs, copier.MaxRetryCount, copier.RetryPeriodInMs);
 					copier.OrderResponses[e.Position.Id] = response;
@@ -196,7 +203,7 @@ namespace QvaDev.Orchestration.Services
 					if (!openResponse.IsFilled || openResponse.FilledQuantity == 0) return;
 
 					var limitPrice = copier.OrderType == FixApiCopier.FixApiOrderTypes.AggressiveOnMasterPrice ? e.Position.ClosePrice :
-						side == Sides.Buy ? slaveConnector.GetLastTick(symbol).Bid : slaveConnector.GetLastTick(symbol).Ask;
+						side == Sides.Buy ? lastTicket.Bid : lastTicket.Ask;
 
 					var closeResponse = await slaveConnector.SendAggressiveOrderRequest(symbol, side.Inv(),
 						openResponse.FilledQuantity, limitPrice, copier.Deviation, copier.TimeWindowInMs,
@@ -218,10 +225,17 @@ namespace QvaDev.Orchestration.Services
 			return Task.WhenAll(tasks);
 		}
 
-	    private async Task DelayedRun(Action action, int millisecondsDelay)
+	    private async Task DelayedRun(Func<Task> action, int millisecondsDelay)
 	    {
-		    if (millisecondsDelay > 0) await Task.Delay(millisecondsDelay);
-		    await _copyPool.Run(action);
+		    try
+			{
+				if (millisecondsDelay > 0) await Task.Delay(millisecondsDelay);
+				await _copyPool.Run(action);
+			}
+		    catch (Exception e)
+		    {
+			    Logger.Error("CopierService.DelayedRun exception", e);
+			}
 	    }
     }
 }

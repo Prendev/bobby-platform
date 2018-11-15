@@ -9,9 +9,9 @@ namespace QvaDev.Common
 {
 	public class CustomThreadPool
 	{
-		private readonly FastBlockingCollection<Action> _queue = new FastBlockingCollection<Action>();
-		private readonly ConcurrentDictionary<Action, TaskCompletionSource<object>> _taskCompletionManager =
-			new ConcurrentDictionary<Action, TaskCompletionSource<object>>();
+		private readonly FastBlockingCollection<Func<Task>> _queue = new FastBlockingCollection<Func<Task>>();
+		private readonly ConcurrentDictionary<Func<Task>, TaskCompletionSource<object>> _taskCompletionManager =
+			new ConcurrentDictionary<Func<Task>, TaskCompletionSource<object>>();
 
 		private readonly int _size;
 		private int _busyCount;
@@ -25,12 +25,12 @@ namespace QvaDev.Common
 				new Thread(() => Loop(token)) { Name = $"{description}_{i}", IsBackground = true}.Start();
 		}
 
-		private void Loop(CancellationToken token)
+		private async void Loop(CancellationToken token)
 		{
 			while (!token.IsCancellationRequested)
 			{
 				// Getting next action
-				Action action = null;
+				Func<Task> action = null;
 				try
 				{
 					action = _queue.Take(token);
@@ -45,7 +45,7 @@ namespace QvaDev.Common
 				try
 				{
 					Interlocked.Increment(ref _busyCount);
-					action();
+					await action();
 					if (_taskCompletionManager.TryRemove(action, out var source)) source.TrySetResult(null);
 				}
 				catch (Exception e)
@@ -59,7 +59,7 @@ namespace QvaDev.Common
 			}
 		}
 
-		public async Task Run(Action action)
+		public async Task Run(Func<Task> action)
 		{
 			if (_busyCount >= _size)
 				await Task.Run(action);
@@ -92,7 +92,7 @@ namespace QvaDev.Common
 				new Thread(() => Loop(token)) {Name = $"{description}_{i}", IsBackground = true}.Start();
 		}
 
-		private void Loop(CancellationToken token)
+		private async void Loop(CancellationToken token)
 		{
 			while (!token.IsCancellationRequested)
 			{
@@ -113,7 +113,7 @@ namespace QvaDev.Common
 				{
 					Interlocked.Increment(ref _busyCount);
 					// We use .Result intentionally so the original thread stays intact
-					var result = action().Result;
+					var result = await action();
 					if (_taskCompletionManager.TryRemove(action, out var source)) source.TrySetResult(result);
 				}
 				catch (Exception e)
