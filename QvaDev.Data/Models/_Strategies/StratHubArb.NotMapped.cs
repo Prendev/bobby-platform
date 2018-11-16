@@ -142,8 +142,8 @@ namespace QvaDev.Data.Models
 				arbQuote.Quotes.Add(new StratHubArbQuoteEventArgs.Quote()
 				{
 					GroupQuoteEntry = aggQuote.GroupQuoteEntry,
-					Account = aggQuote.Account,
-					Sum = PositionSum(aggQuote.Account)
+					AggAccount = aggQuote.AggAccount,
+					Sum = PositionSum(aggQuote.AggAccount.Account)
 				});
 			}
 			ArbQuote?.Invoke(this, arbQuote);

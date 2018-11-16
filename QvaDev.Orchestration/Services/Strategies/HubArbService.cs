@@ -143,13 +143,13 @@ namespace QvaDev.Orchestration.Services.Strategies
 
 			// Quotes where there were no orders in the last x minutes
 			var quotes = e.Quotes
-				.Where(q => CheckAccount(arb, q.Account, now)).ToList();
+				.Where(q => CheckAccount(arb, q.AggAccount.Account, now)).ToList();
 			var buyQuote = quotes
 				.OrderBy(q => q.GroupQuoteEntry.Ask)
 				.FirstOrDefault(q => q.Sum < arb.MaxSizePerAccount);
 			var sellQuote = quotes
 				.OrderByDescending(q => q.GroupQuoteEntry.Bid)
-				.Where(q => q.Account != buyQuote?.Account)
+				.Where(q => q.AggAccount != buyQuote?.AggAccount)
 				.FirstOrDefault(q => q.Sum > -arb.MaxSizePerAccount);
 			if (buyQuote == null || sellQuote == null) return;
 
@@ -169,11 +169,11 @@ namespace QvaDev.Orchestration.Services.Strategies
 			lock (_syncRoot)
 			{
 				if (arb.IsBusy) return;
-				if (buyQuote.Account.IsBusy) return;
-				if (sellQuote.Account.IsBusy) return;
+				if (buyQuote.AggAccount.Account.IsBusy) return;
+				if (sellQuote.AggAccount.Account.IsBusy) return;
 				arb.IsBusy = true;
-				buyQuote.Account.IsBusy = true;
-				sellQuote.Account.IsBusy = true;
+				buyQuote.AggAccount.Account.IsBusy = true;
+				sellQuote.AggAccount.Account.IsBusy = true;
 			}
 
 			Logger.Trace(cb => cb($"HubArbService.CheckOpen {arb} on QuoteEvent at {e.TimeStamp:yyyy-MM-dd HH:mm:ss.ffffff}"));
@@ -199,11 +199,33 @@ namespace QvaDev.Orchestration.Services.Strategies
 			{
 				Logger.Info($"{arb.Description} arb is opening!!!");
 
-				var buy = _orderPool.Run(() => SendPosition(arb, buyQuote, Sides.Buy, size));
-				var sell = _orderPool.Run(() => SendPosition(arb, sellQuote, Sides.Sell, size));
-				await Task.WhenAll(buy, sell);
-				var buyPos = buy.Result;
-				var sellPos = sell.Result;
+				var buyPos = new OrderResponse();
+				var sellPos = new OrderResponse();
+
+				if (arb.OpeningLogic == StratHubArb.StratHubArbOpeningLogics.Parallel ||
+				    buyQuote.AggAccount.FeedSpeed == sellQuote.AggAccount.FeedSpeed)
+				{
+					var buy = _orderPool.Run(() => SendPosition(arb, buyQuote, Sides.Buy, size));
+					var sell = _orderPool.Run(() => SendPosition(arb, sellQuote, Sides.Sell, size));
+					await Task.WhenAll(buy, sell);
+					buyPos = buy.Result;
+					sellPos = sell.Result;
+				}
+				else if (arb.OpeningLogic == StratHubArb.StratHubArbOpeningLogics.SlowFirst)
+				{
+					if (buyQuote.AggAccount.FeedSpeed < sellQuote.AggAccount.FeedSpeed)
+					{
+						buyPos = await SendPosition(arb, buyQuote, Sides.Buy, size);
+						if (buyPos.FilledQuantity > 0)
+							sellPos = await SendPosition(arb, sellQuote, Sides.Sell, buyPos.FilledQuantity);
+					}
+					else if (sellQuote.AggAccount.FeedSpeed < buyQuote.AggAccount.FeedSpeed)
+					{
+						sellPos = await SendPosition(arb, sellQuote, Sides.Sell, size);
+						if (sellPos.FilledQuantity > 0)
+							buyPos = await SendPosition(arb, buyQuote, Sides.Buy, sellPos.FilledQuantity);
+					}
+				}
 
 				if (buyPos.FilledQuantity > sellPos.FilledQuantity)
 				{
@@ -224,8 +246,8 @@ namespace QvaDev.Orchestration.Services.Strategies
 			finally
 			{
 				arb.IsBusy = false;
-				buyQuote.Account.IsBusy = false;
-				sellQuote.Account.IsBusy = false;
+				buyQuote.AggAccount.Account.IsBusy = false;
+				sellQuote.AggAccount.Account.IsBusy = false;
 			}
 		}
 
@@ -234,7 +256,7 @@ namespace QvaDev.Orchestration.Services.Strategies
 			var symbol = quote.GroupQuoteEntry.Symbol.ToString();
 			var price = side == Sides.Buy ? quote.GroupQuoteEntry.Ask : quote.GroupQuoteEntry.Bid;
 
-			return SendPosition(arb, quote.Account, symbol, side, size, forceMarket ? null : price);
+			return SendPosition(arb, quote.AggAccount.Account, symbol, side, size, forceMarket ? null : price);
 		}
 
 		private async Task<OrderResponse> SendPosition(StratHubArb arb, Account account, string symbol, Sides side, decimal size, decimal? price = null)

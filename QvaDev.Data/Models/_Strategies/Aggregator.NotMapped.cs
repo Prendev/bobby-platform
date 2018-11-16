@@ -39,7 +39,7 @@ namespace QvaDev.Data.Models
 
 				aggQuote.Quotes.Add(new AggregatorQuoteEventArgs.Quote()
 				{
-					Account = account,
+					AggAccount = account,
 					GroupQuoteEntry = bookTop
 				});
 			}
@@ -47,12 +47,12 @@ namespace QvaDev.Data.Models
 			AggregatedQuote?.Invoke(this, aggQuote);
 		}
 
-		private Account GetAccount(FixConnectorBase fixConnector)
+		private AggregatorAccount GetAccount(FixConnectorBase fixConnector)
 		{
 			foreach (var aggregatorAccount in Accounts)
 			{
 				if (aggregatorAccount.Account.Connector?.Is(fixConnector) != true) continue;
-				return aggregatorAccount.Account;
+				return aggregatorAccount;
 			}
 
 			return null;
