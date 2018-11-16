@@ -213,6 +213,7 @@
     <Compile Include="Models\ProfileProxy.cs" />
     <Compile Include="Models\_Strategies\Aggregator.NotMapped.cs" />
     <Compile Include="Models\_Strategies\Aggregator.cs" />
+    <Compile Include="Models\_Strategies\AggregatorAccount.NotMapped.cs" />
     <Compile Include="Models\_Strategies\AggregatorAccount.cs" />
     <Compile Include="Models\BaseEntity.cs" />
     <Compile Include="Models\BaseDescriptionEntity.cs" />

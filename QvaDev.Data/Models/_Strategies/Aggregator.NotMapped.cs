@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
 using QvaDev.Common.Attributes;
 using QvaDev.Communication.FixApi;
 using QvaDev.Communication.FixApi.Interfaces;

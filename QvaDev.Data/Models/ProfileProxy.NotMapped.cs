@@ -4,7 +4,7 @@ using QvaDev.Common.Attributes;
 
 namespace QvaDev.Data.Models
 {
-	public partial class ProfileProxy : BaseEntity
+	public partial class ProfileProxy
 	{
 		[NotMapped] [InvisibleColumn] public TcpListener Listener { get => Get<TcpListener>(); set => Set(value); }
 	}

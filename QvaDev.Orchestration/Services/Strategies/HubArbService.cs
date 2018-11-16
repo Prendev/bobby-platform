@@ -149,6 +149,7 @@ namespace QvaDev.Orchestration.Services.Strategies
 				.FirstOrDefault(q => q.Sum < arb.MaxSizePerAccount);
 			var sellQuote = quotes
 				.OrderByDescending(q => q.GroupQuoteEntry.Bid)
+				.Where(q => q.Account != buyQuote?.Account)
 				.FirstOrDefault(q => q.Sum > -arb.MaxSizePerAccount);
 			if (buyQuote == null || sellQuote == null) return;
 
