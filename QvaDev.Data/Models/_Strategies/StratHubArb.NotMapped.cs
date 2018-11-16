@@ -17,8 +17,8 @@ namespace QvaDev.Data.Models
 			public decimal SellAvg { get; set; }
 			public decimal BuyAvg { get; set; }
 			public decimal Total { get; set; }
-			public decimal Pip { get; set; }
 			public decimal ClosedPip { get; set; }
+			public decimal Pip { get; set; }
 		}
 
 		public event EventHandler<StratHubArbQuoteEventArgs> ArbQuote;
@@ -91,8 +91,7 @@ namespace QvaDev.Data.Models
 				stat.Total = stat.BuyTotal - stat.SellTotal;
 
 				// Calculate non valid pip with exposure inbalance
-				stat.Pip = (stat.SellAvg - stat.BuyAvg) / PipSize;
-				stat.ClosedPip = stat.Pip;
+				stat.ClosedPip = (stat.SellAvg - stat.BuyAvg) / PipSize;
 				if (stat.Total == 0) continue;
 
 				// Calculate ClosedPip if there is inbalance
@@ -129,8 +128,8 @@ namespace QvaDev.Data.Models
 				SellAvg = s.SellAvg.ToString("F5"),
 				BuyAvg = s.BuyAvg.ToString("F5"),
 				Total = s.Total.ToString("0"),
-				Pip = s.Pip.ToString("F2"),
 				ClosedPip = s.ClosedPip.ToString("F2"),
+				Pip = s.Pip == 0 ? "" : s.Pip.ToString("F2")
 			}).ToList();
 		}
 
