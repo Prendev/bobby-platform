@@ -38,6 +38,7 @@ namespace QvaDev.Duplicat.Views
 	        dgvAccounts.AddComboBoxColumn(_viewModel.FixAccounts);
 	        dgvAccounts.AddComboBoxColumn(_viewModel.IlyaFastFeedAccounts);
 	        dgvAccounts.AddComboBoxColumn(_viewModel.CqgClientApiAccounts);
+	        dgvAccounts.AddComboBoxColumn(_viewModel.IbAccounts);
 	        dgvAccounts.AddComboBoxColumn(_viewModel.ProfileProxies);
 
 			dgvProfiles.DataSource = _viewModel.Profiles.ToBindingList();

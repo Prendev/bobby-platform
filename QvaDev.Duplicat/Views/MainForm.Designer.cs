@@ -41,10 +41,12 @@
 			this.ftAccountsUserControl = new QvaDev.Duplicat.Views.FtAccountsUserControl();
 			this.tabPageIlyaFastFeed = new System.Windows.Forms.TabPage();
 			this.iffAccountsUserControl = new QvaDev.Duplicat.Views.IffAccountsUserControl();
-			this.tabPageCqg = new System.Windows.Forms.TabPage();
-			this.cqgAccountsUserControl = new QvaDev.Duplicat.Views.CqgAccountsUserControl();
+			this.tabPageClientApi = new System.Windows.Forms.TabPage();
+			this._clientAccountsUserControl = new QvaDev.Duplicat.Views.ClientAccountsUserControl();
 			this.tabPageAggregator = new System.Windows.Forms.TabPage();
 			this.aggregatorUserControl = new QvaDev.Duplicat.Views.AggregatorUserControl();
+			this.tabPageProxy = new System.Windows.Forms.TabPage();
+			this.proxyUserControl = new QvaDev.Duplicat.Views.ProxyUserControl();
 			this.tabPageCopier = new System.Windows.Forms.TabPage();
 			this.copiersUserControl = new QvaDev.Duplicat.Views.CopiersUserControl();
 			this.tabPagePush = new System.Windows.Forms.TabPage();
@@ -71,8 +73,6 @@
 			this.btnDisconnect = new System.Windows.Forms.Button();
 			this.btnConnect = new System.Windows.Forms.Button();
 			this.btnSave = new System.Windows.Forms.Button();
-			this.tabPageProxy = new System.Windows.Forms.TabPage();
-			this.proxyUserControl = new QvaDev.Duplicat.Views.ProxyUserControl();
 			this.tabControlMain.SuspendLayout();
 			this.tabPageProfile.SuspendLayout();
 			this.tabPageAccount.SuspendLayout();
@@ -81,8 +81,9 @@
 			this.tabPageCt.SuspendLayout();
 			this.tabPageFix.SuspendLayout();
 			this.tabPageIlyaFastFeed.SuspendLayout();
-			this.tabPageCqg.SuspendLayout();
+			this.tabPageClientApi.SuspendLayout();
 			this.tabPageAggregator.SuspendLayout();
+			this.tabPageProxy.SuspendLayout();
 			this.tabPageCopier.SuspendLayout();
 			this.tabPagePush.SuspendLayout();
 			this.tabPageStrategy.SuspendLayout();
@@ -96,7 +97,6 @@
 			this.tabPage3.SuspendLayout();
 			this.tlpMain.SuspendLayout();
 			this.gbControl.SuspendLayout();
-			this.tabPageProxy.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// tabControlMain
@@ -156,7 +156,7 @@
 			this.tabControlAccounts.Controls.Add(this.tabPageCt);
 			this.tabControlAccounts.Controls.Add(this.tabPageFix);
 			this.tabControlAccounts.Controls.Add(this.tabPageIlyaFastFeed);
-			this.tabControlAccounts.Controls.Add(this.tabPageCqg);
+			this.tabControlAccounts.Controls.Add(this.tabPageClientApi);
 			this.tabControlAccounts.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.tabControlAccounts.Location = new System.Drawing.Point(3, 3);
 			this.tabControlAccounts.Name = "tabControlAccounts";
@@ -241,23 +241,23 @@
 			this.iffAccountsUserControl.Size = new System.Drawing.Size(1471, 698);
 			this.iffAccountsUserControl.TabIndex = 0;
 			// 
-			// tabPageCqg
+			// tabPageClientApi
 			// 
-			this.tabPageCqg.Controls.Add(this.cqgAccountsUserControl);
-			this.tabPageCqg.Location = new System.Drawing.Point(4, 25);
-			this.tabPageCqg.Name = "tabPageCqg";
-			this.tabPageCqg.Size = new System.Drawing.Size(1471, 698);
-			this.tabPageCqg.TabIndex = 4;
-			this.tabPageCqg.Text = "CQG Client API";
-			this.tabPageCqg.UseVisualStyleBackColor = true;
+			this.tabPageClientApi.Controls.Add(this._clientAccountsUserControl);
+			this.tabPageClientApi.Location = new System.Drawing.Point(4, 25);
+			this.tabPageClientApi.Name = "tabPageClientApi";
+			this.tabPageClientApi.Size = new System.Drawing.Size(1471, 698);
+			this.tabPageClientApi.TabIndex = 4;
+			this.tabPageClientApi.Text = "CQG and IB";
+			this.tabPageClientApi.UseVisualStyleBackColor = true;
 			// 
-			// cqgAccountsUserControl
+			// _clientAccountsUserControl
 			// 
-			this.cqgAccountsUserControl.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.cqgAccountsUserControl.Location = new System.Drawing.Point(0, 0);
-			this.cqgAccountsUserControl.Name = "cqgAccountsUserControl";
-			this.cqgAccountsUserControl.Size = new System.Drawing.Size(1471, 698);
-			this.cqgAccountsUserControl.TabIndex = 0;
+			this._clientAccountsUserControl.Dock = System.Windows.Forms.DockStyle.Fill;
+			this._clientAccountsUserControl.Location = new System.Drawing.Point(0, 0);
+			this._clientAccountsUserControl.Name = "_clientAccountsUserControl";
+			this._clientAccountsUserControl.Size = new System.Drawing.Size(1471, 698);
+			this._clientAccountsUserControl.TabIndex = 0;
 			// 
 			// tabPageAggregator
 			// 
@@ -277,6 +277,24 @@
 			this.aggregatorUserControl.Name = "aggregatorUserControl";
 			this.aggregatorUserControl.Size = new System.Drawing.Size(1479, 727);
 			this.aggregatorUserControl.TabIndex = 0;
+			// 
+			// tabPageProxy
+			// 
+			this.tabPageProxy.Controls.Add(this.proxyUserControl);
+			this.tabPageProxy.Location = new System.Drawing.Point(4, 25);
+			this.tabPageProxy.Name = "tabPageProxy";
+			this.tabPageProxy.Size = new System.Drawing.Size(1485, 733);
+			this.tabPageProxy.TabIndex = 13;
+			this.tabPageProxy.Text = "Proxies";
+			this.tabPageProxy.UseVisualStyleBackColor = true;
+			// 
+			// proxyUserControl
+			// 
+			this.proxyUserControl.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.proxyUserControl.Location = new System.Drawing.Point(0, 0);
+			this.proxyUserControl.Name = "proxyUserControl";
+			this.proxyUserControl.Size = new System.Drawing.Size(1485, 733);
+			this.proxyUserControl.TabIndex = 0;
 			// 
 			// tabPageCopier
 			// 
@@ -569,24 +587,6 @@
 			this.btnSave.Text = "Save config changes";
 			this.btnSave.UseVisualStyleBackColor = true;
 			// 
-			// tabPageProxy
-			// 
-			this.tabPageProxy.Controls.Add(this.proxyUserControl);
-			this.tabPageProxy.Location = new System.Drawing.Point(4, 25);
-			this.tabPageProxy.Name = "tabPageProxy";
-			this.tabPageProxy.Size = new System.Drawing.Size(1485, 733);
-			this.tabPageProxy.TabIndex = 13;
-			this.tabPageProxy.Text = "Proxies";
-			this.tabPageProxy.UseVisualStyleBackColor = true;
-			// 
-			// proxyUserControl
-			// 
-			this.proxyUserControl.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.proxyUserControl.Location = new System.Drawing.Point(0, 0);
-			this.proxyUserControl.Name = "proxyUserControl";
-			this.proxyUserControl.Size = new System.Drawing.Size(1485, 733);
-			this.proxyUserControl.TabIndex = 0;
-			// 
 			// MainForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -604,8 +604,9 @@
 			this.tabPageCt.ResumeLayout(false);
 			this.tabPageFix.ResumeLayout(false);
 			this.tabPageIlyaFastFeed.ResumeLayout(false);
-			this.tabPageCqg.ResumeLayout(false);
+			this.tabPageClientApi.ResumeLayout(false);
 			this.tabPageAggregator.ResumeLayout(false);
+			this.tabPageProxy.ResumeLayout(false);
 			this.tabPageCopier.ResumeLayout(false);
 			this.tabPagePush.ResumeLayout(false);
 			this.tabPageStrategy.ResumeLayout(false);
@@ -620,7 +621,6 @@
 			this.tlpMain.ResumeLayout(false);
 			this.gbControl.ResumeLayout(false);
 			this.gbControl.PerformLayout();
-			this.tabPageProxy.ResumeLayout(false);
 			this.ResumeLayout(false);
 
         }
@@ -671,8 +671,8 @@
 		private System.Windows.Forms.TabPage tabPage3;
 		private System.Windows.Forms.RichTextBox rtbAll;
 		private IffAccountsUserControl iffAccountsUserControl;
-		private System.Windows.Forms.TabPage tabPageCqg;
-		private CqgAccountsUserControl cqgAccountsUserControl;
+		private System.Windows.Forms.TabPage tabPageClientApi;
+		private ClientAccountsUserControl _clientAccountsUserControl;
 		private System.Windows.Forms.TabPage tabPageAggregator;
 		private AggregatorUserControl aggregatorUserControl;
 		private System.Windows.Forms.TabControl tabControlStrategies;

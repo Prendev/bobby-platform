@@ -19,6 +19,9 @@ namespace QvaDev.Data.Models
 		public int? CqgClientApiAccountId { get; set; }
 		public CqgClientApiAccount CqgClientApiAccount { get; set; }
 
+		public int? IbAccountId { get; set; }
+		public IbAccount IbAccount { get; set; }
+
 		public int? CTraderAccountId { get; set; }
 		public CTraderAccount CTraderAccount { get; set; }
 

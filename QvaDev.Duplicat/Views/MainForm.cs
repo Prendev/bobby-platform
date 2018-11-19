@@ -3,7 +3,6 @@ using System.Threading;
 using System.Windows.Forms;
 using QvaDev.Common;
 using QvaDev.Common.Services;
-using QvaDev.Communication;
 using QvaDev.Data.Models;
 using QvaDev.Duplicat.ViewModel;
 

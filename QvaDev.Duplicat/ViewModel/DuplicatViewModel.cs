@@ -50,6 +50,7 @@ namespace QvaDev.Duplicat.ViewModel
 	    public ObservableCollection<FixApiAccount> FixAccounts { get; private set; }
 	    public ObservableCollection<IlyaFastFeedAccount> IlyaFastFeedAccounts { get; private set; }
 	    public ObservableCollection<CqgClientApiAccount> CqgClientApiAccounts { get; private set; }
+	    public ObservableCollection<IbAccount> IbAccounts { get; private set; }
 		public ObservableCollection<Profile> Profiles { get; private set; }
 		public ObservableCollection<Account> Accounts { get; private set; }
 		public ObservableCollection<Aggregator> Aggregators { get; private set; }
@@ -136,6 +137,7 @@ namespace QvaDev.Duplicat.ViewModel
 			_duplicatContext.FixApiAccounts.Load();
 			_duplicatContext.IlyaFastFeedAccounts.Load();
 			_duplicatContext.CqgClientApiAccounts.Load();
+			_duplicatContext.IbAccounts.Load();
 			_duplicatContext.Profiles.Load();
 		    _duplicatContext.Proxies.Load();
 		    _duplicatContext.ProfileProxies.Where(e => e.ProfileId == p).Load();
@@ -162,6 +164,7 @@ namespace QvaDev.Duplicat.ViewModel
 			FixAccounts = _duplicatContext.FixApiAccounts.Local.ToObservableCollection();
 			IlyaFastFeedAccounts = _duplicatContext.IlyaFastFeedAccounts.Local.ToObservableCollection();
 			CqgClientApiAccounts = _duplicatContext.CqgClientApiAccounts.Local.ToObservableCollection();
+			IbAccounts = _duplicatContext.IbAccounts.Local.ToObservableCollection();
 			Profiles = _duplicatContext.Profiles.Local.ToObservableCollection();
 			Accounts = _duplicatContext.Accounts.Local.ToObservableCollection();
 			Aggregators = _duplicatContext.Aggregators.Local.ToObservableCollection();

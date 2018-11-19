@@ -216,11 +216,11 @@
     <Compile Include="Views\ProxyUserControl.Designer.cs">
       <DependentUpon>ProxyUserControl.cs</DependentUpon>
     </Compile>
-    <Compile Include="Views\_Accounts\CqgAccountsUserControl.cs">
+    <Compile Include="Views\_Accounts\ClientAccountsUserControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Views\_Accounts\CqgAccountsUserControl.Designer.cs">
-      <DependentUpon>CqgAccountsUserControl.cs</DependentUpon>
+    <Compile Include="Views\_Accounts\ClientAccountsUserControl.Designer.cs">
+      <DependentUpon>ClientAccountsUserControl.cs</DependentUpon>
     </Compile>
     <Compile Include="Views\_Accounts\CtAccountsUserControl.cs">
       <SubType>UserControl</SubType>
@@ -297,8 +297,8 @@
     <EmbeddedResource Include="Views\ProxyUserControl.resx">
       <DependentUpon>ProxyUserControl.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Views\_Accounts\CqgAccountsUserControl.resx">
-      <DependentUpon>CqgAccountsUserControl.cs</DependentUpon>
+    <EmbeddedResource Include="Views\_Accounts\ClientAccountsUserControl.resx">
+      <DependentUpon>ClientAccountsUserControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\_Accounts\CtAccountsUserControl.resx">
       <DependentUpon>CtAccountsUserControl.cs</DependentUpon>
