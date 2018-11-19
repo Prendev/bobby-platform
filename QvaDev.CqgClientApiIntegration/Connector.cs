@@ -81,7 +81,6 @@ namespace QvaDev.CqgClientApiIntegration
 		{
 			lock (_lock) _shouldConnect = true;
 			return InnerConnect();
-
 		}
 
 		private async Task InnerConnect()
