@@ -72,7 +72,7 @@ namespace QvaDev.IbIntegration
 
 		public void nextValidId(int orderId)
 		{
-			
+			_taskCompletionManager.SetResult(_accountInfo.Description, orderId, true);
 		}
 
 		public void managedAccounts(string accountsList)
@@ -82,7 +82,7 @@ namespace QvaDev.IbIntegration
 
 		public void connectionClosed()
 		{
-			
+			OnConnectionChanged(GetStatus());
 		}
 
 		public void accountSummary(int reqId, string account, string tag, string value, string currency)
@@ -129,7 +129,6 @@ namespace QvaDev.IbIntegration
 
 		public void openOrder(int orderId, Contract contract, Order order, OrderState orderState)
 		{
-			
 		}
 
 		public void openOrderEnd()
@@ -271,7 +270,8 @@ namespace QvaDev.IbIntegration
 
 		public void connectAck()
 		{
-			
+			_taskCompletionManager.SetCompleted(_accountInfo.Description, true);
+			OnConnectionChanged(GetStatus());
 		}
 
 		public void positionMulti(int requestId, string account, string modelCode, Contract contract, double pos, double avgCost)
