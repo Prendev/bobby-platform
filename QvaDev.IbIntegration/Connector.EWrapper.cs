@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using IBApi;
 using QvaDev.Common.Integration;
-using Bar = IBApi.Bar;
 
 namespace QvaDev.IbIntegration
 {
@@ -28,7 +27,7 @@ namespace QvaDev.IbIntegration
 			
 		}
 
-		public void tickPrice(int tickerId, int field, double price, TickAttrib attribs)
+		public void tickPrice(int tickerId, int field, double price, int canAutoExecute)
 		{
 			
 		}
@@ -54,7 +53,7 @@ namespace QvaDev.IbIntegration
 			
 		}
 
-		public void deltaNeutralValidation(int reqId, DeltaNeutralContract deltaNeutralContract)
+		public void deltaNeutralValidation(int reqId, UnderComp underComp)
 		{
 			
 		}
@@ -106,7 +105,7 @@ namespace QvaDev.IbIntegration
 		}
 
 		public void updatePortfolio(Contract contract, double position, double marketPrice, double marketValue, double averageCost,
-			double unrealizedPnl, double realizedPnl, string accountName)
+			double unrealisedPNL, double realisedPNL, string accountName)
 		{
 			
 		}
@@ -122,13 +121,14 @@ namespace QvaDev.IbIntegration
 		}
 
 		public void orderStatus(int orderId, string status, double filled, double remaining, double avgFillPrice, int permId,
-			int parentId, double lastFillPrice, int clientId, string whyHeld, double mktCapPrice)
+			int parentId, double lastFillPrice, int clientId, string whyHeld)
 		{
 			
 		}
 
 		public void openOrder(int orderId, Contract contract, Order order, OrderState orderState)
 		{
+			
 		}
 
 		public void openOrderEnd()
@@ -166,12 +166,8 @@ namespace QvaDev.IbIntegration
 			
 		}
 
-		public void historicalData(int reqId, Bar bar)
-		{
-			
-		}
-
-		public void historicalDataUpdate(int reqId, Bar bar)
+		public void historicalData(int reqId, string date, double open, double high, double low, double close, int volume, int count,
+			double WAP, bool hasGaps)
 		{
 			
 		}
@@ -211,7 +207,7 @@ namespace QvaDev.IbIntegration
 			
 		}
 
-		public void realtimeBar(int reqId, long time, double open, double high, double low, double close, long volume, double wap,
+		public void realtimeBar(int reqId, long time, double open, double high, double low, double close, long volume, double WAP,
 			int count)
 		{
 			
@@ -306,123 +302,6 @@ namespace QvaDev.IbIntegration
 		}
 
 		public void softDollarTiers(int reqId, SoftDollarTier[] tiers)
-		{
-			
-		}
-
-		public void familyCodes(FamilyCode[] familyCodes)
-		{
-			
-		}
-
-		public void symbolSamples(int reqId, ContractDescription[] contractDescriptions)
-		{
-			
-		}
-
-		public void mktDepthExchanges(DepthMktDataDescription[] depthMktDataDescriptions)
-		{
-			
-		}
-
-		public void tickNews(int tickerId, long timeStamp, string providerCode, string articleId, string headline, string extraData)
-		{
-			
-		}
-
-		public void smartComponents(int reqId, Dictionary<int, KeyValuePair<string, char>> theMap)
-		{
-			
-		}
-
-		public void tickReqParams(int tickerId, double minTick, string bboExchange, int snapshotPermissions)
-		{
-			
-		}
-
-		public void newsProviders(NewsProvider[] newsProviders)
-		{
-			
-		}
-
-		public void newsArticle(int requestId, int articleType, string articleText)
-		{
-			
-		}
-
-		public void historicalNews(int requestId, string time, string providerCode, string articleId, string headline)
-		{
-			
-		}
-
-		public void historicalNewsEnd(int requestId, bool hasMore)
-		{
-			
-		}
-
-		public void headTimestamp(int reqId, string headTimestamp)
-		{
-			
-		}
-
-		public void histogramData(int reqId, HistogramEntry[] data)
-		{
-			
-		}
-
-		public void rerouteMktDataReq(int reqId, int conId, string exchange)
-		{
-			
-		}
-
-		public void rerouteMktDepthReq(int reqId, int conId, string exchange)
-		{
-			
-		}
-
-		public void marketRule(int marketRuleId, PriceIncrement[] priceIncrements)
-		{
-			
-		}
-
-		public void pnl(int reqId, double dailyPnL, double unrealizedPnL, double realizedPnL)
-		{
-			
-		}
-
-		public void pnlSingle(int reqId, int pos, double dailyPnL, double unrealizedPnL, double realizedPnL, double value)
-		{
-			
-		}
-
-		public void historicalTicks(int reqId, HistoricalTick[] ticks, bool done)
-		{
-			
-		}
-
-		public void historicalTicksBidAsk(int reqId, HistoricalTickBidAsk[] ticks, bool done)
-		{
-			
-		}
-
-		public void historicalTicksLast(int reqId, HistoricalTickLast[] ticks, bool done)
-		{
-			
-		}
-
-		public void tickByTickAllLast(int reqId, int tickType, long time, double price, int size, TickAttrib attribs, string exchange,
-			string specialConditions)
-		{
-			
-		}
-
-		public void tickByTickBidAsk(int reqId, long time, double bidPrice, double askPrice, int bidSize, int askSize,
-			TickAttrib attribs)
-		{
-			
-		}
-
-		public void tickByTickMidPoint(int reqId, long time, double midPoint)
 		{
 			
 		}

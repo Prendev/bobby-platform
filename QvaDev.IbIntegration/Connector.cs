@@ -45,14 +45,12 @@ namespace QvaDev.IbIntegration
 			{
 
 				var signal = new EReaderMonitorSignal();
-				_clientSocket = new EClientSocket(this, signal);
+				_clientSocket = new EClientSocket(this, signal) {AsyncEConnect = false};
+				_clientSocket.eConnect("127.0.0.1", _accountInfo.Port, _accountInfo.ClientId);
 
 				//Create a reader to consume messages from the TWS. The EReader will consume the incoming messages and put them in a queue
 				var reader = new EReader(_clientSocket, signal);
 				reader.Start();
-				var connectTask = _taskCompletionManager.CreateCompletableTask(_accountInfo.Description);
-				_clientSocket.eConnect("127.0.0.1", _accountInfo.Port, _accountInfo.ClientId);
-				await connectTask;
 
 				//Once the messages are in the queue, an additional thread can be created to fetch them
 				new Thread(() =>
@@ -134,9 +132,23 @@ namespace QvaDev.IbIntegration
 			};
 
 			var task = _taskCompletionManager.CreateCompletableTask<OrderResponse>(nextOrderId.ToString());
-			_clientSocket.placeOrder(nextOrderId, new Contract() {Symbol = symbol}, order);
 
-			throw new NotImplementedException();
+			var c = symbol.Split('|');
+			var contract = new Contract()
+			{
+				Symbol = c[0],
+				SecType = c[1],
+				Currency = c[2],
+				Exchange = c[3]
+			};
+			if (c.Length > 4) contract.PrimaryExch = c[4];
+
+
+			_clientSocket.reqContractDetails(symbol.GetHashCode(), contract);
+
+			_clientSocket.placeOrder(nextOrderId, contract, order);
+
+			return new OrderResponse();
 		}
 
 		public Task<OrderResponse> SendMarketOrderRequest(string symbol, Sides side, decimal quantity, int timeout, int retryCount, int retryPeriod)

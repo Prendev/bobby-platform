@@ -66,6 +66,7 @@ namespace QvaDev.Data.Models
 			if (FixApiAccount != null) return $"{(Id == 0 ? "UNSAVED - " : "")}FIX | {FixApiAccount.Description}";
 			if (IlyaFastFeedAccount != null) return $"{(Id == 0 ? "UNSAVED - " : "")}ILYA | {IlyaFastFeedAccount.Description}";
 			if (CqgClientApiAccount != null) return $"{(Id == 0 ? "UNSAVED - " : "")}CQG | {CqgClientApiAccount.Description}";
+			if (IbAccount != null) return $"{(Id == 0 ? "UNSAVED - " : "")}IB | {IbAccount.Description}";
 			return "";
 		}
 	}

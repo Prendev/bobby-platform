@@ -33,9 +33,6 @@
     <Reference Include="Common.Logging.Core, Version=3.4.1.0, Culture=neutral, PublicKeyToken=af08829b84f0328e, processorArchitecture=MSIL">
       <HintPath>..\packages\Common.Logging.Core.3.4.1\lib\net40\Common.Logging.Core.dll</HintPath>
     </Reference>
-    <Reference Include="CSharpAPI">
-      <HintPath>..\Externals\InteractiveBrokersApi\CSharpAPI.dll</HintPath>
-    </Reference>
     <Reference Include="QvaDev">
       <HintPath>..\Externals\QvaDev.Communication.FixApi.Connectors\QvaDev.dll</HintPath>
     </Reference>
@@ -55,6 +52,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\InteractiveBrokersApi\InteractiveBrokersApi.csproj">
+      <Project>{8ede0744-96c2-40b0-a8dc-37df79370203}</Project>
+      <Name>InteractiveBrokersApi</Name>
+    </ProjectReference>
     <ProjectReference Include="..\QvaDev.Common\QvaDev.Common.csproj">
       <Project>{10A3EF89-12BB-4D00-9950-36BFED281B91}</Project>
       <Name>QvaDev.Common</Name>

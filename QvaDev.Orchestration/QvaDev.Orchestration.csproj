@@ -50,9 +50,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Common.Logging.Core, Version=3.4.1.0, Culture=neutral, PublicKeyToken=af08829b84f0328e" />
-    <Reference Include="CSharpAPI">
-      <HintPath>..\Externals\InteractiveBrokersApi\CSharpAPI.dll</HintPath>
-    </Reference>
     <Reference Include="CsvHelper, Version=7.0.0.0, Culture=neutral, PublicKeyToken=8c4959082be5c823, processorArchitecture=MSIL">
       <HintPath>..\packages\CsvHelper.7.1.0\lib\net45\CsvHelper.dll</HintPath>
     </Reference>
@@ -185,6 +182,10 @@
     <Compile Include="Services\ReportService.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\InteractiveBrokersApi\InteractiveBrokersApi.csproj">
+      <Project>{8ede0744-96c2-40b0-a8dc-37df79370203}</Project>
+      <Name>InteractiveBrokersApi</Name>
+    </ProjectReference>
     <ProjectReference Include="..\QvaDev.Common\QvaDev.Common.csproj">
       <Project>{10A3EF89-12BB-4D00-9950-36BFED281B91}</Project>
       <Name>QvaDev.Common</Name>
