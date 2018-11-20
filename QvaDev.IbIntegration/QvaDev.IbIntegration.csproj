@@ -49,6 +49,7 @@
     <Compile Include="AccountInfo.cs" />
     <Compile Include="Connector.cs" />
     <Compile Include="Connector.EWrapper.cs" />
+    <Compile Include="Extensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -9,16 +9,22 @@ namespace QvaDev.IbIntegration
 	{
 		public void error(Exception e)
 		{
-			
+			Logger.Error($"{_accountInfo.Description} account exeption", e);
 		}
 
 		public void error(string str)
 		{
-			
+			Logger.Error($"{_accountInfo.Description} account exeption", new Exception(str));
 		}
 
 		public void error(int id, int errorCode, string errorMsg)
 		{
+			// A notification that connection to the market data server is ok. This is a notification and not a true error condition, and is expected on first establishing connection.
+			if (errorCode == 2104) return;
+			// A notification that connection to the market data server is ok. This is a notification and not a true error condition, and is expected on first establishing connection. 
+			if (errorCode == 2106) return;
+
+			Logger.Error($"{_accountInfo.Description} account exeption with errorCode {errorCode}", new Exception(errorMsg));
 			if (errorCode == -1) OnConnectionChanged(ConnectionStates.Error);
 		}
 
@@ -71,7 +77,8 @@ namespace QvaDev.IbIntegration
 
 		public void nextValidId(int orderId)
 		{
-			_taskCompletionManager.SetResult(_accountInfo.Description, orderId, true);
+			_nextOrderId = orderId;
+			_taskCompletionManager.SetCompleted(_accountInfo.Description, true);
 		}
 
 		public void managedAccounts(string accountsList)
@@ -148,7 +155,13 @@ namespace QvaDev.IbIntegration
 
 		public void execDetails(int reqId, Contract contract, Execution execution)
 		{
-			
+			if (execution.ClientId != _accountInfo.ClientId) return;
+
+			_taskCompletionManager.SetResult(execution.OrderId.ToString(), new OrderResponse()
+			{
+				AveragePrice = (decimal)execution.AvgPrice,
+				FilledQuantity = Math.Abs(execution.CumQty)
+			}, true);
 		}
 
 		public void execDetailsEnd(int reqId)
@@ -266,8 +279,6 @@ namespace QvaDev.IbIntegration
 
 		public void connectAck()
 		{
-			_taskCompletionManager.SetCompleted(_accountInfo.Description, true);
-			OnConnectionChanged(GetStatus());
 		}
 
 		public void positionMulti(int requestId, string account, string modelCode, Contract contract, double pos, double avgCost)

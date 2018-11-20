@@ -15,6 +15,7 @@ namespace QvaDev.IbIntegration
 		private readonly Object _lock = new Object();
 		private volatile bool _isConnecting;
 		private volatile bool _shouldConnect;
+		private volatile int _nextOrderId;
 
 		public override int Id => _accountInfo?.DbId ?? 0;
 		public override string Description => _accountInfo?.Description;
@@ -23,7 +24,7 @@ namespace QvaDev.IbIntegration
 		public Connector(AccountInfo accountInfo)
 		{
 			_accountInfo = accountInfo;
-			_taskCompletionManager = new TaskCompletionManager<string>(100, 200);
+			_taskCompletionManager = new TaskCompletionManager<string>(100, 2000);
 		}
 
 		public async Task Connect()
@@ -43,32 +44,16 @@ namespace QvaDev.IbIntegration
 
 			try
 			{
+				var task = _taskCompletionManager.CreateCompletableTask(Description);
 
 				var signal = new EReaderMonitorSignal();
 				_clientSocket = new EClientSocket(this, signal) {AsyncEConnect = false};
 				_clientSocket.eConnect("127.0.0.1", _accountInfo.Port, _accountInfo.ClientId);
-
-				//Create a reader to consume messages from the TWS. The EReader will consume the incoming messages and put them in a queue
 				var reader = new EReader(_clientSocket, signal);
 				reader.Start();
+				new Thread(() => { while (_shouldConnect && _clientSocket.IsConnected()) { signal.waitForSignal(); reader.processMsgs(); } }) { IsBackground = true }.Start();
 
-				//Once the messages are in the queue, an additional thread can be created to fetch them
-				new Thread(() =>
-					{
-						while (_shouldConnect && _clientSocket.IsConnected())
-						{
-							try
-							{
-								signal.waitForSignal();
-								reader.processMsgs();
-							}
-							catch (Exception e)
-							{
-								Logger.Error($"{Description} Connector.ReadLoop exception", e);
-							}
-						}
-					})
-					{ IsBackground = true }.Start();
+				await task;
 			}
 			catch (Exception e)
 			{
@@ -85,7 +70,7 @@ namespace QvaDev.IbIntegration
 
 			try
 			{
-				_clientSocket?.eDisconnect();
+				_clientSocket?.Close();
 			}
 			catch (Exception e)
 			{
@@ -120,35 +105,44 @@ namespace QvaDev.IbIntegration
 
 		public async Task<OrderResponse> SendMarketOrderRequest(string symbol, Sides side, decimal quantity)
 		{
-			var nextIdTask = _taskCompletionManager.CreateCompletableTask<int>(_accountInfo.Description);
-			_clientSocket.reqIds(-1);
-			var nextOrderId = await nextIdTask;
-
-			var order = new Order
+			var retValue = new OrderResponse()
 			{
-				Action = side.ToString().ToUpperInvariant(),
-				OrderType = "MKT",
-				TotalQuantity = (double)quantity
+				OrderedQuantity = quantity,
+				AveragePrice = null,
+				FilledQuantity = 0,
+				Side = side
 			};
 
-			var task = _taskCompletionManager.CreateCompletableTask<OrderResponse>(nextOrderId.ToString());
-
-			var c = symbol.Split('|');
-			var contract = new Contract()
+			try
 			{
-				Symbol = c[0],
-				SecType = c[1],
-				Currency = c[2],
-				Exchange = c[3]
-			};
-			if (c.Length > 4) contract.PrimaryExch = c[4];
+				var contract = symbol.ToContract();
+				if (contract == null)
+				{
+					Logger.Error($"{Description} Connector.SendMarketOrderRequest({symbol}, {side}, {quantity}) wrong symbol format");
+					return retValue;
+				}
 
+				var order = new Order
+				{
+					Action = side.ToString().ToUpperInvariant(),
+					OrderType = "MKT",
+					TotalQuantity = (double)quantity
+				};
 
-			_clientSocket.reqContractDetails(symbol.GetHashCode(), contract);
+				var task = _taskCompletionManager.CreateCompletableTask<OrderResponse>(_nextOrderId.ToString());
+				_clientSocket.placeOrder(_nextOrderId++, contract, order);
 
-			_clientSocket.placeOrder(nextOrderId, contract, order);
+				var response = await task;
+				response.Side = side;
+				response.OrderedQuantity = quantity;
+				return response;
+			}
+			catch (Exception e)
+			{
+				Logger.Error($"{Description} Connector.SendMarketOrderRequest({symbol}, {side}, {quantity}) exception", e);
+			}
 
-			return new OrderResponse();
+			return retValue;
 		}
 
 		public Task<OrderResponse> SendMarketOrderRequest(string symbol, Sides side, decimal quantity, int timeout, int retryCount, int retryPeriod)
