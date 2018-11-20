@@ -24,7 +24,7 @@ namespace QvaDev.IbIntegration
 		public Connector(AccountInfo accountInfo)
 		{
 			_accountInfo = accountInfo;
-			_taskCompletionManager = new TaskCompletionManager<string>(100, 2000);
+			_taskCompletionManager = new TaskCompletionManager<string>(100, 5000);
 		}
 
 		public async Task Connect()
@@ -61,6 +61,7 @@ namespace QvaDev.IbIntegration
 				Reconnect();
 			}
 
+			OnConnectionChanged(GetStatus());
 			_isConnecting = false;
 		}
 
