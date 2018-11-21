@@ -17,7 +17,7 @@ namespace QvaDev.IbIntegration
 		private readonly Object _lock = new Object();
 		private volatile bool _isConnecting;
 		private volatile bool _shouldConnect;
-		private volatile int _nextOrderId;
+		private int _lastOrderId;
 
 		public override int Id => _accountInfo?.DbId ?? 0;
 		public override string Description => _accountInfo?.Description;
@@ -118,6 +118,10 @@ namespace QvaDev.IbIntegration
 
 			try
 			{
+				var orderId = Interlocked.Increment(ref _lastOrderId);
+				Logger.Trace(
+					$"{Description} Connector.SendMarketOrderRequest({symbol}, {side}, {quantity}) opening (#{orderId})...");
+
 				var contract = symbol.ToContract();
 				if (contract == null)
 				{
@@ -132,12 +136,14 @@ namespace QvaDev.IbIntegration
 					TotalQuantity = (double)quantity
 				};
 
-				var task = _taskCompletionManager.CreateCompletableTask<OrderResponse>(_nextOrderId.ToString());
-				_clientSocket.placeOrder(_nextOrderId++, contract, order);
+				var task = _taskCompletionManager.CreateCompletableTask<OrderResponse>(orderId.ToString());
+				_clientSocket.placeOrder(orderId, contract, order);
 
 				var response = await task;
 				response.Side = side;
 				response.OrderedQuantity = quantity;
+				Logger.Trace(
+					$"{Description} Connector.SendMarketOrderRequest({symbol}, {side}, {quantity}) opened (#{orderId}) {response.FilledQuantity} at avg price {response.AveragePrice}");
 				return response;
 			}
 			catch (TimeoutException)

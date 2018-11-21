@@ -87,7 +87,7 @@ namespace QvaDev.IbIntegration
 
 		public void nextValidId(int orderId)
 		{
-			_nextOrderId = orderId;
+			_lastOrderId = orderId - 1;
 			_taskCompletionManager.SetCompleted(_accountInfo.Description, true);
 		}
 
