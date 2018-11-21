@@ -23,9 +23,12 @@ namespace QvaDev.IbIntegration
 			if (errorCode == 2104) return;
 			// A notification that connection to the market data server is ok. This is a notification and not a true error condition, and is expected on first establishing connection. 
 			if (errorCode == 2106) return;
+			// Note: -1 will indicate a notification and not true error condition.
+			if (id == -1) return;
 
 			Logger.Error($"{_accountInfo.Description} account exeption with errorCode {errorCode}", new Exception(errorMsg));
 			if (errorCode == -1) OnConnectionChanged(ConnectionStates.Error);
+			_taskCompletionManager.SetError(id.ToString(), new Exception(errorMsg));
 		}
 
 		public void currentTime(long time)
