@@ -8,16 +8,14 @@ namespace QvaDev.IbIntegration
 		{
 			if (string.IsNullOrWhiteSpace(symbol)) return null;
 			var c = symbol.Split('|');
-			if (c.Length != 4 && c.Length != 5) return null;
+			if (c.Length != 3) return null;
 
 			var contract = new Contract()
 			{
-				Symbol = c[0],
-				SecType = c[1],
-				Currency = c[2],
-				Exchange = c[3]
+				SecType = c[0],
+				Exchange = c[1],
+				LocalSymbol = c[2],
 			};
-			if (c.Length > 4) contract.PrimaryExch = c[4];
 
 			return contract;
 		}

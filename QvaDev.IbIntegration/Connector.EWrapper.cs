@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using IBApi;
 using QvaDev.Common.Integration;
 
@@ -26,9 +27,15 @@ namespace QvaDev.IbIntegration
 			// Note: -1 will indicate a notification and not true error condition.
 			if (id == -1) return;
 
-			Logger.Error($"{_accountInfo.Description} account exeption with errorCode {errorCode}", new Exception(errorMsg));
-			if (errorCode == -1) OnConnectionChanged(ConnectionStates.Error);
-			_taskCompletionManager.SetError(id.ToString(), new Exception(errorMsg));
+			if (errorCode < 0)
+			{
+				Logger.Error($"{_accountInfo.Description} account exeption with id {id} and errorCode {errorCode}", new Exception(errorMsg));
+				OnConnectionChanged(ConnectionStates.Error);
+			}
+			else if (errorCode == 399)
+				Logger.Warn($"{_accountInfo.Description} account exeption with id {id} and errorCode {errorCode}\n{errorMsg}");
+			else
+				Task.Run(() => _taskCompletionManager.SetError(id.ToString(), new Exception($"{id} | {errorCode} | {errorMsg}")));
 		}
 
 		public void currentTime(long time)
@@ -160,11 +167,13 @@ namespace QvaDev.IbIntegration
 		{
 			if (execution.ClientId != _accountInfo.ClientId) return;
 
-			_taskCompletionManager.SetResult(execution.OrderId.ToString(), new OrderResponse()
+			var response = new OrderResponse()
 			{
-				AveragePrice = (decimal)execution.AvgPrice,
+				AveragePrice = (decimal) execution.AvgPrice,
 				FilledQuantity = Math.Abs(execution.CumQty)
-			}, true);
+			};
+
+			Task.Run(() => _taskCompletionManager.SetResult(execution.OrderId.ToString(), response, true));
 		}
 
 		public void execDetailsEnd(int reqId)

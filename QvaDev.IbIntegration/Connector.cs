@@ -7,7 +7,9 @@ using QvaDev.Common.Integration;
 namespace QvaDev.IbIntegration
 {
     public partial class Connector : ConnectorBase, IFixConnector
-	{
+    {
+	    private const int TASK_TIMEOUT = 5000;
+
 		private EClientSocket _clientSocket;
 		private readonly AccountInfo _accountInfo;
 		private readonly TaskCompletionManager<string> _taskCompletionManager;
@@ -24,7 +26,7 @@ namespace QvaDev.IbIntegration
 		public Connector(AccountInfo accountInfo)
 		{
 			_accountInfo = accountInfo;
-			_taskCompletionManager = new TaskCompletionManager<string>(100, 5000);
+			_taskCompletionManager = new TaskCompletionManager<string>(100, TASK_TIMEOUT);
 		}
 
 		public async Task Connect()
@@ -51,7 +53,7 @@ namespace QvaDev.IbIntegration
 				_clientSocket.eConnect("127.0.0.1", _accountInfo.Port, _accountInfo.ClientId);
 				var reader = new EReader(_clientSocket, signal);
 				reader.Start();
-				new Thread(() => { while (_shouldConnect && _clientSocket.IsConnected()) { signal.waitForSignal(); reader.processMsgs(); } }) { IsBackground = true }.Start();
+				new Thread(() => { while (_shouldConnect && _clientSocket.IsConnected()) { signal.waitForSignal(); reader.processMsgs(); } }) { Name = $"Ib_{Id}", IsBackground = true }.Start();
 
 				await task;
 			}
@@ -137,6 +139,10 @@ namespace QvaDev.IbIntegration
 				response.Side = side;
 				response.OrderedQuantity = quantity;
 				return response;
+			}
+			catch (TimeoutException)
+			{
+				Logger.Error($"{Description} Connector.SendMarketOrderRequest({symbol}, {side}, {quantity}) TIMEOUT exception ({TASK_TIMEOUT} ms)");
 			}
 			catch (Exception e)
 			{
