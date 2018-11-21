@@ -179,6 +179,12 @@ namespace QvaDev.Mt4Integration
 
 		public bool SendClosePositionRequests(Position position, double? lots, int maxRetryCount, int retryPeriodInMs)
         {
+	        if (position == null)
+			{
+				Logger.Error($"Connector.SendClosePositionRequests position is NULL");
+				return false;
+			}
+
             try
 			{
 				Logger.Debug($"{_accountInfo.Description} account ({_accountInfo.User}, {position.Comment}) OrderClient.OrderClose started...");
