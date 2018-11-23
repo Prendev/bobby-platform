@@ -80,7 +80,7 @@ namespace QvaDev.Orchestration
 
 	        await Task.WhenAll(tasks);
 
-	        foreach (var agg in _duplicatContext.Aggregators.Where(a => a.Run))
+	        foreach (var agg in _duplicatContext.Aggregators.Local.Where(a => a.Run))
 	        {
 		        var aggAccounts = agg.Accounts
 			        .Where(a => a.Account.Run)
@@ -106,7 +106,7 @@ namespace QvaDev.Orchestration
             _duplicatContext.SaveChanges();
 
 	        _proxyService.Stop();
-			foreach (var agg in _duplicatContext.Aggregators)
+			foreach (var agg in _duplicatContext.Aggregators.Local)
 	        {
 		        agg.QuoteAggregator?.Dispose();
 		        agg.QuoteAggregator = null;
