@@ -98,22 +98,29 @@ namespace QvaDev.Duplicat.ViewModel
 
         private void DuplicatViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-			if (e.PropertyName == nameof(SelectedPushing))
-			{
-				IsPushingEnabled = SelectedPushing?.IsConnected == true;
-				if (SelectedPushing != null)
-				{
-					SelectedPushing.ConnectionChanged -= SelectedPushing_ConnectionChanged;
-					SelectedPushing.ConnectionChanged += SelectedPushing_ConnectionChanged;
-				}
-			}
-			else if (e.PropertyName == nameof(IsConfigReadonly) || e.PropertyName == nameof(SelectedSlave))
-				IsCopierConfigAddEnabled = !IsConfigReadonly && SelectedSlave?.Id > 0;
+	        if (e.PropertyName == nameof(SelectedPushing))
+	        {
+		        SetPushingEnabled();
+		        if (SelectedPushing != null)
+		        {
+			        SelectedPushing.ConnectionChanged -= SelectedPushing_ConnectionChanged;
+			        SelectedPushing.ConnectionChanged += SelectedPushing_ConnectionChanged;
+		        }
+	        }
+	        else if (e.PropertyName == nameof(IsConfigReadonly) || e.PropertyName == nameof(SelectedSlave))
+		        IsCopierConfigAddEnabled = !IsConfigReadonly && SelectedSlave?.Id > 0;
+			else if (e.PropertyName == nameof(AreCopiersStarted))
+		        SetPushingEnabled();
 		}
 
 		private void SelectedPushing_ConnectionChanged(object sender, Common.Integration.ConnectionStates connectionStates)
 		{
-			IsPushingEnabled = SelectedPushing?.IsConnected == true;
+			SetPushingEnabled();
+		}
+
+	    private void SetPushingEnabled()
+		{
+			IsPushingEnabled = SelectedPushing?.IsConnected == true && AreCopiersStarted;
 		}
 
 		private void InitDataContext()
