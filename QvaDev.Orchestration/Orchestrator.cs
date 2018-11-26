@@ -83,7 +83,7 @@ namespace QvaDev.Orchestration
 	        foreach (var agg in _duplicatContext.Aggregators.Local.Where(a => a.Run))
 	        {
 		        var aggAccounts = agg.Accounts
-			        .Where(a => a.Account.Run)
+			        .Where(a => a.Account?.Run == true)
 			        .Where(a => a.Account.FixApiAccountId.HasValue)
 			        .Where(a => a.Account.Connector is FixApiIntegration.Connector)
 			        .ToList();
