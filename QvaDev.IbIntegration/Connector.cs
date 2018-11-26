@@ -6,7 +6,7 @@ using QvaDev.Common.Integration;
 
 namespace QvaDev.IbIntegration
 {
-    public partial class Connector : ConnectorBase, IFixConnector
+    public partial class Connector : FixApiConnectorBase
     {
 	    private const int TASK_TIMEOUT = 5000;
 
@@ -81,17 +81,12 @@ namespace QvaDev.IbIntegration
 			}
 		}
 
-		public override Tick GetLastTick(string symbol)
-		{
-			throw new System.NotImplementedException();
-		}
+	    public override void Subscribe(string symbol)
+	    {
+		    throw new NotImplementedException();
+	    }
 
-		public override void Subscribe(string symbol)
-		{
-			throw new System.NotImplementedException();
-		}
-
-		private ConnectionStates GetStatus()
+	    private ConnectionStates GetStatus()
 		{
 			if (IsConnected) return ConnectionStates.Connected;
 			return _shouldConnect ? ConnectionStates.Error : ConnectionStates.Disconnected;
@@ -106,7 +101,7 @@ namespace QvaDev.IbIntegration
 			await InnerConnect();
 		}
 
-		public async Task<OrderResponse> SendMarketOrderRequest(string symbol, Sides side, decimal quantity)
+		public override async Task<OrderResponse> SendMarketOrderRequest(string symbol, Sides side, decimal quantity)
 		{
 			var retValue = new OrderResponse()
 			{
@@ -156,27 +151,6 @@ namespace QvaDev.IbIntegration
 			}
 
 			return retValue;
-		}
-
-		public Task<OrderResponse> SendMarketOrderRequest(string symbol, Sides side, decimal quantity, int timeout, int retryCount, int retryPeriod)
-		{
-			throw new NotImplementedException();
-		}
-
-		public Task<OrderResponse> SendAggressiveOrderRequest(string symbol, Sides side, decimal quantity, decimal limitPrice, decimal deviation,
-			int timeout, int retryCount, int retryPeriod)
-		{
-			throw new NotImplementedException();
-		}
-
-		public void OrderMultipleCloseBy(string symbol)
-		{
-			throw new NotImplementedException();
-		}
-
-		public SymbolData GetSymbolInfo(string symbol)
-		{
-			throw new NotImplementedException();
 		}
 	}
 }

@@ -1,6 +1,7 @@
 ﻿using CQG;
 using QvaDev.Common.Integration;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -12,6 +13,8 @@ namespace QvaDev.CqgClientApiIntegration
 		private readonly AccountInfo _accountInfo;
 		private readonly TaskCompletionManager<string> _taskCompletionManager;
 		private readonly List<string> _subscribes = new List<string>();
+		private readonly ConcurrentDictionary<OrderResponse, CQGOrder> _orderMapping =
+			new ConcurrentDictionary<OrderResponse, CQGOrder>();
 
 		private readonly Object _lock = new Object();
 		private volatile bool _isConnecting;
@@ -179,20 +182,61 @@ namespace QvaDev.CqgClientApiIntegration
 			}
 		}
 
-		public override Task<OrderResponse> SendMarketOrderRequest(string symbol, Sides side, decimal quantity, int timeout, int retryCount, int retryPeriod)
+		public override async Task<OrderResponse> SendSpoofOrderRequest(string symbol, Sides side, decimal quantity, decimal limitPrice, string comment = null)
 		{
-			throw new NotImplementedException();
+			try
+			{
+				quantity = Math.Abs(quantity);
+				var cqgQuantity = (int)quantity;
+				if (side == Sides.Sell) cqgQuantity *= -1;
+
+				var datetime = HiResDatetime.UtcNow;
+				var key = $"[{(datetime - datetime.Date).TotalMilliseconds:0000000.000}]";
+				var task = _taskCompletionManager.CreateCompletableTask<OrderResponse>(key);
+
+				var order = _cqgCel.CreateOrderByInstrumentName(eOrderType.otLimit, symbol, CqgAccount, cqgQuantity, eOrderSide.osdUndefined,
+					(double)limitPrice, 0, key);
+				order.DurationType = eOrderDuration.odDay;
+				order.Place();
+
+				var response = await task;
+				response.Side = side;
+				response.OrderedQuantity = quantity;
+				return response;
+			}
+			catch (Exception e)
+			{
+				Logger.Error($"{Description} Connector.SendMarketOrderRequest({symbol}, {side}, {quantity}, {comment}) exception", e);
+				return new OrderResponse()
+				{
+					OrderedQuantity = quantity,
+					AveragePrice = null,
+					FilledQuantity = 0,
+					Side = side
+				};
+			}
 		}
 
-		public override Task<OrderResponse> SendAggressiveOrderRequest(string symbol, Sides side, decimal quantity, decimal limitPrice, decimal deviation,
-			int timeout, int retryCount, int retryPeriod)
+		public override async Task<bool> ChangeLimitPrice(OrderResponse response, decimal limitPrice)
 		{
-			throw new NotImplementedException();
-		}
+			CQGOrder order = null;
+			try
+			{
+				if (!_orderMapping.TryGetValue(response, out order)) return false;
+				var modify = order.PrepareModify();
+				if (modify.Properties[eOrderProperty.opLimitPrice] == null) return false;
+				modify.Properties[eOrderProperty.opLimitPrice].Value = (double)limitPrice;
 
-		public override void OrderMultipleCloseBy(string symbol)
-		{
-			throw new NotImplementedException();
+				var task = _taskCompletionManager.CreateCompletableTask<bool>(OrderKey(order));
+				order.Modify(modify);
+				return await task;
+			}
+			catch (Exception e)
+			{
+				Logger.Error($"{Description} Connector.ChangeLimitPrice({order.InstrumentName}, {response.Side}, {response.OrderedQuantity}) exception", e);
+			}
+
+			return false;
 		}
 
 		private async void Reconnect(int delay = 30000)
@@ -294,11 +338,13 @@ namespace QvaDev.CqgClientApiIntegration
 				});
 
 			if (orderKey == null) return;
-			_taskCompletionManager.SetResult(orderKey, new OrderResponse()
+			var response = new OrderResponse()
 			{
 				AveragePrice = (decimal) cqgFill.Price,
 				FilledQuantity = Math.Abs(quantity)
-			}, true);
+			};
+			_orderMapping.AddOrUpdate(response, cqgOrder, (or, o) => cqgOrder);
+			_taskCompletionManager.SetResult(orderKey, response, true);
 		}
 
 		private void _cqgCel_InstrumentChanged(CQGInstrument cqgInstrument, CQGQuotes cqgQuotes, CQGInstrumentProperties cqgInstrumentProperties)
