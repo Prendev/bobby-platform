@@ -14,10 +14,10 @@ namespace QvaDev.Common.Integration
 			decimal limitPrice, decimal deviation,
 			int timeout, int retryCount, int retryPeriod);
 
-		Task<OrderResponse> SendSpoofOrderRequest(string symbol, Sides side, decimal quantity,
-			decimal limitPrice, string comment = null);
+		Task<LimitResponse> SendSpoofOrderRequest(string symbol, Sides side, decimal quantity, decimal limitPrice);
 
-		Task<bool> ChangeLimitPrice(OrderResponse response, decimal limitPrice);
+		Task<bool> ChangeLimitPrice(LimitResponse response, decimal limitPrice);
+		Task<bool> CancelLimit(LimitResponse response);
 
 		void OrderMultipleCloseBy(string symbol);
 		SymbolData GetSymbolInfo(string symbol);

@@ -176,6 +176,7 @@
     <Compile Include="Services\MtAccountImportService.cs" />
     <Compile Include="Services\ProxyService.cs" />
     <Compile Include="Services\Strategies\HubArbService.cs" />
+    <Compile Include="Services\SpoofingService.cs" />
     <Compile Include="Services\TickerService.cs" />
     <Compile Include="Services\CopierService.cs" />
     <Compile Include="Services\Strategies\PushingService.cs" />

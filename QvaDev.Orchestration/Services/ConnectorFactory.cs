@@ -23,9 +23,9 @@ namespace QvaDev.Orchestration.Services
 			else if (account.CTraderAccountId.HasValue) ConenctCtAccount(account);
 			else if (account.FixTraderAccountId.HasValue) ConnectFtAccount(account);
 			else if (account.FixApiAccountId.HasValue) await ConnectFixAccount(account);
-			else if (account.IlyaFastFeedAccountId.HasValue) ConnectIlyaFastFeedAccount(account);
-			else if (account.CqgClientApiAccountId.HasValue) ConnectCqgClientApiAccount(account);
-			else if (account.IbAccountId.HasValue) ConnectIbAccount(account);
+			else if (account.IlyaFastFeedAccountId.HasValue) await ConnectIlyaFastFeedAccount(account);
+			else if (account.CqgClientApiAccountId.HasValue) await ConnectCqgClientApiAccount(account);
+			else if (account.IbAccountId.HasValue) await ConnectIbAccount(account);
 		}
 
 		private void ConnectMtAccount(Account account)
@@ -120,7 +120,7 @@ namespace QvaDev.Orchestration.Services
 			await ((FixApiIntegration.Connector) account.Connector).Connect();
 		}
 
-		private async void ConnectIlyaFastFeedAccount(Account account)
+		private async Task ConnectIlyaFastFeedAccount(Account account)
 		{
 			if (!(account.Connector is IlyaFastFeedIntegration.Connector) ||
 			    account.Connector.Id != account.IlyaFastFeedAccountId)
@@ -139,7 +139,7 @@ namespace QvaDev.Orchestration.Services
 			});
 		}
 
-		private async void ConnectCqgClientApiAccount(Account account)
+		private async Task ConnectCqgClientApiAccount(Account account)
 		{
 			if (!(account.Connector is CqgClientApiIntegration.Connector) ||
 			    account.Connector.Id != account.CqgClientApiAccountId)
@@ -157,7 +157,7 @@ namespace QvaDev.Orchestration.Services
 			await ((CqgClientApiIntegration.Connector)account.Connector).Connect();
 		}
 
-		private async void ConnectIbAccount(Account account)
+		private async Task ConnectIbAccount(Account account)
 		{
 			if (!(account.Connector is IbIntegration.Connector) ||
 			    account.Connector.Id != account.IbAccountId)
@@ -172,7 +172,7 @@ namespace QvaDev.Orchestration.Services
 					ClientId = account.IbAccount.ClientId
 				});
 
-			((IbIntegration.Connector)account.Connector).Connect();
+			await ((IbIntegration.Connector)account.Connector).Connect();
 		}
 	}
 }

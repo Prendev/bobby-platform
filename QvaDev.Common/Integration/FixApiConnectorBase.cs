@@ -30,10 +30,11 @@ namespace QvaDev.Common.Integration
 		public virtual Task<OrderResponse> SendAggressiveOrderRequest(string symbol, Sides side, decimal quantity, decimal limitPrice, decimal deviation,
 			int timeout, int retryCount, int retryPeriod) => throw new NotImplementedException();
 
-		public virtual Task<OrderResponse> SendSpoofOrderRequest(string symbol, Sides side, decimal quantity,
-			decimal limitPrice, string comment = null) => throw new NotImplementedException();
+		public virtual Task<LimitResponse> SendSpoofOrderRequest(string symbol, Sides side, decimal quantity,
+			decimal limitPrice) => throw new NotImplementedException();
 
-		public virtual Task<bool> ChangeLimitPrice(OrderResponse response, decimal limitPrice) => throw new NotImplementedException();
+		public virtual Task<bool> ChangeLimitPrice(LimitResponse response, decimal limitPrice) => throw new NotImplementedException();
+		public virtual Task<bool> CancelLimit(LimitResponse response) => throw new NotImplementedException();
 
 		public virtual void OrderMultipleCloseBy(string symbol) => throw new NotImplementedException();
 	}
