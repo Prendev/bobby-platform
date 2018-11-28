@@ -7,12 +7,12 @@ namespace QvaDev.Orchestration.Services
 {
 	public interface ISpoofingService
 	{
-		CancellationTokenSource Spoofing(Spoof spoof, Sides side);
+		SpoofingState Spoofing(Spoof spoof, Sides side);
 	}
 
 	public class SpoofingService : ISpoofingService
 	{
-		public CancellationTokenSource Spoofing(Spoof spoof, Sides side)
+		public SpoofingState Spoofing(Spoof spoof, Sides side)
 		{
 			if (!(spoof.TradeAccount?.Connector is IFixConnector)) return null;
 			if (spoof.FeedAccount == null) return null;
@@ -21,23 +21,22 @@ namespace QvaDev.Orchestration.Services
 			if (side == Sides.None) return null;
 			if (spoof.Size <= 0) return null;
 
-			var cancel = new CancellationTokenSource();
-			new Thread(() => Loop(spoof, side, cancel.Token)) { IsBackground = true }.Start();
-			return cancel;
+			var state = new SpoofingState();
+			new Thread(() => Loop(spoof, side, state)) { IsBackground = true }.Start();
+			return state;
 		}
 
-		private void Loop(Spoof spoof, Sides side, CancellationToken token)
+		private void Loop(Spoof spoof, Sides side, SpoofingState state)
 		{
 			var tradeConnector = (IFixConnector)spoof.TradeAccount.Connector;
 			spoof.FeedAccount.Connector.Subscribe(spoof.FeedSymbol);
-			LimitResponse limitResponse = null;
 
 			NewTick lastTick = null;
 			var waitHandle = new AutoResetEvent(false);
 
 			void NewTick(object s, NewTick e)
 			{
-				if (token.IsCancellationRequested) return;
+				if (state.IsCancellationRequested) return;
 				if (e.Tick.Symbol != spoof.FeedSymbol) return;
 				lastTick = e;
 				waitHandle.Set();
@@ -45,15 +44,17 @@ namespace QvaDev.Orchestration.Services
 
 			var changed = false;
 			spoof.FeedAccount.Connector.NewTick += NewTick;
-			while (!token.IsCancellationRequested)
+			while (!state.IsCancellationRequested)
 			{
 				try
 				{
 					if (!waitHandle.WaitOne(10)) continue;
+					if (state.IsCancellationRequested) break;
+
 					var price = GetPrice(spoof, side, lastTick);
-					if (limitResponse == null)
-						limitResponse = tradeConnector.SendSpoofOrderRequest(spoof.TradeSymbol, side, spoof.Size, price).Result;
-					else changed = tradeConnector.ChangeLimitPrice(limitResponse, price).Result;
+					if (state.LimitResponse == null)
+						state.LimitResponse = tradeConnector.SendSpoofOrderRequest(spoof.TradeSymbol, side, spoof.Size, price).Result;
+					else changed = tradeConnector.ChangeLimitPrice(state.LimitResponse, price).Result;
 				}
 				catch (Exception e)
 				{
@@ -64,7 +65,7 @@ namespace QvaDev.Orchestration.Services
 
 			try
 			{
-				var canceled = tradeConnector.CancelLimit(limitResponse).Result;
+				var canceled = tradeConnector.CancelLimit(state.LimitResponse).Result;
 				waitHandle.Dispose();
 			}
 			catch (Exception e)

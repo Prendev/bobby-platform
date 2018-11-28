@@ -45,7 +45,7 @@ namespace QvaDev.OrchestrationTests.Services
 			};
 			connectorFactory.Create(feedAccount).Wait();
 			connectorFactory.Create(tradeAccount).Wait();
-			Spoof = new Spoof(feedAccount, "FUT|DTB|FDAX DEC 18", tradeAccount, "F.US.DDZ18", 1, 1m);
+			Spoof = new Spoof(feedAccount, "FUT|DTB|FDAX DEC 18", tradeAccount, "F.US.DDZ18", 100, 0.5m);
 
 			Assert.IsTrue(feedAccount.Connector.IsConnected);
 			Assert.IsTrue(tradeAccount.Connector.IsConnected);
@@ -62,12 +62,12 @@ namespace QvaDev.OrchestrationTests.Services
 		public void SpoofTest()
 		{
 			// Act
-			var cancelToken = SpoofingService.Spoofing(Spoof, Sides.Buy);
+			var state = SpoofingService.Spoofing(Spoof, Sides.Buy);
 
 			// Assert
-			Thread.Sleep(new TimeSpan(0, 0, 5));
-			cancelToken.Cancel();
-			Thread.Sleep(new TimeSpan(0, 0, 5));
+			Thread.Sleep(new TimeSpan(0, 0, 60));
+			state.Cancel();
+			Thread.Sleep(new TimeSpan(0, 0, 50000));
 		}
 
 		[Test]
@@ -78,10 +78,12 @@ namespace QvaDev.OrchestrationTests.Services
 
 			// Act
 			//SpoofingService.Spoofing(spoof, Sides.Buy, cancel.Token);
-			var response = fixConnector.SendSpoofOrderRequest(Spoof.TradeSymbol, Sides.Buy, 1, 1).Result;
+			var response = fixConnector.SendSpoofOrderRequest(Spoof.TradeSymbol, Sides.Buy, 100, 11320).Result;
 
 			// Assert
 			Assert.NotNull(response);
+
+			Thread.Sleep(10000000);
 
 			var changed = fixConnector.ChangeLimitPrice(response, 2m).Result;
 			changed = fixConnector.ChangeLimitPrice(response, 3m).Result && changed;

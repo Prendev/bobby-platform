@@ -14,6 +14,7 @@ namespace QvaDev.CqgClientApiIntegration
 		private readonly TaskCompletionManager<string> _taskCompletionManager;
 		private readonly List<string> _subscribes = new List<string>();
 		private readonly ConcurrentDictionary<LimitResponse, CQGOrder> _limitOrderMapping = new ConcurrentDictionary<LimitResponse, CQGOrder>();
+		private readonly ConcurrentDictionary<string, LimitResponse> _limitOrders = new ConcurrentDictionary<string, LimitResponse>();
 
 		private readonly Object _lock = new Object();
 		private volatile bool _isConnecting;
@@ -206,6 +207,7 @@ namespace QvaDev.CqgClientApiIntegration
 					OrderedQuantity = quantity,
 					OrderPrice = limitPrice
 				};
+				_limitOrders.AddOrUpdate(key, response, (k, o) => response);
 				_limitOrderMapping.AddOrUpdate(response, cqgOrder, (k, o) => cqgOrder);
 				return response;
 			}
@@ -223,6 +225,7 @@ namespace QvaDev.CqgClientApiIntegration
 			{
 				if (!_limitOrderMapping.TryGetValue(response, out order)) return false;
 				if (order.Type != eOrderType.otLimit) return false;
+				if (order.GWStatus == eOrderStatus.osFilled) return false;
 
 				var modify = order.PrepareModify();
 				modify.Properties[eOrderProperty.opLimitPrice].Value = (double)limitPrice;
@@ -248,6 +251,7 @@ namespace QvaDev.CqgClientApiIntegration
 			{
 				if (!_limitOrderMapping.TryGetValue(response, out order)) return false;
 				if (order.Type != eOrderType.otLimit) return false;
+				if (order.GWStatus == eOrderStatus.osFilled) return true;
 
 				var task = _taskCompletionManager.CreateCompletableTask($"{OrderKey(order)}_cancel");
 				order.Cancel();
@@ -353,17 +357,21 @@ namespace QvaDev.CqgClientApiIntegration
 
 			// Order type specific checks
 			if (changeType != eChangeType.ctChanged) return;
-			CheckLimit(orderKey, cqgOrder);
+			CheckLimit(orderKey, cqgOrder, cqgFill);
 			CheckMarket(orderKey, cqgOrder, cqgFill);
 		}
 
-		private void CheckLimit(string orderKey, CQGOrder cqgOrder)
+		private void CheckLimit(string orderKey, CQGOrder cqgOrder, CQGFill cqgFill)
 		{
 			if (cqgOrder.Type != eOrderType.otLimit) return;
-			if (cqgOrder.GWStatus == eOrderStatus.osInOrderBook)
+
+			if (cqgOrder.GWStatus == eOrderStatus.osInOrderBook && cqgFill == null)
 				_taskCompletionManager.SetResult(orderKey, cqgOrder, true);
 			else if(cqgOrder.GWStatus == eOrderStatus.osCanceled)
 				_taskCompletionManager.SetCompleted($"{orderKey}_cancel", true);
+			else if (cqgFill != null && _limitOrders.TryGetValue(orderKey, out var limitResponse))
+				lock (limitResponse)
+					limitResponse.FilledQuantity = Math.Abs(cqgOrder.FilledQuantity);
 		}
 		private void CheckMarket(string orderKey, CQGOrder cqgOrder, CQGFill cqgFill)
 		{

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Threading;
 using QvaDev.Common.Attributes;
 using QvaDev.Common.Integration;
 
@@ -11,7 +10,7 @@ namespace QvaDev.Data.Models
 		public event EventHandler<ConnectionStates> ConnectionChanged;
 
 		[NotMapped] [InvisibleColumn] public Spoof Spoof { get; set; }
-		[NotMapped] [InvisibleColumn] public CancellationTokenSource SpoofCancel { get; set; }
+		[NotMapped] [InvisibleColumn] public SpoofingState SpoofingState { get; set; }
 
 		[NotMapped] [InvisibleColumn] public Sides BetaOpenSide { get; set; }
 		[NotMapped] [InvisibleColumn] public Sides FirstCloseSide { get; set; }
