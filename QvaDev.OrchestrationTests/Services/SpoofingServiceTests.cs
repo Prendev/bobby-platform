@@ -2,6 +2,7 @@
 using System.Threading;
 using NUnit.Framework;
 using QvaDev.Common.Integration;
+using QvaDev.Data;
 using QvaDev.Data.Models;
 using QvaDev.Orchestration.Services;
 
@@ -60,15 +61,12 @@ namespace QvaDev.OrchestrationTests.Services
 		[Test]
 		public void SpoofTest()
 		{
-			// Arrange
-			var cancel = new CancellationTokenSource();
-
 			// Act
-			SpoofingService.Spoofing(Spoof, Sides.Buy, cancel.Token);
+			var cancelToken = SpoofingService.Spoofing(Spoof, Sides.Buy);
 
 			// Assert
 			Thread.Sleep(new TimeSpan(0, 0, 5));
-			cancel.Cancel();
+			cancelToken.Cancel();
 			Thread.Sleep(new TimeSpan(0, 0, 5));
 		}
 

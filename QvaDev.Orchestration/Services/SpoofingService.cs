@@ -2,44 +2,29 @@
 using System.Threading;
 using QvaDev.Collections;
 using QvaDev.Common.Integration;
-using QvaDev.Data.Models;
+using QvaDev.Data;
 
 namespace QvaDev.Orchestration.Services
 {
-	public class Spoof
+	public interface ISpoofingService
 	{
-		public Account FeedAccount { get; }
-		public string FeedSymbol { get; }
-		public Account TradeAccount { get; }
-		public string TradeSymbol { get; }
-		public decimal Size { get; }
-		public decimal Distance { get; }
-
-		public Spoof(
-			Account feedAccount,
-			string feedSymbol,
-			Account tradeAccount,
-			string tradeSymbol,
-			decimal size,
-			decimal distance)
-		{
-			Size = size;
-			Distance = distance;
-			TradeSymbol = tradeSymbol;
-			TradeAccount = tradeAccount;
-			FeedSymbol = feedSymbol;
-			FeedAccount = feedAccount;
-		}
+		CancellationTokenSource Spoofing(Spoof spoof, Sides side);
 	}
 
-	public class SpoofingService
+	public class SpoofingService : ISpoofingService
 	{
-		public void Spoofing(Spoof spoof, Sides side, CancellationToken token)
+		public CancellationTokenSource Spoofing(Spoof spoof, Sides side)
 		{
-			if (!(spoof.TradeAccount.Connector is IFixConnector)) return;
-			if (side == Sides.None) return;
+			if (!(spoof.TradeAccount?.Connector is IFixConnector)) return null;
+			if (spoof.FeedAccount == null) return null;
+			if (string.IsNullOrWhiteSpace(spoof.TradeSymbol)) return null;
+			if (string.IsNullOrWhiteSpace(spoof.FeedSymbol)) return null;
+			if (side == Sides.None) return null;
+			if (spoof.Size <= 0) return null;
 
-			new Thread(() => Loop(spoof, side, token)) { IsBackground = true }.Start();
+			var cancel = new CancellationTokenSource();
+			new Thread(() => Loop(spoof, side, cancel.Token)) { IsBackground = true }.Start();
+			return cancel;
 		}
 
 		private void Loop(Spoof spoof, Sides side, CancellationToken token)
@@ -64,7 +49,7 @@ namespace QvaDev.Orchestration.Services
 			{
 				try
 				{
-					var tick = queue.Take(token);
+					if (!queue.TryTake(out var tick, token)) continue;
 					if (tick != lastTick) continue;
 
 					var price = GetPrice(spoof, side, lastTick);
@@ -74,6 +59,7 @@ namespace QvaDev.Orchestration.Services
 				}
 				catch (Exception e)
 				{
+					Logger.Error("SpoofingService.Loop exception", e);
 				}
 			}
 			spoof.FeedAccount.Connector.NewTick -= NewTick;
@@ -84,6 +70,7 @@ namespace QvaDev.Orchestration.Services
 			}
 			catch (Exception e)
 			{
+				Logger.Error("SpoofingService.Loop exception", e);
 			}
 		}
 

@@ -74,7 +74,8 @@ namespace QvaDev.Duplicat
 			builder.RegisterType<TradingAccountsService>().As<ITradingAccountsService>();
             builder.RegisterType<RestService>().As<IRestService>();
             builder.RegisterType<CopierService>().As<ICopierService>();
-            builder.RegisterType<PushingService>().As<IPushingService>();
+	        builder.RegisterType<SpoofingService>().As<ISpoofingService>();
+			builder.RegisterType<PushingService>().As<IPushingService>();
             builder.RegisterType<ReportService>().As<IReportService>();
 			builder.RegisterType<TickerService>().As<ITickerService>();
 			builder.RegisterType<HubArbService>().As<IHubArbService>();

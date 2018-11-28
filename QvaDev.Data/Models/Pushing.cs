@@ -18,6 +18,10 @@ namespace QvaDev.Data.Models
 		public Account FeedAccount { get => Get<Account>(); set => Set(value); }
 		public string FeedSymbol { get; set; }
 
+		public int? SpoofAccountId { get; set; }
+		public Account SpoofAccount { get => Get<Account>(); set => Set(value); }
+		public string SpoofSymbol { get; set; }
+
 		public FutureExecutionModes FutureExecutionMode { get; set; }
 		public int FutureAccountId { get; set; }
         public Account FutureAccount { get => Get<Account>(); set => Set(value); }

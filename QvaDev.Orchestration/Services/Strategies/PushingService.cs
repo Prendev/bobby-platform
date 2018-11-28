@@ -27,8 +27,9 @@ namespace QvaDev.Orchestration.Services.Strategies
     {
 	    private readonly IRndService _rndService;
 	    private readonly IThreadService _threadService;
+	    private readonly ISpoofingService _spoofingService;
 
-		private enum Phases
+	    private enum Phases
 		{
 			Pulling,
 			Pushing,
@@ -37,16 +38,20 @@ namespace QvaDev.Orchestration.Services.Strategies
 
 	    public PushingService(
 		    IRndService rndService,
-		    IThreadService threadService)
+		    IThreadService threadService,
+		    ISpoofingService spoofingService)
 	    {
+		    _spoofingService = spoofingService;
 		    _threadService = threadService;
 		    _rndService = rndService;
 	    }
 
 		public void OpeningBeta(Pushing pushing)
 		{
+			InitSpoof(pushing);
 			pushing.PushingDetail.OpenedFutures = 0;
 			var betaConnector = (MtConnector)pushing.BetaMaster.Connector;
+
 			// Open first side
 			pushing.BetaPosition = betaConnector.SendMarketOrderRequest(pushing.BetaSymbol, pushing.BetaOpenSide, pushing.PushingDetail.BetaLots, 0,
 				null, pushing.PushingDetail.MaxRetryCount, pushing.PushingDetail.RetryPeriodInMs);
@@ -57,17 +62,30 @@ namespace QvaDev.Orchestration.Services.Strategies
 			}
 		}
 
+	    private void InitSpoof(Pushing pushing)
+	    {
+			pushing.Spoof = new Data.Spoof(
+			    pushing.FeedAccount, pushing.FeedSymbol,
+			    pushing.SpoofAccount, pushing.SpoofSymbol,
+			    pushing.PushingDetail.SpoofContractSize, pushing.PushingDetail.SpoofDistance);
+	    }
+
 	    public async Task OpeningPull(Pushing pushing)
 		{
 			var pd = pushing.PushingDetail;
 			var futureSide = pushing.BetaOpenSide.Inv();
+			// Start spoofing
+			pushing.SpoofCancel = _spoofingService.Spoofing(pushing.Spoof, futureSide);
 
 			// Pull the price and wait a bit
 			var contractsNeeded = pd.PullContractSize;
 			await FutureBuildUp(pushing, futureSide, contractsNeeded, Phases.Pulling);
 
+			// Turn spoofing
+			pushing.SpoofCancel.CancelAndDispose();
 			_threadService.Sleep(pushing.PushingDetail.FutureOpenDelayInMs);
-	    }
+			pushing.SpoofCancel = _spoofingService.Spoofing(pushing.Spoof, futureSide.Inv());
+		}
 
 		public async Task OpeningAlpha(Pushing pushing)
 		{
@@ -104,6 +122,8 @@ namespace QvaDev.Orchestration.Services.Strategies
 			percentage = Math.Max(percentage, 0);
 			closeSize = closeSize * percentage / 100;
 
+			// Stop spoofing
+			pushing.SpoofCancel.CancelAndDispose();
 			if (closeSize <= 0) return;
 			
 			await futureConnector.SendMarketOrderRequest(pushing.FutureSymbol, futureSide.Inv(), closeSize);
@@ -126,13 +146,18 @@ namespace QvaDev.Orchestration.Services.Strategies
 	    {
 		    var pd = pushing.PushingDetail;
 		    var futureSide = pushing.FirstCloseSide;
+		    // Start spoofing
+		    pushing.SpoofCancel = _spoofingService.Spoofing(pushing.Spoof, futureSide);
 
-		    // Pull the price and wait a bit
-		    var contractsNeeded = pd.PullContractSize;
+			// Pull the price and wait a bit
+			var contractsNeeded = pd.PullContractSize;
 		    await FutureBuildUp(pushing, futureSide, contractsNeeded, Phases.Pulling);
 
-		    _threadService.Sleep(pushing.PushingDetail.FutureOpenDelayInMs);
-	    }
+		    // Turn spoofing
+		    pushing.SpoofCancel.CancelAndDispose();
+			_threadService.Sleep(pushing.PushingDetail.FutureOpenDelayInMs);
+		    pushing.SpoofCancel = _spoofingService.Spoofing(pushing.Spoof, futureSide.Inv());
+		}
 
 		public async Task OpeningHedge(Pushing pushing)
 		{
@@ -186,6 +211,8 @@ namespace QvaDev.Orchestration.Services.Strategies
 			percentage = Math.Max(percentage, 0);
 			closeSize = closeSize * percentage / 100;
 
+			// Stop spoofing
+			pushing.SpoofCancel.CancelAndDispose();
 			if (closeSize <= 0) return;
 
 			await futureConnector.SendMarketOrderRequest(pushing.FutureSymbol, futureSide.Inv(), closeSize);
@@ -262,8 +289,8 @@ namespace QvaDev.Orchestration.Services.Strategies
             var pd = pushing.PushingDetail;
             if (!pd.PriceLimit.HasValue) return false;
 
-            var futureConnector = (IFixConnector)pushing.FutureAccount.Connector;
-            var lastTick = futureConnector.GetLastTick(pushing.FutureSymbol);
+            var futureConnector = (IFixConnector)pushing.FeedAccount.Connector;
+            var lastTick = futureConnector.GetLastTick(pushing.FeedSymbol);
 
             if (lastTick.Ask > 0 && side == Sides.Buy && lastTick.Ask >= pd.PriceLimit.Value) return true;
             if (lastTick.Bid > 0 && side == Sides.Sell && lastTick.Bid <= pd.PriceLimit.Value) return true;
