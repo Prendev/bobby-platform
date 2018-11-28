@@ -1,4 +1,4 @@
-﻿/* Copyright (C) 2013 Interactive Brokers LLC. All rights reserved.  This code is subject to the terms
+/* Copyright (C) 2018 Interactive Brokers LLC. All rights reserved. This code is subject to the terms
  * and conditions of the IB API Non-Commercial License or the IB API Commercial License, as applicable. */
 
 using System;
@@ -93,6 +93,16 @@ namespace IBApi
         public const int RT_TRD_VOLUME = 77;
         public const int CREDITMAN_MARK_PRICE = 78;
         public const int CREDITMAN_SLOW_MARK_PRICE = 79;
+        public const int DELAYED_BID_OPTION = 80;
+        public const int DELAYED_ASK_OPTION = 81;
+        public const int DELAYED_LAST_OPTION = 82;
+        public const int DELAYED_MODEL_OPTION = 83;
+        public const int LAST_EXCH = 84;
+        public const int LAST_REG_TIME = 85;
+        public const int FUTURES_OPEN_INTEREST = 86;
+        public const int AVG_OPT_VOLUME = 87;
+        public const int DELAYED_LAST_TIMESTAMP = 88;
+        public const int SHORTABLE_SHARES = 89;
 
         public static String getField( int tickType) {
             switch( tickType) {
@@ -173,9 +183,19 @@ namespace IBApi
                 case DELAYED_VOLUME:              return "delayedVolume";
                 case DELAYED_CLOSE:               return "delayedClose";
                 case DELAYED_OPEN:                return "delayedOpen";
-                case RT_TRD_VOLUME: return "rtTrdVolume";
-                case CREDITMAN_MARK_PRICE: return "creditmanMarkPrice";
-                case CREDITMAN_SLOW_MARK_PRICE: return "creditmanSlowMarkPrice";
+                case RT_TRD_VOLUME:               return "rtTrdVolume";
+                case CREDITMAN_MARK_PRICE:        return "creditmanMarkPrice";
+                case CREDITMAN_SLOW_MARK_PRICE:   return "creditmanSlowMarkPrice";
+                case DELAYED_BID_OPTION:          return "delayedBidOptComp";
+                case DELAYED_ASK_OPTION:          return "delayedAskOptComp";
+                case DELAYED_LAST_OPTION:         return "delayedLastOptComp";
+                case DELAYED_MODEL_OPTION:        return "delayedModelOptComp";
+                case LAST_EXCH:                   return "lastExchange";
+                case LAST_REG_TIME:               return "lastRegTime";
+                case FUTURES_OPEN_INTEREST:       return "futuresOpenInterest";
+                case AVG_OPT_VOLUME:              return "avgOptVolume";
+                case DELAYED_LAST_TIMESTAMP:      return "delayedLastTimestamp";
+                case SHORTABLE_SHARES:            return "shortableShares";
 
                 default:                          return "unknown";
             }

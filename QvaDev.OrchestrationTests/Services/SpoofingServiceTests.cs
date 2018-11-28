@@ -44,10 +44,17 @@ namespace QvaDev.OrchestrationTests.Services
 			};
 			connectorFactory.Create(feedAccount).Wait();
 			connectorFactory.Create(tradeAccount).Wait();
-			Spoof = new Spoof(feedAccount, "FUT|DTB|FDAX DEC 18", tradeAccount, "F.US.DDZ18", 1, 5m);
+			Spoof = new Spoof(feedAccount, "FUT|DTB|FDAX DEC 18", tradeAccount, "F.US.DDZ18", 1, 1m);
 
 			Assert.IsTrue(feedAccount.Connector.IsConnected);
 			Assert.IsTrue(tradeAccount.Connector.IsConnected);
+		}
+
+		[TearDown]
+		public void TearDown()
+		{
+			Spoof.FeedAccount?.Connector?.Disconnect();
+			Spoof.TradeAccount?.Connector?.Disconnect();
 		}
 
 		[Test]
@@ -60,8 +67,9 @@ namespace QvaDev.OrchestrationTests.Services
 			SpoofingService.Spoofing(Spoof, Sides.Buy, cancel.Token);
 
 			// Assert
-			Thread.Sleep(new TimeSpan(0, 0, 10));
+			Thread.Sleep(new TimeSpan(0, 0, 5));
 			cancel.Cancel();
+			Thread.Sleep(new TimeSpan(0, 0, 5));
 		}
 
 		[Test]
@@ -72,7 +80,7 @@ namespace QvaDev.OrchestrationTests.Services
 
 			// Act
 			//SpoofingService.Spoofing(spoof, Sides.Buy, cancel.Token);
-			var response = fixConnector.SendSpoofOrderRequest("F.US.DDZ18", Sides.Buy, 1, 1).Result;
+			var response = fixConnector.SendSpoofOrderRequest(Spoof.TradeSymbol, Sides.Buy, 1, 1).Result;
 
 			// Assert
 			Assert.NotNull(response);
@@ -91,6 +99,16 @@ namespace QvaDev.OrchestrationTests.Services
 
 			// Assert
 			Assert.IsTrue(canceled);
+		}
+
+		[Test]
+		public void FeedTest()
+		{
+			// Arrange
+			Spoof.FeedAccount.Connector.Subscribe(Spoof.FeedSymbol);
+
+			// Assert
+			Thread.Sleep(new TimeSpan(0, 0, 100));
 		}
 	}
 }

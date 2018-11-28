@@ -1,4 +1,6 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
+using QvaDev.Collections;
 using QvaDev.Common.Integration;
 using QvaDev.Data.Models;
 
@@ -44,32 +46,45 @@ namespace QvaDev.Orchestration.Services
 		{
 			var tradeConnector = (IFixConnector)spoof.TradeAccount.Connector;
 			spoof.FeedAccount.Connector.Subscribe(spoof.FeedSymbol);
-			LimitResponse orderResponse = null;
+			LimitResponse limitResponse = null;
 
 			NewTick lastTick = null;
-			var waitHandle = new AutoResetEvent(false);
+			var queue = new FastBlockingCollection<NewTick>();
 
 			void NewTick(object s, NewTick e)
 			{
 				if (e.Tick.Symbol != spoof.FeedSymbol) return;
 				lastTick = e;
-				waitHandle.Set();
+				queue.Add(e);
 			}
-			spoof.FeedAccount.Connector.NewTick += NewTick;
 
 			var changed = false;
+			spoof.FeedAccount.Connector.NewTick += NewTick;
 			while (!token.IsCancellationRequested)
 			{
-				if (!waitHandle.WaitOne(100)) continue;
-				var price = GetPrice(spoof, side, lastTick);
+				try
+				{
+					var tick = queue.Take(token);
+					if (tick != lastTick) continue;
 
-				if (orderResponse == null)
-					orderResponse = tradeConnector.SendSpoofOrderRequest(spoof.TradeSymbol, side, spoof.Size, price).Result;
-				else changed = tradeConnector.ChangeLimitPrice(orderResponse, price).Result;
+					var price = GetPrice(spoof, side, lastTick);
+					if (limitResponse == null)
+						limitResponse = tradeConnector.SendSpoofOrderRequest(spoof.TradeSymbol, side, spoof.Size, price).Result;
+					else changed = tradeConnector.ChangeLimitPrice(limitResponse, price).Result;
+				}
+				catch (Exception e)
+				{
+				}
 			}
-			var canceled = tradeConnector.CancelLimit(orderResponse).Result;
-
 			spoof.FeedAccount.Connector.NewTick -= NewTick;
+
+			try
+			{
+				var canceled = tradeConnector.CancelLimit(limitResponse).Result;
+			}
+			catch (Exception e)
+			{
+			}
 		}
 
 		private static decimal GetPrice(Spoof spoof, Sides side, NewTick e)

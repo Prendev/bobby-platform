@@ -1,4 +1,4 @@
-﻿/* Copyright (C) 2013 Interactive Brokers LLC. All rights reserved.  This code is subject to the terms
+﻿/* Copyright (C) 2018 Interactive Brokers LLC. All rights reserved. This code is subject to the terms
  * and conditions of the IB API Non-Commercial License or the IB API Commercial License, as applicable. */
 
 using System;
@@ -44,7 +44,7 @@ namespace IBApi
         }
 
         /**
-         * @brief Time from which the executions will be brough yyyymmdd hh:mm:ss
+         * @brief Time from which the executions will be returned yyyymmdd hh:mm:ss
          * Only those executions reported after the specified time will be returned.
          */
         public string Time
@@ -81,7 +81,7 @@ namespace IBApi
         }
 
         /**
-        * @brief The Contract's side (Put or Call).
+        * @brief The Contract's side (BUY or SELL)
         */
         public string Side
         {

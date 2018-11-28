@@ -1,4 +1,4 @@
-﻿/* Copyright (C) 2013 Interactive Brokers LLC. All rights reserved.  This code is subject to the terms
+﻿/* Copyright (C) 2018 Interactive Brokers LLC. All rights reserved. This code is subject to the terms
  * and conditions of the IB API Non-Commercial License or the IB API Commercial License, as applicable. */
 
 using System;
@@ -33,7 +33,7 @@ namespace IBApi
         private string maturityDateBelow;
         private double couponRateAbove = Double.MaxValue;
         private double couponRateBelow = Double.MaxValue;
-        private string excludeConvertible;
+        private bool excludeConvertible;
         private string scannerSettingPairs;
         private string stockTypeFilter;
 
@@ -202,7 +202,7 @@ namespace IBApi
         /**
          * @brief Filters out Convertible bonds
          */
-        public string ExcludeConvertible
+        public bool ExcludeConvertible
         {
             get { return excludeConvertible; }
             set { excludeConvertible = value; }

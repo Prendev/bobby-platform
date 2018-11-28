@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using IBApi;
@@ -13,6 +14,7 @@ namespace QvaDev.IbIntegration
 		private EClientSocket _clientSocket;
 		private readonly AccountInfo _accountInfo;
 		private readonly TaskCompletionManager<string> _taskCompletionManager;
+		private readonly Dictionary<int, string> _subscriptions = new Dictionary<int, string>();
 
 		private readonly Object _lock = new Object();
 		private volatile bool _isConnecting;
@@ -73,6 +75,13 @@ namespace QvaDev.IbIntegration
 
 			try
 			{
+				lock (_subscriptions)
+				{
+					foreach (var subscription in _subscriptions)
+						_clientSocket?.cancelTickByTickData(subscription.Key);
+					_subscriptions.Clear();
+				}
+
 				_clientSocket?.Close();
 			}
 			catch (Exception e)
@@ -83,7 +92,22 @@ namespace QvaDev.IbIntegration
 
 	    public override void Subscribe(string symbol)
 	    {
-		    throw new NotImplementedException();
+		    try
+		    {
+			    int reqId;
+				lock (_subscriptions)
+				{
+					reqId = _subscriptions.Count + 1;
+					_subscriptions[reqId] = symbol;
+				}
+
+				var contract = symbol.ToContract();
+				_clientSocket.reqTickByTickData(reqId, contract, "BidAsk", 0, true);
+			}
+		    catch (Exception e)
+		    {
+			    Logger.Error($"{Description} account ERROR during subscribtion", e);
+		    }
 	    }
 
 	    private ConnectionStates GetStatus()

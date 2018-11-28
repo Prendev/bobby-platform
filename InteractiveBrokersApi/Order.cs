@@ -1,4 +1,4 @@
-﻿/* Copyright (C) 2013 Interactive Brokers LLC. All rights reserved.  This code is subject to the terms
+/* Copyright (C) 2018 Interactive Brokers LLC. All rights reserved. This code is subject to the terms
  * and conditions of the IB API Non-Commercial License or the IB API Commercial License, as applicable. */
 
 using System;
@@ -50,7 +50,7 @@ namespace IBApi
         // 1 = CANCEL_WITH_BLOCK, 2 = REDUCE_WITH_BLOCK, 3 = REDUCE_NON_BLOCK
         private int ocaType;
         private string orderRef;
-        // if false, order will be created but not transmited
+        // if false, order will be created but not transmitted
         private bool transmit;
         // Parent order Id, to associate Auto STP or TRAIL orders with the original order.
         private int parentId;
@@ -170,6 +170,11 @@ namespace IBApi
         private bool solicited;
         private string modelCode;
         private string extOperator;
+        // native cash quantity
+        private double cashQty;
+
+        // don't use auto price for hedge
+        private bool dontUseAutoPriceForHedge;
 
         /**
          * @brief The API client's order id.
@@ -206,9 +211,11 @@ namespace IBApi
 
         /**
          * @brief Identifies the side.
-         * Possible values are BUY, SELL, SSHORT
+         * Generally available values are BUY, SELL. 
+		 * Additionally, SSHORT, SLONG are available in some institutional-accounts only.
+		 * For general account types, a SELL order will be able to enter a short position automatically if the order quantity is larger than your current long position.
          * SSHORT is only supported for institutional account configured with Long/Short account segments or clearing with a separate account.
-         * For general account types, a SELL order will be able to enter a short position automatically if the order quantity is larger than your current long position.
+		 * SLONG is available in specially-configured institutional accounts to indicate that long position not yet delivered is being sold.	
          */
         public string Action
         {
@@ -227,7 +234,6 @@ namespace IBApi
 
         /**
          * @brief The order's type.
-         * Available Orders are at https://www.interactivebrokers.com/en/software/api/apiguide/tables/supported_order_types.htm 
          */
         public string OrderType
         {
@@ -531,8 +537,10 @@ namespace IBApi
 
 
         /**
-         * @brief For institutional customers only.
-         * Available for institutional clients to determine if this order is to open or close a position. Valid values are O (open), C (close).
+         * @brief For institutional customers only. Valid values are O (open), C (close).
+         * Available for institutional clients to determine if this order is to open or close a position. 
+		 * When Action = "BUY" and OpenClose = "O" this will open a new position. 
+		 * When Action = "BUY" and OpenClose = "C" this will close and existing short position.
          */
         public string OpenClose
         {
@@ -573,7 +581,8 @@ namespace IBApi
         }
 
         /**
-         * @brief -
+         * @brief Only available with IB Execution-Only accounts with applicable securities
+	 * Mark order as exempt from short sale uptick rule 
          */
         public int ExemptCode
         {
@@ -1061,8 +1070,40 @@ namespace IBApi
         }
 
         /**
-         * @brief Parameters for combo routing.
-         * For more information, refer to https://www.interactivebrokers.com/en/software/api/apiguide/tables/smart_combo_routing.htm   
+         * @brief Advanced parameters for Smart combo routing. \n
+         * These features are for both guaranteed and nonguaranteed combination orders routed to Smart, and are available based on combo type and order type. 
+		 * SmartComboRoutingParams is similar to AlgoParams in that it makes use of tag/value pairs to add parameters to combo orders. \n
+		 * Make sure that you fully understand how Advanced Combo Routing works in TWS itself first: https://www.interactivebrokers.com/en/software/tws/usersguidebook/specializedorderentry/advanced_combo_routing.htm \n
+		 * The parameters cover the following capabilities:
+		 *  - Non-Guaranteed - Determine if the combo order is Guaranteed or Non-Guaranteed. \n
+		 *    Tag = NonGuaranteed \n
+		 *    Value = 0: The order is guaranteed \n
+		 *    Value = 1: The order is non-guaranteed \n
+		 * \n
+		 *  - Select Leg to Fill First - User can specify which leg to be executed first. \n
+		 *    Tag = LeginPrio \n
+		 *    Value = -1: No priority is assigned to either combo leg \n
+		 *    Value = 0: Priority is assigned to the first leg being added to the comboLeg \n
+		 *    Value = 1: Priority is assigned to the second leg being added to the comboLeg \n
+		 *    Note: The LeginPrio parameter can only be applied to two-legged combo. \n
+		 * \n
+		 *  - Maximum Leg-In Combo Size - Specify the maximum allowed leg-in size per segment \n
+		 *    Tag = MaxSegSize \n
+		 *    Value = Unit of combo size \n
+		 * \n
+		 *  - Do Not Start Next Leg-In if Previous Leg-In Did Not Finish - Specify whether or not the system should attempt to fill the next segment before the current segment fills. \n
+		 *    Tag = DontLeginNext \n
+		 *    Value = 0: Start next leg-in even if previous leg-in did not finish \n
+		 *    Value = 1: Do not start next leg-in if previous leg-in did not finish \n
+		 * \n
+		 *  - Price Condition - Combo order will be rejected or cancelled if the leg market price is outside of the specified price range [CondPriceMin, CondPriceMax] \n
+		 *    Tag = PriceCondConid: The ContractID of the combo leg to specify price condition on \n
+		 *    Value = The ContractID \n
+		 *    Tag = CondPriceMin: The lower price range of the price condition \n
+		 *    Value = The lower price \n
+		 *    Tag = CondPriceMax: The upper price range of the price condition \n
+		 *    Value = The upper price \n
+		 * \n
          */
         public List<TagValue> SmartComboRoutingParams
         {
@@ -1071,7 +1112,7 @@ namespace IBApi
         }
 
         /**
-        * @brief The attributes for all legs within a combo order.
+        * @brief List of Per-leg price following the same sequence combo legs are added. The combo price must be left unspecified when using per-leg prices.
         */
         public List<OrderComboLeg> OrderComboLegs
         {
@@ -1135,6 +1176,44 @@ namespace IBApi
             set { extOperator = value; }
         }
 
+        /**
+         * @brief The native cash quantity
+         */
+        public double CashQty
+        {
+            get { return cashQty; }
+            set { cashQty = value; }
+        }
+
+		/**
+         * @brief Identifies a person as the responsible party for investment decisions within the firm. Orders covered by MiFID 2 (Markets in Financial Instruments Directive 2) must include either Mifid2DecisionMaker or Mifid2DecisionAlgo field (but not both). Requires TWS 969+.
+         */
+		public string Mifid2DecisionMaker { get; set; }
+		
+		/**
+         * @brief Identifies the algorithm responsible for investment decisions within the firm. Orders covered under MiFID 2 must include either Mifid2DecisionMaker or Mifid2DecisionAlgo, but cannot have both. Requires TWS 969+.
+         */
+		public string Mifid2DecisionAlgo { get; set; }
+		
+		/**
+         * @brief For MiFID 2 reporting; identifies a person as the responsible party for the execution of a transaction within the firm. Requires TWS 969+.
+         */
+		public string Mifid2ExecutionTrader { get; set; }
+				 
+		/**
+         * @brief For MiFID 2 reporting; identifies the algorithm responsible for the execution of a transaction within the firm. Requires TWS 969+.
+         */
+		public string Mifid2ExecutionAlgo { get; set; }
+
+        /**
+         * @brief Don't use auto price for hedge
+         */
+        public bool DontUseAutoPriceForHedge
+        {
+            get { return dontUseAutoPriceForHedge; }
+            set { dontUseAutoPriceForHedge = value; }
+        }
+
         public Order()
         {
             lmtPrice = Double.MaxValue;
@@ -1194,8 +1273,15 @@ namespace IBApi
             AdjustedTrailingAmount = double.MaxValue;
             ExtOperator = EMPTY_STR;
             Tier = new SoftDollarTier(EMPTY_STR, EMPTY_STR, EMPTY_STR);
+            cashQty = Double.MaxValue;
+            Mifid2DecisionMaker = EMPTY_STR;
+            Mifid2DecisionAlgo = EMPTY_STR;
+            Mifid2ExecutionTrader = EMPTY_STR;
+            Mifid2ExecutionAlgo = EMPTY_STR;
+            dontUseAutoPriceForHedge = false;
         }
 
+		// Note: Two orders can be 'equivalent' even if all fields do not match. This function is not intended to be used with Order objects returned from TWS.
         public override bool Equals(Object p_other)
         {
 
@@ -1273,7 +1359,10 @@ namespace IBApi
                 Solicited != l_theOther.Solicited ||
                 ConditionsIgnoreRth != l_theOther.ConditionsIgnoreRth ||
                 ConditionsCancelOrder != l_theOther.ConditionsCancelOrder ||
-                Tier != l_theOther.Tier)
+                Tier != l_theOther.Tier ||
+                CashQty != l_theOther.CashQty ||
+                dontUseAutoPriceForHedge != l_theOther.dontUseAutoPriceForHedge ||
+                IsOmsContainer != l_theOther.IsOmsContainer)
             {
                 return false;
             }
@@ -1414,7 +1503,19 @@ namespace IBApi
         */
         public bool ConditionsCancelOrder { get; set; }
 
-
+        /**
+        * @brief Define the Soft Dollar Tier used for the order. Only provided for registered professional advisors and hedge and mutual funds.
+        */
         public SoftDollarTier Tier { get; set; }
+
+		/**
+		* @brief Set to true to create tickets from API orders when TWS is used as an OMS 
+		*/
+        public bool IsOmsContainer { get; set; }
+
+        /**
+        * @brief Set to true to convert order of type 'Primary Peg' to 'D-Peg'
+        */
+        public bool DiscretionaryUpToLimitPrice { get; set; }
     }
 }

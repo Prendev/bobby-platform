@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -50,12 +50,25 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AccountSummaryTags.cs" />
+    <Compile Include="Bar.cs" />
+    <Compile Include="BitMask.cs" />
     <Compile Include="ComboLeg.cs" />
     <Compile Include="CommissionReport.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="Contract.cs" />
     <Compile Include="ContractCondition.cs" />
+    <Compile Include="ContractDescription.cs" />
     <Compile Include="ContractDetails.cs" />
+    <Compile Include="TickAttribBidAsk.cs" />
+    <Compile Include="TickAttribLast.cs" />
+    <Compile Include="DeltaNeutralContract.cs" />
+    <Compile Include="HistoricalTick.cs" />
+    <Compile Include="HistoricalTickBidAsk.cs" />
+    <Compile Include="HistoricalTickLast.cs" />
+    <Compile Include="PriceIncrement.cs" />
+    <Compile Include="HistogramEntry.cs" />
+    <Compile Include="NewsProvider.cs" />
+    <Compile Include="DepthMktDataDescription.cs" />
     <Compile Include="DefaultEWrapper.cs" />
     <Compile Include="EClientErrors.cs" />
     <Compile Include="EClientException.cs" />
@@ -74,6 +87,7 @@
     <Compile Include="Execution.cs" />
     <Compile Include="ExecutionCondition.cs" />
     <Compile Include="ExecutionFilter.cs" />
+    <Compile Include="FamilyCode.cs" />
     <Compile Include="IBParamsList.cs" />
     <Compile Include="IDecoder.cs" />
     <Compile Include="IncomingMessage.cs" />
@@ -92,9 +106,9 @@
     <Compile Include="ScannerSubscription.cs" />
     <Compile Include="SoftDollarTier.cs" />
     <Compile Include="TagValue.cs" />
+    <Compile Include="TickAttrib.cs" />
     <Compile Include="TickType.cs" />
     <Compile Include="TimeCondition.cs" />
-    <Compile Include="UnderComp.cs" />
     <Compile Include="Util.cs" />
     <Compile Include="VolumeCondition.cs" />
   </ItemGroup>

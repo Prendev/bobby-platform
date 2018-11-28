@@ -46,7 +46,7 @@ namespace QvaDev.CqgClientApiIntegration
 		public Connector(AccountInfo accountInfo)
 		{
 			_accountInfo = accountInfo;
-			_taskCompletionManager = new TaskCompletionManager<string>(100, 20000);
+			_taskCompletionManager = new TaskCompletionManager<string>(100, 2000);
 
 			InitializeCqgCel();
 		}
