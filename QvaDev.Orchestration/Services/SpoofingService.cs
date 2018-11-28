@@ -34,13 +34,14 @@ namespace QvaDev.Orchestration.Services
 			LimitResponse limitResponse = null;
 
 			NewTick lastTick = null;
-			var queue = new FastBlockingCollection<NewTick>();
+			var waitHandle = new AutoResetEvent(false);
 
 			void NewTick(object s, NewTick e)
 			{
+				if (token.IsCancellationRequested) return;
 				if (e.Tick.Symbol != spoof.FeedSymbol) return;
 				lastTick = e;
-				queue.Add(e);
+				waitHandle.Set();
 			}
 
 			var changed = false;
@@ -49,9 +50,7 @@ namespace QvaDev.Orchestration.Services
 			{
 				try
 				{
-					if (!queue.TryTake(out var tick, token)) continue;
-					if (tick != lastTick) continue;
-
+					if (!waitHandle.WaitOne(10)) continue;
 					var price = GetPrice(spoof, side, lastTick);
 					if (limitResponse == null)
 						limitResponse = tradeConnector.SendSpoofOrderRequest(spoof.TradeSymbol, side, spoof.Size, price).Result;
@@ -67,6 +66,7 @@ namespace QvaDev.Orchestration.Services
 			try
 			{
 				var canceled = tradeConnector.CancelLimit(limitResponse).Result;
+				waitHandle.Dispose();
 			}
 			catch (Exception e)
 			{

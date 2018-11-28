@@ -103,7 +103,7 @@ namespace QvaDev.CqgClientApiIntegration
 				CqgAccount = _cqgCel.Accounts.ItemByIndex[0];
 
 				lock (_subscribes) _subscribes.Clear();
-				foreach (var symbol in SymbolInfos.Keys)
+				foreach (var symbol in LastTicks.Keys)
 					Subscribe(symbol);
 			}
 			catch (Exception e)
