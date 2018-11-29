@@ -15,6 +15,7 @@ using QvaDev.Communication.ConnectionManagementRules;
 using QvaDev.Communication.FixApi;
 using QvaDev.Communication.FixApi.Connectors.Strategies;
 using QvaDev.Communication.FixApi.Connectors.Strategies.AggressiveOrder;
+using QvaDev.Communication.FixApi.Connectors.Strategies.GtcLimitOrder;
 using QvaDev.Communication.FixApi.Connectors.Strategies.MarketOrder;
 using OrderResponse = QvaDev.Common.Integration.OrderResponse;
 
@@ -199,6 +200,58 @@ namespace QvaDev.FixApiIntegration
 				Logger.Error(
 					$"{Description} Connector.SendAggressiveOrderRequest({symbol}, {side}, {quantity}, " +
 					$"{limitPrice}, {deviation}, {timeout}, {retryCount}, {retryPeriod}) exception", e);
+			}
+
+			return retValue;
+		}
+
+		public override async Task<OrderResponse> SendGtcLimitOrderRequest(string symbol, Sides side, decimal quantity,
+			decimal limitPrice, int timeout)
+		{
+			var retValue = new OrderResponse()
+			{
+				OrderedQuantity = quantity,
+				AveragePrice = null,
+				FilledQuantity = 0,
+				Side = side
+			};
+
+			try
+			{
+				Logger.Debug(
+					$"{Description} Connector.SendGtcLimitOrderRequest({symbol}, {side}, {quantity}, " +
+					$"{limitPrice}, {timeout}) ");
+
+				quantity = Math.Abs(quantity);
+				var response = await FixConnector.GtcLimitOrderAsync(new GtcLimitOrderRequest()
+				{
+					IsLong = side == Sides.Buy,
+					Symbol = Symbol.Parse(symbol),
+					Quantity = quantity,
+					LimitPrice = limitPrice,
+					Timeout = timeout
+				});
+
+				if (!string.IsNullOrWhiteSpace(response.UnfinishedOrderId))
+					_unfinishedOrderIds.Add(response.UnfinishedOrderId);
+
+				retValue.AveragePrice = response.AveragePrice;
+				retValue.FilledQuantity = response.FilledQuantity;
+
+				Logger.Debug(
+					$"{Description} Connector.SendGtcLimitOrderRequest({symbol}, {side}, {quantity}, " +
+					$"{limitPrice}, {timeout}) opened {response.FilledQuantity} at avg price {response.AveragePrice}");
+			}
+			catch (TimeoutException)
+			{
+				Logger.Warn(
+					$"{Description} Connector.SendGtcLimitOrderRequest({symbol}, {side}, {quantity}, {limitPrice}, {timeout}) timeout");
+			}
+			catch (Exception e)
+			{
+				Logger.Error(
+					$"{Description} Connector.SendGtcLimitOrderRequest({symbol}, {side}, {quantity}, " +
+					$"{limitPrice}, {timeout}) exception", e);
 			}
 
 			return retValue;

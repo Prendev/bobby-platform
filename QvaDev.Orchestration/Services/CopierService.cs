@@ -165,8 +165,8 @@ namespace QvaDev.Orchestration.Services
 
 		private Task CopyToFixAccount(NewPosition e, Slave slave)
 		{
-			if (!(slave.Account?.Connector is FixApiIntegration.Connector slaveConnector)) return Task.FromResult(0);
-			if (slave.SymbolMappings?.Any(m => m.From == e.Position.Symbol) != true) return Task.FromResult(0);
+			if (!(slave.Account?.Connector is FixApiIntegration.Connector slaveConnector)) return Task.CompletedTask;
+			if (slave.SymbolMappings?.Any(m => m.From == e.Position.Symbol) != true) return Task.CompletedTask;
 			var symbol = slave.SymbolMappings?.Any(m => m.From == e.Position.Symbol) == true
 				? slave.SymbolMappings.First(m => m.From == e.Position.Symbol).To
 				: e.Position.Symbol + (slave.SymbolSuffix ?? "");
@@ -186,51 +186,82 @@ namespace QvaDev.Orchestration.Services
 					Logger.Warn($"CopierService.CopyToFixAccount {slave} {symbol} quantity is zero!!!");
 					return;
 				}
-				var side = copier.CopyRatio < 0 ? e.Position.Side.Inv() : e.Position.Side;
 
-				if (e.Action == NewPositionActions.Open && copier.OrderType != FixApiCopier.FixApiOrderTypes.Market)
+				var side = copier.CopyRatio < 0 ? e.Position.Side.Inv() : e.Position.Side;
+				if (e.Action == NewPositionActions.Close) side = side.Inv();
+
+				var limitPrice = copier.BasePriceType == FixApiCopier.BasePriceTypes.Master ? e.Position.OpenPrice :
+					side == Sides.Buy ? lastTicket.Ask : lastTicket.Bid;
+				limitPrice -= copier.LimitDiffInPip * copier.PipSize * (side == Sides.Buy ? 1 : -1);
+
+				if (e.Action == NewPositionActions.Open)
 				{
-					var limitPrice = copier.OrderType == FixApiCopier.FixApiOrderTypes.AggressiveOnMasterPrice ? e.Position.OpenPrice :
-						side == Sides.Buy ? lastTicket.Ask : lastTicket.Bid;
-					var response = await slaveConnector.SendAggressiveOrderRequest(symbol, side, quantity, limitPrice, copier.Deviation,
-						copier.TimeWindowInMs, copier.MaxRetryCount, copier.RetryPeriodInMs);
+					var response = await FixAccountOpening(copier, slaveConnector, symbol, side, quantity, limitPrice);
+					if (response == null) return;
 					copier.OrderResponses[e.Position.Id] = response;
 				}
-				else if (e.Action == NewPositionActions.Open && copier.OrderType == FixApiCopier.FixApiOrderTypes.Market)
-				{
-					var response = await slaveConnector.SendMarketOrderRequest(symbol, side, quantity,
-						copier.MarketTimeWindowInMs, copier.MarketMaxRetryCount, copier.MarketRetryPeriodInMs);
-					copier.OrderResponses[e.Position.Id] = response;
-				}
-				else if (e.Action == NewPositionActions.Close && copier.OrderType != FixApiCopier.FixApiOrderTypes.Market)
+				else if (e.Action == NewPositionActions.Close)
 				{
 					if (!copier.OrderResponses.TryGetValue(e.Position.Id, out var openResponse)) return;
 					if (!openResponse.IsFilled || openResponse.FilledQuantity == 0) return;
-
-					var limitPrice = copier.OrderType == FixApiCopier.FixApiOrderTypes.AggressiveOnMasterPrice ? e.Position.ClosePrice :
-						side == Sides.Buy ? lastTicket.Bid : lastTicket.Ask;
-
-					var closeResponse = await slaveConnector.SendAggressiveOrderRequest(symbol, side.Inv(),
-						openResponse.FilledQuantity, limitPrice, copier.Deviation,
-						copier.TimeWindowInMs, copier.MaxRetryCount, copier.RetryPeriodInMs);
-
-					var remainingQuantity = closeResponse.OrderedQuantity - closeResponse.FilledQuantity;
-					if (remainingQuantity == 0) return;
-
-					await slaveConnector.SendMarketOrderRequest(symbol, side.Inv(), remainingQuantity,
-						copier.MarketTimeWindowInMs, copier.MarketMaxRetryCount, copier.MarketRetryPeriodInMs);
-				}
-				else if (e.Action == NewPositionActions.Close && copier.OrderType == FixApiCopier.FixApiOrderTypes.Market)
-				{
-					if (!copier.OrderResponses.TryGetValue(e.Position.Id, out OrderResponse openResponse)) return;
-					if (!openResponse.IsFilled || openResponse.FilledQuantity == 0) return;
-					await slaveConnector.SendMarketOrderRequest(symbol, side.Inv(), openResponse.FilledQuantity,
-						copier.MarketTimeWindowInMs, copier.MarketMaxRetryCount, copier.MarketRetryPeriodInMs);
+					await FixAccountClosing(copier, slaveConnector, symbol, side, openResponse.FilledQuantity, limitPrice);
 				}
 
 			}, copier.DelayInMilliseconds));
 			return Task.WhenAll(tasks);
 		}
+
+	    private async Task<OrderResponse> FixAccountOpening(FixApiCopier copier, IFixConnector connector, string symbol, Sides side,
+		    decimal quantity, decimal limitPrice)
+	    {
+		    if (copier.OrderType == FixApiCopier.FixApiOrderTypes.GtcLimit)
+			    return await connector.SendGtcLimitOrderRequest(symbol, side, quantity, limitPrice, copier.TimeWindowInMs);
+
+		    if (copier.OrderType == FixApiCopier.FixApiOrderTypes.Aggressive)
+			    return await connector.SendAggressiveOrderRequest(symbol, side, quantity, limitPrice,
+				    copier.Deviation, copier.TimeWindowInMs, copier.MaxRetryCount, copier.RetryPeriodInMs);
+
+		    if (copier.OrderType == FixApiCopier.FixApiOrderTypes.Market)
+			    return await connector.SendMarketOrderRequest(symbol, side, quantity,
+				    copier.MarketTimeWindowInMs, copier.MarketMaxRetryCount, copier.MarketRetryPeriodInMs);
+
+		    return null;
+	    }
+
+	    private async Task FixAccountClosing(FixApiCopier copier, IFixConnector connector, string symbol, Sides side,
+		    decimal quantity, decimal limitPrice)
+	    {
+		    if (copier.OrderType == FixApiCopier.FixApiOrderTypes.GtcLimit)
+		    {
+			    var closeResponse =
+				    await connector.SendGtcLimitOrderRequest(symbol, side, quantity, limitPrice, copier.TimeWindowInMs);
+
+			    var remainingQuantity = closeResponse.OrderedQuantity - closeResponse.FilledQuantity;
+			    if (remainingQuantity == 0) return;
+
+			    await connector.SendMarketOrderRequest(symbol, side, remainingQuantity,
+				    copier.MarketTimeWindowInMs, copier.MarketMaxRetryCount, copier.MarketRetryPeriodInMs);
+		    }
+
+		    else if (copier.OrderType == FixApiCopier.FixApiOrderTypes.Aggressive)
+		    {
+			    var closeResponse = await connector.SendAggressiveOrderRequest(symbol, side,
+				    quantity, limitPrice, copier.Deviation,
+				    copier.TimeWindowInMs, copier.MaxRetryCount, copier.RetryPeriodInMs);
+
+			    var remainingQuantity = closeResponse.OrderedQuantity - closeResponse.FilledQuantity;
+			    if (remainingQuantity == 0) return;
+
+			    await connector.SendMarketOrderRequest(symbol, side, remainingQuantity,
+				    copier.MarketTimeWindowInMs, copier.MarketMaxRetryCount, copier.MarketRetryPeriodInMs);
+		    }
+
+		    else if (copier.OrderType == FixApiCopier.FixApiOrderTypes.Market)
+		    {
+			    await connector.SendMarketOrderRequest(symbol, side, quantity,
+				    copier.MarketTimeWindowInMs, copier.MarketMaxRetryCount, copier.MarketRetryPeriodInMs);
+		    }
+	    }
 
 	    private async Task DelayedRun(Func<Task> action, int millisecondsDelay)
 	    {
