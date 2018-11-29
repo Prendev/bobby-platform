@@ -21,7 +21,7 @@ namespace QvaDev.Orchestration.Services.Strategies
 		Task GoFlat(StratHubArb arb);
 	}
 
-	public class HubArbService : IHubArbService
+	public partial class HubArbService : IHubArbService
 	{
 		private volatile CancellationTokenSource _cancellation;
 		private CustomThreadPool<OrderResponse> _orderPool;
@@ -194,48 +194,26 @@ namespace QvaDev.Orchestration.Services.Strategies
 			{
 				Logger.Info($"{arb.Description} arb is opening!!!");
 
-				var buyPos = new OrderResponse();
-				var sellPos = new OrderResponse();
+				var result = await Opening(arb, buyQuote, sellQuote, size);
 
-				if (arb.OpeningLogic == StratHubArb.StratHubArbOpeningLogics.Parallel ||
-				    buyQuote.AggAccount.FeedSpeed == sellQuote.AggAccount.FeedSpeed)
+				if (result.Buy.FilledQuantity > result.Sell.FilledQuantity)
 				{
-					var buy = _orderPool.Run(() => SendPosition(arb, buyQuote, Sides.Buy, size));
-					var sell = _orderPool.Run(() => SendPosition(arb, sellQuote, Sides.Sell, size));
-					await Task.WhenAll(buy, sell);
-					buyPos = buy.Result;
-					sellPos = sell.Result;
+					Logger.Warn($"{arb.Description} arb opening size mismatch!!!");
+					await SendPosition(arb, buyQuote, Sides.Sell, result.Buy.FilledQuantity - result.Sell.FilledQuantity, true);
 				}
-				else if (arb.OpeningLogic == StratHubArb.StratHubArbOpeningLogics.SlowFirst)
+				else if (result.Buy.FilledQuantity < result.Sell.FilledQuantity)
 				{
-					if (buyQuote.AggAccount.FeedSpeed < sellQuote.AggAccount.FeedSpeed)
-					{
-						buyPos = await SendPosition(arb, buyQuote, Sides.Buy, size);
-						if (buyPos.FilledQuantity > 0)
-							sellPos = await SendPosition(arb, sellQuote, Sides.Sell, buyPos.FilledQuantity);
-					}
-					else if (sellQuote.AggAccount.FeedSpeed < buyQuote.AggAccount.FeedSpeed)
-					{
-						sellPos = await SendPosition(arb, sellQuote, Sides.Sell, size);
-						if (sellPos.FilledQuantity > 0)
-							buyPos = await SendPosition(arb, buyQuote, Sides.Buy, sellPos.FilledQuantity);
-					}
+					Logger.Warn($"{arb.Description} arb opening size mismatch!!!");
+					await SendPosition(arb, sellQuote, Sides.Buy, result.Sell.FilledQuantity - result.Buy.FilledQuantity, true);
 				}
 
-				if (buyPos.FilledQuantity > sellPos.FilledQuantity)
+				if (result.Buy.FilledQuantity == 0 || result.Sell.FilledQuantity == 0)
 				{
-					Logger.Error($"{arb.Description} arb opening size mismatch!!!");
-					await SendPosition(arb, buyQuote, Sides.Sell, buyPos.FilledQuantity - sellPos.FilledQuantity, true);
-				}
-				else if (buyPos.FilledQuantity < sellPos.FilledQuantity)
-				{
-					Logger.Error($"{arb.Description} arb opening size mismatch!!!");
-					await SendPosition(arb, sellQuote, Sides.Buy, sellPos.FilledQuantity - buyPos.FilledQuantity, true);
+					Logger.Warn($"{arb.Description} arb failed to open!!!");
+					return;
 				}
 
-				if (buyPos.FilledQuantity == 0 || sellPos.FilledQuantity == 0) return;
-
-				var arbDiff = (sellPos.AveragePrice - buyPos.AveragePrice) / arb.PipSize;
+				var arbDiff = (result.Sell.AveragePrice - result.Buy.AveragePrice) / arb.PipSize;
 				Logger.Info($"{arb.Description} arb opened with {arbDiff:F2} pip!!!");
 			}
 			finally

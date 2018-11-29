@@ -16,7 +16,8 @@ namespace QvaDev.Data.Models
 		public enum StratHubArbOpeningLogics
 		{
 			Parallel,
-			SlowFirst
+			SlowFirst,
+			DelayedHedge
 		}
 
 		[DisplayPriority(-1)] public bool Run { get; set; }
@@ -40,6 +41,8 @@ namespace QvaDev.Data.Models
 		public TimeSpan? LatestCloseTime { get; set; }
 
 		public StratHubArbOpeningLogics OpeningLogic { get; set; }
+		[DisplayName("Trailing")]
+		public decimal TrailingInPip { get; set; }
 		public StratHubArbOrderTypes OrderType { get; set; }
 		[DisplayName("MaxRetry")]
 		public int MaxRetryCount { get; set; }
