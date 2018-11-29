@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using QvaDev.Common.Attributes;
 
 namespace QvaDev.Data.Models
 {
@@ -22,8 +20,5 @@ namespace QvaDev.Data.Models
 		public decimal AvgPrice { get; set; }
 
 		public decimal SignedSize => Size * (Side == Sides.Buy ? 1 : -1);
-
-		[InvisibleColumn] public List<StratHubArbPosition> StratHubArbPositions { get; } = new List<StratHubArbPosition>();
-
 	}
 }

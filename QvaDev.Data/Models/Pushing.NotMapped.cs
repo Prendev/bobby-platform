@@ -9,6 +9,9 @@ namespace QvaDev.Data.Models
 	{
 		public event EventHandler<ConnectionStates> ConnectionChanged;
 
+		[NotMapped] [InvisibleColumn] public Spoof Spoof { get; set; }
+		[NotMapped] [InvisibleColumn] public SpoofingState SpoofingState { get; set; }
+
 		[NotMapped] [InvisibleColumn] public Sides BetaOpenSide { get; set; }
 		[NotMapped] [InvisibleColumn] public Sides FirstCloseSide { get; set; }
 		[NotMapped] [InvisibleColumn] public bool IsHedgeClose { get; set; } = true;

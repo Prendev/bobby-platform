@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using IBApi;
 using QvaDev.Common.Integration;
+using Bar = IBApi.Bar;
 
 namespace QvaDev.IbIntegration
 {
@@ -43,7 +44,7 @@ namespace QvaDev.IbIntegration
 			
 		}
 
-		public void tickPrice(int tickerId, int field, double price, int canAutoExecute)
+		public void tickPrice(int tickerId, int field, double price, TickAttrib attribs)
 		{
 			
 		}
@@ -69,7 +70,7 @@ namespace QvaDev.IbIntegration
 			
 		}
 
-		public void deltaNeutralValidation(int reqId, UnderComp underComp)
+		public void deltaNeutralValidation(int reqId, DeltaNeutralContract deltaNeutralContract)
 		{
 			
 		}
@@ -122,7 +123,7 @@ namespace QvaDev.IbIntegration
 		}
 
 		public void updatePortfolio(Contract contract, double position, double marketPrice, double marketValue, double averageCost,
-			double unrealisedPNL, double realisedPNL, string accountName)
+			double unrealizedPNL, double realizedPNL, string accountName)
 		{
 			
 		}
@@ -138,7 +139,7 @@ namespace QvaDev.IbIntegration
 		}
 
 		public void orderStatus(int orderId, string status, double filled, double remaining, double avgFillPrice, int permId,
-			int parentId, double lastFillPrice, int clientId, string whyHeld)
+			int parentId, double lastFillPrice, int clientId, string whyHeld, double mktCapPrice)
 		{
 			
 		}
@@ -169,8 +170,8 @@ namespace QvaDev.IbIntegration
 
 			var response = new OrderResponse()
 			{
-				AveragePrice = (decimal) execution.AvgPrice,
-				FilledQuantity = Math.Abs(execution.CumQty)
+				AveragePrice = (decimal)execution.AvgPrice,
+				FilledQuantity = (decimal)Math.Abs(execution.CumQty)
 			};
 
 			Task.Run(() => _taskCompletionManager.SetResult(execution.OrderId.ToString(), response, true));
@@ -191,8 +192,12 @@ namespace QvaDev.IbIntegration
 			
 		}
 
-		public void historicalData(int reqId, string date, double open, double high, double low, double close, int volume, int count,
-			double WAP, bool hasGaps)
+		public void historicalData(int reqId, Bar bar)
+		{
+			
+		}
+
+		public void historicalDataUpdate(int reqId, Bar bar)
 		{
 			
 		}
@@ -212,7 +217,8 @@ namespace QvaDev.IbIntegration
 			
 		}
 
-		public void updateMktDepthL2(int tickerId, int position, string marketMaker, int operation, int side, double price, int size)
+		public void updateMktDepthL2(int tickerId, int position, string marketMaker, int operation, int side, double price, int size,
+			bool isSmartDepth)
 		{
 			
 		}
@@ -291,6 +297,7 @@ namespace QvaDev.IbIntegration
 
 		public void connectAck()
 		{
+			
 		}
 
 		public void positionMulti(int requestId, string account, string modelCode, Contract contract, double pos, double avgCost)
@@ -325,6 +332,137 @@ namespace QvaDev.IbIntegration
 		}
 
 		public void softDollarTiers(int reqId, SoftDollarTier[] tiers)
+		{
+			
+		}
+
+		public void familyCodes(FamilyCode[] familyCodes)
+		{
+			
+		}
+
+		public void symbolSamples(int reqId, ContractDescription[] contractDescriptions)
+		{
+			
+		}
+
+		public void mktDepthExchanges(DepthMktDataDescription[] depthMktDataDescriptions)
+		{
+			
+		}
+
+		public void tickNews(int tickerId, long timeStamp, string providerCode, string articleId, string headline, string extraData)
+		{
+			
+		}
+
+		public void smartComponents(int reqId, Dictionary<int, KeyValuePair<string, char>> theMap)
+		{
+			
+		}
+
+		public void tickReqParams(int tickerId, double minTick, string bboExchange, int snapshotPermissions)
+		{
+			
+		}
+
+		public void newsProviders(NewsProvider[] newsProviders)
+		{
+			
+		}
+
+		public void newsArticle(int requestId, int articleType, string articleText)
+		{
+			
+		}
+
+		public void historicalNews(int requestId, string time, string providerCode, string articleId, string headline)
+		{
+			
+		}
+
+		public void historicalNewsEnd(int requestId, bool hasMore)
+		{
+			
+		}
+
+		public void headTimestamp(int reqId, string headTimestamp)
+		{
+			
+		}
+
+		public void histogramData(int reqId, HistogramEntry[] data)
+		{
+			
+		}
+
+		public void rerouteMktDataReq(int reqId, int conId, string exchange)
+		{
+			
+		}
+
+		public void rerouteMktDepthReq(int reqId, int conId, string exchange)
+		{
+			
+		}
+
+		public void marketRule(int marketRuleId, PriceIncrement[] priceIncrements)
+		{
+			
+		}
+
+		public void pnl(int reqId, double dailyPnL, double unrealizedPnL, double realizedPnL)
+		{
+			
+		}
+
+		public void pnlSingle(int reqId, int pos, double dailyPnL, double unrealizedPnL, double realizedPnL, double value)
+		{
+			
+		}
+
+		public void historicalTicks(int reqId, HistoricalTick[] ticks, bool done)
+		{
+			
+		}
+
+		public void historicalTicksBidAsk(int reqId, HistoricalTickBidAsk[] ticks, bool done)
+		{
+			
+		}
+
+		public void historicalTicksLast(int reqId, HistoricalTickLast[] ticks, bool done)
+		{
+			
+		}
+
+		public void tickByTickAllLast(int reqId, int tickType, long time, double price, int size, TickAttribLast tickAttriblast,
+			string exchange, string specialConditions)
+		{
+			
+		}
+
+		public void tickByTickBidAsk(int reqId, long time, double bidPrice, double askPrice, int bidSize, int askSize,
+			TickAttribBidAsk tickAttribBidAsk)
+		{
+			var symbol = _subscriptions[reqId];
+			var tick = new Tick
+			{
+				Symbol = symbol,
+				Ask = (decimal)askPrice,
+				Bid = (decimal)bidPrice,
+				Time = HiResDatetime.UtcNow
+			};
+			LastTicks.AddOrUpdate(symbol, key => tick, (key, old) => tick);
+			OnNewTick(new NewTick { Tick = tick });
+		}
+
+		public void tickByTickMidPoint(int reqId, long time, double midPoint)
+		{
+			
+		}
+
+		public void orderBound(long orderId, int apiClientId, int apiOrderId)
 		{
 			
 		}

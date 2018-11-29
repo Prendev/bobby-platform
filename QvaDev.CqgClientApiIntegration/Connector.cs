@@ -1,6 +1,7 @@
 ﻿using CQG;
 using QvaDev.Common.Integration;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -12,6 +13,8 @@ namespace QvaDev.CqgClientApiIntegration
 		private readonly AccountInfo _accountInfo;
 		private readonly TaskCompletionManager<string> _taskCompletionManager;
 		private readonly List<string> _subscribes = new List<string>();
+		private readonly ConcurrentDictionary<LimitResponse, CQGOrder> _limitOrderMapping = new ConcurrentDictionary<LimitResponse, CQGOrder>();
+		private readonly ConcurrentDictionary<string, LimitResponse> _limitOrders = new ConcurrentDictionary<string, LimitResponse>();
 
 		private readonly Object _lock = new Object();
 		private volatile bool _isConnecting;
@@ -101,7 +104,7 @@ namespace QvaDev.CqgClientApiIntegration
 				CqgAccount = _cqgCel.Accounts.ItemByIndex[0];
 
 				lock (_subscribes) _subscribes.Clear();
-				foreach (var symbol in SymbolInfos.Keys)
+				foreach (var symbol in LastTicks.Keys)
 					Subscribe(symbol);
 			}
 			catch (Exception e)
@@ -179,20 +182,87 @@ namespace QvaDev.CqgClientApiIntegration
 			}
 		}
 
-		public override Task<OrderResponse> SendMarketOrderRequest(string symbol, Sides side, decimal quantity, int timeout, int retryCount, int retryPeriod)
+		public override async Task<LimitResponse> SendSpoofOrderRequest(string symbol, Sides side, decimal quantity, decimal limitPrice)
 		{
-			throw new NotImplementedException();
+			try
+			{
+				quantity = Math.Abs(quantity);
+				var cqgQuantity = (int)quantity;
+				if (side == Sides.Sell) cqgQuantity *= -1;
+
+				var datetime = HiResDatetime.UtcNow;
+				var key = $"[{(datetime - datetime.Date).TotalMilliseconds:0000000.000}]";
+				var task = _taskCompletionManager.CreateCompletableTask<CQGOrder>(key);
+
+				var order = _cqgCel.CreateOrderByInstrumentName(eOrderType.otLimit, symbol, CqgAccount, cqgQuantity, eOrderSide.osdUndefined,
+					(double)limitPrice, 0, key);
+				order.DurationType = eOrderDuration.odDay;
+				order.Place();
+				var cqgOrder = await task;
+
+				var response = new LimitResponse()
+				{
+					Symbol = symbol,
+					Side = side,
+					OrderedQuantity = quantity,
+					OrderPrice = limitPrice
+				};
+				_limitOrders.AddOrUpdate(key, response, (k, o) => response);
+				_limitOrderMapping.AddOrUpdate(response, cqgOrder, (k, o) => cqgOrder);
+				return response;
+			}
+			catch (Exception e)
+			{
+				Logger.Error($"{Description} Connector.SendSpoofOrderRequest({symbol}, {side}, {quantity}, {limitPrice}) exception", e);
+				return null;
+			}
 		}
 
-		public override Task<OrderResponse> SendAggressiveOrderRequest(string symbol, Sides side, decimal quantity, decimal limitPrice, decimal deviation,
-			int timeout, int retryCount, int retryPeriod)
+		public override async Task<bool> ChangeLimitPrice(LimitResponse response, decimal limitPrice)
 		{
-			throw new NotImplementedException();
+			CQGOrder order = null;
+			try
+			{
+				if (!_limitOrderMapping.TryGetValue(response, out order)) return false;
+				if (order.Type != eOrderType.otLimit) return false;
+				if (order.GWStatus == eOrderStatus.osFilled) return false;
+
+				var modify = order.PrepareModify();
+				modify.Properties[eOrderProperty.opLimitPrice].Value = (double)limitPrice;
+				var task = _taskCompletionManager.CreateCompletableTask<CQGOrder>($"{OrderKey(order)}");
+				order.Modify(modify);
+				var cqgOrder = await task;
+
+				_limitOrderMapping.AddOrUpdate(response, order, (k, o) => order);
+				response.OrderPrice = (decimal)cqgOrder.LimitPrice;
+				return response.OrderPrice == limitPrice;
+			}
+			catch (Exception e)
+			{
+				Logger.Error($"{Description} Connector.ChangeLimitPrice({order.InstrumentName}, {response.Side}, {response.OrderedQuantity}) exception", e);
+				return false;
+			}
 		}
 
-		public override void OrderMultipleCloseBy(string symbol)
+		public override async Task<bool> CancelLimit(LimitResponse response)
 		{
-			throw new NotImplementedException();
+			CQGOrder order = null;
+			try
+			{
+				if (!_limitOrderMapping.TryGetValue(response, out order)) return false;
+				if (order.Type != eOrderType.otLimit) return false;
+				if (order.GWStatus == eOrderStatus.osFilled) return true;
+
+				var task = _taskCompletionManager.CreateCompletableTask($"{OrderKey(order)}_cancel");
+				order.Cancel();
+				await task;
+				return true;
+			}
+			catch (Exception e)
+			{
+				Logger.Error($"{Description} Connector.CancelLimit({order.InstrumentName}, {response.Side}, {response.OrderedQuantity}) exception", e);
+				return false;
+			}
 		}
 
 		private async void Reconnect(int delay = 30000)
@@ -221,7 +291,7 @@ namespace QvaDev.CqgClientApiIntegration
 			// After successful login open positions are loaded
 			else if (changeType == eAccountChangeType.actPositionsReloaded)
 			{
-				foreach (CQGPosition pos in CqgAccount.Positions)
+				foreach (CQGPosition pos in cqgAccount.Positions)
 				{
 					var quantity = (decimal) pos.Quantity;
 					var symbol = pos.InstrumentName;
@@ -272,33 +342,56 @@ namespace QvaDev.CqgClientApiIntegration
 		private void _cqgCel_OrderChanged(eChangeType changeType, CQGOrder cqgOrder, CQGOrderProperties oldProperties,
 			CQGFill cqgFill, CQGError cqgError)
 		{
+			// Check if order sent by us and has proper order key
 			if (cqgOrder.Account != CqgAccount) return;
 			var orderKey = OrderKey(cqgOrder);
-			if (cqgError != null && orderKey != null)
+			if (string.IsNullOrWhiteSpace(orderKey)) return;
+
+			// Check for errors
+			if (cqgError != null)
 			{
 				_taskCompletionManager.SetError(orderKey, new Exception(cqgError.Description));
 				Logger.Error($"{Description} Connector._cqgCel_OrderChanged", new Exception(cqgError.Description));
 				return;
 			}
 
+			// Order type specific checks
+			if (changeType != eChangeType.ctChanged) return;
+			CheckLimit(orderKey, cqgOrder, cqgFill);
+			CheckMarket(orderKey, cqgOrder, cqgFill);
+		}
+
+		private void CheckLimit(string orderKey, CQGOrder cqgOrder, CQGFill cqgFill)
+		{
+			if (cqgOrder.Type != eOrderType.otLimit) return;
+
+			if (cqgOrder.GWStatus == eOrderStatus.osInOrderBook && cqgFill == null)
+				_taskCompletionManager.SetResult(orderKey, cqgOrder, true);
+			else if(cqgOrder.GWStatus == eOrderStatus.osCanceled)
+				_taskCompletionManager.SetCompleted($"{orderKey}_cancel", true);
+			else if (cqgFill != null && _limitOrders.TryGetValue(orderKey, out var limitResponse))
+				lock (limitResponse)
+					limitResponse.FilledQuantity = Math.Abs(cqgOrder.FilledQuantity);
+		}
+		private void CheckMarket(string orderKey, CQGOrder cqgOrder, CQGFill cqgFill)
+		{
+			if (cqgOrder.Type != eOrderType.otMarket) return;
 			if (cqgFill == null) return;
 
-			var quantity = (decimal) cqgFill.Quantity;
-			var symbol = cqgOrder.InstrumentName;
-
-			SymbolInfos.AddOrUpdate(symbol, new SymbolData {SumContracts = quantity},
+			SymbolInfos.AddOrUpdate(cqgOrder.InstrumentName, new SymbolData {SumContracts = cqgFill.Quantity},
 				(key, oldValue) =>
 				{
-					oldValue.SumContracts += quantity;
+					oldValue.SumContracts += cqgFill.Quantity;
 					return oldValue;
 				});
 
-			if (orderKey == null) return;
-			_taskCompletionManager.SetResult(orderKey, new OrderResponse()
+			var quantity = (decimal) cqgFill.Quantity;
+			var response = new OrderResponse()
 			{
 				AveragePrice = (decimal) cqgFill.Price,
 				FilledQuantity = Math.Abs(quantity)
-			}, true);
+			};
+			_taskCompletionManager.SetResult(orderKey, response, true);
 		}
 
 		private void _cqgCel_InstrumentChanged(CQGInstrument cqgInstrument, CQGQuotes cqgQuotes, CQGInstrumentProperties cqgInstrumentProperties)

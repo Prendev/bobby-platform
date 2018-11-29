@@ -62,7 +62,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Services\PushingServiceTests.cs" />
+    <Compile Include="Services\SpoofingServiceTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
@@ -72,6 +72,10 @@
     <ProjectReference Include="..\QvaDev.Common\QvaDev.Common.csproj">
       <Project>{10A3EF89-12BB-4D00-9950-36BFED281B91}</Project>
       <Name>QvaDev.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\QvaDev.CTraderIntegration\QvaDev.CTraderIntegration.csproj">
+      <Project>{5B92788F-AF48-4709-A539-BBA2822A06B7}</Project>
+      <Name>QvaDev.CTraderIntegration</Name>
     </ProjectReference>
     <ProjectReference Include="..\QvaDev.Data\QvaDev.Data.csproj">
       <Project>{D7DA9DD6-1BA9-45B9-9581-1D095631DF0D}</Project>

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using QvaDev.Common.Integration;
 
 namespace QvaDev.Common
@@ -30,6 +31,14 @@ namespace QvaDev.Common
 				case Sides.Sell: return tick.Bid;
 				default: return 0;
 			}
+		}
+
+		public static void CancelAndDispose(this CancellationTokenSource cts)
+		{
+			if (cts == null) return;
+			if (cts.IsCancellationRequested) return;
+			cts.Cancel();
+			cts.Dispose();
 		}
 	}
 }

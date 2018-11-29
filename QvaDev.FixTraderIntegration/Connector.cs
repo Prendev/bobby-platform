@@ -12,7 +12,7 @@ using QvaDev.Common.Integration;
 
 namespace QvaDev.FixTraderIntegration
 {
-	public class Connector : ConnectorBase, IFixConnector
+	public class Connector : FixApiConnectorBase, IFixConnector
 	{
 		private TcpClient _commandClient;
 		private TcpClient _eventsClient;
@@ -26,9 +26,6 @@ namespace QvaDev.FixTraderIntegration
 		public override int Id => _accountInfo?.DbId ?? 0;
 		public override string Description => _accountInfo?.Description ?? "";
 		public override bool IsConnected => _commandClient?.Connected == true && _eventsClient?.Connected == true;
-
-		public ConcurrentDictionary<string, SymbolData> SymbolInfos { get; set; } =
-			new ConcurrentDictionary<string, SymbolData>();
 
 		public Connector()
 		{
@@ -191,22 +188,6 @@ namespace QvaDev.FixTraderIntegration
 			}
 		}
 
-		public Task<OrderResponse> SendMarketOrderRequest(string symbol, Sides side, decimal quantity)
-		{
-			throw new NotImplementedException();
-		}
-
-		public Task<OrderResponse> SendMarketOrderRequest(string symbol, Sides side, decimal quantity, int timeout, int retryCount, int retryPeriod)
-		{
-			throw new NotImplementedException();
-		}
-
-		public Task<OrderResponse> SendAggressiveOrderRequest(string symbol, Sides side, decimal quantity, decimal limitPrice, decimal deviation,
-			int timeout, int retryCount, int retryPeriod)
-		{
-			throw new NotImplementedException();
-		}
-
 		public void SendLimitOrderRequest(string symbol, Sides side, double lots, double slippage, string comment = null)
 		{
 			try
@@ -289,7 +270,7 @@ namespace QvaDev.FixTraderIntegration
 			}
 		}
 
-		public void OrderMultipleCloseBy(string symbol)
+		public override void OrderMultipleCloseBy(string symbol)
 		{
 			long unix = (long)(HiResDatetime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, 0)).TotalSeconds;
 			var tags = new List<string>
@@ -312,11 +293,6 @@ namespace QvaDev.FixTraderIntegration
 			{
 				Logger.Error($"Connector.OrderMultipleCloseBy({symbol}) exception", e);
 			}
-		}
-
-		public SymbolData GetSymbolInfo(string symbol)
-		{
-			return SymbolInfos.GetOrAdd(symbol, new SymbolData());
 		}
 
 		public override void Subscribe(string symbol)

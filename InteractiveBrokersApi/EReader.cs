@@ -1,4 +1,4 @@
-﻿/* Copyright (C) 2015 Interactive Brokers LLC. All rights reserved.  This code is subject to the terms
+﻿/* Copyright (C) 2018 Interactive Brokers LLC. All rights reserved. This code is subject to the terms
  * and conditions of the IB API Non-Commercial License or the IB API Commercial License, as applicable. */
 using System;
 using System.Collections.Generic;
@@ -42,9 +42,17 @@ namespace IBApi
         {
             new Thread(() =>
             {
-                while (eClientSocket.IsConnected())
-                    if (!putMessageToQueue())
-                        break;
+                try
+                {
+                    while (eClientSocket.IsConnected())
+                        if (!putMessageToQueue())
+                            break;
+                }
+                catch (Exception ex)
+                {
+                    eClientSocket.Wrapper.error(ex);
+                    eClientSocket.eDisconnect();
+                }
 
                 eReaderSignal.issueSignal();
             }) { IsBackground = true }.Start();
@@ -83,7 +91,7 @@ namespace IBApi
             catch (Exception ex)
             {
                 if (eClientSocket.IsConnected())
-                    eClientSocket.Wrapper.error(ex);
+                    eClientSocket.Wrapper.error(ex.Message);
 
                 return false;
             }
@@ -104,19 +112,7 @@ namespace IBApi
                     throw new EClientException(EClientErrors.BAD_LENGTH);
                 }
 
-                var buf = new List<byte>();
-                var offset = 0;
-
-                while (offset < msgSize)
-                {
-                    var readBuf = eClientSocket.ReadByteArray(msgSize - offset);
-
-                    buf.AddRange(readBuf);
-
-                    offset += readBuf.Length;
-                }
-
-                return new EMessage(buf.ToArray());
+                return new EMessage(eClientSocket.ReadByteArray(msgSize));
             }
 
             if (inBuf.Count == 0)
@@ -149,7 +145,7 @@ namespace IBApi
 
         private void AppendInBuf()
         {
-            inBuf.AddRange(eClientSocket.ReadByteArray(inBuf.Capacity - inBuf.Count));
+            inBuf.AddRange(eClientSocket.ReadAtLeastNBytes(inBuf.Capacity - inBuf.Count));
         }
     }
 }

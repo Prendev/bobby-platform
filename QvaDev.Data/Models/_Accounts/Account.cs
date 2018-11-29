@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using QvaDev.Common.Attributes;
 
 namespace QvaDev.Data.Models
@@ -34,7 +35,8 @@ namespace QvaDev.Data.Models
 		public int? ProfileProxyId { get; set; }
 		public ProfileProxy ProfileProxy { get; set; }
 
+		[InvisibleColumn] public DateTime? LastOrderTime { get; set; }
 		public List<AggregatorAccount> Aggregators { get; } = new List<AggregatorAccount>();
-		public List<StratPosition> StratPositions { get; } = new List<StratPosition>();
+		public List<StratHubArbPosition> StratHubArbPositions { get; } = new List<StratHubArbPosition>();
 	}
 }

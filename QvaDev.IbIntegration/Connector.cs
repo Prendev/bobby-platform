@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using IBApi;
@@ -6,13 +7,14 @@ using QvaDev.Common.Integration;
 
 namespace QvaDev.IbIntegration
 {
-    public partial class Connector : ConnectorBase, IFixConnector
+    public partial class Connector : FixApiConnectorBase
     {
 	    private const int TASK_TIMEOUT = 5000;
 
 		private EClientSocket _clientSocket;
 		private readonly AccountInfo _accountInfo;
 		private readonly TaskCompletionManager<string> _taskCompletionManager;
+		private readonly Dictionary<int, string> _subscriptions = new Dictionary<int, string>();
 
 		private readonly Object _lock = new Object();
 		private volatile bool _isConnecting;
@@ -73,6 +75,13 @@ namespace QvaDev.IbIntegration
 
 			try
 			{
+				lock (_subscriptions)
+				{
+					foreach (var subscription in _subscriptions)
+						_clientSocket?.cancelTickByTickData(subscription.Key);
+					_subscriptions.Clear();
+				}
+
 				_clientSocket?.Close();
 			}
 			catch (Exception e)
@@ -81,17 +90,27 @@ namespace QvaDev.IbIntegration
 			}
 		}
 
-		public override Tick GetLastTick(string symbol)
-		{
-			throw new System.NotImplementedException();
-		}
+	    public override void Subscribe(string symbol)
+	    {
+		    try
+		    {
+			    int reqId;
+				lock (_subscriptions)
+				{
+					reqId = _subscriptions.Count + 1;
+					_subscriptions[reqId] = symbol;
+				}
 
-		public override void Subscribe(string symbol)
-		{
-			throw new System.NotImplementedException();
-		}
+				var contract = symbol.ToContract();
+				_clientSocket.reqTickByTickData(reqId, contract, "BidAsk", 0, true);
+			}
+		    catch (Exception e)
+		    {
+			    Logger.Error($"{Description} account ERROR during subscribtion", e);
+		    }
+	    }
 
-		private ConnectionStates GetStatus()
+	    private ConnectionStates GetStatus()
 		{
 			if (IsConnected) return ConnectionStates.Connected;
 			return _shouldConnect ? ConnectionStates.Error : ConnectionStates.Disconnected;
@@ -106,7 +125,7 @@ namespace QvaDev.IbIntegration
 			await InnerConnect();
 		}
 
-		public async Task<OrderResponse> SendMarketOrderRequest(string symbol, Sides side, decimal quantity)
+		public override async Task<OrderResponse> SendMarketOrderRequest(string symbol, Sides side, decimal quantity)
 		{
 			var retValue = new OrderResponse()
 			{
@@ -156,27 +175,6 @@ namespace QvaDev.IbIntegration
 			}
 
 			return retValue;
-		}
-
-		public Task<OrderResponse> SendMarketOrderRequest(string symbol, Sides side, decimal quantity, int timeout, int retryCount, int retryPeriod)
-		{
-			throw new NotImplementedException();
-		}
-
-		public Task<OrderResponse> SendAggressiveOrderRequest(string symbol, Sides side, decimal quantity, decimal limitPrice, decimal deviation,
-			int timeout, int retryCount, int retryPeriod)
-		{
-			throw new NotImplementedException();
-		}
-
-		public void OrderMultipleCloseBy(string symbol)
-		{
-			throw new NotImplementedException();
-		}
-
-		public SymbolData GetSymbolInfo(string symbol)
-		{
-			throw new NotImplementedException();
 		}
 	}
 }
