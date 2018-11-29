@@ -151,9 +151,9 @@ namespace QvaDev.Data.Models
 
 		private decimal PositionSum(Account account)
 		{
-			if (account == null) return 0;
-			return StratHubArbPositions?.Where(e => e.Position != null && e.Position.AccountId == account.Id)
-				       .Sum(e => e.Position.SignedSize) ?? 0;
+			if (account?.StratHubArbPositions == null) return 0;
+			lock (account.StratHubArbPositions)
+				return account.StratHubArbPositions.Where(e => e.StratHubArbId == Id).Sum(e => e.Position.SignedSize);
 		}
 	}
 }

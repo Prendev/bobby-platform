@@ -52,6 +52,6 @@ namespace QvaDev.Data.Models
 
 		public decimal PipSize { get; set; }
 
-		[InvisibleColumn] public List<StratHubArbPosition> StratHubArbPositions { get; } = new List<StratHubArbPosition>();
+		public List<StratHubArbPosition> StratHubArbPositions { get; } = new List<StratHubArbPosition>();
 	}
 }

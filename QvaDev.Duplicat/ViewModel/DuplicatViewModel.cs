@@ -148,7 +148,8 @@ namespace QvaDev.Duplicat.ViewModel
 			_duplicatContext.Profiles.Load();
 		    _duplicatContext.Proxies.Load();
 		    _duplicatContext.ProfileProxies.Where(e => e.ProfileId == p).Load();
-			_duplicatContext.Accounts.Where(e => e.ProfileId == p).Include(e => e.StratPositions).Load();
+			_duplicatContext.Accounts.Where(e => e.ProfileId == p)
+				.Include(e => e.StratHubArbPositions).ThenInclude(e => e.Position).Load();
 			_duplicatContext.Aggregators.Where(e => e.ProfileId == p).Load();
 			_duplicatContext.AggregatorAccounts.Where(e => e.Aggregator.ProfileId == p).Load();
 

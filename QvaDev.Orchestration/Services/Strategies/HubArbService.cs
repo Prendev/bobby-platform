@@ -184,13 +184,8 @@ namespace QvaDev.Orchestration.Services.Strategies
 		private bool CheckAccount(StratHubArb arb, Account account, DateTime now)
 		{
 			if (account.IsBusy) return false;
-
-			var openTime = account.StratPositions
-				.OrderByDescending(x => x.OpenTime)
-				.FirstOrDefault()?.OpenTime;
-
-			if (!openTime.HasValue) return true;
-			return (now - openTime.Value).Minutes >= arb.RestingPeriodInMinutes;
+			if (!account.LastOrderTime.HasValue) return true;
+			return (now - account.LastOrderTime.Value).Minutes >= arb.RestingPeriodInMinutes;
 		}
 
 		private async void Open(StratHubArb arb, Quote buyQuote, Quote sellQuote, decimal size)
@@ -278,18 +273,24 @@ namespace QvaDev.Orchestration.Services.Strategies
 		{
 			var side = closePos.Side == Sides.Buy ? StratPosition.Sides.Buy : StratPosition.Sides.Sell;
 
-			var pos = new StratPosition()
+			var newEntity = new StratHubArbPosition()
 			{
-				AccountId = account.Id,
-				Account = account,
-				AvgPrice = closePos.AveragePrice ?? 0,
-				OpenTime = HiResDatetime.UtcNow,
-				Side = side,
-				Size = closePos.FilledQuantity,
-				Symbol = symbol
+				StratHubArb = arb,
+				StratHubArbId = arb.Id,
+				Position = new StratPosition()
+				{
+					AccountId = account.Id,
+					Account = account,
+					AvgPrice = closePos.AveragePrice ?? 0,
+					OpenTime = HiResDatetime.UtcNow,
+					Side = side,
+					Size = closePos.FilledQuantity,
+					Symbol = symbol
+				}
 			};
-			arb.StratHubArbPositions.Add(new StratHubArbPosition { Position = pos });
-			account.StratPositions.Add(pos);
+			account.LastOrderTime = newEntity.Position.OpenTime;
+			arb.StratHubArbPositions.Add(newEntity);
+			lock (account.StratHubArbPositions) account.StratHubArbPositions.Add(newEntity);
 		}
 
 		private void ArbLoop(StratHubArb arb, CancellationToken token)
