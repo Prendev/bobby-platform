@@ -32,9 +32,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Common.Logging.Core, Version=3.4.1.0, Culture=neutral, PublicKeyToken=af08829b84f0328e" />
-    <Reference Include="QvaDev">
-      <HintPath>..\Externals\QvaDev.Communication.FixApi.Connectors\QvaDev.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
@@ -51,6 +48,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\git\QvaDev.Wololo\QvaDev\QvaDev.csproj">
+      <Project>{a8c5f573-2d3d-4e1a-8844-b11032f12a37}</Project>
+      <Name>QvaDev</Name>
+    </ProjectReference>
     <ProjectReference Include="..\QvaDev.Common\QvaDev.Common.csproj">
       <Project>{10a3ef89-12bb-4d00-9950-36bfed281b91}</Project>
       <Name>QvaDev.Common</Name>

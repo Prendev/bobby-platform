@@ -108,16 +108,6 @@
     <Reference Include="NPOI.OpenXmlFormats, Version=2.3.0.0, Culture=neutral, PublicKeyToken=0df73ec7942b34e1, processorArchitecture=MSIL">
       <HintPath>..\packages\NPOI.2.3.0\lib\net40\NPOI.OpenXmlFormats.dll</HintPath>
     </Reference>
-    <Reference Include="QvaDev">
-      <HintPath>..\Externals\QvaDev.Communication.FixApi.Connectors\QvaDev.dll</HintPath>
-    </Reference>
-    <Reference Include="QvaDev.Communication, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Externals\QvaDev.Communication.FixApi.Connectors\QvaDev.Communication.dll</HintPath>
-    </Reference>
-    <Reference Include="QvaDev.Communication.FixApi">
-      <HintPath>..\Externals\QvaDev.Communication.FixApi.Connectors\QvaDev.Communication.FixApi.dll</HintPath>
-    </Reference>
     <Reference Include="Remotion.Linq, Version=2.2.0.0, Culture=neutral, PublicKeyToken=fee00910d6e5f53b, processorArchitecture=MSIL">
       <HintPath>..\packages\Remotion.Linq.2.2.0\lib\net45\Remotion.Linq.dll</HintPath>
     </Reference>
@@ -183,6 +173,18 @@
     <Compile Include="Services\ReportService.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\git\QvaDev.Wololo\QvaDev.Communication.FixApi\QvaDev.Communication.FixApi.csproj">
+      <Project>{FA62481E-A560-449A-A654-A69B8FA63D36}</Project>
+      <Name>QvaDev.Communication.FixApi</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\git\QvaDev.Wololo\QvaDev.Communication\QvaDev.Communication.csproj">
+      <Project>{1EA7001F-9841-4CAA-A69E-59F11BCF76C0}</Project>
+      <Name>QvaDev.Communication</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\git\QvaDev.Wololo\QvaDev\QvaDev.csproj">
+      <Project>{A8C5F573-2D3D-4E1A-8844-B11032F12A37}</Project>
+      <Name>QvaDev</Name>
+    </ProjectReference>
     <ProjectReference Include="..\InteractiveBrokersApi\InteractiveBrokersApi.csproj">
       <Project>{8ede0744-96c2-40b0-a8dc-37df79370203}</Project>
       <Name>InteractiveBrokersApi</Name>

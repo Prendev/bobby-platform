@@ -37,21 +37,6 @@
     <Reference Include="Common.Logging.Core">
       <HintPath>..\Externals\QvaDev.Communication.FixApi.Connectors\Common.Logging.Core.dll</HintPath>
     </Reference>
-    <Reference Include="QvaDev">
-      <HintPath>..\Externals\QvaDev.Communication.FixApi.Connectors\QvaDev.dll</HintPath>
-    </Reference>
-    <Reference Include="QvaDev.Communication">
-      <HintPath>..\Externals\QvaDev.Communication.FixApi.Connectors\QvaDev.Communication.dll</HintPath>
-    </Reference>
-    <Reference Include="QvaDev.Communication.FixApi">
-      <HintPath>..\Externals\QvaDev.Communication.FixApi.Connectors\QvaDev.Communication.FixApi.dll</HintPath>
-    </Reference>
-    <Reference Include="QvaDev.Communication.FixApi.Connectors">
-      <HintPath>..\Externals\QvaDev.Communication.FixApi.Connectors\QvaDev.Communication.FixApi.Connectors.dll</HintPath>
-    </Reference>
-    <Reference Include="QvaDev.Communication.FixApi.Connectors.Strategies">
-      <HintPath>..\Externals\QvaDev.Communication.FixApi.Connectors\QvaDev.Communication.FixApi.Connectors.Strategies.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
@@ -73,6 +58,22 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\git\QvaDev.Wololo\QvaDev.Communication.FixApi.Connectors.Strategies\QvaDev.Communication.FixApi.Connectors.Strategies.csproj">
+      <Project>{969D880C-6667-40C0-A1D5-B4165D3D3C33}</Project>
+      <Name>QvaDev.Communication.FixApi.Connectors.Strategies</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\git\QvaDev.Wololo\QvaDev.Communication.FixApi\QvaDev.Communication.FixApi.csproj">
+      <Project>{FA62481E-A560-449A-A654-A69B8FA63D36}</Project>
+      <Name>QvaDev.Communication.FixApi</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\git\QvaDev.Wololo\QvaDev.Communication\QvaDev.Communication.csproj">
+      <Project>{1EA7001F-9841-4CAA-A69E-59F11BCF76C0}</Project>
+      <Name>QvaDev.Communication</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\git\QvaDev.Wololo\QvaDev\QvaDev.csproj">
+      <Project>{A8C5F573-2D3D-4E1A-8844-B11032F12A37}</Project>
+      <Name>QvaDev</Name>
+    </ProjectReference>
     <ProjectReference Include="..\QvaDev.Common\QvaDev.Common.csproj">
       <Project>{10a3ef89-12bb-4d00-9950-36bfed281b91}</Project>
       <Name>QvaDev.Common</Name>

@@ -61,9 +61,6 @@
     <Reference Include="Google.ProtocolBuffers.Serialization, Version=2.4.1.555, Culture=neutral, PublicKeyToken=55f7125234beb589, processorArchitecture=MSIL">
       <HintPath>..\packages\Google.ProtocolBuffers.2.4.1.555\lib\net40\Google.ProtocolBuffers.Serialization.dll</HintPath>
     </Reference>
-    <Reference Include="QvaDev">
-      <HintPath>..\Externals\QvaDev.Communication.FixApi.Connectors\QvaDev.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -88,6 +85,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\git\QvaDev.Wololo\QvaDev\QvaDev.csproj">
+      <Project>{A8C5F573-2D3D-4E1A-8844-B11032F12A37}</Project>
+      <Name>QvaDev</Name>
+    </ProjectReference>
     <ProjectReference Include="..\QvaDev.Common\QvaDev.Common.csproj">
       <Project>{10a3ef89-12bb-4d00-9950-36bfed281b91}</Project>
       <Name>QvaDev.Common</Name>

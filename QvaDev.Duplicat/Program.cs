@@ -7,7 +7,6 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Windows.Forms;
 using Autofac;
-using QvaDev.Communication;
 using QvaDev.Data;
 using QvaDev.Duplicat.Views;
 

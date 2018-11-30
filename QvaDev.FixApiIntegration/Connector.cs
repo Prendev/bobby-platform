@@ -267,17 +267,23 @@ namespace QvaDev.FixApiIntegration
 
 		public override async void Subscribe(string symbol)
 		{
-			lock (_subscribeMarketData)
-			{
-				if (_subscribeMarketData.Subscriptions.Any(s => s.Symbol == Symbol.Parse(symbol))) return;
-				_subscribeMarketData.Subscriptions.Add(new MarketDataSubscription {Symbol = Symbol.Parse(symbol), MarketDepth = _marketDepth });
-			}
-			if (!IsConnected) return;
-
 			try
 			{
-				await FixConnector.SubscribeMarketDataAsync(Symbol.Parse(symbol), _marketDepth);
+				FixConnector.UnsubscribeBookChange(Symbol.Parse(symbol), (sender, e) => _quoteQueue.Add(e.QuoteSet));
 				FixConnector.SubscribeBookChange(Symbol.Parse(symbol), (sender, e) => _quoteQueue.Add(e.QuoteSet));
+
+				lock (_subscribeMarketData)
+				{
+					if (_subscribeMarketData.Subscriptions.Any(s => s.Symbol == Symbol.Parse(symbol))) return;
+					_subscribeMarketData.Subscriptions.Add(new MarketDataSubscription
+					{
+						Symbol = Symbol.Parse(symbol),
+						MarketDepth = _marketDepth
+					});
+				}
+
+				if (!IsConnected) return;
+				await FixConnector.SubscribeMarketDataAsync(Symbol.Parse(symbol), _marketDepth);
 			}
 			catch (Exception e)
 			{

@@ -56,9 +56,6 @@
     <Reference Include="MT4ServerAPI">
       <HintPath>..\lib\MT4Api\MT4ServerAPI.dll</HintPath>
     </Reference>
-    <Reference Include="QvaDev">
-      <HintPath>..\Externals\QvaDev.Communication.FixApi.Connectors\QvaDev.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -131,6 +128,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\git\QvaDev.Wololo\QvaDev\QvaDev.csproj">
+      <Project>{a8c5f573-2d3d-4e1a-8844-b11032f12a37}</Project>
+      <Name>QvaDev</Name>
+    </ProjectReference>
     <ProjectReference Include="..\QvaDev.Common\QvaDev.Common.csproj">
       <Project>{10a3ef89-12bb-4d00-9950-36bfed281b91}</Project>
       <Name>QvaDev.Common</Name>
