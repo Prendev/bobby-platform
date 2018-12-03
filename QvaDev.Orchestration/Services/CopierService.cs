@@ -76,7 +76,7 @@ namespace QvaDev.Orchestration.Services
 					Logger.Info($"Master {newPos.Action:F} {newPos.Position.Side:F} signal on " +
 					          $"{newPos.Position.Symbol} with open time: {newPos.Position.OpenTime:o}");
 
-					var slaves = master.Slaves.Where(s => s.Run);
+					var slaves = master.Slaves.Where(s => s.Run && s.Account.ConnectionState == ConnectionStates.Connected);
 					await Task.WhenAll(slaves.Select(slave => CopyToAccount(newPos, slave)));
 				}
 				catch (OperationCanceledException)
