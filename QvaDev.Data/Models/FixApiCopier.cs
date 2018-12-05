@@ -11,8 +11,14 @@ namespace QvaDev.Data.Models
 		public enum FixApiOrderTypes
 		{
 			Market,
-			AggressiveOnMasterPrice,
-			AggressiveOnSlavePrice
+			Aggressive,
+			GtcLimit
+		}
+
+		public enum BasePriceTypes
+		{
+			Slave,
+			Master
 		}
 
 		[InvisibleColumn] public int SlaveId { get; set; }
@@ -21,6 +27,7 @@ namespace QvaDev.Data.Models
 		[DisplayPriority(-1)] public bool Run { get; set; }
 		public decimal CopyRatio { get; set; }
 		public FixApiOrderTypes OrderType { get; set; }
+		public BasePriceTypes BasePriceType { get; set; }
 		public int DelayInMilliseconds { get; set; }
 
 		[DisplayName("MarketMaxRetry")]
@@ -36,8 +43,10 @@ namespace QvaDev.Data.Models
 		public int RetryPeriodInMs { get; set; }
 		[DisplayName("AggSlippage")]
 		public decimal SlippageInPip { get; set; }
-		[DisplayName("AggTimeWindow")]
+
+		[DisplayName("LimitTimeWindow")]
 		public int TimeWindowInMs { get; set; }
+		[DisplayName("LimitDiff")] public decimal LimitDiffInPip { get; set; }
 		public decimal PipSize { get; set; }
 
 		[NotMapped] [InvisibleColumn] public decimal Deviation => SlippageInPip * PipSize;

@@ -15,6 +15,7 @@ using QvaDev.Communication.ConnectionManagementRules;
 using QvaDev.Communication.FixApi;
 using QvaDev.Communication.FixApi.Connectors.Strategies;
 using QvaDev.Communication.FixApi.Connectors.Strategies.AggressiveOrder;
+using QvaDev.Communication.FixApi.Connectors.Strategies.GtcLimitOrder;
 using QvaDev.Communication.FixApi.Connectors.Strategies.MarketOrder;
 using OrderResponse = QvaDev.Common.Integration.OrderResponse;
 
@@ -204,6 +205,58 @@ namespace QvaDev.FixApiIntegration
 			return retValue;
 		}
 
+		public override async Task<OrderResponse> SendGtcLimitOrderRequest(string symbol, Sides side, decimal quantity,
+			decimal limitPrice, int timeout)
+		{
+			var retValue = new OrderResponse()
+			{
+				OrderedQuantity = quantity,
+				AveragePrice = null,
+				FilledQuantity = 0,
+				Side = side
+			};
+
+			try
+			{
+				Logger.Debug(
+					$"{Description} Connector.SendGtcLimitOrderRequest({symbol}, {side}, {quantity}, " +
+					$"{limitPrice}, {timeout}) ");
+
+				quantity = Math.Abs(quantity);
+				var response = await FixConnector.GtcLimitOrderAsync(new GtcLimitOrderRequest()
+				{
+					IsLong = side == Sides.Buy,
+					Symbol = Symbol.Parse(symbol),
+					Quantity = quantity,
+					LimitPrice = limitPrice,
+					Timeout = timeout
+				});
+
+				if (!string.IsNullOrWhiteSpace(response.UnfinishedOrderId))
+					_unfinishedOrderIds.Add(response.UnfinishedOrderId);
+
+				retValue.AveragePrice = response.AveragePrice;
+				retValue.FilledQuantity = response.FilledQuantity;
+
+				Logger.Debug(
+					$"{Description} Connector.SendGtcLimitOrderRequest({symbol}, {side}, {quantity}, " +
+					$"{limitPrice}, {timeout}) opened {response.FilledQuantity} at avg price {response.AveragePrice}");
+			}
+			catch (TimeoutException)
+			{
+				Logger.Warn(
+					$"{Description} Connector.SendGtcLimitOrderRequest({symbol}, {side}, {quantity}, {limitPrice}, {timeout}) timeout");
+			}
+			catch (Exception e)
+			{
+				Logger.Error(
+					$"{Description} Connector.SendGtcLimitOrderRequest({symbol}, {side}, {quantity}, " +
+					$"{limitPrice}, {timeout}) exception", e);
+			}
+
+			return retValue;
+		}
+
 		public override async void OrderMultipleCloseBy(string symbol)
 		{
 			var symbolInfo = GetSymbolInfo(symbol);
@@ -214,17 +267,23 @@ namespace QvaDev.FixApiIntegration
 
 		public override async void Subscribe(string symbol)
 		{
-			lock (_subscribeMarketData)
-			{
-				if (_subscribeMarketData.Subscriptions.Any(s => s.Symbol == Symbol.Parse(symbol))) return;
-				_subscribeMarketData.Subscriptions.Add(new MarketDataSubscription {Symbol = Symbol.Parse(symbol), MarketDepth = _marketDepth });
-			}
-			if (!IsConnected) return;
-
 			try
 			{
-				await FixConnector.SubscribeMarketDataAsync(Symbol.Parse(symbol), _marketDepth);
+				FixConnector.UnsubscribeBookChange(Symbol.Parse(symbol), (sender, e) => _quoteQueue.Add(e.QuoteSet));
 				FixConnector.SubscribeBookChange(Symbol.Parse(symbol), (sender, e) => _quoteQueue.Add(e.QuoteSet));
+
+				lock (_subscribeMarketData)
+				{
+					if (_subscribeMarketData.Subscriptions.Any(s => s.Symbol == Symbol.Parse(symbol))) return;
+					_subscribeMarketData.Subscriptions.Add(new MarketDataSubscription
+					{
+						Symbol = Symbol.Parse(symbol),
+						MarketDepth = _marketDepth
+					});
+				}
+
+				if (!IsConnected) return;
+				await FixConnector.SubscribeMarketDataAsync(Symbol.Parse(symbol), _marketDepth);
 			}
 			catch (Exception e)
 			{
