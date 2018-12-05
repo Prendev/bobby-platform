@@ -33,11 +33,14 @@ namespace QvaDev.Data.Models
 		public decimal SignalDiffInPip { get; set; }
 		[DisplayName("HighRiskDiff")]
 		public decimal? HighRiskSignalDiffInPip { get; set; }
-		[DisplayName("RestingPeriod")] // Resting period per account
+		[DisplayName("RestPeriod")] // Resting period per account
 		public int RestingPeriodInMinutes { get; set; }
 
+		[DisplayName("EarliestOpen")]
 		public TimeSpan? EarliestOpenTime { get; set; }
+		[DisplayName("LatestOpen")]
 		public TimeSpan? LatestOpenTime { get; set; }
+		[DisplayName("LatestClose")]
 		public TimeSpan? LatestCloseTime { get; set; }
 
 		public StratHubArbOpeningLogics OpeningLogic { get; set; }
