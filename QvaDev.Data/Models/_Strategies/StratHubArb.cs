@@ -54,6 +54,8 @@ namespace QvaDev.Data.Models
 		public decimal CorrectionInPip { get; set; }
 		[DisplayName("TimeWindow")]
 		public int TimeWindowInMs { get; set; }
+		[DisplayName("DelayTimeWindow")]
+		public int DelayTimeWindowInMs { get; set; }
 
 		public decimal PipSize { get; set; }
 

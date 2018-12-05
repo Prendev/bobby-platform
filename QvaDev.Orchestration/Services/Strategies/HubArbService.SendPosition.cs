@@ -32,7 +32,7 @@ namespace QvaDev.Orchestration.Services.Strategies
 					arb.TimeWindowInMs, arb.MaxRetryCount, arb.RetryPeriodInMs);
 			else if (orderType == OrderTypes.DelayedAggressive)
 				response = await fix.SendDelayedAggressiveOrderRequest(symbol, side, size, price.Value, arb.Deviation, arb.Correction,
-					arb.TimeWindowInMs, arb.MaxRetryCount, arb.RetryPeriodInMs);
+					arb.DelayTimeWindowInMs, arb.MaxRetryCount, arb.RetryPeriodInMs);
 			else throw new NotImplementedException();
 
 			PersistPosition(arb, account, symbol, response);
