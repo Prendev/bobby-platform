@@ -34,6 +34,7 @@ namespace QvaDev.Data.Models
 
 		[NotMapped] [InvisibleColumn] public bool HasTiming => EarliestOpenTime.HasValue && LatestOpenTime.HasValue && LatestCloseTime.HasValue;
 		[NotMapped] [InvisibleColumn] public decimal Deviation => SlippageInPip * PipSize;
+		[NotMapped] [InvisibleColumn] public decimal Correction => CorrectionInPip * PipSize;
 
 		public StratHubArb()
 		{

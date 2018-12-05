@@ -10,6 +10,7 @@ using QvaDev.Common.Integration;
 using QvaDev.Common.Services;
 using QvaDev.Data.Models;
 using static QvaDev.Data.Models.StratHubArbQuoteEventArgs;
+using OrderTypes = QvaDev.Data.Models.StratHubArb.StratHubArbOrderTypes;
 
 namespace QvaDev.Orchestration.Services.Strategies
 {
@@ -117,7 +118,7 @@ namespace QvaDev.Orchestration.Services.Strategies
 					}
 
 					tasks.Add(Task.Factory.StartNew(
-						async () => await SendPosition(arb, aggAcc.Account, aggAcc.Symbol, side, Math.Abs(sum)),
+						async () => await SendPosition(arb, aggAcc.Account, aggAcc.Symbol, side, Math.Abs(sum), OrderTypes.Market),
 						TaskCreationOptions.LongRunning));
 				}
 				await Task.WhenAll(tasks);
@@ -199,12 +200,12 @@ namespace QvaDev.Orchestration.Services.Strategies
 				if (result.Buy.FilledQuantity > result.Sell.FilledQuantity)
 				{
 					Logger.Warn($"{arb.Description} arb opening size mismatch!!!");
-					await SendPosition(arb, buyQuote, Sides.Sell, result.Buy.FilledQuantity - result.Sell.FilledQuantity, true);
+					await SendPosition(arb, buyQuote, Sides.Sell, result.Buy.FilledQuantity - result.Sell.FilledQuantity, OrderTypes.Market);
 				}
 				else if (result.Buy.FilledQuantity < result.Sell.FilledQuantity)
 				{
 					Logger.Warn($"{arb.Description} arb opening size mismatch!!!");
-					await SendPosition(arb, sellQuote, Sides.Buy, result.Sell.FilledQuantity - result.Buy.FilledQuantity, true);
+					await SendPosition(arb, sellQuote, Sides.Buy, result.Sell.FilledQuantity - result.Buy.FilledQuantity, OrderTypes.Market);
 				}
 
 				if (result.Buy.FilledQuantity == 0 || result.Sell.FilledQuantity == 0)
@@ -222,53 +223,6 @@ namespace QvaDev.Orchestration.Services.Strategies
 				buyQuote.AggAccount.Account.IsBusy = false;
 				sellQuote.AggAccount.Account.IsBusy = false;
 			}
-		}
-
-		private Task<OrderResponse> SendPosition(StratHubArb arb, Quote quote, Sides side, decimal size, bool forceMarket = false)
-		{
-			var symbol = quote.GroupQuoteEntry.Symbol.ToString();
-			var price = side == Sides.Buy ? quote.GroupQuoteEntry.Ask : quote.GroupQuoteEntry.Bid;
-
-			return SendPosition(arb, quote.AggAccount.Account, symbol, side, size, forceMarket ? null : price);
-		}
-
-		private async Task<OrderResponse> SendPosition(StratHubArb arb, Account account, string symbol, Sides side, decimal size, decimal? price = null)
-		{
-			if (!(account.Connector is IFixConnector fix)) throw new NotImplementedException();
-			OrderResponse response;
-
-			if (price == null || arb.OrderType == StratHubArb.StratHubArbOrderTypes.Market)
-				response = await fix.SendMarketOrderRequest(symbol, side, size);
-			else
-				response = await fix.SendAggressiveOrderRequest(symbol, side, size, price.Value, arb.Deviation, arb.TimeWindowInMs,
-					arb.MaxRetryCount, arb.RetryPeriodInMs);
-
-			PersistPosition(arb, account, symbol, response);
-			return response;
-		}
-
-		private void PersistPosition(StratHubArb arb, Account account, string symbol, OrderResponse closePos)
-		{
-			var side = closePos.Side == Sides.Buy ? StratPosition.Sides.Buy : StratPosition.Sides.Sell;
-
-			var newEntity = new StratHubArbPosition()
-			{
-				StratHubArb = arb,
-				StratHubArbId = arb.Id,
-				Position = new StratPosition()
-				{
-					AccountId = account.Id,
-					Account = account,
-					AvgPrice = closePos.AveragePrice ?? 0,
-					OpenTime = HiResDatetime.UtcNow,
-					Side = side,
-					Size = closePos.FilledQuantity,
-					Symbol = symbol
-				}
-			};
-			account.LastOrderTime = newEntity.Position.OpenTime;
-			arb.StratHubArbPositions.Add(newEntity);
-			lock (account.StratHubArbPositions) account.StratHubArbPositions.Add(newEntity);
 		}
 
 		private void ArbLoop(StratHubArb arb, CancellationToken token)

@@ -13,6 +13,11 @@ namespace QvaDev.Common.Integration
 			string symbol, Sides side, decimal quantity, decimal limitPrice, decimal deviation,
 			int timeout, int retryCount, int retryPeriod);
 
+		Task<OrderResponse> SendDelayedAggressiveOrderRequest(
+			string symbol, Sides side, decimal quantity,
+			decimal limitPrice, decimal deviation, decimal correction,
+			int timeout, int retryCount, int retryPeriod);
+
 		Task<OrderResponse> SendGtcLimitOrderRequest(
 			string symbol, Sides side, decimal quantity, decimal limitPrice, int timeout);
 

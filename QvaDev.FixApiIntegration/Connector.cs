@@ -15,6 +15,7 @@ using QvaDev.Communication.ConnectionManagementRules;
 using QvaDev.Communication.FixApi;
 using QvaDev.Communication.FixApi.Connectors.Strategies;
 using QvaDev.Communication.FixApi.Connectors.Strategies.AggressiveOrder;
+using QvaDev.Communication.FixApi.Connectors.Strategies.DelayedAggressiveOrder;
 using QvaDev.Communication.FixApi.Connectors.Strategies.GtcLimitOrder;
 using QvaDev.Communication.FixApi.Connectors.Strategies.MarketOrder;
 using OrderResponse = QvaDev.Common.Integration.OrderResponse;
@@ -200,6 +201,69 @@ namespace QvaDev.FixApiIntegration
 				Logger.Error(
 					$"{Description} Connector.SendAggressiveOrderRequest({symbol}, {side}, {quantity}, " +
 					$"{limitPrice}, {deviation}, {timeout}, {retryCount}, {retryPeriod}) exception", e);
+			}
+
+			return retValue;
+		}
+
+		public override async Task<OrderResponse> SendDelayedAggressiveOrderRequest(
+			string symbol, Sides side, decimal quantity,
+			decimal limitPrice, decimal deviation, decimal correction,
+			int timeout, int retryCount, int retryPeriod)
+		{
+			if (!FixConnector.IsAggressiveOrderSupported())
+				return await SendMarketOrderRequest(symbol, side, quantity);
+
+			var retValue = new OrderResponse()
+			{
+				OrderedQuantity = quantity,
+				AveragePrice = null,
+				FilledQuantity = 0,
+				Side = side
+			};
+
+			try
+			{
+				Logger.Debug(
+					$"{Description} Connector.SendDelayedAggressiveOrderRequest({symbol}, {side}, {quantity}, " +
+					$"{limitPrice}, {deviation}, {correction}, {timeout}, {retryCount}, {retryPeriod}) ");
+
+				quantity = Math.Abs(quantity);
+				var response = await FixConnector.DelayedAggressiveOrderAsync(new DelayedAggressiveOrderRequest()
+				{
+					IsLong = side == Sides.Buy,
+					Symbol = Symbol.Parse(symbol),
+					Quantity = quantity,
+					LimitPrice = limitPrice,
+					Deviation = deviation,
+					Correction = correction,
+					Timeout = timeout,
+					RetryCount = retryCount,
+					RetryDelay = retryPeriod
+				});
+
+				if (!string.IsNullOrWhiteSpace(response.UnfinishedOrderId))
+					_unfinishedOrderIds.Add(response.UnfinishedOrderId);
+
+				retValue.AveragePrice = response.AveragePrice;
+				retValue.FilledQuantity = response.FilledQuantity;
+
+				Logger.Debug(
+					$"{Description} Connector.SendDelayedAggressiveOrderRequest({symbol}, {side}, {quantity}, " +
+					$"{limitPrice}, {deviation}, {correction}, {timeout}, {retryCount}, {retryPeriod}) " +
+					$"opened {response.FilledQuantity} at avg price {response.AveragePrice}");
+			}
+			catch (TimeoutException)
+			{
+				Logger.Warn(
+					$"{Description} Connector.SendDelayedAggressiveOrderRequest({symbol}, {side}, {quantity}, " +
+					$"{limitPrice}, {deviation}, {correction}, {timeout}, {retryCount}, {retryPeriod}) timeout");
+			}
+			catch (Exception e)
+			{
+				Logger.Error(
+					$"{Description} Connector.SendDelayedAggressiveOrderRequest({symbol}, {side}, {quantity}, " +
+					$"{limitPrice}, {deviation}, {correction}, {timeout}, {retryCount}, {retryPeriod}) exception", e);
 			}
 
 			return retValue;

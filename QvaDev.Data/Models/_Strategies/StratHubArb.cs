@@ -10,14 +10,14 @@ namespace QvaDev.Data.Models
 		public enum StratHubArbOrderTypes
 		{
 			Market,
-			Aggressive
+			Aggressive,
+			DelayedAggressive
 		}
 
 		public enum StratHubArbOpeningLogics
 		{
 			Parallel,
-			SlowFirst,
-			DelayedHedge
+			SlowFirst
 		}
 
 		[DisplayPriority(-1)] public bool Run { get; set; }
@@ -41,15 +41,17 @@ namespace QvaDev.Data.Models
 		public TimeSpan? LatestCloseTime { get; set; }
 
 		public StratHubArbOpeningLogics OpeningLogic { get; set; }
-		[DisplayName("Trailing")]
-		public decimal TrailingInPip { get; set; }
 		public StratHubArbOrderTypes OrderType { get; set; }
+		public StratHubArbOrderTypes SlowOrderType { get; set; }
+		public StratHubArbOrderTypes FastOrderType { get; set; }
 		[DisplayName("MaxRetry")]
 		public int MaxRetryCount { get; set; }
 		[DisplayName("RetryPeriod")]
 		public int RetryPeriodInMs { get; set; }
 		[DisplayName("Slippage")]
 		public decimal SlippageInPip { get; set; }
+		[DisplayName("Correction")]
+		public decimal CorrectionInPip { get; set; }
 		[DisplayName("TimeWindow")]
 		public int TimeWindowInMs { get; set; }
 
