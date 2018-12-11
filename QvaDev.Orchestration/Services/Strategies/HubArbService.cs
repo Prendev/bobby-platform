@@ -117,9 +117,7 @@ namespace QvaDev.Orchestration.Services.Strategies
 						accounts.Add(aggAcc.Account);
 					}
 
-					tasks.Add(Task.Factory.StartNew(
-						async () => await SendPosition(arb, aggAcc.Account, aggAcc.Symbol, side, Math.Abs(sum), OrderTypes.Market),
-						TaskCreationOptions.LongRunning));
+					tasks.Add(Task.Run(async () => await SendPosition(arb, aggAcc.Account, aggAcc.Symbol, side, Math.Abs(sum), OrderTypes.Market)));
 				}
 				await Task.WhenAll(tasks);
 			}

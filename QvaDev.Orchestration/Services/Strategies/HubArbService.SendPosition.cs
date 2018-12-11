@@ -21,22 +21,36 @@ namespace QvaDev.Orchestration.Services.Strategies
 		private async Task<OrderResponse> SendPosition(StratHubArb arb, Account account, string symbol, Sides side,
 			 decimal size, OrderTypes orderType, decimal? price = null)
 		{
-			if (!(account.Connector is IFixConnector fix)) throw new NotImplementedException();
-			OrderResponse response;
+			try
+			{
+				if (!(account.Connector is IFixConnector fix)) throw new NotImplementedException();
+				OrderResponse response;
 
-			if (price == null || orderType == OrderTypes.Market)
-				response = await fix.SendMarketOrderRequest(symbol, side, size,
-					arb.TimeWindowInMs, arb.MaxRetryCount, arb.RetryPeriodInMs);
-			else if(orderType == OrderTypes.Aggressive)
-				response = await fix.SendAggressiveOrderRequest(symbol, side, size, price.Value, arb.Deviation,
-					arb.TimeWindowInMs, arb.MaxRetryCount, arb.RetryPeriodInMs);
-			else if (orderType == OrderTypes.DelayedAggressive)
-				response = await fix.SendDelayedAggressiveOrderRequest(symbol, side, size, price.Value, arb.Deviation, arb.Correction,
-					arb.DelayTimeWindowInMs, arb.MaxRetryCount, arb.RetryPeriodInMs);
-			else throw new NotImplementedException();
+				if (price == null || orderType == OrderTypes.Market)
+					response = await fix.SendMarketOrderRequest(symbol, side, size,
+						arb.TimeWindowInMs, arb.MaxRetryCount, arb.RetryPeriodInMs);
+				else if (orderType == OrderTypes.Aggressive)
+					response = await fix.SendAggressiveOrderRequest(symbol, side, size, price.Value, arb.Deviation,
+						arb.TimeWindowInMs, arb.MaxRetryCount, arb.RetryPeriodInMs);
+				else if (orderType == OrderTypes.DelayedAggressive)
+					response = await fix.SendDelayedAggressiveOrderRequest(symbol, side, size, price.Value, arb.Deviation, arb.Correction,
+						arb.DelayTimeWindowInMs, arb.MaxRetryCount, arb.RetryPeriodInMs);
+				else throw new NotImplementedException();
 
-			PersistPosition(arb, account, symbol, response);
-			return response;
+				PersistPosition(arb, account, symbol, response);
+				return response;
+			}
+			catch (Exception e)
+			{
+				Logger.Error("HubArbService.SendPosition exception", e);
+				return new OrderResponse()
+				{
+					OrderedQuantity = size,
+					AveragePrice = null,
+					FilledQuantity = 0,
+					Side = side
+				};
+			}
 		}
 
 		private void PersistPosition(StratHubArb arb, Account account, string symbol, OrderResponse closePos)
