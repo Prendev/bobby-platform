@@ -65,6 +65,7 @@ namespace QvaDev.Duplicat.ViewModel
 			IsLoading = true;
             IsConfigReadonly = true;
 			await _orchestrator.Disconnect();
+	        if (SelectedPushing != null) SelectedPushing.LastFeedTick = null;
 
 			IsLoading = false;
 			IsConfigReadonly = false;

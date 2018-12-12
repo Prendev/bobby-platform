@@ -68,7 +68,8 @@ namespace QvaDev.Orchestration.Services.Strategies
 			    pushing.FeedAccount, pushing.FeedSymbol,
 			    pushing.SpoofAccount, pushing.SpoofSymbol,
 			    pushing.PushingDetail.SpoofContractSize, pushing.PushingDetail.SpoofDistance);
-	    }
+		    pushing.Spoof.FeedAccount.Connector.Subscribe(pushing.Spoof.FeedSymbol);
+		}
 
 	    public async Task OpeningPull(Pushing pushing)
 	    {

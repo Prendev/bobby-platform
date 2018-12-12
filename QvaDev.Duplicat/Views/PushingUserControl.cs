@@ -63,8 +63,9 @@ namespace QvaDev.Duplicat.Views
 
 			btnStartCopiers.Click += (s, e) => { _viewModel.StartCopiersCommand(); };
 			btnStopCopiers.Click += (s, e) => { _viewModel.StopCopiersCommand(); };
+			btnSubscribeFeed.Click += (s, e) => { _viewModel.PushingFeedSubscribe(dgvPushings.GetSelectedItem<Pushing>()); };
 
-	        btnBuyFutures.Click += (s, e) =>
+			btnBuyFutures.Click += (s, e) =>
 	        {
 		        _viewModel.PushingFuturesOrderCommand(dgvPushings.GetSelectedItem<Pushing>(), Sides.Buy, nudFuturesContractSize.Value);
 	        };
@@ -95,9 +96,14 @@ namespace QvaDev.Duplicat.Views
 			if (_viewModel.IsConfigReadonly) return;
 			var pushing = dgvPushings.GetSelectedItem<Pushing>();
 			_viewModel.ShowPushingCommand(pushing);
-			cbHedge.DataBindings.Clear();
-			cbHedge.DataBindings.Add("Checked", pushing, "IsHedgeClose");
 			dgvPushingDetail.DataSource = new ObservableCollection<PushingDetail> { pushing.PushingDetail};
+
+			cbHedge.DataBindings.Clear();
+			cbHedge.AddBinding("Checked", pushing, nameof(pushing.IsHedgeClose));
+
+			//btnSubscribeFeed.DataBindings.Clear();
+			//btnSubscribeFeed.AddBinding<Tick, string>("Text", pushing,
+			//	nameof(pushing.LastFeedTick), p => p == null ? "Subscribe feed" : $"Ask: {p.Ask}\nBid: {p.Bid}");
 		}
 
 		public void AttachDataSources()

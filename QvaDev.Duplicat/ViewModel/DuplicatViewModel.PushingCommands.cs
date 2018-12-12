@@ -21,6 +21,11 @@ namespace QvaDev.Duplicat.ViewModel
 			pushing.PushingDetail = new PushingDetail();
 		}
 
+		public void PushingFeedSubscribe(Pushing pushing)
+		{
+			pushing.FeedAccount.Connector.Subscribe(pushing.FeedSymbol);
+		}
+
 		public async void PushingOpenCommand(Pushing pushing, Sides firstBetaOpenSide)
 		{
 			PushingState = PushingStates.Busy;

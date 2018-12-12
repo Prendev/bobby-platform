@@ -29,27 +29,29 @@ namespace QvaDev.Orchestration.Services
 		private void Loop(Spoof spoof, Sides side, SpoofingState state)
 		{
 			var tradeConnector = (IFixConnector)spoof.TradeAccount.Connector;
-			spoof.FeedAccount.Connector.Subscribe(spoof.FeedSymbol);
 
-			NewTick lastTick = null;
+			var lastTick = spoof.FeedAccount.GetLastTick(spoof.FeedSymbol);
 			var waitHandle = new AutoResetEvent(false);
 
 			void NewTick(object s, NewTick e)
 			{
 				if (state.IsCancellationRequested) return;
 				if (e.Tick.Symbol != spoof.FeedSymbol) return;
-				lastTick = e;
+				lastTick = e.Tick;
 				waitHandle.Set();
 			}
 
 			var changed = false;
 			spoof.FeedAccount.Connector.NewTick += NewTick;
+			if (lastTick?.HasValue == true) waitHandle.Set();
+
 			while (!state.IsCancellationRequested)
 			{
 				try
 				{
 					if (!waitHandle.WaitOne(10)) continue;
 					if (state.IsCancellationRequested) break;
+					if (HiResDatetime.UtcNow - lastTick.Time > TimeSpan.FromSeconds(10)) continue;
 
 					var price = GetPrice(spoof, side, lastTick);
 					if (state.LimitResponse == null)
@@ -74,9 +76,9 @@ namespace QvaDev.Orchestration.Services
 			}
 		}
 
-		private static decimal GetPrice(Spoof spoof, Sides side, NewTick e)
+		private static decimal GetPrice(Spoof spoof, Sides side, Tick tick)
 		{
-			return side == Sides.Buy ? (e.Tick.Bid - spoof.Distance) : (e.Tick.Ask + spoof.Distance);
+			return side == Sides.Buy ? (tick.Bid - spoof.Distance) : (tick.Ask + spoof.Distance);
 		}
 	}
 }

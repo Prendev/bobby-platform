@@ -14,11 +14,13 @@ namespace QvaDev.Data.Models
 
 		[NotMapped] [InvisibleColumn] public Sides BetaOpenSide { get; set; }
 		[NotMapped] [InvisibleColumn] public Sides FirstCloseSide { get; set; }
-		[NotMapped] [InvisibleColumn] public bool IsHedgeClose { get; set; } = true;
+		[NotMapped] [InvisibleColumn] public bool IsHedgeClose { get => Get(() => true); set => Set(value); }
 		[NotMapped] [InvisibleColumn] public Position AlphaPosition { get; set; }
 		[NotMapped] [InvisibleColumn] public Position BetaPosition { get; set; }
 		[NotMapped] [InvisibleColumn] public bool InPanic { get; set; }
 		[NotMapped] [InvisibleColumn] public bool IsConnected { get => Get<bool>(); set => Set(value); }
+
+		[NotMapped] [InvisibleColumn] public Tick LastFeedTick { get => Get<Tick>(); set => Set(value); }
 
 		public Pushing()
 		{
@@ -34,6 +36,16 @@ namespace QvaDev.Data.Models
 			SetAction<Account>(nameof(HedgeAccount),
 				a => { if (a != null) a.ConnectionChanged -= Account_ConnectionChanged; },
 				a => { if (a != null) a.ConnectionChanged += Account_ConnectionChanged; });
+			SetAction<Account>(nameof(FeedAccount),
+				a => { if (a != null) a.NewTick -= Account_NewTick; },
+				a => { if (a != null) a.NewTick += Account_NewTick; });
+		}
+
+		private void Account_NewTick(object sender, NewTick newTick)
+		{
+			if (newTick?.Tick == null) return;
+			if (newTick.Tick.Symbol != FeedSymbol) return;
+			LastFeedTick = newTick.Tick;
 		}
 
 		private void Account_ConnectionChanged(object sender, ConnectionStates connectionStates)

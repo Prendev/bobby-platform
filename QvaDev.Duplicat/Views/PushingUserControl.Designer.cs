@@ -53,23 +53,24 @@
 			this.btnSellBeta = new System.Windows.Forms.Button();
 			this.btnBuyBeta = new System.Windows.Forms.Button();
 			this.groupBox2 = new System.Windows.Forms.GroupBox();
+			this.dgvPushingDetail = new QvaDev.Duplicat.Views.CustomDataGridView();
 			this.gbPushings = new System.Windows.Forms.GroupBox();
+			this.dgvPushings = new QvaDev.Duplicat.Views.CustomDataGridView();
 			this.gbControl = new System.Windows.Forms.GroupBox();
 			this.nudFuturesContractSize = new System.Windows.Forms.NumericUpDown();
 			this.btnSellFutures = new System.Windows.Forms.Button();
 			this.btnBuyFutures = new System.Windows.Forms.Button();
 			this.btnStopCopiers = new System.Windows.Forms.Button();
 			this.btnStartCopiers = new System.Windows.Forms.Button();
-			this.dgvPushingDetail = new QvaDev.Duplicat.Views.CustomDataGridView();
-			this.dgvPushings = new QvaDev.Duplicat.Views.CustomDataGridView();
+			this.btnSubscribeFeed = new System.Windows.Forms.Button();
 			this.tlpMain.SuspendLayout();
 			this.gbFlow.SuspendLayout();
 			this.groupBox2.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)(this.dgvPushingDetail)).BeginInit();
 			this.gbPushings.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)(this.dgvPushings)).BeginInit();
 			this.gbControl.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.nudFuturesContractSize)).BeginInit();
-			((System.ComponentModel.ISupportInitialize)(this.dgvPushingDetail)).BeginInit();
-			((System.ComponentModel.ISupportInitialize)(this.dgvPushings)).BeginInit();
 			this.SuspendLayout();
 			// 
 			// tlpMain
@@ -94,6 +95,7 @@
 			// 
 			// gbFlow
 			// 
+			this.gbFlow.Controls.Add(this.btnSubscribeFeed);
 			this.gbFlow.Controls.Add(this.label9);
 			this.gbFlow.Controls.Add(this.btnRushClosePull);
 			this.gbFlow.Controls.Add(this.label8);
@@ -167,7 +169,7 @@
 			// 
 			// btnReset
 			// 
-			this.btnReset.Location = new System.Drawing.Point(8, 23);
+			this.btnReset.Location = new System.Drawing.Point(216, 23);
 			this.btnReset.Margin = new System.Windows.Forms.Padding(4);
 			this.btnReset.Name = "btnReset";
 			this.btnReset.Size = new System.Drawing.Size(200, 64);
@@ -178,7 +180,7 @@
 			// label7
 			// 
 			this.label7.AutoSize = true;
-			this.label7.Location = new System.Drawing.Point(216, 55);
+			this.label7.Location = new System.Drawing.Point(424, 55);
 			this.label7.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.label7.Name = "label7";
 			this.label7.Size = new System.Drawing.Size(452, 17);
@@ -188,7 +190,7 @@
 			// label6
 			// 
 			this.label6.AutoSize = true;
-			this.label6.Location = new System.Drawing.Point(216, 39);
+			this.label6.Location = new System.Drawing.Point(424, 39);
 			this.label6.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.label6.Name = "label6";
 			this.label6.Size = new System.Drawing.Size(419, 17);
@@ -198,7 +200,7 @@
 			// label5
 			// 
 			this.label5.AutoSize = true;
-			this.label5.Location = new System.Drawing.Point(216, 23);
+			this.label5.Location = new System.Drawing.Point(424, 23);
 			this.label5.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.label5.Name = "label5";
 			this.label5.Size = new System.Drawing.Size(358, 17);
@@ -361,6 +363,20 @@
 			this.groupBox2.TabStop = false;
 			this.groupBox2.Text = "Detail";
 			// 
+			// dgvPushingDetail
+			// 
+			this.dgvPushingDetail.AllowUserToAddRows = false;
+			this.dgvPushingDetail.AllowUserToDeleteRows = false;
+			this.dgvPushingDetail.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
+			this.dgvPushingDetail.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+			this.dgvPushingDetail.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.dgvPushingDetail.Location = new System.Drawing.Point(4, 19);
+			this.dgvPushingDetail.Margin = new System.Windows.Forms.Padding(4);
+			this.dgvPushingDetail.MultiSelect = false;
+			this.dgvPushingDetail.Name = "dgvPushingDetail";
+			this.dgvPushingDetail.Size = new System.Drawing.Size(1226, 92);
+			this.dgvPushingDetail.TabIndex = 0;
+			// 
 			// gbPushings
 			// 
 			this.gbPushings.Controls.Add(this.dgvPushings);
@@ -373,6 +389,18 @@
 			this.gbPushings.TabIndex = 1;
 			this.gbPushings.TabStop = false;
 			this.gbPushings.Text = "Pushings";
+			// 
+			// dgvPushings
+			// 
+			this.dgvPushings.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
+			this.dgvPushings.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+			this.dgvPushings.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.dgvPushings.Location = new System.Drawing.Point(4, 19);
+			this.dgvPushings.Margin = new System.Windows.Forms.Padding(4);
+			this.dgvPushings.MultiSelect = false;
+			this.dgvPushings.Name = "dgvPushings";
+			this.dgvPushings.Size = new System.Drawing.Size(1226, 92);
+			this.dgvPushings.TabIndex = 0;
 			// 
 			// gbControl
 			// 
@@ -443,31 +471,15 @@
 			this.btnStartCopiers.Text = "Start copiers";
 			this.btnStartCopiers.UseVisualStyleBackColor = true;
 			// 
-			// dgvPushingDetail
+			// btnSubscribeFeed
 			// 
-			this.dgvPushingDetail.AllowUserToAddRows = false;
-			this.dgvPushingDetail.AllowUserToDeleteRows = false;
-			this.dgvPushingDetail.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
-			this.dgvPushingDetail.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-			this.dgvPushingDetail.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.dgvPushingDetail.Location = new System.Drawing.Point(4, 19);
-			this.dgvPushingDetail.Margin = new System.Windows.Forms.Padding(4);
-			this.dgvPushingDetail.MultiSelect = false;
-			this.dgvPushingDetail.Name = "dgvPushingDetail";
-			this.dgvPushingDetail.Size = new System.Drawing.Size(1226, 92);
-			this.dgvPushingDetail.TabIndex = 0;
-			// 
-			// dgvPushings
-			// 
-			this.dgvPushings.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
-			this.dgvPushings.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-			this.dgvPushings.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.dgvPushings.Location = new System.Drawing.Point(4, 19);
-			this.dgvPushings.Margin = new System.Windows.Forms.Padding(4);
-			this.dgvPushings.MultiSelect = false;
-			this.dgvPushings.Name = "dgvPushings";
-			this.dgvPushings.Size = new System.Drawing.Size(1226, 92);
-			this.dgvPushings.TabIndex = 0;
+			this.btnSubscribeFeed.Location = new System.Drawing.Point(8, 23);
+			this.btnSubscribeFeed.Margin = new System.Windows.Forms.Padding(4);
+			this.btnSubscribeFeed.Name = "btnSubscribeFeed";
+			this.btnSubscribeFeed.Size = new System.Drawing.Size(200, 64);
+			this.btnSubscribeFeed.TabIndex = 51;
+			this.btnSubscribeFeed.Text = "Subscribe feed";
+			this.btnSubscribeFeed.UseVisualStyleBackColor = true;
 			// 
 			// PushingUserControl
 			// 
@@ -481,11 +493,11 @@
 			this.gbFlow.ResumeLayout(false);
 			this.gbFlow.PerformLayout();
 			this.groupBox2.ResumeLayout(false);
+			((System.ComponentModel.ISupportInitialize)(this.dgvPushingDetail)).EndInit();
 			this.gbPushings.ResumeLayout(false);
+			((System.ComponentModel.ISupportInitialize)(this.dgvPushings)).EndInit();
 			this.gbControl.ResumeLayout(false);
 			((System.ComponentModel.ISupportInitialize)(this.nudFuturesContractSize)).EndInit();
-			((System.ComponentModel.ISupportInitialize)(this.dgvPushingDetail)).EndInit();
-			((System.ComponentModel.ISupportInitialize)(this.dgvPushings)).EndInit();
 			this.ResumeLayout(false);
 
         }
@@ -526,5 +538,6 @@
 		private System.Windows.Forms.Button btnRushClosePull;
 		private System.Windows.Forms.Label label8;
 		private System.Windows.Forms.Button btnRushOpenPull;
+		private System.Windows.Forms.Button btnSubscribeFeed;
 	}
 }

@@ -36,7 +36,7 @@ namespace QvaDev.Orchestration
 	    {
 		    var connector = (IFixConnector)pushing.FutureAccount.Connector;
 		    var response = await connector.SendMarketOrderRequest(pushing.FutureSymbol, side, contractSize);
-	    }
+		}
 
 		public Task OpeningBeta(Pushing pushing)
 		{

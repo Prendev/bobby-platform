@@ -260,7 +260,7 @@ namespace QvaDev.CqgClientApiIntegration
 			}
 			catch (Exception e)
 			{
-				Logger.Error($"{Description} Connector.CancelLimit({order.InstrumentName}, {response.Side}, {response.OrderedQuantity}) exception", e);
+				Logger.Error($"{Description} Connector.CancelLimit({order?.InstrumentName}, {response?.Side}, {response?.OrderedQuantity}) exception", e);
 				return false;
 			}
 		}
