@@ -83,10 +83,13 @@ namespace QvaDev.Orchestration.Services.Strategies
 		    await FutureBuildUp(pushing, futureSide, contractsNeeded, Phases.Pulling);
 
 		    // Turn spoofing
-		    await pushing.SpoofingState.Cancel();
-		    if (pushing.SpoofingState?.LimitResponse != null)
-			    lock (pushing.SpoofingState.LimitResponse)
-				    pushing.PushingDetail.OpenedFutures -= pushing.SpoofingState.LimitResponse.FilledQuantity;
+		    if (pushing.SpoofingState != null)
+			{
+				await pushing.SpoofingState.Cancel();
+				if (pushing.SpoofingState.LimitResponse != null)
+					lock (pushing.SpoofingState.LimitResponse)
+						pushing.PushingDetail.OpenedFutures -= pushing.SpoofingState.LimitResponse.FilledQuantity;
+			}
 
 		    _threadService.Sleep(pushing.PushingDetail.FutureOpenDelayInMs);
 		    pushing.SpoofingState = _spoofingService.Spoofing(pushing.Spoof, futureSide.Inv());
@@ -122,10 +125,13 @@ namespace QvaDev.Orchestration.Services.Strategies
 			await FutureBuildUp(pushing, futureSide, contractsNeeded, Phases.Ending);
 
 			// Stop spoofing
-			await pushing.SpoofingState.Cancel();
-			if (pushing.SpoofingState?.LimitResponse != null)
-				lock (pushing.SpoofingState.LimitResponse)
-					pushing.PushingDetail.OpenedFutures += pushing.SpoofingState.LimitResponse.FilledQuantity;
+			if (pushing.SpoofingState != null)
+			{
+				await pushing.SpoofingState.Cancel();
+				if (pushing.SpoofingState.LimitResponse != null)
+					lock (pushing.SpoofingState.LimitResponse)
+						pushing.PushingDetail.OpenedFutures += pushing.SpoofingState.LimitResponse.FilledQuantity;
+			}
 
 			// Partial close
 			var closeSize = pushing.PushingDetail.OpenedFutures;
@@ -162,10 +168,13 @@ namespace QvaDev.Orchestration.Services.Strategies
 		    await FutureBuildUp(pushing, futureSide, contractsNeeded, Phases.Pulling);
 
 			// Turn spoofing
-		    await pushing.SpoofingState.Cancel();
-		    if (pushing.SpoofingState?.LimitResponse != null)
-			    lock (pushing.SpoofingState.LimitResponse)
-				    pushing.PushingDetail.OpenedFutures -= pushing.SpoofingState.LimitResponse.FilledQuantity;
+		    if (pushing.SpoofingState != null)
+			{
+				await pushing.SpoofingState.Cancel();
+				if (pushing.SpoofingState.LimitResponse != null)
+					lock (pushing.SpoofingState.LimitResponse)
+						pushing.PushingDetail.OpenedFutures -= pushing.SpoofingState.LimitResponse.FilledQuantity;
+			}
 
 			_threadService.Sleep(pushing.PushingDetail.FutureOpenDelayInMs);
 		    pushing.SpoofingState = _spoofingService.Spoofing(pushing.Spoof, futureSide.Inv());
@@ -218,10 +227,13 @@ namespace QvaDev.Orchestration.Services.Strategies
 			await FutureBuildUp(pushing, futureSide, contractsNeeded, Phases.Ending);
 
 			// Stop spoofing
-			await pushing.SpoofingState.Cancel();
-			if (pushing.SpoofingState?.LimitResponse != null)
-				lock (pushing.SpoofingState.LimitResponse)
-					pushing.PushingDetail.OpenedFutures += pushing.SpoofingState.LimitResponse.FilledQuantity;
+			if (pushing.SpoofingState != null)
+			{
+				await pushing.SpoofingState.Cancel();
+				if (pushing.SpoofingState.LimitResponse != null)
+					lock (pushing.SpoofingState.LimitResponse)
+						pushing.PushingDetail.OpenedFutures += pushing.SpoofingState.LimitResponse.FilledQuantity;
+			}
 
 			// Partial close
 			var closeSize = pushing.PushingDetail.OpenedFutures;
