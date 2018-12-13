@@ -38,17 +38,19 @@ namespace QvaDev.OrchestrationTests.Services
 				{
 					Description = "Trade",
 					Id = 1,
-					UserName = "jterjek",
-					Password = "pass123"
+					UserName = "SIgor-ZGM41",
+					Password = ""
 				},
 				CqgClientApiAccountId = 1
 			};
 			connectorFactory.Create(feedAccount).Wait();
 			connectorFactory.Create(tradeAccount).Wait();
-			Spoof = new Spoof(feedAccount, "FUT|DTB|FDAX DEC 18", tradeAccount, "F.US.DDZ18", 100, 0.5m);
+			Spoof = new Spoof(feedAccount, "FUT|DTB|FDAX DEC 18", tradeAccount, "F.US.DDZ18", 1, 10m);
 
 			Assert.IsTrue(feedAccount.Connector.IsConnected);
 			Assert.IsTrue(tradeAccount.Connector.IsConnected);
+
+			Spoof.FeedAccount.Connector.Subscribe(Spoof.FeedSymbol);
 		}
 
 		[TearDown]
@@ -65,15 +67,15 @@ namespace QvaDev.OrchestrationTests.Services
 			var state = SpoofingService.Spoofing(Spoof, Sides.Buy);
 
 			// Assert
-			Thread.Sleep(new TimeSpan(0, 0, 60));
-			state.Cancel();
-			Thread.Sleep(new TimeSpan(0, 0, 50000));
+			Thread.Sleep(new TimeSpan(0, 0, 5));
+			state.Cancel().Wait();
 		}
 
 		[Test]
 		public void ManualTest()
 		{
 			// Arrange
+			return;
 			var fixConnector = ((IFixConnector) Spoof.TradeAccount.Connector);
 
 			// Act

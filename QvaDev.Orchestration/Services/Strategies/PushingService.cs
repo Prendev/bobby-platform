@@ -83,7 +83,7 @@ namespace QvaDev.Orchestration.Services.Strategies
 		    await FutureBuildUp(pushing, futureSide, contractsNeeded, Phases.Pulling);
 
 		    // Turn spoofing
-		    pushing.SpoofingState.Cancel();
+		    await pushing.SpoofingState.Cancel();
 		    if (pushing.SpoofingState?.LimitResponse != null)
 			    lock (pushing.SpoofingState.LimitResponse)
 				    pushing.PushingDetail.OpenedFutures -= pushing.SpoofingState.LimitResponse.FilledQuantity;
@@ -122,7 +122,7 @@ namespace QvaDev.Orchestration.Services.Strategies
 			await FutureBuildUp(pushing, futureSide, contractsNeeded, Phases.Ending);
 
 			// Stop spoofing
-			pushing.SpoofingState.Cancel();
+			await pushing.SpoofingState.Cancel();
 			if (pushing.SpoofingState?.LimitResponse != null)
 				lock (pushing.SpoofingState.LimitResponse)
 					pushing.PushingDetail.OpenedFutures += pushing.SpoofingState.LimitResponse.FilledQuantity;
@@ -161,8 +161,8 @@ namespace QvaDev.Orchestration.Services.Strategies
 			var contractsNeeded = pd.PullContractSize;
 		    await FutureBuildUp(pushing, futureSide, contractsNeeded, Phases.Pulling);
 
-		    // Turn spoofing
-		    pushing.SpoofingState.Cancel();
+			// Turn spoofing
+		    await pushing.SpoofingState.Cancel();
 		    if (pushing.SpoofingState?.LimitResponse != null)
 			    lock (pushing.SpoofingState.LimitResponse)
 				    pushing.PushingDetail.OpenedFutures -= pushing.SpoofingState.LimitResponse.FilledQuantity;
@@ -218,7 +218,7 @@ namespace QvaDev.Orchestration.Services.Strategies
 			await FutureBuildUp(pushing, futureSide, contractsNeeded, Phases.Ending);
 
 			// Stop spoofing
-			pushing.SpoofingState.Cancel();
+			await pushing.SpoofingState.Cancel();
 			if (pushing.SpoofingState?.LimitResponse != null)
 				lock (pushing.SpoofingState.LimitResponse)
 					pushing.PushingDetail.OpenedFutures += pushing.SpoofingState.LimitResponse.FilledQuantity;

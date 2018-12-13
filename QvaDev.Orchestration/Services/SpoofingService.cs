@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Threading;
+using System.Threading.Tasks;
+using QvaDev.Common;
 using QvaDev.Common.Integration;
 using QvaDev.Data;
 
@@ -7,12 +9,41 @@ namespace QvaDev.Orchestration.Services
 {
 	public interface ISpoofingService
 	{
-		SpoofingState Spoofing(Spoof spoof, Sides side);
+		ISpoofingState Spoofing(Spoof spoof, Sides side);
 	}
 
 	public class SpoofingService : ISpoofingService
 	{
-		public SpoofingState Spoofing(Spoof spoof, Sides side)
+		private static readonly TaskCompletionManager<SpoofingState> TaskCompletionManager = new TaskCompletionManager<SpoofingState>(100, 1000);
+
+		private class SpoofingState : ISpoofingState
+		{
+			private CancellationTokenSource _cancel;
+
+			public LimitResponse LimitResponse { get; set; }
+
+			public CancellationToken Init()
+			{
+				_cancel = new CancellationTokenSource();
+				return _cancel.Token;
+			}
+
+			public async Task Cancel()
+			{
+				try
+				{
+					var task = TaskCompletionManager.CreateCompletableTask(this);
+					_cancel.CancelAndDispose();
+					await task;
+				}
+				catch (Exception e)
+				{
+					Logger.Error("SpoofingService.Cancel exception", e);
+				}
+			}
+		}
+
+		public ISpoofingState Spoofing(Spoof spoof, Sides side)
 		{
 			if (!(spoof.TradeAccount?.Connector is IFixConnector)) return null;
 			if (spoof.FeedAccount == null) return null;
@@ -22,11 +53,11 @@ namespace QvaDev.Orchestration.Services
 			if (spoof.Size <= 0) return null;
 
 			var state = new SpoofingState();
-			new Thread(() => Loop(spoof, side, state)) { IsBackground = true }.Start();
+			new Thread(() => Loop(spoof, side, state, state.Init())) { IsBackground = true }.Start();
 			return state;
 		}
 
-		private void Loop(Spoof spoof, Sides side, SpoofingState state)
+		private void Loop(Spoof spoof, Sides side, SpoofingState state, CancellationToken token)
 		{
 			var tradeConnector = (IFixConnector)spoof.TradeAccount.Connector;
 
@@ -35,7 +66,7 @@ namespace QvaDev.Orchestration.Services
 
 			void NewTick(object s, NewTick e)
 			{
-				if (state.IsCancellationRequested) return;
+				if (token.IsCancellationRequested) return;
 				if (e.Tick.Symbol != spoof.FeedSymbol) return;
 				lastTick = e.Tick;
 				waitHandle.Set();
@@ -45,12 +76,12 @@ namespace QvaDev.Orchestration.Services
 			spoof.FeedAccount.Connector.NewTick += NewTick;
 			if (lastTick?.HasValue == true) waitHandle.Set();
 
-			while (!state.IsCancellationRequested)
+			while (!token.IsCancellationRequested)
 			{
 				try
 				{
 					if (!waitHandle.WaitOne(10)) continue;
-					if (state.IsCancellationRequested) break;
+					if (token.IsCancellationRequested) break;
 					if (HiResDatetime.UtcNow - lastTick.Time > TimeSpan.FromSeconds(10)) continue;
 
 					var price = GetPrice(spoof, side, lastTick);
@@ -73,6 +104,10 @@ namespace QvaDev.Orchestration.Services
 			catch (Exception e)
 			{
 				Logger.Error("SpoofingService.Loop exception", e);
+			}
+			finally
+			{
+				TaskCompletionManager.SetCompleted(state);
 			}
 		}
 
