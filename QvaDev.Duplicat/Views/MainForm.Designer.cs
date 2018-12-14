@@ -49,8 +49,6 @@
 			this.proxyUserControl = new QvaDev.Duplicat.Views.ProxyUserControl();
 			this.tabPageCopier = new System.Windows.Forms.TabPage();
 			this.copiersUserControl = new QvaDev.Duplicat.Views.CopiersUserControl();
-			this.tabPagePush = new System.Windows.Forms.TabPage();
-			this.pushingUserControl = new QvaDev.Duplicat.Views.PushingUserControl();
 			this.tabPageStrategy = new System.Windows.Forms.TabPage();
 			this.tabControlStrategies = new System.Windows.Forms.TabControl();
 			this.tabPageHubArb = new System.Windows.Forms.TabPage();
@@ -73,6 +71,8 @@
 			this.btnDisconnect = new System.Windows.Forms.Button();
 			this.btnConnect = new System.Windows.Forms.Button();
 			this.btnSave = new System.Windows.Forms.Button();
+			this.tabPagePushing = new System.Windows.Forms.TabPage();
+			this.pushingUserControl = new QvaDev.Duplicat.Views.PushingUserControl();
 			this.tabControlMain.SuspendLayout();
 			this.tabPageProfile.SuspendLayout();
 			this.tabPageAccount.SuspendLayout();
@@ -85,7 +85,6 @@
 			this.tabPageAggregator.SuspendLayout();
 			this.tabPageProxy.SuspendLayout();
 			this.tabPageCopier.SuspendLayout();
-			this.tabPagePush.SuspendLayout();
 			this.tabPageStrategy.SuspendLayout();
 			this.tabControlStrategies.SuspendLayout();
 			this.tabPageHubArb.SuspendLayout();
@@ -97,6 +96,7 @@
 			this.tabPage3.SuspendLayout();
 			this.tlpMain.SuspendLayout();
 			this.gbControl.SuspendLayout();
+			this.tabPagePushing.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// tabControlMain
@@ -106,7 +106,6 @@
 			this.tabControlMain.Controls.Add(this.tabPageAggregator);
 			this.tabControlMain.Controls.Add(this.tabPageProxy);
 			this.tabControlMain.Controls.Add(this.tabPageCopier);
-			this.tabControlMain.Controls.Add(this.tabPagePush);
 			this.tabControlMain.Controls.Add(this.tabPageStrategy);
 			this.tabControlMain.Controls.Add(this.tabPageTicker);
 			this.tabControlMain.Controls.Add(this.tabPageLog);
@@ -317,27 +316,6 @@
 			this.copiersUserControl.Size = new System.Drawing.Size(1477, 725);
 			this.copiersUserControl.TabIndex = 0;
 			// 
-			// tabPagePush
-			// 
-			this.tabPagePush.Controls.Add(this.pushingUserControl);
-			this.tabPagePush.Location = new System.Drawing.Point(4, 25);
-			this.tabPagePush.Margin = new System.Windows.Forms.Padding(4);
-			this.tabPagePush.Name = "tabPagePush";
-			this.tabPagePush.Padding = new System.Windows.Forms.Padding(4);
-			this.tabPagePush.Size = new System.Drawing.Size(1485, 733);
-			this.tabPagePush.TabIndex = 8;
-			this.tabPagePush.Text = "Pushing";
-			this.tabPagePush.UseVisualStyleBackColor = true;
-			// 
-			// pushingUserControl
-			// 
-			this.pushingUserControl.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.pushingUserControl.Location = new System.Drawing.Point(4, 4);
-			this.pushingUserControl.Margin = new System.Windows.Forms.Padding(5);
-			this.pushingUserControl.Name = "pushingUserControl";
-			this.pushingUserControl.Size = new System.Drawing.Size(1477, 725);
-			this.pushingUserControl.TabIndex = 0;
-			// 
 			// tabPageStrategy
 			// 
 			this.tabPageStrategy.Controls.Add(this.tabControlStrategies);
@@ -351,6 +329,7 @@
 			// 
 			// tabControlStrategies
 			// 
+			this.tabControlStrategies.Controls.Add(this.tabPagePushing);
 			this.tabControlStrategies.Controls.Add(this.tabPageHubArb);
 			this.tabControlStrategies.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.tabControlStrategies.Location = new System.Drawing.Point(3, 3);
@@ -587,6 +566,25 @@
 			this.btnSave.Text = "Save config changes";
 			this.btnSave.UseVisualStyleBackColor = true;
 			// 
+			// tabPagePushing
+			// 
+			this.tabPagePushing.Controls.Add(this.pushingUserControl);
+			this.tabPagePushing.Location = new System.Drawing.Point(4, 25);
+			this.tabPagePushing.Name = "tabPagePushing";
+			this.tabPagePushing.Size = new System.Drawing.Size(1471, 698);
+			this.tabPagePushing.TabIndex = 3;
+			this.tabPagePushing.Text = "Pushing";
+			this.tabPagePushing.UseVisualStyleBackColor = true;
+			// 
+			// pushingUserControl
+			// 
+			this.pushingUserControl.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.pushingUserControl.Location = new System.Drawing.Point(0, 0);
+			this.pushingUserControl.Margin = new System.Windows.Forms.Padding(5);
+			this.pushingUserControl.Name = "pushingUserControl";
+			this.pushingUserControl.Size = new System.Drawing.Size(1471, 698);
+			this.pushingUserControl.TabIndex = 1;
+			// 
 			// MainForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -608,7 +606,6 @@
 			this.tabPageAggregator.ResumeLayout(false);
 			this.tabPageProxy.ResumeLayout(false);
 			this.tabPageCopier.ResumeLayout(false);
-			this.tabPagePush.ResumeLayout(false);
 			this.tabPageStrategy.ResumeLayout(false);
 			this.tabControlStrategies.ResumeLayout(false);
 			this.tabPageHubArb.ResumeLayout(false);
@@ -621,6 +618,7 @@
 			this.tlpMain.ResumeLayout(false);
 			this.gbControl.ResumeLayout(false);
 			this.gbControl.PerformLayout();
+			this.tabPagePushing.ResumeLayout(false);
 			this.ResumeLayout(false);
 
         }
@@ -646,8 +644,6 @@
         private System.Windows.Forms.Button btnConnect;
         private CopiersUserControl copiersUserControl;
         private ProfilesUserControl profilesUserControl;
-        private System.Windows.Forms.TabPage tabPagePush;
-        private PushingUserControl pushingUserControl;
         private System.Windows.Forms.Label labelProfile;
         private System.Windows.Forms.Label label1;
 		private System.Windows.Forms.TabPage tabPageTicker;
@@ -680,6 +676,8 @@
 		private HubArbUserControl hubArbUserControl;
 		private System.Windows.Forms.TabPage tabPageProxy;
 		private ProxyUserControl proxyUserControl;
+		private System.Windows.Forms.TabPage tabPagePushing;
+		private PushingUserControl pushingUserControl;
 	}
 }
 

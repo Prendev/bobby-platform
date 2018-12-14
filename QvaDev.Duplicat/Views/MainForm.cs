@@ -44,7 +44,6 @@ namespace QvaDev.Duplicat.Views
 
 			tabPageAggregator.AddBinding<Profile>("Enabled", _viewModel, nameof(_viewModel.SelectedProfile), p => p != null);
 			tabPageCopier.AddBinding<Profile>("Enabled", _viewModel, nameof(_viewModel.SelectedProfile), p => p != null);
-			tabPagePush.AddBinding<Profile>("Enabled", _viewModel, nameof(_viewModel.SelectedProfile), p => p != null);
 			tabPageTicker.AddBinding<Profile>("Enabled", _viewModel, nameof(_viewModel.SelectedProfile), p => p != null);
 			tabPageStrategy.AddBinding<Profile>("Enabled", _viewModel, nameof(_viewModel.SelectedProfile), p => p != null);
 			labelProfile.AddBinding<Profile, string>("Text", _viewModel, nameof(_viewModel.SelectedProfile), p => p?.Description ?? "");
@@ -58,8 +57,6 @@ namespace QvaDev.Duplicat.Views
             DataBindings.Add(titleBinding);
 
             btnSave.Click += (s, e) => { _viewModel.SaveCommand(); };
-            //btnBackup.Click += (s, e) => { _viewModel.BackupCommand(); };
-            //btnRestore.Click += (s, e) => { _viewModel.RestoreCommand(); };
 
 			_viewModel.DataContextChanged += () => AttachDataSources(this);
 
