@@ -112,5 +112,15 @@ namespace QvaDev.OrchestrationTests.Services
 			// Assert
 			Thread.Sleep(new TimeSpan(0, 0, 100));
 		}
+
+		[Test]
+		public void LevelTwoTest()
+		{
+			// Arrange
+			((IbIntegration.Connector)Spoof.FeedAccount.Connector).SubscribeLevel2(Spoof.FeedSymbol);
+
+			// Assert
+			Thread.Sleep(new TimeSpan(0, 0, 100));
+		}
 	}
 }

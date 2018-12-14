@@ -15,6 +15,7 @@ namespace QvaDev.IbIntegration
 		private readonly AccountInfo _accountInfo;
 		private readonly TaskCompletionManager<string> _taskCompletionManager;
 		private readonly Dictionary<int, string> _subscriptions = new Dictionary<int, string>();
+		private readonly Dictionary<int, string> _subsLvl2 = new Dictionary<int, string>();
 
 		private readonly Object _lock = new Object();
 		private volatile bool _isConnecting;
@@ -94,23 +95,43 @@ namespace QvaDev.IbIntegration
 	    {
 		    try
 		    {
-			    int reqId;
+			    int id;
 				lock (_subscriptions)
 				{
-					reqId = _subscriptions.Count + 1;
-					_subscriptions[reqId] = symbol;
+					id = _subscriptions.Count + 1;
+					_subscriptions[id] = symbol;
 				}
 
 				var contract = symbol.ToContract();
-				_clientSocket.reqTickByTickData(reqId, contract, "BidAsk", 0, true);
+				_clientSocket.reqTickByTickData(id, contract, "BidAsk", 0, true);
 			}
 		    catch (Exception e)
 		    {
 			    Logger.Error($"{Description} account ERROR during subscribtion", e);
 		    }
+		}
+
+	    public void SubscribeLevel2(string symbol)
+	    {
+		    try
+		    {
+			    int id;
+			    lock (_subsLvl2)
+			    {
+				    id = _subsLvl2.Count + 1;
+				    _subsLvl2[id] = symbol;
+			    }
+
+			    var contract = symbol.ToContract();
+			    _clientSocket.reqMarketDepth(id, contract, 15, false, null);
+		    }
+		    catch (Exception e)
+		    {
+			    Logger.Error($"{Description} account ERROR during level 2 subscribtion", e);
+		    }
 	    }
 
-	    private ConnectionStates GetStatus()
+		private ConnectionStates GetStatus()
 		{
 			if (IsConnected) return ConnectionStates.Connected;
 			return _shouldConnect ? ConnectionStates.Error : ConnectionStates.Disconnected;
