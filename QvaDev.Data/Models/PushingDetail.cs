@@ -11,8 +11,9 @@ namespace QvaDev.Data.Models
 
 	    [DisplayName("SpoofSize")] public int SpoofContractSize { get; set; }
 	    [DisplayName("SpoofDistance")] public decimal SpoofDistance { get; set; }
+		[DisplayName("SpoofPutAway")] public decimal? SpoofPutAwayDistance { get; set; }
 
-	    [DisplayName("Small")] public int SmallContractSize { get; set; }
+		[DisplayName("Small")] public int SmallContractSize { get; set; }
 	    [DisplayName("Big")] public int BigContractSize { get; set; }
         public int BigPercentage { get; set; }
 

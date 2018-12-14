@@ -66,7 +66,6 @@ namespace QvaDev.Orchestration.Services
 
 			void NewTick(object s, NewTick e)
 			{
-				if (token.IsCancellationRequested) return;
 				if (e.Tick.Symbol != spoof.FeedSymbol) return;
 				lastTick = e.Tick;
 				waitHandle.Set();
@@ -84,7 +83,7 @@ namespace QvaDev.Orchestration.Services
 					if (token.IsCancellationRequested) break;
 					if (HiResDatetime.UtcNow - lastTick.Time > TimeSpan.FromSeconds(10)) continue;
 
-					var price = GetPrice(spoof, side, lastTick);
+					var price = GetPrice(spoof, side, lastTick, spoof.Distance);
 					if (state.LimitResponse == null)
 						state.LimitResponse = tradeConnector.SendSpoofOrderRequest(spoof.TradeSymbol, side, spoof.Size, price).Result;
 					else changed = tradeConnector.ChangeLimitPrice(state.LimitResponse, price).Result;
@@ -94,11 +93,21 @@ namespace QvaDev.Orchestration.Services
 					Logger.Error("SpoofingService.Loop exception", e);
 				}
 			}
-			spoof.FeedAccount.Connector.NewTick -= NewTick;
 
 			try
 			{
-				var canceled = tradeConnector.CancelLimit(state.LimitResponse).Result;
+				spoof.FeedAccount.Connector.NewTick -= NewTick;
+
+				if (spoof.PutAway.HasValue)
+				{
+					var price = GetPrice(spoof, side, lastTick, spoof.PutAway.Value);
+					changed = tradeConnector.ChangeLimitPrice(state.LimitResponse, price).Result;
+				}
+				else
+				{
+					var canceled = tradeConnector.CancelLimit(state.LimitResponse).Result;
+				}
+
 				waitHandle.Dispose();
 			}
 			catch (Exception e)
@@ -111,9 +120,9 @@ namespace QvaDev.Orchestration.Services
 			}
 		}
 
-		private static decimal GetPrice(Spoof spoof, Sides side, Tick tick)
+		private static decimal GetPrice(Spoof spoof, Sides side, Tick tick, decimal distance)
 		{
-			return side == Sides.Buy ? (tick.Bid - spoof.Distance) : (tick.Ask + spoof.Distance);
+			return side == Sides.Buy ? (tick.Bid - distance) : (tick.Ask + distance);
 		}
 	}
 }

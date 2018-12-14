@@ -1,6 +1,4 @@
-﻿using System.Threading;
-using QvaDev.Common.Integration;
-using QvaDev.Data.Models;
+﻿using QvaDev.Data.Models;
 
 namespace QvaDev.Data
 {
@@ -12,6 +10,7 @@ namespace QvaDev.Data
 		public string TradeSymbol { get; }
 		public decimal Size { get; }
 		public decimal Distance { get; }
+		public decimal? PutAway { get; }
 
 		public Spoof(
 			Account feedAccount,
@@ -19,7 +18,8 @@ namespace QvaDev.Data
 			Account tradeAccount,
 			string tradeSymbol,
 			decimal size,
-			decimal distance)
+			decimal distance,
+			decimal? putAway)
 		{
 			Size = size;
 			Distance = distance;
@@ -27,6 +27,7 @@ namespace QvaDev.Data
 			TradeAccount = tradeAccount;
 			FeedSymbol = feedSymbol;
 			FeedAccount = feedAccount;
+			PutAway = putAway;
 		}
 	}
 }

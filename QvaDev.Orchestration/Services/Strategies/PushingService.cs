@@ -67,7 +67,9 @@ namespace QvaDev.Orchestration.Services.Strategies
 			pushing.Spoof = new Data.Spoof(
 			    pushing.FeedAccount, pushing.FeedSymbol,
 			    pushing.SpoofAccount, pushing.SpoofSymbol,
-			    pushing.PushingDetail.SpoofContractSize, pushing.PushingDetail.SpoofDistance);
+			    pushing.PushingDetail.SpoofContractSize,
+			    pushing.PushingDetail.SpoofDistance,
+				pushing.PushingDetail.SpoofPutAwayDistance);
 		    pushing.Spoof.FeedAccount.Connector.Subscribe(pushing.Spoof.FeedSymbol);
 		}
 
