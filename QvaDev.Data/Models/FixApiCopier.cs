@@ -37,19 +37,21 @@ namespace QvaDev.Data.Models
 		[DisplayName("MarketTimeWindow")]
 		public int MarketTimeWindowInMs { get; set; }
 
-		[DisplayName("AggMaxRetry")]
+		[DisplayName("LimitMaxRetry")]
 		public int MaxRetryCount { get; set; }
-		[DisplayName("AggRetryPeriod")]
+		[DisplayName("LimitRetryPeriod")]
 		public int RetryPeriodInMs { get; set; }
-		[DisplayName("AggSlippage")]
+		[DisplayName("LimitSlippage")]
 		public decimal SlippageInPip { get; set; }
 
 		[DisplayName("LimitTimeWindow")]
 		public int TimeWindowInMs { get; set; }
-		[DisplayName("LimitDiff")] public decimal LimitDiffInPip { get; set; }
+		[DisplayName("LimitDiff")]
+		public decimal LimitDiffInPip { get; set; }
 		public decimal PipSize { get; set; }
 
 		[NotMapped] [InvisibleColumn] public decimal Deviation => SlippageInPip * PipSize;
+		[NotMapped] [InvisibleColumn] public decimal LimitDiff => LimitDiffInPip * PipSize;
 		[NotMapped] [InvisibleColumn] public bool IsFiltered { get => Get<bool>(); set => Set(value); }
 		[NotMapped] [InvisibleColumn] public Dictionary<long, OrderResponse> OrderResponses = new Dictionary<long, OrderResponse>();
 	}

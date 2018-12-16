@@ -29,12 +29,17 @@ namespace QvaDev.Orchestration.Services.Strategies
 				if (price == null || orderType == OrderTypes.Market)
 					response = await fix.SendMarketOrderRequest(symbol, side, size,
 						arb.TimeWindowInMs, arb.MaxRetryCount, arb.RetryPeriodInMs);
+
 				else if (orderType == OrderTypes.Aggressive)
-					response = await fix.SendAggressiveOrderRequest(symbol, side, size, price.Value, arb.Deviation,
+					response = await fix.SendAggressiveOrderRequest(
+						symbol, side, size, price.Value, arb.Deviation, 0,
 						arb.TimeWindowInMs, arb.MaxRetryCount, arb.RetryPeriodInMs);
+
 				else if (orderType == OrderTypes.DelayedAggressive)
-					response = await fix.SendDelayedAggressiveOrderRequest(symbol, side, size, price.Value, arb.Deviation, arb.Correction,
+					response = await fix.SendDelayedAggressiveOrderRequest(
+						symbol, side, size, price.Value, arb.Deviation, 0, arb.Correction,
 						arb.DelayTimeWindowInMs, arb.MaxRetryCount, arb.RetryPeriodInMs);
+
 				else throw new NotImplementedException();
 
 				PersistPosition(arb, account, symbol, response);

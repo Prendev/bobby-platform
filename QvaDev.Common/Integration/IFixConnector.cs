@@ -10,16 +10,19 @@ namespace QvaDev.Common.Integration
 			int timeout, int retryCount, int retryPeriod);
 
 		Task<OrderResponse> SendAggressiveOrderRequest(
-			string symbol, Sides side, decimal quantity, decimal limitPrice, decimal deviation,
+			string symbol, Sides side, decimal quantity,
+			decimal limitPrice, decimal deviation, decimal priceDiff,
 			int timeout, int retryCount, int retryPeriod);
 
 		Task<OrderResponse> SendDelayedAggressiveOrderRequest(
 			string symbol, Sides side, decimal quantity,
-			decimal limitPrice, decimal deviation, decimal correction,
+			decimal limitPrice, decimal deviation, decimal priceDiff, decimal correction,
 			int timeout, int retryCount, int retryPeriod);
 
 		Task<OrderResponse> SendGtcLimitOrderRequest(
-			string symbol, Sides side, decimal quantity, decimal limitPrice, int timeout);
+			string symbol, Sides side, decimal quantity,
+			decimal limitPrice, decimal deviation, decimal priceDiff,
+			int timeout, int retryCount, int retryPeriod);
 
 		Task<LimitResponse> SendSpoofOrderRequest(string symbol, Sides side, decimal quantity, decimal limitPrice);
 

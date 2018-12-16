@@ -15,8 +15,7 @@ using QvaDev.Communication.ConnectionManagementRules;
 using QvaDev.Communication.FixApi;
 using QvaDev.Communication.FixApi.Connectors.Strategies;
 using QvaDev.Communication.FixApi.Connectors.Strategies.AggressiveOrder;
-using QvaDev.Communication.FixApi.Connectors.Strategies.DelayedAggressiveOrder;
-using QvaDev.Communication.FixApi.Connectors.Strategies.GtcLimitOrder;
+using QvaDev.Communication.FixApi.Connectors.Strategies.AggressiveOrder.Delayed;
 using QvaDev.Communication.FixApi.Connectors.Strategies.MarketOrder;
 using OrderResponse = QvaDev.Common.Integration.OrderResponse;
 
@@ -146,7 +145,7 @@ namespace QvaDev.FixApiIntegration
 
 		public override async Task<OrderResponse> SendAggressiveOrderRequest(
 			string symbol, Sides side, decimal quantity,
-			decimal limitPrice, decimal deviation,
+			decimal limitPrice, decimal deviation, decimal priceDiff,
 			int timeout, int retryCount, int retryPeriod)
 		{
 			if (!FixConnector.IsAggressiveOrderSupported())
@@ -174,6 +173,7 @@ namespace QvaDev.FixApiIntegration
 					Quantity = quantity,
 					LimitPrice = limitPrice,
 					Deviation = deviation,
+					PriceDifference = priceDiff,
 					Timeout = timeout,
 					RetryCount = retryCount,
 					RetryDelay = retryPeriod
@@ -187,20 +187,20 @@ namespace QvaDev.FixApiIntegration
 
 				Logger.Debug(
 					$"{Description} Connector.SendAggressiveOrderRequest({symbol}, {side}, {quantity}, " +
-					$"{limitPrice}, {deviation}, {timeout}, {retryCount}, {retryPeriod}) " +
+					$"{limitPrice}, {deviation}, {priceDiff}, {timeout}, {retryCount}, {retryPeriod}) " +
 					$"opened {response.FilledQuantity} at avg price {response.AveragePrice}");
 			}
 			catch (TimeoutException)
 			{
 				Logger.Warn(
 					$"{Description} Connector.SendAggressiveOrderRequest({symbol}, {side}, {quantity}, " +
-					$"{limitPrice}, {deviation}, {timeout}, {retryCount}, {retryPeriod}) timeout");
+					$"{limitPrice}, {deviation}, {priceDiff}, {timeout}, {retryCount}, {retryPeriod}) timeout");
 			}
 			catch (Exception e)
 			{
 				Logger.Error(
 					$"{Description} Connector.SendAggressiveOrderRequest({symbol}, {side}, {quantity}, " +
-					$"{limitPrice}, {deviation}, {timeout}, {retryCount}, {retryPeriod}) exception", e);
+					$"{limitPrice}, {deviation}, {priceDiff}, {timeout}, {retryCount}, {retryPeriod}) exception", e);
 			}
 
 			return retValue;
@@ -208,7 +208,7 @@ namespace QvaDev.FixApiIntegration
 
 		public override async Task<OrderResponse> SendDelayedAggressiveOrderRequest(
 			string symbol, Sides side, decimal quantity,
-			decimal limitPrice, decimal deviation, decimal correction,
+			decimal limitPrice, decimal deviation, decimal priceDiff, decimal correction,
 			int timeout, int retryCount, int retryPeriod)
 		{
 			if (!FixConnector.IsAggressiveOrderSupported())
@@ -236,6 +236,7 @@ namespace QvaDev.FixApiIntegration
 					Quantity = quantity,
 					LimitPrice = limitPrice,
 					Deviation = deviation,
+					PriceDifference = priceDiff,
 					Correction = correction,
 					Timeout = timeout,
 					RetryCount = retryCount,
@@ -250,27 +251,29 @@ namespace QvaDev.FixApiIntegration
 
 				Logger.Debug(
 					$"{Description} Connector.SendDelayedAggressiveOrderRequest({symbol}, {side}, {quantity}, " +
-					$"{limitPrice}, {deviation}, {correction}, {timeout}, {retryCount}, {retryPeriod}) " +
+					$"{limitPrice}, {deviation}, {priceDiff}, {correction}, {timeout}, {retryCount}, {retryPeriod}) " +
 					$"opened {response.FilledQuantity} at avg price {response.AveragePrice}");
 			}
 			catch (TimeoutException)
 			{
 				Logger.Warn(
 					$"{Description} Connector.SendDelayedAggressiveOrderRequest({symbol}, {side}, {quantity}, " +
-					$"{limitPrice}, {deviation}, {correction}, {timeout}, {retryCount}, {retryPeriod}) timeout");
+					$"{limitPrice}, {deviation}, {priceDiff}, {correction}, {timeout}, {retryCount}, {retryPeriod}) timeout");
 			}
 			catch (Exception e)
 			{
 				Logger.Error(
 					$"{Description} Connector.SendDelayedAggressiveOrderRequest({symbol}, {side}, {quantity}, " +
-					$"{limitPrice}, {deviation}, {correction}, {timeout}, {retryCount}, {retryPeriod}) exception", e);
+					$"{limitPrice}, {deviation}, {priceDiff}, {correction}, {timeout}, {retryCount}, {retryPeriod}) exception", e);
 			}
 
 			return retValue;
 		}
 
-		public override async Task<OrderResponse> SendGtcLimitOrderRequest(string symbol, Sides side, decimal quantity,
-			decimal limitPrice, int timeout)
+		public override async Task<OrderResponse> SendGtcLimitOrderRequest(
+			string symbol, Sides side, decimal quantity,
+			decimal limitPrice, decimal deviation, decimal priceDiff,
+			int timeout, int retryCount, int retryPeriod)
 		{
 			var retValue = new OrderResponse()
 			{
@@ -284,16 +287,20 @@ namespace QvaDev.FixApiIntegration
 			{
 				Logger.Debug(
 					$"{Description} Connector.SendGtcLimitOrderRequest({symbol}, {side}, {quantity}, " +
-					$"{limitPrice}, {timeout}) ");
+					$"{limitPrice}, {deviation}, {timeout}, {retryCount}, {retryPeriod}) ");
 
 				quantity = Math.Abs(quantity);
-				var response = await FixConnector.GtcLimitOrderAsync(new GtcLimitOrderRequest()
+				var response = await FixConnector.GtcLimitOrderAsync(new AggressiveOrderRequest()
 				{
 					IsLong = side == Sides.Buy,
 					Symbol = Symbol.Parse(symbol),
 					Quantity = quantity,
 					LimitPrice = limitPrice,
-					Timeout = timeout
+					Deviation = deviation,
+					PriceDifference = priceDiff,
+					Timeout = timeout,
+					RetryCount = retryCount,
+					RetryDelay = retryPeriod
 				});
 
 				if (!string.IsNullOrWhiteSpace(response.UnfinishedOrderId))
@@ -304,18 +311,20 @@ namespace QvaDev.FixApiIntegration
 
 				Logger.Debug(
 					$"{Description} Connector.SendGtcLimitOrderRequest({symbol}, {side}, {quantity}, " +
-					$"{limitPrice}, {timeout}) opened {response.FilledQuantity} at avg price {response.AveragePrice}");
+					$"{limitPrice}, {deviation}, {priceDiff}, {timeout}, {retryCount}, {retryPeriod}) " +
+					$"opened {response.FilledQuantity} at avg price {response.AveragePrice}");
 			}
 			catch (TimeoutException)
 			{
 				Logger.Warn(
-					$"{Description} Connector.SendGtcLimitOrderRequest({symbol}, {side}, {quantity}, {limitPrice}, {timeout}) timeout");
+					$"{Description} Connector.SendGtcLimitOrderRequest({symbol}, {side}, {quantity}, " +
+					$"{limitPrice}, {deviation}, {priceDiff}, {timeout}, {retryCount}, {retryPeriod}) timeout");
 			}
 			catch (Exception e)
 			{
 				Logger.Error(
 					$"{Description} Connector.SendGtcLimitOrderRequest({symbol}, {side}, {quantity}, " +
-					$"{limitPrice}, {timeout}) exception", e);
+					$"{limitPrice}, {deviation}, {priceDiff}, {timeout}, {retryCount}, {retryPeriod}) exception", e);
 			}
 
 			return retValue;
@@ -363,7 +372,7 @@ namespace QvaDev.FixApiIntegration
 				new QuoteEntry(HiResDatetime.UtcNow) { Ask = 1, Bid = 1, AskVolume = 100000, BidVolume = 10000 }
 			};
 			MarketDataManager.PostQuoteSet(FixConnector, new QuoteSet(Symbol.Parse(symbol), entries));
-			await SendAggressiveOrderRequest(symbol, Sides.Buy, 1000, 1, 0, 500, 0, 0);
+			await SendAggressiveOrderRequest(symbol, Sides.Buy, 1000, 1, 0, 0, 500, 0, 0);
 		}
 
 		public override bool Is(object o)

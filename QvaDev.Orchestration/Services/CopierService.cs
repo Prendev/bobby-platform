@@ -192,7 +192,6 @@ namespace QvaDev.Orchestration.Services
 
 				var limitPrice = copier.BasePriceType == FixApiCopier.BasePriceTypes.Master ? e.Position.OpenPrice :
 					side == Sides.Buy ? lastTicket.Ask : lastTicket.Bid;
-				limitPrice -= copier.LimitDiffInPip * copier.PipSize * (side == Sides.Buy ? 1 : -1);
 
 				if (e.Action == NewPositionActions.Open)
 				{
@@ -215,11 +214,14 @@ namespace QvaDev.Orchestration.Services
 		    decimal quantity, decimal limitPrice)
 	    {
 		    if (copier.OrderType == FixApiCopier.FixApiOrderTypes.GtcLimit)
-			    return await connector.SendGtcLimitOrderRequest(symbol, side, quantity, limitPrice, copier.TimeWindowInMs);
+			    return await connector.SendGtcLimitOrderRequest(
+					symbol, side, quantity, limitPrice, copier.Deviation, copier.LimitDiff,
+					copier.TimeWindowInMs, copier.MaxRetryCount, copier.RetryPeriodInMs);
 
 		    if (copier.OrderType == FixApiCopier.FixApiOrderTypes.Aggressive)
-			    return await connector.SendAggressiveOrderRequest(symbol, side, quantity, limitPrice,
-				    copier.Deviation, copier.TimeWindowInMs, copier.MaxRetryCount, copier.RetryPeriodInMs);
+			    return await connector.SendAggressiveOrderRequest(
+					symbol, side, quantity, limitPrice, copier.Deviation, copier.LimitDiff,
+					copier.TimeWindowInMs, copier.MaxRetryCount, copier.RetryPeriodInMs);
 
 		    if (copier.OrderType == FixApiCopier.FixApiOrderTypes.Market)
 			    return await connector.SendMarketOrderRequest(symbol, side, quantity,
@@ -234,9 +236,11 @@ namespace QvaDev.Orchestration.Services
 		    if (copier.OrderType == FixApiCopier.FixApiOrderTypes.GtcLimit)
 		    {
 			    var closeResponse =
-				    await connector.SendGtcLimitOrderRequest(symbol, side, quantity, limitPrice, copier.TimeWindowInMs);
+				    await connector.SendGtcLimitOrderRequest(
+					symbol, side, quantity, limitPrice, copier.Deviation, copier.LimitDiff,
+					copier.TimeWindowInMs, copier.MaxRetryCount, copier.RetryPeriodInMs);
 
-			    var remainingQuantity = closeResponse.OrderedQuantity - closeResponse.FilledQuantity;
+				var remainingQuantity = closeResponse.OrderedQuantity - closeResponse.FilledQuantity;
 			    if (remainingQuantity == 0) return;
 
 			    await connector.SendMarketOrderRequest(symbol, side, remainingQuantity,
@@ -245,11 +249,11 @@ namespace QvaDev.Orchestration.Services
 
 		    else if (copier.OrderType == FixApiCopier.FixApiOrderTypes.Aggressive)
 		    {
-			    var closeResponse = await connector.SendAggressiveOrderRequest(symbol, side,
-				    quantity, limitPrice, copier.Deviation,
-				    copier.TimeWindowInMs, copier.MaxRetryCount, copier.RetryPeriodInMs);
+			    var closeResponse = await connector.SendAggressiveOrderRequest(
+					symbol, side, quantity, limitPrice, copier.Deviation, copier.LimitDiff,
+					copier.TimeWindowInMs, copier.MaxRetryCount, copier.RetryPeriodInMs);
 
-			    var remainingQuantity = closeResponse.OrderedQuantity - closeResponse.FilledQuantity;
+				var remainingQuantity = closeResponse.OrderedQuantity - closeResponse.FilledQuantity;
 			    if (remainingQuantity == 0) return;
 
 			    await connector.SendMarketOrderRequest(symbol, side, remainingQuantity,
