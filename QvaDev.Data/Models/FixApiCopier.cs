@@ -28,6 +28,8 @@ namespace QvaDev.Data.Models
 		public decimal CopyRatio { get; set; }
 		public FixApiOrderTypes OrderType { get; set; }
 		public BasePriceTypes BasePriceType { get; set; }
+		[DisplayName("FallbackToMarket")]
+		public bool FallbackToMarketOrderType { get; set; }
 		public int DelayInMilliseconds { get; set; }
 
 		[DisplayName("MarketMaxRetry")]
