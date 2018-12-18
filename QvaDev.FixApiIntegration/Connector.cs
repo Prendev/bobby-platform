@@ -397,6 +397,7 @@ namespace QvaDev.FixApiIntegration
 
 		private void FixConnector_ExecutionReport(object sender, ExecutionReportEventArgs e)
 		{
+			SpecialLogger.Log(this, e);
 			if ((e.ExecutionReport.FulfilledQuantity ?? 0) == 0) return;
 			if (e.ExecutionReport.Side != Side.Buy && e.ExecutionReport.Side != Side.Sell) return;
 
@@ -406,7 +407,7 @@ namespace QvaDev.FixApiIntegration
 					$"{Description} FixConnector.ExecutionReport unfinished order ({e.ExecutionReport.Symbol}, {e.ExecutionReport.Side}, {e.ExecutionReport.FulfilledQuantity})!!!");
 				var side = e.ExecutionReport.Side == Side.Buy ? Sides.Sell : Sides.Buy;
 				SendMarketOrderRequest(e.ExecutionReport.Symbol.ToString(), side, e.ExecutionReport.FulfilledQuantity.Value,
-					5000, 100, 25);
+					5000, 5, 25);
 			}
 
 			var quantity = e.ExecutionReport.FulfilledQuantity.Value;

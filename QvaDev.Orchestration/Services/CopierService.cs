@@ -217,8 +217,8 @@ namespace QvaDev.Orchestration.Services
 	    {
 		    if (open == null) return;
 		    if (open.FilledQuantity == 0)
-			    Logger.Warn($"{slave}\t{symbol}\t{open.FilledQuantity}\t{open.AveragePrice}");
-		    else Logger.Info($"{slave}\t{symbol}\t{open.FilledQuantity}\t{open.AveragePrice}");
+			    Logger.Warn($"\t{slave}\t{symbol}\t{open.FilledQuantity}\t{open.AveragePrice}");
+		    else Logger.Info($"\t{slave}\t{symbol}\t{open.FilledQuantity}\t{open.AveragePrice}");
 	    }
 
 	    private void LogClose(Slave slave, string symbol, OrderResponse open, OrderResponse close)
@@ -228,8 +228,8 @@ namespace QvaDev.Orchestration.Services
 		    if (open.Side == Sides.Buy) diff *= -1;
 
 			if (open.FilledQuantity != close.FilledQuantity)
-				Logger.Error($"{slave}\t{symbol}\t{open.FilledQuantity}\t{open.AveragePrice}\t{close.FilledQuantity}\t{close.AveragePrice}\t{diff}");
-			else Logger.Info($"{slave}\t{symbol}\t{open.FilledQuantity}\t{open.AveragePrice}\t{close.FilledQuantity}\t{close.AveragePrice}\t{diff}");
+				Logger.Error($"\t{slave}\t{symbol}\t{open.FilledQuantity}\t{open.AveragePrice}\t{close.FilledQuantity}\t{close.AveragePrice}\t{diff}");
+			else Logger.Info($"\t{slave}\t{symbol}\t{open.FilledQuantity}\t{open.AveragePrice}\t{close.FilledQuantity}\t{close.AveragePrice}\t{diff}");
 		}
 
 	    private async Task<OrderResponse> FixAccountOpening(FixApiCopier copier, IFixConnector connector, string symbol, Sides side,

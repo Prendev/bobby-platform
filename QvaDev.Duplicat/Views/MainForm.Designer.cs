@@ -51,6 +51,8 @@
 			this.copiersUserControl = new QvaDev.Duplicat.Views.CopiersUserControl();
 			this.tabPageStrategy = new System.Windows.Forms.TabPage();
 			this.tabControlStrategies = new System.Windows.Forms.TabControl();
+			this.tabPagePushing = new System.Windows.Forms.TabPage();
+			this.pushingUserControl = new QvaDev.Duplicat.Views.PushingUserControl();
 			this.tabPageHubArb = new System.Windows.Forms.TabPage();
 			this.hubArbUserControl = new QvaDev.Duplicat.Views.HubArbUserControl();
 			this.tabPageTicker = new System.Windows.Forms.TabPage();
@@ -60,7 +62,6 @@
 			this.tabPage1 = new System.Windows.Forms.TabPage();
 			this.rtbGeneral = new System.Windows.Forms.RichTextBox();
 			this.tabPage2 = new System.Windows.Forms.TabPage();
-			this.rtbFix = new System.Windows.Forms.RichTextBox();
 			this.tabPage3 = new System.Windows.Forms.TabPage();
 			this.rtbAll = new System.Windows.Forms.RichTextBox();
 			this.tlpMain = new System.Windows.Forms.TableLayoutPanel();
@@ -71,8 +72,9 @@
 			this.btnDisconnect = new System.Windows.Forms.Button();
 			this.btnConnect = new System.Windows.Forms.Button();
 			this.btnSave = new System.Windows.Forms.Button();
-			this.tabPagePushing = new System.Windows.Forms.TabPage();
-			this.pushingUserControl = new QvaDev.Duplicat.Views.PushingUserControl();
+			this.tabPage4 = new System.Windows.Forms.TabPage();
+			this.rtbFix = new System.Windows.Forms.RichTextBox();
+			this.rtbFixOrders = new System.Windows.Forms.RichTextBox();
 			this.tabControlMain.SuspendLayout();
 			this.tabPageProfile.SuspendLayout();
 			this.tabPageAccount.SuspendLayout();
@@ -87,6 +89,7 @@
 			this.tabPageCopier.SuspendLayout();
 			this.tabPageStrategy.SuspendLayout();
 			this.tabControlStrategies.SuspendLayout();
+			this.tabPagePushing.SuspendLayout();
 			this.tabPageHubArb.SuspendLayout();
 			this.tabPageTicker.SuspendLayout();
 			this.tabPageLog.SuspendLayout();
@@ -96,7 +99,7 @@
 			this.tabPage3.SuspendLayout();
 			this.tlpMain.SuspendLayout();
 			this.gbControl.SuspendLayout();
-			this.tabPagePushing.SuspendLayout();
+			this.tabPage4.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// tabControlMain
@@ -338,6 +341,25 @@
 			this.tabControlStrategies.Size = new System.Drawing.Size(1479, 727);
 			this.tabControlStrategies.TabIndex = 1;
 			// 
+			// tabPagePushing
+			// 
+			this.tabPagePushing.Controls.Add(this.pushingUserControl);
+			this.tabPagePushing.Location = new System.Drawing.Point(4, 25);
+			this.tabPagePushing.Name = "tabPagePushing";
+			this.tabPagePushing.Size = new System.Drawing.Size(1471, 698);
+			this.tabPagePushing.TabIndex = 3;
+			this.tabPagePushing.Text = "Pushing";
+			this.tabPagePushing.UseVisualStyleBackColor = true;
+			// 
+			// pushingUserControl
+			// 
+			this.pushingUserControl.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.pushingUserControl.Location = new System.Drawing.Point(0, 0);
+			this.pushingUserControl.Margin = new System.Windows.Forms.Padding(5);
+			this.pushingUserControl.Name = "pushingUserControl";
+			this.pushingUserControl.Size = new System.Drawing.Size(1471, 698);
+			this.pushingUserControl.TabIndex = 1;
+			// 
 			// tabPageHubArb
 			// 
 			this.tabPageHubArb.Controls.Add(this.hubArbUserControl);
@@ -391,6 +413,7 @@
 			// 
 			this.tabControl1.Controls.Add(this.tabPage1);
 			this.tabControl1.Controls.Add(this.tabPage2);
+			this.tabControl1.Controls.Add(this.tabPage4);
 			this.tabControl1.Controls.Add(this.tabPage3);
 			this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.tabControl1.Location = new System.Drawing.Point(4, 4);
@@ -432,18 +455,6 @@
 			this.tabPage2.TabIndex = 1;
 			this.tabPage2.Text = "FIX";
 			this.tabPage2.UseVisualStyleBackColor = true;
-			// 
-			// rtbFix
-			// 
-			this.rtbFix.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.rtbFix.Location = new System.Drawing.Point(3, 3);
-			this.rtbFix.Name = "rtbFix";
-			this.rtbFix.ReadOnly = true;
-			this.rtbFix.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Vertical;
-			this.rtbFix.Size = new System.Drawing.Size(1463, 690);
-			this.rtbFix.TabIndex = 1;
-			this.rtbFix.Text = "";
-			this.rtbFix.WordWrap = false;
 			// 
 			// tabPage3
 			// 
@@ -566,24 +577,39 @@
 			this.btnSave.Text = "Save config changes";
 			this.btnSave.UseVisualStyleBackColor = true;
 			// 
-			// tabPagePushing
+			// tabPage4
 			// 
-			this.tabPagePushing.Controls.Add(this.pushingUserControl);
-			this.tabPagePushing.Location = new System.Drawing.Point(4, 25);
-			this.tabPagePushing.Name = "tabPagePushing";
-			this.tabPagePushing.Size = new System.Drawing.Size(1471, 698);
-			this.tabPagePushing.TabIndex = 3;
-			this.tabPagePushing.Text = "Pushing";
-			this.tabPagePushing.UseVisualStyleBackColor = true;
+			this.tabPage4.Controls.Add(this.rtbFixOrders);
+			this.tabPage4.Location = new System.Drawing.Point(4, 25);
+			this.tabPage4.Name = "tabPage4";
+			this.tabPage4.Size = new System.Drawing.Size(1469, 696);
+			this.tabPage4.TabIndex = 4;
+			this.tabPage4.Text = "FIX orders";
+			this.tabPage4.UseVisualStyleBackColor = true;
 			// 
-			// pushingUserControl
+			// rtbFix
 			// 
-			this.pushingUserControl.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.pushingUserControl.Location = new System.Drawing.Point(0, 0);
-			this.pushingUserControl.Margin = new System.Windows.Forms.Padding(5);
-			this.pushingUserControl.Name = "pushingUserControl";
-			this.pushingUserControl.Size = new System.Drawing.Size(1471, 698);
-			this.pushingUserControl.TabIndex = 1;
+			this.rtbFix.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.rtbFix.Location = new System.Drawing.Point(3, 3);
+			this.rtbFix.Name = "rtbFix";
+			this.rtbFix.ReadOnly = true;
+			this.rtbFix.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Vertical;
+			this.rtbFix.Size = new System.Drawing.Size(1463, 690);
+			this.rtbFix.TabIndex = 1;
+			this.rtbFix.Text = "";
+			this.rtbFix.WordWrap = false;
+			// 
+			// rtbFixOrders
+			// 
+			this.rtbFixOrders.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.rtbFixOrders.Location = new System.Drawing.Point(0, 0);
+			this.rtbFixOrders.Name = "rtbFixOrders";
+			this.rtbFixOrders.ReadOnly = true;
+			this.rtbFixOrders.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Vertical;
+			this.rtbFixOrders.Size = new System.Drawing.Size(1469, 696);
+			this.rtbFixOrders.TabIndex = 2;
+			this.rtbFixOrders.Text = "";
+			this.rtbFixOrders.WordWrap = false;
 			// 
 			// MainForm
 			// 
@@ -608,6 +634,7 @@
 			this.tabPageCopier.ResumeLayout(false);
 			this.tabPageStrategy.ResumeLayout(false);
 			this.tabControlStrategies.ResumeLayout(false);
+			this.tabPagePushing.ResumeLayout(false);
 			this.tabPageHubArb.ResumeLayout(false);
 			this.tabPageTicker.ResumeLayout(false);
 			this.tabPageLog.ResumeLayout(false);
@@ -618,7 +645,7 @@
 			this.tlpMain.ResumeLayout(false);
 			this.gbControl.ResumeLayout(false);
 			this.gbControl.PerformLayout();
-			this.tabPagePushing.ResumeLayout(false);
+			this.tabPage4.ResumeLayout(false);
 			this.ResumeLayout(false);
 
         }
@@ -663,7 +690,6 @@
 		private System.Windows.Forms.TabPage tabPage1;
 		private System.Windows.Forms.RichTextBox rtbGeneral;
 		private System.Windows.Forms.TabPage tabPage2;
-		private System.Windows.Forms.RichTextBox rtbFix;
 		private System.Windows.Forms.TabPage tabPage3;
 		private System.Windows.Forms.RichTextBox rtbAll;
 		private IffAccountsUserControl iffAccountsUserControl;
@@ -678,6 +704,9 @@
 		private ProxyUserControl proxyUserControl;
 		private System.Windows.Forms.TabPage tabPagePushing;
 		private PushingUserControl pushingUserControl;
+		private System.Windows.Forms.RichTextBox rtbFix;
+		private System.Windows.Forms.TabPage tabPage4;
+		private System.Windows.Forms.RichTextBox rtbFixOrders;
 	}
 }
 
