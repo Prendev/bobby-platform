@@ -30,6 +30,8 @@ namespace QvaDev.Data.Models
 		public BasePriceTypes BasePriceType { get; set; }
 		[DisplayName("FallbackToMarket")]
 		public bool FallbackToMarketOrderType { get; set; }
+		[DisplayName("FallbackTimeWindow")]
+		public int FallbackTimeWindowInMs { get; set; }
 		public int DelayInMilliseconds { get; set; }
 
 		[DisplayName("MarketMaxRetry")]

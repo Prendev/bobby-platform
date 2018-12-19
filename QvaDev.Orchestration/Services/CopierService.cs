@@ -256,7 +256,7 @@ namespace QvaDev.Orchestration.Services
 		    if (remainingQuantity == 0 || !copier.FallbackToMarketOrderType) return response;
 
 			// Try to open once more on market
-		    var market = await connector.SendMarketOrderRequest(symbol, side, remainingQuantity, 0, 0, 0);
+		    var market = await connector.SendMarketOrderRequest(symbol, side, remainingQuantity, copier.FallbackTimeWindowInMs, 0, 0);
 		    if (!market.IsFilled) return response;
 
 			// Recalculate avg price and filled quantity
