@@ -54,7 +54,9 @@ namespace QvaDev.Data.Models
 				FutureAccount?.Connector?.IsConnected == true &&
 				AlphaMaster?.Connector?.IsConnected == true &&
 				BetaMaster?.Connector?.IsConnected == true &&
-				HedgeAccount?.Connector?.IsConnected == true;
+				HedgeAccount?.Connector?.IsConnected != false &&
+				FeedAccount?.Connector?.IsConnected != false &&
+				SpoofAccount?.Connector?.IsConnected != false;
 			ConnectionChanged?.Invoke(this, IsConnected ? ConnectionStates.Connected : ConnectionStates.Disconnected);
 		}
 	}

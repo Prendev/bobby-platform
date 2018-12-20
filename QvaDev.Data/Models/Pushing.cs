@@ -35,9 +35,9 @@ namespace QvaDev.Data.Models
 		public Account BetaMaster { get => Get<Account>(); set => Set(value); }
 		[Required] public string BetaSymbol { get; set; }
 
-        public int HedgeAccountId { get; set; }
+        public int? HedgeAccountId { get; set; }
 		public Account HedgeAccount { get => Get<Account>(); set => Set(value); }
-		[Required] public string HedgeSymbol { get; set; }
+		public string HedgeSymbol { get; set; }
 
         [InvisibleColumn] public int PushingDetailId { get; set; }
 		[InvisibleColumn] public PushingDetail PushingDetail { get; set; }

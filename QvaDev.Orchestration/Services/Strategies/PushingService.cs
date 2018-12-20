@@ -187,14 +187,19 @@ namespace QvaDev.Orchestration.Services.Strategies
 			if (!pushing.IsHedgeClose) return;
 
 			var pd = pushing.PushingDetail;
-			var hedgeConnector = (MtConnector)pushing.HedgeAccount.Connector;
 			var futureSide = pushing.FirstCloseSide.Inv();
 
 			// Build up futures for hedge
 			var contractsNeeded = pd.FullContractSize - Math.Abs(pd.MasterSignalContractLimit) - Math.Abs(pd.HedgeSignalContractLimit);
 			await FutureBuildUp(pushing, futureSide, contractsNeeded, Phases.Pushing);
 
+			// Double check for hedge
+			if (pushing.HedgeAccount?.Connector?.IsConnected != true) return;
+			if (string.IsNullOrWhiteSpace(pushing.HedgeSymbol)) return;
+			if (pd.HedgeLots <= 0) return;
+
 			// Open hedge
+			var hedgeConnector = (MtConnector)pushing.HedgeAccount.Connector;
 			hedgeConnector.SendMarketOrderRequest(pushing.HedgeSymbol, pushing.FirstCloseSide, pd.HedgeLots, 0,
 				null, pushing.PushingDetail.MaxRetryCount, pushing.PushingDetail.RetryPeriodInMs);
 		}
