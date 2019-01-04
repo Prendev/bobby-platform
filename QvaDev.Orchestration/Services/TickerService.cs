@@ -18,6 +18,7 @@ namespace QvaDev.Orchestration.Services
 
     public class TickerService : ITickerService
     {
+	    private const string TickersFolderPath = "Tickers";
 	    private const string ZipArchivePath = "Tickers/Tickers.zip";
 
 		public class CsvRow : IEquatable<CsvRow>
@@ -116,6 +117,7 @@ namespace QvaDev.Orchestration.Services
 
         public void Start(List<Ticker> tickers)
         {
+	        Directory.CreateDirectory(TickersFolderPath);
 	        using (new FileStream(ZipArchivePath, FileMode.OpenOrCreate)) { }
 
 			_tickers = tickers;
@@ -129,8 +131,8 @@ namespace QvaDev.Orchestration.Services
 				}
 				else
 				{
-					ticker.MainAccount.NewTick -= Connector_NewTick;
-					ticker.MainAccount.NewTick += Connector_NewTick;
+					ticker.MainAccount.NewTick -= Account_NewTick;
+					ticker.MainAccount.NewTick += Account_NewTick;
 				}
 
 				ticker.MainAccount?.Connector?.Subscribe(ticker.MainSymbol);
@@ -192,12 +194,13 @@ namespace QvaDev.Orchestration.Services
 				WriteQuoteCsv(GetCsvFile(connector.Description, quoteSet.Symbol.ToString()), quoteSet, ticker.MarketDepth);
 		}
 
-		private void Connector_NewTick(object sender, NewTick e)
+		private void Account_NewTick(object sender, NewTick e)
 		{
 			if (!_isStarted) return;
 			CheckArchive();
 
-			var connector = (IConnector)sender;
+			var connector = (sender as Account)?.Connector;
+			if (connector == null) return;
 
 			foreach (var ticker in _tickers)
 			{
