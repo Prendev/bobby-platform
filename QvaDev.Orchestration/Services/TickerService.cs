@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Threading.Tasks;
 using QvaDev.Common.Integration;
 using QvaDev.Communication;
 using QvaDev.Data.Models;
@@ -20,6 +21,7 @@ namespace QvaDev.Orchestration.Services
     {
 	    private const string TickersFolderPath = "Tickers";
 	    private const string ZipArchivePath = "Tickers/Tickers.zip";
+	    private readonly object _syncRoot = new object();
 
 		public class CsvRow : IEquatable<CsvRow>
 		{
@@ -155,26 +157,34 @@ namespace QvaDev.Orchestration.Services
 	    {
 		    var now = HiResDatetime.UtcNow;
 
-			var toArchive = _csvWriters
-			 .Where(w => !w.Value.Archived)
-			 .Where(w => w.Value.LastFlush.Date.AddHours(w.Value.LastFlush.Hour) != now.Date.AddHours(now.Hour))
-			 .ToList();
+		    var toArchive = _csvWriters
+			    .Where(w => !w.Value.Archived)
+			    .Where(w => w.Value.LastFlush.Date.AddHours(w.Value.LastFlush.Hour) != now.Date.AddHours(now.Hour))
+			    .ToList();
 
 			if (!toArchive.Any()) return;
 
-			using (var zipToOpen = new FileStream(ZipArchivePath, FileMode.OpenOrCreate))
-		    using (var zipArchive = new ZipArchive(zipToOpen, ZipArchiveMode.Update))
-			    foreach (var csvWriter in toArchive)
-			    {
-				    csvWriter.Value.Disconnect();
-				    csvWriter.Value.Archived = true;
+		    Task.Run(() =>
+			{
+				lock (_syncRoot)
+				{
+					toArchive = toArchive.Where(w => !w.Value.Archived).ToList();
+					toArchive.ForEach(a => a.Value.Archived = true);
+					if (!toArchive.Any()) return;
 
-					var fileInfo = new FileInfo(csvWriter.Key);
-				    zipArchive.CreateEntryFromFile(fileInfo.FullName, fileInfo.Name);
+					using (var zipToOpen = new FileStream(ZipArchivePath, FileMode.OpenOrCreate))
+					using (var zipArchive = new ZipArchive(zipToOpen, ZipArchiveMode.Update))
+						foreach (var csvWriter in toArchive)
+						{
+							csvWriter.Value.Disconnect();
+							var fileInfo = new FileInfo(csvWriter.Key);
+							zipArchive.CreateEntryFromFile(fileInfo.FullName, fileInfo.Name);
 
-				    File.Delete(csvWriter.Key);
-			    }
-	    }
+							File.Delete(csvWriter.Key);
+						}
+				}
+			});
+		}
 
 	    private void Fix_NewQuote(object sender, QuoteSet quoteSet)
 		{
