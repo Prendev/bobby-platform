@@ -248,7 +248,7 @@ namespace QvaDev.Orchestration.Services
 			symbol = Path.GetInvalidFileNameChars()
 				.Aggregate(symbol, (current, c) => current.Replace(c, '_'));
 
-			return $"Tickers/{id}_{symbol}_{HiResDatetime.UtcNow.Date:yyyyMMdd}_{HiResDatetime.UtcNow:hh}.csv";
+			return $"Tickers/{id}_{symbol}_{HiResDatetime.UtcNow.Date:yyyyMMdd}_{HiResDatetime.UtcNow:HH}.csv";
 		}
 
 		private void WriteCsv<T>(string file, T obj)
