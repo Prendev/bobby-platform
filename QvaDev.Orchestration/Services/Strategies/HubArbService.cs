@@ -141,15 +141,10 @@ namespace QvaDev.Orchestration.Services.Strategies
 			//    (HiResDatetime.UtcNow - arb.LastOpenTime.Value).Minutes < arb.RestingPeriodInMinutes) return;
 
 			// Quotes where there were no orders in the last x minutes
-			var quotes = e.Quotes
-				.Where(q => CheckAccount(arb, q.AggAccount.Account, now)).ToList();
-			var buyQuote = quotes
-				.OrderBy(q => q.GroupQuoteEntry.Ask)
-				.FirstOrDefault(q => q.Sum < arb.MaxSizePerAccount);
-			var sellQuote = quotes
-				.OrderByDescending(q => q.GroupQuoteEntry.Bid)
-				.Where(q => q.AggAccount != buyQuote?.AggAccount)
-				.FirstOrDefault(q => q.Sum > -arb.MaxSizePerAccount);
+			var bestQuotes = BestQuotes(arb, e, now);
+			var buyQuote = bestQuotes?.Item1;
+			var sellQuote = bestQuotes?.Item2;
+
 			if (buyQuote == null || sellQuote == null) return;
 
 			// During high risk different signal diff
@@ -178,6 +173,57 @@ namespace QvaDev.Orchestration.Services.Strategies
 			Logger.Trace(cb => cb($"HubArbService.CheckOpen {arb} on QuoteEvent at {e.TimeStamp:yyyy-MM-dd HH:mm:ss.ffffff}"));
 
 			_arbQueues.GetOrAdd(arb.Id, new FastBlockingCollection<Action>()).Add(() => Open(arb, buyQuote, sellQuote, size));
+		}
+
+		private Tuple<Quote, Quote> BestQuotes(StratHubArb arb, StratHubArbQuoteEventArgs e, DateTime now)
+		{
+			var quotes = e.Quotes.Where(q => CheckAccount(arb, q.AggAccount.Account, now)).ToList();
+
+			if (arb.OffsettingByAvg)
+			{
+				var buyQuotes = quotes.Where(q => q.AggAccount.Avg.HasValue && q.Sum < arb.MaxSizePerAccount).ToList();
+				var sellQuotes = quotes.Where(q => q.AggAccount.Avg.HasValue && q.Sum > -arb.MaxSizePerAccount).ToList();
+
+				var bestPairs = new List<Tuple<Quote, Quote, decimal>>();
+				foreach (var buyQuote in buyQuotes)
+				{
+					var sellQuote = sellQuotes.Where(q => q.AggAccount != buyQuote?.AggAccount)
+						.OrderBy(q => buyQuote.GroupQuoteEntry.Ask - buyQuote.AggAccount.Avg +
+						              q.AggAccount.Avg - q.GroupQuoteEntry.Bid)
+						.FirstOrDefault();
+					if (sellQuote == null) continue;
+					var signal = buyQuote.GroupQuoteEntry.Ask - buyQuote.AggAccount.Avg +
+					             sellQuote.AggAccount.Avg - sellQuote.GroupQuoteEntry.Bid;
+					if (!signal.HasValue) continue;
+					bestPairs.Add(new Tuple<Quote, Quote, decimal>(buyQuote, sellQuote, signal.Value));
+				}
+				foreach (var sellQuote in sellQuotes)
+				{
+					var buyQuote = buyQuotes.Where(q => q.AggAccount != sellQuote?.AggAccount)
+						.OrderBy(q => q.GroupQuoteEntry.Ask - q.AggAccount.Avg +
+						              sellQuote.AggAccount.Avg - sellQuote.GroupQuoteEntry.Bid)
+						.FirstOrDefault();
+					if (buyQuote == null) continue;
+					var signal = buyQuote.GroupQuoteEntry.Ask - buyQuote.AggAccount.Avg +
+					             sellQuote.AggAccount.Avg - sellQuote.GroupQuoteEntry.Bid;
+					if (!signal.HasValue) continue;
+					bestPairs.Add(new Tuple<Quote, Quote, decimal>(buyQuote, sellQuote, signal.Value));
+				}
+
+				if (!bestPairs.Any()) return null;
+				var bestPair = bestPairs.OrderBy(p => p.Item3).First();
+				return new Tuple<Quote, Quote>(bestPair.Item1, bestPair.Item2);
+			}
+			else
+			{
+				var buyQuotes = quotes.Where(q => q.Sum < arb.MaxSizePerAccount);
+				var sellQuotes = quotes.Where(q => q.Sum > -arb.MaxSizePerAccount);
+				var buyQuote = buyQuotes.OrderBy(q => q.GroupQuoteEntry.Ask).FirstOrDefault();
+				var sellQuote = sellQuotes.OrderByDescending(q => q.GroupQuoteEntry.Bid)
+					.FirstOrDefault(q => q.AggAccount != buyQuote?.AggAccount);
+				return new Tuple<Quote, Quote>(buyQuote, sellQuote);
+			}
+
 		}
 
 		private bool CheckAccount(StratHubArb arb, Account account, DateTime now)
@@ -213,7 +259,13 @@ namespace QvaDev.Orchestration.Services.Strategies
 				}
 
 				var arbDiff = (result.Sell.AveragePrice - result.Buy.AveragePrice) / arb.PipSize;
-				Logger.Info($"{arb.Description} arb opened with {arbDiff:F2} pip!!!");
+				if (arb.OffsettingByAvg && buyQuote.AggAccount.Avg.HasValue && sellQuote.AggAccount.Avg.HasValue)
+				{
+					var offset = buyQuote.AggAccount.Avg - sellQuote.AggAccount.Avg;
+					var arbDiffOffset = (result.Sell.AveragePrice - result.Buy.AveragePrice + offset) / arb.PipSize;
+					Logger.Info($"{arb.Description} arb opened with {arbDiff:F2} pip, around {arbDiffOffset:F2} with offset!!!");
+				}
+				else Logger.Info($"{arb.Description} arb opened with {arbDiff:F2} pip!!!");
 			}
 			finally
 			{

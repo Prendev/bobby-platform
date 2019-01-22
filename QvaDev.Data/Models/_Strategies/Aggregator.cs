@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel;
 using QvaDev.Common.Attributes;
 
 namespace QvaDev.Data.Models
@@ -9,6 +10,9 @@ namespace QvaDev.Data.Models
 		[InvisibleColumn] public Profile Profile { get; set; }
 
 		[DisplayPriority(-1)] public bool Run { get; set; }
+
+		[DisplayName("AvgPeriod")] // Resting period per account
+		public int AveragingPeriodInSeconds { get; set; }
 
 		[InvisibleColumn] public List<AggregatorAccount> Accounts { get; } = new List<AggregatorAccount>();
 	}

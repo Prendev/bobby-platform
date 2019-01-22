@@ -29,6 +29,8 @@ namespace QvaDev.Data.Models
 		[DisplayName("MaxSize")]
 		public decimal MaxSizePerAccount { get; set; }
 
+
+		public bool OffsettingByAvg { get; set; }
 		[DisplayName("SignalDiff")]
 		public decimal SignalDiffInPip { get; set; }
 		[DisplayName("HighRiskDiff")]
