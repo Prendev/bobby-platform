@@ -114,6 +114,21 @@ namespace QvaDev.Data.Models
 					if (diff == 0) break;
 				}
 				stat.ClosedPip = stat.Total > 0 ? (stat.SellAvg - avg) / PipSize : (avg - stat.BuyAvg) / PipSize;
+
+				// Calculate floating pip if connected
+				var lastTick = account.Key.GetLastTick(account.Last().Position.Symbol);
+				if (lastTick == null) continue;
+				if (stat.Total > 0)
+				{
+					buyAvg = stat.BuyAvg;
+					sellAvg = (stat.SellAvg * stat.SellTotal + lastTick.Bid * stat.Total) / stat.BuyTotal;
+				}
+				else if (stat.Total < 0)
+				{
+					buyAvg = (stat.BuyAvg * stat.BuyTotal - lastTick.Ask * stat.Total) / stat.SellTotal;
+					sellAvg = stat.SellAvg;
+				}
+				stat.Pip = (sellAvg - buyAvg) / PipSize;
 			}
 
 			// Calculate Sum ClosedPip
