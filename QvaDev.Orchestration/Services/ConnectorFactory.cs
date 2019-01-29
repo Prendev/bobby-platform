@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using QvaDev.Common.Services;
 using QvaDev.Data;
 using QvaDev.Data.Models;
@@ -19,13 +20,20 @@ namespace QvaDev.Orchestration.Services
 		}
 		public async Task Create(Account account)
 		{
-			if (account.MetaTraderAccountId.HasValue) ConnectMtAccount(account);
-			else if (account.CTraderAccountId.HasValue) ConenctCtAccount(account);
-			else if (account.FixTraderAccountId.HasValue) ConnectFtAccount(account);
-			else if (account.FixApiAccountId.HasValue) await ConnectFixAccount(account);
-			else if (account.IlyaFastFeedAccountId.HasValue) await ConnectIlyaFastFeedAccount(account);
-			else if (account.CqgClientApiAccountId.HasValue) await ConnectCqgClientApiAccount(account);
-			else if (account.IbAccountId.HasValue) await ConnectIbAccount(account);
+			try
+			{
+				if (account.MetaTraderAccountId.HasValue) ConnectMtAccount(account);
+				else if (account.CTraderAccountId.HasValue) ConenctCtAccount(account);
+				else if (account.FixTraderAccountId.HasValue) ConnectFtAccount(account);
+				else if (account.FixApiAccountId.HasValue) await ConnectFixAccount(account);
+				else if (account.IlyaFastFeedAccountId.HasValue) await ConnectIlyaFastFeedAccount(account);
+				else if (account.CqgClientApiAccountId.HasValue) await ConnectCqgClientApiAccount(account);
+				else if (account.IbAccountId.HasValue) await ConnectIbAccount(account);
+			}
+			catch (Exception e)
+			{
+				Logger.Error($"{account} account FAILED to connect", e);
+			}
 		}
 
 		private void ConnectMtAccount(Account account)
