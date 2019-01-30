@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using QvaDev.Communication;
 using QvaDev.Data.Models;
 using QvaDev.Mt4Integration;
 

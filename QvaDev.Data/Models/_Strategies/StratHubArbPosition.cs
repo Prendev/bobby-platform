@@ -9,5 +9,7 @@ namespace QvaDev.Data.Models
 
 		[Key] public int PositionId { get; set; }
 		public StratPosition Position { get; set; }
+
+		public bool Archived { get; set; }
 	}
 }

@@ -100,7 +100,7 @@ namespace QvaDev.Orchestration.Services.Strategies
 				var tasks = new List<Task>();
 				foreach (var aggAcc in arb.Aggregator.Accounts)
 				{
-					var sum = arb.StratHubArbPositions
+					var sum = arb.StratHubArbPositions.Where(p => !p.Archived)
 						.Where(p => p.Position.AccountId == aggAcc.AccountId)
 						.Where(p => p.Position.Symbol == aggAcc.Symbol)
 						.Sum(p => p.Position.SignedSize);

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Configuration;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading.Tasks;
 using QvaDev.Data.Models;
 
 namespace QvaDev.Duplicat.ViewModel
@@ -202,7 +203,7 @@ namespace QvaDev.Duplicat.ViewModel
 		    _orchestrator.StopStrategies();
 		    AreStrategiesStarted = false;
 		}
-		public async void HubArbsGoFlatCommand()
+		public async Task HubArbsGoFlatCommand()
 		{
 			IsLoading = true;
 			await _orchestrator.HubArbsGoFlat(_duplicatContext);
@@ -217,11 +218,15 @@ namespace QvaDev.Duplicat.ViewModel
 		    IsLoading = false;
 		    IsConfigReadonly = true;
 		    IsConnected = true;
+		}
+	    public void HubArbsArchiveCommand(StratHubArb arb)
+	    {
+		    arb.StratHubArbPositions.ForEach(e => e.Archived = true);
 	    }
 
-	    public IList GetArbStatistics(StratHubArb arb)
+		public IList GetArbStatistics(StratHubArb arb)
 	    {
-		    return arb.CalculateStatistics();
+		    return arb?.CalculateStatistics();
 	    }
 	}
 }

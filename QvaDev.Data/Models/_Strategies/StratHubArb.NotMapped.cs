@@ -45,8 +45,8 @@ namespace QvaDev.Data.Models
 
 		public IList CalculateStatistics()
 		{
-			var buys = StratHubArbPositions.Where(e => e.Position.Side == StratPosition.Sides.Buy).ToList();
-			var sells = StratHubArbPositions.Where(e => e.Position.Side == StratPosition.Sides.Sell).ToList();
+			var buys = StratHubArbPositions.Where(e => !e.Archived && e.Position.Side == StratPosition.Sides.Buy).ToList();
+			var sells = StratHubArbPositions.Where(e => !e.Archived && e.Position.Side == StratPosition.Sides.Sell).ToList();
 
 			var buyTotal = buys.Sum(p => p.Position.Size);
 			var buyAvg = buys.Sum(p => p.Position.Size * p.Position.AvgPrice);
@@ -68,7 +68,7 @@ namespace QvaDev.Data.Models
 
 			var statistics = new List<Statistics>();
 
-			var accounts = StratHubArbPositions
+			var accounts = StratHubArbPositions.Where(e => !e.Archived)
 				.GroupBy(p => p.Position.Account)
 				.OrderBy(x => x.Key.ToString())
 				.ToList();
@@ -169,7 +169,7 @@ namespace QvaDev.Data.Models
 		{
 			if (account?.StratHubArbPositions == null) return 0;
 			lock (account.StratHubArbPositions)
-				return account.StratHubArbPositions.Where(e => e.StratHubArbId == Id).Sum(e => e.Position.SignedSize);
+				return account.StratHubArbPositions.Where(e => !e.Archived && e.StratHubArbId == Id).Sum(e => e.Position.SignedSize);
 		}
 	}
 }

@@ -28,9 +28,10 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
-			System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
+			System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
 			this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
 			this.gbControl = new System.Windows.Forms.GroupBox();
+			this.btnExport = new System.Windows.Forms.Button();
 			this.btnGoFlatAll = new System.Windows.Forms.Button();
 			this.btnStop = new System.Windows.Forms.Button();
 			this.btnStart = new System.Windows.Forms.Button();
@@ -38,7 +39,7 @@
 			this.dgvHubArb = new QvaDev.Duplicat.Views.CustomDataGridView();
 			this.groupBox1 = new System.Windows.Forms.GroupBox();
 			this.dgvStatistics = new System.Windows.Forms.DataGridView();
-			this.btnExport = new System.Windows.Forms.Button();
+			this.btnArchive = new System.Windows.Forms.Button();
 			this.tableLayoutPanel1.SuspendLayout();
 			this.gbControl.SuspendLayout();
 			this.gbHubArb.SuspendLayout();
@@ -66,6 +67,7 @@
 			// 
 			// gbControl
 			// 
+			this.gbControl.Controls.Add(this.btnArchive);
 			this.gbControl.Controls.Add(this.btnExport);
 			this.gbControl.Controls.Add(this.btnGoFlatAll);
 			this.gbControl.Controls.Add(this.btnStop);
@@ -77,6 +79,16 @@
 			this.gbControl.TabIndex = 0;
 			this.gbControl.TabStop = false;
 			this.gbControl.Text = "Control";
+			// 
+			// btnExport
+			// 
+			this.btnExport.Location = new System.Drawing.Point(7, 58);
+			this.btnExport.Margin = new System.Windows.Forms.Padding(4);
+			this.btnExport.Name = "btnExport";
+			this.btnExport.Size = new System.Drawing.Size(200, 28);
+			this.btnExport.TabIndex = 29;
+			this.btnExport.Text = "Detailed export";
+			this.btnExport.UseVisualStyleBackColor = true;
 			// 
 			// btnGoFlatAll
 			// 
@@ -149,14 +161,14 @@
 			this.dgvStatistics.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
 			this.dgvStatistics.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.AllCells;
 			this.dgvStatistics.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-			dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-			dataGridViewCellStyle3.BackColor = System.Drawing.SystemColors.Window;
-			dataGridViewCellStyle3.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			dataGridViewCellStyle3.ForeColor = System.Drawing.SystemColors.ControlText;
-			dataGridViewCellStyle3.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-			dataGridViewCellStyle3.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-			dataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-			this.dgvStatistics.DefaultCellStyle = dataGridViewCellStyle3;
+			dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+			dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Window;
+			dataGridViewCellStyle1.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.ControlText;
+			dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+			dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+			dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+			this.dgvStatistics.DefaultCellStyle = dataGridViewCellStyle1;
 			this.dgvStatistics.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.dgvStatistics.Location = new System.Drawing.Point(3, 18);
 			this.dgvStatistics.Name = "dgvStatistics";
@@ -166,15 +178,15 @@
 			this.dgvStatistics.Size = new System.Drawing.Size(1109, 284);
 			this.dgvStatistics.TabIndex = 0;
 			// 
-			// btnExport
+			// btnArchive
 			// 
-			this.btnExport.Location = new System.Drawing.Point(7, 58);
-			this.btnExport.Margin = new System.Windows.Forms.Padding(4);
-			this.btnExport.Name = "btnExport";
-			this.btnExport.Size = new System.Drawing.Size(200, 28);
-			this.btnExport.TabIndex = 29;
-			this.btnExport.Text = "Detailed export";
-			this.btnExport.UseVisualStyleBackColor = true;
+			this.btnArchive.Location = new System.Drawing.Point(631, 58);
+			this.btnArchive.Margin = new System.Windows.Forms.Padding(4);
+			this.btnArchive.Name = "btnArchive";
+			this.btnArchive.Size = new System.Drawing.Size(200, 28);
+			this.btnArchive.TabIndex = 30;
+			this.btnArchive.Text = "Archive selected";
+			this.btnArchive.UseVisualStyleBackColor = true;
 			// 
 			// HubArbUserControl
 			// 
@@ -205,5 +217,6 @@
 		private System.Windows.Forms.DataGridView dgvStatistics;
 		private System.Windows.Forms.Button btnGoFlatAll;
 		private System.Windows.Forms.Button btnExport;
+		private System.Windows.Forms.Button btnArchive;
 	}
 }

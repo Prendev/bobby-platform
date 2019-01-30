@@ -24,8 +24,19 @@ namespace QvaDev.Duplicat.Views
 
 			btnStart.Click += (s, e) => { _viewModel.StartStrategiesCommand(); };
 			btnStop.Click += (s, e) => { _viewModel.StopStrategiesCommand(); };
-			btnGoFlatAll.Click += (s, e) => { _viewModel.HubArbsGoFlatCommand(); };
+			btnGoFlatAll.Click += async (s, e)  =>  
+			{
+				await _viewModel.HubArbsGoFlatCommand();
+				dgvStatistics.DataSource = _viewModel.GetArbStatistics(dgvHubArb.GetSelectedItem<StratHubArb>());
+			};
 			btnExport.Click += (s, e) => { _viewModel.HubArbsExportCommand(); };
+			btnArchive.Click += (s, e) =>
+			{
+				var selected = dgvHubArb.GetSelectedItem<StratHubArb>();
+				if(selected == null) return;
+				_viewModel.HubArbsArchiveCommand(selected);
+				dgvStatistics.DataSource = _viewModel.GetArbStatistics(selected);
+			};
 
 			dgvHubArb.RowDoubleClick += (s, e) =>
 				dgvStatistics.DataSource = _viewModel.GetArbStatistics(dgvHubArb.GetSelectedItem<StratHubArb>());
