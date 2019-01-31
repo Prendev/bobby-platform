@@ -12,6 +12,7 @@ namespace QvaDev.Data.Models
 		public class Statistics
 		{
 			public Account Account { get; set; }
+			public int Rejects { get; set; }
 			public decimal SellTotal { get; set; }
 			public decimal BuyTotal { get; set; }
 			public decimal SellAvg { get; set; }
@@ -58,6 +59,7 @@ namespace QvaDev.Data.Models
 
 			var sumStat = new Statistics()
 			{
+				Rejects = buys.Count(p => p.Position.Size == 0) + sells.Count(p => p.Position.Size == 0),
 				SellTotal = sellTotal,
 				BuyTotal = buyTotal,
 				SellAvg = sellAvg,
@@ -78,6 +80,7 @@ namespace QvaDev.Data.Models
 				var stat = new Statistics()
 				{
 					Account = account.Key,
+					Rejects = account.Count(e => e.Position.Size == 0),
 					SellTotal = account.Where(e => e.Position.Side == StratPosition.Sides.Sell).Sum(p => p.Position.Size),
 					BuyTotal = account.Where(e => e.Position.Side == StratPosition.Sides.Buy).Sum(p => p.Position.Size),
 					SellAvg = account.Where(e => e.Position.Side == StratPosition.Sides.Sell)
@@ -139,6 +142,7 @@ namespace QvaDev.Data.Models
 			return statistics.Select(s => new
 			{
 				Account = s.Account?.ToString() ?? "*",
+				Rejects = s.Rejects.ToString("0"),
 				SellTotal = s.SellTotal.ToString("0"),
 				BuyTotal = s.BuyTotal.ToString("0"),
 				SellAvg = s.SellAvg.ToString("F5"),
