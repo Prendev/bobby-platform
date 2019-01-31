@@ -21,6 +21,7 @@ namespace QvaDev.Duplicat.Views
 			DependecyManager.SynchronizationContext = SynchronizationContext.Current;
 
             Load += (sender, args) => InitView();
+			Closing += (sender, args) => _viewModel.SaveCommand();
 			InitializeComponent();
             TextBoxAppender.ConfigureTextBoxAppender(rtbGeneral, "General", 1000);
             TextBoxAppender.ConfigureTextBoxAppender(rtbFix, "FIX", 1000);
