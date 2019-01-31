@@ -110,6 +110,9 @@ namespace QvaDev.Orchestration.Services.Strategies
 					else if (sum < 0) side = Sides.Buy;
 					else continue;
 
+					if (aggAcc.Account.Connector?.IsConnected != true)
+						Logger.Error($"HubArbService.GoFlat {arb} - {aggAcc.Account} has exposure but disconnected!!!");
+
 					lock (_syncRoot)
 					{
 						if (aggAcc.Account.IsBusy) continue;
@@ -237,24 +240,24 @@ namespace QvaDev.Orchestration.Services.Strategies
 		{
 			try
 			{
-				Logger.Info($"{arb.Description} arb is opening!!!");
+				Logger.Info($"{arb} arb is opening!!!");
 
 				var result = await Opening(arb, buyQuote, sellQuote, size);
 
 				if (result.Buy.FilledQuantity > result.Sell.FilledQuantity)
 				{
-					Logger.Warn($"{arb.Description} arb opening size mismatch!!!");
+					Logger.Warn($"{arb} arb opening size mismatch!!!");
 					await SendPosition(arb, buyQuote, Sides.Sell, result.Buy.FilledQuantity - result.Sell.FilledQuantity, OrderTypes.Market);
 				}
 				else if (result.Buy.FilledQuantity < result.Sell.FilledQuantity)
 				{
-					Logger.Warn($"{arb.Description} arb opening size mismatch!!!");
+					Logger.Warn($"{arb} arb opening size mismatch!!!");
 					await SendPosition(arb, sellQuote, Sides.Buy, result.Sell.FilledQuantity - result.Buy.FilledQuantity, OrderTypes.Market);
 				}
 
 				if (result.Buy.FilledQuantity == 0 || result.Sell.FilledQuantity == 0)
 				{
-					Logger.Warn($"{arb.Description} arb failed to open!!!");
+					Logger.Warn($"{arb} arb failed to open!!!");
 					return;
 				}
 
@@ -263,9 +266,9 @@ namespace QvaDev.Orchestration.Services.Strategies
 				{
 					var offset = buyQuote.AggAccount.Avg - sellQuote.AggAccount.Avg;
 					var arbDiffOffset = (result.Sell.AveragePrice - result.Buy.AveragePrice + offset) / arb.PipSize;
-					Logger.Info($"{arb.Description} arb opened with {arbDiff:F2} pip, around {arbDiffOffset:F2} with offset!!!");
+					Logger.Info($"{arb} arb opened with {arbDiff:F2} pip, around {arbDiffOffset:F2} with offset!!!");
 				}
-				else Logger.Info($"{arb.Description} arb opened with {arbDiff:F2} pip!!!");
+				else Logger.Info($"{arb} arb opened with {arbDiff:F2} pip!!!");
 			}
 			finally
 			{
