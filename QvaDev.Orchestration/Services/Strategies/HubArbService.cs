@@ -111,7 +111,10 @@ namespace QvaDev.Orchestration.Services.Strategies
 					else continue;
 
 					if (aggAcc.Account.Connector?.IsConnected != true)
+					{
 						Logger.Error($"HubArbService.GoFlat {arb} - {aggAcc.Account} has exposure but disconnected!!!");
+						continue;
+					}
 
 					lock (_syncRoot)
 					{
