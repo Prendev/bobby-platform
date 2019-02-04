@@ -38,6 +38,8 @@
 			this.groupBox8 = new System.Windows.Forms.GroupBox();
 			this.dgvMasters = new QvaDev.Duplicat.Views.CustomDataGridView();
 			this.gbControl = new System.Windows.Forms.GroupBox();
+			this.btnClose = new System.Windows.Forms.Button();
+			this.btnSync = new System.Windows.Forms.Button();
 			this.btnStop = new System.Windows.Forms.Button();
 			this.btnStart = new System.Windows.Forms.Button();
 			this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
@@ -45,8 +47,6 @@
 			this.dgvFixApiCopiers = new QvaDev.Duplicat.Views.CustomDataGridView();
 			this.groupBox10 = new System.Windows.Forms.GroupBox();
 			this.dgvCopiers = new QvaDev.Duplicat.Views.CustomDataGridView();
-			this.btnSync = new System.Windows.Forms.Button();
-			this.btnClose = new System.Windows.Forms.Button();
 			this.tlpMain.SuspendLayout();
 			this.tlpTop.SuspendLayout();
 			this.groupBox11.SuspendLayout();
@@ -206,6 +206,26 @@
 			this.gbControl.TabStop = false;
 			this.gbControl.Text = "Control";
 			// 
+			// btnClose
+			// 
+			this.btnClose.Location = new System.Drawing.Point(216, 56);
+			this.btnClose.Margin = new System.Windows.Forms.Padding(4);
+			this.btnClose.Name = "btnClose";
+			this.btnClose.Size = new System.Drawing.Size(200, 28);
+			this.btnClose.TabIndex = 19;
+			this.btnClose.Text = "Close selected (FIX only)";
+			this.btnClose.UseVisualStyleBackColor = true;
+			// 
+			// btnSync
+			// 
+			this.btnSync.Location = new System.Drawing.Point(8, 56);
+			this.btnSync.Margin = new System.Windows.Forms.Padding(4);
+			this.btnSync.Name = "btnSync";
+			this.btnSync.Size = new System.Drawing.Size(200, 28);
+			this.btnSync.TabIndex = 18;
+			this.btnSync.Text = "Sync selected (FIX only)";
+			this.btnSync.UseVisualStyleBackColor = true;
+			// 
 			// btnStop
 			// 
 			this.btnStop.Location = new System.Drawing.Point(216, 23);
@@ -290,26 +310,6 @@
 			this.dgvCopiers.Name = "dgvCopiers";
 			this.dgvCopiers.Size = new System.Drawing.Size(697, 194);
 			this.dgvCopiers.TabIndex = 0;
-			// 
-			// btnSync
-			// 
-			this.btnSync.Location = new System.Drawing.Point(8, 56);
-			this.btnSync.Margin = new System.Windows.Forms.Padding(4);
-			this.btnSync.Name = "btnSync";
-			this.btnSync.Size = new System.Drawing.Size(200, 28);
-			this.btnSync.TabIndex = 18;
-			this.btnSync.Text = "Sync selected";
-			this.btnSync.UseVisualStyleBackColor = true;
-			// 
-			// btnClose
-			// 
-			this.btnClose.Location = new System.Drawing.Point(216, 56);
-			this.btnClose.Margin = new System.Windows.Forms.Padding(4);
-			this.btnClose.Name = "btnClose";
-			this.btnClose.Size = new System.Drawing.Size(200, 28);
-			this.btnClose.TabIndex = 19;
-			this.btnClose.Text = "Close selected";
-			this.btnClose.UseVisualStyleBackColor = true;
 			// 
 			// CopiersUserControl
 			// 

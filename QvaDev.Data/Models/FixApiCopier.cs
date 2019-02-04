@@ -2,7 +2,6 @@
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
 using QvaDev.Common.Attributes;
-using QvaDev.Common.Integration;
 
 namespace QvaDev.Data.Models
 {
@@ -54,9 +53,10 @@ namespace QvaDev.Data.Models
 		public decimal LimitDiffInPip { get; set; }
 		public decimal PipSize { get; set; }
 
+		public List<FixApiCopierPosition> FixApiCopierPositions { get; } = new List<FixApiCopierPosition>();
+
 		[NotMapped] [InvisibleColumn] public decimal Deviation => SlippageInPip * PipSize;
 		[NotMapped] [InvisibleColumn] public decimal LimitDiff => LimitDiffInPip * PipSize;
 		[NotMapped] [InvisibleColumn] public bool IsFiltered { get => Get<bool>(); set => Set(value); }
-		[NotMapped] [InvisibleColumn] public Dictionary<long, OrderResponse> OrderResponses = new Dictionary<long, OrderResponse>();
 	}
 }

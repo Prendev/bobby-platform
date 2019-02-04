@@ -69,6 +69,7 @@ namespace QvaDev.Data
 
         public DbSet<Copier> Copiers { get; set; }
 	    public DbSet<FixApiCopier> FixApiCopiers { get; set; }
+	    public DbSet<FixApiCopierPosition> FixApiCopierPositions { get; set; }
 		public DbSet<SymbolMapping> SymbolMappings { get; set; }
 
         public DbSet<Pushing> Pushings { get; set; }

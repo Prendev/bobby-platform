@@ -58,9 +58,9 @@ namespace QvaDev.Orchestration.Services.Strategies
 			}
 		}
 
-		private void PersistPosition(StratHubArb arb, Account account, string symbol, OrderResponse closePos)
+		private void PersistPosition(StratHubArb arb, Account account, string symbol, OrderResponse response)
 		{
-			var side = closePos.Side == Sides.Buy ? StratPosition.Sides.Buy : StratPosition.Sides.Sell;
+			var side = response.Side == Sides.Buy ? StratPosition.Sides.Buy : StratPosition.Sides.Sell;
 
 			var newEntity = new StratHubArbPosition()
 			{
@@ -70,10 +70,10 @@ namespace QvaDev.Orchestration.Services.Strategies
 				{
 					AccountId = account.Id,
 					Account = account,
-					AvgPrice = closePos.AveragePrice ?? 0,
+					AvgPrice = response.AveragePrice ?? 0,
 					OpenTime = HiResDatetime.UtcNow,
 					Side = side,
-					Size = closePos.FilledQuantity,
+					Size = response.FilledQuantity,
 					Symbol = symbol
 				}
 			};
