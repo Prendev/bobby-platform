@@ -173,12 +173,6 @@ namespace QvaDev.Orchestration.Services
 
 			var tasks = slave.FixApiCopiers.Where(s => s.Run).Select(copier => DelayedRun(async () =>
 			{
-				var lastTicket = slaveConnector.GetLastTick(symbol);
-				if (lastTicket == null)
-				{
-					Logger.Warn($"CopierService.CopyToFixAccount {slave} {symbol} no last ticket!!!");
-					return;
-				}
 				var quantity = Math.Abs((decimal)e.Position.Lots * copier.CopyRatio);
 				quantity = Math.Floor(quantity);
 				if (quantity == 0)
@@ -190,8 +184,18 @@ namespace QvaDev.Orchestration.Services
 				var side = copier.CopyRatio < 0 ? e.Position.Side.Inv() : e.Position.Side;
 				if (e.Action == NewPositionActions.Close) side = side.Inv();
 
-				var limitPrice = copier.BasePriceType == FixApiCopier.BasePriceTypes.Master ? e.Position.OpenPrice :
-					side == Sides.Buy ? lastTicket.Ask : lastTicket.Bid;
+				var limitPrice = 0m;
+				if (copier.OrderType != FixApiCopier.FixApiOrderTypes.Market)
+				{
+					var lastTick = slaveConnector.GetLastTick(symbol);
+					if (lastTick == null)
+					{
+						Logger.Warn($"CopierService.CopyToFixAccount {slave} {symbol} no last tick!!!");
+						return;
+					}
+					limitPrice = copier.BasePriceType == FixApiCopier.BasePriceTypes.Master ? e.Position.OpenPrice :
+						side == Sides.Buy ? lastTick.Ask : lastTick.Bid;
+				}
 
 				if (e.Action == NewPositionActions.Open)
 				{
