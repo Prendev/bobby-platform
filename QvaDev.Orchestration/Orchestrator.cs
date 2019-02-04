@@ -6,6 +6,7 @@ using QvaDev.Common.Integration;
 using QvaDev.Communication;
 using QvaDev.Communication.FixApi;
 using QvaDev.Data;
+using QvaDev.Data.Models;
 using QvaDev.Orchestration.Services;
 using QvaDev.Orchestration.Services.Strategies;
 
@@ -19,13 +20,15 @@ namespace QvaDev.Orchestration
 
 		Task StartCopiers(DuplicatContext duplicatContext);
         void StopCopiers();
+		Task CopierSync(Slave slave);
+		Task CopierClose(Slave slave);
 
 		Task StartTickers(DuplicatContext duplicatContext);
 		void StopTickers();
 
         Task OrderHistoryExport(DuplicatContext duplicatContext);
-	    void MtAccountImport(DuplicatContext duplicatContext);
-		Task SaveTheWeekend(DuplicatContext duplicatContext, DateTime from, DateTime to);
+		void MtAccountImport(DuplicatContext duplicatContext);
+		void SaveTheWeekend(DuplicatContext duplicatContext, DateTime from, DateTime to);
     }
 
     public partial class Orchestrator : IOrchestrator
@@ -149,6 +152,8 @@ namespace QvaDev.Orchestration
 			_copierService.Start(masters);
         }
 		public void StopCopiers() => _copierService.Stop();
+		public Task CopierSync(Slave slave) => _copierService.Sync(slave);
+		public Task CopierClose(Slave slave) => _copierService.Close(slave);
 
 		public async Task StartTickers(DuplicatContext duplicatContext)
 		{
@@ -164,8 +169,6 @@ namespace QvaDev.Orchestration
 
 		public async Task OrderHistoryExport(DuplicatContext duplicatContext)
 		{
-			await Connect(duplicatContext);
-
 			var accounts = duplicatContext.Accounts.Local
 				.Where(a => a.Run && a.Connector?.IsConnected == true && a.MetaTraderAccountId.HasValue)
 				.ToList();
@@ -173,10 +176,7 @@ namespace QvaDev.Orchestration
 			await _reportService.OrderHistoryExport(accounts);
 		}
 		public void MtAccountImport(DuplicatContext duplicatContext) => _mtAccountImportService.Import(duplicatContext);
-		public async Task SaveTheWeekend(DuplicatContext duplicatContext, DateTime from, DateTime to)
-		{
-			await Connect(duplicatContext);
-			_mtAccountImportService.SaveTheWeekend(duplicatContext, from, to);
-		}
-	}
+	    public void SaveTheWeekend(DuplicatContext duplicatContext, DateTime from, DateTime to) =>
+		    _mtAccountImportService.SaveTheWeekend(duplicatContext, from, to);
+    }
 }

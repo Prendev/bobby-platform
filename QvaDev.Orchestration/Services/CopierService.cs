@@ -15,7 +15,9 @@ namespace QvaDev.Orchestration.Services
     {
         void Start(List<Master> masters);
         void Stop();
-    }
+	    Task Sync(Slave slave);
+	    Task Close(Slave slave);
+	}
 
     public class CopierService : ICopierService
     {
@@ -61,6 +63,38 @@ namespace QvaDev.Orchestration.Services
         {
 	        _cancellation?.Cancel(true);
 	        Logger.Info("Copiers are stopped");
+		}
+
+	    public async Task Sync(Slave slave)
+		{
+			if (!(slave.Master.Account.Connector is Mt4Integration.Connector masterCon)) return;
+			foreach (var pos in masterCon.Positions)
+			{
+				if (!pos.Value.IsClosed) continue;
+				var newPos = new NewPosition()
+				{
+					AccountType = AccountTypes.Mt4,
+					Action = NewPositionActions.Open,
+					Position = pos.Value
+				};
+				await CopyToAccount(newPos, slave);
+			}
+		}
+
+	    public async Task Close(Slave slave)
+		{
+			if (!(slave.Master.Account.Connector is Mt4Integration.Connector masterCon)) return;
+			foreach (var pos in masterCon.Positions)
+			{
+				if (pos.Value.IsClosed) continue;
+				var newPos = new NewPosition()
+				{
+					AccountType = AccountTypes.Mt4,
+					Action = NewPositionActions.Close,
+					Position = pos.Value
+				};
+				await CopyToAccount(newPos, slave);
+			}
 		}
 
 	    private async void MasterLoop(Master master, CancellationToken token)

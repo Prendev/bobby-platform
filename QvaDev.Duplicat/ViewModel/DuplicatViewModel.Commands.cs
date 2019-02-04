@@ -128,47 +128,51 @@ namespace QvaDev.Duplicat.ViewModel
             IsLoading = true;
             IsConfigReadonly = true;
 			await _orchestrator.StartCopiers(_duplicatContext);
-
             IsLoading = false;
-            IsConfigReadonly = true;
-            AreCopiersStarted = true;
             IsConnected = true;
-        }
+	        AreCopiersStarted = true;
+		}
         public void StopCopiersCommand()
         {
             _orchestrator.StopCopiers();
             AreCopiersStarted = false;
-        }
-
-        public async void OrderHistoryExportCommand()
-        {
-            IsLoading = true;
-            IsConfigReadonly = true;
-			await _orchestrator.OrderHistoryExport(_duplicatContext);
-
+		}
+		public async void CopierSyncCommand(Slave slave)
+		{
+			if (slave == null || !IsConnected) return;
+			IsLoading = true;
+			await _orchestrator.CopierSync(slave);
 			IsLoading = false;
-			IsConfigReadonly = true;
-			IsConnected = true;
+		}
+		public async void CopierCloseCommand(Slave slave)
+		{
+			if (slave == null || !IsConnected) return;
+			IsLoading = true;
+			await _orchestrator.CopierClose(slave);
+			IsLoading = false;
+		}
+
+		public async void OrderHistoryExportCommand()
+		{
+			if (!IsConnected) return;
+			IsLoading = true;
+			await _orchestrator.OrderHistoryExport(_duplicatContext);
+			IsLoading = false;
 		}
 
 	    public void MtAccountImportCommand()
-	    {
-		    IsLoading = true;
-		    IsConfigReadonly = true;
-		    _orchestrator.MtAccountImport(_duplicatContext);
-
-		    IsLoading = false;
-		    IsConfigReadonly = false;
-		}
-	    public async void SaveTheWeekendCommand(DateTime from, DateTime to)
 		{
-		    IsLoading = true;
-		    IsConfigReadonly = true;
-		    await _orchestrator.SaveTheWeekend(_duplicatContext, from, to);
-
+			if (!IsConnected) return;
+			IsLoading = true;
+		    _orchestrator.MtAccountImport(_duplicatContext);
 		    IsLoading = false;
-		    IsConfigReadonly = true;
-		    IsConnected = true;
+		}
+	    public void SaveTheWeekendCommand(DateTime from, DateTime to)
+		{
+			if (!IsConnected) return;
+			IsLoading = true;
+		    _orchestrator.SaveTheWeekend(_duplicatContext, from, to);
+		    IsLoading = false;
 		}
 
 		public async void StartTickersCommand()
@@ -176,11 +180,9 @@ namespace QvaDev.Duplicat.ViewModel
 			IsLoading = true;
 			IsConfigReadonly = true;
 			await _orchestrator.StartTickers(_duplicatContext);
-
 			IsLoading = false;
-			IsConfigReadonly = true;
-			AreTickersStarted = true;
 			IsConnected = true;
+			AreTickersStarted = true;
 		}
 		public void StopTickersCommand()
 		{
@@ -192,11 +194,9 @@ namespace QvaDev.Duplicat.ViewModel
 		    IsLoading = true;
 		    IsConfigReadonly = true;
 			await _orchestrator.StartStrategies(_duplicatContext);
-
 			IsLoading = false;
-			IsConfigReadonly = true;
-			AreStrategiesStarted = true;
 			IsConnected = true;
+		    AreStrategiesStarted = true;
 		}
 	    public void StopStrategiesCommand()
 	    {
@@ -205,19 +205,17 @@ namespace QvaDev.Duplicat.ViewModel
 		}
 		public async Task HubArbsGoFlatCommand()
 		{
+			if (!IsConnected) return;
 			IsLoading = true;
 			await _orchestrator.HubArbsGoFlat(_duplicatContext);
 			IsLoading = false;
 		}
 	    public async void HubArbsExportCommand()
-	    {
-		    IsLoading = true;
-		    IsConfigReadonly = true;
+		{
+			if (!IsConnected) return;
+			IsLoading = true;
 		    await _orchestrator.HubArbsExport(_duplicatContext);
-
 		    IsLoading = false;
-		    IsConfigReadonly = true;
-		    IsConnected = true;
 		}
 	    public void HubArbsArchiveCommand(StratHubArb arb)
 	    {

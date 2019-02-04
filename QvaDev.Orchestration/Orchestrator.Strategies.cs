@@ -118,7 +118,6 @@ namespace QvaDev.Orchestration
 	    public async Task HubArbsExport(DuplicatContext duplicatContext)
 	    {
 		    var arbPositions = duplicatContext.StratHubArbPositions.ToList();
-
 		    await _reportService.HubArbsExport(arbPositions);
 	    }
 	}

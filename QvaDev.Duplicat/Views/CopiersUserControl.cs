@@ -45,8 +45,10 @@ namespace QvaDev.Duplicat.Views
 
 			btnStart.Click += (s, e) => { _viewModel.StartCopiersCommand(); };
             btnStop.Click += (s, e) => { _viewModel.StopCopiersCommand(); };
+	        btnSync.Click += (s, e) => { _viewModel.CopierSyncCommand(dgvSlaves.GetSelectedItem<Slave>()); };
+	        btnClose.Click += (s, e) => { _viewModel.CopierCloseCommand(dgvSlaves.GetSelectedItem<Slave>()); };
 
-	        dgvSlaves.RowDoubleClick += (s, e) => _viewModel.ShowSelectedSlaveCommand(dgvSlaves.GetSelectedItem<Slave>());
+			dgvSlaves.RowDoubleClick += (s, e) => _viewModel.ShowSelectedSlaveCommand(dgvSlaves.GetSelectedItem<Slave>());
 
 	        dgvMasters.DefaultValuesNeeded += (s, e) => e.Row.Cells["ProfileId"].Value = _viewModel.SelectedProfile.Id;
 			dgvSymbolMappings.DefaultValuesNeeded += (s, e) => { e.Row.Cells["SlaveId"].Value = _viewModel.SelectedSlave.Id; };

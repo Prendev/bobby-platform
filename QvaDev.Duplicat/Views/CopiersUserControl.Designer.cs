@@ -45,6 +45,8 @@
 			this.dgvFixApiCopiers = new QvaDev.Duplicat.Views.CustomDataGridView();
 			this.groupBox10 = new System.Windows.Forms.GroupBox();
 			this.dgvCopiers = new QvaDev.Duplicat.Views.CustomDataGridView();
+			this.btnSync = new System.Windows.Forms.Button();
+			this.btnClose = new System.Windows.Forms.Button();
 			this.tlpMain.SuspendLayout();
 			this.tlpTop.SuspendLayout();
 			this.groupBox11.SuspendLayout();
@@ -158,7 +160,7 @@
 			this.tlpTopLeft.Margin = new System.Windows.Forms.Padding(4);
 			this.tlpTopLeft.Name = "tlpTopLeft";
 			this.tlpTopLeft.RowCount = 2;
-			this.tlpTopLeft.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 64F));
+			this.tlpTopLeft.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 100F));
 			this.tlpTopLeft.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
 			this.tlpTopLeft.Size = new System.Drawing.Size(464, 528);
 			this.tlpTopLeft.TabIndex = 2;
@@ -167,11 +169,11 @@
 			// 
 			this.groupBox8.Controls.Add(this.dgvMasters);
 			this.groupBox8.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.groupBox8.Location = new System.Drawing.Point(4, 68);
+			this.groupBox8.Location = new System.Drawing.Point(4, 104);
 			this.groupBox8.Margin = new System.Windows.Forms.Padding(4);
 			this.groupBox8.Name = "groupBox8";
 			this.groupBox8.Padding = new System.Windows.Forms.Padding(4);
-			this.groupBox8.Size = new System.Drawing.Size(456, 456);
+			this.groupBox8.Size = new System.Drawing.Size(456, 420);
 			this.groupBox8.TabIndex = 0;
 			this.groupBox8.TabStop = false;
 			this.groupBox8.Text = "Masters";
@@ -185,11 +187,13 @@
 			this.dgvMasters.Margin = new System.Windows.Forms.Padding(4);
 			this.dgvMasters.MultiSelect = false;
 			this.dgvMasters.Name = "dgvMasters";
-			this.dgvMasters.Size = new System.Drawing.Size(448, 433);
+			this.dgvMasters.Size = new System.Drawing.Size(448, 397);
 			this.dgvMasters.TabIndex = 0;
 			// 
 			// gbControl
 			// 
+			this.gbControl.Controls.Add(this.btnClose);
+			this.gbControl.Controls.Add(this.btnSync);
 			this.gbControl.Controls.Add(this.btnStop);
 			this.gbControl.Controls.Add(this.btnStart);
 			this.gbControl.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -197,7 +201,7 @@
 			this.gbControl.Margin = new System.Windows.Forms.Padding(4);
 			this.gbControl.Name = "gbControl";
 			this.gbControl.Padding = new System.Windows.Forms.Padding(4);
-			this.gbControl.Size = new System.Drawing.Size(456, 56);
+			this.gbControl.Size = new System.Drawing.Size(456, 92);
 			this.gbControl.TabIndex = 1;
 			this.gbControl.TabStop = false;
 			this.gbControl.Text = "Control";
@@ -287,6 +291,26 @@
 			this.dgvCopiers.Size = new System.Drawing.Size(697, 194);
 			this.dgvCopiers.TabIndex = 0;
 			// 
+			// btnSync
+			// 
+			this.btnSync.Location = new System.Drawing.Point(8, 56);
+			this.btnSync.Margin = new System.Windows.Forms.Padding(4);
+			this.btnSync.Name = "btnSync";
+			this.btnSync.Size = new System.Drawing.Size(200, 28);
+			this.btnSync.TabIndex = 18;
+			this.btnSync.Text = "Sync selected";
+			this.btnSync.UseVisualStyleBackColor = true;
+			// 
+			// btnClose
+			// 
+			this.btnClose.Location = new System.Drawing.Point(216, 56);
+			this.btnClose.Margin = new System.Windows.Forms.Padding(4);
+			this.btnClose.Name = "btnClose";
+			this.btnClose.Size = new System.Drawing.Size(200, 28);
+			this.btnClose.TabIndex = 19;
+			this.btnClose.Text = "Close selected";
+			this.btnClose.UseVisualStyleBackColor = true;
+			// 
 			// CopiersUserControl
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -333,5 +357,7 @@
 		private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
 		private System.Windows.Forms.GroupBox groupBox1;
 		private CustomDataGridView dgvFixApiCopiers;
+		private System.Windows.Forms.Button btnSync;
+		private System.Windows.Forms.Button btnClose;
 	}
 }

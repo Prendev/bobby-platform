@@ -30,6 +30,7 @@
         {
 			this.tlpMain = new System.Windows.Forms.TableLayoutPanel();
 			this.gbFlow = new System.Windows.Forms.GroupBox();
+			this.btnSubscribeFeed = new System.Windows.Forms.Button();
 			this.label9 = new System.Windows.Forms.Label();
 			this.btnRushClosePull = new System.Windows.Forms.Button();
 			this.label8 = new System.Windows.Forms.Label();
@@ -62,7 +63,6 @@
 			this.btnBuyFutures = new System.Windows.Forms.Button();
 			this.btnStopCopiers = new System.Windows.Forms.Button();
 			this.btnStartCopiers = new System.Windows.Forms.Button();
-			this.btnSubscribeFeed = new System.Windows.Forms.Button();
 			this.tlpMain.SuspendLayout();
 			this.gbFlow.SuspendLayout();
 			this.groupBox2.SuspendLayout();
@@ -126,6 +126,16 @@
 			this.gbFlow.Size = new System.Drawing.Size(1234, 463);
 			this.gbFlow.TabIndex = 0;
 			this.gbFlow.TabStop = false;
+			// 
+			// btnSubscribeFeed
+			// 
+			this.btnSubscribeFeed.Location = new System.Drawing.Point(8, 23);
+			this.btnSubscribeFeed.Margin = new System.Windows.Forms.Padding(4);
+			this.btnSubscribeFeed.Name = "btnSubscribeFeed";
+			this.btnSubscribeFeed.Size = new System.Drawing.Size(200, 64);
+			this.btnSubscribeFeed.TabIndex = 51;
+			this.btnSubscribeFeed.Text = "Subscribe feed";
+			this.btnSubscribeFeed.UseVisualStyleBackColor = true;
 			// 
 			// label9
 			// 
@@ -421,7 +431,7 @@
 			// 
 			// nudFuturesContractSize
 			// 
-			this.nudFuturesContractSize.Location = new System.Drawing.Point(424, 63);
+			this.nudFuturesContractSize.Location = new System.Drawing.Point(425, 60);
 			this.nudFuturesContractSize.Maximum = new decimal(new int[] {
             100000,
             0,
@@ -433,7 +443,7 @@
 			// 
 			// btnSellFutures
 			// 
-			this.btnSellFutures.Location = new System.Drawing.Point(215, 59);
+			this.btnSellFutures.Location = new System.Drawing.Point(216, 56);
 			this.btnSellFutures.Margin = new System.Windows.Forms.Padding(4);
 			this.btnSellFutures.Name = "btnSellFutures";
 			this.btnSellFutures.Size = new System.Drawing.Size(200, 28);
@@ -443,7 +453,7 @@
 			// 
 			// btnBuyFutures
 			// 
-			this.btnBuyFutures.Location = new System.Drawing.Point(7, 59);
+			this.btnBuyFutures.Location = new System.Drawing.Point(8, 56);
 			this.btnBuyFutures.Margin = new System.Windows.Forms.Padding(4);
 			this.btnBuyFutures.Name = "btnBuyFutures";
 			this.btnBuyFutures.Size = new System.Drawing.Size(200, 28);
@@ -470,16 +480,6 @@
 			this.btnStartCopiers.TabIndex = 25;
 			this.btnStartCopiers.Text = "Start copiers";
 			this.btnStartCopiers.UseVisualStyleBackColor = true;
-			// 
-			// btnSubscribeFeed
-			// 
-			this.btnSubscribeFeed.Location = new System.Drawing.Point(8, 23);
-			this.btnSubscribeFeed.Margin = new System.Windows.Forms.Padding(4);
-			this.btnSubscribeFeed.Name = "btnSubscribeFeed";
-			this.btnSubscribeFeed.Size = new System.Drawing.Size(200, 64);
-			this.btnSubscribeFeed.TabIndex = 51;
-			this.btnSubscribeFeed.Text = "Subscribe feed";
-			this.btnSubscribeFeed.UseVisualStyleBackColor = true;
 			// 
 			// PushingUserControl
 			// 
