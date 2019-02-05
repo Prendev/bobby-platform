@@ -49,8 +49,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QvaDev.Communication.FixApi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QvaDev.Communication.FixApi.Connectors", "..\..\git\QvaDev.Wololo\QvaDev.Communication.FixApi.Connectors\QvaDev.Communication.FixApi.Connectors.csproj", "{3E59C959-CDCA-4A1A-A013-4072C100356F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QvaDev.Communication.FixApi.Connectors.FixConnectorTester", "..\..\git\QvaDev.Wololo\QvaDev.Communication.FixApi.Connectors.FixConnectorTester\QvaDev.Communication.FixApi.Connectors.FixConnectorTester.csproj", "{EB7794E4-408E-41A0-A711-5EEDD670045E}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -227,14 +225,6 @@ Global
 		{3E59C959-CDCA-4A1A-A013-4072C100356F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{3E59C959-CDCA-4A1A-A013-4072C100356F}.Release|x64.ActiveCfg = Release|Any CPU
 		{3E59C959-CDCA-4A1A-A013-4072C100356F}.Release|x64.Build.0 = Release|Any CPU
-		{EB7794E4-408E-41A0-A711-5EEDD670045E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{EB7794E4-408E-41A0-A711-5EEDD670045E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{EB7794E4-408E-41A0-A711-5EEDD670045E}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{EB7794E4-408E-41A0-A711-5EEDD670045E}.Debug|x64.Build.0 = Debug|Any CPU
-		{EB7794E4-408E-41A0-A711-5EEDD670045E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{EB7794E4-408E-41A0-A711-5EEDD670045E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{EB7794E4-408E-41A0-A711-5EEDD670045E}.Release|x64.ActiveCfg = Release|Any CPU
-		{EB7794E4-408E-41A0-A711-5EEDD670045E}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -246,7 +236,6 @@ Global
 		{1EA7001F-9841-4CAA-A69E-59F11BCF76C0} = {A173DFEF-C355-4721-BEE1-D8BB147FF8BA}
 		{FA62481E-A560-449A-A654-A69B8FA63D36} = {A173DFEF-C355-4721-BEE1-D8BB147FF8BA}
 		{3E59C959-CDCA-4A1A-A013-4072C100356F} = {A173DFEF-C355-4721-BEE1-D8BB147FF8BA}
-		{EB7794E4-408E-41A0-A711-5EEDD670045E} = {A173DFEF-C355-4721-BEE1-D8BB147FF8BA}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C1C28357-86B5-47FD-924D-863DA2531C4D}
