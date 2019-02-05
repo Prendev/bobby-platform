@@ -44,12 +44,13 @@ namespace QvaDev.Orchestration.Services
 		        master.NewPosition -= Master_NewPosition;
 		        master.NewPosition += Master_NewPosition;
 
-				var slaves = master.Slaves
-			        .Where(s => s.Account.FixApiAccountId.HasValue &&
-			                    s.Account.Connector != null &&
-								s.Account.Connector.IsConnected);
+		        var slaves = master.Slaves
+			        .Where(s => s.Account.FixApiAccountId.HasValue)
+			        .Where(s => s.Account.Connector?.IsConnected == true)
+					.Where(s => s.Copiers.Any(c => c.OrderType != Copier.CopierOrderTypes.Market) ||
+			                    s.FixApiCopiers.Any(c => c.OrderType != FixApiCopier.FixApiOrderTypes.Market));
 
-		        foreach (var slave in slaves)
+				foreach (var slave in slaves)
 		        foreach (var symbolMapping in slave.SymbolMappings)
 			        slave.Account.Connector.Subscribe(symbolMapping.To);
 
