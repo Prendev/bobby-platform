@@ -92,7 +92,7 @@ namespace QvaDev.Orchestration.Services
 
 			Logger.Info("CopierService.Close started");
 			var positions = slave.FixApiCopiers.SelectMany(c => c.FixApiCopierPositions)
-				.Where(p => p.ClosePosition == null).ToList();
+				.Where(p => !p.Archived && p.ClosePosition == null).ToList();
 			foreach (var pos in positions)
 			{
 				var open = pos.OpenPosition;

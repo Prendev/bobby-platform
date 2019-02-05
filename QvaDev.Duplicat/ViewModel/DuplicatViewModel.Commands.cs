@@ -151,6 +151,12 @@ namespace QvaDev.Duplicat.ViewModel
 			await _orchestrator.CopierClose(slave);
 			IsLoading = false;
 		}
+	    public void CopierArchiveCommand(Slave slave)
+		{
+			if (slave == null) return;
+			slave.FixApiCopiers.SelectMany(c => c.FixApiCopierPositions).ToList().ForEach(e => e.Archived = true);
+			Logger.Info("CopierService.Archive finished");
+		}
 
 		public async void OrderHistoryExportCommand()
 		{

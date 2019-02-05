@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace QvaDev.Data.Models
+﻿namespace QvaDev.Data.Models
 {
 	public class FixApiCopierPosition : BaseEntity
 	{
@@ -14,5 +12,7 @@ namespace QvaDev.Data.Models
 
 		public int? ClosePositionId { get; set; }
 		public StratPosition ClosePosition { get; set; }
+
+		public bool Archived { get; set; }
 	}
 }

@@ -46,7 +46,7 @@ namespace QvaDev.Orchestration.Services
 				if (e.Action == NewPositionActions.Open)
 				{
 					// Check if there is an open position
-					if (copier.FixApiCopierPositions.Any(p => p.MasterPositionId == e.Position.Id && p.ClosePosition == null)) return;
+					if (copier.FixApiCopierPositions.Any(p => !p.Archived && p.MasterPositionId == e.Position.Id && p.ClosePosition == null)) return;
 					var response = await FixAccountOpening(copier, slaveConnector, symbol, side, quantity, limitPrice);
 					if (response == null) return;
 					PersistOpenPosition(copier, symbol, e.Position.Id, response);
@@ -55,7 +55,7 @@ namespace QvaDev.Orchestration.Services
 				else if (e.Action == NewPositionActions.Close)
 				{
 					var pos = copier.FixApiCopierPositions
-						.FirstOrDefault(p => p.MasterPositionId == e.Position.Id && p.ClosePosition == null);
+						.FirstOrDefault(p => !p.Archived && p.MasterPositionId == e.Position.Id && p.ClosePosition == null);
 					if (pos == null) return;
 					var response = await FixAccountClosing(copier, slaveConnector, symbol, side, pos.OpenPosition.Size, limitPrice);
 					if (response == null) return;
@@ -88,7 +88,6 @@ namespace QvaDev.Orchestration.Services
 					Symbol = symbol
 				}
 			};
-			copier.FixApiCopierPositions.Add(newEntity);
 			lock (copier.FixApiCopierPositions) copier.FixApiCopierPositions.Add(newEntity);
 		}
 

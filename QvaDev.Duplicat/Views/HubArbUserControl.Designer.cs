@@ -31,6 +31,7 @@
 			System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
 			this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
 			this.gbControl = new System.Windows.Forms.GroupBox();
+			this.btnArchive = new System.Windows.Forms.Button();
 			this.btnExport = new System.Windows.Forms.Button();
 			this.btnGoFlatAll = new System.Windows.Forms.Button();
 			this.btnStop = new System.Windows.Forms.Button();
@@ -39,7 +40,6 @@
 			this.dgvHubArb = new QvaDev.Duplicat.Views.CustomDataGridView();
 			this.groupBox1 = new System.Windows.Forms.GroupBox();
 			this.dgvStatistics = new System.Windows.Forms.DataGridView();
-			this.btnArchive = new System.Windows.Forms.Button();
 			this.tableLayoutPanel1.SuspendLayout();
 			this.gbControl.SuspendLayout();
 			this.gbHubArb.SuspendLayout();
@@ -79,6 +79,16 @@
 			this.gbControl.TabIndex = 0;
 			this.gbControl.TabStop = false;
 			this.gbControl.Text = "Control";
+			// 
+			// btnArchive
+			// 
+			this.btnArchive.Location = new System.Drawing.Point(631, 58);
+			this.btnArchive.Margin = new System.Windows.Forms.Padding(4);
+			this.btnArchive.Name = "btnArchive";
+			this.btnArchive.Size = new System.Drawing.Size(200, 28);
+			this.btnArchive.TabIndex = 30;
+			this.btnArchive.Text = "Archive selected";
+			this.btnArchive.UseVisualStyleBackColor = true;
 			// 
 			// btnExport
 			// 
@@ -177,16 +187,6 @@
 			this.dgvStatistics.RowTemplate.Height = 24;
 			this.dgvStatistics.Size = new System.Drawing.Size(1109, 284);
 			this.dgvStatistics.TabIndex = 0;
-			// 
-			// btnArchive
-			// 
-			this.btnArchive.Location = new System.Drawing.Point(631, 58);
-			this.btnArchive.Margin = new System.Windows.Forms.Padding(4);
-			this.btnArchive.Name = "btnArchive";
-			this.btnArchive.Size = new System.Drawing.Size(200, 28);
-			this.btnArchive.TabIndex = 30;
-			this.btnArchive.Text = "Archive selected";
-			this.btnArchive.UseVisualStyleBackColor = true;
 			// 
 			// HubArbUserControl
 			// 

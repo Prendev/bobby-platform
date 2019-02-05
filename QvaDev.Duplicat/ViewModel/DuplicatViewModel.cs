@@ -156,7 +156,9 @@ namespace QvaDev.Duplicat.ViewModel
 			_duplicatContext.Masters.Where(e => e.ProfileId == p).Load();
 			_duplicatContext.Slaves.Where(e => e.Master.ProfileId == p).Load();
 			_duplicatContext.Copiers.Where(e => e.Slave.Master.ProfileId == p).Load();
-			_duplicatContext.FixApiCopiers.Where(e => e.Slave.Master.ProfileId == p).Load();
+			_duplicatContext.FixApiCopiers.Where(e => e.Slave.Master.ProfileId == p)
+				.Include(e => e.FixApiCopierPositions).ThenInclude(e => e.OpenPosition)
+				.Include(e => e.FixApiCopierPositions).ThenInclude(e => e.ClosePosition).Load();
 			_duplicatContext.SymbolMappings.Where(e => e.Slave.Master.ProfileId == p).Load();
 			_duplicatContext.Pushings.Where(e => e.ProfileId == p).Load();
 			_duplicatContext.Pushings.Where(e => e.ProfileId == p).Select(e => e.PushingDetail).Load();
