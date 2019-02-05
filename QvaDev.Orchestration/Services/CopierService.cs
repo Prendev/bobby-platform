@@ -70,8 +70,8 @@ namespace QvaDev.Orchestration.Services
 			if (!(slave.Master.Account.Connector is Mt4Integration.Connector masterCon)) return;
 			if (!(slave.Account.Connector is FixApiIntegration.Connector)) return;
 
-			var positions = masterCon.Positions
-				.Where(p => !p.Value.IsClosed).ToList();
+			Logger.Info("CopierService.Sync started");
+			var positions = masterCon.Positions.Where(p => !p.Value.IsClosed).ToList();
 			foreach (var pos in positions)
 			{
 				var newPos = new NewPosition()
@@ -80,26 +80,28 @@ namespace QvaDev.Orchestration.Services
 					Action = NewPositionActions.Open,
 					Position = pos.Value
 				};
-				await CopyToAccount(newPos, slave);
+				await CopyToFixAccount(newPos, slave);
 			}
+			Logger.Info("CopierService.Sync finished");
 		}
 
 	    public async Task Close(Slave slave)
 		{
-			if (!(slave.Account.Connector is FixApiIntegration.Connector)) return;
+			if (!(slave.Account.Connector is FixApiIntegration.Connector connector)) return;
 
+			Logger.Info("CopierService.Close started");
 			var positions = slave.FixApiCopiers.SelectMany(c => c.FixApiCopierPositions)
 				.Where(p => p.ClosePosition == null).ToList();
-			foreach (var position in positions)
+			foreach (var pos in positions)
 			{
-				var newPos = new NewPosition()
-				{
-					AccountType = AccountTypes.Mt4,
-					Action = NewPositionActions.Close,
-					Position = new Position() { }
-				};
-				await CopyToAccount(newPos, slave);
+				var open = pos.OpenPosition;
+				var side = open.Side == StratPosition.Sides.Buy ? Sides.Sell : Sides.Buy;
+				var response = await FixAccountClosing(pos.FixApiCopier, connector, open.Symbol, side, open.Size, null);
+				if (response == null) continue;
+				PersistClosePosition(pos.FixApiCopier, pos, response);
+				LogClose(slave, open.Symbol, pos.OpenPosition, response);
 			}
+			Logger.Info("CopierService.Close finished");
 		}
 
 	    private async void MasterLoop(Master master, CancellationToken token)
