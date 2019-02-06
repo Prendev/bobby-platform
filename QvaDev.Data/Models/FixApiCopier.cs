@@ -27,30 +27,36 @@ namespace QvaDev.Data.Models
 		public decimal CopyRatio { get; set; }
 		public FixApiOrderTypes OrderType { get; set; }
 		public BasePriceTypes BasePriceType { get; set; }
-		[DisplayName("FallbackToMarket")]
-		public bool FallbackToMarketOrderType { get; set; }
-		[DisplayName("FallbackTimeWindow")]
-		public int FallbackTimeWindowInMs { get; set; }
+		[DisplayName("Delay")]
 		public int DelayInMilliseconds { get; set; }
 
-		[DisplayName("MarketMaxRetry")]
+		[DisplayName("FallbackMarketOpen")]
+		public bool FallbackToMarketOrderType { get; set; }
+		[DisplayName("F Retry")]
+		public int FallbackMaxRetryCount { get; set; }
+		[DisplayName("F Period")]
+		public int FallbackRetryPeriodInMs { get; set; }
+		[DisplayName("F Window")]
+		public int FallbackTimeWindowInMs { get; set; }
+
+		[DisplayName("MarketRetry")]
 		public int MarketMaxRetryCount { get; set; }
-		[DisplayName("MarketRetryPeriod")]
+		[DisplayName("M Period")]
 		public int MarketRetryPeriodInMs { get; set; }
-		[DisplayName("MarketTimeWindow")]
+		[DisplayName("M Window")]
 		public int MarketTimeWindowInMs { get; set; }
 
-		[DisplayName("LimitMaxRetry")]
+		[DisplayName("LimitRetry")]
 		public int MaxRetryCount { get; set; }
-		[DisplayName("LimitRetryPeriod")]
+		[DisplayName("L Period")]
 		public int RetryPeriodInMs { get; set; }
-		[DisplayName("LimitSlippage")]
-		public decimal SlippageInPip { get; set; }
-
-		[DisplayName("LimitTimeWindow")]
+		[DisplayName("L Window")]
 		public int TimeWindowInMs { get; set; }
-		[DisplayName("LimitDiff")]
+		[DisplayName("L Slippage")]
+		public decimal SlippageInPip { get; set; }
+		[DisplayName("L Diff")]
 		public decimal LimitDiffInPip { get; set; }
+
 		public decimal PipSize { get; set; }
 
 		public List<FixApiCopierPosition> FixApiCopierPositions { get; } = new List<FixApiCopierPosition>();
