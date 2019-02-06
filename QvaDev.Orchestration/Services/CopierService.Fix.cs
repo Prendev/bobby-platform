@@ -30,16 +30,16 @@ namespace QvaDev.Orchestration.Services
 				var side = copier.CopyRatio < 0 ? e.Position.Side.Inv() : e.Position.Side;
 				if (e.Action == NewPositionActions.Close) side = side.Inv();
 
-				var limitPrice = 0m;
+				decimal? limitPrice = null;
 				if (copier.OrderType != FixApiCopier.FixApiOrderTypes.Market)
 				{
 					var lastTick = slaveConnector.GetLastTick(symbol);
 					if (lastTick == null)
 					{
 						Logger.Warn($"CopierService.CopyToFixAccount {slave} {symbol} no last tick!!!");
-						return;
+						if (!copier.FallbackToMarketOrderType) return;
 					}
-					limitPrice = copier.BasePriceType == FixApiCopier.BasePriceTypes.Master ? e.Position.OpenPrice :
+					else limitPrice = copier.BasePriceType == FixApiCopier.BasePriceTypes.Master ? e.Position.OpenPrice :
 						side == Sides.Buy ? lastTick.Ask : lastTick.Bid;
 				}
 
@@ -128,19 +128,24 @@ namespace QvaDev.Orchestration.Services
 		}
 
 		private async Task<OrderResponse> FixAccountOpening(FixApiCopier copier, IFixConnector connector, string symbol, Sides side,
-		    decimal quantity, decimal limitPrice)
+		    decimal quantity, decimal? limitPrice)
 	    {
 		    OrderResponse response;
 		    if (copier.OrderType == FixApiCopier.FixApiOrderTypes.Market)
 				return await connector.SendMarketOrderRequest(symbol, side, quantity,
 				    copier.MarketTimeWindowInMs, copier.MarketMaxRetryCount, copier.MarketRetryPeriodInMs);
-			else if (copier.OrderType == FixApiCopier.FixApiOrderTypes.GtcLimit)
+			if(copier.FallbackToMarketOrderType && !limitPrice.HasValue)
+			    return await connector.SendMarketOrderRequest(symbol, side, quantity,
+				    copier.FallbackTimeWindowInMs, copier.FallbackMaxRetryCount, copier.FallbackRetryPeriodInMs);
+		    if (!limitPrice.HasValue) return null;
+
+			if (copier.OrderType == FixApiCopier.FixApiOrderTypes.GtcLimit)
 				response = await connector.SendGtcLimitOrderRequest(
-					symbol, side, quantity, limitPrice, copier.Deviation, copier.LimitDiff,
+					symbol, side, quantity, limitPrice.Value, copier.Deviation, copier.LimitDiff,
 					copier.TimeWindowInMs, copier.MaxRetryCount, copier.RetryPeriodInMs);
 		    else if (copier.OrderType == FixApiCopier.FixApiOrderTypes.Aggressive)
 				response = await connector.SendAggressiveOrderRequest(
-					symbol, side, quantity, limitPrice, copier.Deviation, copier.LimitDiff,
+					symbol, side, quantity, limitPrice.Value, copier.Deviation, copier.LimitDiff,
 					copier.TimeWindowInMs, copier.MaxRetryCount, copier.RetryPeriodInMs);
 			else return null;
 
