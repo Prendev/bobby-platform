@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Net;
 
-namespace QvaDev.Common
+namespace TradeSystem.Common
 {
     public class UnexpectedStatusCodeException : Exception
     {

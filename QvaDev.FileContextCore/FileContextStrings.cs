@@ -1,4 +1,4 @@
-﻿namespace QvaDev.FileContextCore
+﻿namespace TradeSystem.FileContextCore
 {
 	public static class FileContextStrings
 	{

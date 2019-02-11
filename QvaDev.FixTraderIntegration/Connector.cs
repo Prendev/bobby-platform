@@ -8,9 +8,10 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using QvaDev.Common.Integration;
+using TradeSystem.Common.Integration;
+using TradeSystem.Communication;
 
-namespace QvaDev.FixTraderIntegration
+namespace TradeSystem.FixTraderIntegration
 {
 	public class Connector : FixApiConnectorBase, IFixConnector
 	{

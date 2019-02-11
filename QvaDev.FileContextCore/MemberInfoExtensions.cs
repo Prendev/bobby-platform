@@ -4,7 +4,7 @@
 using System;
 using System.Reflection;
 
-namespace QvaDev.FileContextCore
+namespace TradeSystem.FileContextCore
 {
     internal static class MemberInfoExtensions
     {

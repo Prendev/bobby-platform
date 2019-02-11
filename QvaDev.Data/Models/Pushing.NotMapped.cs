@@ -1,9 +1,9 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations.Schema;
-using QvaDev.Common.Attributes;
-using QvaDev.Common.Integration;
+using TradeSystem.Common.Attributes;
+using TradeSystem.Common.Integration;
 
-namespace QvaDev.Data.Models
+namespace TradeSystem.Data.Models
 {
     public partial class Pushing
 	{

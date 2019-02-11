@@ -2,9 +2,9 @@
 using System.Configuration;
 using System.Data.SqlClient;
 using Dapper.Contrib.Extensions;
-using QvaDev.Data.Models;
+using TradeSystem.Data.Models;
 
-namespace QvaDev.Data.Repositories
+namespace TradeSystem.Data.Repositories
 {
     public interface IMetaTraderPlatformRepository
     {

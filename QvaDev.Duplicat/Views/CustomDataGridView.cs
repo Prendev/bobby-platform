@@ -6,11 +6,11 @@ using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 using Microsoft.EntityFrameworkCore;
-using QvaDev.Common.Attributes;
-using QvaDev.Common.Integration;
-using QvaDev.Data.Models;
+using TradeSystem.Common.Attributes;
+using TradeSystem.Common.Integration;
+using TradeSystem.Data.Models;
 
-namespace QvaDev.Duplicat.Views
+namespace TradeSystem.Duplicat.Views
 {
 	public class CustomDataGridView : DataGridView
 	{

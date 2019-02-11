@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace QvaDev.Data.Models
+namespace TradeSystem.Data.Models
 {
 	public class StratHubArbQuoteEventArgs
 	{

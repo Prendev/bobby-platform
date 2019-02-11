@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text.RegularExpressions;
 
-namespace QvaDev.Duplicat
+namespace TradeSystem.Duplicat
 {
     public class UrlHelper
     {

@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
-using QvaDev.Data.Models;
+using TradeSystem.Data.Models;
 
-namespace QvaDev.Data
+namespace TradeSystem.Data
 {
 	public interface IConnectorFactory
 	{

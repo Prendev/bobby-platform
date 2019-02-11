@@ -1,6 +1,6 @@
-﻿using QvaDev.Common.Integration;
+﻿using TradeSystem.Common.Integration;
 
-namespace QvaDev.CqgClientApiIntegration
+namespace TradeSystem.CqgClientApiIntegration
 {
 	public class AccountInfo : BaseAccountInfo
 	{

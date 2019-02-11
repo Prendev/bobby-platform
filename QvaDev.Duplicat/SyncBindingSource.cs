@@ -3,7 +3,7 @@ using System.ComponentModel;
 using System.Threading;
 using System.Windows.Forms;
 
-namespace QvaDev.Duplicat
+namespace TradeSystem.Duplicat
 {
     public class SyncBindingSource<T> : BindingSource
     {

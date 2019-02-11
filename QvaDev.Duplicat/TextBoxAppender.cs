@@ -8,7 +8,7 @@ using log4net.Appender;
 using log4net.Core;
 using log4net.Repository.Hierarchy;
 
-namespace QvaDev.Duplicat
+namespace TradeSystem.Duplicat
 {
 	public class TextBoxAppender : IAppender
 	{

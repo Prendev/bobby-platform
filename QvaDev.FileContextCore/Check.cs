@@ -8,7 +8,7 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Internal;
 
-namespace QvaDev.FileContextCore
+namespace TradeSystem.FileContextCore
 {
 	[DebuggerStepThrough]
     internal static class Check

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace QvaDev.IlyaFastFeedIntegration
+namespace TradeSystem.IlyaFastFeedIntegration
 {
 	public class FastFeedCircularBuffer
 	{

@@ -4,9 +4,9 @@ using System.Configuration;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-using QvaDev.Data.Models;
+using TradeSystem.Data.Models;
 
-namespace QvaDev.Duplicat.ViewModel
+namespace TradeSystem.Duplicat.ViewModel
 {
     public partial class DuplicatViewModel
     {

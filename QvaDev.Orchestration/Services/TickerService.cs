@@ -5,11 +5,11 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Threading.Tasks;
-using QvaDev.Common.Integration;
-using QvaDev.Communication;
-using QvaDev.Data.Models;
+using TradeSystem.Common.Integration;
+using TradeSystem.Communication;
+using TradeSystem.Data.Models;
 
-namespace QvaDev.Orchestration.Services
+namespace TradeSystem.Orchestration.Services
 {
     public interface ITickerService
     {

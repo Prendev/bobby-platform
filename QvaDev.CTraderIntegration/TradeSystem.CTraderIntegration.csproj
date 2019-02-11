@@ -7,8 +7,8 @@
     <ProjectGuid>{5B92788F-AF48-4709-A539-BBA2822A06B7}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>QvaDev.CTraderIntegration</RootNamespace>
-    <AssemblyName>QvaDev.CTraderIntegration</AssemblyName>
+    <RootNamespace>TradeSystem.CTraderIntegration</RootNamespace>
+    <AssemblyName>TradeSystem.CTraderIntegration</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -85,17 +85,17 @@
     <Compile Include="Services\TradingAccountsService.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\git\QvaDev.Wololo\QvaDev\QvaDev.csproj">
-      <Project>{A8C5F573-2D3D-4E1A-8844-B11032F12A37}</Project>
-      <Name>QvaDev</Name>
+    <ProjectReference Include="..\..\..\git\QvaDev.Wololo\QvaDev\TradeSystem.csproj">
+      <Project>{FDFCE270-50AC-4930-8680-A760F6F7C637}</Project>
+      <Name>TradeSystem</Name>
     </ProjectReference>
-    <ProjectReference Include="..\QvaDev.Common\QvaDev.Common.csproj">
+    <ProjectReference Include="..\QvaDev.Common\TradeSystem.Common.csproj">
       <Project>{10a3ef89-12bb-4d00-9950-36bfed281b91}</Project>
-      <Name>QvaDev.Common</Name>
+      <Name>TradeSystem.Common</Name>
     </ProjectReference>
-    <ProjectReference Include="..\QvaDev.CTraderApi\QvaDev.CTraderApi.csproj">
+    <ProjectReference Include="..\QvaDev.CTraderApi\TradeSystem.CTraderApi.csproj">
       <Project>{866039F3-42FF-4D42-A85E-F91CEF04F3DF}</Project>
-      <Name>QvaDev.CTraderApi</Name>
+      <Name>TradeSystem.CTraderApi</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

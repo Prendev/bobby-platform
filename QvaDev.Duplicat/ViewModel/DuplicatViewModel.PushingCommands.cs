@@ -1,9 +1,9 @@
-﻿using QvaDev.Data.Models;
+﻿using TradeSystem.Data.Models;
 using System;
 using System.Windows.Forms;
-using QvaDev.Common.Integration;
+using TradeSystem.Common.Integration;
 
-namespace QvaDev.Duplicat.ViewModel
+namespace TradeSystem.Duplicat.ViewModel
 {
     public partial class DuplicatViewModel
 	{

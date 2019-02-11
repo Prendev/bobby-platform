@@ -4,7 +4,7 @@
 using System;
 using Microsoft.EntityFrameworkCore.Storage;
 
-namespace QvaDev.FileContextCore.Storage.Internal
+namespace TradeSystem.FileContextCore.Storage.Internal
 {
     class FileContextTransaction : IDbContextTransaction
     {

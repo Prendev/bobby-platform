@@ -5,9 +5,9 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using QvaDev.Common.Integration;
+using TradeSystem.Common.Integration;
 
-namespace QvaDev.IlyaFastFeedIntegration
+namespace TradeSystem.IlyaFastFeedIntegration
 {
 	public class Connector : ConnectorBase
 	{

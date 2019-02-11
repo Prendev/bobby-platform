@@ -3,12 +3,12 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using QvaDev.Common;
-using QvaDev.Common.Integration;
+using TradeSystem.Common;
+using TradeSystem.Common.Integration;
 using TradingAPI.MT4Server;
-using Bar = QvaDev.Common.Integration.Bar;
+using Bar = TradeSystem.Common.Integration.Bar;
 
-namespace QvaDev.Mt4Integration
+namespace TradeSystem.Mt4Integration
 {
 	public interface IConnector : Common.Integration.IConnector
 	{

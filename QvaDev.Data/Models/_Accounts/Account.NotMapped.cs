@@ -1,10 +1,10 @@
-﻿using QvaDev.Common.Attributes;
-using QvaDev.Common.Integration;
+﻿using TradeSystem.Common.Attributes;
+using TradeSystem.Common.Integration;
 using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace QvaDev.Data.Models
+namespace TradeSystem.Data.Models
 {
 	public partial class Account
 	{

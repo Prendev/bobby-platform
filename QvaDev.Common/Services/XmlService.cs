@@ -2,7 +2,7 @@
 using System.IO;
 using System.Xml.Serialization;
 
-namespace QvaDev.Common.Services
+namespace TradeSystem.Common.Services
 {
     public interface IXmlService
     {

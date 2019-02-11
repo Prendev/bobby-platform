@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace QvaDev.Common.Attributes
+namespace TradeSystem.Common.Attributes
 {
     public class DisplayPriorityAttribute : Attribute
     {

@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Storage;
-using QvaDev.FileContextCore.Extensions.Internal;
+using TradeSystem.FileContextCore.Extensions.Internal;
 
-namespace QvaDev.FileContextCore.Storage.Internal
+namespace TradeSystem.FileContextCore.Storage.Internal
 {
     class FileContextTransactionManager : IDbContextTransactionManager
     {

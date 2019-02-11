@@ -5,11 +5,11 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
-using QvaDev.Communication;
-using QvaDev.Data.Models;
+using TradeSystem.Communication;
+using TradeSystem.Data.Models;
 using Starksoft.Aspen.Proxy;
 
-namespace QvaDev.Orchestration.Services
+namespace TradeSystem.Orchestration.Services
 {
 	public interface IProxyService
 	{

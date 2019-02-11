@@ -4,9 +4,9 @@ using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using QvaDev.Communication.FixApi;
+using TradeSystem.Communication.FixApi;
 
-namespace QvaDev.FixApiIntegration
+namespace TradeSystem.FixApiIntegration
 {
 	internal static class ConnectorHelper
 	{

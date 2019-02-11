@@ -1,7 +1,7 @@
 ﻿using System;
-using QvaDev.Common.Integration;
+using TradeSystem.Common.Integration;
 
-namespace QvaDev.Data.Models
+namespace TradeSystem.Data.Models
 {
     public partial class Master
 	{

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace QvaDev.CTraderIntegration.Dto
+namespace TradeSystem.CTraderIntegration.Dto
 {
     public class DealsRequest : AccountRequest
     {

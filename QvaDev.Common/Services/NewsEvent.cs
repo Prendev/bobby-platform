@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Xml.Serialization;
 
-namespace QvaDev.Common.Services
+namespace TradeSystem.Common.Services
 {
 	[XmlRoot("weeklyevents")]
 	public class WeeklyEvents

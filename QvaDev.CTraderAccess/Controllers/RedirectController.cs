@@ -2,10 +2,10 @@
 using System.Web.Http;
 using System.Linq;
 using System.Web;
-using QvaDev.Common.Services;
-using QvaDev.Data.Models;
+using TradeSystem.Common.Services;
+using TradeSystem.Data.Models;
 
-namespace QvaDev.CTraderAccess.Controllers
+namespace TradeSystem.CTraderAccess.Controllers
 {
     [AllowAnonymous]
     public class RedirectController : ApiController

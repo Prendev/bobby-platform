@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Threading.Tasks;
-using QvaDev.Common.Services;
-using QvaDev.Data;
-using QvaDev.Data.Models;
+using TradeSystem.Common.Services;
+using TradeSystem.Data;
+using TradeSystem.Data.Models;
 
-namespace QvaDev.Orchestration.Services
+namespace TradeSystem.Orchestration.Services
 {
 	public class ConnectorFactory : IConnectorFactory
 	{

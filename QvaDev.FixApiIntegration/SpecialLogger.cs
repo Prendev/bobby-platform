@@ -1,6 +1,6 @@
-﻿using QvaDev.Communication.FixApi;
+﻿using TradeSystem.Communication.FixApi;
 
-namespace QvaDev.FixApiIntegration
+namespace TradeSystem.FixApiIntegration
 {
 	public static class SpecialLogger
 	{

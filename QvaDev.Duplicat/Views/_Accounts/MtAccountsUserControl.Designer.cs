@@ -1,4 +1,4 @@
-﻿namespace QvaDev.Duplicat.Views
+﻿namespace TradeSystem.Duplicat.Views
 {
     partial class MtAccountsUserControl
     {
@@ -30,10 +30,10 @@
         {
 			this.tlpMain = new System.Windows.Forms.TableLayoutPanel();
 			this.groupBox4 = new System.Windows.Forms.GroupBox();
-			this.dgvMtAccounts = new QvaDev.Duplicat.Views.CustomDataGridView();
+			this.dgvMtAccounts = new TradeSystem.Duplicat.Views.CustomDataGridView();
 			this.tlpLeft = new System.Windows.Forms.TableLayoutPanel();
 			this.groupBox1 = new System.Windows.Forms.GroupBox();
-			this.dgvMtPlatforms = new QvaDev.Duplicat.Views.CustomDataGridView();
+			this.dgvMtPlatforms = new TradeSystem.Duplicat.Views.CustomDataGridView();
 			this.gbControl = new System.Windows.Forms.GroupBox();
 			this.dtpTo = new System.Windows.Forms.DateTimePicker();
 			this.dtpFrom = new System.Windows.Forms.DateTimePicker();

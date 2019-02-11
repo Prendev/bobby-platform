@@ -1,6 +1,6 @@
 ﻿using System.Threading;
 
-namespace QvaDev.Common.Services
+namespace TradeSystem.Common.Services
 {
 	public interface IThreadService
 	{

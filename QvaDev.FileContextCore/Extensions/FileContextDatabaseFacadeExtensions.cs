@@ -4,10 +4,10 @@
 using System;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using QvaDev.FileContextCore.Infrastructure.Internal;
+using TradeSystem.FileContextCore.Infrastructure.Internal;
 
 // ReSharper disable once CheckNamespace
-namespace QvaDev.FileContextCore.Extensions
+namespace TradeSystem.FileContextCore.Extensions
 {
     /// <summary>
     ///     In-memory specific extension methods for <see cref="DbContext.Database" />.

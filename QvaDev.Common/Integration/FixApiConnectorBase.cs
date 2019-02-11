@@ -2,7 +2,7 @@
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
 
-namespace QvaDev.Common.Integration
+namespace TradeSystem.Common.Integration
 {
 	public abstract class FixApiConnectorBase : ConnectorBase, IFixConnector
 	{

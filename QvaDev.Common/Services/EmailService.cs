@@ -3,7 +3,7 @@ using System.Configuration;
 using System.Threading.Tasks;
 using AegisImplicitMail;
 
-namespace QvaDev.Common.Services
+namespace TradeSystem.Common.Services
 {
 	public interface IEmailService
 	{

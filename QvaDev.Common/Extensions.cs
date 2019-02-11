@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Threading;
-using QvaDev.Common.Integration;
+using TradeSystem.Common.Integration;
 
-namespace QvaDev.Common
+namespace TradeSystem.Common
 {
     public static class Extensions
 	{

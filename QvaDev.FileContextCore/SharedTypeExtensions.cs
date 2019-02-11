@@ -7,7 +7,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 
-namespace QvaDev.FileContextCore
+namespace TradeSystem.FileContextCore
 {
     [DebuggerStepThrough]
     internal static class SharedTypeExtensions

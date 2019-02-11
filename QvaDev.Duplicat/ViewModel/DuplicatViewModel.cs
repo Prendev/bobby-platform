@@ -5,12 +5,12 @@ using System.ComponentModel;
 using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
-using QvaDev.Common.Services;
-using QvaDev.Data;
-using QvaDev.Data.Models;
-using QvaDev.Orchestration;
+using TradeSystem.Common.Services;
+using TradeSystem.Data;
+using TradeSystem.Data.Models;
+using TradeSystem.Orchestration;
 
-namespace QvaDev.Duplicat.ViewModel
+namespace TradeSystem.Duplicat.ViewModel
 {
     public partial class DuplicatViewModel : BaseNotifyPropertyChange
     {

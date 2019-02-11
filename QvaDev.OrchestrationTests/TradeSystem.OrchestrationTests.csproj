@@ -9,8 +9,8 @@
     <ProjectGuid>{BB763038-2989-4643-AE5E-1A1FAA2053AF}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>QvaDev.OrchestrationTests</RootNamespace>
-    <AssemblyName>QvaDev.OrchestrationTests</AssemblyName>
+    <RootNamespace>TradeSystem.OrchestrationTests</RootNamespace>
+    <AssemblyName>TradeSystem.OrchestrationTests</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <NuGetPackageImportStamp>
@@ -70,29 +70,29 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\QvaDev.Common\QvaDev.Common.csproj">
+    <ProjectReference Include="..\QvaDev.Common\TradeSystem.Common.csproj">
       <Project>{10A3EF89-12BB-4D00-9950-36BFED281B91}</Project>
-      <Name>QvaDev.Common</Name>
+      <Name>TradeSystem.Common</Name>
     </ProjectReference>
-    <ProjectReference Include="..\QvaDev.CTraderIntegration\QvaDev.CTraderIntegration.csproj">
+    <ProjectReference Include="..\QvaDev.CTraderIntegration\TradeSystem.CTraderIntegration.csproj">
       <Project>{5B92788F-AF48-4709-A539-BBA2822A06B7}</Project>
-      <Name>QvaDev.CTraderIntegration</Name>
+      <Name>TradeSystem.CTraderIntegration</Name>
     </ProjectReference>
-    <ProjectReference Include="..\QvaDev.Data\QvaDev.Data.csproj">
+    <ProjectReference Include="..\QvaDev.Data\TradeSystem.Data.csproj">
       <Project>{D7DA9DD6-1BA9-45B9-9581-1D095631DF0D}</Project>
-      <Name>QvaDev.Data</Name>
+      <Name>TradeSystem.Data</Name>
     </ProjectReference>
-    <ProjectReference Include="..\QvaDev.IbIntegration\QvaDev.IbIntegration.csproj">
+    <ProjectReference Include="..\QvaDev.IbIntegration\TradeSystem.IbIntegration.csproj">
       <Project>{62ce29d7-e16c-4b48-b017-586c4b22edc9}</Project>
-      <Name>QvaDev.IbIntegration</Name>
+      <Name>TradeSystem.IbIntegration</Name>
     </ProjectReference>
-    <ProjectReference Include="..\QvaDev.Mt4Integration\QvaDev.Mt4Integration.csproj">
+    <ProjectReference Include="..\QvaDev.Mt4Integration\TradeSystem.Mt4Integration.csproj">
       <Project>{73a2679e-f17e-4484-8874-461d3fc895dd}</Project>
-      <Name>QvaDev.Mt4Integration</Name>
+      <Name>TradeSystem.Mt4Integration</Name>
     </ProjectReference>
-    <ProjectReference Include="..\QvaDev.Orchestration\QvaDev.Orchestration.csproj">
+    <ProjectReference Include="..\QvaDev.Orchestration\TradeSystem.Orchestration.csproj">
       <Project>{7fcd6735-2115-4096-b5c9-e5cd7b4a3c1c}</Project>
-      <Name>QvaDev.Orchestration</Name>
+      <Name>TradeSystem.Orchestration</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

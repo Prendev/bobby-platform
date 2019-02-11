@@ -4,13 +4,14 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{62CE29D7-E16C-4B48-B017-586C4B22EDC9}</ProjectGuid>
+    <ProjectGuid>{8ACFC7D6-2C62-4F4C-9FA5-86066CFB62B9}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>QvaDev.IbIntegration</RootNamespace>
-    <AssemblyName>QvaDev.IbIntegration</AssemblyName>
+    <RootNamespace>TradeSystem.CqgClientApiIntegration</RootNamespace>
+    <AssemblyName>TradeSystem.CqgClientApiIntegration</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -30,8 +31,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Common.Logging.Core, Version=3.4.1.0, Culture=neutral, PublicKeyToken=af08829b84f0328e, processorArchitecture=MSIL">
-      <HintPath>..\packages\Common.Logging.Core.3.4.1\lib\net40\Common.Logging.Core.dll</HintPath>
+    <Reference Include="Common.Logging.Core, Version=3.4.1.0, Culture=neutral, PublicKeyToken=af08829b84f0328e" />
+    <Reference Include="QvaDev">
+      <HintPath>..\Externals\QvaDev.Communication.FixApi.Connectors\QvaDev.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -45,26 +47,32 @@
   <ItemGroup>
     <Compile Include="AccountInfo.cs" />
     <Compile Include="Connector.cs" />
-    <Compile Include="Connector.EWrapper.cs" />
-    <Compile Include="Extensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\git\QvaDev.Wololo\QvaDev\QvaDev.csproj">
-      <Project>{a8c5f573-2d3d-4e1a-8844-b11032f12a37}</Project>
-      <Name>QvaDev</Name>
+    <ProjectReference Include="..\..\..\git\QvaDev.Wololo\QvaDev.Communication\TradeSystem.Communication.csproj">
+      <Project>{9B577BD6-AEA9-4F64-9F1D-6EC760103295}</Project>
+      <Name>TradeSystem.Communication</Name>
     </ProjectReference>
-    <ProjectReference Include="..\InteractiveBrokersApi\InteractiveBrokersApi.csproj">
-      <Project>{8ede0744-96c2-40b0-a8dc-37df79370203}</Project>
-      <Name>InteractiveBrokersApi</Name>
+    <ProjectReference Include="..\..\..\git\QvaDev.Wololo\QvaDev\TradeSystem.csproj">
+      <Project>{FDFCE270-50AC-4930-8680-A760F6F7C637}</Project>
+      <Name>TradeSystem</Name>
     </ProjectReference>
-    <ProjectReference Include="..\QvaDev.Common\QvaDev.Common.csproj">
-      <Project>{10A3EF89-12BB-4D00-9950-36BFED281B91}</Project>
-      <Name>QvaDev.Common</Name>
+    <ProjectReference Include="..\QvaDev.Common\TradeSystem.Common.csproj">
+      <Project>{10a3ef89-12bb-4d00-9950-36bfed281b91}</Project>
+      <Name>TradeSystem.Common</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
+    <COMReference Include="CQG">
+      <Guid>{51F35562-AEB4-4AB3-99E8-AC9666344B64}</Guid>
+      <VersionMajor>4</VersionMajor>
+      <VersionMinor>0</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>tlbimp</WrapperTool>
+      <Isolated>False</Isolated>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </COMReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -1,10 +1,10 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
-using QvaDev.Common.Integration;
-using QvaDev.Data;
-using QvaDev.Data.Models;
+using TradeSystem.Common.Integration;
+using TradeSystem.Data;
+using TradeSystem.Data.Models;
 
-namespace QvaDev.Orchestration
+namespace TradeSystem.Orchestration
 {
     public partial interface IOrchestrator
     {

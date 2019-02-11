@@ -6,12 +6,12 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Update;
-using QvaDev.FileContextCore.FileManager;
-using QvaDev.FileContextCore.Infrastructure.Internal;
-using QvaDev.FileContextCore.Serializer;
-using QvaDev.FileContextCore.ValueGeneration.Internal;
+using TradeSystem.FileContextCore.FileManager;
+using TradeSystem.FileContextCore.Infrastructure.Internal;
+using TradeSystem.FileContextCore.Serializer;
+using TradeSystem.FileContextCore.ValueGeneration.Internal;
 
-namespace QvaDev.FileContextCore.Storage.Internal
+namespace TradeSystem.FileContextCore.Storage.Internal
 {
 	internal class FileContextTable<TKey> : IFileContextTable
     {

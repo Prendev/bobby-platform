@@ -1,4 +1,4 @@
-﻿namespace QvaDev.Duplicat.Views
+﻿namespace TradeSystem.Duplicat.Views
 {
 	partial class IffAccountsUserControl
 	{
@@ -29,7 +29,7 @@
 		private void InitializeComponent()
 		{
 			this.gbAccounts = new System.Windows.Forms.GroupBox();
-			this.dgvAccounts = new QvaDev.Duplicat.Views.CustomDataGridView();
+			this.dgvAccounts = new TradeSystem.Duplicat.Views.CustomDataGridView();
 			this.gbAccounts.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.dgvAccounts)).BeginInit();
 			this.SuspendLayout();

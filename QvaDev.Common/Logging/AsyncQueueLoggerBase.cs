@@ -2,9 +2,9 @@
 using System.Threading;
 using Common.Logging;
 using Common.Logging.Factory;
-using QvaDev.Collections;
+using TradeSystem.Collections;
 
-namespace QvaDev.Common.Logging
+namespace TradeSystem.Common.Logging
 {
 	public abstract class AsyncQueueLoggerBase : AbstractLogger
 	{

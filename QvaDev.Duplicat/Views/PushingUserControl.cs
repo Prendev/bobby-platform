@@ -2,11 +2,11 @@
 using System.Collections.ObjectModel;
 using System.Windows.Forms;
 using Microsoft.EntityFrameworkCore;
-using QvaDev.Common.Integration;
-using QvaDev.Data.Models;
-using QvaDev.Duplicat.ViewModel;
+using TradeSystem.Common.Integration;
+using TradeSystem.Data.Models;
+using TradeSystem.Duplicat.ViewModel;
 
-namespace QvaDev.Duplicat.Views
+namespace TradeSystem.Duplicat.Views
 {
     public partial class PushingUserControl : UserControl, IMvvmUserControl
 	{

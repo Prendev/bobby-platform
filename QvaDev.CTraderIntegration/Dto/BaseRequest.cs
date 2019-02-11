@@ -1,4 +1,4 @@
-﻿namespace QvaDev.CTraderIntegration.Dto
+﻿namespace TradeSystem.CTraderIntegration.Dto
 {
     public class BaseRequest
     {

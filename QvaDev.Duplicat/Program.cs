@@ -7,10 +7,10 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Windows.Forms;
 using Autofac;
-using QvaDev.Data;
-using QvaDev.Duplicat.Views;
+using TradeSystem.Data;
+using TradeSystem.Duplicat.Views;
 
-namespace QvaDev.Duplicat
+namespace TradeSystem.Duplicat
 {
     static class Program
     {
@@ -63,8 +63,8 @@ namespace QvaDev.Duplicat
 
 		    foreach (var assemblyName in assembly.GetReferencedAssemblies())
 		    {
-			    if (assemblyName.Name == "QvaDev.CTraderApi") continue;
-			    if (assemblyName.Name == "QvaDev.CTraderIntegration") continue;
+			    if (assemblyName.Name == "TradeSystem.CTraderApi") continue;
+			    if (assemblyName.Name == "TradeSystem.CTraderIntegration") continue;
 			    if (assemblyName.Name.Contains("NPOI")) continue;
 			    if (assemblyName.Name.Contains("log4net")) continue;
 

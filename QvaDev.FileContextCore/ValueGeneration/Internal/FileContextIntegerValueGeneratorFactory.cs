@@ -8,10 +8,10 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
-using QvaDev.FileContextCore.Infrastructure.Internal;
-using QvaDev.FileContextCore.Storage.Internal;
+using TradeSystem.FileContextCore.Infrastructure.Internal;
+using TradeSystem.FileContextCore.Storage.Internal;
 
-namespace QvaDev.FileContextCore.ValueGeneration.Internal
+namespace TradeSystem.FileContextCore.ValueGeneration.Internal
 {
     /// <summary>
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

@@ -12,8 +12,8 @@
     <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>QvaDev.CTraderAccess</RootNamespace>
-    <AssemblyName>QvaDev.CTraderAccess</AssemblyName>
+    <RootNamespace>TradeSystem.CTraderAccess</RootNamespace>
+    <AssemblyName>TradeSystem.CTraderAccess</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <UseIISExpress>true</UseIISExpress>
     <Use64BitIISExpress />
@@ -110,13 +110,13 @@
     <Folder Include="Models\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\QvaDev.Common\QvaDev.Common.csproj">
+    <ProjectReference Include="..\QvaDev.Common\TradeSystem.Common.csproj">
       <Project>{10a3ef89-12bb-4d00-9950-36bfed281b91}</Project>
-      <Name>QvaDev.Common</Name>
+      <Name>TradeSystem.Common</Name>
     </ProjectReference>
-    <ProjectReference Include="..\QvaDev.Data\QvaDev.Data.csproj">
+    <ProjectReference Include="..\QvaDev.Data\TradeSystem.Data.csproj">
       <Project>{d7da9dd6-1ba9-45b9-9581-1d095631df0d}</Project>
-      <Name>QvaDev.Data</Name>
+      <Name>TradeSystem.Data</Name>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup>

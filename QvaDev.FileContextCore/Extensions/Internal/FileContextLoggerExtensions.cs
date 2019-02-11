@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Update;
 
 // ReSharper disable once CheckNamespace
-namespace QvaDev.FileContextCore.Extensions.Internal
+namespace TradeSystem.FileContextCore.Extensions.Internal
 {
     /// <summary>
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using QvaDev.Common.Attributes;
+using TradeSystem.Common.Attributes;
 
-namespace QvaDev.Data.Models
+namespace TradeSystem.Data.Models
 {
 	public partial class Account : BaseEntity
 	{

@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Threading.Tasks;
-using QvaDev.Common.Integration;
-using QvaDev.Data.Models;
-using static QvaDev.Data.Models.StratHubArbQuoteEventArgs;
-using OrderTypes = QvaDev.Data.Models.StratHubArb.StratHubArbOrderTypes;
+using TradeSystem.Common.Integration;
+using TradeSystem.Data.Models;
+using static TradeSystem.Data.Models.StratHubArbQuoteEventArgs;
+using OrderTypes = TradeSystem.Data.Models.StratHubArb.StratHubArbOrderTypes;
 
-namespace QvaDev.Orchestration.Services.Strategies
+namespace TradeSystem.Orchestration.Services.Strategies
 {
 	public partial class HubArbService
 	{

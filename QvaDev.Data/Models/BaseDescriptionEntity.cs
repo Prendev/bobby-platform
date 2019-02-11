@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using QvaDev.Common.Attributes;
+using TradeSystem.Common.Attributes;
 
-namespace QvaDev.Data.Models
+namespace TradeSystem.Data.Models
 {
     public abstract class BaseDescriptionEntity : BaseEntity
     {

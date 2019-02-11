@@ -1,6 +1,6 @@
-﻿using QvaDev.Common.Integration;
+﻿using TradeSystem.Common.Integration;
 
-namespace QvaDev.IlyaFastFeedIntegration
+namespace TradeSystem.IlyaFastFeedIntegration
 {
 	public class AccountInfo : BaseAccountInfo
 	{

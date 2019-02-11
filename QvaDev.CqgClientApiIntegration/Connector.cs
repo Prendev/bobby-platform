@@ -1,11 +1,12 @@
 ﻿using CQG;
-using QvaDev.Common.Integration;
+using TradeSystem.Common.Integration;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using TradeSystem.Communication;
 
-namespace QvaDev.CqgClientApiIntegration
+namespace TradeSystem.CqgClientApiIntegration
 {
 	public class Connector : FixApiConnectorBase
 	{
@@ -47,7 +48,7 @@ namespace QvaDev.CqgClientApiIntegration
 		public Connector(AccountInfo accountInfo)
 		{
 			_accountInfo = accountInfo;
-			_taskCompletionManager = new TaskCompletionManager<string>(100, 2000);
+			_taskCompletionManager = new TaskCompletionManager<string>(100, 5000);
 
 			InitializeCqgCel();
 		}

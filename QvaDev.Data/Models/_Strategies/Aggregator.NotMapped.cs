@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
-using QvaDev.Common.Attributes;
-using QvaDev.Communication.FixApi;
-using QvaDev.Communication.FixApi.Interfaces;
+using TradeSystem.Common.Attributes;
+using TradeSystem.Communication;
+using TradeSystem.Communication.Interfaces;
 
-namespace QvaDev.Data.Models
+namespace TradeSystem.Data.Models
 {
 	public partial class Aggregator
 	{
@@ -47,7 +47,7 @@ namespace QvaDev.Data.Models
 			AggregatedQuote?.Invoke(this, aggQuote);
 		}
 
-		private AggregatorAccount GetAccount(FixConnectorBase fixConnector)
+		private AggregatorAccount GetAccount(IConnector fixConnector)
 		{
 			foreach (var aggregatorAccount in Accounts)
 			{

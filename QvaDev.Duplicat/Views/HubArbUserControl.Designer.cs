@@ -1,4 +1,4 @@
-﻿namespace QvaDev.Duplicat.Views
+﻿namespace TradeSystem.Duplicat.Views
 {
 	partial class HubArbUserControl
 	{
@@ -37,7 +37,7 @@
 			this.btnStop = new System.Windows.Forms.Button();
 			this.btnStart = new System.Windows.Forms.Button();
 			this.gbHubArb = new System.Windows.Forms.GroupBox();
-			this.dgvHubArb = new QvaDev.Duplicat.Views.CustomDataGridView();
+			this.dgvHubArb = new TradeSystem.Duplicat.Views.CustomDataGridView();
 			this.groupBox1 = new System.Windows.Forms.GroupBox();
 			this.dgvStatistics = new System.Windows.Forms.DataGridView();
 			this.tableLayoutPanel1.SuspendLayout();

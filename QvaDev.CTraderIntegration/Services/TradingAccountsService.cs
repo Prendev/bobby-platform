@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using QvaDev.CTraderIntegration.Dto;
+using TradeSystem.CTraderIntegration.Dto;
 
-namespace QvaDev.CTraderIntegration.Services
+namespace TradeSystem.CTraderIntegration.Services
 {
     public interface ITradingAccountsService
     {

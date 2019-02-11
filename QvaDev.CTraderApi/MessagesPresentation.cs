@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace QvaDev.CTraderApi
+namespace TradeSystem.CTraderApi
 {
     public class MessagesPresentation
     {

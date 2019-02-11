@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
-using QvaDev.Common.Attributes;
+using TradeSystem.Common.Attributes;
 
-namespace QvaDev.Data.Models
+namespace TradeSystem.Data.Models
 {
     public class PushingDetail : BaseEntity
 	{

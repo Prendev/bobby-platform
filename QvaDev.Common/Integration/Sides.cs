@@ -1,4 +1,4 @@
-﻿namespace QvaDev.Common.Integration
+﻿namespace TradeSystem.Common.Integration
 {
 
     public enum Sides

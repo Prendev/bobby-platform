@@ -2,11 +2,11 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using QvaDev.Common.Integration;
-using QvaDev.CTraderIntegration.Dto;
-using QvaDev.CTraderIntegration.Services;
+using TradeSystem.Common.Integration;
+using TradeSystem.CTraderIntegration.Dto;
+using TradeSystem.CTraderIntegration.Services;
 
-namespace QvaDev.CTraderIntegration
+namespace TradeSystem.CTraderIntegration
 {
     public interface ICtConnectorFactory
     {

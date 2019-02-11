@@ -3,9 +3,9 @@ using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
-using QvaDev.Collections;
+using TradeSystem.Collections;
 
-namespace QvaDev.Common
+namespace TradeSystem.Common
 {
 	public class CustomThreadPool
 	{

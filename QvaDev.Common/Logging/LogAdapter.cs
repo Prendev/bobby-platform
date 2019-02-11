@@ -3,7 +3,7 @@ using Common.Logging;
 using log4net.Core;
 using ILog = log4net.ILog;
 
-namespace QvaDev.Common.Logging
+namespace TradeSystem.Common.Logging
 {
 	public class LogAdapter : AsyncQueueLoggerBase
 	{

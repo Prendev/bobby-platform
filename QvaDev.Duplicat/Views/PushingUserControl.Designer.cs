@@ -1,4 +1,4 @@
-﻿namespace QvaDev.Duplicat.Views
+﻿namespace TradeSystem.Duplicat.Views
 {
     partial class PushingUserControl
     {
@@ -54,9 +54,9 @@
 			this.btnSellBeta = new System.Windows.Forms.Button();
 			this.btnBuyBeta = new System.Windows.Forms.Button();
 			this.groupBox2 = new System.Windows.Forms.GroupBox();
-			this.dgvPushingDetail = new QvaDev.Duplicat.Views.CustomDataGridView();
+			this.dgvPushingDetail = new TradeSystem.Duplicat.Views.CustomDataGridView();
 			this.gbPushings = new System.Windows.Forms.GroupBox();
-			this.dgvPushings = new QvaDev.Duplicat.Views.CustomDataGridView();
+			this.dgvPushings = new TradeSystem.Duplicat.Views.CustomDataGridView();
 			this.gbControl = new System.Windows.Forms.GroupBox();
 			this.nudFuturesContractSize = new System.Windows.Forms.NumericUpDown();
 			this.btnSellFutures = new System.Windows.Forms.Button();

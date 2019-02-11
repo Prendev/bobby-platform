@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace QvaDev.Data
+namespace TradeSystem.Data
 {
 	public static class Extensions
 	{

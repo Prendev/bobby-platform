@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Threading;
 using NUnit.Framework;
-using QvaDev.Common.Integration;
-using QvaDev.Data;
-using QvaDev.Data.Models;
-using QvaDev.Orchestration.Services;
+using TradeSystem.Common.Integration;
+using TradeSystem.Data;
+using TradeSystem.Data.Models;
+using TradeSystem.Orchestration.Services;
 
-namespace QvaDev.OrchestrationTests.Services
+namespace TradeSystem.OrchestrationTests.Services
 {
 	[TestFixture]
 	public class SpoofingServiceTests

@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace QvaDev.FileContextCore
+namespace TradeSystem.FileContextCore
 {
     internal static class StringBuilderExtensions
     {

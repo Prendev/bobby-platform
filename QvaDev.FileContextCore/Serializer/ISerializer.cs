@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Metadata;
 
-namespace QvaDev.FileContextCore.Serializer
+namespace TradeSystem.FileContextCore.Serializer
 {
     interface ISerializer
     {

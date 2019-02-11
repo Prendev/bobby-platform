@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using RestSharp;
 
-namespace QvaDev.Common.Services
+namespace TradeSystem.Common.Services
 {
     public interface IExchangeRatesService
     {

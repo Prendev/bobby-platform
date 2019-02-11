@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace QvaDev.Common.Integration
+namespace TradeSystem.Common.Integration
 {
 	public interface IFixConnector : IConnector
 	{

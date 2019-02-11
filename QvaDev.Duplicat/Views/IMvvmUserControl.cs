@@ -1,6 +1,6 @@
-﻿using QvaDev.Duplicat.ViewModel;
+﻿using TradeSystem.Duplicat.ViewModel;
 
-namespace QvaDev.Duplicat.Views
+namespace TradeSystem.Duplicat.Views
 {
     public interface IMvvmUserControl
     {

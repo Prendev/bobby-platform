@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace QvaDev.Data.Models
+namespace TradeSystem.Data.Models
 {
 	public class StratPosition : BaseEntity
 	{

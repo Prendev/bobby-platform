@@ -7,19 +7,19 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Serialization;
-using QvaDev.Collections;
-using QvaDev.Common.Integration;
-using QvaDev.Common.Services;
-using QvaDev.Communication;
-using QvaDev.Communication.ConnectionManagementRules;
-using QvaDev.Communication.FixApi;
-using QvaDev.Communication.FixApi.Connectors.Strategies;
-using QvaDev.Communication.FixApi.Connectors.Strategies.AggressiveOrder;
-using QvaDev.Communication.FixApi.Connectors.Strategies.AggressiveOrder.Delayed;
-using QvaDev.Communication.FixApi.Connectors.Strategies.MarketOrder;
-using OrderResponse = QvaDev.Common.Integration.OrderResponse;
+using TradeSystem.Collections;
+using TradeSystem.Common.Integration;
+using TradeSystem.Common.Services;
+using TradeSystem.Communication;
+using TradeSystem.Communication.ConnectionManagementRules;
+using TradeSystem.Communication.FixApi;
+using TradeSystem.Communication.FixApi.Connectors.Strategies;
+using TradeSystem.Communication.FixApi.Connectors.Strategies.AggressiveOrder;
+using TradeSystem.Communication.FixApi.Connectors.Strategies.AggressiveOrder.Delayed;
+using TradeSystem.Communication.FixApi.Connectors.Strategies.MarketOrder;
+using OrderResponse = TradeSystem.Common.Integration.OrderResponse;
 
-namespace QvaDev.FixApiIntegration
+namespace TradeSystem.FixApiIntegration
 {
 	public class Connector : FixApiConnectorBase
 	{

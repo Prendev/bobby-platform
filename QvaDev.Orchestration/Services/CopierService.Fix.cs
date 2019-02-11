@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using QvaDev.Common;
-using QvaDev.Common.Integration;
-using QvaDev.Data.Models;
+using TradeSystem.Common;
+using TradeSystem.Common.Integration;
+using TradeSystem.Data.Models;
 
-namespace QvaDev.Orchestration.Services
+namespace TradeSystem.Orchestration.Services
 {
     public partial class CopierService
 	{

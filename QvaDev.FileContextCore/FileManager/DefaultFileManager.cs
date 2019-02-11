@@ -2,7 +2,7 @@
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Metadata;
 
-namespace QvaDev.FileContextCore.FileManager
+namespace TradeSystem.FileContextCore.FileManager
 {
     class DefaultFileManager : IFileManager
     {

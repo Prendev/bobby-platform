@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Google.ProtocolBuffers;
 
-namespace QvaDev.CTraderApi
+namespace TradeSystem.CTraderApi
 {
     public class MessagesFactory
     {

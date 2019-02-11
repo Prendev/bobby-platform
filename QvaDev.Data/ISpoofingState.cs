@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
-using QvaDev.Common.Integration;
+using TradeSystem.Common.Integration;
 
-namespace QvaDev.Data
+namespace TradeSystem.Data
 {
 	public interface ISpoofingState
 	{

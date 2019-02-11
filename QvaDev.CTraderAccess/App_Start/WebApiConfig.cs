@@ -1,6 +1,6 @@
 ﻿using System.Web.Http;
 
-namespace QvaDev.CTraderAccess
+namespace TradeSystem.CTraderAccess
 {
     public static class WebApiConfig
     {

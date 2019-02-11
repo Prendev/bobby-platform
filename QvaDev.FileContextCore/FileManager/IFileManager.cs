@@ -1,4 +1,4 @@
-﻿namespace QvaDev.FileContextCore.FileManager
+﻿namespace TradeSystem.FileContextCore.FileManager
 {
     interface IFileManager
     {

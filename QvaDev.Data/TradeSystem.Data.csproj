@@ -8,8 +8,8 @@
     <ProjectGuid>{D7DA9DD6-1BA9-45B9-9581-1D095631DF0D}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>QvaDev.Data</RootNamespace>
-    <AssemblyName>QvaDev.Data</AssemblyName>
+    <RootNamespace>TradeSystem.Data</RootNamespace>
+    <AssemblyName>TradeSystem.Data</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -249,21 +249,21 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\git\QvaDev.Wololo\QvaDev.Communication.FixApi\QvaDev.Communication.FixApi.csproj">
-      <Project>{FA62481E-A560-449A-A654-A69B8FA63D36}</Project>
-      <Name>QvaDev.Communication.FixApi</Name>
+    <ProjectReference Include="..\..\..\git\QvaDev.Wololo\QvaDev.Communication\TradeSystem.Communication.csproj">
+      <Project>{9B577BD6-AEA9-4F64-9F1D-6EC760103295}</Project>
+      <Name>TradeSystem.Communication</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\git\QvaDev.Wololo\QvaDev\QvaDev.csproj">
-      <Project>{A8C5F573-2D3D-4E1A-8844-B11032F12A37}</Project>
-      <Name>QvaDev</Name>
+    <ProjectReference Include="..\..\..\git\QvaDev.Wololo\QvaDev\TradeSystem.csproj">
+      <Project>{FDFCE270-50AC-4930-8680-A760F6F7C637}</Project>
+      <Name>TradeSystem</Name>
     </ProjectReference>
-    <ProjectReference Include="..\QvaDev.Common\QvaDev.Common.csproj">
+    <ProjectReference Include="..\QvaDev.Common\TradeSystem.Common.csproj">
       <Project>{10A3EF89-12BB-4D00-9950-36BFED281B91}</Project>
-      <Name>QvaDev.Common</Name>
+      <Name>TradeSystem.Common</Name>
     </ProjectReference>
-    <ProjectReference Include="..\QvaDev.FileContextCore\QvaDev.FileContextCore.csproj">
+    <ProjectReference Include="..\QvaDev.FileContextCore\TradeSystem.FileContextCore.csproj">
       <Project>{b0df0796-17ed-470a-858d-a7cabb3f36f8}</Project>
-      <Name>QvaDev.FileContextCore</Name>
+      <Name>TradeSystem.FileContextCore</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

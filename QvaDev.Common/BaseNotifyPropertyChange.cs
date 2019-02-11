@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using QvaDev.Common;
-using QvaDev.Common.Annotations;
+using TradeSystem.Common;
+using TradeSystem.Common.Annotations;
 
-namespace QvaDev.Data.Models
+namespace TradeSystem.Data.Models
 {
 	public abstract class BaseNotifyPropertyChange : INotifyPropertyChanged
 	{

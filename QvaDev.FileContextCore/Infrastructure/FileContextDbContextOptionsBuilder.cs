@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 
-namespace QvaDev.FileContextCore.Infrastructure
+namespace TradeSystem.FileContextCore.Infrastructure
 {
 	internal class FileContextDbContextOptionsBuilder
     {

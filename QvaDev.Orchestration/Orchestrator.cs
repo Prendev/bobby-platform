@@ -2,15 +2,17 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using QvaDev.Common.Integration;
-using QvaDev.Communication;
-using QvaDev.Communication.FixApi;
-using QvaDev.Data;
-using QvaDev.Data.Models;
-using QvaDev.Orchestration.Services;
-using QvaDev.Orchestration.Services.Strategies;
+using TradeSystem.Common.Integration;
+using TradeSystem.Communication;
+using TradeSystem.Communication.FixApi;
+using TradeSystem.Communication.Interfaces;
+using TradeSystem.Data;
+using TradeSystem.Data.Models;
+using TradeSystem.Orchestration.Services;
+using TradeSystem.Orchestration.Services.Strategies;
+using IConnector = TradeSystem.Communication.Interfaces.IConnector;
 
-namespace QvaDev.Orchestration
+namespace TradeSystem.Orchestration
 {
     public partial interface IOrchestrator
 	{
@@ -99,7 +101,7 @@ namespace QvaDev.Orchestration
 				        {
 					        ((FixApiIntegration.Connector) a.Account.Connector).FixConnector,
 					        Symbol = Symbol.Parse(a.Symbol)
-				        }).ToDictionary(x => x.FixConnector, x => x.Symbol);
+				        }).ToDictionary(x => x.FixConnector as IConnector, x => x.Symbol);
 
 				agg.QuoteAggregator = MarketDataManager.CreateQuoteAggregator(groups);
 			}

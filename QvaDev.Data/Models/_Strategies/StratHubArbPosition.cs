@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace QvaDev.Data.Models
+namespace TradeSystem.Data.Models
 {
 	public class StratHubArbPosition : BaseNotifyPropertyChange
 	{

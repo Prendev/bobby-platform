@@ -1,4 +1,4 @@
-﻿namespace QvaDev.Duplicat.Views
+﻿namespace TradeSystem.Duplicat.Views
 {
     partial class FtAccountsUserControl
     {
@@ -30,9 +30,9 @@
         {
 			this.tlpMain = new System.Windows.Forms.TableLayoutPanel();
 			this.groupBox4 = new System.Windows.Forms.GroupBox();
-			this.dgvFtAccounts = new QvaDev.Duplicat.Views.CustomDataGridView();
+			this.dgvFtAccounts = new TradeSystem.Duplicat.Views.CustomDataGridView();
 			this.groupBox1 = new System.Windows.Forms.GroupBox();
-			this.dgvFixAccounts = new QvaDev.Duplicat.Views.CustomDataGridView();
+			this.dgvFixAccounts = new TradeSystem.Duplicat.Views.CustomDataGridView();
 			this.tlpMain.SuspendLayout();
 			this.groupBox4.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.dgvFtAccounts)).BeginInit();

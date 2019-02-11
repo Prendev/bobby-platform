@@ -1,6 +1,6 @@
-﻿using QvaDev.Common.Integration;
+﻿using TradeSystem.Common.Integration;
 
-namespace QvaDev.FixApiIntegration
+namespace TradeSystem.FixApiIntegration
 {
     public class AccountInfo : BaseAccountInfo
     {

@@ -1,6 +1,6 @@
 ﻿using IBApi;
 
-namespace QvaDev.IbIntegration
+namespace TradeSystem.IbIntegration
 {
 	public static class Extensions
 	{

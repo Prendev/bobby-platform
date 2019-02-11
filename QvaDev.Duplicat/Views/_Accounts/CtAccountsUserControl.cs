@@ -1,9 +1,9 @@
 ﻿using System.Windows.Forms;
 using Microsoft.EntityFrameworkCore;
-using QvaDev.Data.Models;
-using QvaDev.Duplicat.ViewModel;
+using TradeSystem.Data.Models;
+using TradeSystem.Duplicat.ViewModel;
 
-namespace QvaDev.Duplicat.Views
+namespace TradeSystem.Duplicat.Views
 {
     public partial class CtAccountsUserControl : UserControl, IMvvmUserControl
     {

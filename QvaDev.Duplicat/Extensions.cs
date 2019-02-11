@@ -4,7 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Forms;
 
-namespace QvaDev.Duplicat
+namespace TradeSystem.Duplicat
 {
     public static class Extensions
     {

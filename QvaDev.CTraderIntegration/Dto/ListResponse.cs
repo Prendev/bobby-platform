@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace QvaDev.CTraderIntegration.Dto
+namespace TradeSystem.CTraderIntegration.Dto
 {
     public class ListResponse<T>
     {

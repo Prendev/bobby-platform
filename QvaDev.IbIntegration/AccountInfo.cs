@@ -1,6 +1,6 @@
-﻿using QvaDev.Common.Integration;
+﻿using TradeSystem.Common.Integration;
 
-namespace QvaDev.IbIntegration
+namespace TradeSystem.IbIntegration
 {
 	public class AccountInfo : BaseAccountInfo
 	{

@@ -1,6 +1,6 @@
-﻿using QvaDev.Common.Integration;
+﻿using TradeSystem.Common.Integration;
 
-namespace QvaDev.CTraderIntegration
+namespace TradeSystem.CTraderIntegration
 {
     public class AccountInfo : BaseAccountInfo
     {

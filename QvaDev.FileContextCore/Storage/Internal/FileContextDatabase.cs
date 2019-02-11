@@ -13,10 +13,10 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Update;
-using QvaDev.FileContextCore.Infrastructure.Internal;
+using TradeSystem.FileContextCore.Infrastructure.Internal;
 using Remotion.Linq;
 
-namespace QvaDev.FileContextCore.Storage.Internal
+namespace TradeSystem.FileContextCore.Storage.Internal
 {
     /// <summary>
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

@@ -4,10 +4,10 @@ using System.IO;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using QvaDev.Data.Models;
-using QvaDev.FileContextCore.Extensions;
+using TradeSystem.Data.Models;
+using TradeSystem.FileContextCore.Extensions;
 
-namespace QvaDev.Data
+namespace TradeSystem.Data
 {
     public class DuplicatContext : DbContext
     {
@@ -88,6 +88,7 @@ namespace QvaDev.Data
 
 			try
 			{
+				Directory.CreateDirectory(".\\Mt4SrvFiles");
 				foreach (var name in Directory.GetFiles(".\\Mt4SrvFiles", "*.srv").Select(Path.GetFileNameWithoutExtension))
 				{
 					if (MetaTraderPlatforms.Any(p => p.Description == name)) continue;
@@ -104,6 +105,7 @@ namespace QvaDev.Data
 
 			try
 			{
+				Directory.CreateDirectory(".\\FixApiConfigFiles");
 				foreach (var name in Directory.GetFiles(".\\FixApiConfigFiles", "*.xml").Select(Path.GetFileNameWithoutExtension))
 				{
 					if (FixApiAccounts.Any(p => p.Description == name)) continue;

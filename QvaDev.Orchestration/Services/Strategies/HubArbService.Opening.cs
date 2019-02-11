@@ -1,9 +1,9 @@
 ﻿using System.Threading.Tasks;
-using QvaDev.Common.Integration;
-using QvaDev.Data.Models;
-using static QvaDev.Data.Models.StratHubArbQuoteEventArgs;
+using TradeSystem.Common.Integration;
+using TradeSystem.Data.Models;
+using static TradeSystem.Data.Models.StratHubArbQuoteEventArgs;
 
-namespace QvaDev.Orchestration.Services.Strategies
+namespace TradeSystem.Orchestration.Services.Strategies
 {
 	public partial class HubArbService
 	{

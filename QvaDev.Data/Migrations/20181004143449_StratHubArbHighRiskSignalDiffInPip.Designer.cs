@@ -5,9 +5,9 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using QvaDev.Data;
+using TradeSystem.Data;
 
-namespace QvaDev.Data.Migrations
+namespace TradeSystem.Data.Migrations
 {
     [DbContext(typeof(DuplicatContext))]
     [Migration("20181004143449_StratHubArbHighRiskSignalDiffInPip")]
@@ -21,7 +21,7 @@ namespace QvaDev.Data.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-            modelBuilder.Entity("QvaDev.Data.Models.Account", b =>
+            modelBuilder.Entity("TradeSystem.Data.Models.Account", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -62,7 +62,7 @@ namespace QvaDev.Data.Migrations
                     b.ToTable("Accounts");
                 });
 
-            modelBuilder.Entity("QvaDev.Data.Models.Aggregator", b =>
+            modelBuilder.Entity("TradeSystem.Data.Models.Aggregator", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -82,7 +82,7 @@ namespace QvaDev.Data.Migrations
                     b.ToTable("Aggregators");
                 });
 
-            modelBuilder.Entity("QvaDev.Data.Models.AggregatorAccount", b =>
+            modelBuilder.Entity("TradeSystem.Data.Models.AggregatorAccount", b =>
                 {
                     b.Property<int>("AggregatorId");
 
@@ -98,7 +98,7 @@ namespace QvaDev.Data.Migrations
                     b.ToTable("AggregatorAccounts");
                 });
 
-            modelBuilder.Entity("QvaDev.Data.Models.Copier", b =>
+            modelBuilder.Entity("TradeSystem.Data.Models.Copier", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -127,7 +127,7 @@ namespace QvaDev.Data.Migrations
                     b.ToTable("Copiers");
                 });
 
-            modelBuilder.Entity("QvaDev.Data.Models.CqgClientApiAccount", b =>
+            modelBuilder.Entity("TradeSystem.Data.Models.CqgClientApiAccount", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -147,7 +147,7 @@ namespace QvaDev.Data.Migrations
                     b.ToTable("CqgClientApiAccounts");
                 });
 
-            modelBuilder.Entity("QvaDev.Data.Models.CTraderAccount", b =>
+            modelBuilder.Entity("TradeSystem.Data.Models.CTraderAccount", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -170,7 +170,7 @@ namespace QvaDev.Data.Migrations
                     b.ToTable("CTraderAccounts");
                 });
 
-            modelBuilder.Entity("QvaDev.Data.Models.CTraderPlatform", b =>
+            modelBuilder.Entity("TradeSystem.Data.Models.CTraderPlatform", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -202,7 +202,7 @@ namespace QvaDev.Data.Migrations
                     b.ToTable("CTraderPlatforms");
                 });
 
-            modelBuilder.Entity("QvaDev.Data.Models.FixApiAccount", b =>
+            modelBuilder.Entity("TradeSystem.Data.Models.FixApiAccount", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -218,7 +218,7 @@ namespace QvaDev.Data.Migrations
                     b.ToTable("FixApiAccounts");
                 });
 
-            modelBuilder.Entity("QvaDev.Data.Models.FixApiCopier", b =>
+            modelBuilder.Entity("TradeSystem.Data.Models.FixApiCopier", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -253,7 +253,7 @@ namespace QvaDev.Data.Migrations
                     b.ToTable("FixApiCopiers");
                 });
 
-            modelBuilder.Entity("QvaDev.Data.Models.FixTraderAccount", b =>
+            modelBuilder.Entity("TradeSystem.Data.Models.FixTraderAccount", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -274,7 +274,7 @@ namespace QvaDev.Data.Migrations
                     b.ToTable("FixTraderAccounts");
                 });
 
-            modelBuilder.Entity("QvaDev.Data.Models.IlyaFastFeedAccount", b =>
+            modelBuilder.Entity("TradeSystem.Data.Models.IlyaFastFeedAccount", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -295,7 +295,7 @@ namespace QvaDev.Data.Migrations
                     b.ToTable("IlyaFastFeedAccounts");
                 });
 
-            modelBuilder.Entity("QvaDev.Data.Models.Master", b =>
+            modelBuilder.Entity("TradeSystem.Data.Models.Master", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -316,7 +316,7 @@ namespace QvaDev.Data.Migrations
                     b.ToTable("Masters");
                 });
 
-            modelBuilder.Entity("QvaDev.Data.Models.MetaTraderAccount", b =>
+            modelBuilder.Entity("TradeSystem.Data.Models.MetaTraderAccount", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -339,7 +339,7 @@ namespace QvaDev.Data.Migrations
                     b.ToTable("MetaTraderAccounts");
                 });
 
-            modelBuilder.Entity("QvaDev.Data.Models.MetaTraderPlatform", b =>
+            modelBuilder.Entity("TradeSystem.Data.Models.MetaTraderPlatform", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -355,7 +355,7 @@ namespace QvaDev.Data.Migrations
                     b.ToTable("MetaTraderPlatforms");
                 });
 
-            modelBuilder.Entity("QvaDev.Data.Models.Profile", b =>
+            modelBuilder.Entity("TradeSystem.Data.Models.Profile", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -369,7 +369,7 @@ namespace QvaDev.Data.Migrations
                     b.ToTable("Profiles");
                 });
 
-            modelBuilder.Entity("QvaDev.Data.Models.Pushing", b =>
+            modelBuilder.Entity("TradeSystem.Data.Models.Pushing", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -421,7 +421,7 @@ namespace QvaDev.Data.Migrations
                     b.ToTable("Pushings");
                 });
 
-            modelBuilder.Entity("QvaDev.Data.Models.PushingDetail", b =>
+            modelBuilder.Entity("TradeSystem.Data.Models.PushingDetail", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -466,7 +466,7 @@ namespace QvaDev.Data.Migrations
                     b.ToTable("PushingDetails");
                 });
 
-            modelBuilder.Entity("QvaDev.Data.Models.Slave", b =>
+            modelBuilder.Entity("TradeSystem.Data.Models.Slave", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -489,7 +489,7 @@ namespace QvaDev.Data.Migrations
                     b.ToTable("Slaves");
                 });
 
-            modelBuilder.Entity("QvaDev.Data.Models.StratDealingArb", b =>
+            modelBuilder.Entity("TradeSystem.Data.Models.StratDealingArb", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -569,7 +569,7 @@ namespace QvaDev.Data.Migrations
                     b.ToTable("StratDealingArbs");
                 });
 
-            modelBuilder.Entity("QvaDev.Data.Models.StratDealingArbPosition", b =>
+            modelBuilder.Entity("TradeSystem.Data.Models.StratDealingArbPosition", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -634,7 +634,7 @@ namespace QvaDev.Data.Migrations
                     b.ToTable("StratDealingArbPositions");
                 });
 
-            modelBuilder.Entity("QvaDev.Data.Models.StratHubArb", b =>
+            modelBuilder.Entity("TradeSystem.Data.Models.StratHubArb", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -687,7 +687,7 @@ namespace QvaDev.Data.Migrations
                     b.ToTable("StratHubArbs");
                 });
 
-            modelBuilder.Entity("QvaDev.Data.Models.StratHubArbPosition", b =>
+            modelBuilder.Entity("TradeSystem.Data.Models.StratHubArbPosition", b =>
                 {
                     b.Property<int>("StratHubArbId");
 
@@ -700,7 +700,7 @@ namespace QvaDev.Data.Migrations
                     b.ToTable("StratHubArbPositions");
                 });
 
-            modelBuilder.Entity("QvaDev.Data.Models.StratPosition", b =>
+            modelBuilder.Entity("TradeSystem.Data.Models.StratPosition", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -725,7 +725,7 @@ namespace QvaDev.Data.Migrations
                     b.ToTable("Positions");
                 });
 
-            modelBuilder.Entity("QvaDev.Data.Models.SymbolMapping", b =>
+            modelBuilder.Entity("TradeSystem.Data.Models.SymbolMapping", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -744,7 +744,7 @@ namespace QvaDev.Data.Migrations
                     b.ToTable("SymbolMappings");
                 });
 
-            modelBuilder.Entity("QvaDev.Data.Models.Ticker", b =>
+            modelBuilder.Entity("TradeSystem.Data.Models.Ticker", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -773,225 +773,225 @@ namespace QvaDev.Data.Migrations
                     b.ToTable("Tickers");
                 });
 
-            modelBuilder.Entity("QvaDev.Data.Models.Account", b =>
+            modelBuilder.Entity("TradeSystem.Data.Models.Account", b =>
                 {
-                    b.HasOne("QvaDev.Data.Models.CTraderAccount", "CTraderAccount")
+                    b.HasOne("TradeSystem.Data.Models.CTraderAccount", "CTraderAccount")
                         .WithMany("Accounts")
                         .HasForeignKey("CTraderAccountId");
 
-                    b.HasOne("QvaDev.Data.Models.CqgClientApiAccount", "CqgClientApiAccount")
+                    b.HasOne("TradeSystem.Data.Models.CqgClientApiAccount", "CqgClientApiAccount")
                         .WithMany("Accounts")
                         .HasForeignKey("CqgClientApiAccountId");
 
-                    b.HasOne("QvaDev.Data.Models.FixApiAccount", "FixApiAccount")
+                    b.HasOne("TradeSystem.Data.Models.FixApiAccount", "FixApiAccount")
                         .WithMany("Accounts")
                         .HasForeignKey("FixApiAccountId");
 
-                    b.HasOne("QvaDev.Data.Models.FixTraderAccount", "FixTraderAccount")
+                    b.HasOne("TradeSystem.Data.Models.FixTraderAccount", "FixTraderAccount")
                         .WithMany("Accounts")
                         .HasForeignKey("FixTraderAccountId");
 
-                    b.HasOne("QvaDev.Data.Models.IlyaFastFeedAccount", "IlyaFastFeedAccount")
+                    b.HasOne("TradeSystem.Data.Models.IlyaFastFeedAccount", "IlyaFastFeedAccount")
                         .WithMany("Accounts")
                         .HasForeignKey("IlyaFastFeedAccountId");
 
-                    b.HasOne("QvaDev.Data.Models.MetaTraderAccount", "MetaTraderAccount")
+                    b.HasOne("TradeSystem.Data.Models.MetaTraderAccount", "MetaTraderAccount")
                         .WithMany("Accounts")
                         .HasForeignKey("MetaTraderAccountId");
 
-                    b.HasOne("QvaDev.Data.Models.Profile", "Profile")
+                    b.HasOne("TradeSystem.Data.Models.Profile", "Profile")
                         .WithMany("Accounts")
                         .HasForeignKey("ProfileId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("QvaDev.Data.Models.Aggregator", b =>
+            modelBuilder.Entity("TradeSystem.Data.Models.Aggregator", b =>
                 {
-                    b.HasOne("QvaDev.Data.Models.Profile", "Profile")
+                    b.HasOne("TradeSystem.Data.Models.Profile", "Profile")
                         .WithMany()
                         .HasForeignKey("ProfileId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("QvaDev.Data.Models.AggregatorAccount", b =>
+            modelBuilder.Entity("TradeSystem.Data.Models.AggregatorAccount", b =>
                 {
-                    b.HasOne("QvaDev.Data.Models.Account", "Account")
+                    b.HasOne("TradeSystem.Data.Models.Account", "Account")
                         .WithMany("Aggregators")
                         .HasForeignKey("AccountId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("QvaDev.Data.Models.Aggregator", "Aggregator")
+                    b.HasOne("TradeSystem.Data.Models.Aggregator", "Aggregator")
                         .WithMany("Accounts")
                         .HasForeignKey("AggregatorId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("QvaDev.Data.Models.Copier", b =>
+            modelBuilder.Entity("TradeSystem.Data.Models.Copier", b =>
                 {
-                    b.HasOne("QvaDev.Data.Models.Slave", "Slave")
+                    b.HasOne("TradeSystem.Data.Models.Slave", "Slave")
                         .WithMany("Copiers")
                         .HasForeignKey("SlaveId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("QvaDev.Data.Models.CTraderAccount", b =>
+            modelBuilder.Entity("TradeSystem.Data.Models.CTraderAccount", b =>
                 {
-                    b.HasOne("QvaDev.Data.Models.CTraderPlatform", "CTraderPlatform")
+                    b.HasOne("TradeSystem.Data.Models.CTraderPlatform", "CTraderPlatform")
                         .WithMany()
                         .HasForeignKey("CTraderPlatformId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("QvaDev.Data.Models.FixApiCopier", b =>
+            modelBuilder.Entity("TradeSystem.Data.Models.FixApiCopier", b =>
                 {
-                    b.HasOne("QvaDev.Data.Models.Slave", "Slave")
+                    b.HasOne("TradeSystem.Data.Models.Slave", "Slave")
                         .WithMany("FixApiCopiers")
                         .HasForeignKey("SlaveId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("QvaDev.Data.Models.Master", b =>
+            modelBuilder.Entity("TradeSystem.Data.Models.Master", b =>
                 {
-                    b.HasOne("QvaDev.Data.Models.Account", "Account")
+                    b.HasOne("TradeSystem.Data.Models.Account", "Account")
                         .WithMany()
                         .HasForeignKey("AccountId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("QvaDev.Data.Models.Profile", "Profile")
+                    b.HasOne("TradeSystem.Data.Models.Profile", "Profile")
                         .WithMany("Masters")
                         .HasForeignKey("ProfileId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("QvaDev.Data.Models.MetaTraderAccount", b =>
+            modelBuilder.Entity("TradeSystem.Data.Models.MetaTraderAccount", b =>
                 {
-                    b.HasOne("QvaDev.Data.Models.MetaTraderPlatform", "MetaTraderPlatform")
+                    b.HasOne("TradeSystem.Data.Models.MetaTraderPlatform", "MetaTraderPlatform")
                         .WithMany()
                         .HasForeignKey("MetaTraderPlatformId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("QvaDev.Data.Models.Pushing", b =>
+            modelBuilder.Entity("TradeSystem.Data.Models.Pushing", b =>
                 {
-                    b.HasOne("QvaDev.Data.Models.Account", "AlphaMaster")
+                    b.HasOne("TradeSystem.Data.Models.Account", "AlphaMaster")
                         .WithMany()
                         .HasForeignKey("AlphaMasterId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("QvaDev.Data.Models.Account", "BetaMaster")
+                    b.HasOne("TradeSystem.Data.Models.Account", "BetaMaster")
                         .WithMany()
                         .HasForeignKey("BetaMasterId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("QvaDev.Data.Models.Account", "FutureAccount")
+                    b.HasOne("TradeSystem.Data.Models.Account", "FutureAccount")
                         .WithMany()
                         .HasForeignKey("FutureAccountId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("QvaDev.Data.Models.Account", "HedgeAccount")
+                    b.HasOne("TradeSystem.Data.Models.Account", "HedgeAccount")
                         .WithMany()
                         .HasForeignKey("HedgeAccountId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("QvaDev.Data.Models.Profile", "Profile")
+                    b.HasOne("TradeSystem.Data.Models.Profile", "Profile")
                         .WithMany("Pushings")
                         .HasForeignKey("ProfileId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("QvaDev.Data.Models.PushingDetail", "PushingDetail")
+                    b.HasOne("TradeSystem.Data.Models.PushingDetail", "PushingDetail")
                         .WithMany()
                         .HasForeignKey("PushingDetailId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("QvaDev.Data.Models.Slave", b =>
+            modelBuilder.Entity("TradeSystem.Data.Models.Slave", b =>
                 {
-                    b.HasOne("QvaDev.Data.Models.Account", "Account")
+                    b.HasOne("TradeSystem.Data.Models.Account", "Account")
                         .WithMany()
                         .HasForeignKey("AccountId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("QvaDev.Data.Models.Master", "Master")
+                    b.HasOne("TradeSystem.Data.Models.Master", "Master")
                         .WithMany("Slaves")
                         .HasForeignKey("MasterId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("QvaDev.Data.Models.StratDealingArb", b =>
+            modelBuilder.Entity("TradeSystem.Data.Models.StratDealingArb", b =>
                 {
-                    b.HasOne("QvaDev.Data.Models.Account", "AlphaAccount")
+                    b.HasOne("TradeSystem.Data.Models.Account", "AlphaAccount")
                         .WithMany()
                         .HasForeignKey("AlphaAccountId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("QvaDev.Data.Models.Account", "BetaAccount")
+                    b.HasOne("TradeSystem.Data.Models.Account", "BetaAccount")
                         .WithMany()
                         .HasForeignKey("BetaAccountId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("QvaDev.Data.Models.Profile", "Profile")
+                    b.HasOne("TradeSystem.Data.Models.Profile", "Profile")
                         .WithMany()
                         .HasForeignKey("ProfileId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("QvaDev.Data.Models.StratDealingArbPosition", b =>
+            modelBuilder.Entity("TradeSystem.Data.Models.StratDealingArbPosition", b =>
                 {
-                    b.HasOne("QvaDev.Data.Models.StratDealingArb", "StratDealingArb")
+                    b.HasOne("TradeSystem.Data.Models.StratDealingArb", "StratDealingArb")
                         .WithMany("Positions")
                         .HasForeignKey("StratDealingArbId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("QvaDev.Data.Models.StratHubArb", b =>
+            modelBuilder.Entity("TradeSystem.Data.Models.StratHubArb", b =>
                 {
-                    b.HasOne("QvaDev.Data.Models.Aggregator", "Aggregator")
+                    b.HasOne("TradeSystem.Data.Models.Aggregator", "Aggregator")
                         .WithMany()
                         .HasForeignKey("AggregatorId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("QvaDev.Data.Models.StratHubArbPosition", b =>
+            modelBuilder.Entity("TradeSystem.Data.Models.StratHubArbPosition", b =>
                 {
-                    b.HasOne("QvaDev.Data.Models.StratPosition", "Position")
+                    b.HasOne("TradeSystem.Data.Models.StratPosition", "Position")
                         .WithMany("StratHubArbPositions")
                         .HasForeignKey("PositionId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("QvaDev.Data.Models.StratHubArb", "StratHubArb")
+                    b.HasOne("TradeSystem.Data.Models.StratHubArb", "StratHubArb")
                         .WithMany("StratHubArbPositions")
                         .HasForeignKey("StratHubArbId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("QvaDev.Data.Models.StratPosition", b =>
+            modelBuilder.Entity("TradeSystem.Data.Models.StratPosition", b =>
                 {
-                    b.HasOne("QvaDev.Data.Models.Account", "Account")
+                    b.HasOne("TradeSystem.Data.Models.Account", "Account")
                         .WithMany("StratPositions")
                         .HasForeignKey("AccountId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("QvaDev.Data.Models.SymbolMapping", b =>
+            modelBuilder.Entity("TradeSystem.Data.Models.SymbolMapping", b =>
                 {
-                    b.HasOne("QvaDev.Data.Models.Slave", "Slave")
+                    b.HasOne("TradeSystem.Data.Models.Slave", "Slave")
                         .WithMany("SymbolMappings")
                         .HasForeignKey("SlaveId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("QvaDev.Data.Models.Ticker", b =>
+            modelBuilder.Entity("TradeSystem.Data.Models.Ticker", b =>
                 {
-                    b.HasOne("QvaDev.Data.Models.Account", "MainAccount")
+                    b.HasOne("TradeSystem.Data.Models.Account", "MainAccount")
                         .WithMany()
                         .HasForeignKey("MainAccountId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("QvaDev.Data.Models.Account", "PairAccount")
+                    b.HasOne("TradeSystem.Data.Models.Account", "PairAccount")
                         .WithMany()
                         .HasForeignKey("PairAccountId");
 
-                    b.HasOne("QvaDev.Data.Models.Profile", "Profile")
+                    b.HasOne("TradeSystem.Data.Models.Profile", "Profile")
                         .WithMany()
                         .HasForeignKey("ProfileId")
                         .OnDelete(DeleteBehavior.Cascade);

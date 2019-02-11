@@ -1,4 +1,4 @@
-﻿namespace QvaDev.Duplicat.Views
+﻿namespace TradeSystem.Duplicat.Views
 {
 	partial class AggregatorUserControl
 	{
@@ -30,9 +30,9 @@
 		{
 			this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
 			this.gbAggregators = new System.Windows.Forms.GroupBox();
-			this.dgvAggregators = new QvaDev.Duplicat.Views.CustomDataGridView();
+			this.dgvAggregators = new TradeSystem.Duplicat.Views.CustomDataGridView();
 			this.groupBox2 = new System.Windows.Forms.GroupBox();
-			this.dgvAggregatorAccounts = new QvaDev.Duplicat.Views.CustomDataGridView();
+			this.dgvAggregatorAccounts = new TradeSystem.Duplicat.Views.CustomDataGridView();
 			this.tableLayoutPanel1.SuspendLayout();
 			this.gbAggregators.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.dgvAggregators)).BeginInit();

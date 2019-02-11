@@ -3,51 +3,51 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27130.2036
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QvaDev.CTraderApi", "QvaDev.CTraderApi\QvaDev.CTraderApi.csproj", "{866039F3-42FF-4D42-A85E-F91CEF04F3DF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradeSystem.CTraderApi", "QvaDev.CTraderApi\TradeSystem.CTraderApi.csproj", "{866039F3-42FF-4D42-A85E-F91CEF04F3DF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QvaDev.Mt4Integration", "QvaDev.Mt4Integration\QvaDev.Mt4Integration.csproj", "{73A2679E-F17E-4484-8874-461D3FC895DD}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradeSystem.Mt4Integration", "QvaDev.Mt4Integration\TradeSystem.Mt4Integration.csproj", "{73A2679E-F17E-4484-8874-461D3FC895DD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QvaDev.Common", "QvaDev.Common\QvaDev.Common.csproj", "{10A3EF89-12BB-4D00-9950-36BFED281B91}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradeSystem.Common", "QvaDev.Common\TradeSystem.Common.csproj", "{10A3EF89-12BB-4D00-9950-36BFED281B91}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QvaDev.CTraderIntegration", "QvaDev.CTraderIntegration\QvaDev.CTraderIntegration.csproj", "{5B92788F-AF48-4709-A539-BBA2822A06B7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradeSystem.CTraderIntegration", "QvaDev.CTraderIntegration\TradeSystem.CTraderIntegration.csproj", "{5B92788F-AF48-4709-A539-BBA2822A06B7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QvaDev.Duplicat", "QvaDev.Duplicat\QvaDev.Duplicat.csproj", "{051B3CD8-9791-448A-864F-B6A7B4EF63BB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradeSystem.Duplicat", "QvaDev.Duplicat\TradeSystem.Duplicat.csproj", "{051B3CD8-9791-448A-864F-B6A7B4EF63BB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QvaDev.Data", "QvaDev.Data\QvaDev.Data.csproj", "{D7DA9DD6-1BA9-45B9-9581-1D095631DF0D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradeSystem.Data", "QvaDev.Data\TradeSystem.Data.csproj", "{D7DA9DD6-1BA9-45B9-9581-1D095631DF0D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QvaDev.Orchestration", "QvaDev.Orchestration\QvaDev.Orchestration.csproj", "{7FCD6735-2115-4096-B5C9-E5CD7B4A3C1C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradeSystem.Orchestration", "QvaDev.Orchestration\TradeSystem.Orchestration.csproj", "{7FCD6735-2115-4096-B5C9-E5CD7B4A3C1C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QvaDev.CTraderAccess", "QvaDev.CTraderAccess\QvaDev.CTraderAccess.csproj", "{D6B82A20-17F8-44BB-AEE5-C11DD8BECC4C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradeSystem.CTraderAccess", "QvaDev.CTraderAccess\TradeSystem.CTraderAccess.csproj", "{D6B82A20-17F8-44BB-AEE5-C11DD8BECC4C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QvaDev.FixTraderIntegration", "QvaDev.FixTraderIntegration\QvaDev.FixTraderIntegration.csproj", "{E3002184-B948-49EE-B313-3167948C3F97}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradeSystem.FixTraderIntegration", "QvaDev.FixTraderIntegration\TradeSystem.FixTraderIntegration.csproj", "{E3002184-B948-49EE-B313-3167948C3F97}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{7B041DAD-24DD-429E-B1DE-71573E267EA6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QvaDev.OrchestrationTests", "QvaDev.OrchestrationTests\QvaDev.OrchestrationTests.csproj", "{BB763038-2989-4643-AE5E-1A1FAA2053AF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradeSystem.OrchestrationTests", "QvaDev.OrchestrationTests\TradeSystem.OrchestrationTests.csproj", "{BB763038-2989-4643-AE5E-1A1FAA2053AF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QvaDev.FixApiIntegration", "QvaDev.FixApiIntegration\QvaDev.FixApiIntegration.csproj", "{7F7F4B22-F0BD-4375-BAF4-FFAFE9B3A853}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradeSystem.FixApiIntegration", "QvaDev.FixApiIntegration\TradeSystem.FixApiIntegration.csproj", "{7F7F4B22-F0BD-4375-BAF4-FFAFE9B3A853}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QvaDev.IlyaFastFeedIntegration", "QvaDev.IlyaFastFeedIntegration\QvaDev.IlyaFastFeedIntegration.csproj", "{4C1EA1A8-5C20-48AB-A662-72969D880B21}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradeSystem.IlyaFastFeedIntegration", "QvaDev.IlyaFastFeedIntegration\TradeSystem.IlyaFastFeedIntegration.csproj", "{4C1EA1A8-5C20-48AB-A662-72969D880B21}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QvaDev.CqgClientApiIntegration", "QvaDev.CqgClientApiIntegration\QvaDev.CqgClientApiIntegration.csproj", "{8ACFC7D6-2C62-4F4C-9FA5-86066CFB62B9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradeSystem.CqgClientApiIntegration", "QvaDev.CqgClientApiIntegration\TradeSystem.CqgClientApiIntegration.csproj", "{8ACFC7D6-2C62-4F4C-9FA5-86066CFB62B9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QvaDev.FileContextCore", "QvaDev.FileContextCore\QvaDev.FileContextCore.csproj", "{B0DF0796-17ED-470A-858D-A7CABB3F36F8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradeSystem.FileContextCore", "QvaDev.FileContextCore\TradeSystem.FileContextCore.csproj", "{B0DF0796-17ED-470A-858D-A7CABB3F36F8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QvaDev.IbIntegration", "QvaDev.IbIntegration\QvaDev.IbIntegration.csproj", "{62CE29D7-E16C-4B48-B017-586C4B22EDC9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradeSystem.IbIntegration", "QvaDev.IbIntegration\TradeSystem.IbIntegration.csproj", "{62CE29D7-E16C-4B48-B017-586C4B22EDC9}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InteractiveBrokersApi", "InteractiveBrokersApi\InteractiveBrokersApi.csproj", "{8EDE0744-96C2-40B0-A8DC-37DF79370203}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "QvaDev.Communication", "QvaDev.Communication", "{A173DFEF-C355-4721-BEE1-D8BB147FF8BA}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TradeSystem.Communication", "TradeSystem.Communication", "{A173DFEF-C355-4721-BEE1-D8BB147FF8BA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QvaDev.Communication.FixApi.Connectors.Strategies", "..\..\git\QvaDev.Wololo\QvaDev.Communication.FixApi.Connectors.Strategies\QvaDev.Communication.FixApi.Connectors.Strategies.csproj", "{969D880C-6667-40C0-A1D5-B4165D3D3C33}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradeSystem", "..\..\git\QvaDev.Wololo\QvaDev\TradeSystem.csproj", "{FDFCE270-50AC-4930-8680-A760F6F7C637}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QvaDev", "..\..\git\QvaDev.Wololo\QvaDev\QvaDev.csproj", "{A8C5F573-2D3D-4E1A-8844-B11032F12A37}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradeSystem.Communication", "..\..\git\QvaDev.Wololo\QvaDev.Communication\TradeSystem.Communication.csproj", "{9B577BD6-AEA9-4F64-9F1D-6EC760103295}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QvaDev.Communication", "..\..\git\QvaDev.Wololo\QvaDev.Communication\QvaDev.Communication.csproj", "{1EA7001F-9841-4CAA-A69E-59F11BCF76C0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradeSystem.Communication.FixApi", "..\..\git\QvaDev.Wololo\QvaDev.Communication.FixApi\TradeSystem.Communication.FixApi.csproj", "{5A7C14E4-C1F0-4A9E-8284-D01F0082B483}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QvaDev.Communication.FixApi", "..\..\git\QvaDev.Wololo\QvaDev.Communication.FixApi\QvaDev.Communication.FixApi.csproj", "{FA62481E-A560-449A-A654-A69B8FA63D36}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradeSystem.Communication.FixApi.Connectors", "..\..\git\QvaDev.Wololo\QvaDev.Communication.FixApi.Connectors\TradeSystem.Communication.FixApi.Connectors.csproj", "{C38C4681-11E5-417B-9923-6E754402EC1B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QvaDev.Communication.FixApi.Connectors", "..\..\git\QvaDev.Wololo\QvaDev.Communication.FixApi.Connectors\QvaDev.Communication.FixApi.Connectors.csproj", "{3E59C959-CDCA-4A1A-A013-4072C100356F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradeSystem.Communication.FixApi.Connectors.Strategies", "..\..\git\QvaDev.Wololo\QvaDev.Communication.FixApi.Connectors.Strategies\TradeSystem.Communication.FixApi.Connectors.Strategies.csproj", "{D025DB83-5628-432A-832D-0BB89E807252}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -185,57 +185,57 @@ Global
 		{8EDE0744-96C2-40B0-A8DC-37DF79370203}.Release|Any CPU.Build.0 = Release|Any CPU
 		{8EDE0744-96C2-40B0-A8DC-37DF79370203}.Release|x64.ActiveCfg = Release|Any CPU
 		{8EDE0744-96C2-40B0-A8DC-37DF79370203}.Release|x64.Build.0 = Release|Any CPU
-		{969D880C-6667-40C0-A1D5-B4165D3D3C33}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{969D880C-6667-40C0-A1D5-B4165D3D3C33}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{969D880C-6667-40C0-A1D5-B4165D3D3C33}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{969D880C-6667-40C0-A1D5-B4165D3D3C33}.Debug|x64.Build.0 = Debug|Any CPU
-		{969D880C-6667-40C0-A1D5-B4165D3D3C33}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{969D880C-6667-40C0-A1D5-B4165D3D3C33}.Release|Any CPU.Build.0 = Release|Any CPU
-		{969D880C-6667-40C0-A1D5-B4165D3D3C33}.Release|x64.ActiveCfg = Release|Any CPU
-		{969D880C-6667-40C0-A1D5-B4165D3D3C33}.Release|x64.Build.0 = Release|Any CPU
-		{A8C5F573-2D3D-4E1A-8844-B11032F12A37}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A8C5F573-2D3D-4E1A-8844-B11032F12A37}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A8C5F573-2D3D-4E1A-8844-B11032F12A37}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{A8C5F573-2D3D-4E1A-8844-B11032F12A37}.Debug|x64.Build.0 = Debug|Any CPU
-		{A8C5F573-2D3D-4E1A-8844-B11032F12A37}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A8C5F573-2D3D-4E1A-8844-B11032F12A37}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A8C5F573-2D3D-4E1A-8844-B11032F12A37}.Release|x64.ActiveCfg = Release|Any CPU
-		{A8C5F573-2D3D-4E1A-8844-B11032F12A37}.Release|x64.Build.0 = Release|Any CPU
-		{1EA7001F-9841-4CAA-A69E-59F11BCF76C0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1EA7001F-9841-4CAA-A69E-59F11BCF76C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1EA7001F-9841-4CAA-A69E-59F11BCF76C0}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{1EA7001F-9841-4CAA-A69E-59F11BCF76C0}.Debug|x64.Build.0 = Debug|Any CPU
-		{1EA7001F-9841-4CAA-A69E-59F11BCF76C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1EA7001F-9841-4CAA-A69E-59F11BCF76C0}.Release|Any CPU.Build.0 = Release|Any CPU
-		{1EA7001F-9841-4CAA-A69E-59F11BCF76C0}.Release|x64.ActiveCfg = Release|Any CPU
-		{1EA7001F-9841-4CAA-A69E-59F11BCF76C0}.Release|x64.Build.0 = Release|Any CPU
-		{FA62481E-A560-449A-A654-A69B8FA63D36}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{FA62481E-A560-449A-A654-A69B8FA63D36}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{FA62481E-A560-449A-A654-A69B8FA63D36}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{FA62481E-A560-449A-A654-A69B8FA63D36}.Debug|x64.Build.0 = Debug|Any CPU
-		{FA62481E-A560-449A-A654-A69B8FA63D36}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{FA62481E-A560-449A-A654-A69B8FA63D36}.Release|Any CPU.Build.0 = Release|Any CPU
-		{FA62481E-A560-449A-A654-A69B8FA63D36}.Release|x64.ActiveCfg = Release|Any CPU
-		{FA62481E-A560-449A-A654-A69B8FA63D36}.Release|x64.Build.0 = Release|Any CPU
-		{3E59C959-CDCA-4A1A-A013-4072C100356F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3E59C959-CDCA-4A1A-A013-4072C100356F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3E59C959-CDCA-4A1A-A013-4072C100356F}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{3E59C959-CDCA-4A1A-A013-4072C100356F}.Debug|x64.Build.0 = Debug|Any CPU
-		{3E59C959-CDCA-4A1A-A013-4072C100356F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3E59C959-CDCA-4A1A-A013-4072C100356F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{3E59C959-CDCA-4A1A-A013-4072C100356F}.Release|x64.ActiveCfg = Release|Any CPU
-		{3E59C959-CDCA-4A1A-A013-4072C100356F}.Release|x64.Build.0 = Release|Any CPU
+		{FDFCE270-50AC-4930-8680-A760F6F7C637}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FDFCE270-50AC-4930-8680-A760F6F7C637}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FDFCE270-50AC-4930-8680-A760F6F7C637}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{FDFCE270-50AC-4930-8680-A760F6F7C637}.Debug|x64.Build.0 = Debug|Any CPU
+		{FDFCE270-50AC-4930-8680-A760F6F7C637}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FDFCE270-50AC-4930-8680-A760F6F7C637}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FDFCE270-50AC-4930-8680-A760F6F7C637}.Release|x64.ActiveCfg = Release|Any CPU
+		{FDFCE270-50AC-4930-8680-A760F6F7C637}.Release|x64.Build.0 = Release|Any CPU
+		{9B577BD6-AEA9-4F64-9F1D-6EC760103295}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9B577BD6-AEA9-4F64-9F1D-6EC760103295}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9B577BD6-AEA9-4F64-9F1D-6EC760103295}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{9B577BD6-AEA9-4F64-9F1D-6EC760103295}.Debug|x64.Build.0 = Debug|Any CPU
+		{9B577BD6-AEA9-4F64-9F1D-6EC760103295}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9B577BD6-AEA9-4F64-9F1D-6EC760103295}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9B577BD6-AEA9-4F64-9F1D-6EC760103295}.Release|x64.ActiveCfg = Release|Any CPU
+		{9B577BD6-AEA9-4F64-9F1D-6EC760103295}.Release|x64.Build.0 = Release|Any CPU
+		{5A7C14E4-C1F0-4A9E-8284-D01F0082B483}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5A7C14E4-C1F0-4A9E-8284-D01F0082B483}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5A7C14E4-C1F0-4A9E-8284-D01F0082B483}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{5A7C14E4-C1F0-4A9E-8284-D01F0082B483}.Debug|x64.Build.0 = Debug|Any CPU
+		{5A7C14E4-C1F0-4A9E-8284-D01F0082B483}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5A7C14E4-C1F0-4A9E-8284-D01F0082B483}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5A7C14E4-C1F0-4A9E-8284-D01F0082B483}.Release|x64.ActiveCfg = Release|Any CPU
+		{5A7C14E4-C1F0-4A9E-8284-D01F0082B483}.Release|x64.Build.0 = Release|Any CPU
+		{C38C4681-11E5-417B-9923-6E754402EC1B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C38C4681-11E5-417B-9923-6E754402EC1B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C38C4681-11E5-417B-9923-6E754402EC1B}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{C38C4681-11E5-417B-9923-6E754402EC1B}.Debug|x64.Build.0 = Debug|Any CPU
+		{C38C4681-11E5-417B-9923-6E754402EC1B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C38C4681-11E5-417B-9923-6E754402EC1B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C38C4681-11E5-417B-9923-6E754402EC1B}.Release|x64.ActiveCfg = Release|Any CPU
+		{C38C4681-11E5-417B-9923-6E754402EC1B}.Release|x64.Build.0 = Release|Any CPU
+		{D025DB83-5628-432A-832D-0BB89E807252}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D025DB83-5628-432A-832D-0BB89E807252}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D025DB83-5628-432A-832D-0BB89E807252}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{D025DB83-5628-432A-832D-0BB89E807252}.Debug|x64.Build.0 = Debug|Any CPU
+		{D025DB83-5628-432A-832D-0BB89E807252}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D025DB83-5628-432A-832D-0BB89E807252}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D025DB83-5628-432A-832D-0BB89E807252}.Release|x64.ActiveCfg = Release|Any CPU
+		{D025DB83-5628-432A-832D-0BB89E807252}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{BB763038-2989-4643-AE5E-1A1FAA2053AF} = {7B041DAD-24DD-429E-B1DE-71573E267EA6}
-		{969D880C-6667-40C0-A1D5-B4165D3D3C33} = {A173DFEF-C355-4721-BEE1-D8BB147FF8BA}
-		{A8C5F573-2D3D-4E1A-8844-B11032F12A37} = {A173DFEF-C355-4721-BEE1-D8BB147FF8BA}
-		{1EA7001F-9841-4CAA-A69E-59F11BCF76C0} = {A173DFEF-C355-4721-BEE1-D8BB147FF8BA}
-		{FA62481E-A560-449A-A654-A69B8FA63D36} = {A173DFEF-C355-4721-BEE1-D8BB147FF8BA}
-		{3E59C959-CDCA-4A1A-A013-4072C100356F} = {A173DFEF-C355-4721-BEE1-D8BB147FF8BA}
+		{FDFCE270-50AC-4930-8680-A760F6F7C637} = {A173DFEF-C355-4721-BEE1-D8BB147FF8BA}
+		{9B577BD6-AEA9-4F64-9F1D-6EC760103295} = {A173DFEF-C355-4721-BEE1-D8BB147FF8BA}
+		{5A7C14E4-C1F0-4A9E-8284-D01F0082B483} = {A173DFEF-C355-4721-BEE1-D8BB147FF8BA}
+		{C38C4681-11E5-417B-9923-6E754402EC1B} = {A173DFEF-C355-4721-BEE1-D8BB147FF8BA}
+		{D025DB83-5628-432A-832D-0BB89E807252} = {A173DFEF-C355-4721-BEE1-D8BB147FF8BA}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C1C28357-86B5-47FD-924D-863DA2531C4D}

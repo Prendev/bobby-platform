@@ -4,9 +4,9 @@
 using System;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.Internal;
-using QvaDev.FileContextCore.Storage.Internal;
+using TradeSystem.FileContextCore.Storage.Internal;
 
-namespace QvaDev.FileContextCore.Query.Internal
+namespace TradeSystem.FileContextCore.Query.Internal
 {
     /// <summary>
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

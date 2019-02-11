@@ -5,10 +5,10 @@ using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors;
-using QvaDev.FileContextCore.Query.Internal;
+using TradeSystem.FileContextCore.Query.Internal;
 using Remotion.Linq.Clauses;
 
-namespace QvaDev.FileContextCore.Query.ExpressionVisitors.Internal
+namespace TradeSystem.FileContextCore.Query.ExpressionVisitors.Internal
 {
     /// <summary>
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace QvaDev.CTraderApi
+namespace TradeSystem.CTraderApi
 {
     public class CTraderClient
     {

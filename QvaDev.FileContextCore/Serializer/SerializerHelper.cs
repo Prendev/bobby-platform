@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 
-namespace QvaDev.FileContextCore.Serializer
+namespace TradeSystem.FileContextCore.Serializer
 {
     static class SerializerHelper
     {

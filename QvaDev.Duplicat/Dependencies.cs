@@ -1,23 +1,23 @@
 ﻿using Autofac;
 using log4net;
-using QvaDev.Common;
-using QvaDev.Common.Logging;
-using QvaDev.Common.Services;
-using QvaDev.CTraderIntegration;
-using QvaDev.CTraderIntegration.Services;
-using QvaDev.Data;
-using QvaDev.Data.Repositories;
-using QvaDev.Duplicat.Views;
-using QvaDev.Orchestration;
-using QvaDev.Orchestration.Services;
-using QvaDev.Orchestration.Services.Strategies;
+using TradeSystem.Common;
+using TradeSystem.Common.Logging;
+using TradeSystem.Common.Services;
+using TradeSystem.CTraderIntegration;
+using TradeSystem.CTraderIntegration.Services;
+using TradeSystem.Data;
+using TradeSystem.Data.Repositories;
+using TradeSystem.Duplicat.Views;
+using TradeSystem.Orchestration;
+using TradeSystem.Orchestration.Services;
+using TradeSystem.Orchestration.Services.Strategies;
 using System;
 using System.Threading;
-using ConnectorFactory = QvaDev.Orchestration.Services.ConnectorFactory;
-using ExchangeRatesService = QvaDev.Common.Services.ExchangeRatesService;
-using IExchangeRatesService = QvaDev.Common.Services.IExchangeRatesService;
+using ConnectorFactory = TradeSystem.Orchestration.Services.ConnectorFactory;
+using ExchangeRatesService = TradeSystem.Common.Services.ExchangeRatesService;
+using IExchangeRatesService = TradeSystem.Common.Services.IExchangeRatesService;
 
-namespace QvaDev.Duplicat
+namespace TradeSystem.Duplicat
 {
 	public class Dependencies
     {
@@ -40,11 +40,11 @@ namespace QvaDev.Duplicat
 	    private static void RegisterLoggers()
 	    {
 		    Logger.AddLogger(new LogAdapter(LogManager.GetLogger("General")),
-			    filePathExclude: new[] {"QvaDev.Communication", @"QvaDev.FixApiIntegration\SpecialLogger" });
+			    filePathExclude: new[] {".Communication", @"FixApiIntegration\SpecialLogger" });
 		    Logger.AddLogger(new LogAdapter(LogManager.GetLogger("FIX")),
-			    filePathInclude: new[] { "QvaDev.Communication" });
+			    filePathInclude: new[] { ".Communication" });
 			Logger.AddLogger(new LogAdapter(LogManager.GetLogger("FIX orders")),
-				filePathInclude: new[] { @"QvaDev.FixApiIntegration\SpecialLogger" });
+				filePathInclude: new[] { @".FixApiIntegration\SpecialLogger" });
 		}
 
         private static void RegisterApp(ContainerBuilder builder)

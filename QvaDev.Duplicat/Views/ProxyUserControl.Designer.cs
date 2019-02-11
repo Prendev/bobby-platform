@@ -1,4 +1,4 @@
-﻿namespace QvaDev.Duplicat.Views
+﻿namespace TradeSystem.Duplicat.Views
 {
 	partial class ProxyUserControl
 	{
@@ -31,8 +31,8 @@
 			this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
 			this.gbProfileProxies = new System.Windows.Forms.GroupBox();
 			this.gbProxies = new System.Windows.Forms.GroupBox();
-			this.dgvProfileProxies = new QvaDev.Duplicat.Views.CustomDataGridView();
-			this.dgvProxies = new QvaDev.Duplicat.Views.CustomDataGridView();
+			this.dgvProfileProxies = new TradeSystem.Duplicat.Views.CustomDataGridView();
+			this.dgvProxies = new TradeSystem.Duplicat.Views.CustomDataGridView();
 			this.tableLayoutPanel1.SuspendLayout();
 			this.gbProfileProxies.SuspendLayout();
 			this.gbProxies.SuspendLayout();

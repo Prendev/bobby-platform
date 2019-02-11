@@ -1,4 +1,4 @@
-﻿namespace QvaDev.Duplicat.Views
+﻿namespace TradeSystem.Duplicat.Views
 {
     partial class MainForm
     {
@@ -63,18 +63,18 @@
 			this.tabPage4 = new System.Windows.Forms.TabPage();
 			this.rtbFix = new System.Windows.Forms.RichTextBox();
 			this.rtbFixOrders = new System.Windows.Forms.RichTextBox();
-			this.profilesUserControl = new QvaDev.Duplicat.Views.ProfilesUserControl();
-			this.mtAccountsUserControl = new QvaDev.Duplicat.Views.MtAccountsUserControl();
-			this.ctAccountsUserControl = new QvaDev.Duplicat.Views.CtAccountsUserControl();
-			this.ftAccountsUserControl = new QvaDev.Duplicat.Views.FtAccountsUserControl();
-			this.iffAccountsUserControl = new QvaDev.Duplicat.Views.IffAccountsUserControl();
-			this._clientAccountsUserControl = new QvaDev.Duplicat.Views.ClientAccountsUserControl();
-			this.aggregatorUserControl = new QvaDev.Duplicat.Views.AggregatorUserControl();
-			this.proxyUserControl = new QvaDev.Duplicat.Views.ProxyUserControl();
-			this.copiersUserControl = new QvaDev.Duplicat.Views.CopiersUserControl();
-			this.pushingUserControl = new QvaDev.Duplicat.Views.PushingUserControl();
-			this.hubArbUserControl = new QvaDev.Duplicat.Views.HubArbUserControl();
-			this.tickersUserControl = new QvaDev.Duplicat.Views.TickersUserControl();
+			this.profilesUserControl = new TradeSystem.Duplicat.Views.ProfilesUserControl();
+			this.mtAccountsUserControl = new TradeSystem.Duplicat.Views.MtAccountsUserControl();
+			this.ctAccountsUserControl = new TradeSystem.Duplicat.Views.CtAccountsUserControl();
+			this.ftAccountsUserControl = new TradeSystem.Duplicat.Views.FtAccountsUserControl();
+			this.iffAccountsUserControl = new TradeSystem.Duplicat.Views.IffAccountsUserControl();
+			this._clientAccountsUserControl = new TradeSystem.Duplicat.Views.ClientAccountsUserControl();
+			this.aggregatorUserControl = new TradeSystem.Duplicat.Views.AggregatorUserControl();
+			this.proxyUserControl = new TradeSystem.Duplicat.Views.ProxyUserControl();
+			this.copiersUserControl = new TradeSystem.Duplicat.Views.CopiersUserControl();
+			this.pushingUserControl = new TradeSystem.Duplicat.Views.PushingUserControl();
+			this.hubArbUserControl = new TradeSystem.Duplicat.Views.HubArbUserControl();
+			this.tickersUserControl = new TradeSystem.Duplicat.Views.TickersUserControl();
 			this.tabControlMain.SuspendLayout();
 			this.tabPageProfile.SuspendLayout();
 			this.tabPageAccount.SuspendLayout();
@@ -620,7 +620,7 @@
 			this.Controls.Add(this.tlpMain);
 			this.Margin = new System.Windows.Forms.Padding(4);
 			this.Name = "MainForm";
-			this.Text = "QvaDev.Duplicat";
+			this.Text = "TradeSystem.Duplicat";
 			this.tabControlMain.ResumeLayout(false);
 			this.tabPageProfile.ResumeLayout(false);
 			this.tabPageAccount.ResumeLayout(false);

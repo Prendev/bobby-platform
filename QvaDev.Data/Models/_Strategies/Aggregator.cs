@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel;
-using QvaDev.Common.Attributes;
+using TradeSystem.Common.Attributes;
 
-namespace QvaDev.Data.Models
+namespace TradeSystem.Data.Models
 {
 	public partial class Aggregator : BaseDescriptionEntity
 	{

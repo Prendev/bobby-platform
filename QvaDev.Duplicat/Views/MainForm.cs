@@ -1,12 +1,12 @@
 ﻿using System.Drawing;
 using System.Threading;
 using System.Windows.Forms;
-using QvaDev.Common;
-using QvaDev.Common.Services;
-using QvaDev.Data.Models;
-using QvaDev.Duplicat.ViewModel;
+using TradeSystem.Common;
+using TradeSystem.Common.Services;
+using TradeSystem.Data.Models;
+using TradeSystem.Duplicat.ViewModel;
 
-namespace QvaDev.Duplicat.Views
+namespace TradeSystem.Duplicat.Views
 {
     public partial class MainForm : Form
     {
@@ -55,7 +55,7 @@ namespace QvaDev.Duplicat.Views
             btnDisconnect.Click += (s, e) => { _viewModel.DisconnectCommand(); };
 
             var titleBinding = new Binding("Text", _viewModel, "IsLoading");
-            titleBinding.Format += (s, e) => e.Value = (bool) e.Value ? "QvaDev.Duplicat - Loading..." : "QvaDev.Duplicat";
+            titleBinding.Format += (s, e) => e.Value = (bool) e.Value ? "TradeSystem.Duplicat - Loading..." : "TradeSystem.Duplicat";
             DataBindings.Add(titleBinding);
 
             btnSave.Click += (s, e) => { _viewModel.SaveCommand(); };

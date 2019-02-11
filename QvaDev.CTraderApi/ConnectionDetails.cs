@@ -1,4 +1,4 @@
-﻿namespace QvaDev.CTraderApi
+﻿namespace TradeSystem.CTraderApi
 {
 	public class ConnectionDetails
 	{

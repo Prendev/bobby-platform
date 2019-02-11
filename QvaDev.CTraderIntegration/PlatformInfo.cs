@@ -1,4 +1,4 @@
-﻿namespace QvaDev.CTraderIntegration
+﻿namespace TradeSystem.CTraderIntegration
 {
     public class PlatformInfo
     {

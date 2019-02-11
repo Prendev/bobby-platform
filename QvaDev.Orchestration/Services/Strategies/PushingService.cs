@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using QvaDev.Common;
-using QvaDev.Common.Integration;
-using QvaDev.Common.Services;
-using QvaDev.Data.Models;
-using MtConnector = QvaDev.Mt4Integration.IConnector;
+using TradeSystem.Common;
+using TradeSystem.Common.Integration;
+using TradeSystem.Common.Services;
+using TradeSystem.Data.Models;
+using MtConnector = TradeSystem.Mt4Integration.IConnector;
 
-namespace QvaDev.Orchestration.Services.Strategies
+namespace TradeSystem.Orchestration.Services.Strategies
 {
     public interface IPushingService
     {

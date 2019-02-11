@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using QvaDev.Communication.FixApi;
+using TradeSystem.Communication;
 
-namespace QvaDev.Data.Models
+namespace TradeSystem.Data.Models
 {
 	public class AggregatorQuoteEventArgs
 	{

@@ -1,4 +1,4 @@
-﻿namespace QvaDev.Duplicat.Views
+﻿namespace TradeSystem.Duplicat.Views
 {
 	partial class TickersUserControl
 	{
@@ -32,7 +32,7 @@
 			this.gbControl = new System.Windows.Forms.GroupBox();
 			this.btnStart = new System.Windows.Forms.Button();
 			this.groupBox1 = new System.Windows.Forms.GroupBox();
-			this.dgvTickers = new QvaDev.Duplicat.Views.CustomDataGridView();
+			this.dgvTickers = new TradeSystem.Duplicat.Views.CustomDataGridView();
 			this.btnStop = new System.Windows.Forms.Button();
 			this.tlpMain.SuspendLayout();
 			this.gbControl.SuspendLayout();

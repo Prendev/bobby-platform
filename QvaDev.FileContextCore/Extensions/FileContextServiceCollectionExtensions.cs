@@ -9,14 +9,14 @@ using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Microsoft.Extensions.DependencyInjection;
-using QvaDev.FileContextCore.Infrastructure.Internal;
-using QvaDev.FileContextCore.Query.ExpressionVisitors.Internal;
-using QvaDev.FileContextCore.Query.Internal;
-using QvaDev.FileContextCore.Storage.Internal;
-using QvaDev.FileContextCore.ValueGeneration.Internal;
+using TradeSystem.FileContextCore.Infrastructure.Internal;
+using TradeSystem.FileContextCore.Query.ExpressionVisitors.Internal;
+using TradeSystem.FileContextCore.Query.Internal;
+using TradeSystem.FileContextCore.Storage.Internal;
+using TradeSystem.FileContextCore.ValueGeneration.Internal;
 
 // ReSharper disable once CheckNamespace
-namespace QvaDev.FileContextCore.Extensions
+namespace TradeSystem.FileContextCore.Extensions
 {
     /// <summary>
     ///     In-memory specific extension methods for <see cref="IServiceCollection" />.

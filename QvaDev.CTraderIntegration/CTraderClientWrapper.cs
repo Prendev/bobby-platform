@@ -1,6 +1,6 @@
-﻿using QvaDev.CTraderApi;
+﻿using TradeSystem.CTraderApi;
 
-namespace QvaDev.CTraderIntegration
+namespace TradeSystem.CTraderIntegration
 {
     public class CTraderClientWrapper
     {

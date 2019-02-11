@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using System.Timers;
 using System.Xml.Serialization;
 
-namespace QvaDev.Common.Services
+namespace TradeSystem.Common.Services
 {
 	public interface INewsCalendarService
 	{

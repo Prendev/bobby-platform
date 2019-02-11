@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
-using QvaDev.Common;
+using TradeSystem.Common;
 using RestSharp;
 
-namespace QvaDev.CTraderIntegration
+namespace TradeSystem.CTraderIntegration
 {
     public interface IRestService
     {

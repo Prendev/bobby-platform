@@ -1,9 +1,9 @@
 using System.Text;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
-using QvaDev.FileContextCore.Extensions;
+using TradeSystem.FileContextCore.Extensions;
 
-namespace QvaDev.FileContextCore.Infrastructure.Internal
+namespace TradeSystem.FileContextCore.Infrastructure.Internal
 {
 	internal class FileContextOptionsExtension : IDbContextOptionsExtension
     {

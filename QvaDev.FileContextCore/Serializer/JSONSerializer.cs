@@ -4,7 +4,7 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Newtonsoft.Json.Linq;
 
-namespace QvaDev.FileContextCore.Serializer
+namespace TradeSystem.FileContextCore.Serializer
 {
 	internal class JsonSerializer : ISerializer
     {

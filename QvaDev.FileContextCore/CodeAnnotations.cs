@@ -3,7 +3,7 @@
 
 using System;
 
-namespace QvaDev.FileContextCore
+namespace TradeSystem.FileContextCore
 {
     [AttributeUsage(
          AttributeTargets.Method | AttributeTargets.Parameter |

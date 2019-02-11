@@ -3,9 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
-using QvaDev.Common.Attributes;
+using TradeSystem.Common.Attributes;
 
-namespace QvaDev.Data.Models
+namespace TradeSystem.Data.Models
 {
 	public partial class StratHubArb
 	{

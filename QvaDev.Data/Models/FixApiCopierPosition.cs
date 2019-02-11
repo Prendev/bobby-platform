@@ -1,4 +1,4 @@
-﻿namespace QvaDev.Data.Models
+﻿namespace TradeSystem.Data.Models
 {
 	public class FixApiCopierPosition : BaseEntity
 	{

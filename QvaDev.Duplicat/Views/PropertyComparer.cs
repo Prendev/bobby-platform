@@ -2,9 +2,9 @@
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using QvaDev.Common.Attributes;
+using TradeSystem.Common.Attributes;
 
-namespace QvaDev.Duplicat.Views
+namespace TradeSystem.Duplicat.Views
 {
 	public class PropertyComparer : IComparer<PropertyInfo>
 	{

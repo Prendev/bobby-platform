@@ -7,8 +7,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{051B3CD8-9791-448A-864F-B6A7B4EF63BB}</ProjectGuid>
     <OutputType>WinExe</OutputType>
-    <RootNamespace>QvaDev.Duplicat</RootNamespace>
-    <AssemblyName>QvaDev.Duplicat</AssemblyName>
+    <RootNamespace>TradeSystem.Duplicat</RootNamespace>
+    <AssemblyName>TradeSystem.Duplicat</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -345,33 +345,29 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\git\QvaDev.Wololo\QvaDev.Communication\QvaDev.Communication.csproj">
-      <Project>{1ea7001f-9841-4caa-a69e-59f11bcf76c0}</Project>
-      <Name>QvaDev.Communication</Name>
+    <ProjectReference Include="..\..\..\git\QvaDev.Wololo\QvaDev\TradeSystem.csproj">
+      <Project>{FDFCE270-50AC-4930-8680-A760F6F7C637}</Project>
+      <Name>TradeSystem</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\git\QvaDev.Wololo\QvaDev\QvaDev.csproj">
-      <Project>{A8C5F573-2D3D-4E1A-8844-B11032F12A37}</Project>
-      <Name>QvaDev</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\QvaDev.Common\QvaDev.Common.csproj">
+    <ProjectReference Include="..\QvaDev.Common\TradeSystem.Common.csproj">
       <Project>{10A3EF89-12BB-4D00-9950-36BFED281B91}</Project>
-      <Name>QvaDev.Common</Name>
+      <Name>TradeSystem.Common</Name>
     </ProjectReference>
-    <ProjectReference Include="..\QvaDev.CTraderIntegration\QvaDev.CTraderIntegration.csproj">
+    <ProjectReference Include="..\QvaDev.CTraderIntegration\TradeSystem.CTraderIntegration.csproj">
       <Project>{5b92788f-af48-4709-a539-bba2822a06b7}</Project>
-      <Name>QvaDev.CTraderIntegration</Name>
+      <Name>TradeSystem.CTraderIntegration</Name>
     </ProjectReference>
-    <ProjectReference Include="..\QvaDev.Data\QvaDev.Data.csproj">
+    <ProjectReference Include="..\QvaDev.Data\TradeSystem.Data.csproj">
       <Project>{D7DA9DD6-1BA9-45B9-9581-1D095631DF0D}</Project>
-      <Name>QvaDev.Data</Name>
+      <Name>TradeSystem.Data</Name>
     </ProjectReference>
-    <ProjectReference Include="..\QvaDev.FixApiIntegration\QvaDev.FixApiIntegration.csproj">
+    <ProjectReference Include="..\QvaDev.FixApiIntegration\TradeSystem.FixApiIntegration.csproj">
       <Project>{7f7f4b22-f0bd-4375-baf4-ffafe9b3a853}</Project>
-      <Name>QvaDev.FixApiIntegration</Name>
+      <Name>TradeSystem.FixApiIntegration</Name>
     </ProjectReference>
-    <ProjectReference Include="..\QvaDev.Orchestration\QvaDev.Orchestration.csproj">
+    <ProjectReference Include="..\QvaDev.Orchestration\TradeSystem.Orchestration.csproj">
       <Project>{7FCD6735-2115-4096-B5C9-E5CD7B4A3C1C}</Project>
-      <Name>QvaDev.Orchestration</Name>
+      <Name>TradeSystem.Orchestration</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

@@ -4,10 +4,10 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using QvaDev.Data.Models;
-using QvaDev.Mt4Integration;
+using TradeSystem.Data.Models;
+using TradeSystem.Mt4Integration;
 
-namespace QvaDev.Orchestration.Services
+namespace TradeSystem.Orchestration.Services
 {
     public interface IReportService
     {

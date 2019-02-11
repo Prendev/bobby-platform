@@ -1,4 +1,4 @@
-﻿namespace QvaDev.Duplicat.Views
+﻿namespace TradeSystem.Duplicat.Views
 {
     partial class CopiersUserControl
     {
@@ -31,12 +31,12 @@
 			this.tlpMain = new System.Windows.Forms.TableLayoutPanel();
 			this.tlpTop = new System.Windows.Forms.TableLayoutPanel();
 			this.groupBox11 = new System.Windows.Forms.GroupBox();
-			this.dgvSymbolMappings = new QvaDev.Duplicat.Views.CustomDataGridView();
+			this.dgvSymbolMappings = new TradeSystem.Duplicat.Views.CustomDataGridView();
 			this.gbSlaves = new System.Windows.Forms.GroupBox();
-			this.dgvSlaves = new QvaDev.Duplicat.Views.CustomDataGridView();
+			this.dgvSlaves = new TradeSystem.Duplicat.Views.CustomDataGridView();
 			this.tlpTopLeft = new System.Windows.Forms.TableLayoutPanel();
 			this.groupBox8 = new System.Windows.Forms.GroupBox();
-			this.dgvMasters = new QvaDev.Duplicat.Views.CustomDataGridView();
+			this.dgvMasters = new TradeSystem.Duplicat.Views.CustomDataGridView();
 			this.gbControl = new System.Windows.Forms.GroupBox();
 			this.btnClose = new System.Windows.Forms.Button();
 			this.btnSync = new System.Windows.Forms.Button();
@@ -44,9 +44,9 @@
 			this.btnStart = new System.Windows.Forms.Button();
 			this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
 			this.groupBox1 = new System.Windows.Forms.GroupBox();
-			this.dgvFixApiCopiers = new QvaDev.Duplicat.Views.CustomDataGridView();
+			this.dgvFixApiCopiers = new TradeSystem.Duplicat.Views.CustomDataGridView();
 			this.groupBox10 = new System.Windows.Forms.GroupBox();
-			this.dgvCopiers = new QvaDev.Duplicat.Views.CustomDataGridView();
+			this.dgvCopiers = new TradeSystem.Duplicat.Views.CustomDataGridView();
 			this.btnArchive = new System.Windows.Forms.Button();
 			this.tlpMain.SuspendLayout();
 			this.tlpTop.SuspendLayout();

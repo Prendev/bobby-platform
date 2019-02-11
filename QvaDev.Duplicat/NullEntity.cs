@@ -1,7 +1,7 @@
 ﻿
-using QvaDev.Data.Models;
+using TradeSystem.Data.Models;
 
-namespace QvaDev.Duplicat
+namespace TradeSystem.Duplicat
 {
 	public class NullEntity : BaseEntity
 	{

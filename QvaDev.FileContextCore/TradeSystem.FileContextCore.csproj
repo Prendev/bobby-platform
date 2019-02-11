@@ -4,14 +4,13 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{7FCD6735-2115-4096-B5C9-E5CD7B4A3C1C}</ProjectGuid>
+    <ProjectGuid>{B0DF0796-17ED-470A-858D-A7CABB3F36F8}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>QvaDev.Orchestration</RootNamespace>
-    <AssemblyName>QvaDev.Orchestration</AssemblyName>
+    <RootNamespace>TradeSystem.FileContextCore</RootNamespace>
+    <AssemblyName>TradeSystem.FileContextCore</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -30,31 +29,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\x64\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <DebugType>full</DebugType>
-    <PlatformTarget>x64</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
-    <OutputPath>bin\x64\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>x64</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Common.Logging.Core, Version=3.4.1.0, Culture=neutral, PublicKeyToken=af08829b84f0328e" />
     <Reference Include="CsvHelper, Version=7.0.0.0, Culture=neutral, PublicKeyToken=8c4959082be5c823, processorArchitecture=MSIL">
-      <HintPath>..\packages\CsvHelper.7.1.0\lib\net45\CsvHelper.dll</HintPath>
-    </Reference>
-    <Reference Include="ICSharpCode.SharpZipLib, Version=0.86.0.518, Culture=neutral, PublicKeyToken=1b03e6acf1164f73, processorArchitecture=MSIL">
-      <HintPath>..\packages\SharpZipLib.0.86.0\lib\20\ICSharpCode.SharpZipLib.dll</HintPath>
+      <HintPath>..\packages\CsvHelper.7.1.1\lib\net45\CsvHelper.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.EntityFrameworkCore, Version=2.1.3.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.EntityFrameworkCore.2.1.3\lib\netstandard2.0\Microsoft.EntityFrameworkCore.dll</HintPath>
@@ -95,27 +72,11 @@
     <Reference Include="Microsoft.Extensions.Primitives, Version=2.1.1.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Extensions.Primitives.2.1.1\lib\netstandard2.0\Microsoft.Extensions.Primitives.dll</HintPath>
     </Reference>
-    <Reference Include="MT4ServerAPI, Version=4.0.1080.28, Culture=neutral, PublicKeyToken=5eb6b9ce8979bafe" />
-    <Reference Include="NPOI, Version=2.3.0.0, Culture=neutral, PublicKeyToken=0df73ec7942b34e1, processorArchitecture=MSIL">
-      <HintPath>..\packages\NPOI.2.3.0\lib\net40\NPOI.dll</HintPath>
-    </Reference>
-    <Reference Include="NPOI.OOXML, Version=2.3.0.0, Culture=neutral, PublicKeyToken=0df73ec7942b34e1, processorArchitecture=MSIL">
-      <HintPath>..\packages\NPOI.2.3.0\lib\net40\NPOI.OOXML.dll</HintPath>
-    </Reference>
-    <Reference Include="NPOI.OpenXml4Net, Version=2.3.0.0, Culture=neutral, PublicKeyToken=0df73ec7942b34e1, processorArchitecture=MSIL">
-      <HintPath>..\packages\NPOI.2.3.0\lib\net40\NPOI.OpenXml4Net.dll</HintPath>
-    </Reference>
-    <Reference Include="NPOI.OpenXmlFormats, Version=2.3.0.0, Culture=neutral, PublicKeyToken=0df73ec7942b34e1, processorArchitecture=MSIL">
-      <HintPath>..\packages\NPOI.2.3.0\lib\net40\NPOI.OpenXmlFormats.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.11.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="Remotion.Linq, Version=2.2.0.0, Culture=neutral, PublicKeyToken=fee00910d6e5f53b, processorArchitecture=MSIL">
       <HintPath>..\packages\Remotion.Linq.2.2.0\lib\net45\Remotion.Linq.dll</HintPath>
-    </Reference>
-    <Reference Include="RestSharp, Version=106.3.1.0, Culture=neutral, PublicKeyToken=598062e77f915f75, processorArchitecture=MSIL">
-      <HintPath>..\packages\RestSharp.106.3.1\lib\net452\RestSharp.dll</HintPath>
-    </Reference>
-    <Reference Include="starksoft.aspen, Version=1.1.5.0, Culture=neutral, PublicKeyToken=56b8923a24d03eb3, processorArchitecture=MSIL">
-      <HintPath>..\packages\starksoft.aspen.1.1.6\lib\net45\starksoft.aspen.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Buffers, Version=4.0.2.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
@@ -128,7 +89,6 @@
       <HintPath>..\packages\System.ComponentModel.Annotations.4.5.0\lib\net461\System.ComponentModel.Annotations.dll</HintPath>
     </Reference>
     <Reference Include="System.ComponentModel.DataAnnotations" />
-    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Diagnostics.DiagnosticSource, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Diagnostics.DiagnosticSource.4.5.0\lib\net46\System.Diagnostics.DiagnosticSource.dll</HintPath>
@@ -136,8 +96,6 @@
     <Reference Include="System.Interactive.Async, Version=3.0.3000.0, Culture=neutral, PublicKeyToken=94bc3704cddfc263, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Interactive.Async.3.1.1\lib\net46\System.Interactive.Async.dll</HintPath>
     </Reference>
-    <Reference Include="System.IO.Compression" />
-    <Reference Include="System.IO.Compression.FileSystem" />
     <Reference Include="System.Memory, Version=4.0.1.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Memory.4.5.1\lib\netstandard2.0\System.Memory.dll</HintPath>
     </Reference>
@@ -148,8 +106,6 @@
     <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.4.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.4.5.1\lib\netstandard2.0\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
     </Reference>
-    <Reference Include="System.Threading.Tasks.Dataflow, Version=4.5.24.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
-    <Reference Include="System.Web" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -158,91 +114,60 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CustomWorkbook.cs" />
-    <Compile Include="Orchestrator.Strategies.cs" />
-    <Compile Include="Orchestrator.cs" />
+    <Compile Include="Check.cs" />
+    <Compile Include="CodeAnnotations.cs" />
+    <Compile Include="Diagnostics\FileContextEventId.cs" />
+    <Compile Include="Extensions\FileContextDatabaseFacadeExtensions.cs" />
+    <Compile Include="Extensions\FileContextDbContextOptionsExtensions.cs" />
+    <Compile Include="Extensions\FileContextServiceCollectionExtensions.cs" />
+    <Compile Include="Extensions\Internal\FileContextLoggerExtensions.cs" />
+    <Compile Include="FileContextStrings.cs" />
+    <Compile Include="FileManager\DefaultFileManager.cs" />
+    <Compile Include="FileManager\IFileManager.cs" />
+    <Compile Include="Infrastructure\FileContextDbContextOptionsBuilder.cs" />
+    <Compile Include="Infrastructure\Internal\FileContextOptionsExtension.cs" />
+    <Compile Include="MemberInfoExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Services\ConnectorFactory.cs" />
-    <Compile Include="Services\CopierService.Fix.cs" />
-    <Compile Include="Services\MtAccountImportService.cs" />
-    <Compile Include="Services\ProxyService.cs" />
-    <Compile Include="Services\Strategies\HubArbService.SendPosition.cs" />
-    <Compile Include="Services\Strategies\HubArbService.Opening.cs" />
-    <Compile Include="Services\Strategies\HubArbService.cs" />
-    <Compile Include="Services\SpoofingService.cs" />
-    <Compile Include="Services\TickerService.cs" />
-    <Compile Include="Services\CopierService.cs" />
-    <Compile Include="Services\Strategies\PushingService.cs" />
-    <Compile Include="Services\ReportService.cs" />
+    <Compile Include="PropertyInfoExtensions.cs" />
+    <Compile Include="Query\ExpressionVisitors\Internal\FileContextEntityQueryableExpressionVisitor.cs" />
+    <Compile Include="Query\ExpressionVisitors\Internal\FileContextEntityQueryableExpressionVisitorFactory.cs" />
+    <Compile Include="Query\Internal\FileContextQueryContext.cs" />
+    <Compile Include="Query\Internal\FileContextQueryContextFactory.cs" />
+    <Compile Include="Query\Internal\FileContextQueryModelVisitor.cs" />
+    <Compile Include="Query\Internal\FileContextQueryModelVisitorFactory.cs" />
+    <Compile Include="Query\Internal\IMaterializerFactory.cs" />
+    <Compile Include="Query\Internal\MaterializerFactory.cs" />
+    <Compile Include="Serializer\ISerializer.cs" />
+    <Compile Include="Serializer\JsonSerializer.cs" />
+    <Compile Include="Serializer\SerializerHelper.cs" />
+    <Compile Include="SharedTypeExtensions.cs" />
+    <Compile Include="Storage\Internal\FileContextDatabase.cs" />
+    <Compile Include="Storage\Internal\FileContextDatabaseCreator.cs" />
+    <Compile Include="Storage\Internal\FileContextStore.cs" />
+    <Compile Include="Storage\Internal\FileContextStoreCache.cs" />
+    <Compile Include="Storage\Internal\FileContextStoreCacheExtensions.cs" />
+    <Compile Include="Storage\Internal\FileContextTable.cs" />
+    <Compile Include="Storage\Internal\FileContextTableFactory.cs" />
+    <Compile Include="Storage\Internal\FileContextTableSnapshot.cs" />
+    <Compile Include="Storage\Internal\FileContextTransaction.cs" />
+    <Compile Include="Storage\Internal\FileContextTransactionManager.cs" />
+    <Compile Include="Storage\Internal\IFileContextDatabase.cs" />
+    <Compile Include="Storage\Internal\IFileContextStore.cs" />
+    <Compile Include="Storage\Internal\IFileContextStoreCache.cs" />
+    <Compile Include="Storage\Internal\IFileContextTable.cs" />
+    <Compile Include="Storage\Internal\IFileContextTableFactory.cs" />
+    <Compile Include="StringBuilderExtensions.cs" />
+    <Compile Include="ValueGeneration\Internal\FileContextIntegerValueGenerator.cs" />
+    <Compile Include="ValueGeneration\Internal\FileContextIntegerValueGeneratorCache.cs" />
+    <Compile Include="ValueGeneration\Internal\FileContextIntegerValueGeneratorFactory.cs" />
+    <Compile Include="ValueGeneration\Internal\FileContextValueGeneratorSelector.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\git\QvaDev.Wololo\QvaDev.Communication.FixApi\QvaDev.Communication.FixApi.csproj">
-      <Project>{FA62481E-A560-449A-A654-A69B8FA63D36}</Project>
-      <Name>QvaDev.Communication.FixApi</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\git\QvaDev.Wololo\QvaDev.Communication\QvaDev.Communication.csproj">
-      <Project>{1EA7001F-9841-4CAA-A69E-59F11BCF76C0}</Project>
-      <Name>QvaDev.Communication</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\git\QvaDev.Wololo\QvaDev\QvaDev.csproj">
-      <Project>{A8C5F573-2D3D-4E1A-8844-B11032F12A37}</Project>
-      <Name>QvaDev</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\InteractiveBrokersApi\InteractiveBrokersApi.csproj">
-      <Project>{8ede0744-96c2-40b0-a8dc-37df79370203}</Project>
-      <Name>InteractiveBrokersApi</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\QvaDev.Common\QvaDev.Common.csproj">
-      <Project>{10A3EF89-12BB-4D00-9950-36BFED281B91}</Project>
-      <Name>QvaDev.Common</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\QvaDev.CqgClientApiIntegration\QvaDev.CqgClientApiIntegration.csproj">
-      <Project>{8acfc7d6-2c62-4f4c-9fa5-86066cfb62b9}</Project>
-      <Name>QvaDev.CqgClientApiIntegration</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\QvaDev.CTraderApi\QvaDev.CTraderApi.csproj">
-      <Project>{866039f3-42ff-4d42-a85e-f91cef04f3df}</Project>
-      <Name>QvaDev.CTraderApi</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\QvaDev.CTraderIntegration\QvaDev.CTraderIntegration.csproj">
-      <Project>{5b92788f-af48-4709-a539-bba2822a06b7}</Project>
-      <Name>QvaDev.CTraderIntegration</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\QvaDev.Data\QvaDev.Data.csproj">
-      <Project>{D7DA9DD6-1BA9-45B9-9581-1D095631DF0D}</Project>
-      <Name>QvaDev.Data</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\QvaDev.FixApiIntegration\QvaDev.FixApiIntegration.csproj">
-      <Project>{7f7f4b22-f0bd-4375-baf4-ffafe9b3a853}</Project>
-      <Name>QvaDev.FixApiIntegration</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\QvaDev.FixTraderIntegration\QvaDev.FixTraderIntegration.csproj">
-      <Project>{e3002184-b948-49ee-b313-3167948c3f97}</Project>
-      <Name>QvaDev.FixTraderIntegration</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\QvaDev.IbIntegration\QvaDev.IbIntegration.csproj">
-      <Project>{62ce29d7-e16c-4b48-b017-586c4b22edc9}</Project>
-      <Name>QvaDev.IbIntegration</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\QvaDev.IlyaFastFeedIntegration\QvaDev.IlyaFastFeedIntegration.csproj">
-      <Project>{4c1ea1a8-5c20-48ab-a662-72969d880b21}</Project>
-      <Name>QvaDev.IlyaFastFeedIntegration</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\QvaDev.Mt4Integration\QvaDev.Mt4Integration.csproj">
-      <Project>{73a2679e-f17e-4484-8874-461d3fc895dd}</Project>
-      <Name>QvaDev.Mt4Integration</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="App.config" />
+    <None Include="app.config" />
     <None Include="packages.config" />
-    <None Include="Templates\OrderHistory.xlsx">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Templates\BalanceReport.xlsx">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

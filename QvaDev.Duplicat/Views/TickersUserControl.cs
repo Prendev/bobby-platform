@@ -1,8 +1,8 @@
 ﻿using System.Windows.Forms;
 using Microsoft.EntityFrameworkCore;
-using QvaDev.Duplicat.ViewModel;
+using TradeSystem.Duplicat.ViewModel;
 
-namespace QvaDev.Duplicat.Views
+namespace TradeSystem.Duplicat.Views
 {
 	public partial class TickersUserControl : UserControl, IMvvmUserControl
 	{

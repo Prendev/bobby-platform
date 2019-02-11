@@ -1,6 +1,6 @@
 ﻿using System.Threading;
 
-namespace QvaDev.Common
+namespace TradeSystem.Common
 {
 	public static class DependecyManager
 	{

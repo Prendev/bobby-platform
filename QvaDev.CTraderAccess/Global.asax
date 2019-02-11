@@ -1,1 +1,1 @@
-﻿<%@ Application Codebehind="Global.asax.cs" Inherits="QvaDev.CTraderAccess.WebApiApplication" Language="C#" %>
+﻿<%@ Application Codebehind="Global.asax.cs" Inherits="TradeSystem.CTraderAccess.WebApiApplication" Language="C#" %>

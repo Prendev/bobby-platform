@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace QvaDev.Data.Migrations
+namespace TradeSystem.Data.Migrations
 {
     public partial class AggregatorRun : Migration
     {

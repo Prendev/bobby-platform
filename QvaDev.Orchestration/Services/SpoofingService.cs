@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using QvaDev.Common;
-using QvaDev.Common.Integration;
-using QvaDev.Data;
+using TradeSystem.Common;
+using TradeSystem.Common.Integration;
+using TradeSystem.Data;
 
-namespace QvaDev.Orchestration.Services
+namespace TradeSystem.Orchestration.Services
 {
 	public interface ISpoofingService
 	{

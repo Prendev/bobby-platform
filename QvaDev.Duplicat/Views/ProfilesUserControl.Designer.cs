@@ -1,4 +1,4 @@
-﻿namespace QvaDev.Duplicat.Views
+﻿namespace TradeSystem.Duplicat.Views
 {
     partial class ProfilesUserControl
     {
@@ -31,9 +31,9 @@
 			this.tlpMain = new System.Windows.Forms.TableLayoutPanel();
 			this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
 			this.gbProfile = new System.Windows.Forms.GroupBox();
-			this.dgvProfiles = new QvaDev.Duplicat.Views.CustomDataGridView();
+			this.dgvProfiles = new TradeSystem.Duplicat.Views.CustomDataGridView();
 			this.groupBox1 = new System.Windows.Forms.GroupBox();
-			this.dgvAccounts = new QvaDev.Duplicat.Views.CustomDataGridView();
+			this.dgvAccounts = new TradeSystem.Duplicat.Views.CustomDataGridView();
 			this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
 			this.gbControl = new System.Windows.Forms.GroupBox();
 			this.btnHeatUp = new System.Windows.Forms.Button();

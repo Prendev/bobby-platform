@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using QvaDev.Common.Integration;
-using QvaDev.Data;
-using QvaDev.Data.Models;
+using TradeSystem.Common.Integration;
+using TradeSystem.Data;
+using TradeSystem.Data.Models;
 using TradingAPI.MT4Server;
 
-namespace QvaDev.Orchestration.Services
+namespace TradeSystem.Orchestration.Services
 {
 	public interface IMtAccountImportService
 	{

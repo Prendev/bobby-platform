@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging;
 
-namespace QvaDev.FileContextCore.Diagnostics
+namespace TradeSystem.FileContextCore.Diagnostics
 {
     /// <summary>
     ///     <para>

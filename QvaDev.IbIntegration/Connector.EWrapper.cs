@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using IBApi;
-using QvaDev.Common.Integration;
+using TradeSystem.Common.Integration;
 using Bar = IBApi.Bar;
 
-namespace QvaDev.IbIntegration
+namespace TradeSystem.IbIntegration
 {
 	public partial class Connector : EWrapper
 	{
