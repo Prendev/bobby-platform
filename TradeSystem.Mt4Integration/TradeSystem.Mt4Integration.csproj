@@ -132,7 +132,7 @@
       <Project>{fdfce270-50ac-4930-8680-a760f6f7c637}</Project>
       <Name>TradeSystem</Name>
     </ProjectReference>
-    <ProjectReference Include="..\QvaDev.Common\TradeSystem.Common.csproj">
+    <ProjectReference Include="..\TradeSystem.Common\TradeSystem.Common.csproj">
       <Project>{10a3ef89-12bb-4d00-9950-36bfed281b91}</Project>
       <Name>TradeSystem.Common</Name>
     </ProjectReference>

@@ -4,13 +4,14 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{62CE29D7-E16C-4B48-B017-586C4B22EDC9}</ProjectGuid>
+    <ProjectGuid>{7F7F4B22-F0BD-4375-BAF4-FFAFE9B3A853}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>TradeSystem.IbIntegration</RootNamespace>
-    <AssemblyName>TradeSystem.IbIntegration</AssemblyName>
+    <RootNamespace>TradeSystem.FixApiIntegration</RootNamespace>
+    <AssemblyName>TradeSystem.FixApiIntegration</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -30,11 +31,19 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Common.Logging.Core, Version=3.4.1.0, Culture=neutral, PublicKeyToken=af08829b84f0328e, processorArchitecture=MSIL">
-      <HintPath>..\packages\Common.Logging.Core.3.4.1\lib\net40\Common.Logging.Core.dll</HintPath>
+    <Reference Include="Common.Logging">
+      <HintPath>..\Externals\QvaDev.Communication.FixApi.Connectors\Common.Logging.dll</HintPath>
+    </Reference>
+    <Reference Include="Common.Logging.Core">
+      <HintPath>..\Externals\QvaDev.Communication.FixApi.Connectors\Common.Logging.Core.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Threading.Tasks.Dataflow, Version=4.5.24.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Externals\QvaDev.Communication.FixApi.Connectors\System.Threading.Tasks.Dataflow.dll</HintPath>
+    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -45,11 +54,19 @@
   <ItemGroup>
     <Compile Include="AccountInfo.cs" />
     <Compile Include="Connector.cs" />
-    <Compile Include="Connector.EWrapper.cs" />
-    <Compile Include="Extensions.cs" />
+    <Compile Include="ConnectorHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SpecialLogger.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\git\QvaDev.Wololo\QvaDev.Communication.FixApi.Connectors.Strategies\TradeSystem.Communication.FixApi.Connectors.Strategies.csproj">
+      <Project>{D025DB83-5628-432A-832D-0BB89E807252}</Project>
+      <Name>TradeSystem.Communication.FixApi.Connectors.Strategies</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\git\QvaDev.Wololo\QvaDev.Communication.FixApi\TradeSystem.Communication.FixApi.csproj">
+      <Project>{5A7C14E4-C1F0-4A9E-8284-D01F0082B483}</Project>
+      <Name>TradeSystem.Communication.FixApi</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\git\QvaDev.Wololo\QvaDev.Communication\TradeSystem.Communication.csproj">
       <Project>{9B577BD6-AEA9-4F64-9F1D-6EC760103295}</Project>
       <Name>TradeSystem.Communication</Name>
@@ -58,17 +75,10 @@
       <Project>{FDFCE270-50AC-4930-8680-A760F6F7C637}</Project>
       <Name>TradeSystem</Name>
     </ProjectReference>
-    <ProjectReference Include="..\InteractiveBrokersApi\InteractiveBrokersApi.csproj">
-      <Project>{8ede0744-96c2-40b0-a8dc-37df79370203}</Project>
-      <Name>InteractiveBrokersApi</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\QvaDev.Common\TradeSystem.Common.csproj">
-      <Project>{10A3EF89-12BB-4D00-9950-36BFED281B91}</Project>
+    <ProjectReference Include="..\TradeSystem.Common\TradeSystem.Common.csproj">
+      <Project>{10a3ef89-12bb-4d00-9950-36bfed281b91}</Project>
       <Name>TradeSystem.Common</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

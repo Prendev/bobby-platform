@@ -110,11 +110,11 @@
     <Folder Include="Models\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\QvaDev.Common\TradeSystem.Common.csproj">
+    <ProjectReference Include="..\TradeSystem.Common\TradeSystem.Common.csproj">
       <Project>{10a3ef89-12bb-4d00-9950-36bfed281b91}</Project>
       <Name>TradeSystem.Common</Name>
     </ProjectReference>
-    <ProjectReference Include="..\QvaDev.Data\TradeSystem.Data.csproj">
+    <ProjectReference Include="..\TradeSystem.Data\TradeSystem.Data.csproj">
       <Project>{d7da9dd6-1ba9-45b9-9581-1d095631df0d}</Project>
       <Name>TradeSystem.Data</Name>
     </ProjectReference>
