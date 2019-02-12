@@ -40,11 +40,11 @@ namespace TradeSystem.Duplicat
 	    private static void RegisterLoggers()
 	    {
 		    Logger.AddLogger(new LogAdapter(LogManager.GetLogger("General")),
-			    filePathExclude: new[] {".Communication", @"FixApiIntegration\SpecialLogger" });
+			    filePathExclude: new[] {"TradeSystem.Communication", @"TradeSystem.FixApiIntegration\SpecialLogger" });
 		    Logger.AddLogger(new LogAdapter(LogManager.GetLogger("FIX")),
-			    filePathInclude: new[] { ".Communication" });
+			    filePathInclude: new[] { "TradeSystem.Communication" });
 			Logger.AddLogger(new LogAdapter(LogManager.GetLogger("FIX orders")),
-				filePathInclude: new[] { @".FixApiIntegration\SpecialLogger" });
+				filePathInclude: new[] { @"TradeSystem.FixApiIntegration\SpecialLogger" });
 		}
 
         private static void RegisterApp(ContainerBuilder builder)

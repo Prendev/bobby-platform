@@ -122,7 +122,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\git\QvaDev.Wololo\QvaDev\TradeSystem.csproj">
+    <ProjectReference Include="..\..\..\git\QvaDev.Wololo\TradeSystem\TradeSystem.csproj">
       <Project>{FDFCE270-50AC-4930-8680-A760F6F7C637}</Project>
       <Name>TradeSystem</Name>
     </ProjectReference>

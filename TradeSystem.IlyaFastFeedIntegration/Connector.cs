@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using TradeSystem.Common.Integration;
+using TradeSystem.Communication;
 
 namespace TradeSystem.IlyaFastFeedIntegration
 {

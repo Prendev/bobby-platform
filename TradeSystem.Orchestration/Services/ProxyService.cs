@@ -5,7 +5,6 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
-using TradeSystem.Communication;
 using TradeSystem.Data.Models;
 using Starksoft.Aspen.Proxy;
 
