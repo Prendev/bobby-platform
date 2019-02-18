@@ -91,11 +91,6 @@ namespace TradeSystem.FixApiIntegration
 			OnConnectionChanged(ConnectionStates.Disconnected);
 		}
 
-		public override Task<OrderResponse> SendMarketOrderRequest(string symbol, Sides side, decimal quantity)
-		{
-			return SendMarketOrderRequest(symbol, side, quantity, 0, 0, 0);
-		}
-
 		public override async Task<OrderResponse> SendMarketOrderRequest(string symbol, Sides side, decimal quantity, int timeout, int retryCount, int retryPeriod)
 		{
 			var retValue = new OrderResponse()

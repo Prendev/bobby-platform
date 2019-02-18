@@ -22,7 +22,7 @@ namespace TradeSystem.Common.Integration
 		}
 
 		public virtual Task<OrderResponse> SendMarketOrderRequest(string symbol, Sides side, decimal quantity) =>
-			throw new NotImplementedException();
+			SendMarketOrderRequest(symbol, side, quantity, 0, 0, 0);
 
 		public virtual Task<OrderResponse> SendMarketOrderRequest(string symbol, Sides side, decimal quantity,
 			int timeout, int retryCount, int retryPeriod) => throw new NotImplementedException();
