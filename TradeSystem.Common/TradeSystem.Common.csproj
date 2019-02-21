@@ -92,6 +92,7 @@
     <Compile Include="Integration\FixApiConnectorBase.cs" />
     <Compile Include="Integration\ConnectorBase.cs" />
     <Compile Include="Integration\IFixConnector.cs" />
+    <Compile Include="Integration\LimitFill.cs" />
     <Compile Include="Integration\LimitResponse.cs" />
     <Compile Include="Integration\OrderResponse.cs" />
     <Compile Include="Integration\SymbolData.cs" />

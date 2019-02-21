@@ -199,6 +199,12 @@
     <Compile Include="Views\HubArbUserControl.Designer.cs">
       <DependentUpon>HubArbUserControl.cs</DependentUpon>
     </Compile>
+    <Compile Include="Views\MarketMakerUserControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Views\MarketMakerUserControl.Designer.cs">
+      <DependentUpon>MarketMakerUserControl.cs</DependentUpon>
+    </Compile>
     <Compile Include="Views\PropertyComparer.cs" />
     <Compile Include="Views\ProxyUserControl.cs">
       <SubType>UserControl</SubType>
@@ -283,6 +289,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Views\HubArbUserControl.resx">
       <DependentUpon>HubArbUserControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\MarketMakerUserControl.resx">
+      <DependentUpon>MarketMakerUserControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\ProxyUserControl.resx">
       <DependentUpon>ProxyUserControl.cs</DependentUpon>

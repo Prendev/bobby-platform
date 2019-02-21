@@ -224,6 +224,7 @@
     <Compile Include="Models\Pushing.cs" />
     <Compile Include="Models\PushingDetail.cs" />
     <Compile Include="Models\_Accounts\FixTraderAccount.cs" />
+    <Compile Include="Models\_Strategies\MarketMaker.cs" />
     <Compile Include="Models\_Strategies\StratHubArb.NotMapped.cs" />
     <Compile Include="Models\_Strategies\StratHubArbQuoteEventArgs.cs" />
     <Compile Include="Models\_Strategies\AggregatorQuoteEventArgs.cs" />
@@ -246,6 +247,7 @@
     <None Include="App.config">
       <SubType>Designer</SubType>
     </None>
+    <Compile Include="Models\_Strategies\MarketMaker.NotMapped.cs" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

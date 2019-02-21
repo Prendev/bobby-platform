@@ -72,7 +72,7 @@ namespace TradeSystem.Orchestration.Services
 			}
 
 			var changed = false;
-			spoof.FeedAccount.Connector.NewTick += NewTick;
+			spoof.FeedAccount.NewTick += NewTick;
 			if (lastTick?.HasValue == true) waitHandle.Set();
 
 			while (!token.IsCancellationRequested)
@@ -96,7 +96,7 @@ namespace TradeSystem.Orchestration.Services
 
 			try
 			{
-				spoof.FeedAccount.Connector.NewTick -= NewTick;
+				spoof.FeedAccount.NewTick -= NewTick;
 
 				if (spoof.PutAway.HasValue)
 				{
