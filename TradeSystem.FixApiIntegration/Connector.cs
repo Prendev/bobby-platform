@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
@@ -29,6 +30,7 @@ namespace TradeSystem.FixApiIntegration
 		private readonly HashSet<string> _unfinishedOrderIds = new HashSet<string>();
 		private readonly FastBlockingCollection<QuoteSet> _quoteQueue = new FastBlockingCollection<QuoteSet>();
 		private readonly int _marketDepth;
+		private readonly ConcurrentDictionary<string, LimitResponse> _limitOrders = new ConcurrentDictionary<string, LimitResponse>();
 
 		public override int Id => _accountInfo?.DbId ?? 0;
 		public override string Description => _accountInfo?.Description ?? "";
@@ -325,6 +327,39 @@ namespace TradeSystem.FixApiIntegration
 			return retValue;
 		}
 
+		public override async Task<LimitResponse> SendSpoofOrderRequest(string symbol, Sides side, decimal quantity,
+			decimal limitPrice)
+		{
+			try
+			{
+				var response = new LimitResponse()
+				{
+					Symbol = symbol,
+					Side = side,
+					OrderedQuantity = quantity,
+					OrderPrice = limitPrice
+				};
+				_limitOrders.AddOrUpdate("", response, (k, o) => response);
+
+				Logger.Debug(
+					$"{Description} Connector.SendSpoofOrderRequest({symbol}, {side}, {quantity}, {limitPrice}) " +
+					$"opened {response.FilledQuantity} at price {response.OrderPrice}");
+				return response;
+			}
+			catch (TimeoutException)
+			{
+				Logger.Warn(
+					$"{Description} Connector.SendSpoofOrderRequest({symbol}, {side}, {quantity}, {limitPrice}) timeout");
+			}
+			catch (Exception e)
+			{
+				Logger.Error(
+					$"{Description} Connector.SendSpoofOrderRequest({symbol}, {side}, {quantity}, {limitPrice}) exception", e);
+			}
+
+			return null;
+		}
+
 		public override async void OrderMultipleCloseBy(string symbol)
 		{
 			var symbolInfo = GetSymbolInfo(symbol);
@@ -415,6 +450,29 @@ namespace TradeSystem.FixApiIntegration
 					oldValue.SumContracts += quantity;
 					return oldValue;
 				});
+		}
+
+
+		private void CheckLimit(ExecutionReport e)
+		{
+			var orderKey = e.OrderId;
+			if (e.OrderType != OrdType.Limit) return;
+
+			//if (cqgOrder.GWStatus == eOrderStatus.osInOrderBook && cqgFill == null)
+			//	// Modify
+			//	_taskCompletionManager.SetResult(orderKey, cqgOrder, true);
+			//else if (cqgOrder.GWStatus == eOrderStatus.osCanceled)
+			//	// Cancel
+			//	_taskCompletionManager.SetCompleted($"{orderKey}_cancel", true);
+			//else if (cqgFill != null && _limitOrders.TryGetValue(orderKey, out var limitResponse))
+			//	// Fill
+			//	lock (limitResponse)
+			//		limitResponse.FilledQuantity = Math.Abs(cqgOrder.FilledQuantity);
+
+			if ((e.FulfilledQuantity ?? 0) != 0 && _limitOrders.TryGetValue(orderKey, out var limitResponse))
+				// Fill
+				lock (limitResponse)
+					limitResponse.FilledQuantity = Math.Abs(e.CumulativeQuantity ?? 0);
 		}
 
 

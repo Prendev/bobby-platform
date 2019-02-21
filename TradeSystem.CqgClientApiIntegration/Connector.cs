@@ -367,10 +367,13 @@ namespace TradeSystem.CqgClientApiIntegration
 			if (cqgOrder.Type != eOrderType.otLimit) return;
 
 			if (cqgOrder.GWStatus == eOrderStatus.osInOrderBook && cqgFill == null)
+				// Modify
 				_taskCompletionManager.SetResult(orderKey, cqgOrder, true);
 			else if(cqgOrder.GWStatus == eOrderStatus.osCanceled)
+				// Cancel
 				_taskCompletionManager.SetCompleted($"{orderKey}_cancel", true);
 			else if (cqgFill != null && _limitOrders.TryGetValue(orderKey, out var limitResponse))
+				// Fill
 				lock (limitResponse)
 					limitResponse.FilledQuantity = Math.Abs(cqgOrder.FilledQuantity);
 		}
