@@ -21,13 +21,13 @@ namespace TradeSystem.Duplicat.ViewModel
 		{
 			spoofing.BetaOpenSide = firstBetaOpenSide;
 			SpoofingState = SpoofingStates.BeforeOpeningBeta;
-			await Task.Delay(1000); // Spoof then open B side
+			await _orchestrator.OpeningBeta(spoofing);
 			SpoofingState = SpoofingStates.AfterOpeningBeta;
-			await Task.Delay(1000); // Spoof a little more
+			await _orchestrator.OpeningBetaEnd(spoofing);
 			SpoofingState = SpoofingStates.BeforeOpeningAlpha;
-			await Task.Delay(1000); // Spoof then open B side
+			await _orchestrator.OpeningAlpha(spoofing);
 			SpoofingState = SpoofingStates.AfterOpeningAlpha;
-			await Task.Delay(1000); // Spoof a little more
+			await _orchestrator.OpeningAlphaEnd(spoofing);
 			SpoofingState = SpoofingStates.BeforeClosing;
 		}
 
@@ -35,19 +35,19 @@ namespace TradeSystem.Duplicat.ViewModel
 		{
 			spoofing.FirstCloseSide = firstCloseSide;
 			SpoofingState = SpoofingStates.BeforeClosingFirst;
-			await Task.Delay(1000); // Spoof the close first side
+			await _orchestrator.ClosingFirst(spoofing);
 			SpoofingState = SpoofingStates.AfterClosingFirst;
-			await Task.Delay(1000); // Spoof a little more
+			await _orchestrator.ClosingFirstEnd(spoofing);
 			SpoofingState = SpoofingStates.BeforeClosingSecond;
-			await Task.Delay(1000); // Spoof then close second side
+			await _orchestrator.ClosingSecond(spoofing);
 			SpoofingState = SpoofingStates.AfterClosingSecond;
-			await Task.Delay(1000); // Spoof a little more
+			await _orchestrator.ClosingSecondEnd(spoofing);
 			SpoofingState = SpoofingStates.NotRunning;
 		}
 
         public void SpoofingPanicCommand(Spoofing spoofing)
-        {
-            //_orchestrator.SpoofingPanic(pushing);
+		{
+			_orchestrator.Panic(spoofing);
 		}
 
 		public void SpoofingResetCommand()

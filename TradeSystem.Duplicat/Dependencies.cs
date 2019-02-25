@@ -80,6 +80,7 @@ namespace TradeSystem.Duplicat
             builder.RegisterType<CopierService>().As<ICopierService>();
 	        builder.RegisterType<SpoofingService>().As<ISpoofingService>();
 			builder.RegisterType<PushingService>().As<IPushingService>();
+			builder.RegisterType<SpoofStrategyService>().As<ISpoofStrategyService>();
             builder.RegisterType<ReportService>().As<IReportService>();
 			builder.RegisterType<TickerService>().As<ITickerService>();
 			builder.RegisterType<HubArbService>().As<IHubArbService>();

@@ -21,16 +21,26 @@ namespace TradeSystem.Orchestration
 		Task ClosingSecond(Pushing pushing);
 		Task ClosingFinish(Pushing pushing);
 
-        void PushingPanic(Pushing pushing);
+        void Panic(Pushing pushing);
 
 	    Task StartStrategies(DuplicatContext duplicatContext);
 	    void StopStrategies();
 
 	    Task HubArbsGoFlat(DuplicatContext duplicatContext);
 	    Task HubArbsExport(DuplicatContext duplicatContext);
-    }
 
-    public partial class Orchestrator : IOrchestrator
+	    Task OpeningBeta(Spoofing spoofing);
+	    Task OpeningBetaEnd(Spoofing spoofing);
+		Task OpeningAlpha(Spoofing spoofing);
+	    Task OpeningAlphaEnd(Spoofing spoofing);
+		Task ClosingFirst(Spoofing spoofing);
+	    Task ClosingFirstEnd(Spoofing spoofing);
+		Task ClosingSecond(Spoofing spoofing);
+	    Task ClosingSecondEnd(Spoofing spoofing);
+		void Panic(Spoofing spoofing);
+	}
+
+	public partial class Orchestrator : IOrchestrator
     {
 	    public async void SendPushingFuturesOrder(Pushing pushing, Sides side, decimal contractSize)
 	    {
@@ -96,7 +106,7 @@ namespace TradeSystem.Orchestration
 			return Task.Run(() => _pushingService.ClosingFinish(pushing));
 		}
 
-        public void PushingPanic(Pushing pushing)
+        public void Panic(Pushing pushing)
         {
             pushing.InPanic = true;
         }
@@ -120,5 +130,58 @@ namespace TradeSystem.Orchestration
 		    var arbPositions = duplicatContext.StratHubArbPositions.ToList();
 		    await _reportService.HubArbsExport(arbPositions);
 	    }
-	}
+
+	    public Task OpeningBeta(Spoofing spoofing)
+		{
+			spoofing.InPanic = false;
+			return Task.Run(() => _spoofStrategyService.OpeningBeta(spoofing));
+		}
+
+	    public Task OpeningBetaEnd(Spoofing spoofing)
+		{
+			spoofing.InPanic = false;
+			return Task.Run(() => _spoofStrategyService.OpeningBetaEnd(spoofing));
+		}
+
+	    public Task OpeningAlpha(Spoofing spoofing)
+		{
+			spoofing.InPanic = false;
+			return Task.Run(() => _spoofStrategyService.OpeningAlpha(spoofing));
+		}
+
+	    public Task OpeningAlphaEnd(Spoofing spoofing)
+		{
+			spoofing.InPanic = false;
+			return Task.Run(() => _spoofStrategyService.OpeningAlphaEnd(spoofing));
+		}
+
+	    public Task ClosingFirst(Spoofing spoofing)
+		{
+			spoofing.InPanic = false;
+			return Task.Run(() => _spoofStrategyService.ClosingFirst(spoofing));
+		}
+
+	    public Task ClosingFirstEnd(Spoofing spoofing)
+		{
+			spoofing.InPanic = false;
+			return Task.Run(() => _spoofStrategyService.ClosingFirstEnd(spoofing));
+		}
+
+	    public Task ClosingSecond(Spoofing spoofing)
+		{
+			spoofing.InPanic = false;
+			return Task.Run(() => _spoofStrategyService.ClosingSecond(spoofing));
+		}
+
+	    public Task ClosingSecondEnd(Spoofing spoofing)
+		{
+			spoofing.InPanic = false;
+			return Task.Run(() => _spoofStrategyService.ClosingSecondEnd(spoofing));
+		}
+
+	    public void Panic(Spoofing spoofing)
+		{
+			spoofing.InPanic = true;
+	    }
+    }
 }

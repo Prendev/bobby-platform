@@ -40,6 +40,7 @@ namespace TradeSystem.Orchestration
         private readonly Func<SynchronizationContext> _synchronizationContextFactory;
         private readonly ICopierService _copierService;
         private readonly IPushingService _pushingService;
+	    private readonly ISpoofStrategyService _spoofStrategyService;
 		private readonly ITickerService _tickerService;
 	    private readonly IHubArbService _hubArbService;
 		private readonly IConnectorFactory _connectorFactory;
@@ -52,12 +53,14 @@ namespace TradeSystem.Orchestration
 			IConnectorFactory connectorFactory,
             ICopierService copierService,
             IPushingService pushingService,
+			ISpoofStrategyService spoofStrategyService,
 			ITickerService tickerService,
             IHubArbService hubArbService,
 			IReportService reportService,
             IMtAccountImportService mtAccountImportService,
 			IProxyService proxyService)
         {
+	        _spoofStrategyService = spoofStrategyService;
 	        _proxyService = proxyService;
 			_mtAccountImportService = mtAccountImportService;
 	        _reportService = reportService;
