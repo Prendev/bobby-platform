@@ -193,16 +193,16 @@
     <Compile Include="Views\CopiersUserControl.Designer.cs">
       <DependentUpon>CopiersUserControl.cs</DependentUpon>
     </Compile>
-    <Compile Include="Views\HubArbUserControl.cs">
+    <Compile Include="Views\_Strategies\HubArbUserControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Views\HubArbUserControl.Designer.cs">
+    <Compile Include="Views\_Strategies\HubArbUserControl.Designer.cs">
       <DependentUpon>HubArbUserControl.cs</DependentUpon>
     </Compile>
-    <Compile Include="Views\MarketMakerUserControl.cs">
+    <Compile Include="Views\_Strategies\MarketMakerUserControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Views\MarketMakerUserControl.Designer.cs">
+    <Compile Include="Views\_Strategies\MarketMakerUserControl.Designer.cs">
       <DependentUpon>MarketMakerUserControl.cs</DependentUpon>
     </Compile>
     <Compile Include="Views\PropertyComparer.cs" />
@@ -230,10 +230,10 @@
     <Compile Include="Views\_Accounts\IffAccountsUserControl.Designer.cs">
       <DependentUpon>IffAccountsUserControl.cs</DependentUpon>
     </Compile>
-    <Compile Include="Views\PushingUserControl.cs">
+    <Compile Include="Views\_Strategies\PushingUserControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Views\PushingUserControl.Designer.cs">
+    <Compile Include="Views\_Strategies\PushingUserControl.Designer.cs">
       <DependentUpon>PushingUserControl.cs</DependentUpon>
     </Compile>
     <Compile Include="Views\IMvvmUserControl.cs" />
@@ -281,16 +281,22 @@
     <Compile Include="Views\TickersUserControl.Designer.cs">
       <DependentUpon>TickersUserControl.cs</DependentUpon>
     </Compile>
+    <Compile Include="Views\_Strategies\SpoofingUserControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Views\_Strategies\SpoofingUserControl.Designer.cs">
+      <DependentUpon>SpoofingUserControl.cs</DependentUpon>
+    </Compile>
     <EmbeddedResource Include="Views\AggregatorUserControl.resx">
       <DependentUpon>AggregatorUserControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\CopiersUserControl.resx">
       <DependentUpon>CopiersUserControl.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Views\HubArbUserControl.resx">
+    <EmbeddedResource Include="Views\_Strategies\HubArbUserControl.resx">
       <DependentUpon>HubArbUserControl.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Views\MarketMakerUserControl.resx">
+    <EmbeddedResource Include="Views\_Strategies\MarketMakerUserControl.resx">
       <DependentUpon>MarketMakerUserControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\ProxyUserControl.resx">
@@ -305,7 +311,7 @@
     <EmbeddedResource Include="Views\_Accounts\IffAccountsUserControl.resx">
       <DependentUpon>IffAccountsUserControl.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Views\PushingUserControl.resx">
+    <EmbeddedResource Include="Views\_Strategies\PushingUserControl.resx">
       <DependentUpon>PushingUserControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\MainForm.resx">
@@ -332,6 +338,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Views\TickersUserControl.resx">
       <DependentUpon>TickersUserControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\_Strategies\SpoofingUserControl.resx">
+      <DependentUpon>SpoofingUserControl.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="log4net.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

@@ -55,6 +55,8 @@
 			this.pushingUserControl = new TradeSystem.Duplicat.Views.PushingUserControl();
 			this.tabPageHubArb = new System.Windows.Forms.TabPage();
 			this.hubArbUserControl = new TradeSystem.Duplicat.Views.HubArbUserControl();
+			this.tabPageMarketMaker = new System.Windows.Forms.TabPage();
+			this.marketMakerUserControl1 = new TradeSystem.Duplicat.Views.MarketMakerUserControl();
 			this.tabPageTicker = new System.Windows.Forms.TabPage();
 			this.tickersUserControl = new TradeSystem.Duplicat.Views.TickersUserControl();
 			this.tabPageLog = new System.Windows.Forms.TabPage();
@@ -75,8 +77,7 @@
 			this.btnDisconnect = new System.Windows.Forms.Button();
 			this.btnConnect = new System.Windows.Forms.Button();
 			this.btnSave = new System.Windows.Forms.Button();
-			this.tabPageMarketMaker = new System.Windows.Forms.TabPage();
-			this.marketMakerUserControl1 = new TradeSystem.Duplicat.Views.MarketMakerUserControl();
+			this.tabPageSpoofing = new System.Windows.Forms.TabPage();
 			this.tabControlMain.SuspendLayout();
 			this.tabPageProfile.SuspendLayout();
 			this.tabPageAccount.SuspendLayout();
@@ -93,6 +94,7 @@
 			this.tabControlStrategies.SuspendLayout();
 			this.tabPagePushing.SuspendLayout();
 			this.tabPageHubArb.SuspendLayout();
+			this.tabPageMarketMaker.SuspendLayout();
 			this.tabPageTicker.SuspendLayout();
 			this.tabPageLog.SuspendLayout();
 			this.tabControl1.SuspendLayout();
@@ -102,7 +104,6 @@
 			this.tabPage3.SuspendLayout();
 			this.tlpMain.SuspendLayout();
 			this.gbControl.SuspendLayout();
-			this.tabPageMarketMaker.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// tabControlMain
@@ -336,6 +337,7 @@
 			// tabControlStrategies
 			// 
 			this.tabControlStrategies.Controls.Add(this.tabPagePushing);
+			this.tabControlStrategies.Controls.Add(this.tabPageSpoofing);
 			this.tabControlStrategies.Controls.Add(this.tabPageHubArb);
 			this.tabControlStrategies.Controls.Add(this.tabPageMarketMaker);
 			this.tabControlStrategies.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -382,6 +384,24 @@
 			this.hubArbUserControl.Name = "hubArbUserControl";
 			this.hubArbUserControl.Size = new System.Drawing.Size(1465, 692);
 			this.hubArbUserControl.TabIndex = 0;
+			// 
+			// tabPageMarketMaker
+			// 
+			this.tabPageMarketMaker.Controls.Add(this.marketMakerUserControl1);
+			this.tabPageMarketMaker.Location = new System.Drawing.Point(4, 25);
+			this.tabPageMarketMaker.Name = "tabPageMarketMaker";
+			this.tabPageMarketMaker.Size = new System.Drawing.Size(1471, 698);
+			this.tabPageMarketMaker.TabIndex = 4;
+			this.tabPageMarketMaker.Text = "Market maker";
+			this.tabPageMarketMaker.UseVisualStyleBackColor = true;
+			// 
+			// marketMakerUserControl1
+			// 
+			this.marketMakerUserControl1.Dock = System.Windows.Forms.DockStyle.Top;
+			this.marketMakerUserControl1.Location = new System.Drawing.Point(0, 0);
+			this.marketMakerUserControl1.Name = "marketMakerUserControl1";
+			this.marketMakerUserControl1.Size = new System.Drawing.Size(1471, 629);
+			this.marketMakerUserControl1.TabIndex = 0;
 			// 
 			// tabPageTicker
 			// 
@@ -616,23 +636,14 @@
 			this.btnSave.Text = "Save config changes";
 			this.btnSave.UseVisualStyleBackColor = true;
 			// 
-			// tabPageMarketMaker
+			// tabPageSpoofing
 			// 
-			this.tabPageMarketMaker.Controls.Add(this.marketMakerUserControl1);
-			this.tabPageMarketMaker.Location = new System.Drawing.Point(4, 25);
-			this.tabPageMarketMaker.Name = "tabPageMarketMaker";
-			this.tabPageMarketMaker.Size = new System.Drawing.Size(1471, 698);
-			this.tabPageMarketMaker.TabIndex = 4;
-			this.tabPageMarketMaker.Text = "Market maker";
-			this.tabPageMarketMaker.UseVisualStyleBackColor = true;
-			// 
-			// marketMakerUserControl1
-			// 
-			this.marketMakerUserControl1.Dock = System.Windows.Forms.DockStyle.Top;
-			this.marketMakerUserControl1.Location = new System.Drawing.Point(0, 0);
-			this.marketMakerUserControl1.Name = "marketMakerUserControl1";
-			this.marketMakerUserControl1.Size = new System.Drawing.Size(1471, 629);
-			this.marketMakerUserControl1.TabIndex = 0;
+			this.tabPageSpoofing.Location = new System.Drawing.Point(4, 25);
+			this.tabPageSpoofing.Name = "tabPageSpoofing";
+			this.tabPageSpoofing.Size = new System.Drawing.Size(1471, 698);
+			this.tabPageSpoofing.TabIndex = 5;
+			this.tabPageSpoofing.Text = "Spoofing";
+			this.tabPageSpoofing.UseVisualStyleBackColor = true;
 			// 
 			// MainForm
 			// 
@@ -659,6 +670,7 @@
 			this.tabControlStrategies.ResumeLayout(false);
 			this.tabPagePushing.ResumeLayout(false);
 			this.tabPageHubArb.ResumeLayout(false);
+			this.tabPageMarketMaker.ResumeLayout(false);
 			this.tabPageTicker.ResumeLayout(false);
 			this.tabPageLog.ResumeLayout(false);
 			this.tabControl1.ResumeLayout(false);
@@ -669,7 +681,6 @@
 			this.tlpMain.ResumeLayout(false);
 			this.gbControl.ResumeLayout(false);
 			this.gbControl.PerformLayout();
-			this.tabPageMarketMaker.ResumeLayout(false);
 			this.ResumeLayout(false);
 
         }
@@ -733,6 +744,7 @@
 		private System.Windows.Forms.RichTextBox rtbFixOrders;
 		private System.Windows.Forms.TabPage tabPageMarketMaker;
 		private MarketMakerUserControl marketMakerUserControl1;
+		private System.Windows.Forms.TabPage tabPageSpoofing;
 	}
 }
 
