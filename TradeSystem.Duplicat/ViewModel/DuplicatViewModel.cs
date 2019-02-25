@@ -28,6 +28,21 @@ namespace TradeSystem.Duplicat.ViewModel
 			Busy
 		}
 
+		public enum SpoofingStates
+		{
+			NotRunning,
+			BeforeOpeningBeta,
+			AfterOpeningBeta,
+			BeforeOpeningAlpha,
+			AfterOpeningAlpha,
+
+			BeforeClosing,
+			BeforeClosingFirst,
+			AfterClosingFirst,
+			BeforeClosingSecond,
+			AfterClosingSecond
+		}
+
 		public enum SaveStates
 		{
 			Default,
@@ -64,6 +79,7 @@ namespace TradeSystem.Duplicat.ViewModel
 		public ObservableCollection<Copier> Copiers { get; private set; }
 		public ObservableCollection<FixApiCopier> FixApiCopiers { get; private set; }
 		public ObservableCollection<Pushing> Pushings { get; private set; }
+		public ObservableCollection<Spoofing> Spoofings { get; private set; }
 		public ObservableCollection<Ticker> Tickers { get; private set; }
 		public ObservableCollection<StratHubArb> StratHubArbs { get; private set; }
 		public ObservableCollection<MarketMaker> MarketMakers { get; private set; }
@@ -80,13 +96,16 @@ namespace TradeSystem.Duplicat.ViewModel
 		public bool AreStrategiesStarted { get => Get<bool>(); set => Set(value); }
 		public bool AreTickersStarted { get => Get<bool>(); set => Set(value); }
 		public bool IsPushingEnabled { get => Get<bool>(); set => Set(value); }
+		public bool IsSpoofingEnabled { get => Get<bool>(); set => Set(value); }
 		public PushingStates PushingState { get => Get<PushingStates>(); set => Set(value); }
+		public SpoofingStates SpoofingState { get => Get<SpoofingStates>(); set => Set(value); }
 		public SaveStates SaveState { get => Get<SaveStates>(); set => Set(value); }
 
 		public Profile SelectedProfile { get => Get<Profile>(); set => Set(value); }
 		public Aggregator SelectedAggregator { get => Get<Aggregator>(); set => Set(value); }
 		public Slave SelectedSlave { get => Get<Slave>(); set => Set(value); }
 		public Pushing SelectedPushing { get => Get<Pushing>(); set => Set(value); }
+		public Spoofing SelectedSpoofing { get => Get<Spoofing>(); set => Set(value); }
 
 		public DuplicatViewModel(
 			IOrchestrator orchestrator,
@@ -108,20 +127,40 @@ namespace TradeSystem.Duplicat.ViewModel
 					SelectedPushing.ConnectionChanged += SelectedPushing_ConnectionChanged;
 				}
 			}
+			else if (e.PropertyName == nameof(SelectedSpoofing))
+			{
+				SetSpoofingEnabled();
+				if (SelectedSpoofing != null)
+				{
+					SelectedSpoofing.ConnectionChanged -= SelectedSpoofing_ConnectionChanged;
+					SelectedSpoofing.ConnectionChanged += SelectedSpoofing_ConnectionChanged;
+				}
+			}
 			else if (e.PropertyName == nameof(IsConfigReadonly) || e.PropertyName == nameof(SelectedSlave))
 				IsCopierConfigAddEnabled = !IsConfigReadonly && SelectedSlave?.Id > 0;
 			else if (e.PropertyName == nameof(AreCopiersStarted))
+			{
 				SetPushingEnabled();
+				SetSpoofingEnabled();
+			}
 		}
 
 		private void SelectedPushing_ConnectionChanged(object sender, Common.Integration.ConnectionStates connectionStates)
 		{
 			SetPushingEnabled();
 		}
-
 		private void SetPushingEnabled()
 		{
 			IsPushingEnabled = SelectedPushing?.IsConnected == true && AreCopiersStarted;
+		}
+
+		private void SelectedSpoofing_ConnectionChanged(object sender, Common.Integration.ConnectionStates connectionStates)
+		{
+			SetSpoofingEnabled();
+		}
+		private void SetSpoofingEnabled()
+		{
+			IsSpoofingEnabled = SelectedSpoofing?.IsConnected == true && AreCopiersStarted;
 		}
 
 		private void InitDataContext()
@@ -161,6 +200,7 @@ namespace TradeSystem.Duplicat.ViewModel
 			_duplicatContext.SymbolMappings.Where(e => e.Slave.Master.ProfileId == p).Load();
 			_duplicatContext.Pushings.Where(e => e.ProfileId == p).Load();
 			_duplicatContext.Pushings.Where(e => e.ProfileId == p).Select(e => e.PushingDetail).Load();
+			_duplicatContext.Spoofings.Where(e => e.ProfileId == p).Load();
 			_duplicatContext.Tickers.Where(e => e.ProfileId == p).Load();
 			_duplicatContext.StratHubArbs.Where(e => e.Aggregator.ProfileId == p)
 				.Include(e => e.StratHubArbPositions).ThenInclude(e => e.Position).Load();
@@ -188,6 +228,7 @@ namespace TradeSystem.Duplicat.ViewModel
 			Copiers = ToFilteredObservableCollection(_duplicatContext.Copiers.Local, e => e.Slave, () => SelectedSlave);
 			FixApiCopiers = ToFilteredObservableCollection(_duplicatContext.FixApiCopiers.Local, e => e.Slave, () => SelectedSlave);
 			Pushings = _duplicatContext.Pushings.Local.ToObservableCollection();
+			Spoofings = _duplicatContext.Spoofings.Local.ToObservableCollection();
 			Tickers = _duplicatContext.Tickers.Local.ToObservableCollection();
 			StratHubArbs = _duplicatContext.StratHubArbs.Local.ToObservableCollection();
 			MarketMakers = _duplicatContext.MarketMakers.Local.ToObservableCollection();

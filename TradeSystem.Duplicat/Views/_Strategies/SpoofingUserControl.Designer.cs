@@ -1,4 +1,4 @@
-﻿namespace TradeSystem.Duplicat.Views._Strategies
+﻿namespace TradeSystem.Duplicat.Views
 {
 	partial class SpoofingUserControl
 	{
@@ -28,11 +28,10 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
-			this.gbSpoofing = new System.Windows.Forms.GroupBox();
-			this.dgvPushings = new TradeSystem.Duplicat.Views.CustomDataGridView();
+			this.gbSpoofings = new System.Windows.Forms.GroupBox();
 			this.btnSubscribeFeed = new System.Windows.Forms.Button();
-			this.btnRushCloseFirst = new System.Windows.Forms.Button();
-			this.btnRushOpenFirst = new System.Windows.Forms.Button();
+			this.btnCloseFirstRush = new System.Windows.Forms.Button();
+			this.btnOpenBetaRush = new System.Windows.Forms.Button();
 			this.btnReset = new System.Windows.Forms.Button();
 			this.label7 = new System.Windows.Forms.Label();
 			this.label6 = new System.Windows.Forms.Label();
@@ -45,8 +44,8 @@
 			this.btnStartCopiers = new System.Windows.Forms.Button();
 			this.label4 = new System.Windows.Forms.Label();
 			this.label3 = new System.Windows.Forms.Label();
-			this.btnRushCloseSecond = new System.Windows.Forms.Button();
-			this.btnRushOpenSecond = new System.Windows.Forms.Button();
+			this.btnCloseSecondRush = new System.Windows.Forms.Button();
+			this.btnOpenAlphaRush = new System.Windows.Forms.Button();
 			this.label2 = new System.Windows.Forms.Label();
 			this.label1 = new System.Windows.Forms.Label();
 			this.btnCloseSpoofUp = new System.Windows.Forms.Button();
@@ -55,38 +54,31 @@
 			this.gbFlow = new System.Windows.Forms.GroupBox();
 			this.btnOpenSpoofUp = new System.Windows.Forms.Button();
 			this.tlpMain = new System.Windows.Forms.TableLayoutPanel();
-			this.gbSpoofing.SuspendLayout();
-			((System.ComponentModel.ISupportInitialize)(this.dgvPushings)).BeginInit();
+			this.btnCloseFirstRushMore = new System.Windows.Forms.Button();
+			this.btnOpenBetaRushMore = new System.Windows.Forms.Button();
+			this.btnCloseSecondRushMore = new System.Windows.Forms.Button();
+			this.btnOpenAlphaRushMore = new System.Windows.Forms.Button();
+			this.dgvSpoofings = new TradeSystem.Duplicat.Views.CustomDataGridView();
+			this.gbSpoofings.SuspendLayout();
 			this.gbControl.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.nudFuturesContractSize)).BeginInit();
 			this.gbFlow.SuspendLayout();
 			this.tlpMain.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)(this.dgvSpoofings)).BeginInit();
 			this.SuspendLayout();
 			// 
-			// gbSpoofing
+			// gbSpoofings
 			// 
-			this.gbSpoofing.Controls.Add(this.dgvPushings);
-			this.gbSpoofing.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.gbSpoofing.Location = new System.Drawing.Point(4, 104);
-			this.gbSpoofing.Margin = new System.Windows.Forms.Padding(4);
-			this.gbSpoofing.Name = "gbSpoofing";
-			this.gbSpoofing.Padding = new System.Windows.Forms.Padding(4);
-			this.gbSpoofing.Size = new System.Drawing.Size(1087, 115);
-			this.gbSpoofing.TabIndex = 1;
-			this.gbSpoofing.TabStop = false;
-			this.gbSpoofing.Text = "Spoofings";
-			// 
-			// dgvPushings
-			// 
-			this.dgvPushings.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
-			this.dgvPushings.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-			this.dgvPushings.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.dgvPushings.Location = new System.Drawing.Point(4, 19);
-			this.dgvPushings.Margin = new System.Windows.Forms.Padding(4);
-			this.dgvPushings.MultiSelect = false;
-			this.dgvPushings.Name = "dgvPushings";
-			this.dgvPushings.Size = new System.Drawing.Size(1079, 92);
-			this.dgvPushings.TabIndex = 0;
+			this.gbSpoofings.Controls.Add(this.dgvSpoofings);
+			this.gbSpoofings.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.gbSpoofings.Location = new System.Drawing.Point(4, 104);
+			this.gbSpoofings.Margin = new System.Windows.Forms.Padding(4);
+			this.gbSpoofings.Name = "gbSpoofings";
+			this.gbSpoofings.Padding = new System.Windows.Forms.Padding(4);
+			this.gbSpoofings.Size = new System.Drawing.Size(1087, 115);
+			this.gbSpoofings.TabIndex = 1;
+			this.gbSpoofings.TabStop = false;
+			this.gbSpoofings.Text = "Spoofings";
 			// 
 			// btnSubscribeFeed
 			// 
@@ -98,25 +90,25 @@
 			this.btnSubscribeFeed.Text = "Subscribe feed";
 			this.btnSubscribeFeed.UseVisualStyleBackColor = true;
 			// 
-			// btnRushCloseFirst
+			// btnCloseFirstRush
 			// 
-			this.btnRushCloseFirst.Location = new System.Drawing.Point(216, 295);
-			this.btnRushCloseFirst.Margin = new System.Windows.Forms.Padding(4);
-			this.btnRushCloseFirst.Name = "btnRushCloseFirst";
-			this.btnRushCloseFirst.Size = new System.Drawing.Size(200, 135);
-			this.btnRushCloseFirst.TabIndex = 49;
-			this.btnRushCloseFirst.Text = "Rush\r\nStop first spoof\r\nClose first side";
-			this.btnRushCloseFirst.UseVisualStyleBackColor = true;
+			this.btnCloseFirstRush.Location = new System.Drawing.Point(116, 295);
+			this.btnCloseFirstRush.Margin = new System.Windows.Forms.Padding(4);
+			this.btnCloseFirstRush.Name = "btnCloseFirstRush";
+			this.btnCloseFirstRush.Size = new System.Drawing.Size(200, 135);
+			this.btnCloseFirstRush.TabIndex = 49;
+			this.btnCloseFirstRush.Text = "Rush\r\nClose first side";
+			this.btnCloseFirstRush.UseVisualStyleBackColor = true;
 			// 
-			// btnRushOpenFirst
+			// btnOpenBetaRush
 			// 
-			this.btnRushOpenFirst.Location = new System.Drawing.Point(216, 122);
-			this.btnRushOpenFirst.Margin = new System.Windows.Forms.Padding(4);
-			this.btnRushOpenFirst.Name = "btnRushOpenFirst";
-			this.btnRushOpenFirst.Size = new System.Drawing.Size(200, 135);
-			this.btnRushOpenFirst.TabIndex = 47;
-			this.btnRushOpenFirst.Text = "Rush\r\nStop first spoof\r\nOpen B side";
-			this.btnRushOpenFirst.UseVisualStyleBackColor = true;
+			this.btnOpenBetaRush.Location = new System.Drawing.Point(116, 122);
+			this.btnOpenBetaRush.Margin = new System.Windows.Forms.Padding(4);
+			this.btnOpenBetaRush.Name = "btnOpenBetaRush";
+			this.btnOpenBetaRush.Size = new System.Drawing.Size(200, 135);
+			this.btnOpenBetaRush.TabIndex = 47;
+			this.btnOpenBetaRush.Text = "Rush\r\nOpen B side";
+			this.btnOpenBetaRush.UseVisualStyleBackColor = true;
 			// 
 			// btnReset
 			// 
@@ -230,7 +222,7 @@
 			// label4
 			// 
 			this.label4.AutoSize = true;
-			this.label4.Location = new System.Drawing.Point(424, 275);
+			this.label4.Location = new System.Drawing.Point(432, 275);
 			this.label4.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.label4.Name = "label4";
 			this.label4.Size = new System.Drawing.Size(131, 17);
@@ -240,32 +232,32 @@
 			// label3
 			// 
 			this.label3.AutoSize = true;
-			this.label3.Location = new System.Drawing.Point(421, 103);
+			this.label3.Location = new System.Drawing.Point(429, 103);
 			this.label3.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.label3.Name = "label3";
 			this.label3.Size = new System.Drawing.Size(102, 17);
 			this.label3.TabIndex = 36;
 			this.label3.Text = "Opening A seq";
 			// 
-			// btnRushCloseSecond
+			// btnCloseSecondRush
 			// 
-			this.btnRushCloseSecond.Location = new System.Drawing.Point(424, 295);
-			this.btnRushCloseSecond.Margin = new System.Windows.Forms.Padding(4);
-			this.btnRushCloseSecond.Name = "btnRushCloseSecond";
-			this.btnRushCloseSecond.Size = new System.Drawing.Size(200, 135);
-			this.btnRushCloseSecond.TabIndex = 37;
-			this.btnRushCloseSecond.Text = "Rush\r\nStop spoofing\r\nClose second side";
-			this.btnRushCloseSecond.UseVisualStyleBackColor = true;
+			this.btnCloseSecondRush.Location = new System.Drawing.Point(432, 295);
+			this.btnCloseSecondRush.Margin = new System.Windows.Forms.Padding(4);
+			this.btnCloseSecondRush.Name = "btnCloseSecondRush";
+			this.btnCloseSecondRush.Size = new System.Drawing.Size(200, 135);
+			this.btnCloseSecondRush.TabIndex = 37;
+			this.btnCloseSecondRush.Text = "Rush\r\nClose second side";
+			this.btnCloseSecondRush.UseVisualStyleBackColor = true;
 			// 
-			// btnRushOpenSecond
+			// btnOpenAlphaRush
 			// 
-			this.btnRushOpenSecond.Location = new System.Drawing.Point(424, 123);
-			this.btnRushOpenSecond.Margin = new System.Windows.Forms.Padding(4);
-			this.btnRushOpenSecond.Name = "btnRushOpenSecond";
-			this.btnRushOpenSecond.Size = new System.Drawing.Size(200, 135);
-			this.btnRushOpenSecond.TabIndex = 35;
-			this.btnRushOpenSecond.Text = "Rush\r\nStop spoofing\r\nOpen A side";
-			this.btnRushOpenSecond.UseVisualStyleBackColor = true;
+			this.btnOpenAlphaRush.Location = new System.Drawing.Point(432, 123);
+			this.btnOpenAlphaRush.Margin = new System.Windows.Forms.Padding(4);
+			this.btnOpenAlphaRush.Name = "btnOpenAlphaRush";
+			this.btnOpenAlphaRush.Size = new System.Drawing.Size(200, 135);
+			this.btnOpenAlphaRush.TabIndex = 35;
+			this.btnOpenAlphaRush.Text = "Rush\r\nOpen A side";
+			this.btnOpenAlphaRush.UseVisualStyleBackColor = true;
 			// 
 			// label2
 			// 
@@ -292,7 +284,7 @@
 			this.btnCloseSpoofUp.Location = new System.Drawing.Point(8, 295);
 			this.btnCloseSpoofUp.Margin = new System.Windows.Forms.Padding(4);
 			this.btnCloseSpoofUp.Name = "btnCloseSpoofUp";
-			this.btnCloseSpoofUp.Size = new System.Drawing.Size(200, 64);
+			this.btnCloseSpoofUp.Size = new System.Drawing.Size(100, 64);
 			this.btnCloseSpoofUp.TabIndex = 31;
 			this.btnCloseSpoofUp.Text = "Spoof up";
 			this.btnCloseSpoofUp.UseVisualStyleBackColor = true;
@@ -302,7 +294,7 @@
 			this.btnCloseSpoofDown.Location = new System.Drawing.Point(8, 366);
 			this.btnCloseSpoofDown.Margin = new System.Windows.Forms.Padding(4);
 			this.btnCloseSpoofDown.Name = "btnCloseSpoofDown";
-			this.btnCloseSpoofDown.Size = new System.Drawing.Size(200, 64);
+			this.btnCloseSpoofDown.Size = new System.Drawing.Size(100, 64);
 			this.btnCloseSpoofDown.TabIndex = 30;
 			this.btnCloseSpoofDown.Text = "Spoof down";
 			this.btnCloseSpoofDown.UseVisualStyleBackColor = true;
@@ -312,24 +304,28 @@
 			this.btnOpenSpoofDown.Location = new System.Drawing.Point(8, 194);
 			this.btnOpenSpoofDown.Margin = new System.Windows.Forms.Padding(4);
 			this.btnOpenSpoofDown.Name = "btnOpenSpoofDown";
-			this.btnOpenSpoofDown.Size = new System.Drawing.Size(200, 64);
+			this.btnOpenSpoofDown.Size = new System.Drawing.Size(100, 64);
 			this.btnOpenSpoofDown.TabIndex = 29;
 			this.btnOpenSpoofDown.Text = "Spoof down";
 			this.btnOpenSpoofDown.UseVisualStyleBackColor = true;
 			// 
 			// gbFlow
 			// 
+			this.gbFlow.Controls.Add(this.btnCloseSecondRushMore);
+			this.gbFlow.Controls.Add(this.btnOpenAlphaRushMore);
+			this.gbFlow.Controls.Add(this.btnCloseFirstRushMore);
+			this.gbFlow.Controls.Add(this.btnOpenBetaRushMore);
 			this.gbFlow.Controls.Add(this.btnSubscribeFeed);
-			this.gbFlow.Controls.Add(this.btnRushCloseFirst);
-			this.gbFlow.Controls.Add(this.btnRushOpenFirst);
+			this.gbFlow.Controls.Add(this.btnCloseFirstRush);
+			this.gbFlow.Controls.Add(this.btnOpenBetaRush);
 			this.gbFlow.Controls.Add(this.btnReset);
 			this.gbFlow.Controls.Add(this.label7);
 			this.gbFlow.Controls.Add(this.label6);
 			this.gbFlow.Controls.Add(this.label5);
 			this.gbFlow.Controls.Add(this.label4);
-			this.gbFlow.Controls.Add(this.btnRushCloseSecond);
+			this.gbFlow.Controls.Add(this.btnCloseSecondRush);
 			this.gbFlow.Controls.Add(this.label3);
-			this.gbFlow.Controls.Add(this.btnRushOpenSecond);
+			this.gbFlow.Controls.Add(this.btnOpenAlphaRush);
 			this.gbFlow.Controls.Add(this.label2);
 			this.gbFlow.Controls.Add(this.label1);
 			this.gbFlow.Controls.Add(this.btnCloseSpoofUp);
@@ -350,7 +346,7 @@
 			this.btnOpenSpoofUp.Location = new System.Drawing.Point(8, 122);
 			this.btnOpenSpoofUp.Margin = new System.Windows.Forms.Padding(4);
 			this.btnOpenSpoofUp.Name = "btnOpenSpoofUp";
-			this.btnOpenSpoofUp.Size = new System.Drawing.Size(200, 64);
+			this.btnOpenSpoofUp.Size = new System.Drawing.Size(100, 64);
 			this.btnOpenSpoofUp.TabIndex = 28;
 			this.btnOpenSpoofUp.Text = "Spoof up";
 			this.btnOpenSpoofUp.UseVisualStyleBackColor = true;
@@ -360,7 +356,7 @@
 			this.tlpMain.ColumnCount = 1;
 			this.tlpMain.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
 			this.tlpMain.Controls.Add(this.gbFlow, 0, 2);
-			this.tlpMain.Controls.Add(this.gbSpoofing, 0, 1);
+			this.tlpMain.Controls.Add(this.gbSpoofings, 0, 1);
 			this.tlpMain.Controls.Add(this.gbControl, 0, 0);
 			this.tlpMain.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.tlpMain.Location = new System.Drawing.Point(0, 0);
@@ -374,6 +370,58 @@
 			this.tlpMain.Size = new System.Drawing.Size(1095, 711);
 			this.tlpMain.TabIndex = 1;
 			// 
+			// btnCloseFirstRushMore
+			// 
+			this.btnCloseFirstRushMore.Location = new System.Drawing.Point(324, 295);
+			this.btnCloseFirstRushMore.Margin = new System.Windows.Forms.Padding(4);
+			this.btnCloseFirstRushMore.Name = "btnCloseFirstRushMore";
+			this.btnCloseFirstRushMore.Size = new System.Drawing.Size(100, 135);
+			this.btnCloseFirstRushMore.TabIndex = 53;
+			this.btnCloseFirstRushMore.Text = "Rush\r\nStop first spoof";
+			this.btnCloseFirstRushMore.UseVisualStyleBackColor = true;
+			// 
+			// btnOpenBetaRushMore
+			// 
+			this.btnOpenBetaRushMore.Location = new System.Drawing.Point(324, 122);
+			this.btnOpenBetaRushMore.Margin = new System.Windows.Forms.Padding(4);
+			this.btnOpenBetaRushMore.Name = "btnOpenBetaRushMore";
+			this.btnOpenBetaRushMore.Size = new System.Drawing.Size(100, 135);
+			this.btnOpenBetaRushMore.TabIndex = 52;
+			this.btnOpenBetaRushMore.Text = "Rush\r\nStop first spoof";
+			this.btnOpenBetaRushMore.UseVisualStyleBackColor = true;
+			// 
+			// btnCloseSecondRushMore
+			// 
+			this.btnCloseSecondRushMore.Location = new System.Drawing.Point(640, 295);
+			this.btnCloseSecondRushMore.Margin = new System.Windows.Forms.Padding(4);
+			this.btnCloseSecondRushMore.Name = "btnCloseSecondRushMore";
+			this.btnCloseSecondRushMore.Size = new System.Drawing.Size(100, 135);
+			this.btnCloseSecondRushMore.TabIndex = 55;
+			this.btnCloseSecondRushMore.Text = "Rush\r\nStop spoof";
+			this.btnCloseSecondRushMore.UseVisualStyleBackColor = true;
+			// 
+			// btnOpenAlphaRushMore
+			// 
+			this.btnOpenAlphaRushMore.Location = new System.Drawing.Point(640, 123);
+			this.btnOpenAlphaRushMore.Margin = new System.Windows.Forms.Padding(4);
+			this.btnOpenAlphaRushMore.Name = "btnOpenAlphaRushMore";
+			this.btnOpenAlphaRushMore.Size = new System.Drawing.Size(100, 135);
+			this.btnOpenAlphaRushMore.TabIndex = 54;
+			this.btnOpenAlphaRushMore.Text = "Rush\r\nStop spoof";
+			this.btnOpenAlphaRushMore.UseVisualStyleBackColor = true;
+			// 
+			// dgvSpoofings
+			// 
+			this.dgvSpoofings.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
+			this.dgvSpoofings.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+			this.dgvSpoofings.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.dgvSpoofings.Location = new System.Drawing.Point(4, 19);
+			this.dgvSpoofings.Margin = new System.Windows.Forms.Padding(4);
+			this.dgvSpoofings.MultiSelect = false;
+			this.dgvSpoofings.Name = "dgvSpoofings";
+			this.dgvSpoofings.Size = new System.Drawing.Size(1079, 92);
+			this.dgvSpoofings.TabIndex = 0;
+			// 
 			// SpoofingUserControl
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -381,24 +429,24 @@
 			this.Controls.Add(this.tlpMain);
 			this.Name = "SpoofingUserControl";
 			this.Size = new System.Drawing.Size(1095, 711);
-			this.gbSpoofing.ResumeLayout(false);
-			((System.ComponentModel.ISupportInitialize)(this.dgvPushings)).EndInit();
+			this.gbSpoofings.ResumeLayout(false);
 			this.gbControl.ResumeLayout(false);
 			((System.ComponentModel.ISupportInitialize)(this.nudFuturesContractSize)).EndInit();
 			this.gbFlow.ResumeLayout(false);
 			this.gbFlow.PerformLayout();
 			this.tlpMain.ResumeLayout(false);
+			((System.ComponentModel.ISupportInitialize)(this.dgvSpoofings)).EndInit();
 			this.ResumeLayout(false);
 
 		}
 
 		#endregion
 
-		private System.Windows.Forms.GroupBox gbSpoofing;
-		private CustomDataGridView dgvPushings;
+		private System.Windows.Forms.GroupBox gbSpoofings;
+		private CustomDataGridView dgvSpoofings;
 		private System.Windows.Forms.Button btnSubscribeFeed;
-		private System.Windows.Forms.Button btnRushCloseFirst;
-		private System.Windows.Forms.Button btnRushOpenFirst;
+		private System.Windows.Forms.Button btnCloseFirstRush;
+		private System.Windows.Forms.Button btnOpenBetaRush;
 		private System.Windows.Forms.Button btnReset;
 		private System.Windows.Forms.Label label7;
 		private System.Windows.Forms.Label label6;
@@ -411,8 +459,8 @@
 		private System.Windows.Forms.Button btnStartCopiers;
 		private System.Windows.Forms.Label label4;
 		private System.Windows.Forms.Label label3;
-		private System.Windows.Forms.Button btnRushCloseSecond;
-		private System.Windows.Forms.Button btnRushOpenSecond;
+		private System.Windows.Forms.Button btnCloseSecondRush;
+		private System.Windows.Forms.Button btnOpenAlphaRush;
 		private System.Windows.Forms.Label label2;
 		private System.Windows.Forms.Label label1;
 		private System.Windows.Forms.Button btnCloseSpoofUp;
@@ -421,5 +469,9 @@
 		private System.Windows.Forms.GroupBox gbFlow;
 		private System.Windows.Forms.Button btnOpenSpoofUp;
 		private System.Windows.Forms.TableLayoutPanel tlpMain;
+		private System.Windows.Forms.Button btnCloseFirstRushMore;
+		private System.Windows.Forms.Button btnOpenBetaRushMore;
+		private System.Windows.Forms.Button btnCloseSecondRushMore;
+		private System.Windows.Forms.Button btnOpenAlphaRushMore;
 	}
 }
