@@ -1,5 +1,7 @@
 ﻿using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
+using TradeSystem.Common;
 using TradeSystem.Common.Integration;
 using TradeSystem.Data;
 using TradeSystem.Data.Models;
@@ -133,55 +135,79 @@ namespace TradeSystem.Orchestration
 
 	    public Task OpeningBeta(Spoofing spoofing)
 		{
-			spoofing.InPanic = false;
-			return Task.Run(() => _spoofStrategyService.OpeningBeta(spoofing));
+			using (var panicSource = new CancellationTokenSource())
+			{
+				spoofing.PanicSource = panicSource;
+				return Task.Run(() => _spoofStrategyService.OpeningBeta(spoofing, panicSource.Token));
+			}
 		}
 
 	    public Task OpeningBetaEnd(Spoofing spoofing)
 		{
-			spoofing.InPanic = false;
-			return Task.Run(() => _spoofStrategyService.OpeningBetaEnd(spoofing));
+			using (var panicSource = new CancellationTokenSource())
+			{
+				spoofing.PanicSource = panicSource;
+				return Task.Run(() => _spoofStrategyService.OpeningBetaEnd(spoofing, panicSource.Token));
+			}
 		}
 
 	    public Task OpeningAlpha(Spoofing spoofing)
 		{
-			spoofing.InPanic = false;
-			return Task.Run(() => _spoofStrategyService.OpeningAlpha(spoofing));
+			using (var panicSource = new CancellationTokenSource())
+			{
+				spoofing.PanicSource = panicSource;
+				return Task.Run(() => _spoofStrategyService.OpeningAlpha(spoofing, panicSource.Token));
+			}
 		}
 
 	    public Task OpeningAlphaEnd(Spoofing spoofing)
 		{
-			spoofing.InPanic = false;
-			return Task.Run(() => _spoofStrategyService.OpeningAlphaEnd(spoofing));
+			using (var panicSource = new CancellationTokenSource())
+			{
+				spoofing.PanicSource = panicSource;
+				return Task.Run(() => _spoofStrategyService.OpeningAlphaEnd(spoofing, panicSource.Token));
+			}
 		}
 
 	    public Task ClosingFirst(Spoofing spoofing)
 		{
-			spoofing.InPanic = false;
-			return Task.Run(() => _spoofStrategyService.ClosingFirst(spoofing));
+			using (var panicSource = new CancellationTokenSource())
+			{
+				spoofing.PanicSource = panicSource;
+				return Task.Run(() => _spoofStrategyService.ClosingFirst(spoofing, panicSource.Token));
+			}
 		}
 
 	    public Task ClosingFirstEnd(Spoofing spoofing)
 		{
-			spoofing.InPanic = false;
-			return Task.Run(() => _spoofStrategyService.ClosingFirstEnd(spoofing));
+			using (var panicSource = new CancellationTokenSource())
+			{
+				spoofing.PanicSource = panicSource;
+				return Task.Run(() => _spoofStrategyService.ClosingFirstEnd(spoofing, panicSource.Token));
+			}
 		}
 
 	    public Task ClosingSecond(Spoofing spoofing)
 		{
-			spoofing.InPanic = false;
-			return Task.Run(() => _spoofStrategyService.ClosingSecond(spoofing));
+			using (var panicSource = new CancellationTokenSource())
+			{
+				spoofing.PanicSource = panicSource;
+				return Task.Run(() => _spoofStrategyService.ClosingSecond(spoofing, panicSource.Token));
+			}
 		}
 
 	    public Task ClosingSecondEnd(Spoofing spoofing)
 		{
-			spoofing.InPanic = false;
-			return Task.Run(() => _spoofStrategyService.ClosingSecondEnd(spoofing));
+			using (var panicSource = new CancellationTokenSource())
+			{
+				spoofing.PanicSource = panicSource;
+				return Task.Run(() => _spoofStrategyService.ClosingSecondEnd(spoofing, panicSource.Token));
+			}
 		}
 
 	    public void Panic(Spoofing spoofing)
 		{
-			spoofing.InPanic = true;
+			spoofing.PanicSource?.CancelAndDispose();
 	    }
     }
 }

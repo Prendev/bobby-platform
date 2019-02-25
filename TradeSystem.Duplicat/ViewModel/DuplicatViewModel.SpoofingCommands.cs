@@ -1,5 +1,6 @@
-﻿using TradeSystem.Data.Models;
-using System.Threading.Tasks;
+﻿using System;
+using System.Windows.Forms;
+using TradeSystem.Data.Models;
 using TradeSystem.Common.Integration;
 
 namespace TradeSystem.Duplicat.ViewModel
@@ -19,30 +20,46 @@ namespace TradeSystem.Duplicat.ViewModel
 
 		public async void SpoofingOpenCommand(Spoofing spoofing, Sides firstBetaOpenSide)
 		{
-			spoofing.BetaOpenSide = firstBetaOpenSide;
-			SpoofingState = SpoofingStates.BeforeOpeningBeta;
-			await _orchestrator.OpeningBeta(spoofing);
-			SpoofingState = SpoofingStates.AfterOpeningBeta;
-			await _orchestrator.OpeningBetaEnd(spoofing);
-			SpoofingState = SpoofingStates.BeforeOpeningAlpha;
-			await _orchestrator.OpeningAlpha(spoofing);
-			SpoofingState = SpoofingStates.AfterOpeningAlpha;
-			await _orchestrator.OpeningAlphaEnd(spoofing);
-			SpoofingState = SpoofingStates.BeforeClosing;
+			try
+			{
+				spoofing.BetaOpenSide = firstBetaOpenSide;
+				SpoofingState = SpoofingStates.BeforeOpeningBeta;
+				await _orchestrator.OpeningBeta(spoofing);
+				SpoofingState = SpoofingStates.AfterOpeningBeta;
+				await _orchestrator.OpeningBetaEnd(spoofing);
+				SpoofingState = SpoofingStates.BeforeOpeningAlpha;
+				await _orchestrator.OpeningAlpha(spoofing);
+				SpoofingState = SpoofingStates.AfterOpeningAlpha;
+				await _orchestrator.OpeningAlphaEnd(spoofing);
+				SpoofingState = SpoofingStates.BeforeClosing;
+			}
+			catch (Exception e)
+			{
+				SpoofingState = SpoofingStates.NotRunning;
+				MessageBox.Show(e.Message, "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
+			}
 		}
 
         public async void SpoofingCloseCommand(Spoofing spoofing, Sides firstCloseSide)
 		{
-			spoofing.FirstCloseSide = firstCloseSide;
-			SpoofingState = SpoofingStates.BeforeClosingFirst;
-			await _orchestrator.ClosingFirst(spoofing);
-			SpoofingState = SpoofingStates.AfterClosingFirst;
-			await _orchestrator.ClosingFirstEnd(spoofing);
-			SpoofingState = SpoofingStates.BeforeClosingSecond;
-			await _orchestrator.ClosingSecond(spoofing);
-			SpoofingState = SpoofingStates.AfterClosingSecond;
-			await _orchestrator.ClosingSecondEnd(spoofing);
-			SpoofingState = SpoofingStates.NotRunning;
+			try
+			{
+				spoofing.FirstCloseSide = firstCloseSide;
+				SpoofingState = SpoofingStates.BeforeClosingFirst;
+				await _orchestrator.ClosingFirst(spoofing);
+				SpoofingState = SpoofingStates.AfterClosingFirst;
+				await _orchestrator.ClosingFirstEnd(spoofing);
+				SpoofingState = SpoofingStates.BeforeClosingSecond;
+				await _orchestrator.ClosingSecond(spoofing);
+				SpoofingState = SpoofingStates.AfterClosingSecond;
+				await _orchestrator.ClosingSecondEnd(spoofing);
+				SpoofingState = SpoofingStates.NotRunning;
+			}
+			catch (Exception e)
+			{
+				SpoofingState = SpoofingStates.NotRunning;
+				MessageBox.Show(e.Message, "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
+			}
 		}
 
         public void SpoofingPanicCommand(Spoofing spoofing)

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Threading;
 using TradeSystem.Common.Attributes;
 using TradeSystem.Common.Integration;
 
@@ -16,11 +17,14 @@ namespace TradeSystem.Data.Models
 		[NotMapped] [InvisibleColumn] public Sides FirstCloseSide { get; set; }
 		[NotMapped] [InvisibleColumn] public Position AlphaPosition { get; set; }
 		[NotMapped] [InvisibleColumn] public Position BetaPosition { get; set; }
-		[NotMapped] [InvisibleColumn] public bool InPanic { get; set; }
-		//[NotMapped] [InvisibleColumn] public bool IsConnected { get => Get<bool>(); set => Set(value); }
-		[NotMapped] [InvisibleColumn] public bool IsConnected => true;
+		/// <summary>
+		/// Use only from orchestration
+		/// </summary>
+		[NotMapped] [InvisibleColumn] public CancellationTokenSource PanicSource { get; set; }
+		[NotMapped] [InvisibleColumn] public bool IsConnected { get => Get<bool>(); set => Set(value); }
 
 		[NotMapped] [InvisibleColumn] public Tick LastFeedTick { get => Get<Tick>(); set => Set(value); }
+
 
 		public Spoofing()
 		{
@@ -50,11 +54,11 @@ namespace TradeSystem.Data.Models
 
 		private void Account_ConnectionChanged(object sender, ConnectionStates connectionStates)
 		{
-			//IsConnected =
-			//	AlphaMaster?.Connector?.IsConnected == true &&
-			//	BetaMaster?.Connector?.IsConnected == true &&
-			//	FeedAccount?.Connector?.IsConnected == true &&
-			//	SpoofAccount?.Connector?.IsConnected == true;
+			IsConnected =
+				AlphaMaster?.Connector?.IsConnected == true &&
+				BetaMaster?.Connector?.IsConnected == true &&
+				FeedAccount?.Connector?.IsConnected == true &&
+				SpoofAccount?.Connector?.IsConnected == true;
 			ConnectionChanged?.Invoke(this, IsConnected ? ConnectionStates.Connected : ConnectionStates.Disconnected);
 		}
 	}

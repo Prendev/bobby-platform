@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using TradeSystem.Common.Attributes;
 
 namespace TradeSystem.Data.Models
@@ -7,6 +8,19 @@ namespace TradeSystem.Data.Models
 	{
 		[InvisibleColumn] public int ProfileId { get; set; }
 		[InvisibleColumn] public Profile Profile { get; set; }
+
+		[DisplayName("SpoofSize")] public int SpoofContractSize { get; set; }
+		[DisplayName("SpoofDistance")] public decimal SpoofDistance { get; set; }
+		[DisplayName("SpoofPutAway")] public decimal? SpoofPutAwayDistance { get; set; }
+
+		[DisplayName("Signal ms")] public int MaxMasterSignalDurationInMs { get; set; }
+		[DisplayName("Ending ms")] public int MaxEndingDurationInMs { get; set; }
+
+		public double AlphaLots { get; set; }
+		public double BetaLots { get; set; }
+
+		public int MaxRetryCount { get; set; }
+		[DisplayName("RetryPeriod")] public int RetryPeriodInMs { get; set; }
 
 		public int FeedAccountId { get; set; }
 		public Account FeedAccount { get => Get<Account>(); set => Set(value); }
