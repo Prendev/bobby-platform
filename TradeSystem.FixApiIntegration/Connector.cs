@@ -404,7 +404,11 @@ namespace TradeSystem.FixApiIntegration
 				var result = await con.UpdateOrderAsync(new UpdateOrderRequest()
 				{
 					OriginalOrderId	= order.OrderId,
-					LimitPrice = limitPrice
+					LimitPrice = limitPrice,
+					Side = order.Side,
+					Type = order.OrderType,
+					Symbol = order.Symbol,
+					Quantity = order.OrderedQuantity
 				});
 
 				_limitOrderMapping.AddOrUpdate(response, order, (k, o) => order);
