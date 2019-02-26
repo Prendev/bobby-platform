@@ -4,7 +4,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using TradeSystem.Communication;
 
 namespace TradeSystem.CqgClientApiIntegration
 {

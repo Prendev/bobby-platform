@@ -37,6 +37,7 @@
     <Reference Include="Common.Logging.Core">
       <HintPath>..\Externals\QvaDev.Communication.FixApi.Connectors\Common.Logging.Core.dll</HintPath>
     </Reference>
+    <Reference Include="KGySoft.CoreLibraries, Version=3.6.3.1, Culture=neutral, PublicKeyToken=b45eba277439ddfe" />
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />

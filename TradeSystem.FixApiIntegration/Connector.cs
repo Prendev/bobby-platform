@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Serialization;
+using KGySoft.CoreLibraries;
 using TradeSystem.Collections;
 using TradeSystem.Common.Integration;
 using TradeSystem.Common.Services;
@@ -19,6 +20,7 @@ using TradeSystem.Communication.FixApi.Connectors.Strategies.AggressiveOrder;
 using TradeSystem.Communication.FixApi.Connectors.Strategies.AggressiveOrder.Delayed;
 using TradeSystem.Communication.FixApi.Connectors.Strategies.MarketOrder;
 using OrderResponse = TradeSystem.Common.Integration.OrderResponse;
+using TimeInForce = TradeSystem.Communication.TimeInForce;
 
 namespace TradeSystem.FixApiIntegration
 {
@@ -30,6 +32,7 @@ namespace TradeSystem.FixApiIntegration
 		private readonly HashSet<string> _unfinishedOrderIds = new HashSet<string>();
 		private readonly FastBlockingCollection<QuoteSet> _quoteQueue = new FastBlockingCollection<QuoteSet>();
 		private readonly int _marketDepth;
+		private readonly ConcurrentDictionary<LimitResponse, OrderStatusReport> _limitOrderMapping = new ConcurrentDictionary<LimitResponse, OrderStatusReport>();
 		private readonly ConcurrentDictionary<string, LimitResponse> _limitOrders = new ConcurrentDictionary<string, LimitResponse>();
 
 		public override int Id => _accountInfo?.DbId ?? 0;
@@ -332,6 +335,18 @@ namespace TradeSystem.FixApiIntegration
 		{
 			try
 			{
+				var con = FixConnector as Communication.Interfaces.IConnector;
+				var result = await con.PutNewOrderAsync(new NewOrderRequest()
+				{
+					Side = side == Sides.Buy ? BuySell.Buy : BuySell.Sell,
+					Type = OrderType.Limit,
+					LimitPrice = limitPrice,
+					Symbol = Symbol.Parse(symbol),
+					TimeInForceHint = TimeInForce.GoodTillCancel,
+					Quantity = quantity
+				});
+				con.SubscribeOrderUpdate(result.OrderId, SpoofOrderUpdate, true);
+
 				var response = new LimitResponse()
 				{
 					Symbol = symbol,
@@ -339,7 +354,8 @@ namespace TradeSystem.FixApiIntegration
 					OrderedQuantity = quantity,
 					OrderPrice = limitPrice
 				};
-				_limitOrders.AddOrUpdate("", response, (k, o) => response);
+				_limitOrders.AddOrUpdate(result.OrderId, response, (k, o) => response);
+				_limitOrderMapping.AddOrUpdate(response, result, (k, o) => result);
 
 				Logger.Debug(
 					$"{Description} Connector.SendSpoofOrderRequest({symbol}, {side}, {quantity}, {limitPrice}) " +
@@ -358,6 +374,67 @@ namespace TradeSystem.FixApiIntegration
 			}
 
 			return null;
+		}
+
+		private void SpoofOrderUpdate(object sender, EventArgs<OrderStatusReport> e)
+		{
+			if (e.EventData.OrderType != OrderType.Limit) return;
+
+			// Fill
+			if (!e.EventData.FulfilledQuantity.HasValue) return;
+			if (!e.EventData.CumulativeQuantity.HasValue) return;
+
+			var orderKey = e.EventData.OriginalOrderId ?? e.EventData.OrderId;
+			if (!_limitOrders.TryGetValue(orderKey, out var limitResponse)) return;
+
+			lock (limitResponse) limitResponse.FilledQuantity = Math.Abs(e.EventData.CumulativeQuantity.Value);
+		}
+
+		public override async Task<bool> ChangeLimitPrice(LimitResponse response, decimal limitPrice)
+		{
+			OrderStatusReport order = null;
+			try
+			{
+				if (!_limitOrderMapping.TryGetValue(response, out order)) return false;
+				if (order.OrderType != OrderType.Limit) return false;
+				//if (order.GWStatus == eOrderStatus.osFilled) return false;
+
+
+				var con = FixConnector as Communication.Interfaces.IConnector;
+				var result = await con.UpdateOrderAsync(new UpdateOrderRequest()
+				{
+					OriginalOrderId	= order.OrderId,
+					LimitPrice = limitPrice
+				});
+
+				_limitOrderMapping.AddOrUpdate(response, order, (k, o) => order);
+				response.OrderPrice = result.OrderLimitPrice ?? response.OrderPrice;
+				return response.OrderPrice == limitPrice;
+			}
+			catch (Exception e)
+			{
+				Logger.Error($"{Description} Connector.ChangeLimitPrice({order?.Symbol}, {response.Side}, {response.OrderedQuantity}) exception", e);
+				return false;
+			}
+		}
+
+		public override async Task<bool> CancelLimit(LimitResponse response)
+		{
+			OrderStatusReport order = null;
+			try
+			{
+				if (!_limitOrderMapping.TryGetValue(response, out order)) return false;
+				if (order.OrderType != OrderType.Limit) return false;
+
+				var con = FixConnector as Communication.Interfaces.IConnector;
+				var result = await con.CancelOrderAsync(order.OrderId);
+				return result.Status == OrderStatus.Canceled || result.Status == OrderStatus.Accepted;
+			}
+			catch (Exception e)
+			{
+				Logger.Error($"{Description} Connector.CancelLimit({order?.Symbol}, {response?.Side}, {response?.OrderedQuantity}) exception", e);
+				return false;
+			}
 		}
 
 		public override async void OrderMultipleCloseBy(string symbol)
