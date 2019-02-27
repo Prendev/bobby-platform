@@ -9,11 +9,11 @@ namespace TradeSystem.Common.Integration
         public Sides Side { get; set; }
         public bool IsClosed { get; set; }
 
-        public double Lots { get; set; }
+        public decimal Lots { get; set; }
         public long Volume { get; set; }
         public long RealVolume { get; set; }
 
-        public string Comment { get; set; }
+		public string Comment { get; set; }
         public int MagicNumber { get; set; }
 
         public DateTime OpenTime { get; set; }

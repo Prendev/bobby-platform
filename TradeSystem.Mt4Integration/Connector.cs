@@ -113,7 +113,7 @@ namespace TradeSystem.Mt4Integration
                 var pos = new Position
                 {
                     Id = o.Ticket,
-                    Lots = o.Lots,
+                    Lots = (decimal) o.Lots,
                     Symbol = o.Symbol,
                     Side = o.Type == Op.Buy ? Sides.Buy : Sides.Sell,
                     RealVolume = (long) (o.Lots * GetSymbolInfo(o.Symbol).ContractSize * (o.Type == Op.Buy ? 1 : -1)),
@@ -146,7 +146,7 @@ namespace TradeSystem.Mt4Integration
 				var position = new Position
 				{
 					Id = o.Ticket,
-					Lots = o.Lots,
+					Lots = (decimal) o.Lots,
 					Symbol = o.Symbol,
 					Side = o.Type == Op.Buy ? Sides.Buy : Sides.Sell,
 					RealVolume = (long)(o.Lots * GetSymbolInfo(o.Symbol).ContractSize * (o.Type == Op.Buy ? 1 : -1)),
@@ -192,7 +192,7 @@ namespace TradeSystem.Mt4Integration
 				var price = position.Side == Sides.Buy
                     ? QuoteClient.GetQuote(position.Symbol).Bid
                     : QuoteClient.GetQuote(position.Symbol).Ask;
-				OrderClient.OrderClose(position.Symbol, (int) position.Id, lots ?? position.Lots, price, 0);
+				OrderClient.OrderClose(position.Symbol, (int) position.Id, lots ?? (double) position.Lots, price, 0);
 
 				Logger.Info($"{_accountInfo.Description} account ({_accountInfo.User}, {position.Comment}) OrderClient.OrderClose is successful");
 				return true;
@@ -438,7 +438,7 @@ namespace TradeSystem.Mt4Integration
 			var position = new Position
             {
                 Id = update.Order.Ticket,
-                Lots = update.Order.Lots,
+                Lots = (decimal) update.Order.Lots,
                 Symbol = update.Order.Symbol,
                 Side = update.Order.Type == Op.Buy ? Sides.Buy : Sides.Sell,
                 RealVolume = (long)(update.Order.Lots * GetSymbolInfo(update.Order.Symbol).ContractSize * (update.Order.Type == Op.Buy ? 1 : -1)),

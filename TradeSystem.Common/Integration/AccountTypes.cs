@@ -3,6 +3,7 @@
     public enum AccountTypes
     {
         Mt4,
-        Ct
+        Ct,
+		Fix
     }
 }
