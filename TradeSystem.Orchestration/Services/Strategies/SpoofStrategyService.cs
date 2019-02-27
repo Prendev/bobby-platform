@@ -37,7 +37,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 			// Start first spoofing
 			spoofing.SpoofingState = _spoofingService.Spoofing(spoofing.Spoof, futureSide);
-			await Task.Delay(spoofing.MaxMasterSignalDurationInMs, panic);
+			await Delay(spoofing.MaxMasterSignalDurationInMs, panic);
 
 			// Open first side
 			spoofing.BetaPosition = betaConnector.SendMarketOrderRequest(spoofing.BetaSymbol, futureSide.Inv(), spoofing.BetaLots, 0,
@@ -58,7 +58,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 			// Start second spoofing
 			spoofing.SpoofingState = _spoofingService.Spoofing(spoofing.Spoof, futureSide);
-			await Task.Delay(spoofing.MaxMasterSignalDurationInMs, panic);
+			await Delay(spoofing.MaxMasterSignalDurationInMs, panic);
 
 			// Open second side
 			spoofing.AlphaPosition = alphaConnector.SendMarketOrderRequest(spoofing.AlphaSymbol, futureSide.Inv(), spoofing.AlphaLots, 0,
@@ -82,7 +82,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 			// Start first spoofing
 			spoofing.SpoofingState = _spoofingService.Spoofing(spoofing.Spoof, futureSide);
-			await Task.Delay(spoofing.MaxMasterSignalDurationInMs, panic);
+			await Delay(spoofing.MaxMasterSignalDurationInMs, panic);
 
 			// Close first side
 			var closed = firstConnector.SendClosePositionRequests(firstPos, null, spoofing.MaxRetryCount, spoofing.RetryPeriodInMs);
@@ -105,7 +105,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 			// Start first spoofing
 			spoofing.SpoofingState = _spoofingService.Spoofing(spoofing.Spoof, futureSide);
-			await Task.Delay(spoofing.MaxMasterSignalDurationInMs, panic);
+			await Delay(spoofing.MaxMasterSignalDurationInMs, panic);
 
 			// Close second side
 			var closed = secondConnector.SendClosePositionRequests(secondPos, null, spoofing.MaxRetryCount, spoofing.RetryPeriodInMs);
@@ -131,8 +131,20 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 		private async Task Ending(Spoofing spoofing, CancellationToken panic)
 		{
-			await Task.Delay(spoofing.MaxEndingDurationInMs, panic);
+			await Delay(spoofing.MaxEndingDurationInMs, panic);
 			await spoofing.SpoofingState.Cancel();
+		}
+
+		private async Task Delay(int millisecondsDelay, CancellationToken cancellationToken)
+		{
+			try
+			{
+				await Task.Delay(millisecondsDelay, cancellationToken);
+			}
+			catch
+			{
+				// ignored
+			}
 		}
 	}
 }

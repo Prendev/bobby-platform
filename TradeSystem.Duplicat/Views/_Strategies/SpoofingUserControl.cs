@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.ObjectModel;
 using System.Windows.Forms;
 using Microsoft.EntityFrameworkCore;
 using TradeSystem.Common.Integration;
@@ -63,8 +62,8 @@ namespace TradeSystem.Duplicat.Views
 			btnStopCopiers.Click += (s, e) => { _viewModel.StopCopiersCommand(); };
 			//btnSubscribeFeed.Click += (s, e) => { _viewModel.PushingFeedSubscribe(dgvPushings.GetSelectedItem<Pushing>()); };
 
-			btnOpenSpoofUp.Click += (s, e) => { _viewModel.SpoofingOpenCommand(dgvSpoofings.GetSelectedItem<Spoofing>(), Sides.Buy); };
-			btnOpenSpoofDown.Click += (s, e) => { _viewModel.SpoofingOpenCommand(dgvSpoofings.GetSelectedItem<Spoofing>(), Sides.Sell); };
+			btnOpenSpoofUp.Click += (s, e) => { _viewModel.SpoofingOpenCommand(dgvSpoofings.GetSelectedItem<Spoofing>(), Sides.Sell); };
+			btnOpenSpoofDown.Click += (s, e) => { _viewModel.SpoofingOpenCommand(dgvSpoofings.GetSelectedItem<Spoofing>(), Sides.Buy); };
 			btnOpenBetaRush.Click += (s, e) => { _viewModel.SpoofingPanicCommand(dgvSpoofings.GetSelectedItem<Spoofing>()); };
 			btnOpenBetaRushMore.Click += (s, e) => { _viewModel.SpoofingPanicCommand(dgvSpoofings.GetSelectedItem<Spoofing>()); };
 			btnOpenAlphaRush.Click += (s, e) => { _viewModel.SpoofingPanicCommand(dgvSpoofings.GetSelectedItem<Spoofing>()); };
