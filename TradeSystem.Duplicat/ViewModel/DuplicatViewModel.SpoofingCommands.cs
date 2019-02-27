@@ -38,6 +38,10 @@ namespace TradeSystem.Duplicat.ViewModel
 				SpoofingState = SpoofingStates.NotRunning;
 				MessageBox.Show(e.Message, "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
 			}
+			finally
+			{
+				spoofing.PanicSource?.Dispose();
+			}
 		}
 
         public async void SpoofingCloseCommand(Spoofing spoofing, Sides firstCloseSide)
@@ -59,6 +63,10 @@ namespace TradeSystem.Duplicat.ViewModel
 			{
 				SpoofingState = SpoofingStates.NotRunning;
 				MessageBox.Show(e.Message, "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
+			}
+			finally
+			{
+				spoofing.PanicSource?.Dispose();
 			}
 		}
 
