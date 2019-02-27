@@ -336,7 +336,7 @@ namespace TradeSystem.FixApiIntegration
 			try
 			{
 				var con = FixConnector as Communication.Interfaces.IConnector;
-				var result = await con.PutNewOrderAsync(new NewOrderRequest()
+				var newOrderStatus = await con.PutNewOrderAsync(new NewOrderRequest()
 				{
 					Side = side == Sides.Buy ? BuySell.Buy : BuySell.Sell,
 					Type = OrderType.Limit,
@@ -345,7 +345,7 @@ namespace TradeSystem.FixApiIntegration
 					TimeInForceHint = TimeInForce.GoodTillCancel,
 					Quantity = quantity
 				});
-				con.SubscribeOrderUpdate(result.OrderId, SpoofOrderUpdate, true);
+				con.SubscribeOrderUpdate(newOrderStatus.OrderId, SpoofOrderUpdate, true);
 
 				var response = new LimitResponse()
 				{
@@ -354,12 +354,12 @@ namespace TradeSystem.FixApiIntegration
 					OrderedQuantity = quantity,
 					OrderPrice = limitPrice
 				};
-				_limitOrders.AddOrUpdate(result.OrderId, response, (k, o) => response);
-				_limitOrderMapping.AddOrUpdate(response, result, (k, o) => result);
+				_limitOrders.AddOrUpdate(newOrderStatus.OrderId, response, (k, o) => response);
+				_limitOrderMapping.AddOrUpdate(response, newOrderStatus, (k, o) => newOrderStatus);
 
 				Logger.Debug(
 					$"{Description} Connector.SendSpoofOrderRequest({symbol}, {side}, {quantity}, {limitPrice}) " +
-					$"opened {response.FilledQuantity} at price {response.OrderPrice}");
+					$"{newOrderStatus.OrderId} opened {response.FilledQuantity} at price {response.OrderPrice}");
 				return response;
 			}
 			catch (TimeoutException)
@@ -384,59 +384,62 @@ namespace TradeSystem.FixApiIntegration
 			if (!e.EventData.FulfilledQuantity.HasValue) return;
 			if (!e.EventData.CumulativeQuantity.HasValue) return;
 
-			var orderKey = e.EventData.OriginalOrderId ?? e.EventData.OrderId;
-			if (!_limitOrders.TryGetValue(orderKey, out var limitResponse)) return;
-
+			if (!_limitOrders.TryGetValue(e.EventData.OrderId, out var limitResponse)) return;
 			lock (limitResponse) limitResponse.FilledQuantity = Math.Abs(e.EventData.CumulativeQuantity.Value);
 		}
 
 		public override async Task<bool> ChangeLimitPrice(LimitResponse response, decimal limitPrice)
 		{
-			OrderStatusReport order = null;
+			OrderStatusReport lastOrderStatus = null;
 			try
 			{
-				if (!_limitOrderMapping.TryGetValue(response, out order)) return false;
-				if (order.OrderType != OrderType.Limit) return false;
+				if (!_limitOrderMapping.TryGetValue(response, out lastOrderStatus)) return false;
+				if (lastOrderStatus.OrderType != OrderType.Limit) return false;
 				//if (order.GWStatus == eOrderStatus.osFilled) return false;
 
 
 				var con = FixConnector as Communication.Interfaces.IConnector;
-				var result = await con.UpdateOrderAsync(new UpdateOrderRequest()
-				{
-					OriginalOrderId	= order.OrderId,
-					LimitPrice = limitPrice,
-					Side = order.Side,
-					Type = order.OrderType,
-					Symbol = order.Symbol,
-					Quantity = order.OrderedQuantity
-				});
 
-				_limitOrderMapping.AddOrUpdate(response, order, (k, o) => order);
-				response.OrderPrice = result.OrderLimitPrice ?? response.OrderPrice;
+				var updateOrderStatus = await con.UpdateOrderAsync(new UpdateOrderRequest()
+				{
+					OriginalOrderId	= lastOrderStatus.OrderId,
+					LimitPrice = limitPrice,
+					Side = lastOrderStatus.Side,
+					Type = lastOrderStatus.OrderType,
+					Symbol = lastOrderStatus.Symbol,
+					Quantity = lastOrderStatus.OrderedQuantity
+				});
+				response.OrderPrice = updateOrderStatus.OrderLimitPrice ?? response.OrderPrice;
+				_limitOrders.AddOrUpdate(updateOrderStatus.OrderId, response, (k, o) => response);
+				_limitOrderMapping.AddOrUpdate(response, updateOrderStatus, (k, o) => updateOrderStatus);
+
+				Logger.Debug(
+					$"{Description} Connector.ChangeLimitPrice({lastOrderStatus.OrderId}, {limitPrice}) " +
+					$"updated with id {updateOrderStatus.OrderId}");
 				return response.OrderPrice == limitPrice;
 			}
 			catch (Exception e)
 			{
-				Logger.Error($"{Description} Connector.ChangeLimitPrice({order?.Symbol}, {response.Side}, {response.OrderedQuantity}) exception", e);
+				Logger.Error($"{Description} Connector.ChangeLimitPrice({lastOrderStatus?.OrderId}, {limitPrice}) exception", e);
 				return false;
 			}
 		}
 
 		public override async Task<bool> CancelLimit(LimitResponse response)
 		{
-			OrderStatusReport order = null;
+			OrderStatusReport lastOrderStatus = null;
 			try
 			{
-				if (!_limitOrderMapping.TryGetValue(response, out order)) return false;
-				if (order.OrderType != OrderType.Limit) return false;
+				if (!_limitOrderMapping.TryGetValue(response, out lastOrderStatus)) return false;
+				if (lastOrderStatus.OrderType != OrderType.Limit) return false;
 
 				var con = FixConnector as Communication.Interfaces.IConnector;
-				var result = await con.CancelOrderAsync(order.OrderId);
+				var result = await con.CancelOrderAsync(lastOrderStatus.OrderId);
 				return result.Status == OrderStatus.Canceled || result.Status == OrderStatus.Accepted;
 			}
 			catch (Exception e)
 			{
-				Logger.Error($"{Description} Connector.CancelLimit({order?.Symbol}, {response?.Side}, {response?.OrderedQuantity}) exception", e);
+				Logger.Error($"{Description} Connector.CancelLimit({lastOrderStatus?.OrderId}) exception", e);
 				return false;
 			}
 		}
