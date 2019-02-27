@@ -393,9 +393,11 @@ namespace TradeSystem.FixApiIntegration
 			OrderStatusReport lastOrderStatus = null;
 			try
 			{
+				if (response.RemainingQuantity == 0) return false;
 				if (!_limitOrderMapping.TryGetValue(response, out lastOrderStatus)) return false;
 				if (lastOrderStatus.OrderType != OrderType.Limit) return false;
 				//if (order.GWStatus == eOrderStatus.osFilled) return false;
+				if (lastOrderStatus.OrderLimitPrice == limitPrice) return true;
 
 
 				var con = FixConnector as Communication.Interfaces.IConnector;
@@ -407,7 +409,7 @@ namespace TradeSystem.FixApiIntegration
 					Side = lastOrderStatus.Side,
 					Type = lastOrderStatus.OrderType,
 					Symbol = lastOrderStatus.Symbol,
-					Quantity = lastOrderStatus.OrderedQuantity
+					Quantity = response.RemainingQuantity
 				});
 				response.OrderPrice = updateOrderStatus.OrderLimitPrice ?? response.OrderPrice;
 				_limitOrders.AddOrUpdate(updateOrderStatus.OrderId, response, (k, o) => response);

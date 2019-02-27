@@ -81,6 +81,7 @@ namespace TradeSystem.Orchestration.Services
 				{
 					if (!waitHandle.WaitOne(10)) continue;
 					if (token.IsCancellationRequested) break;
+					if (state.LimitResponse?.RemainingQuantity == 0) continue;
 					if (HiResDatetime.UtcNow - lastTick.Time > TimeSpan.FromSeconds(10)) continue;
 
 					var price = GetPrice(spoof, side, lastTick, spoof.Distance);
@@ -98,12 +99,12 @@ namespace TradeSystem.Orchestration.Services
 			{
 				spoof.FeedAccount.NewTick -= NewTick;
 
-				if (spoof.PutAway.HasValue)
+				if (spoof.PutAway.HasValue && state.LimitResponse?.RemainingQuantity > 0)
 				{
 					var price = GetPrice(spoof, side, lastTick, spoof.PutAway.Value);
 					changed = tradeConnector.ChangeLimitPrice(state.LimitResponse, price).Result;
 				}
-				else
+				else if (state.LimitResponse?.RemainingQuantity > 0)
 				{
 					var canceled = tradeConnector.CancelLimit(state.LimitResponse).Result;
 				}
