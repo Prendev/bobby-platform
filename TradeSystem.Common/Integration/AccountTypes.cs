@@ -4,6 +4,7 @@
     {
         Mt4,
         Ct,
-		Fix
+		Fix,
+		Cqg
     }
 }

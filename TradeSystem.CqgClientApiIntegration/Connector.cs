@@ -359,8 +359,34 @@ namespace TradeSystem.CqgClientApiIntegration
 			if (changeType != eChangeType.ctChanged) return;
 			CheckLimit(orderKey, cqgOrder, cqgFill);
 			CheckMarket(orderKey, cqgOrder, cqgFill);
+			CheckNewPosition(cqgFill);
 		}
 
+		private void CheckNewPosition(CQGFill cqgFill)
+		{
+			try
+			{
+				var position = new Position
+				{
+					Id = HiResDatetime.UtcNow.Ticks,
+					Lots = cqgFill.Quantity,
+					Symbol = cqgFill.InstrumentName,
+					Side = cqgFill.Side == eOrderSide.osdBuy ? Sides.Buy : Sides.Sell,
+					OpenTime = HiResDatetime.UtcNow,
+					OpenPrice = Convert.ToDecimal(cqgFill.Price)
+				};
+				OnNewPosition(new NewPosition
+				{
+					AccountType = AccountTypes.Cqg,
+					Position = position,
+					Action = NewPositionActions.Open,
+				});
+			}
+			catch (Exception e)
+			{
+				Logger.Error($"{Description} Connector.CheckNewPosition", e);
+			}
+		}
 		private void CheckLimit(string orderKey, CQGOrder cqgOrder, CQGFill cqgFill)
 		{
 			if (cqgOrder.Type != eOrderType.otLimit) return;
