@@ -9,10 +9,11 @@ namespace TradeSystem.Data.Models
 		[InvisibleColumn] public int ProfileId { get; set; }
 		[InvisibleColumn] public Profile Profile { get; set; }
 
-		[DisplayName("SpoofSize")] public int SpoofContractSize { get; set; }
-		[DisplayName("SpoofDistance")] public decimal SpoofDistance { get; set; }
-		[DisplayName("SpoofPutAway")] public decimal? SpoofPutAwayDistance { get; set; }
-		[DisplayName("SpoofStop")] public int? SpoofMomentumStopInMs { get; set; }
+		[DisplayName("Spoof Size")] public int SpoofContractSize { get; set; }
+		[DisplayName("S Distance")] public decimal SpoofDistance { get; set; }
+		[DisplayName("S Levels")] public int SpoofLevels { get; set; }
+		[DisplayName("S Step")] public decimal SpoofStep { get; set; }
+		[DisplayName("S Stop")] public int? SpoofMomentumStopInMs { get; set; }
 
 		[DisplayName("Signal ms")] public int MaxMasterSignalDurationInMs { get; set; }
 		[DisplayName("Ending ms")] public int MaxEndingDurationInMs { get; set; }

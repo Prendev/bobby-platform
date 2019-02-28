@@ -160,7 +160,7 @@ namespace TradeSystem.Duplicat.ViewModel
 		}
 		private void SetSpoofingEnabled()
 		{
-			IsSpoofingEnabled = SelectedSpoofing?.IsConnected == true && AreCopiersStarted;
+			IsSpoofingEnabled = SelectedSpoofing?.IsConnected == true;
 		}
 
 		private void InitDataContext()

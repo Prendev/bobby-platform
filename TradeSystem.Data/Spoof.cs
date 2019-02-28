@@ -9,8 +9,9 @@ namespace TradeSystem.Data
 		public Account TradeAccount { get; }
 		public string TradeSymbol { get; }
 		public decimal Size { get; }
+		public int Levels { get; }
 		public decimal Distance { get; }
-		public decimal? PutAway { get; }
+		public decimal Step { get; }
 		public int? MomentumStop { get; }
 
 		public Spoof(
@@ -20,16 +21,18 @@ namespace TradeSystem.Data
 			string tradeSymbol,
 			decimal size,
 			decimal distance,
-			decimal? putAway,
+			int levels,
+			decimal step,
 			int? momentumStop)
 		{
 			Size = size;
+			Levels = levels;
 			Distance = distance;
+			Step = step;
 			TradeSymbol = tradeSymbol;
 			TradeAccount = tradeAccount;
 			FeedSymbol = feedSymbol;
 			FeedAccount = feedAccount;
-			PutAway = putAway;
 			MomentumStop = momentumStop;
 		}
 	}

@@ -125,7 +125,8 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				spoofing.SpoofAccount, spoofing.SpoofSymbol,
 				spoofing.SpoofContractSize,
 				spoofing.SpoofDistance,
-				spoofing.SpoofPutAwayDistance,
+				spoofing.SpoofLevels,
+				spoofing.SpoofStep,
 				spoofing.SpoofMomentumStopInMs);
 			spoofing.Spoof.FeedAccount.Connector.Subscribe(spoofing.Spoof.FeedSymbol);
 		}

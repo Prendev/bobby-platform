@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using TradeSystem.Common;
@@ -24,7 +26,9 @@ namespace TradeSystem.Orchestration.Services
 			public DateTime LastBestTime { get; set; }
 			public decimal? LastBestPrice { get; set; }
 			public Sides Side { get; }
-			public LimitResponse LimitResponse { get; set; }
+			public List<LimitResponse> LimitResponses { get; } = new List<LimitResponse>();
+			public decimal FilledQuantity => LimitResponses.Sum(r => r.FilledQuantity);
+			public decimal RemainingQuantity => LimitResponses.Sum(r => r.RemainingQuantity);
 
 			public SpoofingState(Sides side)
 			{
@@ -69,11 +73,8 @@ namespace TradeSystem.Orchestration.Services
 		private void Loop(Spoof spoof, SpoofingState state, CancellationToken token, CancellationTokenSource stop = null)
 		{
 			var tradeConnector = (IFixConnector)spoof.TradeAccount.Connector;
-			var changed = false;
 
-			state.LastTick = spoof.FeedAccount.GetLastTick(spoof.FeedSymbol);
 			var waitHandle = new AutoResetEvent(false);
-
 			void NewTick(object s, NewTick e)
 			{
 				if (e.Tick.Symbol != spoof.FeedSymbol) return;
@@ -81,28 +82,54 @@ namespace TradeSystem.Orchestration.Services
 				waitHandle.Set();
 			}
 
+			state.LastTick = spoof.FeedAccount.GetLastTick(spoof.FeedSymbol);
 			spoof.FeedAccount.NewTick += NewTick;
 			if (state.LastTick?.HasValue == true) waitHandle.Set();
 
+			var b = false;
 			while (!token.IsCancellationRequested)
 			{
 				try
 				{
 					if (!waitHandle.WaitOne(10)) continue;
 					if (token.IsCancellationRequested) break;
-					if (state.LimitResponse?.RemainingQuantity == 0) continue;
+					if (state.LimitResponses.Any() && state.RemainingQuantity == 0) continue;
 					MomentumStop(spoof, state, stop);
 					if (HiResDatetime.UtcNow - state.LastTick.Time > TimeSpan.FromSeconds(10)) continue;
 
-					var price = GetPrice(state, spoof.Distance);
-					if (state.LimitResponse == null)
+					if (!state.LimitResponses.Any())
 					{
-						state.LimitResponse =
-							tradeConnector.SendSpoofOrderRequest(spoof.TradeSymbol, state.Side, spoof.Size, price).Result;
+						for (var i = 0; i < Math.Max(1, spoof.Levels); i++)
+						{
+							var price = GetPrice(state, spoof.Distance, spoof.Step, i);
+							state.LimitResponses.Add(tradeConnector.SendSpoofOrderRequest(spoof.TradeSymbol, state.Side, spoof.Size, price).Result);
+						}
 						state.LastBestTime = HiResDatetime.UtcNow;
-						state.LastBestPrice = GetPrice(state, 0);
+						state.LastBestPrice = GetPrice(state);
 					}
-					else changed = tradeConnector.ChangeLimitPrice(state.LimitResponse, price).Result;
+					else
+					{
+						for (var i = 0; i < Math.Max(1, spoof.Levels); i++)
+						{
+							var price = GetPrice(state, spoof.Distance, spoof.Step, i);
+							if (state.LimitResponses.Any(r => r.OrderPrice == price)) continue;
+							LimitResponse remaining;
+							if (state.Side == Sides.Buy)
+								remaining = state.LimitResponses
+									.Where(r => r.RemainingQuantity > 0)
+									.Where(r => r.OrderPrice < price)
+									.OrderBy(r => r.OrderPrice)
+									.FirstOrDefault();
+							else remaining = state.LimitResponses
+								.Where(r => r.RemainingQuantity > 0)
+								.Where(r => r.OrderPrice > price)
+								.OrderByDescending(r => r.OrderPrice)
+								.FirstOrDefault();
+
+							if (remaining == null) break;
+							b = tradeConnector.ChangeLimitPrice(remaining, price).Result;
+						}
+					}
 				}
 				catch (Exception e)
 				{
@@ -113,17 +140,9 @@ namespace TradeSystem.Orchestration.Services
 			try
 			{
 				spoof.FeedAccount.NewTick -= NewTick;
-
-				if (spoof.PutAway.HasValue && state.LimitResponse?.RemainingQuantity > 0)
-				{
-					var price = GetPrice(state, spoof.PutAway.Value);
-					changed = tradeConnector.ChangeLimitPrice(state.LimitResponse, price).Result;
-				}
-				else if (state.LimitResponse?.RemainingQuantity > 0)
-				{
-					var canceled = tradeConnector.CancelLimit(state.LimitResponse).Result;
-				}
-
+				if (state.RemainingQuantity > 0)
+					foreach (var limitResponse in state.LimitResponses)
+						b = tradeConnector.CancelLimit(limitResponse).Result;
 				waitHandle.Dispose();
 			}
 			catch (Exception e)
@@ -136,9 +155,12 @@ namespace TradeSystem.Orchestration.Services
 			}
 		}
 
-		private static decimal GetPrice(SpoofingState state, decimal distance)
+		private static decimal GetPrice(SpoofingState state, decimal distance = 0, decimal step = 0, int level = 0)
 		{
-			return state.Side == Sides.Buy ? (state.LastTick.Bid - distance) : (state.LastTick.Ask + distance);
+			var price = state.Side == Sides.Buy ? state.LastTick.Bid : state.LastTick.Ask;
+			if (state.Side == Sides.Buy) price -= (distance + level * step);
+			else price += (distance + level * step);
+			return price;
 		}
 
 		private void MomentumStop(Spoof spoof, SpoofingState state, CancellationTokenSource stop)
@@ -147,7 +169,7 @@ namespace TradeSystem.Orchestration.Services
 			if (stop == null) return;
 			if (!state.LastBestPrice.HasValue) return;
 
-			var lastPrice = GetPrice(state, 0);
+			var lastPrice = GetPrice(state);
 			if (state.Side == Sides.Buy && lastPrice > state.LastBestPrice)
 			{
 				state.LastBestTime = state.LastTick.Time;

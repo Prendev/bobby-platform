@@ -68,8 +68,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			    pushing.FeedAccount, pushing.FeedSymbol,
 			    pushing.SpoofAccount, pushing.SpoofSymbol,
 			    pushing.PushingDetail.SpoofContractSize,
-			    pushing.PushingDetail.SpoofDistance,
-				pushing.PushingDetail.SpoofPutAwayDistance,
+			    pushing.PushingDetail.SpoofDistance, 1, 0,
 				null);
 		    pushing.Spoof.FeedAccount.Connector.Subscribe(pushing.Spoof.FeedSymbol);
 		}
@@ -89,9 +88,8 @@ namespace TradeSystem.Orchestration.Services.Strategies
 		    if (pushing.SpoofingState != null)
 			{
 				await pushing.SpoofingState.Cancel();
-				if (pushing.SpoofingState.LimitResponse != null)
-					lock (pushing.SpoofingState.LimitResponse)
-						pushing.PushingDetail.OpenedFutures -= pushing.SpoofingState.LimitResponse.FilledQuantity;
+				lock (pushing.SpoofingState)
+					pushing.PushingDetail.OpenedFutures -= pushing.SpoofingState.FilledQuantity;
 			}
 
 		    _threadService.Sleep(pushing.PushingDetail.FutureOpenDelayInMs);
@@ -131,9 +129,8 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			if (pushing.SpoofingState != null)
 			{
 				await pushing.SpoofingState.Cancel();
-				if (pushing.SpoofingState.LimitResponse != null)
-					lock (pushing.SpoofingState.LimitResponse)
-						pushing.PushingDetail.OpenedFutures += pushing.SpoofingState.LimitResponse.FilledQuantity;
+				lock (pushing.SpoofingState)
+					pushing.PushingDetail.OpenedFutures += pushing.SpoofingState.FilledQuantity;
 			}
 
 			// Partial close
@@ -174,9 +171,8 @@ namespace TradeSystem.Orchestration.Services.Strategies
 		    if (pushing.SpoofingState != null)
 			{
 				await pushing.SpoofingState.Cancel();
-				if (pushing.SpoofingState.LimitResponse != null)
-					lock (pushing.SpoofingState.LimitResponse)
-						pushing.PushingDetail.OpenedFutures -= pushing.SpoofingState.LimitResponse.FilledQuantity;
+				lock (pushing.SpoofingState)
+					pushing.PushingDetail.OpenedFutures -= pushing.SpoofingState.FilledQuantity;
 			}
 
 			_threadService.Sleep(pushing.PushingDetail.FutureOpenDelayInMs);
@@ -238,9 +234,8 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			if (pushing.SpoofingState != null)
 			{
 				await pushing.SpoofingState.Cancel();
-				if (pushing.SpoofingState.LimitResponse != null)
-					lock (pushing.SpoofingState.LimitResponse)
-						pushing.PushingDetail.OpenedFutures += pushing.SpoofingState.LimitResponse.FilledQuantity;
+				lock (pushing.SpoofingState)
+					pushing.PushingDetail.OpenedFutures += pushing.SpoofingState.FilledQuantity;
 			}
 
 			// Partial close
