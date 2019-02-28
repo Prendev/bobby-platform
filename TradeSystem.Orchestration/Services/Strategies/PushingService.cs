@@ -69,7 +69,8 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			    pushing.SpoofAccount, pushing.SpoofSymbol,
 			    pushing.PushingDetail.SpoofContractSize,
 			    pushing.PushingDetail.SpoofDistance,
-				pushing.PushingDetail.SpoofPutAwayDistance);
+				pushing.PushingDetail.SpoofPutAwayDistance,
+				null);
 		    pushing.Spoof.FeedAccount.Connector.Subscribe(pushing.Spoof.FeedSymbol);
 		}
 

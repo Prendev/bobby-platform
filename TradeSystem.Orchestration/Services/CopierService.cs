@@ -192,7 +192,7 @@ namespace TradeSystem.Orchestration.Services
 		        // TODO
 		        //var lots = Math.Abs(e.Position.RealVolume) / slaveConnector.GetContractSize(symbol) *
 		        //           (double) copier.CopyRatio;
-		        var lots = Math.Abs(e.Position.Lots * (double) copier.CopyRatio);
+		        var lots = Math.Abs((double) e.Position.Lots * (double) copier.CopyRatio);
 		        var side = copier.CopyRatio < 0 ? e.Position.Side.Inv() : e.Position.Side;
 		        var comment = $"{slave.Id}-{e.Position.Id}-{copier.Id}";
 		        if (e.Action == NewPositionActions.Open)

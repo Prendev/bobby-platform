@@ -9,13 +9,13 @@ namespace TradeSystem.Orchestration.Services.Strategies
 {
 	public interface ISpoofStrategyService
 	{
-		Task OpeningBeta(Spoofing spoofing, CancellationToken panic);
+		Task OpeningBeta(Spoofing spoofing, CancellationTokenSource panicSource);
 		Task OpeningBetaEnd(Spoofing spoofing, CancellationToken panic);
-		Task OpeningAlpha(Spoofing spoofing, CancellationToken panic);
+		Task OpeningAlpha(Spoofing spoofing, CancellationTokenSource panicSource);
 		Task OpeningAlphaEnd(Spoofing spoofing, CancellationToken panic);
-		Task ClosingFirst(Spoofing spoofing, CancellationToken panic);
+		Task ClosingFirst(Spoofing spoofing, CancellationTokenSource panicSource);
 		Task ClosingFirstEnd(Spoofing spoofing, CancellationToken panic);
-		Task ClosingSecond(Spoofing spoofing, CancellationToken panic);
+		Task ClosingSecond(Spoofing spoofing, CancellationTokenSource panicSource);
 		Task ClosingSecondEnd(Spoofing spoofing, CancellationToken panic);
 	}
 
@@ -29,15 +29,15 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			_spoofingService = spoofingService;
 		}
 
-		public async Task OpeningBeta(Spoofing spoofing, CancellationToken panic)
+		public async Task OpeningBeta(Spoofing spoofing, CancellationTokenSource panicSource)
 		{
 			InitSpoof(spoofing);
 			var futureSide = spoofing.BetaOpenSide.Inv();
 			var betaConnector = (IConnector)spoofing.BetaMaster.Connector;
 
 			// Start first spoofing
-			spoofing.SpoofingState = _spoofingService.Spoofing(spoofing.Spoof, futureSide);
-			await Delay(spoofing.MaxMasterSignalDurationInMs, panic);
+			spoofing.SpoofingState = _spoofingService.Spoofing(spoofing.Spoof, futureSide, panicSource);
+			await Delay(spoofing.MaxMasterSignalDurationInMs, panicSource.Token);
 
 			// Open first side
 			spoofing.BetaPosition = betaConnector.SendMarketOrderRequest(spoofing.BetaSymbol, futureSide.Inv(), spoofing.BetaLots, 0,
@@ -51,14 +51,14 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 		public async Task OpeningBetaEnd(Spoofing spoofing, CancellationToken panic) => await Ending(spoofing, panic);
 
-		public async Task OpeningAlpha(Spoofing spoofing, CancellationToken panic)
+		public async Task OpeningAlpha(Spoofing spoofing, CancellationTokenSource panicSource)
 		{
 			var alphaConnector = (IConnector)spoofing.AlphaMaster.Connector;
 			var futureSide = spoofing.BetaOpenSide;
 
 			// Start second spoofing
-			spoofing.SpoofingState = _spoofingService.Spoofing(spoofing.Spoof, futureSide);
-			await Delay(spoofing.MaxMasterSignalDurationInMs, panic);
+			spoofing.SpoofingState = _spoofingService.Spoofing(spoofing.Spoof, futureSide, panicSource);
+			await Delay(spoofing.MaxMasterSignalDurationInMs, panicSource.Token);
 
 			// Open second side
 			spoofing.AlphaPosition = alphaConnector.SendMarketOrderRequest(spoofing.AlphaSymbol, futureSide.Inv(), spoofing.AlphaLots, 0,
@@ -72,7 +72,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 		public async Task OpeningAlphaEnd(Spoofing spoofing, CancellationToken panic) => await Ending(spoofing, panic);
 
-		public async Task ClosingFirst(Spoofing spoofing, CancellationToken panic)
+		public async Task ClosingFirst(Spoofing spoofing, CancellationTokenSource panicSource)
 		{
 			var firstConnector = spoofing.BetaOpenSide == spoofing.FirstCloseSide
 				? (IConnector)spoofing.BetaMaster.Connector
@@ -81,8 +81,8 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			var futureSide = spoofing.FirstCloseSide.Inv();
 
 			// Start first spoofing
-			spoofing.SpoofingState = _spoofingService.Spoofing(spoofing.Spoof, futureSide);
-			await Delay(spoofing.MaxMasterSignalDurationInMs, panic);
+			spoofing.SpoofingState = _spoofingService.Spoofing(spoofing.Spoof, futureSide, panicSource);
+			await Delay(spoofing.MaxMasterSignalDurationInMs, panicSource.Token);
 
 			// Close first side
 			var closed = firstConnector.SendClosePositionRequests(firstPos, null, spoofing.MaxRetryCount, spoofing.RetryPeriodInMs);
@@ -95,7 +95,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 		public async Task ClosingFirstEnd(Spoofing spoofing, CancellationToken panic) => await Ending(spoofing, panic);
 
-		public async Task ClosingSecond(Spoofing spoofing, CancellationToken panic)
+		public async Task ClosingSecond(Spoofing spoofing, CancellationTokenSource panicSource)
 		{
 			var secondConnector = spoofing.BetaOpenSide == spoofing.FirstCloseSide
 				? (IConnector)spoofing.AlphaMaster.Connector
@@ -104,8 +104,8 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			var futureSide = spoofing.FirstCloseSide;
 
 			// Start first spoofing
-			spoofing.SpoofingState = _spoofingService.Spoofing(spoofing.Spoof, futureSide);
-			await Delay(spoofing.MaxMasterSignalDurationInMs, panic);
+			spoofing.SpoofingState = _spoofingService.Spoofing(spoofing.Spoof, futureSide, panicSource);
+			await Delay(spoofing.MaxMasterSignalDurationInMs, panicSource.Token);
 
 			// Close second side
 			var closed = secondConnector.SendClosePositionRequests(secondPos, null, spoofing.MaxRetryCount, spoofing.RetryPeriodInMs);
@@ -125,7 +125,8 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				spoofing.SpoofAccount, spoofing.SpoofSymbol,
 				spoofing.SpoofContractSize,
 				spoofing.SpoofDistance,
-				spoofing.SpoofPutAwayDistance);
+				spoofing.SpoofPutAwayDistance,
+				spoofing.SpoofMomentumStopInMs);
 			spoofing.Spoof.FeedAccount.Connector.Subscribe(spoofing.Spoof.FeedSymbol);
 		}
 

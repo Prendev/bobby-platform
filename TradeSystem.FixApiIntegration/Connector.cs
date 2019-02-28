@@ -514,22 +514,24 @@ namespace TradeSystem.FixApiIntegration
 		private void FixConnector_ExecutionReport(object sender, ExecutionReportEventArgs e)
 		{
 			SpecialLogger.Log(this, e);
-			if ((e.ExecutionReport.FulfilledQuantity ?? 0) == 0) return;
-			if (e.ExecutionReport.Side != Side.Buy && e.ExecutionReport.Side != Side.Sell) return;
+			var r = e.ExecutionReport;
+			var quantity = r.FulfilledQuantity ?? 0;
+			if ((r.FulfilledQuantity ?? 0) == 0) return;
+			if (r.Side != Side.Buy && r.Side != Side.Sell) return;
 
 			if (_unfinishedOrderIds.Contains(e.ExecutionReport.OrderId))
 			{
 				Logger.Error(
-					$"{Description} FixConnector.ExecutionReport unfinished order ({e.ExecutionReport.Symbol}, {e.ExecutionReport.Side}, {e.ExecutionReport.FulfilledQuantity})!!!");
+					$"{Description} FixConnector.ExecutionReport unfinished order ({r.Symbol}, {r.Side}, {r.FulfilledQuantity})!!!");
 				var side = e.ExecutionReport.Side == Side.Buy ? Sides.Sell : Sides.Buy;
-				SendMarketOrderRequest(e.ExecutionReport.Symbol.ToString(), side, e.ExecutionReport.FulfilledQuantity.Value,
-					5000, 5, 25);
+				SendMarketOrderRequest(r.Symbol.ToString(), side, quantity, 5000, 5, 25);
 			}
 
-			var quantity = e.ExecutionReport.FulfilledQuantity.Value;
-			if (e.ExecutionReport.Side == Side.Sell) quantity *= -1;
+			CheckNewPosition(r);
+			//Checked on order update CheckLimit(r);
 
-			SymbolInfos.AddOrUpdate(e.ExecutionReport.Symbol.ToString(),
+			if (r.Side == Side.Sell) quantity *= -1;
+			SymbolInfos.AddOrUpdate(r.Symbol.ToString(),
 				new SymbolData { SumContracts = quantity },
 				(key, oldValue) =>
 				{
@@ -538,27 +540,34 @@ namespace TradeSystem.FixApiIntegration
 				});
 		}
 
-
-		private void CheckLimit(ExecutionReport e)
+		private void CheckNewPosition(ExecutionReport r)
 		{
-			var orderKey = e.OrderId;
-			if (e.OrderType != OrdType.Limit) return;
+			var position = new Position
+			{
+				Id = HiResDatetime.UtcNow.Ticks,
+				Lots = r.FulfilledQuantity ?? 0,
+				Symbol = r.Symbol.ToString(),
+				Side = r.Side == Side.Buy ? Sides.Buy : Sides.Sell,
+				OpenTime = HiResDatetime.UtcNow,
+				OpenPrice = r.FulfilledPrice ?? 0
+			};
+			OnNewPosition(new NewPosition
+			{
+				AccountType = AccountTypes.Fix,
+				Position = position,
+				Action = NewPositionActions.Open,
+			});
+		}
 
-			//if (cqgOrder.GWStatus == eOrderStatus.osInOrderBook && cqgFill == null)
-			//	// Modify
-			//	_taskCompletionManager.SetResult(orderKey, cqgOrder, true);
-			//else if (cqgOrder.GWStatus == eOrderStatus.osCanceled)
-			//	// Cancel
-			//	_taskCompletionManager.SetCompleted($"{orderKey}_cancel", true);
-			//else if (cqgFill != null && _limitOrders.TryGetValue(orderKey, out var limitResponse))
-			//	// Fill
-			//	lock (limitResponse)
-			//		limitResponse.FilledQuantity = Math.Abs(cqgOrder.FilledQuantity);
+		private void CheckLimit(ExecutionReport r)
+		{
+			var orderKey = r.OrderId;
+			if (r.OrderType != OrdType.Limit) return;
 
-			if ((e.FulfilledQuantity ?? 0) != 0 && _limitOrders.TryGetValue(orderKey, out var limitResponse))
+			if ((r.FulfilledQuantity ?? 0) != 0 && _limitOrders.TryGetValue(orderKey, out var limitResponse))
 				// Fill
 				lock (limitResponse)
-					limitResponse.FilledQuantity = Math.Abs(e.CumulativeQuantity ?? 0);
+					limitResponse.FilledQuantity = Math.Abs(r.CumulativeQuantity ?? 0);
 		}
 
 

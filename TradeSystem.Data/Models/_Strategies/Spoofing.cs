@@ -12,6 +12,7 @@ namespace TradeSystem.Data.Models
 		[DisplayName("SpoofSize")] public int SpoofContractSize { get; set; }
 		[DisplayName("SpoofDistance")] public decimal SpoofDistance { get; set; }
 		[DisplayName("SpoofPutAway")] public decimal? SpoofPutAwayDistance { get; set; }
+		[DisplayName("SpoofStop")] public int? SpoofMomentumStopInMs { get; set; }
 
 		[DisplayName("Signal ms")] public int MaxMasterSignalDurationInMs { get; set; }
 		[DisplayName("Ending ms")] public int MaxEndingDurationInMs { get; set; }
