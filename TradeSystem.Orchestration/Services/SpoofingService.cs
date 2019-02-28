@@ -99,7 +99,7 @@ namespace TradeSystem.Orchestration.Services
 
 					if (!state.LimitResponses.Any())
 					{
-						for (var i = 0; i < Math.Max(1, spoof.Levels); i++)
+						for (var i = spoof.Levels - 1; i >= 0; i--)
 						{
 							var price = GetPrice(state, spoof.Distance, spoof.Step, i);
 							state.LimitResponses.Add(tradeConnector.SendSpoofOrderRequest(spoof.TradeSymbol, state.Side, spoof.Size, price).Result);
@@ -109,25 +109,61 @@ namespace TradeSystem.Orchestration.Services
 					}
 					else
 					{
-						for (var i = 0; i < Math.Max(1, spoof.Levels); i++)
+						var lr = state.LimitResponses.Where(r => r.RemainingQuantity > 0).ToList();
+						var firstPrice = GetPrice(state, spoof.Distance, spoof.Step, 0);
+						if (state.Side == Sides.Buy)
 						{
-							var price = GetPrice(state, spoof.Distance, spoof.Step, i);
-							if (state.LimitResponses.Any(r => r.OrderPrice == price)) continue;
-							LimitResponse remaining;
-							if (state.Side == Sides.Buy)
-								remaining = state.LimitResponses
-									.Where(r => r.RemainingQuantity > 0)
-									.Where(r => r.OrderPrice < price)
-									.OrderBy(r => r.OrderPrice)
-									.FirstOrDefault();
-							else remaining = state.LimitResponses
-								.Where(r => r.RemainingQuantity > 0)
-								.Where(r => r.OrderPrice > price)
-								.OrderByDescending(r => r.OrderPrice)
-								.FirstOrDefault();
-
-							if (remaining == null) break;
-							b = tradeConnector.ChangeLimitPrice(remaining, price).Result;
+							var shift = lr.Any(r => r.OrderPrice == firstPrice && state.LastTick.BidVolume <= r.RemainingQuantity) ? 1 : 0;
+							var topLimit = lr.OrderByDescending(r => r.OrderPrice).First();
+							if (topLimit.OrderPrice < firstPrice)
+								for (var i = 0; i < lr.Count; i++)
+								{
+									var price = GetPrice(state, spoof.Distance, spoof.Step, i + shift);
+									if (state.LimitResponses.Any(r => r.OrderPrice == price)) continue;
+									var remaining = lr.Where(r => r.OrderPrice < price)
+										.OrderBy(r => r.OrderPrice)
+										.FirstOrDefault();
+									if (remaining == null) break;
+									b = tradeConnector.ChangeLimitPrice(remaining, price).Result;
+								}
+							else if(topLimit.OrderPrice > firstPrice)
+								for (var i = lr.Count - 1; i >= 0; i--)
+								{
+									var price = GetPrice(state, spoof.Distance, spoof.Step, i + shift);
+									if (state.LimitResponses.Any(r => r.OrderPrice == price)) continue;
+									var remaining = lr.Where(r => r.OrderPrice > price)
+										.OrderByDescending(r => r.OrderPrice)
+										.FirstOrDefault();
+									if (remaining == null) break;
+									b = tradeConnector.ChangeLimitPrice(remaining, price).Result;
+								}
+						}
+						else if (state.Side == Sides.Sell)
+						{
+							var shift = lr.Any(r => r.OrderPrice == firstPrice && state.LastTick.AskVolume <= r.RemainingQuantity) ? 1 : 0;
+							var topLimit = lr.OrderBy(r => r.OrderPrice).First();
+							if (topLimit.OrderPrice > firstPrice)
+								for (var i = 0; i < lr.Count; i++)
+								{
+									var price = GetPrice(state, spoof.Distance, spoof.Step, i + shift);
+									if (state.LimitResponses.Any(r => r.OrderPrice == price)) continue;
+									var remaining = lr.Where(r => r.OrderPrice > price)
+										.OrderByDescending(r => r.OrderPrice)
+										.FirstOrDefault();
+									if (remaining == null) break;
+									b = tradeConnector.ChangeLimitPrice(remaining, price).Result;
+								}
+							else if (topLimit.OrderPrice < firstPrice)
+								for (var i = lr.Count - 1; i >= 0; i--)
+								{
+									var price = GetPrice(state, spoof.Distance, spoof.Step, i + shift);
+									if (state.LimitResponses.Any(r => r.OrderPrice == price)) continue;
+									var remaining = lr.Where(r => r.OrderPrice < price)
+										.OrderBy(r => r.OrderPrice)
+										.FirstOrDefault();
+									if (remaining == null) break;
+									b = tradeConnector.ChangeLimitPrice(remaining, price).Result;
+								}
 						}
 					}
 				}
@@ -141,8 +177,15 @@ namespace TradeSystem.Orchestration.Services
 			{
 				spoof.FeedAccount.NewTick -= NewTick;
 				if (state.RemainingQuantity > 0)
-					foreach (var limitResponse in state.LimitResponses)
-						b = tradeConnector.CancelLimit(limitResponse).Result;
+				{
+					if (state.Side == Sides.Buy)
+						foreach (var limitResponse in state.LimitResponses.OrderByDescending(r => r.OrderPrice))
+							b = tradeConnector.CancelLimit(limitResponse).Result;
+					else if (state.Side == Sides.Sell)
+						foreach (var limitResponse in state.LimitResponses.OrderBy(r => r.OrderPrice))
+							b = tradeConnector.CancelLimit(limitResponse).Result;
+				}
+
 				waitHandle.Dispose();
 			}
 			catch (Exception e)
@@ -155,11 +198,23 @@ namespace TradeSystem.Orchestration.Services
 			}
 		}
 
-		private static decimal GetPrice(SpoofingState state, decimal distance = 0, decimal step = 0, int level = 0)
+		private static decimal GetPrice(SpoofingState state)
 		{
-			var price = state.Side == Sides.Buy ? state.LastTick.Bid : state.LastTick.Ask;
-			if (state.Side == Sides.Buy) price -= (distance + level * step);
-			else price += (distance + level * step);
+			return state.Side == Sides.Buy ? state.LastTick.Bid : state.LastTick.Ask;
+		}
+		private static decimal GetPrice(SpoofingState state, decimal distance, decimal step, int level)
+		{
+			var price = GetPrice(state);
+			if (state.Side == Sides.Buy)
+			{
+				distance += level * step;
+				price -= distance;
+			}
+			else
+			{
+				distance += level * step;
+				price += distance;
+			}
 			return price;
 		}
 

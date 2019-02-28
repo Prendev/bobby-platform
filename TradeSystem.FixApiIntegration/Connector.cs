@@ -417,7 +417,7 @@ namespace TradeSystem.FixApiIntegration
 
 				Logger.Debug(
 					$"{Description} Connector.ChangeLimitPrice({lastOrderStatus.OrderId}, {limitPrice}) " +
-					$"updated with id {updateOrderStatus.OrderId}");
+					$"updated with id {updateOrderStatus.OrderId} to {response.OrderPrice}");
 				return response.OrderPrice == limitPrice;
 			}
 			catch (Exception e)
@@ -594,6 +594,8 @@ namespace TradeSystem.FixApiIntegration
 
 			var ask = quoteSet.Entries.First().Ask;
 			var bid = quoteSet.Entries.First().Bid;
+			var askVol = quoteSet.Entries.First().AskVolume;
+			var bidVol = quoteSet.Entries.First().BidVolume;
 			var symbol = quoteSet.Symbol.ToString();
 
 			SymbolInfos.AddOrUpdate(symbol,
@@ -606,12 +608,15 @@ namespace TradeSystem.FixApiIntegration
 				});
 
 			if (!ask.HasValue || !bid.HasValue) return;
+			if (!askVol.HasValue || !bidVol.HasValue) return;
 
 			var tick = new Tick
 			{
 				Symbol = symbol,
 				Ask = (decimal)ask,
 				Bid = (decimal)bid,
+				AskVolume = (decimal)askVol,
+				BidVolume = (decimal)bidVol,
 				Time = HiResDatetime.UtcNow
 			};
 			LastTicks.AddOrUpdate(symbol, key => tick, (key, old) => tick);
