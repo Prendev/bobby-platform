@@ -79,9 +79,10 @@ namespace TradeSystem.Orchestration.Services
 			using (var streamWriter = new StreamWriter("saveTheWeekend.csv"))
 			using (var csvWriter = new CsvHelper.CsvWriter(streamWriter))
 			{
-				var profile = duplicatContext.Profiles.First(p => p.Description == "*Import-Export");
-				var accounts =
-					profile.Accounts.Where(a => a.Run && a.MetaTraderAccountId.HasValue && a.ConnectionState == ConnectionStates.Connected);
+				var profile = duplicatContext.Profiles.FirstOrDefault(p => p.Description == "*Import-Export") ??
+				              duplicatContext.Profiles.Add(new Profile() { Description = "*Import-Export" }).Entity;
+				var accounts = profile.Accounts
+					.Where(a => a.Run && a.MetaTraderAccountId.HasValue && a.ConnectionState == ConnectionStates.Connected);
 
 				var symbols = LoadSymbols();
 
@@ -120,46 +121,6 @@ namespace TradeSystem.Orchestration.Services
 
 				}
 			}
-		}
-
-		private List<string> Symbols()
-		{
-			return new List<string>()
-			{
-				"#DJ30",
-				"#DOW30",
-				".US30",
-				"[DJI30]",
-				"DOWUSD",
-				"IDX.US.30",
-				"US.30..",
-				"US30",
-				"US30.c",
-				"US30.CASH",
-				"US30.i",
-				"US30.p",
-				"US30Cash",
-				"US30-CFD",
-				"US30s",
-				"US30USD",
-				"UsaInd",
-				"WS30",
-				"WS30.",
-				"WS30.ccm",
-				"WS30.lmx",
-				"#NAS",
-				"#NAS100",
-				".US100",
-				"US100",
-				"US100.c",
-				"US100s",
-				"US100.CASH",
-				"US100.i",
-				"US100.p",
-				"US.100",
-				"US.100.",
-				"US.100.."
-			};
 		}
 
 		private List<string> LoadSymbols()
