@@ -402,6 +402,7 @@ namespace TradeSystem.FixApiIntegration
 
 				var con = FixConnector as Communication.Interfaces.IConnector;
 
+				var lastPrice = lastOrderStatus.OrderLimitPrice;
 				var updateOrderStatus = await con.UpdateOrderAsync(new UpdateOrderRequest()
 				{
 					OriginalOrderId	= lastOrderStatus.OrderId,
@@ -417,7 +418,7 @@ namespace TradeSystem.FixApiIntegration
 
 				Logger.Debug(
 					$"{Description} Connector.ChangeLimitPrice({lastOrderStatus.OrderId}, {limitPrice}) " +
-					$"updated with id {updateOrderStatus.OrderId} to {response.OrderPrice}");
+					$"updated to {response.OrderPrice} from {lastPrice}");
 				return response.OrderPrice == limitPrice;
 			}
 			catch (Exception e)
