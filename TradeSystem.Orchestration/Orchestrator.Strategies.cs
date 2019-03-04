@@ -136,56 +136,48 @@ namespace TradeSystem.Orchestration
 
 		public async Task OpeningBeta(Spoofing spoofing)
 		{
-			spoofing.PanicSource?.Dispose();
 			spoofing.PanicSource = new CancellationTokenSource();
 			await Task.Run(() => _spoofStrategyService.OpeningBeta(spoofing, spoofing.PanicSource));
 		}
 
 		public async Task OpeningBetaEnd(Spoofing spoofing)
 		{
-			spoofing.PanicSource?.Dispose();
 			spoofing.PanicSource = new CancellationTokenSource();
 			await Task.Run(() => _spoofStrategyService.OpeningBetaEnd(spoofing, spoofing.PanicSource.Token));
 		}
 
 		public async Task OpeningAlpha(Spoofing spoofing)
 		{
-			spoofing.PanicSource?.Dispose();
 			spoofing.PanicSource = new CancellationTokenSource();
 			await Task.Run(() => _spoofStrategyService.OpeningAlpha(spoofing, spoofing.PanicSource));
 		}
 
 		public async Task OpeningAlphaEnd(Spoofing spoofing)
 		{
-			spoofing.PanicSource?.Dispose();
 			spoofing.PanicSource = new CancellationTokenSource();
 			await Task.Run(() => _spoofStrategyService.OpeningAlphaEnd(spoofing, spoofing.PanicSource.Token));
 		}
 
 		public async Task ClosingFirst(Spoofing spoofing)
 		{
-			spoofing.PanicSource?.Dispose();
 			spoofing.PanicSource = new CancellationTokenSource();
 			await Task.Run(() => _spoofStrategyService.ClosingFirst(spoofing, spoofing.PanicSource));
 		}
 
 		public async Task ClosingFirstEnd(Spoofing spoofing)
 		{
-			spoofing.PanicSource?.Dispose();
 			spoofing.PanicSource = new CancellationTokenSource();
 			await Task.Run(() => _spoofStrategyService.ClosingFirstEnd(spoofing, spoofing.PanicSource.Token));
 		}
 
 		public async Task ClosingSecond(Spoofing spoofing)
 		{
-			spoofing.PanicSource?.Dispose();
 			spoofing.PanicSource = new CancellationTokenSource();
 			await Task.Run(() => _spoofStrategyService.ClosingSecond(spoofing, spoofing.PanicSource));
 		}
 
 		public async Task ClosingSecondEnd(Spoofing spoofing)
 		{
-			spoofing.PanicSource?.Dispose();
 			spoofing.PanicSource = new CancellationTokenSource();
 			await Task.Run(() => _spoofStrategyService.ClosingSecondEnd(spoofing, spoofing.PanicSource.Token));
 		}

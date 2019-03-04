@@ -16,7 +16,7 @@ namespace TradeSystem.Orchestration.Services
 
 	public class SpoofingService : ISpoofingService
 	{
-		private static readonly TaskCompletionManager<SpoofingState> TaskCompletionManager = new TaskCompletionManager<SpoofingState>(100, 1000);
+		private static readonly TaskCompletionManager<SpoofingState> TaskCompletionManager = new TaskCompletionManager<SpoofingState>(100, 2000);
 
 		private class SpoofingState : ISpoofingState
 		{
@@ -45,6 +45,8 @@ namespace TradeSystem.Orchestration.Services
 			{
 				try
 				{
+
+					Logger.Debug("SpoofingService canceling...");
 					var task = TaskCompletionManager.CreateCompletableTask(this);
 					_cancel.CancelEx();
 					await task;
@@ -200,6 +202,7 @@ namespace TradeSystem.Orchestration.Services
 			finally
 			{
 				TaskCompletionManager.SetCompleted(state);
+				Logger.Debug("SpoofingService.Loop end");
 			}
 		}
 

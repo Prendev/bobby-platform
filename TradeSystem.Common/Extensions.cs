@@ -39,13 +39,5 @@ namespace TradeSystem.Common
 			if (cts.IsCancellationRequested) return;
 			cts.Cancel();
 		}
-
-		public static void CancelAndDispose(this CancellationTokenSource cts)
-		{
-			if (cts == null) return;
-			if (cts.IsCancellationRequested) return;
-			cts.Cancel();
-			cts.Dispose();
-		}
 	}
 }
