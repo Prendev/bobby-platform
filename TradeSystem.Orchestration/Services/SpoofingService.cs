@@ -95,6 +95,7 @@ namespace TradeSystem.Orchestration.Services
 					if (token.IsCancellationRequested) break;
 					if (state.LimitResponses.Any() && state.RemainingQuantity == 0) continue;
 					MomentumStop(spoof, state, stop);
+					if (state.LimitResponses.Any(r => r.RemainingQuantity == 0)) stop?.CancelAndDispose();
 					if (HiResDatetime.UtcNow - state.LastTick.Time > TimeSpan.FromSeconds(10)) continue;
 
 					if (!state.LimitResponses.Any())

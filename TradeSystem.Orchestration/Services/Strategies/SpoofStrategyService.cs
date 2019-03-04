@@ -53,6 +53,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 		public async Task OpeningAlpha(Spoofing spoofing, CancellationTokenSource panicSource)
 		{
+			InitSpoof(spoofing);
 			var alphaConnector = (IConnector)spoofing.AlphaMaster.Connector;
 			var futureSide = spoofing.BetaOpenSide;
 
@@ -74,6 +75,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 		public async Task ClosingFirst(Spoofing spoofing, CancellationTokenSource panicSource)
 		{
+			InitSpoof(spoofing);
 			var firstConnector = spoofing.BetaOpenSide == spoofing.FirstCloseSide
 				? (IConnector)spoofing.BetaMaster.Connector
 				: (IConnector)spoofing.AlphaMaster.Connector;
@@ -97,6 +99,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 		public async Task ClosingSecond(Spoofing spoofing, CancellationTokenSource panicSource)
 		{
+			InitSpoof(spoofing);
 			var secondConnector = spoofing.BetaOpenSide == spoofing.FirstCloseSide
 				? (IConnector)spoofing.AlphaMaster.Connector
 				: (IConnector)spoofing.BetaMaster.Connector;
