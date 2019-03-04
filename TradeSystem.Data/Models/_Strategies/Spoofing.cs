@@ -12,17 +12,15 @@ namespace TradeSystem.Data.Models
 		[DisplayName("Spoof Size")] public int SpoofContractSize { get; set; }
 		[DisplayName("S Distance")] public decimal SpoofDistance { get; set; }
 		[DisplayName("S Levels")] public int SpoofLevels { get; set; }
-		[DisplayName("S Step")] public decimal SpoofStep { get; set; }
+		[DisplayName("S Tick")] public decimal SpoofStep { get; set; }
 		[DisplayName("S Stop")] public int? SpoofMomentumStopInMs { get; set; }
 
 		[DisplayName("Signal ms")] public int MaxMasterSignalDurationInMs { get; set; }
 		[DisplayName("Ending ms")] public int MaxEndingDurationInMs { get; set; }
+		[DisplayName("Close %")] public int PartialClosePercentage { get; set; }
 
 		public double AlphaLots { get; set; }
 		public double BetaLots { get; set; }
-
-		public int MaxRetryCount { get; set; }
-		[DisplayName("RetryPeriod")] public int RetryPeriodInMs { get; set; }
 
 		public int FeedAccountId { get; set; }
 		public Account FeedAccount { get => Get<Account>(); set => Set(value); }
@@ -39,5 +37,8 @@ namespace TradeSystem.Data.Models
 		public int BetaMasterId { get; set; }
 		public Account BetaMaster { get => Get<Account>(); set => Set(value); }
 		[Required] public string BetaSymbol { get; set; }
+
+		public int MaxRetryCount { get; set; }
+		[DisplayName("RetryPeriod")] public int RetryPeriodInMs { get; set; }
 	}
 }

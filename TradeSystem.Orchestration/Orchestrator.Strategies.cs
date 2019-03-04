@@ -160,7 +160,6 @@ namespace TradeSystem.Orchestration
 			spoofing.PanicSource?.Dispose();
 			spoofing.PanicSource = new CancellationTokenSource();
 			await Task.Run(() => _spoofStrategyService.OpeningAlphaEnd(spoofing, spoofing.PanicSource.Token));
-			spoofing.PanicSource.Dispose();
 		}
 
 		public async Task ClosingFirst(Spoofing spoofing)
@@ -193,7 +192,7 @@ namespace TradeSystem.Orchestration
 
 		public void Panic(Spoofing spoofing)
 		{
-			spoofing.PanicSource?.CancelAndDispose();
+			spoofing.PanicSource.CancelEx();
 		}
 	}
 }

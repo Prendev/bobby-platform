@@ -2,8 +2,9 @@
 using System.Threading;
 using System.Threading.Tasks;
 using TradeSystem.Common;
+using TradeSystem.Common.Integration;
 using TradeSystem.Data.Models;
-using TradeSystem.Mt4Integration;
+using IConnector = TradeSystem.Mt4Integration.IConnector;
 
 namespace TradeSystem.Orchestration.Services.Strategies
 {
@@ -138,6 +139,16 @@ namespace TradeSystem.Orchestration.Services.Strategies
 		{
 			await Delay(spoofing.MaxEndingDurationInMs, panic);
 			await spoofing.SpoofingState.Cancel();
+
+			// Partial close
+			var closeSize = spoofing.SpoofingState.FilledQuantity;
+			var percentage = Math.Min(spoofing.PartialClosePercentage, 100);
+			percentage = Math.Max(percentage, 0);
+			closeSize = closeSize * percentage / 100;
+			if (closeSize <= 0) return;
+
+			var futureConnector = (IFixConnector)spoofing.SpoofAccount.Connector;
+			await futureConnector.SendMarketOrderRequest(spoofing.SpoofSymbol, spoofing.SpoofingState.Side.Inv(), closeSize);
 		}
 
 		private async Task Delay(int millisecondsDelay, CancellationToken cancellationToken)

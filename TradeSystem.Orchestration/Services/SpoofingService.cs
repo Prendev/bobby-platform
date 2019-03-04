@@ -46,7 +46,7 @@ namespace TradeSystem.Orchestration.Services
 				try
 				{
 					var task = TaskCompletionManager.CreateCompletableTask(this);
-					_cancel.CancelAndDispose();
+					_cancel.CancelEx();
 					await task;
 				}
 				catch (Exception e)
@@ -95,7 +95,7 @@ namespace TradeSystem.Orchestration.Services
 					if (token.IsCancellationRequested) break;
 					if (state.LimitResponses.Any() && state.RemainingQuantity == 0) continue;
 					MomentumStop(spoof, state, stop);
-					if (state.LimitResponses.Any(r => r.RemainingQuantity == 0)) stop?.CancelAndDispose();
+					if (state.LimitResponses.Any(r => r.RemainingQuantity == 0)) stop.CancelEx();
 					if (HiResDatetime.UtcNow - state.LastTick.Time > TimeSpan.FromSeconds(10)) continue;
 
 					if (!state.LimitResponses.Any())
@@ -120,7 +120,7 @@ namespace TradeSystem.Orchestration.Services
 								for (var i = 0; i < lr.Count; i++)
 								{
 									var price = GetPrice(state, spoof.Distance, spoof.Step, i + shift);
-									if (state.LimitResponses.Any(r => r.OrderPrice == price)) continue;
+									if (lr.Any(r => r.OrderPrice == price)) continue;
 									var remaining = lr.Where(r => r.OrderPrice < price)
 										.OrderBy(r => r.OrderPrice)
 										.FirstOrDefault();
@@ -131,7 +131,7 @@ namespace TradeSystem.Orchestration.Services
 								for (var i = lr.Count - 1; i >= 0; i--)
 								{
 									var price = GetPrice(state, spoof.Distance, spoof.Step, i + shift);
-									if (state.LimitResponses.Any(r => r.OrderPrice == price)) continue;
+									if (lr.Any(r => r.OrderPrice == price)) continue;
 									var remaining = lr.Where(r => r.OrderPrice > price)
 										.OrderByDescending(r => r.OrderPrice)
 										.FirstOrDefault();
@@ -147,7 +147,7 @@ namespace TradeSystem.Orchestration.Services
 								for (var i = 0; i < lr.Count; i++)
 								{
 									var price = GetPrice(state, spoof.Distance, spoof.Step, i + shift);
-									if (state.LimitResponses.Any(r => r.OrderPrice == price)) continue;
+									if (lr.Any(r => r.OrderPrice == price)) continue;
 									var remaining = lr.Where(r => r.OrderPrice > price)
 										.OrderByDescending(r => r.OrderPrice)
 										.FirstOrDefault();
@@ -158,7 +158,7 @@ namespace TradeSystem.Orchestration.Services
 								for (var i = lr.Count - 1; i >= 0; i--)
 								{
 									var price = GetPrice(state, spoof.Distance, spoof.Step, i + shift);
-									if (state.LimitResponses.Any(r => r.OrderPrice == price)) continue;
+									if (lr.Any(r => r.OrderPrice == price)) continue;
 									var remaining = lr.Where(r => r.OrderPrice < price)
 										.OrderBy(r => r.OrderPrice)
 										.FirstOrDefault();
@@ -177,13 +177,17 @@ namespace TradeSystem.Orchestration.Services
 			try
 			{
 				spoof.FeedAccount.NewTick -= NewTick;
-				if (state.RemainingQuantity > 0)
+
+				if (state.Side == Sides.Buy && state.RemainingQuantity > 0)
 				{
-					if (state.Side == Sides.Buy)
-						foreach (var limitResponse in state.LimitResponses.OrderByDescending(r => r.OrderPrice))
+					foreach (var limitResponse in state.LimitResponses.OrderByDescending(r => r.OrderPrice))
+						if (limitResponse.RemainingQuantity > 0)
 							b = tradeConnector.CancelLimit(limitResponse).Result;
-					else if (state.Side == Sides.Sell)
-						foreach (var limitResponse in state.LimitResponses.OrderBy(r => r.OrderPrice))
+				}
+				else if (state.Side == Sides.Sell && state.RemainingQuantity > 0)
+				{
+					foreach (var limitResponse in state.LimitResponses.OrderBy(r => r.OrderPrice))
+						if (limitResponse.RemainingQuantity > 0)
 							b = tradeConnector.CancelLimit(limitResponse).Result;
 				}
 
@@ -239,7 +243,7 @@ namespace TradeSystem.Orchestration.Services
 
 			if (HiResDatetime.UtcNow - state.LastBestTime < TimeSpan.FromMilliseconds(spoof.MomentumStop.Value)) return;
 
-			stop.CancelAndDispose();
+			stop.CancelEx();
 		}
 	}
 }

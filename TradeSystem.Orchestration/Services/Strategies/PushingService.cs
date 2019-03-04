@@ -62,17 +62,6 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			}
 		}
 
-	    private void InitSpoof(Pushing pushing)
-	    {
-			pushing.Spoof = new Data.Spoof(
-			    pushing.FeedAccount, pushing.FeedSymbol,
-			    pushing.SpoofAccount, pushing.SpoofSymbol,
-			    pushing.PushingDetail.SpoofContractSize,
-			    pushing.PushingDetail.SpoofDistance, 1, 0,
-				null);
-		    pushing.Spoof.FeedAccount.Connector.Subscribe(pushing.Spoof.FeedSymbol);
-		}
-
 	    public async Task OpeningPull(Pushing pushing)
 	    {
 		    var pd = pushing.PushingDetail;
@@ -146,6 +135,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 		public void ClosingFirst(Pushing pushing)
 		{
+			InitSpoof(pushing);
 			pushing.PushingDetail.OpenedFutures = 0;
 			var firstConnector = pushing.BetaOpenSide == pushing.FirstCloseSide
 				? (MtConnector) pushing.BetaMaster.Connector
@@ -250,6 +240,17 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			pushing.PushingDetail.OpenedFutures -= closeSize;
 
 		}
+
+	    private void InitSpoof(Pushing pushing)
+	    {
+		    pushing.Spoof = new Data.Spoof(
+			    pushing.FeedAccount, pushing.FeedSymbol,
+			    pushing.SpoofAccount, pushing.SpoofSymbol,
+			    pushing.PushingDetail.SpoofContractSize,
+			    pushing.PushingDetail.SpoofDistance, 1, 0,
+			    null);
+		    pushing.Spoof.FeedAccount.Connector.Subscribe(pushing.Spoof.FeedSymbol);
+	    }
 
 		private async Task FutureBuildUp(Pushing pushing, Sides side, decimal contractsNeeded, Phases phase)
 		{

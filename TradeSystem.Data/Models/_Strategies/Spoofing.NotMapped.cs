@@ -23,7 +23,7 @@ namespace TradeSystem.Data.Models
 		[NotMapped] [InvisibleColumn] public CancellationTokenSource PanicSource { get; set; }
 		[NotMapped] [InvisibleColumn] public bool IsConnected { get => Get<bool>(); set => Set(value); }
 
-		[NotMapped] [InvisibleColumn] public Tick LastFeedTick { get => Get<Tick>(); set => Set(value); }
+		[NotMapped] [InvisibleColumn] public Tick LastFeedTick { get; set; }
 
 
 		public Spoofing()
