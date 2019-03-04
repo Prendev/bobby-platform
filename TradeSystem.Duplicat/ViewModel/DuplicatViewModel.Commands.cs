@@ -168,7 +168,7 @@ namespace TradeSystem.Duplicat.ViewModel
 
 	    public void MtAccountImportCommand()
 		{
-			if (!IsConnected) return;
+			if (IsConnected) return;
 			IsLoading = true;
 		    _orchestrator.MtAccountImport(_duplicatContext);
 		    IsLoading = false;
