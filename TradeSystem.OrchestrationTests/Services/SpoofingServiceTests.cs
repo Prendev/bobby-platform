@@ -38,8 +38,7 @@ namespace TradeSystem.OrchestrationTests.Services
 				{
 					Description = "Trade",
 					Id = 1,
-					UserName = "SIgor-ZGM41",
-					Password = ""
+					UserName = "SIgor-ZGM41"
 				},
 				CqgClientApiAccountId = 1
 			};

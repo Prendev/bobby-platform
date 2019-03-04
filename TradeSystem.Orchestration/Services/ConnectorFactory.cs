@@ -158,8 +158,7 @@ namespace TradeSystem.Orchestration.Services
 				{
 					DbId = account.CqgClientApiAccount.Id,
 					Description = account.CqgClientApiAccount.Description,
-					UserName = account.CqgClientApiAccount.UserName,
-					Password = account.CqgClientApiAccount.Password
+					UserName = account.CqgClientApiAccount.UserName
 				});
 
 			await ((CqgClientApiIntegration.Connector)account.Connector).Connect();
