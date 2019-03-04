@@ -359,18 +359,19 @@ namespace TradeSystem.CqgClientApiIntegration
 			if (changeType != eChangeType.ctChanged) return;
 			CheckLimit(orderKey, cqgOrder, cqgFill);
 			CheckMarket(orderKey, cqgOrder, cqgFill);
-			CheckNewPosition(cqgFill);
+			CheckNewPosition(cqgOrder, cqgFill);
 		}
 
-		private void CheckNewPosition(CQGFill cqgFill)
+		private void CheckNewPosition(CQGOrder cqgOrder, CQGFill cqgFill)
 		{
+			if (cqgFill == null) return;
 			try
 			{
 				var position = new Position
 				{
 					Id = HiResDatetime.UtcNow.Ticks,
 					Lots = cqgFill.Quantity,
-					Symbol = cqgFill.InstrumentName,
+					Symbol = cqgOrder.InstrumentName,
 					Side = cqgFill.Side == eOrderSide.osdBuy ? Sides.Buy : Sides.Sell,
 					OpenTime = HiResDatetime.UtcNow,
 					OpenPrice = Convert.ToDecimal(cqgFill.Price)
