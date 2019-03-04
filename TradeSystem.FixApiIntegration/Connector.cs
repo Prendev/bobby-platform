@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Serialization;
+using KGySoft.CoreLibraries;
 using TradeSystem.Collections;
 using TradeSystem.Common.Integration;
 using TradeSystem.Common.Services;
@@ -19,6 +20,7 @@ using TradeSystem.Communication.FixApi.Connectors.Strategies.AggressiveOrder;
 using TradeSystem.Communication.FixApi.Connectors.Strategies.AggressiveOrder.Delayed;
 using TradeSystem.Communication.FixApi.Connectors.Strategies.MarketOrder;
 using OrderResponse = TradeSystem.Common.Integration.OrderResponse;
+using TimeInForce = TradeSystem.Communication.TimeInForce;
 
 namespace TradeSystem.FixApiIntegration
 {
@@ -30,6 +32,7 @@ namespace TradeSystem.FixApiIntegration
 		private readonly HashSet<string> _unfinishedOrderIds = new HashSet<string>();
 		private readonly FastBlockingCollection<QuoteSet> _quoteQueue = new FastBlockingCollection<QuoteSet>();
 		private readonly int _marketDepth;
+		private readonly ConcurrentDictionary<LimitResponse, OrderStatusReport> _limitOrderMapping = new ConcurrentDictionary<LimitResponse, OrderStatusReport>();
 		private readonly ConcurrentDictionary<string, LimitResponse> _limitOrders = new ConcurrentDictionary<string, LimitResponse>();
 
 		public override int Id => _accountInfo?.DbId ?? 0;
@@ -332,6 +335,18 @@ namespace TradeSystem.FixApiIntegration
 		{
 			try
 			{
+				var con = FixConnector as Communication.Interfaces.IConnector;
+				var newOrderStatus = await con.PutNewOrderAsync(new NewOrderRequest()
+				{
+					Side = side == Sides.Buy ? BuySell.Buy : BuySell.Sell,
+					Type = OrderType.Limit,
+					LimitPrice = limitPrice,
+					Symbol = Symbol.Parse(symbol),
+					TimeInForceHint = TimeInForce.GoodTillCancel,
+					Quantity = quantity
+				});
+				con.SubscribeOrderUpdate(newOrderStatus.OrderId, SpoofOrderUpdate, true);
+
 				var response = new LimitResponse()
 				{
 					Symbol = symbol,
@@ -339,11 +354,12 @@ namespace TradeSystem.FixApiIntegration
 					OrderedQuantity = quantity,
 					OrderPrice = limitPrice
 				};
-				_limitOrders.AddOrUpdate("", response, (k, o) => response);
+				_limitOrders.AddOrUpdate(newOrderStatus.OrderId, response, (k, o) => response);
+				_limitOrderMapping.AddOrUpdate(response, newOrderStatus, (k, o) => newOrderStatus);
 
 				Logger.Debug(
 					$"{Description} Connector.SendSpoofOrderRequest({symbol}, {side}, {quantity}, {limitPrice}) " +
-					$"opened {response.FilledQuantity} at price {response.OrderPrice}");
+					$"{newOrderStatus.OrderId} opened {response.FilledQuantity} at price {response.OrderPrice}");
 				return response;
 			}
 			catch (TimeoutException)
@@ -358,6 +374,77 @@ namespace TradeSystem.FixApiIntegration
 			}
 
 			return null;
+		}
+
+		private void SpoofOrderUpdate(object sender, EventArgs<OrderStatusReport> e)
+		{
+			if (e.EventData.OrderType != OrderType.Limit) return;
+
+			// Fill
+			if (!e.EventData.FulfilledQuantity.HasValue) return;
+			if (!e.EventData.CumulativeQuantity.HasValue) return;
+
+			if (!_limitOrders.TryGetValue(e.EventData.OrderId, out var limitResponse)) return;
+			lock (limitResponse) limitResponse.FilledQuantity = Math.Abs(e.EventData.CumulativeQuantity.Value);
+		}
+
+		public override async Task<bool> ChangeLimitPrice(LimitResponse response, decimal limitPrice)
+		{
+			OrderStatusReport lastOrderStatus = null;
+			try
+			{
+				if (response.RemainingQuantity == 0) return false;
+				if (!_limitOrderMapping.TryGetValue(response, out lastOrderStatus)) return false;
+				if (lastOrderStatus.OrderType != OrderType.Limit) return false;
+				//if (order.GWStatus == eOrderStatus.osFilled) return false;
+				if (lastOrderStatus.OrderLimitPrice == limitPrice) return true;
+
+
+				var con = FixConnector as Communication.Interfaces.IConnector;
+
+				var lastPrice = lastOrderStatus.OrderLimitPrice;
+				var updateOrderStatus = await con.UpdateOrderAsync(new UpdateOrderRequest()
+				{
+					OriginalOrderId	= lastOrderStatus.OrderId,
+					LimitPrice = limitPrice,
+					Side = lastOrderStatus.Side,
+					Type = lastOrderStatus.OrderType,
+					Symbol = lastOrderStatus.Symbol,
+					Quantity = response.RemainingQuantity
+				});
+				response.OrderPrice = updateOrderStatus.OrderLimitPrice ?? response.OrderPrice;
+				_limitOrders.AddOrUpdate(updateOrderStatus.OrderId, response, (k, o) => response);
+				_limitOrderMapping.AddOrUpdate(response, updateOrderStatus, (k, o) => updateOrderStatus);
+
+				Logger.Debug(
+					$"{Description} Connector.ChangeLimitPrice({lastOrderStatus.OrderId}, {limitPrice}) " +
+					$"updated to {response.OrderPrice} from {lastPrice}");
+				return response.OrderPrice == limitPrice;
+			}
+			catch (Exception e)
+			{
+				Logger.Error($"{Description} Connector.ChangeLimitPrice({lastOrderStatus?.OrderId}, {limitPrice}) exception", e);
+				return false;
+			}
+		}
+
+		public override async Task<bool> CancelLimit(LimitResponse response)
+		{
+			OrderStatusReport lastOrderStatus = null;
+			try
+			{
+				if (!_limitOrderMapping.TryGetValue(response, out lastOrderStatus)) return false;
+				if (lastOrderStatus.OrderType != OrderType.Limit) return false;
+
+				var con = FixConnector as Communication.Interfaces.IConnector;
+				var result = await con.CancelOrderAsync(lastOrderStatus.OrderId);
+				return result.Status == OrderStatus.Canceled || result.Status == OrderStatus.Accepted;
+			}
+			catch (Exception e)
+			{
+				Logger.Error($"{Description} Connector.CancelLimit({lastOrderStatus?.OrderId}) exception", e);
+				return false;
+			}
 		}
 
 		public override async void OrderMultipleCloseBy(string symbol)
@@ -428,22 +515,24 @@ namespace TradeSystem.FixApiIntegration
 		private void FixConnector_ExecutionReport(object sender, ExecutionReportEventArgs e)
 		{
 			SpecialLogger.Log(this, e);
-			if ((e.ExecutionReport.FulfilledQuantity ?? 0) == 0) return;
-			if (e.ExecutionReport.Side != Side.Buy && e.ExecutionReport.Side != Side.Sell) return;
+			var r = e.ExecutionReport;
+			var quantity = r.FulfilledQuantity ?? 0;
+			if ((r.FulfilledQuantity ?? 0) == 0) return;
+			if (r.Side != Side.Buy && r.Side != Side.Sell) return;
 
 			if (_unfinishedOrderIds.Contains(e.ExecutionReport.OrderId))
 			{
 				Logger.Error(
-					$"{Description} FixConnector.ExecutionReport unfinished order ({e.ExecutionReport.Symbol}, {e.ExecutionReport.Side}, {e.ExecutionReport.FulfilledQuantity})!!!");
+					$"{Description} FixConnector.ExecutionReport unfinished order ({r.Symbol}, {r.Side}, {r.FulfilledQuantity})!!!");
 				var side = e.ExecutionReport.Side == Side.Buy ? Sides.Sell : Sides.Buy;
-				SendMarketOrderRequest(e.ExecutionReport.Symbol.ToString(), side, e.ExecutionReport.FulfilledQuantity.Value,
-					5000, 5, 25);
+				SendMarketOrderRequest(r.Symbol.ToString(), side, quantity, 5000, 5, 25);
 			}
 
-			var quantity = e.ExecutionReport.FulfilledQuantity.Value;
-			if (e.ExecutionReport.Side == Side.Sell) quantity *= -1;
+			CheckNewPosition(r);
+			//Checked on order update CheckLimit(r);
 
-			SymbolInfos.AddOrUpdate(e.ExecutionReport.Symbol.ToString(),
+			if (r.Side == Side.Sell) quantity *= -1;
+			SymbolInfos.AddOrUpdate(r.Symbol.ToString(),
 				new SymbolData { SumContracts = quantity },
 				(key, oldValue) =>
 				{
@@ -452,27 +541,34 @@ namespace TradeSystem.FixApiIntegration
 				});
 		}
 
-
-		private void CheckLimit(ExecutionReport e)
+		private void CheckNewPosition(ExecutionReport r)
 		{
-			var orderKey = e.OrderId;
-			if (e.OrderType != OrdType.Limit) return;
+			var position = new Position
+			{
+				Id = HiResDatetime.UtcNow.Ticks,
+				Lots = r.FulfilledQuantity ?? 0,
+				Symbol = r.Symbol.ToString(),
+				Side = r.Side == Side.Buy ? Sides.Buy : Sides.Sell,
+				OpenTime = HiResDatetime.UtcNow,
+				OpenPrice = r.FulfilledPrice ?? 0
+			};
+			OnNewPosition(new NewPosition
+			{
+				AccountType = AccountTypes.Fix,
+				Position = position,
+				Action = NewPositionActions.Open,
+			});
+		}
 
-			//if (cqgOrder.GWStatus == eOrderStatus.osInOrderBook && cqgFill == null)
-			//	// Modify
-			//	_taskCompletionManager.SetResult(orderKey, cqgOrder, true);
-			//else if (cqgOrder.GWStatus == eOrderStatus.osCanceled)
-			//	// Cancel
-			//	_taskCompletionManager.SetCompleted($"{orderKey}_cancel", true);
-			//else if (cqgFill != null && _limitOrders.TryGetValue(orderKey, out var limitResponse))
-			//	// Fill
-			//	lock (limitResponse)
-			//		limitResponse.FilledQuantity = Math.Abs(cqgOrder.FilledQuantity);
+		private void CheckLimit(ExecutionReport r)
+		{
+			var orderKey = r.OrderId;
+			if (r.OrderType != OrdType.Limit) return;
 
-			if ((e.FulfilledQuantity ?? 0) != 0 && _limitOrders.TryGetValue(orderKey, out var limitResponse))
+			if ((r.FulfilledQuantity ?? 0) != 0 && _limitOrders.TryGetValue(orderKey, out var limitResponse))
 				// Fill
 				lock (limitResponse)
-					limitResponse.FilledQuantity = Math.Abs(e.CumulativeQuantity ?? 0);
+					limitResponse.FilledQuantity = Math.Abs(r.CumulativeQuantity ?? 0);
 		}
 
 
@@ -499,6 +595,8 @@ namespace TradeSystem.FixApiIntegration
 
 			var ask = quoteSet.Entries.First().Ask;
 			var bid = quoteSet.Entries.First().Bid;
+			var askVol = quoteSet.Entries.First().AskVolume;
+			var bidVol = quoteSet.Entries.First().BidVolume;
 			var symbol = quoteSet.Symbol.ToString();
 
 			SymbolInfos.AddOrUpdate(symbol,
@@ -511,12 +609,15 @@ namespace TradeSystem.FixApiIntegration
 				});
 
 			if (!ask.HasValue || !bid.HasValue) return;
+			if (!askVol.HasValue || !bidVol.HasValue) return;
 
 			var tick = new Tick
 			{
 				Symbol = symbol,
 				Ask = (decimal)ask,
 				Bid = (decimal)bid,
+				AskVolume = (decimal)askVol,
+				BidVolume = (decimal)bidVol,
 				Time = HiResDatetime.UtcNow
 			};
 			LastTicks.AddOrUpdate(symbol, key => tick, (key, old) => tick);

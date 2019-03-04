@@ -19,7 +19,7 @@ namespace TradeSystem.Orchestration.Services
 
 			var tasks = slave.FixApiCopiers.Where(s => s.Run).Select(copier => DelayedRun(async () =>
 			{
-				var quantity = Math.Abs((decimal)e.Position.Lots * copier.CopyRatio);
+				var quantity = Math.Abs(e.Position.Lots * copier.CopyRatio);
 				quantity = Math.Floor(quantity);
 				if (quantity == 0)
 				{

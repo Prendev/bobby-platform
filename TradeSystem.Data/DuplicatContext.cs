@@ -74,10 +74,14 @@ namespace TradeSystem.Data
 
         public DbSet<Pushing> Pushings { get; set; }
         public DbSet<PushingDetail> PushingDetails { get; set; }
+	    public DbSet<Spoofing> Spoofings { get; set; }
 
 		public DbSet<StratPosition> Positions { get; set; }
 		public DbSet<StratHubArb> StratHubArbs { get; set; }
 		public DbSet<StratHubArbPosition> StratHubArbPositions { get; set; }
+
+	    public DbSet<MarketMaker> MarketMakers { get; set; }
+
 
 		public DbSet<Ticker> Tickers { get; set; }
 

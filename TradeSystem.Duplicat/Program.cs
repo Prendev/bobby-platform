@@ -20,7 +20,8 @@ namespace TradeSystem.Duplicat
         [STAThread]
         static void Main()
 		{
-			PrepareAssemblies();
+			if (bool.TryParse(ConfigurationManager.AppSettings["PrepareAssemblies"], out bool prepareAssemblies) && prepareAssemblies)
+				PrepareAssemblies();
 
 			Debug.WriteLine($"Generate ThreadPool threads start at {HiResDatetime.UtcNow:O}");
 			int.TryParse(ConfigurationManager.AppSettings["ThreadPool.MinThreads"], out var minThreads);
@@ -51,11 +52,6 @@ namespace TradeSystem.Duplicat
 		    ForceLoadAll(Assembly.GetExecutingAssembly(), loadedAssmblies);
 		    foreach (var assembly in loadedAssmblies) PreJit(assembly);
 	    }
-
-	    public static void ForceLoadAll(Assembly assembly)
-	    {
-		    ForceLoadAll(assembly, new HashSet<Assembly>());
-		}
 
 	    private static void ForceLoadAll(Assembly assembly, ISet<Assembly> loadedAssmblies)
 	    {

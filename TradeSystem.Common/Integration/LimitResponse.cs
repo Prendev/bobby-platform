@@ -7,5 +7,6 @@
 		public decimal OrderedQuantity { get; set; }
 		public Sides Side { get; set; }
 		public decimal FilledQuantity { get; set; }
+		public decimal RemainingQuantity => OrderedQuantity - FilledQuantity;
 	}
 }

@@ -8,6 +8,7 @@ namespace TradeSystem.Common.Integration
 		string Description { get; }
         bool IsConnected { get; }
         event EventHandler<NewPosition> NewPosition;
+		event EventHandler<LimitFill> LimitFill;
 		event EventHandler<NewTick> NewTick;
 		event EventHandler<ConnectionStates> ConnectionChanged;
 		void Disconnect();

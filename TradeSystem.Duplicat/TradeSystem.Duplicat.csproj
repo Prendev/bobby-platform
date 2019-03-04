@@ -59,6 +59,25 @@
   <PropertyGroup>
     <ApplicationIcon>icon.ico</ApplicationIcon>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Autofac, Version=4.6.1.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
       <HintPath>..\packages\Autofac.4.6.1\lib\net45\Autofac.dll</HintPath>
@@ -179,6 +198,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="NullEntity.cs" />
+    <Compile Include="ViewModel\DuplicatViewModel.SpoofingCommands.cs" />
     <Compile Include="ViewModel\DuplicatViewModel.PushingCommands.cs" />
     <Compile Include="ViewModel\DuplicatViewModel.Commands.cs" />
     <Compile Include="Views\AggregatorUserControl.cs">
@@ -193,11 +213,17 @@
     <Compile Include="Views\CopiersUserControl.Designer.cs">
       <DependentUpon>CopiersUserControl.cs</DependentUpon>
     </Compile>
-    <Compile Include="Views\HubArbUserControl.cs">
+    <Compile Include="Views\_Strategies\HubArbUserControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Views\HubArbUserControl.Designer.cs">
+    <Compile Include="Views\_Strategies\HubArbUserControl.Designer.cs">
       <DependentUpon>HubArbUserControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\_Strategies\MarketMakerUserControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Views\_Strategies\MarketMakerUserControl.Designer.cs">
+      <DependentUpon>MarketMakerUserControl.cs</DependentUpon>
     </Compile>
     <Compile Include="Views\PropertyComparer.cs" />
     <Compile Include="Views\ProxyUserControl.cs">
@@ -224,10 +250,10 @@
     <Compile Include="Views\_Accounts\IffAccountsUserControl.Designer.cs">
       <DependentUpon>IffAccountsUserControl.cs</DependentUpon>
     </Compile>
-    <Compile Include="Views\PushingUserControl.cs">
+    <Compile Include="Views\_Strategies\PushingUserControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Views\PushingUserControl.Designer.cs">
+    <Compile Include="Views\_Strategies\PushingUserControl.Designer.cs">
       <DependentUpon>PushingUserControl.cs</DependentUpon>
     </Compile>
     <Compile Include="Views\IMvvmUserControl.cs" />
@@ -275,14 +301,23 @@
     <Compile Include="Views\TickersUserControl.Designer.cs">
       <DependentUpon>TickersUserControl.cs</DependentUpon>
     </Compile>
+    <Compile Include="Views\_Strategies\SpoofingUserControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Views\_Strategies\SpoofingUserControl.Designer.cs">
+      <DependentUpon>SpoofingUserControl.cs</DependentUpon>
+    </Compile>
     <EmbeddedResource Include="Views\AggregatorUserControl.resx">
       <DependentUpon>AggregatorUserControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\CopiersUserControl.resx">
       <DependentUpon>CopiersUserControl.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Views\HubArbUserControl.resx">
+    <EmbeddedResource Include="Views\_Strategies\HubArbUserControl.resx">
       <DependentUpon>HubArbUserControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\_Strategies\MarketMakerUserControl.resx">
+      <DependentUpon>MarketMakerUserControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\ProxyUserControl.resx">
       <DependentUpon>ProxyUserControl.cs</DependentUpon>
@@ -296,7 +331,7 @@
     <EmbeddedResource Include="Views\_Accounts\IffAccountsUserControl.resx">
       <DependentUpon>IffAccountsUserControl.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Views\PushingUserControl.resx">
+    <EmbeddedResource Include="Views\_Strategies\PushingUserControl.resx">
       <DependentUpon>PushingUserControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\MainForm.resx">
@@ -323,6 +358,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Views\TickersUserControl.resx">
       <DependentUpon>TickersUserControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\_Strategies\SpoofingUserControl.resx">
+      <DependentUpon>SpoofingUserControl.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="log4net.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

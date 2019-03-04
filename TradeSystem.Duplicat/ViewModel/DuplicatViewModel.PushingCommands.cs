@@ -85,7 +85,7 @@ namespace TradeSystem.Duplicat.ViewModel
 
         public void PushingPanicCommand(Pushing pushing)
         {
-            _orchestrator.PushingPanic(pushing);
+            _orchestrator.Panic(pushing);
 		}
 
 		public void PushingResetCommand()

@@ -38,14 +38,13 @@ namespace TradeSystem.OrchestrationTests.Services
 				{
 					Description = "Trade",
 					Id = 1,
-					UserName = "SIgor-ZGM41",
-					Password = ""
+					UserName = "SIgor-ZGM41"
 				},
 				CqgClientApiAccountId = 1
 			};
 			connectorFactory.Create(feedAccount).Wait();
 			connectorFactory.Create(tradeAccount).Wait();
-			Spoof = new Spoof(feedAccount, "FUT|DTB|FDAX DEC 18", tradeAccount, "F.US.DDZ18", 1, 10m, null);
+			Spoof = new Spoof(feedAccount, "FUT|DTB|FDAX DEC 18", tradeAccount, "F.US.DDZ18", 1, 1, 1, 0, null);
 
 			Assert.IsTrue(feedAccount.Connector.IsConnected);
 			Assert.IsTrue(tradeAccount.Connector.IsConnected);

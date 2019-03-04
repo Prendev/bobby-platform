@@ -17,6 +17,10 @@ namespace TradeSystem.Common.Integration
 		/// <summary>
 		/// Do NOT use it, only from Account
 		/// </summary>
+		public event EventHandler<LimitFill> LimitFill;
+		/// <summary>
+		/// Do NOT use it, only from Account
+		/// </summary>
 		public event EventHandler<NewTick> NewTick;
 		/// <summary>
 		/// Do NOT use it, only from Account

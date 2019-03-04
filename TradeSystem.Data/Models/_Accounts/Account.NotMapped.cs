@@ -20,6 +20,7 @@ namespace TradeSystem.Data.Models
 		public event EventHandler<NewTick> NewTick;
 		public event EventHandler<ConnectionStates> ConnectionChanged;
 		public event EventHandler<NewPosition> NewPosition;
+		public event EventHandler<LimitFill> LimitFill;
 
 		[DisplayPriority(0, true)] [NotMapped] [ReadOnly(true)] public ConnectionStates ConnectionState { get => Get<ConnectionStates>(); set => Set(value); }
 		[NotMapped] [InvisibleColumn] public IConnector Connector { get => Get<IConnector>(); set => Set(value); }
@@ -35,6 +36,7 @@ namespace TradeSystem.Data.Models
 					x.NewTick -= Connector_NewTick;
 					x.ConnectionChanged -= Connector_ConnectionChanged;
 					x.NewPosition -= Connector_NewPosition;
+					x.LimitFill -= Connector_LimitFill;
 				},
 				x =>
 				{
@@ -42,6 +44,7 @@ namespace TradeSystem.Data.Models
 					x.NewTick += Connector_NewTick;
 					x.ConnectionChanged += Connector_ConnectionChanged;
 					x.NewPosition += Connector_NewPosition;
+					x.LimitFill += Connector_LimitFill;
 				});
 		}
 
@@ -49,14 +52,14 @@ namespace TradeSystem.Data.Models
 
 		private void Connector_NewTick(object sender, NewTick e) => NewTick?.Invoke(this, e);
 
-		private void Connector_ConnectionChanged(object sender, ConnectionStates connectionState)
+		private void Connector_ConnectionChanged(object sender, ConnectionStates e)
 		{
-			ConnectionState = connectionState;
+			ConnectionState = e;
 			ConnectionChanged?.Invoke(this, ConnectionState);
 		}
 
-		private void Connector_NewPosition(object sender, NewPosition newPosition)
-			=> NewPosition?.Invoke(this, newPosition);
+		private void Connector_NewPosition(object sender, NewPosition e) => NewPosition?.Invoke(this, e);
+		private void Connector_LimitFill(object sender, LimitFill e) => LimitFill?.Invoke(this, e);
 
 		public override string ToString()
 		{
