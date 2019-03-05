@@ -94,14 +94,18 @@ namespace TradeSystem.Orchestration.Services
 			{
 				try
 				{
+					MomentumStop(spoof, state, stop);
+					if (state.LimitResponses.Any(r => r.RemainingQuantity == 0))
+					{
+						stop.CancelEx();
+						if (state.RemainingQuantity == 0) continue;
+					}
+
 					if (!waitHandle.WaitOne(10)) continue;
 					if (token.IsCancellationRequested) break;
-					if (state.LimitResponses.Any() && state.RemainingQuantity == 0) continue;
-					MomentumStop(spoof, state, stop);
-					if (state.LimitResponses.Any(r => r.RemainingQuantity == 0)) stop.CancelEx();
+
 					var lastTick = state.LastTick;
-					if (HiResDatetime.UtcNow - lastTick.Time > TimeSpan.FromMinutes(1))
-						continue;
+					if (HiResDatetime.UtcNow - lastTick.Time > TimeSpan.FromMinutes(1)) continue;
 
 					if (!state.LimitResponses.Any())
 					{

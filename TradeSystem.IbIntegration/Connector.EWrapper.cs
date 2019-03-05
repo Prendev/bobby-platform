@@ -451,6 +451,8 @@ namespace TradeSystem.IbIntegration
 				Symbol = symbol,
 				Ask = (decimal)askPrice,
 				Bid = (decimal)bidPrice,
+				AskVolume = askSize,
+				BidVolume = bidSize,
 				Time = HiResDatetime.UtcNow
 			};
 			LastTicks.AddOrUpdate(symbol, key => tick, (key, old) => tick);
