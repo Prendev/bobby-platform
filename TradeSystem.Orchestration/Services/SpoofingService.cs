@@ -86,7 +86,8 @@ namespace TradeSystem.Orchestration.Services
 
 			state.LastTick = spoof.FeedAccount.GetLastTick(spoof.FeedSymbol);
 			spoof.FeedAccount.NewTick += NewTick;
-			if (state.LastTick?.HasValue == true) waitHandle.Set();
+			if (state.LastTick?.HasValue == true)
+				waitHandle.Set();
 
 			var b = false;
 			while (!token.IsCancellationRequested)
@@ -99,7 +100,8 @@ namespace TradeSystem.Orchestration.Services
 					MomentumStop(spoof, state, stop);
 					if (state.LimitResponses.Any(r => r.RemainingQuantity == 0)) stop.CancelEx();
 					var lastTick = state.LastTick;
-					if (HiResDatetime.UtcNow - lastTick.Time > TimeSpan.FromMinutes(1)) continue;
+					if (HiResDatetime.UtcNow - lastTick.Time > TimeSpan.FromMinutes(1))
+						continue;
 
 					if (!state.LimitResponses.Any())
 					{
@@ -215,7 +217,7 @@ namespace TradeSystem.Orchestration.Services
 
 		private static decimal GetPrice(SpoofingState state)
 		{
-			return (state.Side == Sides.Buy ? state.LastTick.Bid : state.LastTick.Ask)*100;
+			return state.Side == Sides.Buy ? state.LastTick.Bid : state.LastTick.Ask;
 		}
 		private static decimal GetPrice(SpoofingState state, decimal distance, decimal step, int level)
 		{
