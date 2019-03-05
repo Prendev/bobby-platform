@@ -61,6 +61,16 @@ namespace TradeSystem.Duplicat.Views
 			btnStartCopiers.Click += (s, e) => { _viewModel.StartCopiersCommand(); };
 			btnStopCopiers.Click += (s, e) => { _viewModel.StopCopiersCommand(); };
 			btnSubscribeFeed.Click += (s, e) => { _viewModel.SpoofingFeedSubscribe(dgvSpoofings.GetSelectedItem<Spoofing>()); };
+			btnBuyFutures.Click += (s, e) =>
+			{
+				var pushing = dgvSpoofings.GetSelectedItem<Spoofing>();
+				_viewModel.SendOrderCommand(pushing.SpoofAccount, Sides.Buy, pushing.SpoofSymbol, nudFuturesContractSize.Value);
+			};
+			btnSellFutures.Click += (s, e) =>
+			{
+				var pushing = dgvSpoofings.GetSelectedItem<Spoofing>();
+				_viewModel.SendOrderCommand(pushing.SpoofAccount, Sides.Sell, pushing.SpoofSymbol, nudFuturesContractSize.Value);
+			};
 
 			btnOpenSpoofUp.Click += (s, e) => { _viewModel.SpoofingOpenCommand(dgvSpoofings.GetSelectedItem<Spoofing>(), Sides.Sell); };
 			btnOpenSpoofDown.Click += (s, e) => { _viewModel.SpoofingOpenCommand(dgvSpoofings.GetSelectedItem<Spoofing>(), Sides.Buy); };

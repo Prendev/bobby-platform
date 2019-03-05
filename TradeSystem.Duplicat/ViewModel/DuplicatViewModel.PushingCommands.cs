@@ -7,9 +7,9 @@ namespace TradeSystem.Duplicat.ViewModel
 {
     public partial class DuplicatViewModel
 	{
-		public void PushingFuturesOrderCommand(Pushing pushing, Sides side, decimal contractSize)
+		public void SendOrderCommand(Account account, Sides side, string symbol, decimal contractSize)
 		{
-			_orchestrator.SendPushingFuturesOrder(pushing, side, contractSize);
+			_orchestrator.SendOrder(account, side, symbol, contractSize);
 		}
 
 		public void ShowPushingCommand(Pushing pushing)

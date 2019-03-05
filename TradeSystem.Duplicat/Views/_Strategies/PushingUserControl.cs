@@ -66,12 +66,14 @@ namespace TradeSystem.Duplicat.Views
 			btnSubscribeFeed.Click += (s, e) => { _viewModel.PushingFeedSubscribe(dgvPushings.GetSelectedItem<Pushing>()); };
 
 			btnBuyFutures.Click += (s, e) =>
-	        {
-		        _viewModel.PushingFuturesOrderCommand(dgvPushings.GetSelectedItem<Pushing>(), Sides.Buy, nudFuturesContractSize.Value);
+			{
+				var pushing = dgvPushings.GetSelectedItem<Pushing>();
+				_viewModel.SendOrderCommand(pushing.FutureAccount, Sides.Buy, pushing.FutureSymbol, nudFuturesContractSize.Value);
 	        };
 	        btnSellFutures.Click += (s, e) =>
-	        {
-		        _viewModel.PushingFuturesOrderCommand(dgvPushings.GetSelectedItem<Pushing>(), Sides.Sell, nudFuturesContractSize.Value);
+			{
+				var pushing = dgvPushings.GetSelectedItem<Pushing>();
+				_viewModel.SendOrderCommand(pushing.FutureAccount, Sides.Sell, pushing.FutureSymbol, nudFuturesContractSize.Value);
 	        };
 
 			btnBuyBeta.Click += (s, e) => { _viewModel.PushingOpenCommand(dgvPushings.GetSelectedItem<Pushing>(), Sides.Buy); };

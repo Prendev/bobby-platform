@@ -10,7 +10,7 @@ namespace TradeSystem.Orchestration
 {
     public partial interface IOrchestrator
     {
-		void SendPushingFuturesOrder(Pushing pushing, Sides side, decimal contractSize);
+		void SendOrder(Account account, Sides side, string symbol, decimal contractSize);
 
 		Task OpeningBeta(Pushing pushing);
 		Task OpeningAlpha(Pushing pushing);
@@ -44,10 +44,10 @@ namespace TradeSystem.Orchestration
 
 	public partial class Orchestrator : IOrchestrator
 	{
-		public async void SendPushingFuturesOrder(Pushing pushing, Sides side, decimal contractSize)
+		public async void SendOrder(Account account, Sides side, string symbol, decimal contractSize)
 		{
-			var connector = (IFixConnector) pushing.FutureAccount.Connector;
-			var response = await connector.SendMarketOrderRequest(pushing.FutureSymbol, side, contractSize);
+			if (!(account.Connector is IFixConnector connector)) return;
+			var response = await connector.SendMarketOrderRequest(symbol, side, contractSize);
 		}
 
 		public Task OpeningBeta(Pushing pushing)
