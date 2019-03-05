@@ -98,7 +98,7 @@ namespace TradeSystem.Orchestration.Services
 					if (state.LimitResponses.Any() && state.RemainingQuantity == 0) continue;
 					MomentumStop(spoof, state, stop);
 					if (state.LimitResponses.Any(r => r.RemainingQuantity == 0)) stop.CancelEx();
-					if (HiResDatetime.UtcNow - state.LastTick.Time > TimeSpan.FromSeconds(10)) continue;
+					if (HiResDatetime.UtcNow - state.LastTick.Time > TimeSpan.FromMinutes(1)) continue;
 
 					if (!state.LimitResponses.Any())
 					{
