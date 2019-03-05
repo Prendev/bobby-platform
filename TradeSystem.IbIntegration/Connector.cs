@@ -4,7 +4,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using IBApi;
 using TradeSystem.Common.Integration;
-using TradeSystem.Communication;
 
 namespace TradeSystem.IbIntegration
 {
@@ -105,6 +104,7 @@ namespace TradeSystem.IbIntegration
 
 				var contract = symbol.ToContract();
 				_clientSocket.reqTickByTickData(id, contract, "BidAsk", 0, true);
+			    Logger.Debug($"{Description} Connector.Subscribe({symbol})");
 			}
 		    catch (Exception e)
 		    {

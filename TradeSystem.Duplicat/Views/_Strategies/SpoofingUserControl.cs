@@ -60,7 +60,7 @@ namespace TradeSystem.Duplicat.Views
 
 			btnStartCopiers.Click += (s, e) => { _viewModel.StartCopiersCommand(); };
 			btnStopCopiers.Click += (s, e) => { _viewModel.StopCopiersCommand(); };
-			//btnSubscribeFeed.Click += (s, e) => { _viewModel.PushingFeedSubscribe(dgvPushings.GetSelectedItem<Pushing>()); };
+			btnSubscribeFeed.Click += (s, e) => { _viewModel.SpoofingFeedSubscribe(dgvSpoofings.GetSelectedItem<Spoofing>()); };
 
 			btnOpenSpoofUp.Click += (s, e) => { _viewModel.SpoofingOpenCommand(dgvSpoofings.GetSelectedItem<Spoofing>(), Sides.Sell); };
 			btnOpenSpoofDown.Click += (s, e) => { _viewModel.SpoofingOpenCommand(dgvSpoofings.GetSelectedItem<Spoofing>(), Sides.Buy); };

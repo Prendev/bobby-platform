@@ -345,8 +345,10 @@ namespace TradeSystem.FixApiIntegration
 					TimeInForceHint = TimeInForce.GoodTillCancel,
 					Quantity = quantity
 				});
-				con.SubscribeOrderUpdate(newOrderStatus.OrderId, SpoofOrderUpdate, true);
+				if (newOrderStatus.Status == OrderStatus.Rejected)
+					throw new Exception(newOrderStatus.Message);
 
+				con.SubscribeOrderUpdate(newOrderStatus.OrderId, SpoofOrderUpdate, true);
 				var response = new LimitResponse()
 				{
 					Symbol = symbol,
@@ -474,6 +476,7 @@ namespace TradeSystem.FixApiIntegration
 
 				if (!IsConnected) return;
 				await FixConnector.SubscribeMarketDataAsync(Symbol.Parse(symbol), _marketDepth);
+				Logger.Debug($"{Description} Connector.Subscribe({symbol})");
 			}
 			catch (Exception e)
 			{

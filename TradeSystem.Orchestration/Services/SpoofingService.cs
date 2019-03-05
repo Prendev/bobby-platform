@@ -98,17 +98,24 @@ namespace TradeSystem.Orchestration.Services
 					if (state.LimitResponses.Any() && state.RemainingQuantity == 0) continue;
 					MomentumStop(spoof, state, stop);
 					if (state.LimitResponses.Any(r => r.RemainingQuantity == 0)) stop.CancelEx();
-					if (HiResDatetime.UtcNow - state.LastTick.Time > TimeSpan.FromMinutes(1)) continue;
+					var lastTick = state.LastTick;
+					if (HiResDatetime.UtcNow - lastTick.Time > TimeSpan.FromMinutes(1)) continue;
 
 					if (!state.LimitResponses.Any())
 					{
 						for (var i = spoof.Levels - 1; i >= 0; i--)
 						{
 							var price = GetPrice(state, spoof.Distance, spoof.Step, i);
-							state.LimitResponses.Add(tradeConnector.SendSpoofOrderRequest(spoof.TradeSymbol, state.Side, spoof.Size, price).Result);
+							var lr = tradeConnector.SendSpoofOrderRequest(spoof.TradeSymbol, state.Side, spoof.Size, price).Result;
+							if (lr == null) continue;
+							state.LimitResponses.Add(lr);
 						}
-						state.LastBestTime = HiResDatetime.UtcNow;
-						state.LastBestPrice = GetPrice(state);
+
+						if (state.LimitResponses.Any())
+						{
+							state.LastBestTime = HiResDatetime.UtcNow;
+							state.LastBestPrice = GetPrice(state);
+						}
 					}
 					else
 					{
@@ -116,7 +123,7 @@ namespace TradeSystem.Orchestration.Services
 						var firstPrice = GetPrice(state, spoof.Distance, spoof.Step, 0);
 						if (state.Side == Sides.Buy)
 						{
-							var shift = lr.Any(r => r.OrderPrice == firstPrice && state.LastTick.BidVolume <= r.RemainingQuantity) ? 1 : 0;
+							var shift = lr.Any(r => r.OrderPrice == firstPrice && lastTick.BidVolume <= r.RemainingQuantity) ? 1 : 0;
 							var topLimit = lr.OrderByDescending(r => r.OrderPrice).First();
 							if (topLimit.OrderPrice < firstPrice)
 								for (var i = 0; i < lr.Count; i++)
@@ -143,7 +150,7 @@ namespace TradeSystem.Orchestration.Services
 						}
 						else if (state.Side == Sides.Sell)
 						{
-							var shift = lr.Any(r => r.OrderPrice == firstPrice && state.LastTick.AskVolume <= r.RemainingQuantity) ? 1 : 0;
+							var shift = lr.Any(r => r.OrderPrice == firstPrice && lastTick.AskVolume <= r.RemainingQuantity) ? 1 : 0;
 							var topLimit = lr.OrderBy(r => r.OrderPrice).First();
 							if (topLimit.OrderPrice > firstPrice)
 								for (var i = 0; i < lr.Count; i++)
@@ -208,7 +215,7 @@ namespace TradeSystem.Orchestration.Services
 
 		private static decimal GetPrice(SpoofingState state)
 		{
-			return state.Side == Sides.Buy ? state.LastTick.Bid : state.LastTick.Ask;
+			return (state.Side == Sides.Buy ? state.LastTick.Bid : state.LastTick.Ask)*100;
 		}
 		private static decimal GetPrice(SpoofingState state, decimal distance, decimal step, int level)
 		{
