@@ -81,7 +81,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				? (IConnector)spoofing.BetaMaster.Connector
 				: (IConnector)spoofing.AlphaMaster.Connector;
 			var firstPos = spoofing.BetaOpenSide == spoofing.FirstCloseSide ? spoofing.BetaPosition : spoofing.AlphaPosition;
-			var futureSide = spoofing.FirstCloseSide.Inv();
+			var futureSide = spoofing.FirstCloseSide;
 
 			// Start first spoofing
 			spoofing.SpoofingState = _spoofingService.Spoofing(spoofing.Spoof, futureSide, panicSource);
@@ -105,7 +105,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				? (IConnector)spoofing.AlphaMaster.Connector
 				: (IConnector)spoofing.BetaMaster.Connector;
 			var secondPos = spoofing.BetaOpenSide == spoofing.FirstCloseSide ? spoofing.AlphaPosition : spoofing.BetaPosition;
-			var futureSide = spoofing.FirstCloseSide;
+			var futureSide = spoofing.FirstCloseSide.Inv();
 
 			// Start first spoofing
 			spoofing.SpoofingState = _spoofingService.Spoofing(spoofing.Spoof, futureSide, panicSource);

@@ -69,8 +69,8 @@ namespace TradeSystem.Duplicat.Views
 			btnOpenAlphaRush.Click += (s, e) => { _viewModel.SpoofingPanicCommand(dgvSpoofings.GetSelectedItem<Spoofing>()); };
 			btnOpenAlphaRushMore.Click += (s, e) => { _viewModel.SpoofingPanicCommand(dgvSpoofings.GetSelectedItem<Spoofing>()); };
 
-			btnCloseSpoofUp.Click += (s, e) => { _viewModel.SpoofingCloseCommand(dgvSpoofings.GetSelectedItem<Spoofing>(), Sides.Sell); };
-			btnCloseSpoofDown.Click += (s, e) => { _viewModel.SpoofingCloseCommand(dgvSpoofings.GetSelectedItem<Spoofing>(), Sides.Buy); };
+			btnCloseSpoofUp.Click += (s, e) => { _viewModel.SpoofingCloseCommand(dgvSpoofings.GetSelectedItem<Spoofing>(), Sides.Buy); };
+			btnCloseSpoofDown.Click += (s, e) => { _viewModel.SpoofingCloseCommand(dgvSpoofings.GetSelectedItem<Spoofing>(), Sides.Sell); };
 			btnCloseFirstRush.Click += (s, e) => { _viewModel.SpoofingPanicCommand(dgvSpoofings.GetSelectedItem<Spoofing>()); };
 			btnCloseFirstRushMore.Click += (s, e) => { _viewModel.SpoofingPanicCommand(dgvSpoofings.GetSelectedItem<Spoofing>()); };
 			btnCloseSecondRush.Click += (s, e) => { _viewModel.SpoofingPanicCommand(dgvSpoofings.GetSelectedItem<Spoofing>()); };

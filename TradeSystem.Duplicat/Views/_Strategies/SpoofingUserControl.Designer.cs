@@ -29,6 +29,7 @@
 		private void InitializeComponent()
 		{
 			this.gbSpoofings = new System.Windows.Forms.GroupBox();
+			this.dgvSpoofings = new TradeSystem.Duplicat.Views.CustomDataGridView();
 			this.btnSubscribeFeed = new System.Windows.Forms.Button();
 			this.btnCloseFirstRush = new System.Windows.Forms.Button();
 			this.btnOpenBetaRush = new System.Windows.Forms.Button();
@@ -52,19 +53,18 @@
 			this.btnCloseSpoofDown = new System.Windows.Forms.Button();
 			this.btnOpenSpoofDown = new System.Windows.Forms.Button();
 			this.gbFlow = new System.Windows.Forms.GroupBox();
-			this.btnOpenSpoofUp = new System.Windows.Forms.Button();
-			this.tlpMain = new System.Windows.Forms.TableLayoutPanel();
-			this.btnCloseFirstRushMore = new System.Windows.Forms.Button();
-			this.btnOpenBetaRushMore = new System.Windows.Forms.Button();
 			this.btnCloseSecondRushMore = new System.Windows.Forms.Button();
 			this.btnOpenAlphaRushMore = new System.Windows.Forms.Button();
-			this.dgvSpoofings = new TradeSystem.Duplicat.Views.CustomDataGridView();
+			this.btnCloseFirstRushMore = new System.Windows.Forms.Button();
+			this.btnOpenBetaRushMore = new System.Windows.Forms.Button();
+			this.btnOpenSpoofUp = new System.Windows.Forms.Button();
+			this.tlpMain = new System.Windows.Forms.TableLayoutPanel();
 			this.gbSpoofings.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)(this.dgvSpoofings)).BeginInit();
 			this.gbControl.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.nudFuturesContractSize)).BeginInit();
 			this.gbFlow.SuspendLayout();
 			this.tlpMain.SuspendLayout();
-			((System.ComponentModel.ISupportInitialize)(this.dgvSpoofings)).BeginInit();
 			this.SuspendLayout();
 			// 
 			// gbSpoofings
@@ -79,6 +79,18 @@
 			this.gbSpoofings.TabIndex = 1;
 			this.gbSpoofings.TabStop = false;
 			this.gbSpoofings.Text = "Spoofings";
+			// 
+			// dgvSpoofings
+			// 
+			this.dgvSpoofings.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
+			this.dgvSpoofings.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+			this.dgvSpoofings.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.dgvSpoofings.Location = new System.Drawing.Point(4, 19);
+			this.dgvSpoofings.Margin = new System.Windows.Forms.Padding(4);
+			this.dgvSpoofings.MultiSelect = false;
+			this.dgvSpoofings.Name = "dgvSpoofings";
+			this.dgvSpoofings.Size = new System.Drawing.Size(1079, 92);
+			this.dgvSpoofings.TabIndex = 0;
 			// 
 			// btnSubscribeFeed
 			// 
@@ -286,7 +298,7 @@
 			this.btnCloseSpoofUp.Name = "btnCloseSpoofUp";
 			this.btnCloseSpoofUp.Size = new System.Drawing.Size(100, 64);
 			this.btnCloseSpoofUp.TabIndex = 31;
-			this.btnCloseSpoofUp.Text = "Spoof up";
+			this.btnCloseSpoofUp.Text = "Spoof up\r\nfirst";
 			this.btnCloseSpoofUp.UseVisualStyleBackColor = true;
 			// 
 			// btnCloseSpoofDown
@@ -296,7 +308,7 @@
 			this.btnCloseSpoofDown.Name = "btnCloseSpoofDown";
 			this.btnCloseSpoofDown.Size = new System.Drawing.Size(100, 64);
 			this.btnCloseSpoofDown.TabIndex = 30;
-			this.btnCloseSpoofDown.Text = "Spoof down";
+			this.btnCloseSpoofDown.Text = "Spoof down\r\nfirst";
 			this.btnCloseSpoofDown.UseVisualStyleBackColor = true;
 			// 
 			// btnOpenSpoofDown
@@ -306,7 +318,7 @@
 			this.btnOpenSpoofDown.Name = "btnOpenSpoofDown";
 			this.btnOpenSpoofDown.Size = new System.Drawing.Size(100, 64);
 			this.btnOpenSpoofDown.TabIndex = 29;
-			this.btnOpenSpoofDown.Text = "Spoof down";
+			this.btnOpenSpoofDown.Text = "Spoof down\r\nfirst";
 			this.btnOpenSpoofDown.UseVisualStyleBackColor = true;
 			// 
 			// gbFlow
@@ -341,34 +353,25 @@
 			this.gbFlow.TabIndex = 0;
 			this.gbFlow.TabStop = false;
 			// 
-			// btnOpenSpoofUp
+			// btnCloseSecondRushMore
 			// 
-			this.btnOpenSpoofUp.Location = new System.Drawing.Point(8, 122);
-			this.btnOpenSpoofUp.Margin = new System.Windows.Forms.Padding(4);
-			this.btnOpenSpoofUp.Name = "btnOpenSpoofUp";
-			this.btnOpenSpoofUp.Size = new System.Drawing.Size(100, 64);
-			this.btnOpenSpoofUp.TabIndex = 28;
-			this.btnOpenSpoofUp.Text = "Spoof up";
-			this.btnOpenSpoofUp.UseVisualStyleBackColor = true;
+			this.btnCloseSecondRushMore.Location = new System.Drawing.Point(640, 295);
+			this.btnCloseSecondRushMore.Margin = new System.Windows.Forms.Padding(4);
+			this.btnCloseSecondRushMore.Name = "btnCloseSecondRushMore";
+			this.btnCloseSecondRushMore.Size = new System.Drawing.Size(100, 135);
+			this.btnCloseSecondRushMore.TabIndex = 55;
+			this.btnCloseSecondRushMore.Text = "Rush\r\nStop spoof";
+			this.btnCloseSecondRushMore.UseVisualStyleBackColor = true;
 			// 
-			// tlpMain
+			// btnOpenAlphaRushMore
 			// 
-			this.tlpMain.ColumnCount = 1;
-			this.tlpMain.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-			this.tlpMain.Controls.Add(this.gbFlow, 0, 2);
-			this.tlpMain.Controls.Add(this.gbSpoofings, 0, 1);
-			this.tlpMain.Controls.Add(this.gbControl, 0, 0);
-			this.tlpMain.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.tlpMain.Location = new System.Drawing.Point(0, 0);
-			this.tlpMain.Margin = new System.Windows.Forms.Padding(4);
-			this.tlpMain.Name = "tlpMain";
-			this.tlpMain.RowCount = 3;
-			this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 100F));
-			this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 123F));
-			this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-			this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-			this.tlpMain.Size = new System.Drawing.Size(1095, 711);
-			this.tlpMain.TabIndex = 1;
+			this.btnOpenAlphaRushMore.Location = new System.Drawing.Point(640, 123);
+			this.btnOpenAlphaRushMore.Margin = new System.Windows.Forms.Padding(4);
+			this.btnOpenAlphaRushMore.Name = "btnOpenAlphaRushMore";
+			this.btnOpenAlphaRushMore.Size = new System.Drawing.Size(100, 135);
+			this.btnOpenAlphaRushMore.TabIndex = 54;
+			this.btnOpenAlphaRushMore.Text = "Rush\r\nStop spoof";
+			this.btnOpenAlphaRushMore.UseVisualStyleBackColor = true;
 			// 
 			// btnCloseFirstRushMore
 			// 
@@ -390,37 +393,34 @@
 			this.btnOpenBetaRushMore.Text = "Rush\r\nStop first spoof";
 			this.btnOpenBetaRushMore.UseVisualStyleBackColor = true;
 			// 
-			// btnCloseSecondRushMore
+			// btnOpenSpoofUp
 			// 
-			this.btnCloseSecondRushMore.Location = new System.Drawing.Point(640, 295);
-			this.btnCloseSecondRushMore.Margin = new System.Windows.Forms.Padding(4);
-			this.btnCloseSecondRushMore.Name = "btnCloseSecondRushMore";
-			this.btnCloseSecondRushMore.Size = new System.Drawing.Size(100, 135);
-			this.btnCloseSecondRushMore.TabIndex = 55;
-			this.btnCloseSecondRushMore.Text = "Rush\r\nStop spoof";
-			this.btnCloseSecondRushMore.UseVisualStyleBackColor = true;
+			this.btnOpenSpoofUp.Location = new System.Drawing.Point(8, 122);
+			this.btnOpenSpoofUp.Margin = new System.Windows.Forms.Padding(4);
+			this.btnOpenSpoofUp.Name = "btnOpenSpoofUp";
+			this.btnOpenSpoofUp.Size = new System.Drawing.Size(100, 64);
+			this.btnOpenSpoofUp.TabIndex = 28;
+			this.btnOpenSpoofUp.Text = "Spoof up\r\nfirst";
+			this.btnOpenSpoofUp.UseVisualStyleBackColor = true;
 			// 
-			// btnOpenAlphaRushMore
+			// tlpMain
 			// 
-			this.btnOpenAlphaRushMore.Location = new System.Drawing.Point(640, 123);
-			this.btnOpenAlphaRushMore.Margin = new System.Windows.Forms.Padding(4);
-			this.btnOpenAlphaRushMore.Name = "btnOpenAlphaRushMore";
-			this.btnOpenAlphaRushMore.Size = new System.Drawing.Size(100, 135);
-			this.btnOpenAlphaRushMore.TabIndex = 54;
-			this.btnOpenAlphaRushMore.Text = "Rush\r\nStop spoof";
-			this.btnOpenAlphaRushMore.UseVisualStyleBackColor = true;
-			// 
-			// dgvSpoofings
-			// 
-			this.dgvSpoofings.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
-			this.dgvSpoofings.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-			this.dgvSpoofings.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.dgvSpoofings.Location = new System.Drawing.Point(4, 19);
-			this.dgvSpoofings.Margin = new System.Windows.Forms.Padding(4);
-			this.dgvSpoofings.MultiSelect = false;
-			this.dgvSpoofings.Name = "dgvSpoofings";
-			this.dgvSpoofings.Size = new System.Drawing.Size(1079, 92);
-			this.dgvSpoofings.TabIndex = 0;
+			this.tlpMain.ColumnCount = 1;
+			this.tlpMain.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+			this.tlpMain.Controls.Add(this.gbFlow, 0, 2);
+			this.tlpMain.Controls.Add(this.gbSpoofings, 0, 1);
+			this.tlpMain.Controls.Add(this.gbControl, 0, 0);
+			this.tlpMain.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.tlpMain.Location = new System.Drawing.Point(0, 0);
+			this.tlpMain.Margin = new System.Windows.Forms.Padding(4);
+			this.tlpMain.Name = "tlpMain";
+			this.tlpMain.RowCount = 3;
+			this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 100F));
+			this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 123F));
+			this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+			this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+			this.tlpMain.Size = new System.Drawing.Size(1095, 711);
+			this.tlpMain.TabIndex = 1;
 			// 
 			// SpoofingUserControl
 			// 
@@ -430,12 +430,12 @@
 			this.Name = "SpoofingUserControl";
 			this.Size = new System.Drawing.Size(1095, 711);
 			this.gbSpoofings.ResumeLayout(false);
+			((System.ComponentModel.ISupportInitialize)(this.dgvSpoofings)).EndInit();
 			this.gbControl.ResumeLayout(false);
 			((System.ComponentModel.ISupportInitialize)(this.nudFuturesContractSize)).EndInit();
 			this.gbFlow.ResumeLayout(false);
 			this.gbFlow.PerformLayout();
 			this.tlpMain.ResumeLayout(false);
-			((System.ComponentModel.ISupportInitialize)(this.dgvSpoofings)).EndInit();
 			this.ResumeLayout(false);
 
 		}
