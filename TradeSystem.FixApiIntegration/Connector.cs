@@ -388,6 +388,14 @@ namespace TradeSystem.FixApiIntegration
 
 			if (!_limitOrders.TryGetValue(e.EventData.OrderId, out var limitResponse)) return;
 			lock (limitResponse) limitResponse.FilledQuantity = Math.Abs(e.EventData.CumulativeQuantity.Value);
+
+			if (!e.EventData.FulfilledPrice.HasValue) return;
+			OnLimitFill(new LimitFill
+			{
+				LimitResponse = limitResponse,
+				Price = e.EventData.FulfilledPrice.Value,
+				Quantity = e.EventData.FulfilledQuantity.Value
+			});
 		}
 
 		public override async Task<bool> ChangeLimitPrice(LimitResponse response, decimal limitPrice)
@@ -562,18 +570,6 @@ namespace TradeSystem.FixApiIntegration
 				Action = NewPositionActions.Open,
 			});
 		}
-
-		private void CheckLimit(ExecutionReport r)
-		{
-			var orderKey = r.OrderId;
-			if (r.OrderType != OrdType.Limit) return;
-
-			if ((r.FulfilledQuantity ?? 0) != 0 && _limitOrders.TryGetValue(orderKey, out var limitResponse))
-				// Fill
-				lock (limitResponse)
-					limitResponse.FilledQuantity = Math.Abs(r.CumulativeQuantity ?? 0);
-		}
-
 
 		private void QuoteLoop()
 		{

@@ -6,10 +6,20 @@ namespace TradeSystem.Data.Models
 {
 	public partial class MarketMaker : BaseDescriptionEntity
 	{
+		public enum MarketMakerStates
+		{
+			None,
+			Init,
+			Trade,
+			Cancel
+		}
+
 		[DisplayPriority(-1)] public bool Run { get; set; }
 
 		[InvisibleColumn] public int ProfileId { get; set; }
 		[InvisibleColumn] public Profile Profile { get; set; }
+
+		public MarketMakerStates State { get => Get<MarketMakerStates>(); set => Set(value); }
 
 		public int FeedAccountId { get; set; }
 		public Account FeedAccount { get => Get<Account>(); set => Set(value); }
@@ -21,10 +31,13 @@ namespace TradeSystem.Data.Models
 
 		public int ContractSize { get; set; }
 
-		public int Depth { get; set; }
+		public int MaxDepth { get; set; }
+		public int InitDepth { get; set; }
+
 		[DisplayName("TP")] public int TpInTick { get; set; }
 		[DisplayName("LimitGaps")] public int LimitGapsInTick { get; set; }
 		[DisplayName("InitDistance")] public int InitialDistanceInTick { get; set; }
+
 		public decimal TickSize { get; set; }
 	}
 }

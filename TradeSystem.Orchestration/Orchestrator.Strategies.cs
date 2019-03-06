@@ -116,11 +116,19 @@ namespace TradeSystem.Orchestration
 		public async Task StartStrategies(DuplicatContext duplicatContext)
 		{
 			await Connect(duplicatContext);
+
 			var hubArbs = duplicatContext.StratHubArbs.Local.ToList();
 			_hubArbService.Start(hubArbs);
+
+			var marketMakers = duplicatContext.MarketMakers.Local.ToList();
+			_marketMakerService.Start(marketMakers);
 		}
 
-		public void StopStrategies() => _hubArbService.Stop();
+		public void StopStrategies()
+		{
+			_hubArbService.Stop();
+			_marketMakerService.Stop();
+		}
 
 		public async Task HubArbsGoFlat(DuplicatContext duplicatContext)
 		{

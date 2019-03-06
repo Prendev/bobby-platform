@@ -50,8 +50,10 @@ namespace TradeSystem.Orchestration.Services.Strategies
 		private void SetLoop(MarketMaker set, CancellationToken token)
 		{
 			set.FeedNewTick -= Set_FeedNewTick;
+			set.LimitFill -= Set_LimitFill;
 			var queue = _queues.GetOrAdd(set.Id, new FastBlockingCollection<Action>());
 			set.FeedNewTick += Set_FeedNewTick;
+			set.FeedAccount.Connector.Subscribe(set.FeedSymbol);
 
 			while (!token.IsCancellationRequested)
 			{
@@ -95,14 +97,21 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			var set = (MarketMaker)sender;
 
 			if (!set.Run) return;
-			//if (set.IsBusy) return;
+			if (set.State != MarketMaker.MarketMakerStates.Init) return;
 
-			set.FeedNewTick -= Set_FeedNewTick;
+			lock (set)
+			{
+				if (set.IsBusy) return;
+				set.IsBusy = true;
+			}
 			_queues.GetOrAdd(set.Id, new FastBlockingCollection<Action>()).Add(() => InitLimits(set, newTick));
 		}
 
 		private async void InitLimits(MarketMaker set, NewTick newTick)
 		{
+			set.LimitFill -= Set_LimitFill;
+			set.LimitFill += Set_LimitFill;
+
 			var connector = (FixApiConnectorBase)set.TradeAccount.Connector;
 			var sym = set.TradeSymbol;
 			var longBase = newTick.Tick.Bid - set.InitialDistanceInTick * set.TickSize;
@@ -110,7 +119,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			var gap = set.LimitGapsInTick * set.TickSize;
 			var quant = set.ContractSize;
 
-			for (var i = 0; i < set.Depth; i++)
+			for (var i = 0; i < set.MaxDepth; i++)
 			{
 				var buy = await connector.SendSpoofOrderRequest(sym, Sides.Buy, quant, longBase - i * gap);
 				_limits.Add(buy);
@@ -118,8 +127,8 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				_limits.Add(sell);
 			}
 
-			set.LimitFill -= Set_LimitFill;
-			set.LimitFill += Set_LimitFill;
+			set.State = MarketMaker.MarketMakerStates.Trade;
+			set.IsBusy = false;
 		}
 
 		private void Set_LimitFill(object sender, LimitFill limitFill)
@@ -129,7 +138,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 			if (!set.Run) return;
 			if (!_limits.Contains(limitFill.LimitResponse)) return;
-			//if (set.IsBusy) return;
+			if (set.State != MarketMaker.MarketMakerStates.Trade) return;
 
 			_queues.GetOrAdd(set.Id, new FastBlockingCollection<Action>()).Add(() => PostLimitFill(set, limitFill));
 		}

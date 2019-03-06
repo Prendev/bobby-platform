@@ -1,4 +1,6 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations.Schema;
+using TradeSystem.Common.Attributes;
 using TradeSystem.Common.Integration;
 
 namespace TradeSystem.Data.Models
@@ -9,14 +11,14 @@ namespace TradeSystem.Data.Models
 		public event EventHandler<NewTick> FeedNewTick;
 		public event EventHandler<LimitFill> LimitFill;
 
-		//[NotMapped]
-		//[InvisibleColumn]
-		//public bool IsBusy
-		//{
-		//	get => _isBusy;
-		//	set => _isBusy = value;
-		//}
-		//private volatile bool _isBusy;
+		[NotMapped]
+		[InvisibleColumn]
+		public bool IsBusy
+		{
+			get => _isBusy;
+			set => _isBusy = value;
+		}
+		private volatile bool _isBusy;
 
 		public MarketMaker()
 		{
