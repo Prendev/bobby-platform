@@ -114,16 +114,18 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 			var connector = (FixApiConnectorBase)set.TradeAccount.Connector;
 			var sym = set.TradeSymbol;
-			var longBase = newTick.Tick.Bid - set.InitialDistanceInTick * set.TickSize;
-			var shortBase = newTick.Tick.Ask + set.InitialDistanceInTick * set.TickSize;
+			set.LongBase = newTick.Tick.Bid - set.InitialDistanceInTick * set.TickSize;
+			set.ShortBase = newTick.Tick.Ask + set.InitialDistanceInTick * set.TickSize;
 			var gap = set.LimitGapsInTick * set.TickSize;
 			var quant = set.ContractSize;
 
-			for (var i = 0; i < set.MaxDepth; i++)
+			for (var i = 0; i < set.InitDepth; i++)
 			{
-				var buy = await connector.SendSpoofOrderRequest(sym, Sides.Buy, quant, longBase - i * gap);
+				var buy = await connector.SendSpoofOrderRequest(sym, Sides.Buy, quant, set.LongBase.Value - i * gap);
+				set.MinLongLimit = Math.Min(buy.OrderPrice, set.MinLongLimit ?? buy.OrderPrice);
 				_limits.Add(buy);
-				var sell = await connector.SendSpoofOrderRequest(sym, Sides.Sell, quant, shortBase + i * gap);
+				var sell = await connector.SendSpoofOrderRequest(sym, Sides.Sell, quant, set.ShortBase.Value + i * gap);
+				set.MaxShortLimit = Math.Max(sell.OrderPrice, set.MaxShortLimit ?? sell.OrderPrice);
 				_limits.Add(sell);
 			}
 
@@ -138,7 +140,8 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 			if (!set.Run) return;
 			if (!_limits.Contains(limitFill.LimitResponse)) return;
-			if (set.State != MarketMaker.MarketMakerStates.Trade) return;
+			if (set.State == MarketMaker.MarketMakerStates.Cancel) return;
+			if (set.State == MarketMaker.MarketMakerStates.None) return;
 
 			_queues.GetOrAdd(set.Id, new FastBlockingCollection<Action>()).Add(() => PostLimitFill(set, limitFill));
 		}
@@ -152,13 +155,33 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 			if (limitFill.LimitResponse.Side == Sides.Buy)
 			{
-				var limit = await connector.SendSpoofOrderRequest(sym, Sides.Sell, quant, limitFill.Price + tp);
-				_limits.Add(limit);
+				var tpLimit = await connector.SendSpoofOrderRequest(sym, Sides.Sell, quant, limitFill.Price + tp);
+				_limits.Add(tpLimit);
+
+				if (!set.LongBase.HasValue) return;
+				if (!set.MinLongLimit.HasValue) return;
+				var newDepth = limitFill.Price - set.InitDepth * set.TickSize;
+				if (newDepth >= set.MinLongLimit) return;
+				if (newDepth <= set.LongBase - set.MaxDepth * set.TickSize) return;
+
+				var newLimit = await connector.SendSpoofOrderRequest(sym, Sides.Buy, set.ContractSize, newDepth);
+				set.MinLongLimit = Math.Min(newLimit.OrderPrice, set.MinLongLimit ?? newLimit.OrderPrice);
+				_limits.Add(newLimit);
 			}
 			else if (limitFill.LimitResponse.Side == Sides.Sell)
 			{
-				var limit = await connector.SendSpoofOrderRequest(sym, Sides.Buy, quant, limitFill.Price - tp);
-				_limits.Add(limit);
+				var tpLimit = await connector.SendSpoofOrderRequest(sym, Sides.Buy, quant, limitFill.Price - tp);
+				_limits.Add(tpLimit);
+
+				if (!set.ShortBase.HasValue) return;
+				if (!set.MaxShortLimit.HasValue) return;
+				var newDepth = limitFill.Price + set.InitDepth * set.TickSize;
+				if (newDepth <= set.MaxShortLimit) return;
+				if (newDepth >= set.ShortBase + set.MaxDepth * set.TickSize) return;
+
+				var newLimit = await connector.SendSpoofOrderRequest(sym, Sides.Sell, set.ContractSize, newDepth);
+				set.MaxShortLimit = Math.Max(newLimit.OrderPrice, set.MaxShortLimit ?? newLimit.OrderPrice);
+				_limits.Add(newLimit);
 			}
 		}
 	}

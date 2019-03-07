@@ -20,6 +20,12 @@ namespace TradeSystem.Data.Models
 		}
 		private volatile bool _isBusy;
 
+
+		[NotMapped] [InvisibleColumn] public decimal? LongBase { get; set; }
+		[NotMapped] [InvisibleColumn] public decimal? ShortBase { get; set; }
+		[NotMapped] [InvisibleColumn] public decimal? MinLongLimit { get; set; }
+		[NotMapped] [InvisibleColumn] public decimal? MaxShortLimit { get; set; }
+
 		public MarketMaker()
 		{
 			SetAction<Account>(nameof(FeedAccount),
