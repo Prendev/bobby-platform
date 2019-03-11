@@ -44,7 +44,7 @@ namespace TradeSystem.OrchestrationTests.Services
 			};
 			connectorFactory.Create(feedAccount).Wait();
 			connectorFactory.Create(tradeAccount).Wait();
-			Spoof = new Spoof(feedAccount, "FUT|DTB|FDAX DEC 18", tradeAccount, "F.US.DDZ18", 1, 1, 1, 0, null);
+			Spoof = new Spoof(feedAccount, "FUT|DTB|FDAX DEC 18", tradeAccount, "F.US.DDZ18", 1, 1, 1, 1, 0, null);
 
 			Assert.IsTrue(feedAccount.Connector.IsConnected);
 			Assert.IsTrue(tradeAccount.Connector.IsConnected);

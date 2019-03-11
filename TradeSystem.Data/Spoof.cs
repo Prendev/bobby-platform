@@ -10,9 +10,11 @@ namespace TradeSystem.Data
 		public string TradeSymbol { get; }
 		public decimal Size { get; }
 		public int Levels { get; }
-		public decimal Distance { get; }
+		public decimal MinDistance { get; }
+		public decimal MaxDistance { get; }
 		public decimal Step { get; }
 		public int? MomentumStop { get; }
+		public bool IsPulling => Levels == 1 && MinDistance < MaxDistance && !MomentumStop.HasValue;
 
 		public Spoof(
 			Account feedAccount,
@@ -20,14 +22,16 @@ namespace TradeSystem.Data
 			Account tradeAccount,
 			string tradeSymbol,
 			decimal size,
-			decimal distance,
+			decimal minDistance,
+			decimal maxDistance,
 			int levels,
 			decimal step,
 			int? momentumStop)
 		{
 			Size = size;
 			Levels = levels;
-			Distance = distance;
+			MinDistance = minDistance;
+			MaxDistance = maxDistance;
 			Step = step;
 			TradeSymbol = tradeSymbol;
 			TradeAccount = tradeAccount;

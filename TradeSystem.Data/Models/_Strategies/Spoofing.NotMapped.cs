@@ -13,6 +13,9 @@ namespace TradeSystem.Data.Models
 		[NotMapped] [InvisibleColumn] public Spoof Spoof { get; set; }
 		[NotMapped] [InvisibleColumn] public ISpoofingState SpoofingState { get; set; }
 
+		[NotMapped] [InvisibleColumn] public Spoof Pull { get; set; }
+		[NotMapped] [InvisibleColumn] public ISpoofingState PullingState { get; set; }
+
 		[NotMapped] [InvisibleColumn] public Sides BetaOpenSide { get; set; }
 		[NotMapped] [InvisibleColumn] public Sides FirstCloseSide { get; set; }
 		[NotMapped] [InvisibleColumn] public Position AlphaPosition { get; set; }
