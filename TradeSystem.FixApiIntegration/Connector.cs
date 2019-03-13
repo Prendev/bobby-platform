@@ -525,7 +525,7 @@ namespace TradeSystem.FixApiIntegration
 
 		private void FixConnector_ExecutionReport(object sender, ExecutionReportEventArgs e)
 		{
-			SpecialLogger.Log(this, e);
+			FillLogger.Log(this, e);
 			var r = e.ExecutionReport;
 			var quantity = r.FulfilledQuantity ?? 0;
 			if ((r.FulfilledQuantity ?? 0) == 0) return;

@@ -100,7 +100,7 @@ namespace TradeSystem.Orchestration.Services
 				var response = await FixAccountClosing(pos.FixApiCopier, connector, open.Symbol, side, open.Size, null);
 				if (response == null) continue;
 				PersistClosePosition(pos.FixApiCopier, pos, response);
-				LogClose(slave, open.Symbol, pos.OpenPosition, response);
+				CopyLogger.LogClose(slave, open.Symbol, pos.OpenPosition, response);
 			}
 			Logger.Info("CopierService.Close finished");
 		}

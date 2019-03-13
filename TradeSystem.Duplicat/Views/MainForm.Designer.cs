@@ -54,6 +54,7 @@
 			this.tabPagePushing = new System.Windows.Forms.TabPage();
 			this.pushingUserControl = new TradeSystem.Duplicat.Views.PushingUserControl();
 			this.tabPageSpoofing = new System.Windows.Forms.TabPage();
+			this.spoofingUserControl1 = new TradeSystem.Duplicat.Views.SpoofingUserControl();
 			this.tabPageHubArb = new System.Windows.Forms.TabPage();
 			this.hubArbUserControl = new TradeSystem.Duplicat.Views.HubArbUserControl();
 			this.tabPageMarketMaker = new System.Windows.Forms.TabPage();
@@ -78,7 +79,8 @@
 			this.btnDisconnect = new System.Windows.Forms.Button();
 			this.btnConnect = new System.Windows.Forms.Button();
 			this.btnSave = new System.Windows.Forms.Button();
-			this.spoofingUserControl1 = new TradeSystem.Duplicat.Views.SpoofingUserControl();
+			this.tabPage5 = new System.Windows.Forms.TabPage();
+			this.rtbFixCopy = new System.Windows.Forms.RichTextBox();
 			this.tabControlMain.SuspendLayout();
 			this.tabPageProfile.SuspendLayout();
 			this.tabPageAccount.SuspendLayout();
@@ -106,6 +108,7 @@
 			this.tabPage3.SuspendLayout();
 			this.tlpMain.SuspendLayout();
 			this.gbControl.SuspendLayout();
+			this.tabPage5.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// tabControlMain
@@ -378,6 +381,14 @@
 			this.tabPageSpoofing.Text = "Spoofing";
 			this.tabPageSpoofing.UseVisualStyleBackColor = true;
 			// 
+			// spoofingUserControl1
+			// 
+			this.spoofingUserControl1.Dock = System.Windows.Forms.DockStyle.Top;
+			this.spoofingUserControl1.Location = new System.Drawing.Point(0, 0);
+			this.spoofingUserControl1.Name = "spoofingUserControl1";
+			this.spoofingUserControl1.Size = new System.Drawing.Size(1471, 711);
+			this.spoofingUserControl1.TabIndex = 0;
+			// 
 			// tabPageHubArb
 			// 
 			this.tabPageHubArb.Controls.Add(this.hubArbUserControl);
@@ -449,6 +460,7 @@
 			// 
 			this.tabControl1.Controls.Add(this.tabPage1);
 			this.tabControl1.Controls.Add(this.tabPage2);
+			this.tabControl1.Controls.Add(this.tabPage5);
 			this.tabControl1.Controls.Add(this.tabPage4);
 			this.tabControl1.Controls.Add(this.tabPage3);
 			this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -648,13 +660,28 @@
 			this.btnSave.Text = "Save config changes";
 			this.btnSave.UseVisualStyleBackColor = true;
 			// 
-			// spoofingUserControl1
+			// tabPage5
 			// 
-			this.spoofingUserControl1.Dock = System.Windows.Forms.DockStyle.Top;
-			this.spoofingUserControl1.Location = new System.Drawing.Point(0, 0);
-			this.spoofingUserControl1.Name = "spoofingUserControl1";
-			this.spoofingUserControl1.Size = new System.Drawing.Size(1471, 711);
-			this.spoofingUserControl1.TabIndex = 0;
+			this.tabPage5.Controls.Add(this.rtbFixCopy);
+			this.tabPage5.Location = new System.Drawing.Point(4, 25);
+			this.tabPage5.Name = "tabPage5";
+			this.tabPage5.Padding = new System.Windows.Forms.Padding(3);
+			this.tabPage5.Size = new System.Drawing.Size(1469, 696);
+			this.tabPage5.TabIndex = 5;
+			this.tabPage5.Text = "FIX copy";
+			this.tabPage5.UseVisualStyleBackColor = true;
+			// 
+			// rtbFixCopy
+			// 
+			this.rtbFixCopy.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.rtbFixCopy.Location = new System.Drawing.Point(3, 3);
+			this.rtbFixCopy.Name = "rtbFixCopy";
+			this.rtbFixCopy.ReadOnly = true;
+			this.rtbFixCopy.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Vertical;
+			this.rtbFixCopy.Size = new System.Drawing.Size(1463, 690);
+			this.rtbFixCopy.TabIndex = 3;
+			this.rtbFixCopy.Text = "";
+			this.rtbFixCopy.WordWrap = false;
 			// 
 			// MainForm
 			// 
@@ -693,6 +720,7 @@
 			this.tlpMain.ResumeLayout(false);
 			this.gbControl.ResumeLayout(false);
 			this.gbControl.PerformLayout();
+			this.tabPage5.ResumeLayout(false);
 			this.ResumeLayout(false);
 
         }
@@ -758,6 +786,8 @@
 		private MarketMakerUserControl marketMakerUserControl1;
 		private System.Windows.Forms.TabPage tabPageSpoofing;
 		private SpoofingUserControl spoofingUserControl1;
+		private System.Windows.Forms.TabPage tabPage5;
+		private System.Windows.Forms.RichTextBox rtbFixCopy;
 	}
 }
 

@@ -25,6 +25,7 @@ namespace TradeSystem.Duplicat.Views
 			InitializeComponent();
             TextBoxAppender.ConfigureTextBoxAppender(rtbGeneral, "General", 1000);
             TextBoxAppender.ConfigureTextBoxAppender(rtbFix, "FIX", 1000);
+            TextBoxAppender.ConfigureTextBoxAppender(rtbFixCopy, "FIX copy", 1000);
             TextBoxAppender.ConfigureTextBoxAppender(rtbFixOrders, "FIX orders", 1000);
 			TextBoxAppender.ConfigureTextBoxAppender(rtbAll, "General|FIX", 1000);
 

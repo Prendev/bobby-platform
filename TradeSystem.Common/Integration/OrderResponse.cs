@@ -11,5 +11,6 @@
 		public bool IsFilled => AveragePrice.HasValue && FilledQuantity > 0;
 
 		public Sides Side { get; set; }
+		public decimal SignedSize => FilledQuantity * (Side == Sides.Buy ? 1 : -1);
 	}
 }

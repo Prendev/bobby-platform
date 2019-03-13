@@ -50,7 +50,7 @@ namespace TradeSystem.Orchestration.Services
 					var response = await FixAccountOpening(copier, slaveConnector, symbol, side, quantity, limitPrice);
 					if (response == null) return;
 					PersistOpenPosition(copier, symbol, e.Position.Id, response);
-					LogOpen(slave, symbol, response);
+					CopyLogger.LogOpen(slave, symbol, response);
 				}
 				else if (e.Action == NewPositionActions.Close)
 				{
@@ -60,7 +60,7 @@ namespace TradeSystem.Orchestration.Services
 					var response = await FixAccountClosing(copier, slaveConnector, symbol, side, pos.OpenPosition.Size, limitPrice);
 					if (response == null) return;
 					PersistClosePosition(copier, pos, response);
-					LogClose(slave, symbol, pos.OpenPosition, response);
+					CopyLogger.LogClose(slave, symbol, pos.OpenPosition, response);
 				}
 
 			}, copier.DelayInMilliseconds));
@@ -106,25 +106,6 @@ namespace TradeSystem.Orchestration.Services
 				Size = response.FilledQuantity,
 				Symbol = pos.OpenPosition.Symbol
 			};
-		}
-
-		private void LogOpen(Slave slave, string symbol, OrderResponse open)
-		{
-			if (open == null) return;
-			if (open.FilledQuantity == 0)
-				Logger.Warn($"\t{slave}\t{symbol}\t{open.FilledQuantity}\t{open.AveragePrice}");
-			else Logger.Info($"\t{slave}\t{symbol}\t{open.FilledQuantity}\t{open.AveragePrice}");
-		}
-
-		private void LogClose(Slave slave, string symbol, StratPosition open, OrderResponse close)
-		{
-			if (open == null || close == null) return;
-			var diff = close.IsFilled ? open.AvgPrice - close.AveragePrice : null;
-			if (open.Side == StratPosition.Sides.Buy) diff *= -1;
-
-			if (open.Size != close.FilledQuantity)
-				Logger.Error($"\t{slave}\t{symbol}\t{open.Size}\t{open.AvgPrice}\t{close.FilledQuantity}\t{close.AveragePrice}\t{diff}");
-			else Logger.Info($"\t{slave}\t{symbol}\t{open.Size}\t{open.AvgPrice}\t{close.FilledQuantity}\t{close.AveragePrice}\t{diff}");
 		}
 
 		private async Task<OrderResponse> FixAccountOpening(FixApiCopier copier, IFixConnector connector, string symbol, Sides side,
