@@ -76,19 +76,21 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			set.LimitFill -= Set_LimitFill;
 			_queues.TryRemove(set.Id, out queue);
 
-			try
+			var connector = (FixApiConnectorBase) set.TradeAccount.Connector;
+			foreach (var limit in _limits)
 			{
-				var connector = (FixApiConnectorBase)set.TradeAccount.Connector;
-				foreach (var limit in _limits) connector.CancelLimit(limit).Wait();
+				if (limit.RemainingQuantity == 0) continue;
+				try
+				{
+					connector.CancelLimit(limit).Wait();
+				}
+				catch (Exception e)
+				{
+					Logger.Error("MarketMakerService.Loop exception", e);
+				}
 			}
-			catch (Exception e)
-			{
-				Logger.Error("MarketMakerService.Loop exception", e);
-			}
-			finally
-			{
-				_limits.Clear();
-			}
+
+			_limits.Clear();
 		}
 
 		private void Set_FeedNewTick(object sender, NewTick newTick)
