@@ -136,24 +136,24 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				spoofing.FeedAccount, spoofing.FeedSymbol,
 				spoofing.SpoofAccount, spoofing.SpoofSymbol,
 				spoofing.SpoofContractSize,
-				spoofing.SpoofDistance,
-				spoofing.SpoofDistance,
+				spoofing.SpoofDistanceInTick * spoofing.TickSize,
+				spoofing.SpoofDistanceInTick * spoofing.TickSize,
 				spoofing.SpoofLevels,
-				spoofing.SpoofStep,
-				spoofing.SpoofMomentumStopInMs);
+				spoofing.TickSize,
+				spoofing.MomentumStopInMs);
 			spoofing.Spoof.FeedAccount.Connector.Subscribe(spoofing.Spoof.FeedSymbol);
 		}
 		private void InitPull(Spoofing spoofing)
 		{
-			if (spoofing.PullContractSize > 0 && spoofing.PullMinDistance < spoofing.PullMaxDistance)
+			if (spoofing.PullContractSize > 0 && spoofing.PullMinDistanceInTick < spoofing.PullMaxDistanceInTick)
 			{
 				spoofing.Pull = new Data.Spoof(
 					spoofing.FeedAccount, spoofing.FeedSymbol,
 					spoofing.SpoofAccount, spoofing.SpoofSymbol,
 					spoofing.PullContractSize,
-					spoofing.PullMinDistance,
-					spoofing.PullMaxDistance,
-					1, spoofing.SpoofStep, null);
+					spoofing.PullMinDistanceInTick * spoofing.TickSize,
+					spoofing.PullMaxDistanceInTick * spoofing.TickSize,
+					1, spoofing.TickSize, null);
 				spoofing.Pull.FeedAccount.Connector.Subscribe(spoofing.Pull.FeedSymbol);
 			}
 			else spoofing.Pull = null;

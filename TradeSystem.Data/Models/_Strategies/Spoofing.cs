@@ -9,15 +9,21 @@ namespace TradeSystem.Data.Models
 		[InvisibleColumn] public int ProfileId { get; set; }
 		[InvisibleColumn] public Profile Profile { get; set; }
 
-		[DisplayName("Pull Size")] public int PullContractSize { get; set; }
-		[DisplayName("P Min dist.")] public decimal PullMinDistance { get; set; }
-		[DisplayName("P Max dist.")] public decimal PullMaxDistance { get; set; }
+		[DisplayName("Pull Size")] public decimal PullContractSize { get; set; }
+		[DisplayName("P Min dist.")] public int PullMinDistanceInTick { get; set; }
+		[DisplayName("P Max dist.")] public int PullMaxDistanceInTick { get; set; }
 
-		[DisplayName("Spoof Size")] public int SpoofContractSize { get; set; }
-		[DisplayName("S Distance")] public decimal SpoofDistance { get; set; }
+		[DisplayName("Spoof Size")] public decimal SpoofContractSize { get; set; }
+		[DisplayName("S Distance")] public int SpoofDistanceInTick { get; set; }
 		[DisplayName("S Levels")] public int SpoofLevels { get; set; }
-		[DisplayName("S Tick")] public decimal SpoofStep { get; set; }
-		[DisplayName("S Stop")] public int? SpoofMomentumStopInMs { get; set; }
+		public decimal TickSize { get; set; }
+
+		[DisplayName("Push trigger")] public int? PushTriggerInMs { get; set; }
+		[DisplayName("P Size")] public decimal PushContractSize { get; set; }
+		[DisplayName("P Max")] public int PushMaxOrders { get; set; }
+		[DisplayName("P Interval")] public int PushIntervalInMs { get; set; }
+
+		[DisplayName("Stop")] public int? MomentumStopInMs { get; set; }
 		[DisplayName("Signal ms")] public int MaxMasterSignalDurationInMs { get; set; }
 		[DisplayName("Ending ms")] public int MaxEndingDurationInMs { get; set; }
 		[DisplayName("Close %")] public int PartialClosePercentage { get; set; }

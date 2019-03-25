@@ -194,6 +194,7 @@
     <Compile Include="Services\CopyLogger.cs" />
     <Compile Include="Services\MtAccountImportService.cs" />
     <Compile Include="Services\ProxyService.cs" />
+    <Compile Include="Services\PushImpulseService.cs" />
     <Compile Include="Services\Strategies\HubArbService.SendPosition.cs" />
     <Compile Include="Services\Strategies\HubArbService.Opening.cs" />
     <Compile Include="Services\Strategies\HubArbService.cs" />
