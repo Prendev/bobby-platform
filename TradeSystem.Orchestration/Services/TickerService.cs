@@ -97,10 +97,11 @@ namespace TradeSystem.Orchestration.Services
 			public CsvHelper.CsvWriter CsvWriter { get; set; }
 			public object LastRecord { get; set; }
 
-			public Writer(string file)
+			public Writer(string file, string delimeter)
 			{
 				StreamWriter = new StreamWriter(file, true);
 				CsvWriter = new CsvHelper.CsvWriter(StreamWriter);
+				CsvWriter.Configuration.Delimiter = delimeter;
 			}
 
 			public void Disconnect()
@@ -201,7 +202,7 @@ namespace TradeSystem.Orchestration.Services
 				.Where(t => t.MainSymbol == quoteSet.Symbol.ToString() || t.MainSymbol == null);
 
 			foreach (var ticker in tickers)
-				WriteQuoteCsv(GetCsvFile(connector.Description, quoteSet.Symbol.ToString()), quoteSet, ticker.MarketDepth);
+				WriteQuoteCsv(ticker, GetCsvFile(ticker, connector.Description, quoteSet.Symbol.ToString()), quoteSet, ticker.MarketDepth);
 		}
 
 		private void Account_NewTick(object sender, NewTick e)
@@ -217,8 +218,8 @@ namespace TradeSystem.Orchestration.Services
 				if (ticker.MainAccount?.Connector != connector) continue;
 
 				if (!ticker.PairAccountId.HasValue && (ticker.MainSymbol ?? e.Tick.Symbol) == e.Tick.Symbol)
-					WriteCsv(GetCsvFile(connector.Description, e.Tick.Symbol),
-						new CsvRow {Time = e.Tick.Time.ToString("yyyy.MM.dd hh:mm:ss.fff"), Ask = e.Tick.Ask, Bid = e.Tick.Bid});
+					WriteCsv(ticker, GetCsvFile(ticker, connector.Description, e.Tick.Symbol),
+						new CsvRow {Time = e.Tick.Time.ToString(ticker.GetDateTimeFormat()), Ask = e.Tick.Ask, Bid = e.Tick.Bid});
 
 				if (ticker.MainSymbol != e.Tick.Symbol) continue;
 					
@@ -232,9 +233,9 @@ namespace TradeSystem.Orchestration.Services
 				}
 				else continue;
 
-				WriteCsv(GetCsvFile($"{connector.Description}_{pair}", e.Tick.Symbol), new CsvRowPair
+				WriteCsv(ticker, GetCsvFile(ticker, $"{connector.Description}_{pair}", e.Tick.Symbol), new CsvRowPair
 				{
-					Time = e.Tick.Time.ToString("yyyy.MM.dd HH:mm:ss.fff"),
+					Time = e.Tick.Time.ToString(ticker.GetDateTimeFormat()),
 					Ask = e.Tick.Ask,
 					Bid = e.Tick.Bid,
 					PairAsk = lastTick?.Ask ?? 0,
@@ -243,18 +244,18 @@ namespace TradeSystem.Orchestration.Services
 			}
 		}
 
-		private string GetCsvFile(string id, string symbol)
+		private string GetCsvFile(Ticker ticker, string id, string symbol)
 		{
 			symbol = Path.GetInvalidFileNameChars()
 				.Aggregate(symbol, (current, c) => current.Replace(c, '_'));
 
-			return $"Tickers/{id}_{symbol}_{HiResDatetime.UtcNow.Date:yyyyMMdd}_{HiResDatetime.UtcNow:HH}.csv";
+			return $"Tickers/{id}_{symbol}_{HiResDatetime.UtcNow.Date:yyyyMMdd}_{HiResDatetime.UtcNow:HH}.{ticker.GetExtension()}";
 		}
 
-		private void WriteCsv<T>(string file, T obj)
+		private void WriteCsv<T>(Ticker ticker, string file, T obj)
 		{
 			new FileInfo(file).Directory.Create();
-			var writer = _csvWriters.GetOrAdd(file, key => new Writer(file) {LastFlush = HiResDatetime.UtcNow});
+			var writer = _csvWriters.GetOrAdd(file, key => new Writer(file, ticker.GetDelimeter()) {LastFlush = HiResDatetime.UtcNow});
 			lock (writer)
 			{
 				if (obj.Equals(writer.LastRecord)) return;
@@ -268,10 +269,10 @@ namespace TradeSystem.Orchestration.Services
 			}
 		}
 
-		private void WriteQuoteCsv(string file, QuoteSet quoteSet, int marketDepth)
+		private void WriteQuoteCsv(Ticker ticker, string file, QuoteSet quoteSet, int marketDepth)
 		{
 			new FileInfo(file).Directory.Create();
-			var writer = _csvWriters.GetOrAdd(file, key => new Writer(file) { LastFlush = HiResDatetime.UtcNow });
+			var writer = _csvWriters.GetOrAdd(file, key => new Writer(file, ticker.GetDelimeter()) { LastFlush = HiResDatetime.UtcNow });
 			var take = marketDepth <= 0 ? quoteSet.Entries.Count : marketDepth;
 			var forLastRecord = ToLastRecord(quoteSet, take);
 
@@ -281,7 +282,7 @@ namespace TradeSystem.Orchestration.Services
 				writer.LastRecord = forLastRecord;
 
 				var w = writer.CsvWriter;
-				w.WriteField(HiResDatetime.UtcNow.ToString("yyyy.MM.dd hh:mm:ss.fff"));
+				w.WriteField(HiResDatetime.UtcNow.ToString(ticker.GetDateTimeFormat()));
 				foreach (var qe in quoteSet.Entries.Take(take))
 				{
 					w.WriteField(qe.Ask);
