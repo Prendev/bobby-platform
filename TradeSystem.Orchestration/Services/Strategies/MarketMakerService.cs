@@ -140,7 +140,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 			if (!set.Run) return;
 			if (!_limits.Contains(limitFill.LimitResponse)) return;
-			if (set.State == MarketMaker.MarketMakerStates.Cancel) return;
+			// if (set.State == MarketMaker.MarketMakerStates.Cancel) return;
 			if (set.State == MarketMaker.MarketMakerStates.None) return;
 
 			_queues.GetOrAdd(set.Id, new FastBlockingCollection<Action>()).Add(() => PostLimitFill(set, limitFill));

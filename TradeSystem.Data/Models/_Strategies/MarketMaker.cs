@@ -11,7 +11,7 @@ namespace TradeSystem.Data.Models
 			None,
 			Init,
 			Trade,
-			Cancel
+			// Cancel
 		}
 
 		[DisplayPriority(-1)] public bool Run { get; set; }
