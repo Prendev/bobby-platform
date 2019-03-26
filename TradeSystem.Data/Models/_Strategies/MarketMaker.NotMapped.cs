@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.ComponentModel.DataAnnotations.Schema;
 using TradeSystem.Common.Attributes;
 using TradeSystem.Common.Integration;
@@ -25,6 +26,7 @@ namespace TradeSystem.Data.Models
 		[NotMapped] [InvisibleColumn] public decimal? ShortBase { get; set; }
 		[NotMapped] [InvisibleColumn] public decimal? MinLongLimit { get; set; }
 		[NotMapped] [InvisibleColumn] public decimal? MaxShortLimit { get; set; }
+		[NotMapped] [InvisibleColumn] public readonly ConcurrentBag<LimitResponse> Limits = new ConcurrentBag<LimitResponse>();
 
 		public MarketMaker()
 		{

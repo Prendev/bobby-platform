@@ -1,4 +1,5 @@
-﻿using TradeSystem.Common.Attributes;
+﻿using System;
+using TradeSystem.Common.Attributes;
 
 namespace TradeSystem.Data.Models
 {
@@ -16,5 +17,16 @@ namespace TradeSystem.Data.Models
 		public string PairSymbol { get; set; }
 
 		public int MarketDepth { get; set; }
+
+		public string DateTimeFormat { get; set; }
+		public string Delimeter { get; set; }
+		public string Extension { get; set; }
+
+		public string GetDateTimeFormat() =>
+			String.IsNullOrWhiteSpace(DateTimeFormat) ? "yyyy/MM/dd hh:mm:ss.fff" : DateTimeFormat;
+		public string GetDelimeter() =>
+			String.IsNullOrWhiteSpace(Delimeter) ? ", " : Delimeter;
+		public string GetExtension() =>
+			String.IsNullOrWhiteSpace(Extension) ? "txt" : Extension;
 	}
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using TradeSystem.Collections;
 using TradeSystem.Common.Integration;
@@ -19,11 +20,8 @@ namespace TradeSystem.Orchestration.Services.Strategies
 		private volatile CancellationTokenSource _cancellation;
 
 		private List<MarketMaker> _sets;
-		private readonly object _syncRoot = new object();
-
 		private readonly ConcurrentDictionary<int, FastBlockingCollection<Action>> _queues =
 			new ConcurrentDictionary<int, FastBlockingCollection<Action>>();
-		private readonly List<LimitResponse> _limits = new List<LimitResponse>();
 
 		public void Start(List<MarketMaker> sets)
 		{
@@ -76,18 +74,25 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			set.LimitFill -= Set_LimitFill;
 			_queues.TryRemove(set.Id, out queue);
 
-			try
+			set.State = MarketMaker.MarketMakerStates.None;
+			ClearLimits(set);
+		}
+
+		private void ClearLimits(MarketMaker set)
+		{
+			var connector = (FixApiConnectorBase)set.TradeAccount.Connector;
+
+			while (set.Limits.TryTake(out var limit))
 			{
-				var connector = (FixApiConnectorBase)set.TradeAccount.Connector;
-				foreach (var limit in _limits) connector.CancelLimit(limit).Wait();
-			}
-			catch (Exception e)
-			{
-				Logger.Error("MarketMakerService.Loop exception", e);
-			}
-			finally
-			{
-				_limits.Clear();
+				if (limit.RemainingQuantity == 0) continue;
+				try
+				{
+					connector.CancelLimit(limit).Wait();
+				}
+				catch (Exception e)
+				{
+					Logger.Error("MarketMakerService.Loop exception", e);
+				}
 			}
 		}
 
@@ -104,29 +109,32 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				if (set.IsBusy) return;
 				set.IsBusy = true;
 			}
-			_queues.GetOrAdd(set.Id, new FastBlockingCollection<Action>()).Add(() => InitLimits(set, newTick));
+			_queues.GetOrAdd(set.Id, new FastBlockingCollection<Action>()).Add(() => InitLimits(set));
 		}
 
-		private async void InitLimits(MarketMaker set, NewTick newTick)
+		private async void InitLimits(MarketMaker set)
 		{
+			ClearLimits(set);
+
 			set.LimitFill -= Set_LimitFill;
 			set.LimitFill += Set_LimitFill;
 
 			var connector = (FixApiConnectorBase)set.TradeAccount.Connector;
-			var sym = set.TradeSymbol;
-			set.LongBase = newTick.Tick.Bid - set.InitialDistanceInTick * set.TickSize;
-			set.ShortBase = newTick.Tick.Ask + set.InitialDistanceInTick * set.TickSize;
+			var lastTick = connector.GetLastTick(set.FeedSymbol);
+			set.LongBase = lastTick.Bid - set.InitialDistanceInTick * set.TickSize;
+			set.ShortBase = lastTick.Ask + set.InitialDistanceInTick * set.TickSize;
+
 			var gap = set.LimitGapsInTick * set.TickSize;
 			var quant = set.ContractSize;
-
+			var sym = set.TradeSymbol;
 			for (var i = 0; i < set.InitDepth; i++)
 			{
 				var buy = await connector.SendSpoofOrderRequest(sym, Sides.Buy, quant, set.LongBase.Value - i * gap);
 				set.MinLongLimit = Math.Min(buy.OrderPrice, set.MinLongLimit ?? buy.OrderPrice);
-				_limits.Add(buy);
+				set.Limits.Add(buy);
 				var sell = await connector.SendSpoofOrderRequest(sym, Sides.Sell, quant, set.ShortBase.Value + i * gap);
 				set.MaxShortLimit = Math.Max(sell.OrderPrice, set.MaxShortLimit ?? sell.OrderPrice);
-				_limits.Add(sell);
+				set.Limits.Add(sell);
 			}
 
 			set.State = MarketMaker.MarketMakerStates.Trade;
@@ -139,8 +147,8 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			var set = (MarketMaker)sender;
 
 			if (!set.Run) return;
-			if (!_limits.Contains(limitFill.LimitResponse)) return;
-			if (set.State == MarketMaker.MarketMakerStates.Cancel) return;
+			if (!set.Limits.Contains(limitFill.LimitResponse)) return;
+			// if (set.State == MarketMaker.MarketMakerStates.Cancel) return;
 			if (set.State == MarketMaker.MarketMakerStates.None) return;
 
 			_queues.GetOrAdd(set.Id, new FastBlockingCollection<Action>()).Add(() => PostLimitFill(set, limitFill));
@@ -156,7 +164,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			if (limitFill.LimitResponse.Side == Sides.Buy)
 			{
 				var tpLimit = await connector.SendSpoofOrderRequest(sym, Sides.Sell, quant, limitFill.Price + tp);
-				_limits.Add(tpLimit);
+				set.Limits.Add(tpLimit);
 
 				if (!set.LongBase.HasValue) return;
 				if (!set.MinLongLimit.HasValue) return;
@@ -166,12 +174,12 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 				var newLimit = await connector.SendSpoofOrderRequest(sym, Sides.Buy, set.ContractSize, newDepth);
 				set.MinLongLimit = Math.Min(newLimit.OrderPrice, set.MinLongLimit ?? newLimit.OrderPrice);
-				_limits.Add(newLimit);
+				set.Limits.Add(newLimit);
 			}
 			else if (limitFill.LimitResponse.Side == Sides.Sell)
 			{
 				var tpLimit = await connector.SendSpoofOrderRequest(sym, Sides.Buy, quant, limitFill.Price - tp);
-				_limits.Add(tpLimit);
+				set.Limits.Add(tpLimit);
 
 				if (!set.ShortBase.HasValue) return;
 				if (!set.MaxShortLimit.HasValue) return;
@@ -181,7 +189,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 				var newLimit = await connector.SendSpoofOrderRequest(sym, Sides.Sell, set.ContractSize, newDepth);
 				set.MaxShortLimit = Math.Max(newLimit.OrderPrice, set.MaxShortLimit ?? newLimit.OrderPrice);
-				_limits.Add(newLimit);
+				set.Limits.Add(newLimit);
 			}
 		}
 	}
