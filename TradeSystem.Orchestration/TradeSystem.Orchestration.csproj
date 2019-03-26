@@ -194,7 +194,7 @@
     <Compile Include="Services\CopyLogger.cs" />
     <Compile Include="Services\MtAccountImportService.cs" />
     <Compile Include="Services\ProxyService.cs" />
-    <Compile Include="Services\PushImpulseService.cs" />
+    <Compile Include="Services\PushingService.cs" />
     <Compile Include="Services\Strategies\HubArbService.SendPosition.cs" />
     <Compile Include="Services\Strategies\HubArbService.Opening.cs" />
     <Compile Include="Services\Strategies\HubArbService.cs" />
@@ -203,7 +203,7 @@
     <Compile Include="Services\Strategies\SpoofStrategyService.cs" />
     <Compile Include="Services\TickerService.cs" />
     <Compile Include="Services\CopierService.cs" />
-    <Compile Include="Services\Strategies\PushingService.cs" />
+    <Compile Include="Services\Strategies\PushStrategyService.cs" />
     <Compile Include="Services\ReportService.cs" />
   </ItemGroup>
   <ItemGroup>

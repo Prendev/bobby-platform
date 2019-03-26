@@ -39,7 +39,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 			// Start first spoofing
 			if (spoofing.Pull != null) spoofing.PullingState = _spoofingService.Spoofing(spoofing.Pull, futureSide.Inv());
-			spoofing.SpoofingState = _spoofingService.Spoofing(spoofing.Spoof, futureSide, panicSource);
+			spoofing.StratState = _spoofingService.Spoofing(spoofing.Spoof, futureSide, panicSource);
 			await Delay(spoofing.MaxMasterSignalDurationInMs, panicSource.Token);
 
 			// Open first side
@@ -63,7 +63,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 			// Start second spoofing
 			if (spoofing.Pull != null) spoofing.PullingState = _spoofingService.Spoofing(spoofing.Pull, futureSide.Inv());
-			spoofing.SpoofingState = _spoofingService.Spoofing(spoofing.Spoof, futureSide, panicSource);
+			spoofing.StratState = _spoofingService.Spoofing(spoofing.Spoof, futureSide, panicSource);
 			await Delay(spoofing.MaxMasterSignalDurationInMs, panicSource.Token);
 
 			// Open second side
@@ -90,7 +90,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 			// Start first spoofing
 			if (spoofing.Pull != null) spoofing.PullingState = _spoofingService.Spoofing(spoofing.Pull, futureSide.Inv());
-			spoofing.SpoofingState = _spoofingService.Spoofing(spoofing.Spoof, futureSide, panicSource);
+			spoofing.StratState = _spoofingService.Spoofing(spoofing.Spoof, futureSide, panicSource);
 			await Delay(spoofing.MaxMasterSignalDurationInMs, panicSource.Token);
 
 			// Close first side
@@ -116,7 +116,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 			// Start first spoofing
 			if (spoofing.Pull != null) spoofing.PullingState = _spoofingService.Spoofing(spoofing.Pull, futureSide.Inv());
-			spoofing.SpoofingState = _spoofingService.Spoofing(spoofing.Spoof, futureSide, panicSource);
+			spoofing.StratState = _spoofingService.Spoofing(spoofing.Spoof, futureSide, panicSource);
 			await Delay(spoofing.MaxMasterSignalDurationInMs, panicSource.Token);
 
 			// Close second side
@@ -163,10 +163,10 @@ namespace TradeSystem.Orchestration.Services.Strategies
 		{
 			await Delay(spoofing.MaxEndingDurationInMs, panic);
 			if (spoofing.Pull != null) await spoofing.PullingState.Cancel();
-			await spoofing.SpoofingState.Cancel();
+			await spoofing.StratState.Cancel();
 
 			// Partial close
-			var closeSize = spoofing.SpoofingState.FilledQuantity;
+			var closeSize = spoofing.StratState.FilledQuantity;
 			if (spoofing.Pull != null) closeSize -= spoofing.PullingState.FilledQuantity;
 			var percentage = Math.Min(spoofing.PartialClosePercentage, 100);
 			percentage = Math.Max(percentage, 0);
@@ -174,7 +174,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			if (closeSize <= 0) return;
 
 			var futureConnector = (IFixConnector) spoofing.SpoofAccount.Connector;
-			await futureConnector.SendMarketOrderRequest(spoofing.SpoofSymbol, spoofing.SpoofingState.Side.Inv(), closeSize);
+			await futureConnector.SendMarketOrderRequest(spoofing.SpoofSymbol, spoofing.StratState.Side.Inv(), closeSize);
 		}
 
 		private async Task Delay(int millisecondsDelay, CancellationToken cancellationToken)

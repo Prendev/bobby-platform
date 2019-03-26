@@ -39,7 +39,7 @@ namespace TradeSystem.Orchestration
         private DuplicatContext _duplicatContext;
         private readonly Func<SynchronizationContext> _synchronizationContextFactory;
         private readonly ICopierService _copierService;
-        private readonly IPushingService _pushingService;
+        private readonly IPushStrategyService _pushStrategyService;
 	    private readonly ISpoofStrategyService _spoofStrategyService;
 		private readonly ITickerService _tickerService;
 	    private readonly IHubArbService _hubArbService;
@@ -53,7 +53,7 @@ namespace TradeSystem.Orchestration
             Func<SynchronizationContext> synchronizationContextFactory,
 			IConnectorFactory connectorFactory,
             ICopierService copierService,
-            IPushingService pushingService,
+            IPushStrategyService pushStrategyService,
 			ISpoofStrategyService spoofStrategyService,
 			ITickerService tickerService,
             IHubArbService hubArbService,
@@ -70,7 +70,7 @@ namespace TradeSystem.Orchestration
 	        _connectorFactory = connectorFactory;
 	        _hubArbService = hubArbService;
 			_tickerService = tickerService;
-            _pushingService = pushingService;
+            _pushStrategyService = pushStrategyService;
             _copierService = copierService;
             _synchronizationContextFactory = synchronizationContextFactory;
         }

@@ -262,7 +262,7 @@
     <Compile Include="Repositories\Mt4PlatformRepository.cs" />
     <Compile Include="Push.cs" />
     <Compile Include="Spoof.cs" />
-    <Compile Include="ISpoofingState.cs" />
+    <Compile Include="IStratState.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">
