@@ -17,7 +17,7 @@ namespace TradeSystem.Orchestration.Services
 				? slave.SymbolMappings.First(m => m.From == e.Position.Symbol).To
 				: e.Position.Symbol + (slave.SymbolSuffix ?? "");
 
-			var tasks = slave.FixApiCopiers.Where(s => s.Run).Select(copier => DelayedRun(async () =>
+			var tasks = slave.FixApiCopiers.Where(s => s.Run && Match(s, e)).Select(copier => DelayedRun(async () =>
 			{
 				var quantity = Math.Abs(e.Position.Lots * copier.CopyRatio);
 				quantity = Math.Floor(quantity);
@@ -180,5 +180,16 @@ namespace TradeSystem.Orchestration.Services
 			response.FilledQuantity += market.FilledQuantity;
 			return response;
 		}
-    }
+
+		private bool Match(FixApiCopier copier, NewPosition e)
+		{
+			if (copier.CopyFilter == FixApiCopier.CopyFilters.CopyAll)
+				return true;
+			if (copier.CopyFilter == FixApiCopier.CopyFilters.MarketOnly)
+				return e.OrderType == NewPositionOrderTypes.Market;
+			if (copier.CopyFilter == FixApiCopier.CopyFilters.PendingFillOnly)
+				return e.OrderType == NewPositionOrderTypes.Pending;
+			return false;
+		}
+	}
 }

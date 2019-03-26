@@ -159,7 +159,7 @@ namespace TradeSystem.Orchestration.Services
                 ? slave.SymbolMappings.First(m => m.From == e.Position.Symbol).To
                 : e.Position.Symbol + (slave.SymbolSuffix ?? "");
 
-            var tasks = slave.Copiers.Where(s => s.Run).Select(copier => DelayedRun(() =>
+            var tasks = slave.Copiers.Where(s => s.Run && Match(s, e)).Select(copier => DelayedRun(() =>
 			{
 				var volume = (long)(100 * Math.Abs(e.Position.RealVolume * copier.CopyRatio));
 				var side = copier.CopyRatio < 0 ? e.Position.Side.Inv() : e.Position.Side;
@@ -187,7 +187,7 @@ namespace TradeSystem.Orchestration.Services
                 ? slave.SymbolMappings.First(m => m.From == e.Position.Symbol).To
                 : e.Position.Symbol + (slave.SymbolSuffix ?? "");
 
-	        var tasks = slave.Copiers.Where(s => s.Run).Select(copier => DelayedRun(() =>
+	        var tasks = slave.Copiers.Where(s => s.Run && Match(s, e)).Select(copier => DelayedRun(() =>
 	        {
 		        // TODO
 		        //var lots = Math.Abs(e.Position.RealVolume) / slaveConnector.GetContractSize(symbol) *
@@ -216,6 +216,17 @@ namespace TradeSystem.Orchestration.Services
 		    {
 			    Logger.Error("CopierService.DelayedRun exception", e);
 			}
+		}
+
+	    private bool Match(Copier copier, NewPosition e)
+	    {
+		    if (copier.CopyFilter == Copier.CopyFilters.CopyAll)
+			    return true;
+		    if (copier.CopyFilter == Copier.CopyFilters.MarketOnly)
+			    return e.OrderType == NewPositionOrderTypes.Market;
+		    if (copier.CopyFilter == Copier.CopyFilters.PendingFillOnly)
+			    return e.OrderType == NewPositionOrderTypes.Pending;
+		    return false;
 	    }
-    }
+	}
 }

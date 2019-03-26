@@ -381,6 +381,7 @@ namespace TradeSystem.CqgClientApiIntegration
 					AccountType = AccountTypes.Cqg,
 					Position = position,
 					Action = NewPositionActions.Open,
+					OrderType = cqgOrder.Type == eOrderType.otMarket ? NewPositionOrderTypes.Market : NewPositionOrderTypes.Pending
 				});
 			}
 			catch (Exception e)

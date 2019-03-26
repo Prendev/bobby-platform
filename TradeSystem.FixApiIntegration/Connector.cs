@@ -568,6 +568,7 @@ namespace TradeSystem.FixApiIntegration
 				AccountType = AccountTypes.Fix,
 				Position = position,
 				Action = NewPositionActions.Open,
+				OrderType = r.OrderType == OrdType.Market ? NewPositionOrderTypes.Market : NewPositionOrderTypes.Pending
 			});
 		}
 

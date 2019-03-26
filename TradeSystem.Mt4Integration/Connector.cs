@@ -459,7 +459,7 @@ namespace TradeSystem.Mt4Integration
             {
                 AccountType = AccountTypes.Mt4,
                 Position = position,
-                Action = update.Action == UpdateAction.PositionOpen ? NewPositionActions.Open : NewPositionActions.Close,
+                Action = update.Action == UpdateAction.PositionOpen ? NewPositionActions.Open : NewPositionActions.Close
 			});
         }
 
