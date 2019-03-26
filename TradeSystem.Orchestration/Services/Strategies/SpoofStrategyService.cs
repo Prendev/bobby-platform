@@ -23,28 +23,37 @@ namespace TradeSystem.Orchestration.Services.Strategies
 	public class SpoofStrategyService : ISpoofStrategyService
 	{
 		private readonly ISpoofingService _spoofingService;
+		private readonly IPushingService _pushingService;
 
 		public SpoofStrategyService(
-			ISpoofingService spoofingService)
+			ISpoofingService spoofingService,
+			IPushingService pushingService)
 		{
+			_pushingService = pushingService;
 			_spoofingService = spoofingService;
 		}
 
 		public async Task OpeningBeta(Spoofing spoofing, CancellationTokenSource panicSource)
 		{
+			spoofing.Push = null;
 			InitPull(spoofing);
 			InitSpoof(spoofing);
 			var futureSide = spoofing.BetaOpenSide.Inv();
 			var betaConnector = (IConnector)spoofing.BetaMaster.Connector;
 
 			// Start first spoofing
-			if (spoofing.Pull != null) spoofing.PullingState = _spoofingService.Spoofing(spoofing.Pull, futureSide.Inv());
-			spoofing.StratState = _spoofingService.Spoofing(spoofing.Spoof, futureSide, panicSource);
+			if (spoofing.Pull != null) spoofing.PullState = _spoofingService.Spoofing(spoofing.Pull, futureSide.Inv());
+			spoofing.SpoofState = _spoofingService.Spoofing(spoofing.Spoof, futureSide, panicSource);
 			await Delay(spoofing.MaxMasterSignalDurationInMs, panicSource.Token);
 
 			// Open first side
 			spoofing.BetaPosition = betaConnector.SendMarketOrderRequest(spoofing.BetaSymbol, futureSide.Inv(), spoofing.BetaLots, 0,
 				null, spoofing.MaxRetryCount, spoofing.RetryPeriodInMs);
+
+			// Close hedge only at first spoofing
+			var hedgeConnector = (IConnector)spoofing.Hedge?.Connector;
+			while (hedgeConnector != null && spoofing.HedgePositions.TryTake(out var hedgePos))
+				hedgeConnector.SendClosePositionRequests(hedgePos, null, spoofing.MaxRetryCount, spoofing.RetryPeriodInMs);
 
 			if (spoofing.BetaPosition == null)
 			{
@@ -56,14 +65,16 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 		public async Task OpeningAlpha(Spoofing spoofing, CancellationTokenSource panicSource)
 		{
+			InitPush(spoofing);
 			InitPull(spoofing);
 			InitSpoof(spoofing);
 			var alphaConnector = (IConnector)spoofing.AlphaMaster.Connector;
 			var futureSide = spoofing.BetaOpenSide;
 
 			// Start second spoofing
-			if (spoofing.Pull != null) spoofing.PullingState = _spoofingService.Spoofing(spoofing.Pull, futureSide.Inv());
-			spoofing.StratState = _spoofingService.Spoofing(spoofing.Spoof, futureSide, panicSource);
+			if (spoofing.Pull != null) spoofing.PullState = _spoofingService.Spoofing(spoofing.Pull, futureSide.Inv());
+			if (spoofing.Push != null) spoofing.PushState = _pushingService.Pushing(spoofing.Push, futureSide);
+			spoofing.SpoofState = _spoofingService.Spoofing(spoofing.Spoof, futureSide, panicSource);
 			await Delay(spoofing.MaxMasterSignalDurationInMs, panicSource.Token);
 
 			// Open second side
@@ -80,6 +91,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 		public async Task ClosingFirst(Spoofing spoofing, CancellationTokenSource panicSource)
 		{
+			spoofing.Push = null;
 			InitPull(spoofing);
 			InitSpoof(spoofing);
 			var firstConnector = spoofing.BetaOpenSide == spoofing.FirstCloseSide
@@ -89,12 +101,17 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			var futureSide = spoofing.FirstCloseSide;
 
 			// Start first spoofing
-			if (spoofing.Pull != null) spoofing.PullingState = _spoofingService.Spoofing(spoofing.Pull, futureSide.Inv());
-			spoofing.StratState = _spoofingService.Spoofing(spoofing.Spoof, futureSide, panicSource);
+			if (spoofing.Pull != null) spoofing.PullState = _spoofingService.Spoofing(spoofing.Pull, futureSide.Inv());
+			spoofing.SpoofState = _spoofingService.Spoofing(spoofing.Spoof, futureSide, panicSource);
 			await Delay(spoofing.MaxMasterSignalDurationInMs, panicSource.Token);
 
 			// Close first side
 			var closed = firstConnector.SendClosePositionRequests(firstPos, null, spoofing.MaxRetryCount, spoofing.RetryPeriodInMs);
+
+			// Close hedge only at first spoofing
+			var hedgeConnector = (IConnector)spoofing.Hedge?.Connector;
+			while (hedgeConnector != null && spoofing.HedgePositions.TryTake(out var hedgePos))
+				hedgeConnector.SendClosePositionRequests(hedgePos, null, spoofing.MaxRetryCount, spoofing.RetryPeriodInMs);
 
 			if (!closed)
 			{
@@ -106,6 +123,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 		public async Task ClosingSecond(Spoofing spoofing, CancellationTokenSource panicSource)
 		{
+			InitPush(spoofing);
 			InitPull(spoofing);
 			InitSpoof(spoofing);
 			var secondConnector = spoofing.BetaOpenSide == spoofing.FirstCloseSide
@@ -115,8 +133,9 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			var futureSide = spoofing.FirstCloseSide.Inv();
 
 			// Start first spoofing
-			if (spoofing.Pull != null) spoofing.PullingState = _spoofingService.Spoofing(spoofing.Pull, futureSide.Inv());
-			spoofing.StratState = _spoofingService.Spoofing(spoofing.Spoof, futureSide, panicSource);
+			if (spoofing.Pull != null) spoofing.PullState = _spoofingService.Spoofing(spoofing.Pull, futureSide.Inv());
+			if (spoofing.Push != null) spoofing.PushState = _pushingService.Pushing(spoofing.Push, futureSide);
+			spoofing.SpoofState = _spoofingService.Spoofing(spoofing.Spoof, futureSide, panicSource);
 			await Delay(spoofing.MaxMasterSignalDurationInMs, panicSource.Token);
 
 			// Close second side
@@ -158,23 +177,33 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			}
 			else spoofing.Pull = null;
 		}
+		private void InitPush(Spoofing spoofing)
+		{
+			var pushMaxOrders = Math.Max(spoofing.PushMinOrders, (int)(spoofing.SpoofState.FilledQuantity / spoofing.PushContractSize));
+			if (spoofing.PushContractSize > 0 && pushMaxOrders > 0)
+				spoofing.Push = new Data.Push(
+					spoofing.SpoofAccount, spoofing.SpoofSymbol,
+					spoofing.PushContractSize, pushMaxOrders, spoofing.PushIntervalInMs);
+			else spoofing.Pull = null;
+		}
 
 		private async Task Ending(Spoofing spoofing, CancellationToken panic)
 		{
 			await Delay(spoofing.MaxEndingDurationInMs, panic);
-			if (spoofing.Pull != null) await spoofing.PullingState.Cancel();
-			await spoofing.StratState.Cancel();
+			if (spoofing.Pull != null) await spoofing.PullState.Cancel();
+			if (spoofing.Push != null) await spoofing.PushState.Cancel();
+			await spoofing.SpoofState.Cancel();
 
 			// Partial close
-			var closeSize = spoofing.StratState.FilledQuantity;
-			if (spoofing.Pull != null) closeSize -= spoofing.PullingState.FilledQuantity;
+			var closeSize = spoofing.SpoofState.FilledQuantity;
+			if (spoofing.Pull != null) closeSize -= spoofing.PullState.FilledQuantity;
 			var percentage = Math.Min(spoofing.PartialClosePercentage, 100);
 			percentage = Math.Max(percentage, 0);
 			closeSize = closeSize * percentage / 100;
 			if (closeSize <= 0) return;
 
 			var futureConnector = (IFixConnector) spoofing.SpoofAccount.Connector;
-			await futureConnector.SendMarketOrderRequest(spoofing.SpoofSymbol, spoofing.StratState.Side.Inv(), closeSize);
+			await futureConnector.SendMarketOrderRequest(spoofing.SpoofSymbol, spoofing.SpoofState.Side.Inv(), closeSize);
 		}
 
 		private async Task Delay(int millisecondsDelay, CancellationToken cancellationToken)

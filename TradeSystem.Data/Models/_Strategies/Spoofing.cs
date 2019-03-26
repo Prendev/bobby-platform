@@ -18,9 +18,8 @@ namespace TradeSystem.Data.Models
 		[DisplayName("S Levels")] public int SpoofLevels { get; set; }
 		public decimal TickSize { get; set; }
 
-		[DisplayName("Push trigger")] public int? PushTriggerInMs { get; set; }
-		[DisplayName("P Size")] public decimal PushContractSize { get; set; }
-		[DisplayName("P Max")] public int PushMaxOrders { get; set; }
+		[DisplayName("Push Size")] public decimal PushContractSize { get; set; }
+		[DisplayName("P Min")] public int PushMinOrders { get; set; }
 		[DisplayName("P Interval")] public int PushIntervalInMs { get; set; }
 
 		[DisplayName("Stop")] public int? MomentumStopInMs { get; set; }
@@ -46,6 +45,10 @@ namespace TradeSystem.Data.Models
 		public int BetaMasterId { get; set; }
 		public Account BetaMaster { get => Get<Account>(); set => Set(value); }
 		[Required] public string BetaSymbol { get; set; }
+
+		public int? HedgeId { get; set; }
+		public Account Hedge { get => Get<Account>(); set => Set(value); }
+		[Required] public string HedgeSymbol { get; set; }
 
 		public int MaxRetryCount { get; set; }
 		[DisplayName("RetryPeriod")] public int RetryPeriodInMs { get; set; }
