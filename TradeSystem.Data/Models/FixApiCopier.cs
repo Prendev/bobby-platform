@@ -20,19 +20,11 @@ namespace TradeSystem.Data.Models
 			Master
 		}
 
-		public enum CopyFilters
-		{
-			CopyAll,
-			MarketOnly,
-			PendingFillOnly
-		}
-
 		[InvisibleColumn] public int SlaveId { get; set; }
 		[InvisibleColumn] public Slave Slave { get; set; }
 
 		[DisplayPriority(-1)] public bool Run { get; set; }
 		public decimal CopyRatio { get; set; }
-		public CopyFilters CopyFilter { get; set; }
 		public FixApiOrderTypes OrderType { get; set; }
 		public BasePriceTypes BasePriceType { get; set; }
 		[DisplayName("Delay")]
@@ -64,6 +56,7 @@ namespace TradeSystem.Data.Models
 		public decimal SlippageInPip { get; set; }
 		[DisplayName("L Diff")]
 		public decimal LimitDiffInPip { get; set; }
+
 		public decimal PipSize { get; set; }
 
 		public List<FixApiCopierPosition> FixApiCopierPositions { get; } = new List<FixApiCopierPosition>();

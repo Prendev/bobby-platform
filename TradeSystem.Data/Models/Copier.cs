@@ -10,19 +10,11 @@ namespace TradeSystem.Data.Models
 			MarketRange
 		}
 
-		public enum CopyFilters
-		{
-			CopyAll,
-			MarketOnly,
-			PendingFillOnly
-		}
-
 		[InvisibleColumn] public int SlaveId { get; set; }
 		[InvisibleColumn] public Slave Slave { get; set; }
 
 		[DisplayPriority(-1)] public bool Run { get; set; }
         public decimal CopyRatio { get; set; }
-		public CopyFilters CopyFilter { get; set; }
 		public CopierOrderTypes OrderType { get; set; }
 		public int SlippageInPips { get; set; }
         public int MaxRetryCount { get; set; }
