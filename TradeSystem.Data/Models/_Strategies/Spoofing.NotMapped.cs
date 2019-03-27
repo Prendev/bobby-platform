@@ -13,6 +13,7 @@ namespace TradeSystem.Data.Models
 
 		[NotMapped] [InvisibleColumn] public Spoof Spoof { get; set; }
 		[NotMapped] [InvisibleColumn] public IStratState SpoofState { get; set; }
+		[NotMapped] [InvisibleColumn] public decimal PrevFilledQuantity { get; set; }
 
 		[NotMapped] [InvisibleColumn] public Spoof Pull { get; set; }
 		[NotMapped] [InvisibleColumn] public IStratState PullState { get; set; }

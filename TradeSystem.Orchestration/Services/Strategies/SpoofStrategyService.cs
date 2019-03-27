@@ -89,6 +89,13 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			spoofing.AlphaPosition = alphaConnector.SendMarketOrderRequest(spoofing.AlphaSymbol, futureSide.Inv(), spoofing.AlphaLots, 0,
 				null, spoofing.MaxRetryCount, spoofing.RetryPeriodInMs);
 
+			// Open hedge for min quantity pushing only at second spoof
+			var hedgeConnector = (IConnector)spoofing.HedgeAccount?.Connector;
+			var hedgeQuantity = (spoofing.PushState?.FilledQuantity ?? 0) - spoofing.PrevFilledQuantity;
+			if (hedgeConnector != null && spoofing.Push != null && spoofing.PushState != null && hedgeQuantity > 0)
+				hedgeConnector.SendMarketOrderRequest(spoofing.HedgeSymbol, spoofing.PushState.Side.Inv(), (double) hedgeQuantity,
+					0, null, spoofing.MaxRetryCount, spoofing.RetryPeriodInMs);
+
 			if (spoofing.AlphaPosition == null)
 			{
 				throw new Exception("SpoofStrategyService.OpeningAlpha failed!!!");
@@ -153,6 +160,13 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			// Close second side
 			var closed = secondConnector.SendClosePositionRequests(secondPos, null, spoofing.MaxRetryCount, spoofing.RetryPeriodInMs);
 
+			// Open hedge for min quantity pushing only at second spoof
+			var hedgeConnector = (IConnector)spoofing.HedgeAccount?.Connector;
+			var hedgeQuantity = (spoofing.PushState?.FilledQuantity ?? 0) - spoofing.PrevFilledQuantity;
+			if (hedgeConnector != null && spoofing.Push != null && spoofing.PushState != null && hedgeQuantity > 0)
+				hedgeConnector.SendMarketOrderRequest(spoofing.HedgeSymbol, spoofing.PushState.Side.Inv(), (double)hedgeQuantity,
+					0, null, spoofing.MaxRetryCount, spoofing.RetryPeriodInMs);
+
 			if (!closed)
 			{
 				throw new Exception("SpoofStrategyService.ClosingSecond failed!!!");
@@ -161,6 +175,16 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 		public async Task ClosingSecondEnd(Spoofing spoofing, CancellationToken panic) => await Ending(spoofing, panic);
 
+		private void InitPush(Spoofing spoofing)
+		{
+			spoofing.PrevFilledQuantity = spoofing.SpoofState.FilledQuantity;
+			var pushMaxOrders = Math.Max(spoofing.PushMinOrders, (int)(spoofing.PrevFilledQuantity / spoofing.PushContractSize));
+			if (spoofing.PushContractSize > 0 && pushMaxOrders > 0)
+				spoofing.Push = new Push(
+					spoofing.SpoofAccount, spoofing.SpoofSymbol,
+					spoofing.PushContractSize, pushMaxOrders, spoofing.PushIntervalInMs);
+			else spoofing.Push = null;
+		}
 		private void InitSpoof(Spoofing spoofing)
 		{
 			spoofing.Spoof = new Data.Spoof(
@@ -187,15 +211,6 @@ namespace TradeSystem.Orchestration.Services.Strategies
 					1, spoofing.TickSize, null);
 				spoofing.Pull.FeedAccount.Connector.Subscribe(spoofing.Pull.FeedSymbol);
 			}
-			else spoofing.Pull = null;
-		}
-		private void InitPush(Spoofing spoofing)
-		{
-			var pushMaxOrders = Math.Max(spoofing.PushMinOrders, (int)(spoofing.SpoofState.FilledQuantity / spoofing.PushContractSize));
-			if (spoofing.PushContractSize > 0 && pushMaxOrders > 0)
-				spoofing.Push = new Push(
-					spoofing.SpoofAccount, spoofing.SpoofSymbol,
-					spoofing.PushContractSize, pushMaxOrders, spoofing.PushIntervalInMs);
 			else spoofing.Pull = null;
 		}
 
