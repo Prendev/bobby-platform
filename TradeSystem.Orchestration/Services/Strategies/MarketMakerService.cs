@@ -82,11 +82,15 @@ namespace TradeSystem.Orchestration.Services.Strategies
 		{
 			var connector = (FixApiConnectorBase)set.TradeAccount.Connector;
 
+			var i = 0;
 			while (set.Limits.TryTake(out var limit))
 			{
 				if (limit.RemainingQuantity == 0) continue;
 				try
 				{
+					if (++i > 0 && set.ThrottlingLimit > 0 && i % set.ThrottlingLimit == 0)
+						Thread.Sleep(set.ThrottlingIntervalInMs);
+
 					connector.CancelLimit(limit).Wait();
 				}
 				catch (Exception e)
@@ -129,12 +133,30 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			var sym = set.TradeSymbol;
 			for (var i = 0; i < set.InitDepth; i++)
 			{
-				var buy = await connector.SendSpoofOrderRequest(sym, Sides.Buy, quant, set.LongBase.Value - i * gap);
-				set.MinLongLimit = Math.Min(buy.OrderPrice, set.MinLongLimit ?? buy.OrderPrice);
-				set.Limits.Add(buy);
-				var sell = await connector.SendSpoofOrderRequest(sym, Sides.Sell, quant, set.ShortBase.Value + i * gap);
-				set.MaxShortLimit = Math.Max(sell.OrderPrice, set.MaxShortLimit ?? sell.OrderPrice);
-				set.Limits.Add(sell);
+				if (i > 0 && set.ThrottlingLimit > 0 && i % (set.ThrottlingLimit / 2) == 0)
+					Thread.Sleep(set.ThrottlingIntervalInMs);
+
+				try
+				{
+					var buy = await connector.SendSpoofOrderRequest(sym, Sides.Buy, quant, set.LongBase.Value - i * gap);
+					set.MinLongLimit = Math.Min(buy.OrderPrice, set.MinLongLimit ?? buy.OrderPrice);
+					set.Limits.Add(buy);
+				}
+				catch (Exception e)
+				{
+					Logger.Error("MarketMakerService.InitLimits exception", e);
+				}
+
+				try
+				{
+					var sell = await connector.SendSpoofOrderRequest(sym, Sides.Sell, quant, set.ShortBase.Value + i * gap);
+					set.MaxShortLimit = Math.Max(sell.OrderPrice, set.MaxShortLimit ?? sell.OrderPrice);
+					set.Limits.Add(sell);
+				}
+				catch (Exception e)
+				{
+					Logger.Error("MarketMakerService.InitLimits exception", e);
+				}
 			}
 
 			set.State = MarketMaker.MarketMakerStates.Trade;

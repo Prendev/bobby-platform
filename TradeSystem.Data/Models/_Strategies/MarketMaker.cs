@@ -39,5 +39,8 @@ namespace TradeSystem.Data.Models
 		[DisplayName("InitDistance")] public int InitialDistanceInTick { get; set; }
 
 		public decimal TickSize { get; set; }
+
+		public int ThrottlingLimit { get; set; }
+		[DisplayName("T Interval")] public int ThrottlingIntervalInMs { get; set; }
 	}
 }
