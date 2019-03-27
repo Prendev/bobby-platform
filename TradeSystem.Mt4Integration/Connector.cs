@@ -138,10 +138,9 @@ namespace TradeSystem.Mt4Integration
         {
             try
 			{
-				Logger.Debug($"{_accountInfo.Description} account ({_accountInfo.User}, {comment}) OrderClient.OrderSend started...");
 				var op = side == Sides.Buy ? Op.Buy : Op.Sell;
 				var o = OrderClient.OrderSend(symbol, op, lots, 0, 0, 0, 0, comment, magicNumber, DateTime.MaxValue);
-				Logger.Info($"{_accountInfo.Description} account ({_accountInfo.User}, {comment}) OrderClient.OrderSend is successful");
+				Logger.Info($"{_accountInfo.Description} Connector.SendMarketOrderRequest({symbol}, {side}, {lots}, {magicNumber}, {comment}) is successful with id {o.Ticket}");
 
 				var position = new Position
 				{
@@ -164,7 +163,7 @@ namespace TradeSystem.Mt4Integration
 			}
             catch (Exception e)
             {
-                Logger.Error($"Connector.SendMarketOrderRequest({symbol}, {side}, {lots}, {magicNumber}, {comment}) exception", e);
+                Logger.Error($"{_accountInfo.Description} Connector.SendMarketOrderRequest({symbol}, {side}, {lots}, {magicNumber}, {comment}) exception", e);
 				if (maxRetryCount <= 0) return null;
 
 				Thread.Sleep(retryPeriodInMs);
@@ -181,25 +180,22 @@ namespace TradeSystem.Mt4Integration
         {
 	        if (position == null)
 			{
-				Logger.Error($"Connector.SendClosePositionRequests position is NULL");
+				Logger.Error($"{_accountInfo.Description} Connector.SendClosePositionRequests position is NULL");
 				return false;
 			}
 
             try
 			{
-				Logger.Debug($"{_accountInfo.Description} account ({_accountInfo.User}, {position.Comment}) OrderClient.OrderClose started...");
-
 				var price = position.Side == Sides.Buy
                     ? QuoteClient.GetQuote(position.Symbol).Bid
                     : QuoteClient.GetQuote(position.Symbol).Ask;
 				OrderClient.OrderClose(position.Symbol, (int) position.Id, lots ?? (double) position.Lots, price, 0);
-
-				Logger.Info($"{_accountInfo.Description} account ({_accountInfo.User}, {position.Comment}) OrderClient.OrderClose is successful");
+				Logger.Info($"{_accountInfo.Description} Connector.SendClosePositionRequests({position.Id}, {position.Comment}) is successful");
 				return true;
 			}
             catch (Exception e)
             {
-                Logger.Error($"Connector.SendClosePositionRequests({position.Id}, {position.Comment}) exception", e);
+                Logger.Error($"{_accountInfo.Description} Connector.SendClosePositionRequests({position.Id}, {position.Comment}) exception", e);
 				if (maxRetryCount <= 0) return false;
 
 				Thread.Sleep(retryPeriodInMs);

@@ -39,6 +39,12 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 		public async Task OpeningBeta(Spoofing spoofing, CancellationTokenSource panicSource)
 		{
+			spoofing.FeedAccount?.Connector.Subscribe(spoofing.FeedSymbol);
+			spoofing.AlphaMaster?.Connector.Subscribe(spoofing.AlphaSymbol);
+			spoofing.BetaMaster?.Connector.Subscribe(spoofing.BetaSymbol);
+			spoofing.HedgeAccount?.Connector.Subscribe(spoofing.HedgeSymbol);
+			while (spoofing.HedgePositions.TryTake(out var _)) ;
+
 			spoofing.Push = null;
 			InitPull(spoofing);
 			InitSpoof(spoofing);
@@ -92,7 +98,8 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			// Open hedge for min quantity pushing only at second spoof
 			var hedgeConnector = (IConnector)spoofing.HedgeAccount?.Connector;
 			var hedgeQuantity = (spoofing.PushState?.FilledQuantity ?? 0) - spoofing.PrevFilledQuantity;
-			if (hedgeConnector != null && spoofing.Push != null && spoofing.PushState != null && hedgeQuantity > 0)
+			if (hedgeConnector != null && !string.IsNullOrWhiteSpace(spoofing.HedgeSymbol) &&
+			    spoofing.Push != null && spoofing.PushState != null && hedgeQuantity > 0)
 				hedgeConnector.SendMarketOrderRequest(spoofing.HedgeSymbol, spoofing.PushState.Side.Inv(), (double) hedgeQuantity,
 					0, null, spoofing.MaxRetryCount, spoofing.RetryPeriodInMs);
 
@@ -106,7 +113,9 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 		public async Task ClosingFirst(Spoofing spoofing, CancellationTokenSource panicSource)
 		{
+			while (spoofing.HedgePositions.TryTake(out var _)) ;
 			spoofing.Push = null;
+
 			InitPull(spoofing);
 			InitSpoof(spoofing);
 			var firstConnector = spoofing.BetaOpenSide == spoofing.FirstCloseSide
@@ -163,7 +172,8 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			// Open hedge for min quantity pushing only at second spoof
 			var hedgeConnector = (IConnector)spoofing.HedgeAccount?.Connector;
 			var hedgeQuantity = (spoofing.PushState?.FilledQuantity ?? 0) - spoofing.PrevFilledQuantity;
-			if (hedgeConnector != null && spoofing.Push != null && spoofing.PushState != null && hedgeQuantity > 0)
+			if (hedgeConnector != null && !string.IsNullOrWhiteSpace(spoofing.HedgeSymbol) &&
+			    spoofing.Push != null && spoofing.PushState != null && hedgeQuantity > 0)
 				hedgeConnector.SendMarketOrderRequest(spoofing.HedgeSymbol, spoofing.PushState.Side.Inv(), (double)hedgeQuantity,
 					0, null, spoofing.MaxRetryCount, spoofing.RetryPeriodInMs);
 
@@ -178,7 +188,8 @@ namespace TradeSystem.Orchestration.Services.Strategies
 		private void InitPush(Spoofing spoofing)
 		{
 			spoofing.PrevFilledQuantity = spoofing.SpoofState.FilledQuantity;
-			var pushMaxOrders = Math.Max(spoofing.PushMinOrders, (int)(spoofing.PrevFilledQuantity / spoofing.PushContractSize));
+			var pushMaxOrders = Math.Max(spoofing.PushMinOrders,
+				(int) (spoofing.PrevFilledQuantity / Math.Max(spoofing.PushContractSize, 1)));
 			if (spoofing.PushContractSize > 0 && pushMaxOrders > 0)
 				spoofing.Push = new Push(
 					spoofing.SpoofAccount, spoofing.SpoofSymbol,
@@ -187,7 +198,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 		}
 		private void InitSpoof(Spoofing spoofing)
 		{
-			spoofing.Spoof = new Data.Spoof(
+			spoofing.Spoof = new Spoof(
 				spoofing.FeedAccount, spoofing.FeedSymbol,
 				spoofing.SpoofAccount, spoofing.SpoofSymbol,
 				spoofing.SpoofContractSize,
@@ -223,6 +234,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 			// Partial close
 			var closeSize = spoofing.SpoofState.FilledQuantity;
+			if (spoofing.Push != null) closeSize += spoofing.PushState.FilledQuantity;
 			if (spoofing.Pull != null) closeSize -= spoofing.PullState.FilledQuantity;
 			var percentage = Math.Min(spoofing.PartialClosePercentage, 100);
 			percentage = Math.Max(percentage, 0);
