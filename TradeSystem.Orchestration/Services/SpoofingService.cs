@@ -31,6 +31,7 @@ namespace TradeSystem.Orchestration.Services
 			public decimal RemainingQuantity => LimitResponses.Sum(r => r.RemainingQuantity);
 
 			public event EventHandler<LimitFill> LimitFill;
+			public bool IsEnded { get; set; }
 
 			public StratState(Sides side)
 			{
@@ -47,8 +48,8 @@ namespace TradeSystem.Orchestration.Services
 			{
 				try
 				{
-
 					Logger.Debug("SpoofingService canceling...");
+					if (IsEnded) return;
 					var task = TaskCompletionManager.CreateCompletableTask(this);
 					_cancel.CancelEx();
 					await task;
@@ -154,6 +155,7 @@ namespace TradeSystem.Orchestration.Services
 			}
 			finally
 			{
+				state.IsEnded = true;
 				TaskCompletionManager.SetCompleted(state);
 				Logger.Debug("SpoofingService.Loop end");
 			}

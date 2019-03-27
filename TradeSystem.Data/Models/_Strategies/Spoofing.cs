@@ -46,8 +46,8 @@ namespace TradeSystem.Data.Models
 		public Account BetaMaster { get => Get<Account>(); set => Set(value); }
 		[Required] public string BetaSymbol { get; set; }
 
-		public int? HedgeId { get; set; }
-		public Account Hedge { get => Get<Account>(); set => Set(value); }
+		public int? HedgeAccountId { get; set; }
+		public Account HedgeAccount { get => Get<Account>(); set => Set(value); }
 		[Required] public string HedgeSymbol { get; set; }
 
 		public int MaxRetryCount { get; set; }

@@ -10,5 +10,6 @@ namespace TradeSystem.Data
 		decimal FilledQuantity { get; }
 		Task Cancel();
 		event EventHandler<LimitFill> LimitFill;
+		bool IsEnded { get; }
 	}
 }

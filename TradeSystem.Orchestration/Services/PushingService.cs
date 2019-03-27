@@ -40,8 +40,8 @@ namespace TradeSystem.Orchestration.Services
 			{
 				try
 				{
-
 					Logger.Debug("PushingService canceling...");
+					if (IsEnded) return;
 					var task = TaskCompletionManager.CreateCompletableTask(this);
 					_cancel.CancelEx();
 					await task;
@@ -53,6 +53,7 @@ namespace TradeSystem.Orchestration.Services
 			}
 
 			public event EventHandler<LimitFill> LimitFill;
+			public bool IsEnded { get; set; }
 		}
 
 		public IStratState Pushing(Push push, Sides side)
@@ -100,6 +101,7 @@ namespace TradeSystem.Orchestration.Services
 			}
 			finally
 			{
+				state.IsEnded = true;
 				TaskCompletionManager.SetCompleted(state);
 				Logger.Debug("PushingService.Loop end");
 			}

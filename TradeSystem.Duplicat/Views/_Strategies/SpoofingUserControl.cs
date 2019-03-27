@@ -103,6 +103,7 @@ namespace TradeSystem.Duplicat.Views
 			dgvSpoofings.AddComboBoxColumn(_viewModel.Accounts, "SpoofAccount");
 			dgvSpoofings.AddComboBoxColumn(_viewModel.Accounts, "AlphaMaster");
 			dgvSpoofings.AddComboBoxColumn(_viewModel.Accounts, "BetaMaster");
+			dgvSpoofings.AddComboBoxColumn(_viewModel.Accounts, "HedgeAccount");
 			dgvSpoofings.DataSource = _viewModel.Spoofings.ToBindingList();
 		}
 	}

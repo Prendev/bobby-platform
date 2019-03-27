@@ -57,7 +57,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				null, spoofing.MaxRetryCount, spoofing.RetryPeriodInMs);
 
 			// Close hedge only at first spoofing
-			var hedgeConnector = (IConnector)spoofing.Hedge?.Connector;
+			var hedgeConnector = (IConnector)spoofing.HedgeAccount?.Connector;
 			while (hedgeConnector != null && spoofing.HedgePositions.TryTake(out var hedgePos))
 				hedgeConnector.SendClosePositionRequests(hedgePos, null, spoofing.MaxRetryCount, spoofing.RetryPeriodInMs);
 
@@ -119,7 +119,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			var closed = firstConnector.SendClosePositionRequests(firstPos, null, spoofing.MaxRetryCount, spoofing.RetryPeriodInMs);
 
 			// Close hedge only at first spoofing
-			var hedgeConnector = (IConnector)spoofing.Hedge?.Connector;
+			var hedgeConnector = (IConnector)spoofing.HedgeAccount?.Connector;
 			while (hedgeConnector != null && spoofing.HedgePositions.TryTake(out var hedgePos))
 				hedgeConnector.SendClosePositionRequests(hedgePos, null, spoofing.MaxRetryCount, spoofing.RetryPeriodInMs);
 
@@ -223,10 +223,10 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			if (!(sender is IStratState state)) return;
 			if (e.Quantity <= 0) return;
 			if (!_stateMapping.TryGetValue(state, out var spoofing)) return;
-			if (spoofing?.Hedge == null) return;
+			if (spoofing?.HedgeAccount == null) return;
 			if (string.IsNullOrWhiteSpace(spoofing.HedgeSymbol)) return;
 
-			var hedgeConnector = spoofing.Hedge.Connector as Mt4Integration.Connector;
+			var hedgeConnector = spoofing.HedgeAccount.Connector as Mt4Integration.Connector;
 			if (hedgeConnector?.IsConnected != true) return;
 
 			var pos = hedgeConnector.SendMarketOrderRequest(spoofing.HedgeSymbol, state.Side.Inv(), (double) e.Quantity,
