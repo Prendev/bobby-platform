@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using TradeSystem.Common;
 using TradeSystem.Common.Integration;
+using TradeSystem.Data;
 using TradeSystem.Data.Models;
 using IConnector = TradeSystem.Mt4Integration.IConnector;
 
@@ -24,6 +26,8 @@ namespace TradeSystem.Orchestration.Services.Strategies
 	{
 		private readonly ISpoofingService _spoofingService;
 		private readonly IPushingService _pushingService;
+		private readonly Dictionary<IStratState, Spoofing> _stateMapping =
+			new Dictionary<IStratState, Spoofing>();
 
 		public SpoofStrategyService(
 			ISpoofingService spoofingService,
@@ -44,6 +48,8 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			// Start first spoofing
 			if (spoofing.Pull != null) spoofing.PullState = _spoofingService.Spoofing(spoofing.Pull, futureSide.Inv());
 			spoofing.SpoofState = _spoofingService.Spoofing(spoofing.Spoof, futureSide, panicSource);
+			_stateMapping[spoofing.SpoofState] = spoofing;
+			spoofing.SpoofState.LimitFill += SpoofState_LimitFill;
 			await Delay(spoofing.MaxMasterSignalDurationInMs, panicSource.Token);
 
 			// Open first side
@@ -75,6 +81,8 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			if (spoofing.Pull != null) spoofing.PullState = _spoofingService.Spoofing(spoofing.Pull, futureSide.Inv());
 			if (spoofing.Push != null) spoofing.PushState = _pushingService.Pushing(spoofing.Push, futureSide);
 			spoofing.SpoofState = _spoofingService.Spoofing(spoofing.Spoof, futureSide, panicSource);
+			_stateMapping[spoofing.SpoofState] = spoofing;
+			spoofing.SpoofState.LimitFill += SpoofState_LimitFill;
 			await Delay(spoofing.MaxMasterSignalDurationInMs, panicSource.Token);
 
 			// Open second side
@@ -103,6 +111,8 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			// Start first spoofing
 			if (spoofing.Pull != null) spoofing.PullState = _spoofingService.Spoofing(spoofing.Pull, futureSide.Inv());
 			spoofing.SpoofState = _spoofingService.Spoofing(spoofing.Spoof, futureSide, panicSource);
+			_stateMapping[spoofing.SpoofState] = spoofing;
+			spoofing.SpoofState.LimitFill += SpoofState_LimitFill;
 			await Delay(spoofing.MaxMasterSignalDurationInMs, panicSource.Token);
 
 			// Close first side
@@ -136,6 +146,8 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			if (spoofing.Pull != null) spoofing.PullState = _spoofingService.Spoofing(spoofing.Pull, futureSide.Inv());
 			if (spoofing.Push != null) spoofing.PushState = _pushingService.Pushing(spoofing.Push, futureSide);
 			spoofing.SpoofState = _spoofingService.Spoofing(spoofing.Spoof, futureSide, panicSource);
+			_stateMapping[spoofing.SpoofState] = spoofing;
+			spoofing.SpoofState.LimitFill += SpoofState_LimitFill;
 			await Delay(spoofing.MaxMasterSignalDurationInMs, panicSource.Token);
 
 			// Close second side
@@ -166,7 +178,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 		{
 			if (spoofing.PullContractSize > 0 && spoofing.PullMinDistanceInTick < spoofing.PullMaxDistanceInTick)
 			{
-				spoofing.Pull = new Data.Spoof(
+				spoofing.Pull = new Spoof(
 					spoofing.FeedAccount, spoofing.FeedSymbol,
 					spoofing.SpoofAccount, spoofing.SpoofSymbol,
 					spoofing.PullContractSize,
@@ -181,7 +193,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 		{
 			var pushMaxOrders = Math.Max(spoofing.PushMinOrders, (int)(spoofing.SpoofState.FilledQuantity / spoofing.PushContractSize));
 			if (spoofing.PushContractSize > 0 && pushMaxOrders > 0)
-				spoofing.Push = new Data.Push(
+				spoofing.Push = new Push(
 					spoofing.SpoofAccount, spoofing.SpoofSymbol,
 					spoofing.PushContractSize, pushMaxOrders, spoofing.PushIntervalInMs);
 			else spoofing.Pull = null;
@@ -204,6 +216,23 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 			var futureConnector = (IFixConnector) spoofing.SpoofAccount.Connector;
 			await futureConnector.SendMarketOrderRequest(spoofing.SpoofSymbol, spoofing.SpoofState.Side.Inv(), closeSize);
+		}
+
+		private void SpoofState_LimitFill(object sender, LimitFill e)
+		{
+			if (!(sender is IStratState state)) return;
+			if (e.Quantity <= 0) return;
+			if (!_stateMapping.TryGetValue(state, out var spoofing)) return;
+			if (spoofing?.Hedge == null) return;
+			if (string.IsNullOrWhiteSpace(spoofing.HedgeSymbol)) return;
+
+			var hedgeConnector = spoofing.Hedge.Connector as Mt4Integration.Connector;
+			if (hedgeConnector?.IsConnected != true) return;
+
+			var pos = hedgeConnector.SendMarketOrderRequest(spoofing.HedgeSymbol, state.Side.Inv(), (double) e.Quantity,
+				0, null, spoofing.MaxRetryCount, spoofing.RetryPeriodInMs);
+			if (pos == null) return;
+			spoofing.HedgePositions.Add(pos);
 		}
 
 		private async Task Delay(int millisecondsDelay, CancellationToken cancellationToken)

@@ -30,6 +30,8 @@ namespace TradeSystem.Orchestration.Services
 			public decimal FilledQuantity => LimitResponses.Sum(r => r.FilledQuantity);
 			public decimal RemainingQuantity => LimitResponses.Sum(r => r.RemainingQuantity);
 
+			public event EventHandler<LimitFill> LimitFill;
+
 			public StratState(Sides side)
 			{
 				Side = side;
@@ -56,6 +58,8 @@ namespace TradeSystem.Orchestration.Services
 					Logger.Error("SpoofingService.Cancel exception", e);
 				}
 			}
+
+			public void OnLimitFill(LimitFill e) => LimitFill?.Invoke(this, e);
 		}
 
 		public IStratState Spoofing(Spoof spoof, Sides side, CancellationTokenSource stop = null)
@@ -83,6 +87,14 @@ namespace TradeSystem.Orchestration.Services
 				state.LastTick = e.Tick;
 				waitHandle.Set();
 			}
+
+			void LimitFill(object sender, LimitFill limitFill)
+			{
+				if (!state.LimitResponses.Contains(limitFill.LimitResponse)) return;
+				state.OnLimitFill(limitFill);
+			}
+
+			spoof.TradeAccount.LimitFill += LimitFill;
 
 			state.LastTick = spoof.FeedAccount.GetLastTick(spoof.FeedSymbol);
 			spoof.FeedAccount.NewTick += NewTick;
@@ -133,6 +145,7 @@ namespace TradeSystem.Orchestration.Services
 							b = tradeConnector.CancelLimit(limitResponse).Result;
 				}
 
+				spoof.TradeAccount.LimitFill -= LimitFill;
 				waitHandle.Dispose();
 			}
 			catch (Exception e)

@@ -51,6 +51,8 @@ namespace TradeSystem.Orchestration.Services
 					Logger.Error("PushingService.Cancel exception", e);
 				}
 			}
+
+			public event EventHandler<LimitFill> LimitFill;
 		}
 
 		public IStratState Pushing(Push push, Sides side)
