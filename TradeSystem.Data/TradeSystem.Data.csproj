@@ -261,6 +261,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repositories\Mt4PlatformRepository.cs" />
     <Compile Include="Push.cs" />
+    <Compile Include="TwoWaySpoof.cs" />
     <Compile Include="Spoof.cs" />
     <Compile Include="IStratState.cs" />
   </ItemGroup>

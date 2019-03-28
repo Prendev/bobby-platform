@@ -82,6 +82,7 @@ namespace TradeSystem.Duplicat
             builder.RegisterType<CopierService>().As<ICopierService>();
 	        builder.RegisterType<PushingService>().As<IPushingService>();
 	        builder.RegisterType<SpoofingService>().As<ISpoofingService>();
+	        builder.RegisterType<TwoWaySpoofingService>().As<ITwoWaySpoofingService>();
 			builder.RegisterType<PushStrategyService>().As<IPushStrategyService>();
 			builder.RegisterType<SpoofStrategyService>().As<ISpoofStrategyService>();
             builder.RegisterType<ReportService>().As<IReportService>();

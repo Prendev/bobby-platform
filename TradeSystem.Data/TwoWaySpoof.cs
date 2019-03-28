@@ -1,0 +1,60 @@
+﻿using TradeSystem.Data.Models;
+
+namespace TradeSystem.Data
+{
+	public class TwoWaySpoof
+	{
+		public Account FeedAccount { get; }
+		public string FeedSymbol { get; }
+		public Account TradeAccount { get; }
+		public string TradeSymbol { get; }
+
+		public decimal SpoofSize { get; }
+		public decimal SpoofDistanceInTick { get; }
+		public int SpoofLevels { get; }
+		//public decimal SpoofSafetyVolumeDiff { get; }
+
+		public decimal PullSize { get; }
+		public decimal PullMinDistanceInTick { get; }
+		public decimal PullMaxDistanceInTick { get; }
+
+		public int? MomentumStop { get; }
+		public decimal TickSize { get; }
+
+		public TwoWaySpoof(
+			Account feedAccount,
+			string feedSymbol,
+			Account tradeAccount,
+			string tradeSymbol,
+
+			decimal spoofSize,
+			decimal spoofDistanceInTick,
+			int spoofLevels,
+			//decimal spoofSafetyVolumeDiff,
+
+			decimal pullSize,
+			decimal pullMinDistanceInTick,
+			decimal pullMaxDistanceInTick,
+
+			decimal tickSize,
+			int? momentumStop)
+		{
+			TradeSymbol = tradeSymbol;
+			TradeAccount = tradeAccount;
+			FeedSymbol = feedSymbol;
+			FeedAccount = feedAccount;
+
+			SpoofSize = spoofSize;
+			SpoofDistanceInTick = spoofDistanceInTick;
+			SpoofLevels = spoofLevels;
+			//SpoofSafetyVolumeDiff = spoofSafetyVolumeDiff;
+
+			PullSize = pullSize;
+			PullMinDistanceInTick = pullMinDistanceInTick;
+			PullMaxDistanceInTick = pullMaxDistanceInTick;
+
+			TickSize = tickSize;
+			MomentumStop = momentumStop;
+		}
+	}
+}

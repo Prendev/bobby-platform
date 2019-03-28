@@ -443,6 +443,7 @@ namespace TradeSystem.FixApiIntegration
 			OrderStatusReport lastOrderStatus = null;
 			try
 			{
+				if (response.RemainingQuantity == 0) return true;
 				if (!_limitOrderMapping.TryGetValue(response, out lastOrderStatus)) return false;
 				if (lastOrderStatus.OrderType != OrderType.Limit) return false;
 

@@ -24,36 +24,35 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 	public class SpoofStrategyService : ISpoofStrategyService
 	{
-		private readonly ISpoofingService _spoofingService;
+		private readonly ITwoWaySpoofingService _twoWaySpoofingService;
 		private readonly IPushingService _pushingService;
 		private readonly Dictionary<IStratState, Spoofing> _stateMapping =
 			new Dictionary<IStratState, Spoofing>();
 
+
 		public SpoofStrategyService(
-			ISpoofingService spoofingService,
+			ITwoWaySpoofingService twoWaySpoofingService,
 			IPushingService pushingService)
 		{
+			_twoWaySpoofingService = twoWaySpoofingService;
 			_pushingService = pushingService;
-			_spoofingService = spoofingService;
 		}
 
 		public async Task OpeningBeta(Spoofing spoofing, CancellationTokenSource panicSource)
 		{
-			spoofing.FeedAccount?.Connector.Subscribe(spoofing.FeedSymbol);
-			spoofing.AlphaMaster?.Connector.Subscribe(spoofing.AlphaSymbol);
-			spoofing.BetaMaster?.Connector.Subscribe(spoofing.BetaSymbol);
+			spoofing.FeedAccount.Connector.Subscribe(spoofing.FeedSymbol);
+			spoofing.AlphaMaster.Connector.Subscribe(spoofing.AlphaSymbol);
+			spoofing.BetaMaster.Connector.Subscribe(spoofing.BetaSymbol);
 			spoofing.HedgeAccount?.Connector.Subscribe(spoofing.HedgeSymbol);
-			while (spoofing.HedgePositions.TryTake(out var _)) ;
 
+			while (spoofing.HedgePositions.TryTake(out var _)) ;
 			spoofing.Push = null;
-			InitPull(spoofing);
 			InitSpoof(spoofing);
 			var futureSide = spoofing.BetaOpenSide.Inv();
 			var betaConnector = (IConnector)spoofing.BetaMaster.Connector;
 
 			// Start first spoofing
-			if (spoofing.Pull != null) spoofing.PullState = _spoofingService.Spoofing(spoofing.Pull, futureSide.Inv());
-			spoofing.SpoofState = _spoofingService.Spoofing(spoofing.Spoof, futureSide, panicSource);
+			spoofing.SpoofState = _twoWaySpoofingService.Spoofing(spoofing.TwoWaySpoof, futureSide, panicSource);
 			_stateMapping[spoofing.SpoofState] = spoofing;
 			spoofing.SpoofState.LimitFill += SpoofState_LimitFill;
 			await Delay(spoofing.MaxMasterSignalDurationInMs, panicSource.Token);
@@ -78,15 +77,13 @@ namespace TradeSystem.Orchestration.Services.Strategies
 		public async Task OpeningAlpha(Spoofing spoofing, CancellationTokenSource panicSource)
 		{
 			InitPush(spoofing);
-			InitPull(spoofing);
 			InitSpoof(spoofing);
 			var alphaConnector = (IConnector)spoofing.AlphaMaster.Connector;
 			var futureSide = spoofing.BetaOpenSide;
 
 			// Start second spoofing
-			if (spoofing.Pull != null) spoofing.PullState = _spoofingService.Spoofing(spoofing.Pull, futureSide.Inv());
 			if (spoofing.Push != null) spoofing.PushState = _pushingService.Pushing(spoofing.Push, futureSide);
-			spoofing.SpoofState = _spoofingService.Spoofing(spoofing.Spoof, futureSide, panicSource);
+			spoofing.SpoofState = _twoWaySpoofingService.Spoofing(spoofing.TwoWaySpoof, futureSide, panicSource);
 			_stateMapping[spoofing.SpoofState] = spoofing;
 			spoofing.SpoofState.LimitFill += SpoofState_LimitFill;
 			await Delay(spoofing.MaxMasterSignalDurationInMs, panicSource.Token);
@@ -115,8 +112,6 @@ namespace TradeSystem.Orchestration.Services.Strategies
 		{
 			while (spoofing.HedgePositions.TryTake(out var _)) ;
 			spoofing.Push = null;
-
-			InitPull(spoofing);
 			InitSpoof(spoofing);
 			var firstConnector = spoofing.BetaOpenSide == spoofing.FirstCloseSide
 				? (IConnector)spoofing.BetaMaster.Connector
@@ -125,8 +120,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			var futureSide = spoofing.FirstCloseSide;
 
 			// Start first spoofing
-			if (spoofing.Pull != null) spoofing.PullState = _spoofingService.Spoofing(spoofing.Pull, futureSide.Inv());
-			spoofing.SpoofState = _spoofingService.Spoofing(spoofing.Spoof, futureSide, panicSource);
+			spoofing.SpoofState = _twoWaySpoofingService.Spoofing(spoofing.TwoWaySpoof, futureSide, panicSource);
 			_stateMapping[spoofing.SpoofState] = spoofing;
 			spoofing.SpoofState.LimitFill += SpoofState_LimitFill;
 			await Delay(spoofing.MaxMasterSignalDurationInMs, panicSource.Token);
@@ -150,7 +144,6 @@ namespace TradeSystem.Orchestration.Services.Strategies
 		public async Task ClosingSecond(Spoofing spoofing, CancellationTokenSource panicSource)
 		{
 			InitPush(spoofing);
-			InitPull(spoofing);
 			InitSpoof(spoofing);
 			var secondConnector = spoofing.BetaOpenSide == spoofing.FirstCloseSide
 				? (IConnector)spoofing.AlphaMaster.Connector
@@ -159,9 +152,8 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			var futureSide = spoofing.FirstCloseSide.Inv();
 
 			// Start first spoofing
-			if (spoofing.Pull != null) spoofing.PullState = _spoofingService.Spoofing(spoofing.Pull, futureSide.Inv());
 			if (spoofing.Push != null) spoofing.PushState = _pushingService.Pushing(spoofing.Push, futureSide);
-			spoofing.SpoofState = _spoofingService.Spoofing(spoofing.Spoof, futureSide, panicSource);
+			spoofing.SpoofState = _twoWaySpoofingService.Spoofing(spoofing.TwoWaySpoof, futureSide, panicSource);
 			_stateMapping[spoofing.SpoofState] = spoofing;
 			spoofing.SpoofState.LimitFill += SpoofState_LimitFill;
 			await Delay(spoofing.MaxMasterSignalDurationInMs, panicSource.Token);
@@ -192,57 +184,45 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				(int) (spoofing.PrevFilledQuantity / Math.Max(spoofing.PushContractSize, 1)));
 			if (spoofing.PushContractSize > 0 && pushMaxOrders > 0)
 				spoofing.Push = new Push(
-					spoofing.SpoofAccount, spoofing.SpoofSymbol,
+					spoofing.TradeAccount, spoofing.TradeSymbol,
 					spoofing.PushContractSize, pushMaxOrders, spoofing.PushIntervalInMs);
 			else spoofing.Push = null;
 		}
 		private void InitSpoof(Spoofing spoofing)
 		{
-			spoofing.Spoof = new Spoof(
+			spoofing.TwoWaySpoof = new TwoWaySpoof(
 				spoofing.FeedAccount, spoofing.FeedSymbol,
-				spoofing.SpoofAccount, spoofing.SpoofSymbol,
+				spoofing.TradeAccount, spoofing.TradeSymbol,
+
 				spoofing.SpoofContractSize,
-				spoofing.SpoofDistanceInTick * spoofing.TickSize,
-				spoofing.SpoofDistanceInTick * spoofing.TickSize,
+				spoofing.SpoofDistanceInTick,
 				spoofing.SpoofLevels,
+
+				spoofing.PullContractSize,
+				spoofing.PullMinDistanceInTick,
+				spoofing.PullMaxDistanceInTick,
+
 				spoofing.TickSize,
 				spoofing.MomentumStopInMs);
-			spoofing.Spoof.FeedAccount.Connector.Subscribe(spoofing.Spoof.FeedSymbol);
-		}
-		private void InitPull(Spoofing spoofing)
-		{
-			if (spoofing.PullContractSize > 0 && spoofing.PullMinDistanceInTick < spoofing.PullMaxDistanceInTick)
-			{
-				spoofing.Pull = new Spoof(
-					spoofing.FeedAccount, spoofing.FeedSymbol,
-					spoofing.SpoofAccount, spoofing.SpoofSymbol,
-					spoofing.PullContractSize,
-					spoofing.PullMinDistanceInTick * spoofing.TickSize,
-					spoofing.PullMaxDistanceInTick * spoofing.TickSize,
-					1, spoofing.TickSize, null);
-				spoofing.Pull.FeedAccount.Connector.Subscribe(spoofing.Pull.FeedSymbol);
-			}
-			else spoofing.Pull = null;
+			spoofing.TwoWaySpoof.FeedAccount.Connector.Subscribe(spoofing.TwoWaySpoof.FeedSymbol);
 		}
 
 		private async Task Ending(Spoofing spoofing, CancellationToken panic)
 		{
 			await Delay(spoofing.MaxEndingDurationInMs, panic);
-			if (spoofing.Pull != null) await spoofing.PullState.Cancel();
 			if (spoofing.Push != null) await spoofing.PushState.Cancel();
 			await spoofing.SpoofState.Cancel();
 
 			// Partial close
 			var closeSize = spoofing.SpoofState.FilledQuantity;
 			if (spoofing.Push != null) closeSize += spoofing.PushState.FilledQuantity;
-			if (spoofing.Pull != null) closeSize -= spoofing.PullState.FilledQuantity;
 			var percentage = Math.Min(spoofing.PartialClosePercentage, 100);
 			percentage = Math.Max(percentage, 0);
 			closeSize = closeSize * percentage / 100;
 			if (closeSize <= 0) return;
 
-			var futureConnector = (IFixConnector) spoofing.SpoofAccount.Connector;
-			await futureConnector.SendMarketOrderRequest(spoofing.SpoofSymbol, spoofing.SpoofState.Side.Inv(), closeSize);
+			var futureConnector = (IFixConnector) spoofing.TradeAccount.Connector;
+			await futureConnector.SendMarketOrderRequest(spoofing.TradeSymbol, spoofing.SpoofState.Side.Inv(), closeSize);
 		}
 
 		private void SpoofState_LimitFill(object sender, LimitFill e)
