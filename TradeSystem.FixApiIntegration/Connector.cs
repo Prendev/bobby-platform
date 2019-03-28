@@ -415,7 +415,7 @@ namespace TradeSystem.FixApiIntegration
 				var lastPrice = lastOrderStatus.OrderLimitPrice;
 				var updateOrderStatus = await con.UpdateOrderAsync(new UpdateOrderRequest()
 				{
-					OriginalOrderId	= lastOrderStatus.OrderId,
+					OriginalOrderId = lastOrderStatus.OrderId,
 					LimitPrice = limitPrice,
 					Side = lastOrderStatus.Side,
 					Type = lastOrderStatus.OrderType,
@@ -433,7 +433,9 @@ namespace TradeSystem.FixApiIntegration
 			}
 			catch (Exception e)
 			{
-				Logger.Error($"{Description} Connector.ChangeLimitPrice({lastOrderStatus?.OrderId}, {limitPrice}) exception", e);
+				if (e.Message.Contains("Order not in book"))
+					Logger.Warn($"{Description} Connector.ChangeLimitPrice({lastOrderStatus?.OrderId}, {limitPrice}) not in book");
+				else Logger.Error($"{Description} Connector.ChangeLimitPrice({lastOrderStatus?.OrderId}, {limitPrice}) exception", e);
 				return false;
 			}
 		}

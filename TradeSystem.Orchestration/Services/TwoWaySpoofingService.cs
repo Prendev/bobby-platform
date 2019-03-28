@@ -171,13 +171,16 @@ namespace TradeSystem.Orchestration.Services
 			if (spoof.SpoofLevels <= 0) return;
 			if (spoof.SpoofDistanceInTick < 0) return;
 
+
+			var tasks = new List<Task<LimitResponse>>();
 			for (var i = spoof.SpoofLevels - 1; i >= 0; i--)
 			{
 				var price = GetPrice(state, state.Side, spoof.SpoofDistanceInTick, spoof.TickSize, i);
-				var lr = tradeConnector.SendSpoofOrderRequest(spoof.TradeSymbol, state.Side, spoof.SpoofSize, price).Result;
-				if (lr == null) continue;
-				state.SpoofLimitResponses.Add(lr);
+				tasks.Add(tradeConnector.SendSpoofOrderRequest(spoof.TradeSymbol, state.Side, spoof.SpoofSize, price));
 			}
+
+			Task.WhenAll(tasks).Wait();
+			state.SpoofLimitResponses.AddRange(tasks.Where(t => t.Result != null).Select(t => t.Result));
 
 			if (state.SpoofLimitResponses.Any())
 			{
