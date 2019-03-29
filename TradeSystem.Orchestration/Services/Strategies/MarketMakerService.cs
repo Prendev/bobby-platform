@@ -127,6 +127,8 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			var lastTick = connector.GetLastTick(set.FeedSymbol);
 			set.LongBase = lastTick.Bid - set.InitialDistanceInTick * set.TickSize;
 			set.ShortBase = lastTick.Ask + set.InitialDistanceInTick * set.TickSize;
+			set.MinLongLimit = null;
+			set.MaxShortLimit = null;
 
 			var gap = set.LimitGapsInTick * set.TickSize;
 			var quant = set.ContractSize;
