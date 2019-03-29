@@ -31,7 +31,13 @@ namespace TradeSystem.Orchestration.Services
 			public decimal RemainingQuantity => LimitResponses.Sum(r => r.RemainingQuantity);
 
 			public event EventHandler<LimitFill> LimitFill;
-			public bool IsEnded { get; set; }
+
+			private volatile bool _isEnded;
+			public bool IsEnded
+			{
+				get => _isEnded;
+				set => _isEnded = value;
+			}
 
 			public StratState(Sides side)
 			{

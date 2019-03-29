@@ -16,7 +16,7 @@ namespace TradeSystem.Orchestration.Services
 
 	public class TwoWaySpoofingService : ITwoWaySpoofingService
 	{
-		private static readonly TaskCompletionManager<StratState> TaskCompletionManager = new TaskCompletionManager<StratState>(100, 2000);
+		private static readonly TaskCompletionManager<StratState> TaskCompletionManager = new TaskCompletionManager<StratState>(100, 5000);
 
 		private class StratState : IStratState
 		{
@@ -34,7 +34,13 @@ namespace TradeSystem.Orchestration.Services
 			public LimitResponse PullLimitResponse { get; set; }
 
 			public event EventHandler<LimitFill> LimitFill;
-			public bool IsEnded { get; set; }
+
+			private volatile bool _isEnded;
+			public bool IsEnded
+			{
+				get => _isEnded;
+				set => _isEnded = value;
+			}
 
 			public StratState(Sides side)
 			{

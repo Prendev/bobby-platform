@@ -53,7 +53,13 @@ namespace TradeSystem.Orchestration.Services
 			}
 
 			public event EventHandler<LimitFill> LimitFill;
-			public bool IsEnded { get; set; }
+
+			private volatile bool _isEnded;
+			public bool IsEnded
+			{
+				get => _isEnded;
+				set => _isEnded = value;
+			}
 		}
 
 		public IStratState Pushing(Push push, Sides side)
