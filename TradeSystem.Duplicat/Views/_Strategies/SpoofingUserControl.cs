@@ -93,7 +93,7 @@ namespace TradeSystem.Duplicat.Views
 
 		private void Load_Click(object sender, EventArgs e)
 		{
-			if (_viewModel.IsConfigReadonly) return;
+			if (_viewModel.IsLoading) return;
 			_viewModel.ShowSpoofingCommand(dgvSpoofings.GetSelectedItem<Spoofing>());
 		}
 
