@@ -10,7 +10,8 @@ namespace TradeSystem.Data.Models
 		[InvisibleColumn] public Profile Profile { get; set; }
 
 		[DisplayName("Spoof Size")] public decimal SpoofContractSize { get; set; }
-		[DisplayName("S Distance")] public int SpoofDistanceInTick { get; set; }
+		[DisplayName("S InitDist")] public int SpoofInitDistanceInTick { get; set; }
+		[DisplayName("S FollowDist")] public int SpoofFollowDistanceInTick { get; set; }
 		[DisplayName("S SpoofLevels")] public int SpoofLevels { get; set; }
 
 		[DisplayName("Pull Size")] public decimal PullContractSize { get; set; }

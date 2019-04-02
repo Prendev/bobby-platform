@@ -11,7 +11,7 @@ namespace TradeSystem.Orchestration.Services
 {
 	public interface ITwoWaySpoofingService
 	{
-		IStratState Spoofing(TwoWaySpoof twoWay, Sides spoofSide, CancellationTokenSource stop = null);
+		IStratState Spoofing(TwoWaySpoof twoWay, Sides spoofSide);
 	}
 
 	public class TwoWaySpoofingService : ITwoWaySpoofingService
@@ -72,7 +72,7 @@ namespace TradeSystem.Orchestration.Services
 			public void OnLimitFill(LimitFill e) => LimitFill?.Invoke(this, e);
 		}
 
-		public IStratState Spoofing(TwoWaySpoof twoWay, Sides spoofSide, CancellationTokenSource stop = null)
+		public IStratState Spoofing(TwoWaySpoof twoWay, Sides spoofSide)
 		{
 			if (!(twoWay.TradeAccount?.Connector is IFixConnector)) return null;
 			if (twoWay.FeedAccount == null) return null;
@@ -82,11 +82,11 @@ namespace TradeSystem.Orchestration.Services
 			if (twoWay.SpoofSize <= 0 && twoWay.PullSize <= 0) return null;
 
 			var state = new StratState(spoofSide);
-			new Thread(() => Loop(twoWay, state, state.Init(), stop)) { IsBackground = true }.Start();
+			new Thread(() => Loop(twoWay, state, state.Init())) { IsBackground = true }.Start();
 			return state;
 		}
 
-		private void Loop(TwoWaySpoof spoof, StratState state, CancellationToken token, CancellationTokenSource stop = null)
+		private void Loop(TwoWaySpoof spoof, StratState state, CancellationToken token)
 		{
 			var tradeConnector = (IFixConnector)spoof.TradeAccount.Connector;
 
@@ -115,13 +115,7 @@ namespace TradeSystem.Orchestration.Services
 			{
 				try
 				{
-					MomentumStop(spoof, state, stop);
-					if (state.SpoofLimitResponses.Any(r => r.RemainingQuantity == 0))
-					{
-						stop.CancelEx();
-						if (state.RemainingQuantity == 0) continue;
-					}
-
+					if (state.RemainingQuantity == 0) continue;
 					if (!waitHandle.WaitOne(10)) continue;
 					if (token.IsCancellationRequested) break;
 
@@ -175,13 +169,13 @@ namespace TradeSystem.Orchestration.Services
 		{
 			if (spoof.SpoofSize <= 0) return;
 			if (spoof.SpoofLevels <= 0) return;
-			if (spoof.SpoofDistanceInTick < 0) return;
-
+			if (spoof.SpoofInitDistanceInTick < 0) return;
+			if (spoof.SpoofFollowDistanceInTick < 0) return;
 
 			var tasks = new List<Task<LimitResponse>>();
 			for (var i = spoof.SpoofLevels - 1; i >= 0; i--)
 			{
-				var price = GetPrice(state, state.Side, spoof.SpoofDistanceInTick, spoof.TickSize, i);
+				var price = GetPrice(state, state.Side, spoof.SpoofInitDistanceInTick, spoof.TickSize, i);
 				tasks.Add(tradeConnector.SendSpoofOrderRequest(spoof.TradeSymbol, state.Side, spoof.SpoofSize, price));
 			}
 
@@ -227,7 +221,7 @@ namespace TradeSystem.Orchestration.Services
 			var lr = state.SpoofLimitResponses.Where(r => r.RemainingQuantity > 0).ToList();
 			if (!lr.Any()) return;
 
-			var firstPrice = GetPrice(state, state.Side, spoof.SpoofDistanceInTick, spoof.TickSize, 0);
+			var firstPrice = GetPrice(state, state.Side, spoof.SpoofFollowDistanceInTick, spoof.TickSize, 0);
 
 			if (state.Side == Sides.Buy)
 			{
@@ -236,7 +230,7 @@ namespace TradeSystem.Orchestration.Services
 				if (topLimit.OrderPrice < firstPrice)
 					for (var i = 0; i < lr.Count; i++)
 					{
-						var price = GetPrice(state, state.Side, spoof.SpoofDistanceInTick, spoof.TickSize, i);
+						var price = GetPrice(state, state.Side, spoof.SpoofFollowDistanceInTick, spoof.TickSize, i);
 						if (lr.Any(r => r.OrderPrice == price)) continue;
 						var remaining = lr.Where(r => r.OrderPrice < price)
 							.OrderBy(r => r.OrderPrice)
@@ -247,7 +241,7 @@ namespace TradeSystem.Orchestration.Services
 				else if (topLimit.OrderPrice > firstPrice)
 					for (var i = lr.Count - 1; i >= 0; i--)
 					{
-						var price = GetPrice(state, state.Side, spoof.SpoofDistanceInTick, spoof.TickSize, i);
+						var price = GetPrice(state, state.Side, spoof.SpoofFollowDistanceInTick, spoof.TickSize, i);
 						if (lr.Any(r => r.OrderPrice == price)) continue;
 						var remaining = lr.Where(r => r.OrderPrice > price)
 							.OrderByDescending(r => r.OrderPrice)
@@ -264,7 +258,7 @@ namespace TradeSystem.Orchestration.Services
 				if (topLimit.OrderPrice > firstPrice)
 					for (var i = 0; i < lr.Count; i++)
 					{
-						var price = GetPrice(state, state.Side, spoof.SpoofDistanceInTick, spoof.TickSize, i);
+						var price = GetPrice(state, state.Side, spoof.SpoofFollowDistanceInTick, spoof.TickSize, i);
 						if (lr.Any(r => r.OrderPrice == price)) continue;
 						var remaining = lr.Where(r => r.OrderPrice > price)
 							.OrderByDescending(r => r.OrderPrice)
@@ -275,7 +269,7 @@ namespace TradeSystem.Orchestration.Services
 				else if (topLimit.OrderPrice < firstPrice)
 					for (var i = lr.Count - 1; i >= 0; i--)
 					{
-						var price = GetPrice(state, state.Side, spoof.SpoofDistanceInTick, spoof.TickSize, i);
+						var price = GetPrice(state, state.Side, spoof.SpoofFollowDistanceInTick, spoof.TickSize, i);
 						if (lr.Any(r => r.OrderPrice == price)) continue;
 						var remaining = lr.Where(r => r.OrderPrice < price)
 							.OrderBy(r => r.OrderPrice)
@@ -305,29 +299,6 @@ namespace TradeSystem.Orchestration.Services
 				price += firstDistance;
 			}
 			return price;
-		}
-
-		private void MomentumStop(TwoWaySpoof spoof, StratState state, CancellationTokenSource stop)
-		{
-			if (!spoof.MomentumStop.HasValue) return;
-			if (stop == null) return;
-			if (!state.LastBestPrice.HasValue) return;
-
-			var lastPrice = GetPrice(state, state.Side);
-			if (state.Side == Sides.Buy && lastPrice > state.LastBestPrice)
-			{
-				state.LastBestTime = state.LastTick.Time;
-				state.LastBestPrice = lastPrice;
-			}
-			else if (state.Side == Sides.Sell && lastPrice < state.LastBestPrice)
-			{
-				state.LastBestTime = state.LastTick.Time;
-				state.LastBestPrice = lastPrice;
-			}
-
-			if (HiResDatetime.UtcNow - state.LastBestTime < TimeSpan.FromMilliseconds(spoof.MomentumStop.Value)) return;
-
-			stop.CancelEx();
 		}
 	}
 }

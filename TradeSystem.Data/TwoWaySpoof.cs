@@ -10,7 +10,8 @@ namespace TradeSystem.Data
 		public string TradeSymbol { get; }
 
 		public decimal SpoofSize { get; }
-		public decimal SpoofDistanceInTick { get; }
+		public decimal SpoofInitDistanceInTick { get; }
+		public decimal SpoofFollowDistanceInTick { get; }
 		public int SpoofLevels { get; }
 		//public decimal SpoofSafetyVolumeDiff { get; }
 
@@ -28,7 +29,8 @@ namespace TradeSystem.Data
 			string tradeSymbol,
 
 			decimal spoofSize,
-			decimal spoofDistanceInTick,
+			decimal spoofInitDistanceInTick,
+			decimal spoofFollowDistanceInTick,
 			int spoofLevels,
 			//decimal spoofSafetyVolumeDiff,
 
@@ -45,7 +47,8 @@ namespace TradeSystem.Data
 			FeedAccount = feedAccount;
 
 			SpoofSize = spoofSize;
-			SpoofDistanceInTick = spoofDistanceInTick;
+			SpoofFollowDistanceInTick = spoofFollowDistanceInTick;
+			SpoofInitDistanceInTick = spoofInitDistanceInTick;
 			SpoofLevels = spoofLevels;
 			//SpoofSafetyVolumeDiff = spoofSafetyVolumeDiff;
 

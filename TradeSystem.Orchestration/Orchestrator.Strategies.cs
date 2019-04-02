@@ -145,7 +145,7 @@ namespace TradeSystem.Orchestration
 		public async Task OpeningBeta(Spoofing spoofing)
 		{
 			spoofing.PanicSource = new CancellationTokenSource();
-			await Task.Run(() => _spoofStrategyService.OpeningBeta(spoofing, spoofing.PanicSource));
+			await Task.Run(() => _spoofStrategyService.OpeningBeta(spoofing, spoofing.PanicSource.Token));
 		}
 
 		public async Task OpeningBetaEnd(Spoofing spoofing)
@@ -157,7 +157,7 @@ namespace TradeSystem.Orchestration
 		public async Task OpeningAlpha(Spoofing spoofing)
 		{
 			spoofing.PanicSource = new CancellationTokenSource();
-			await Task.Run(() => _spoofStrategyService.OpeningAlpha(spoofing, spoofing.PanicSource));
+			await Task.Run(() => _spoofStrategyService.OpeningAlpha(spoofing, spoofing.PanicSource.Token));
 		}
 
 		public async Task OpeningAlphaEnd(Spoofing spoofing)
@@ -169,7 +169,7 @@ namespace TradeSystem.Orchestration
 		public async Task ClosingFirst(Spoofing spoofing)
 		{
 			spoofing.PanicSource = new CancellationTokenSource();
-			await Task.Run(() => _spoofStrategyService.ClosingFirst(spoofing, spoofing.PanicSource));
+			await Task.Run(() => _spoofStrategyService.ClosingFirst(spoofing, spoofing.PanicSource.Token));
 		}
 
 		public async Task ClosingFirstEnd(Spoofing spoofing)
@@ -181,7 +181,7 @@ namespace TradeSystem.Orchestration
 		public async Task ClosingSecond(Spoofing spoofing)
 		{
 			spoofing.PanicSource = new CancellationTokenSource();
-			await Task.Run(() => _spoofStrategyService.ClosingSecond(spoofing, spoofing.PanicSource));
+			await Task.Run(() => _spoofStrategyService.ClosingSecond(spoofing, spoofing.PanicSource.Token));
 		}
 
 		public async Task ClosingSecondEnd(Spoofing spoofing)
