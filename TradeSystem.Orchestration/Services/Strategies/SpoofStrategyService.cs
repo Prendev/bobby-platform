@@ -40,6 +40,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 		public async Task OpeningBeta(Spoofing spoofing, CancellationToken panic)
 		{
+			Logger.Debug("SpoofStrategyService.OpeningBeta...");
 			spoofing.FeedAccount.Connector.Subscribe(spoofing.FeedSymbol);
 			spoofing.AlphaMaster.Connector.Subscribe(spoofing.AlphaSymbol);
 			spoofing.BetaMaster.Connector.Subscribe(spoofing.BetaSymbol);
@@ -67,6 +68,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 		public async Task OpeningAlpha(Spoofing spoofing, CancellationToken panic)
 		{
+			Logger.Debug("SpoofStrategyService.OpeningAlpha...");
 			InitPush(spoofing);
 			InitSpoof(spoofing);
 			var alphaConnector = (IConnector) spoofing.AlphaMaster.Connector;
@@ -92,6 +94,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 		public async Task ClosingFirst(Spoofing spoofing, CancellationToken panic)
 		{
+			Logger.Debug("SpoofStrategyService.ClosingFirst...");
 			spoofing.Push = null;
 			InitSpoof(spoofing);
 			var firstConnector = spoofing.BetaOpenSide == spoofing.FirstCloseSide
@@ -116,6 +119,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 		public async Task ClosingSecond(Spoofing spoofing, CancellationToken panic)
 		{
+			Logger.Debug("SpoofStrategyService.ClosingSecond...");
 			InitPush(spoofing);
 			InitSpoof(spoofing);
 			var secondConnector = spoofing.BetaOpenSide == spoofing.FirstCloseSide

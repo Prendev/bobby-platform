@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -23,18 +24,8 @@ namespace TradeSystem.Orchestration.Services
 			private CancellationTokenSource _cancel;
 
 			public Sides Side { get; }
-			private decimal _filledQuantity;
-			public decimal FilledQuantity
-			{
-				get
-				{
-					lock (this) return _filledQuantity;
-				}
-				set
-				{
-					lock (this) _filledQuantity = value;
-				}
-			}
+			public ConcurrentBag<OrderResponse> Responses { get; } = new ConcurrentBag<OrderResponse>();
+			public decimal FilledQuantity => Responses.Sum(r => r.FilledQuantity);
 
 			public StratState(Sides side)
 			{
@@ -90,7 +81,7 @@ namespace TradeSystem.Orchestration.Services
 		{
 			var tradeConnector = (IFixConnector)push.TradeAccount.Connector;
 
-			var orders = new List<Task<OrderResponse>>();
+			var orders = new List<Task>();
 			while (!token.IsCancellationRequested)
 			{
 				try
@@ -98,7 +89,11 @@ namespace TradeSystem.Orchestration.Services
 					if (token.IsCancellationRequested) break;
 					if (orders.Count >= push.MaxOrders) break;
 
-					orders.Add(tradeConnector.SendMarketOrderRequest(push.TradeSymbol, state.Side, push.Size));
+					var task = tradeConnector
+						.SendMarketOrderRequest(push.TradeSymbol, state.Side, push.Size)
+						.ContinueWith(t => state.Responses.Add(t.Result));
+					orders.Add(task);
+
 					Thread.Sleep(push.IntervalInMs);
 				}
 				catch (Exception e)
@@ -109,8 +104,7 @@ namespace TradeSystem.Orchestration.Services
 
 			try
 			{
-				var results = Task.WhenAll(orders).Result;
-				state.FilledQuantity = results.Sum(r => r.FilledQuantity);
+				Task.WhenAll(orders).Wait();
 			}
 			catch (Exception e)
 			{
