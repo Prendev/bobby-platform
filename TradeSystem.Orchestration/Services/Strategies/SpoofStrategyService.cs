@@ -55,7 +55,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			spoofing.SpoofState = _twoWaySpoofingService.Spoofing(spoofing.TwoWaySpoof, futureSide);
 			_stateMapping[spoofing.SpoofState] = spoofing;
 			spoofing.SpoofState.LimitFill += SpoofState_LimitFill;
-			await Delay(spoofing.MaxMasterSignalDurationInMs, panic);
+			await Delay(spoofing.FirstMasterSignalDurationInMs, panic);
 
 			// Open first side
 			spoofing.BetaPosition = betaConnector.SendMarketOrderRequest(spoofing.BetaSymbol, futureSide.Inv(),
@@ -78,7 +78,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			spoofing.SpoofState = _twoWaySpoofingService.Spoofing(spoofing.TwoWaySpoof, futureSide);
 			_stateMapping[spoofing.SpoofState] = spoofing;
 			spoofing.SpoofState.LimitFill += SpoofState_LimitFill;
-			await Delay(spoofing.MaxMasterSignalDurationInMs, panic);
+			await Delay(spoofing.SecondMasterSignalDurationInMs, panic);
 
 			// Open second side
 			spoofing.AlphaPosition = alphaConnector.SendMarketOrderRequest(spoofing.AlphaSymbol, futureSide.Inv(),
@@ -105,7 +105,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			spoofing.SpoofState = _twoWaySpoofingService.Spoofing(spoofing.TwoWaySpoof, futureSide);
 			_stateMapping[spoofing.SpoofState] = spoofing;
 			spoofing.SpoofState.LimitFill += SpoofState_LimitFill;
-			await Delay(spoofing.MaxMasterSignalDurationInMs, panic);
+			await Delay(spoofing.FirstMasterSignalDurationInMs, panic);
 
 			// Close first side
 			var closed = firstConnector.SendClosePositionRequests(firstPos, null, spoofing.MaxRetryCount, spoofing.RetryPeriodInMs);
@@ -130,7 +130,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			spoofing.SpoofState = _twoWaySpoofingService.Spoofing(spoofing.TwoWaySpoof, futureSide);
 			_stateMapping[spoofing.SpoofState] = spoofing;
 			spoofing.SpoofState.LimitFill += SpoofState_LimitFill;
-			await Delay(spoofing.MaxMasterSignalDurationInMs, panic);
+			await Delay(spoofing.SecondMasterSignalDurationInMs, panic);
 
 			// Close second side
 			var closed = secondConnector.SendClosePositionRequests(secondPos, null, spoofing.MaxRetryCount, spoofing.RetryPeriodInMs);
@@ -167,14 +167,13 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				spoofing.PullMinDistanceInTick,
 				spoofing.PullMaxDistanceInTick,
 
-				spoofing.TickSize,
-				spoofing.MomentumStopInMs);
+				spoofing.TickSize);
 			spoofing.TwoWaySpoof.FeedAccount.Connector.Subscribe(spoofing.TwoWaySpoof.FeedSymbol);
 		}
 
 		private async Task Ending(Spoofing spoofing, CancellationToken panic)
 		{
-			await Delay(spoofing.MaxEndingDurationInMs, panic);
+			await Delay(spoofing.EndingDurationInMs, panic);
 			if (spoofing.Push != null) await spoofing.PushState.Cancel();
 			await spoofing.SpoofState.Cancel();
 

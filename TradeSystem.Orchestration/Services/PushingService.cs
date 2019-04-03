@@ -23,7 +23,18 @@ namespace TradeSystem.Orchestration.Services
 			private CancellationTokenSource _cancel;
 
 			public Sides Side { get; }
-			public decimal FilledQuantity { get; set; }
+			private decimal _filledQuantity;
+			public decimal FilledQuantity
+			{
+				get
+				{
+					lock (this) return _filledQuantity;
+				}
+				set
+				{
+					lock (this) _filledQuantity = value;
+				}
+			}
 
 			public StratState(Sides side)
 			{

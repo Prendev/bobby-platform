@@ -18,8 +18,7 @@ namespace TradeSystem.Data
 		public decimal PullSize { get; }
 		public decimal PullMinDistanceInTick { get; }
 		public decimal PullMaxDistanceInTick { get; }
-
-		public int? MomentumStop { get; }
+		
 		public decimal TickSize { get; }
 
 		public TwoWaySpoof(
@@ -38,8 +37,7 @@ namespace TradeSystem.Data
 			decimal pullMinDistanceInTick,
 			decimal pullMaxDistanceInTick,
 
-			decimal tickSize,
-			int? momentumStop)
+			decimal tickSize)
 		{
 			TradeSymbol = tradeSymbol;
 			TradeAccount = tradeAccount;
@@ -57,7 +55,6 @@ namespace TradeSystem.Data
 			PullMaxDistanceInTick = pullMaxDistanceInTick;
 
 			TickSize = tickSize;
-			MomentumStop = momentumStop;
 		}
 	}
 }

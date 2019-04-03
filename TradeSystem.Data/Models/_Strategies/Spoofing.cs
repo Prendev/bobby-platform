@@ -25,9 +25,9 @@ namespace TradeSystem.Data.Models
 		[DisplayName("P Interval")] public int PushIntervalInMs { get; set; }
 
 		[DisplayName("Close %")] public int PartialClosePercentage { get; set; }
-		[DisplayName("Stop")] public int? MomentumStopInMs { get; set; }
-		[DisplayName("Signal ms")] public int MaxMasterSignalDurationInMs { get; set; }
-		[DisplayName("Ending ms")] public int MaxEndingDurationInMs { get; set; }
+		[DisplayName("1st Signal ms")] public int FirstMasterSignalDurationInMs { get; set; }
+		[DisplayName("2nd Signal ms")] public int SecondMasterSignalDurationInMs { get; set; }
+		[DisplayName("Ending ms")] public int EndingDurationInMs { get; set; }
 
 		public double AlphaLots { get; set; }
 		public double BetaLots { get; set; }
