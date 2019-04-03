@@ -115,12 +115,10 @@ namespace TradeSystem.Orchestration.Services
 			{
 				try
 				{
-					if (state.RemainingQuantity == 0) continue;
 					if (!waitHandle.WaitOne(10)) continue;
 					if (token.IsCancellationRequested) break;
-
-					var lastTick = state.LastTick;
-					if (HiResDatetime.UtcNow - lastTick.Time > TimeSpan.FromMinutes(1)) continue;
+					if (state.SpoofLimitResponses.Any() && state.RemainingQuantity == 0) continue;
+					if (HiResDatetime.UtcNow - state.LastTick.Time > TimeSpan.FromMinutes(1)) continue;
 
 					if (!state.SpoofLimitResponses.Any()) CreateSpoofLimits(spoof, state, tradeConnector);
 					else CheckSpoof(spoof, state, tradeConnector);

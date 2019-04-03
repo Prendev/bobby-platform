@@ -32,6 +32,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 			foreach (var set in _sets)
 			{
+				if (!set.Run) continue;
 				new Thread(() => SetLoop(set, _cancellation.Token)) { Name = $"MarketMaker_{set.Id}", IsBackground = true }
 					.Start();
 			}
@@ -50,13 +51,28 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			set.FeedNewTick -= Set_FeedNewTick;
 			set.LimitFill -= Set_LimitFill;
 			var queue = _queues.GetOrAdd(set.Id, new FastBlockingCollection<Action>());
-			set.FeedNewTick += Set_FeedNewTick;
-			set.FeedAccount.Connector.Subscribe(set.FeedSymbol);
+
+			if(!set.InitBidPrice.HasValue && set.FeedAccount != null)
+			{
+				set.FeedNewTick += Set_FeedNewTick;
+				set.FeedAccount?.Connector.Subscribe(set.FeedSymbol);
+			}
 
 			while (!token.IsCancellationRequested)
 			{
 				try
 				{
+					if (set.InitBidPrice.HasValue)
+					{
+						if (set.State == MarketMaker.MarketMakerStates.None)
+						{
+							Thread.Sleep(1);
+							continue;
+						}
+
+						if (set.State == MarketMaker.MarketMakerStates.Init) CheckInit(set);
+					}
+
 					var action = queue.Take(token);
 					action();
 				}
@@ -103,8 +119,11 @@ namespace TradeSystem.Orchestration.Services.Strategies
 		private void Set_FeedNewTick(object sender, NewTick newTick)
 		{
 			if (_cancellation.IsCancellationRequested) return;
-			var set = (MarketMaker)sender;
+			CheckInit((MarketMaker) sender);
+		}
 
+		private void CheckInit(MarketMaker set)
+		{
 			if (!set.Run) return;
 			if (set.State != MarketMaker.MarketMakerStates.Init) return;
 
@@ -113,6 +132,8 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				if (set.IsBusy) return;
 				set.IsBusy = true;
 			}
+
+			set.State = MarketMaker.MarketMakerStates.PreTrade;
 			_queues.GetOrAdd(set.Id, new FastBlockingCollection<Action>()).Add(() => InitLimits(set));
 		}
 
@@ -124,9 +145,10 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			set.LimitFill += Set_LimitFill;
 
 			var connector = (FixApiConnectorBase)set.TradeAccount.Connector;
-			var lastTick = connector.GetLastTick(set.FeedSymbol);
-			set.LongBase = lastTick.Bid - set.InitialDistanceInTick * set.TickSize;
-			set.ShortBase = lastTick.Ask + set.InitialDistanceInTick * set.TickSize;
+			var bid = set.InitBidPrice.HasValue ? set.InitBidPrice.Value : connector.GetLastTick(set.FeedSymbol).Bid;
+			var ask = set.InitBidPrice.HasValue ? (set.InitBidPrice.Value + set.TickSize) : connector.GetLastTick(set.FeedSymbol).Ask;
+			set.LongBase = bid - set.InitialDistanceInTick * set.TickSize;
+			set.ShortBase = ask + set.InitialDistanceInTick * set.TickSize;
 			set.MinLongLimit = null;
 			set.MaxShortLimit = null;
 

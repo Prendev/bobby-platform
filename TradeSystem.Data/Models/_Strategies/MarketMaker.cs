@@ -10,7 +10,8 @@ namespace TradeSystem.Data.Models
 		{
 			None,
 			Init,
-			Trade,
+			PreTrade,
+			Trade
 			// Cancel
 		}
 
@@ -21,9 +22,11 @@ namespace TradeSystem.Data.Models
 
 		public MarketMakerStates State { get => Get<MarketMakerStates>(); set => Set(value); }
 
-		public int FeedAccountId { get; set; }
+		public int? FeedAccountId { get; set; }
 		public Account FeedAccount { get => Get<Account>(); set => Set(value); }
 		[Required] public string FeedSymbol { get; set; }
+
+		public decimal? InitBidPrice { get; set; }
 
 		public int TradeAccountId { get; set; }
 		public Account TradeAccount { get => Get<Account>(); set => Set(value); }
