@@ -218,6 +218,7 @@
     </Compile>
     <Compile Include="Migrations\DuplicatContextModelSnapshot.cs" />
     <Compile Include="Models\FixApiCopierPosition.cs" />
+    <Compile Include="Models\Slave.NotMapped.cs" />
     <Compile Include="Models\_Strategies\Spoofing.NotMapped.cs" />
     <Compile Include="Models\_Strategies\Spoofing.cs" />
     <Compile Include="Models\_Accounts\Account.NotMapped.cs" />
