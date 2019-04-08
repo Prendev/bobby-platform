@@ -4,7 +4,7 @@ using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using TradeSystem.Communication.FixApi;
+using TradeSystem.Communication.Interfaces;
 
 namespace TradeSystem.FixApiIntegration
 {
@@ -28,7 +28,7 @@ namespace TradeSystem.FixApiIntegration
 			var path = GetAppDir();
 			foreach (var name in names)
 			{
-				var asm = Path.Combine(path, name);
+				var asm = Path.Combine(path, name.Trim());
 				if (!File.Exists(asm))
 					continue;
 
@@ -47,7 +47,7 @@ namespace TradeSystem.FixApiIntegration
 			var result = new List<Type>();
 			foreach (var asm in ConnectorAssemblies)
 			{
-				result.AddRange(asm.GetTypes().Where(t => t.IsClass && !t.IsAbstract && t.IsSubclassOf(typeof(FixConnectorBase))));
+				result.AddRange(asm.GetTypes().Where(t => t.IsClass && !t.IsAbstract && typeof(IConnector).IsAssignableFrom(t)));
 			}
 
 			return result.ToArray();
@@ -77,7 +77,9 @@ namespace TradeSystem.FixApiIntegration
 		public static Type GetConnectorType(Type confType)
 		{
 			var connectorTypes = GetConnectorTypes();
-			return connectorTypes.FirstOrDefault(t => t.BaseType.GetGenericArguments().Any(a => a == confType));
+			return connectorTypes
+				.FirstOrDefault(t =>
+					t.BaseType.GetGenericArguments().Any(a => a == confType) || t.GetConstructor(new[] {confType}) != null);
 		}
 	}
 }

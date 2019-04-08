@@ -4,13 +4,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using TradeSystem.Common.Integration;
 using TradeSystem.Communication;
-using TradeSystem.Communication.FixApi;
-using TradeSystem.Communication.Interfaces;
 using TradeSystem.Data;
 using TradeSystem.Data.Models;
 using TradeSystem.Orchestration.Services;
 using TradeSystem.Orchestration.Services.Strategies;
-using IConnector = TradeSystem.Communication.Interfaces.IConnector;
 
 namespace TradeSystem.Orchestration
 {
@@ -105,9 +102,9 @@ namespace TradeSystem.Orchestration
 				var groups = aggAccounts.Select(a =>
 				        new
 				        {
-					        ((FixApiIntegration.Connector) a.Account.Connector).FixConnector,
+					        IConnector = ((FixApiIntegration.Connector) a.Account.Connector).GeneralConnector,
 					        Symbol = Symbol.Parse(a.Symbol)
-				        }).ToDictionary(x => x.FixConnector as IConnector, x => x.Symbol);
+				        }).ToDictionary(x => x.IConnector, x => x.Symbol);
 
 				agg.QuoteAggregator = MarketDataManager.CreateQuoteAggregator(groups);
 			}
