@@ -1,5 +1,4 @@
 ﻿using System.Windows.Forms;
-using Microsoft.EntityFrameworkCore;
 using TradeSystem.Duplicat.ViewModel;
 
 namespace TradeSystem.Duplicat.Views
@@ -31,7 +30,7 @@ namespace TradeSystem.Duplicat.Views
 		{
 			dgvMarketMaker.AddComboBoxColumn(_viewModel.Accounts, "FeedAccount");
 			dgvMarketMaker.AddComboBoxColumn(_viewModel.Accounts, "TradeAccount");
-			dgvMarketMaker.DataSource = _viewModel.MarketMakers.ToBindingList();
+			dgvMarketMaker.DataSource = _viewModel.MarketMakers;
 		}
 	}
 }

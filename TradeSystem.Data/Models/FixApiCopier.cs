@@ -25,7 +25,7 @@ namespace TradeSystem.Data.Models
 
 		[DisplayPriority(-1)] public bool Run { get; set; }
 		public decimal CopyRatio { get; set; }
-		public FixApiOrderTypes OrderType { get; set; }
+		public FixApiOrderTypes OrderType { get; set; } = FixApiOrderTypes.GtcLimit;
 		public BasePriceTypes BasePriceType { get; set; }
 		[DisplayName("Delay")]
 		public int DelayInMilliseconds { get; set; }
@@ -40,24 +40,24 @@ namespace TradeSystem.Data.Models
 		public int FallbackTimeWindowInMs { get; set; }
 
 		[DisplayName("MarketRetry")]
-		public int MarketMaxRetryCount { get; set; }
+		public int MarketMaxRetryCount { get; set; } = 5;
 		[DisplayName("M Period")]
-		public int MarketRetryPeriodInMs { get; set; }
+		public int MarketRetryPeriodInMs { get; set; } = 25;
 		[DisplayName("M Window")]
-		public int MarketTimeWindowInMs { get; set; }
+		public int MarketTimeWindowInMs { get; set; } = 5000;
 
 		[DisplayName("LimitRetry")]
-		public int MaxRetryCount { get; set; }
+		public int MaxRetryCount { get; set; } = 10;
 		[DisplayName("L Period")]
-		public int RetryPeriodInMs { get; set; }
+		public int RetryPeriodInMs { get; set; } = 25;
 		[DisplayName("L Window")]
-		public int TimeWindowInMs { get; set; }
+		public int TimeWindowInMs { get; set; } = 1000;
 		[DisplayName("L Slippage")]
-		public decimal SlippageInPip { get; set; }
+		public decimal SlippageInPip { get; set; } = 2;
 		[DisplayName("L Diff")]
 		public decimal LimitDiffInPip { get; set; }
 
-		public decimal PipSize { get; set; }
+		public decimal PipSize { get; set; } = 1;
 
 		public List<FixApiCopierPosition> FixApiCopierPositions { get; } = new List<FixApiCopierPosition>();
 

@@ -1,5 +1,4 @@
 ﻿using System.Windows.Forms;
-using Microsoft.EntityFrameworkCore;
 using TradeSystem.Duplicat.ViewModel;
 
 namespace TradeSystem.Duplicat.Views
@@ -29,8 +28,8 @@ namespace TradeSystem.Duplicat.Views
         public void AttachDataSources()
         {
             dgvMtAccounts.AddComboBoxColumn(_viewModel.MtPlatforms);
-            dgvMtPlatforms.DataSource = _viewModel.MtPlatforms.ToBindingList();
-            dgvMtAccounts.DataSource = _viewModel.MtAccounts.ToBindingList();
+            dgvMtPlatforms.DataSource = _viewModel.MtPlatforms;
+            dgvMtAccounts.DataSource = _viewModel.MtAccounts;
         }
     }
 }

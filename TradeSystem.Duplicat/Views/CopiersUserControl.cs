@@ -1,5 +1,4 @@
 ﻿using System.Windows.Forms;
-using Microsoft.EntityFrameworkCore;
 using TradeSystem.Data.Models;
 using TradeSystem.Duplicat.ViewModel;
 
@@ -79,11 +78,11 @@ namespace TradeSystem.Duplicat.Views
 			dgvSlaves.AddComboBoxColumn(_viewModel.Masters);
             dgvSlaves.AddComboBoxColumn(_viewModel.Accounts);
 
-			dgvMasters.DataSource = _viewModel.Masters.ToBindingList();
-            dgvSlaves.DataSource = _viewModel.Slaves.ToBindingList();
-            dgvSymbolMappings.DataSource = _viewModel.SymbolMappings.ToBindingList();
-            dgvCopiers.DataSource = _viewModel.Copiers.ToBindingList();
-	        dgvFixApiCopiers.DataSource = _viewModel.FixApiCopiers.ToBindingList();
+			dgvMasters.DataSource = _viewModel.Masters;
+            dgvSlaves.DataSource = _viewModel.Slaves;
+            dgvSymbolMappings.DataSource = _viewModel.SymbolMappings;
+            dgvCopiers.DataSource = _viewModel.Copiers;
+	        dgvFixApiCopiers.DataSource = _viewModel.FixApiCopiers;
 		}
     }
 }

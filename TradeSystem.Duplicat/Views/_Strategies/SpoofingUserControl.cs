@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Windows.Forms;
-using Microsoft.EntityFrameworkCore;
 using TradeSystem.Common.Integration;
 using TradeSystem.Data.Models;
 using TradeSystem.Duplicat.ViewModel;
@@ -104,7 +103,7 @@ namespace TradeSystem.Duplicat.Views
 			dgvSpoofings.AddComboBoxColumn(_viewModel.Accounts, "AlphaMaster");
 			dgvSpoofings.AddComboBoxColumn(_viewModel.Accounts, "BetaMaster");
 			dgvSpoofings.AddComboBoxColumn(_viewModel.Accounts, "HedgeAccount");
-			dgvSpoofings.DataSource = _viewModel.Spoofings.ToBindingList();
+			dgvSpoofings.DataSource = _viewModel.Spoofings;
 		}
 	}
 }

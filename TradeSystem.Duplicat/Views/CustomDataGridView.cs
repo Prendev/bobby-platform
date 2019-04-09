@@ -88,6 +88,34 @@ namespace TradeSystem.Duplicat.Views
 				column.DisplayIndex = Columns[name]?.DisplayIndex ?? 0;
 			}
 		}
+		public void AddComboBoxColumn<T>(BindingList<T> list, string name = null) where T : BaseEntity
+		{
+			name = name ?? typeof(T).Name;
+			if (!_invisibleColumns.Contains(name))
+				_invisibleColumns.Add(name);
+
+			if (!Columns.Contains($"{name}*"))
+			{
+				var index = Columns[name]?.DisplayIndex ?? 0;
+				var column = new DataGridViewComboBoxColumn()
+				{
+					DataSource = list,
+					Name = $"{name}*",
+					DataPropertyName = $"{name}Id",
+					DisplayMember = "DisplayMember",
+					ValueMember = "Id",
+					HeaderText = $"{name}*",
+					DisplayIndex = index
+				};
+				Columns.Add(column);
+			}
+			else if (Columns[$"{name}*"] is DataGridViewComboBoxColumn)
+			{
+				var column = (DataGridViewComboBoxColumn)Columns[$"{name}*"];
+				column.DataSource = list;
+				column.DisplayIndex = Columns[name]?.DisplayIndex ?? 0;
+			}
+		}
 
 		public T GetSelectedItem<T>() where T : class
 		{
