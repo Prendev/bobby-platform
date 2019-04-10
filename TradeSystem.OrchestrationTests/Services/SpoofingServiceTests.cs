@@ -79,7 +79,7 @@ namespace TradeSystem.OrchestrationTests.Services
 
 			// Act
 			//SpoofingService.Spoofing(spoof, Sides.Buy, cancel.Token);
-			var response = fixConnector.SendSpoofOrderRequest(Spoof.TradeSymbol, Sides.Buy, 100, 11320).Result;
+			var response = fixConnector.PutNewOrderRequest(Spoof.TradeSymbol, Sides.Buy, 100, 11320).Result;
 
 			// Assert
 			Assert.NotNull(response);

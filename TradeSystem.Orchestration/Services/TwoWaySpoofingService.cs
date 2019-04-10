@@ -174,7 +174,7 @@ namespace TradeSystem.Orchestration.Services
 			for (var i = spoof.SpoofLevels - 1; i >= 0; i--)
 			{
 				var price = GetPrice(state, state.Side, spoof.SpoofInitDistanceInTick, spoof.TickSize, i);
-				tasks.Add(tradeConnector.SendSpoofOrderRequest(spoof.TradeSymbol, state.Side, spoof.SpoofSize, price));
+				tasks.Add(tradeConnector.PutNewOrderRequest(spoof.TradeSymbol, state.Side, spoof.SpoofSize, price));
 			}
 
 			Task.WhenAll(tasks).Wait();
@@ -194,7 +194,7 @@ namespace TradeSystem.Orchestration.Services
 			if (spoof.PullMaxDistanceInTick <= 0) return;
 
 			var price = GetPrice(state, state.Side.Inv(), spoof.PullMaxDistanceInTick, spoof.TickSize, 0);
-			state.PullLimitResponse = tradeConnector.SendSpoofOrderRequest(spoof.TradeSymbol, state.Side.Inv(), spoof.PullSize, price).Result;
+			state.PullLimitResponse = tradeConnector.PutNewOrderRequest(spoof.TradeSymbol, state.Side.Inv(), spoof.PullSize, price).Result;
 		}
 
 		private static void CheckPulling(TwoWaySpoof spoof, StratState state, IFixConnector tradeConnector)

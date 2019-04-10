@@ -24,7 +24,7 @@ namespace TradeSystem.Common.Integration
 			decimal limitPrice, decimal deviation, decimal priceDiff,
 			int timeout, int retryCount, int retryPeriod);
 
-		Task<LimitResponse> SendSpoofOrderRequest(string symbol, Sides side, decimal quantity, decimal limitPrice);
+		Task<LimitResponse> PutNewOrderRequest(string symbol, Sides side, decimal quantity, decimal limitPrice);
 
 		Task<bool> ChangeLimitPrice(LimitResponse response, decimal limitPrice);
 		Task<bool> CancelLimit(LimitResponse response);

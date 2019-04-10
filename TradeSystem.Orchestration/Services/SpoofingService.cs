@@ -172,7 +172,7 @@ namespace TradeSystem.Orchestration.Services
 			for (var i = spoof.Levels - 1; i >= 0; i--)
 			{
 				var price = GetPrice(state, spoof.MaxDistance, spoof.Step, i);
-				var lr = tradeConnector.SendSpoofOrderRequest(spoof.TradeSymbol, state.Side, spoof.Size, price).Result;
+				var lr = tradeConnector.PutNewOrderRequest(spoof.TradeSymbol, state.Side, spoof.Size, price).Result;
 				if (lr == null) continue;
 				state.LimitResponses.Add(lr);
 			}

@@ -333,7 +333,7 @@ namespace TradeSystem.FixApiIntegration
 			return retValue;
 		}
 
-		public override async Task<LimitResponse> SendSpoofOrderRequest(string symbol, Sides side, decimal quantity,
+		public override async Task<LimitResponse> PutNewOrderRequest(string symbol, Sides side, decimal quantity,
 			decimal limitPrice)
 		{
 			try
@@ -350,7 +350,7 @@ namespace TradeSystem.FixApiIntegration
 				if (newOrderStatus.Status == OrderStatus.Rejected)
 					throw new Exception(newOrderStatus.Message);
 
-				GeneralConnector.SubscribeOrderUpdate(newOrderStatus.OrderId, SpoofOrderUpdate, true);
+				GeneralConnector.SubscribeOrderUpdate(newOrderStatus.OrderId, PutNewOrderUpdate, true);
 				var response = new LimitResponse()
 				{
 					Symbol = symbol,
@@ -362,25 +362,25 @@ namespace TradeSystem.FixApiIntegration
 				_limitOrderMapping.AddOrUpdate(response, newOrderStatus, (k, o) => newOrderStatus);
 
 				Logger.Debug(
-					$"{Description} Connector.SendSpoofOrderRequest({symbol}, {side}, {quantity}, {limitPrice}) " +
+					$"{Description} Connector.PutNewOrderRequest({symbol}, {side}, {quantity}, {limitPrice}) " +
 					$"{newOrderStatus.OrderId} opened {response.FilledQuantity} at price {response.OrderPrice}");
 				return response;
 			}
 			catch (TimeoutException)
 			{
 				Logger.Warn(
-					$"{Description} Connector.SendSpoofOrderRequest({symbol}, {side}, {quantity}, {limitPrice}) timeout");
+					$"{Description} Connector.PutNewOrderRequest({symbol}, {side}, {quantity}, {limitPrice}) timeout");
 			}
 			catch (Exception e)
 			{
 				Logger.Error(
-					$"{Description} Connector.SendSpoofOrderRequest({symbol}, {side}, {quantity}, {limitPrice}) exception", e);
+					$"{Description} Connector.PutNewOrderRequest({symbol}, {side}, {quantity}, {limitPrice}) exception", e);
 			}
 
 			return null;
 		}
 
-		private void SpoofOrderUpdate(object sender, EventArgs<OrderStatusReport> e)
+		private void PutNewOrderUpdate(object sender, EventArgs<OrderStatusReport> e)
 		{
 			if (e.EventData.OrderType != OrderType.Limit) return;
 

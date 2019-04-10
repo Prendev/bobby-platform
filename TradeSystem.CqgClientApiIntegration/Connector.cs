@@ -182,7 +182,7 @@ namespace TradeSystem.CqgClientApiIntegration
 			}
 		}
 
-		public override async Task<LimitResponse> SendSpoofOrderRequest(string symbol, Sides side, decimal quantity, decimal limitPrice)
+		public override async Task<LimitResponse> PutNewOrderRequest(string symbol, Sides side, decimal quantity, decimal limitPrice)
 		{
 			try
 			{
@@ -213,7 +213,7 @@ namespace TradeSystem.CqgClientApiIntegration
 			}
 			catch (Exception e)
 			{
-				Logger.Error($"{Description} Connector.SendSpoofOrderRequest({symbol}, {side}, {quantity}, {limitPrice}) exception", e);
+				Logger.Error($"{Description} Connector.PutNewOrderRequest({symbol}, {side}, {quantity}, {limitPrice}) exception", e);
 				return null;
 			}
 		}
