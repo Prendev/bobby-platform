@@ -414,7 +414,7 @@ namespace TradeSystem.FixApiIntegration
 				var lastPrice = lastOrderStatus.OrderLimitPrice;
 				var updateOrderStatus = await GeneralConnector.UpdateOrderAsync(new UpdateOrderRequest()
 				{
-					OriginalOrderId = lastOrderStatus.OrderId,
+					OriginalOrderId = lastOrderStatus.OriginalOrderId,
 					LimitPrice = limitPrice,
 					Side = lastOrderStatus.Side,
 					Type = lastOrderStatus.OrderType,
@@ -434,6 +434,8 @@ namespace TradeSystem.FixApiIntegration
 			{
 				if (e.Message.Contains("Order not in book"))
 					Logger.Warn($"{Description} Connector.ChangeLimitPrice({lastOrderStatus?.OrderId}, {limitPrice}) not in book");
+				else if (e.Message.Contains("Too late to modify the order"))
+					Logger.Warn($"{Description} Connector.ChangeLimitPrice({lastOrderStatus?.OrderId}, {limitPrice}) too late to modify");
 				else Logger.Error($"{Description} Connector.ChangeLimitPrice({lastOrderStatus?.OrderId}, {limitPrice}) exception", e);
 				return false;
 			}
@@ -453,7 +455,9 @@ namespace TradeSystem.FixApiIntegration
 			}
 			catch (Exception e)
 			{
-				Logger.Error($"{Description} Connector.CancelLimit({lastOrderStatus?.OrderId}) exception", e);
+				if (e.Message.Contains("Too late to cancel"))
+					Logger.Error($"{Description} Connector.CancelLimit({lastOrderStatus?.OrderId}) too late to cancel");
+				else Logger.Error($"{Description} Connector.CancelLimit({lastOrderStatus?.OrderId}) exception", e);
 				return false;
 			}
 		}
