@@ -61,7 +61,7 @@ namespace TradeSystem.Duplicat.ViewModel
 			}
 			catch (Exception e)
 			{
-				SpoofingState = SpoofingStates.NotRunning;
+				SpoofingState = SpoofingStates.BeforeClosing;
 				MessageBox.Show(e.Message, "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
 			}
 			finally
