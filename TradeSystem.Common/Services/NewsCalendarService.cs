@@ -18,7 +18,7 @@ namespace TradeSystem.Common.Services
 
 	public class NewsCalendarService : INewsCalendarService
 	{
-		private const string ForexFactoryUrl = "https://www.forexfactory.com/ffcal_week_this.xml";
+		private const string ForexFactoryUrl = "http://cdn-nfs.faireconomy.media/ff_calendar_thisweek.xml";
 		private const double TimerInterval = 1000 * 60 * 60; //1 hour
 
 		private DateTime _lastDownload = HiResDatetime.UtcNow;

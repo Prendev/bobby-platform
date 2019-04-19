@@ -47,11 +47,11 @@ namespace TradeSystem.Data.Models
 			AggregatedQuote?.Invoke(this, aggQuote);
 		}
 
-		private AggregatorAccount GetAccount(IConnector fixConnector)
+		private AggregatorAccount GetAccount(IConnector connector)
 		{
 			foreach (var aggregatorAccount in Accounts)
 			{
-				if (aggregatorAccount.Account.Connector?.Is(fixConnector) != true) continue;
+				if (aggregatorAccount.Account.Connector?.Is(connector) != true) continue;
 				return aggregatorAccount;
 			}
 

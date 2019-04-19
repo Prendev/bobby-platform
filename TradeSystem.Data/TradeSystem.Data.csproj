@@ -218,6 +218,7 @@
     </Compile>
     <Compile Include="Migrations\DuplicatContextModelSnapshot.cs" />
     <Compile Include="Models\FixApiCopierPosition.cs" />
+    <Compile Include="Models\Slave.NotMapped.cs" />
     <Compile Include="Models\_Strategies\Spoofing.NotMapped.cs" />
     <Compile Include="Models\_Strategies\Spoofing.cs" />
     <Compile Include="Models\_Accounts\Account.NotMapped.cs" />
@@ -260,8 +261,10 @@
     <Compile Include="Models\SymbolMapping.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repositories\Mt4PlatformRepository.cs" />
+    <Compile Include="Push.cs" />
+    <Compile Include="TwoWaySpoof.cs" />
     <Compile Include="Spoof.cs" />
-    <Compile Include="ISpoofingState.cs" />
+    <Compile Include="IStratState.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">

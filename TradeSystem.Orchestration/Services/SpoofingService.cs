@@ -11,14 +11,14 @@ namespace TradeSystem.Orchestration.Services
 {
 	public interface ISpoofingService
 	{
-		ISpoofingState Spoofing(Spoof spoof, Sides side, CancellationTokenSource stop = null);
+		IStratState Spoofing(Spoof spoof, Sides side, CancellationTokenSource stop = null);
 	}
 
 	public class SpoofingService : ISpoofingService
 	{
-		private static readonly TaskCompletionManager<SpoofingState> TaskCompletionManager = new TaskCompletionManager<SpoofingState>(100, 2000);
+		private static readonly TaskCompletionManager<StratState> TaskCompletionManager = new TaskCompletionManager<StratState>(100, 2000);
 
-		private class SpoofingState : ISpoofingState
+		private class StratState : IStratState
 		{
 			private CancellationTokenSource _cancel;
 
@@ -30,7 +30,16 @@ namespace TradeSystem.Orchestration.Services
 			public decimal FilledQuantity => LimitResponses.Sum(r => r.FilledQuantity);
 			public decimal RemainingQuantity => LimitResponses.Sum(r => r.RemainingQuantity);
 
-			public SpoofingState(Sides side)
+			public event EventHandler<LimitFill> LimitFill;
+
+			private volatile bool _isEnded;
+			public bool IsEnded
+			{
+				get => _isEnded;
+				set => _isEnded = value;
+			}
+
+			public StratState(Sides side)
 			{
 				Side = side;
 			}
@@ -45,8 +54,8 @@ namespace TradeSystem.Orchestration.Services
 			{
 				try
 				{
-
 					Logger.Debug("SpoofingService canceling...");
+					if (IsEnded) return;
 					var task = TaskCompletionManager.CreateCompletableTask(this);
 					_cancel.CancelEx();
 					await task;
@@ -56,9 +65,11 @@ namespace TradeSystem.Orchestration.Services
 					Logger.Error("SpoofingService.Cancel exception", e);
 				}
 			}
+
+			public void OnLimitFill(LimitFill e) => LimitFill?.Invoke(this, e);
 		}
 
-		public ISpoofingState Spoofing(Spoof spoof, Sides side, CancellationTokenSource stop = null)
+		public IStratState Spoofing(Spoof spoof, Sides side, CancellationTokenSource stop = null)
 		{
 			if (!(spoof.TradeAccount?.Connector is IFixConnector)) return null;
 			if (spoof.FeedAccount == null) return null;
@@ -67,12 +78,12 @@ namespace TradeSystem.Orchestration.Services
 			if (side == Sides.None) return null;
 			if (spoof.Size <= 0) return null;
 
-			var state = new SpoofingState(side);
+			var state = new StratState(side);
 			new Thread(() => Loop(spoof, state, state.Init(), stop)) { IsBackground = true }.Start();
 			return state;
 		}
 
-		private void Loop(Spoof spoof, SpoofingState state, CancellationToken token, CancellationTokenSource stop = null)
+		private void Loop(Spoof spoof, StratState state, CancellationToken token, CancellationTokenSource stop = null)
 		{
 			var tradeConnector = (IFixConnector)spoof.TradeAccount.Connector;
 
@@ -83,6 +94,14 @@ namespace TradeSystem.Orchestration.Services
 				state.LastTick = e.Tick;
 				waitHandle.Set();
 			}
+
+			void LimitFill(object sender, LimitFill limitFill)
+			{
+				if (!state.LimitResponses.Contains(limitFill.LimitResponse)) return;
+				state.OnLimitFill(limitFill);
+			}
+
+			spoof.TradeAccount.LimitFill += LimitFill;
 
 			state.LastTick = spoof.FeedAccount.GetLastTick(spoof.FeedSymbol);
 			spoof.FeedAccount.NewTick += NewTick;
@@ -133,6 +152,7 @@ namespace TradeSystem.Orchestration.Services
 							b = tradeConnector.CancelLimit(limitResponse).Result;
 				}
 
+				spoof.TradeAccount.LimitFill -= LimitFill;
 				waitHandle.Dispose();
 			}
 			catch (Exception e)
@@ -141,17 +161,18 @@ namespace TradeSystem.Orchestration.Services
 			}
 			finally
 			{
+				state.IsEnded = true;
 				TaskCompletionManager.SetCompleted(state);
 				Logger.Debug("SpoofingService.Loop end");
 			}
 		}
 
-		private static void CreateLimits(Spoof spoof, SpoofingState state, IFixConnector tradeConnector)
+		private static void CreateLimits(Spoof spoof, StratState state, IFixConnector tradeConnector)
 		{
 			for (var i = spoof.Levels - 1; i >= 0; i--)
 			{
 				var price = GetPrice(state, spoof.MaxDistance, spoof.Step, i);
-				var lr = tradeConnector.SendSpoofOrderRequest(spoof.TradeSymbol, state.Side, spoof.Size, price).Result;
+				var lr = tradeConnector.PutNewOrderRequest(spoof.TradeSymbol, state.Side, spoof.Size, price).Result;
 				if (lr == null) continue;
 				state.LimitResponses.Add(lr);
 			}
@@ -163,13 +184,13 @@ namespace TradeSystem.Orchestration.Services
 			}
 		}
 
-		private static void CheckLimits(Spoof spoof, SpoofingState state, Tick lastTick, IFixConnector tradeConnector)
+		private static void CheckLimits(Spoof spoof, StratState state, Tick lastTick, IFixConnector tradeConnector)
 		{
 			if (spoof.IsPulling) CheckPulling(spoof, state, tradeConnector);
 			else CheckNormal(spoof, state, lastTick, tradeConnector);
 		}
 
-		private static void CheckPulling(Spoof spoof, SpoofingState state, IFixConnector tradeConnector)
+		private static void CheckPulling(Spoof spoof, StratState state, IFixConnector tradeConnector)
 		{
 			var limit = state.LimitResponses.FirstOrDefault(r => r.RemainingQuantity > 0);
 			if (limit == null) return;
@@ -181,7 +202,7 @@ namespace TradeSystem.Orchestration.Services
 			var b = tradeConnector.ChangeLimitPrice(limit, maxPrice).Result;
 		}
 
-		private static void CheckNormal(Spoof spoof, SpoofingState state, Tick lastTick, IFixConnector tradeConnector)
+		private static void CheckNormal(Spoof spoof, StratState state, Tick lastTick, IFixConnector tradeConnector)
 		{
 			bool b;
 			var lr = state.LimitResponses.Where(r => r.RemainingQuantity > 0).ToList();
@@ -242,11 +263,11 @@ namespace TradeSystem.Orchestration.Services
 			}
 		}
 
-		private static decimal GetPrice(SpoofingState state)
+		private static decimal GetPrice(StratState state)
 		{
 			return state.Side == Sides.Buy ? state.LastTick.Bid : state.LastTick.Ask;
 		}
-		private static decimal GetPrice(SpoofingState state, decimal distance, decimal step, int level)
+		private static decimal GetPrice(StratState state, decimal distance, decimal step, int level)
 		{
 			var price = GetPrice(state);
 			if (state.Side == Sides.Buy)
@@ -262,7 +283,7 @@ namespace TradeSystem.Orchestration.Services
 			return price;
 		}
 
-		private void MomentumStop(Spoof spoof, SpoofingState state, CancellationTokenSource stop)
+		private void MomentumStop(Spoof spoof, StratState state, CancellationTokenSource stop)
 		{
 			if (!spoof.MomentumStop.HasValue) return;
 			if (stop == null) return;

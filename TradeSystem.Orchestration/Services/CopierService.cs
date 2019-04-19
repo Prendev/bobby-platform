@@ -43,14 +43,19 @@ namespace TradeSystem.Orchestration.Services
 	        {
 		        master.NewPosition -= Master_NewPosition;
 		        master.NewPosition += Master_NewPosition;
+		        master.Slaves.ForEach(s =>
+		        {
+			        s.NewPosition -= Slave_NewPosition;
+			        s.NewPosition += Slave_NewPosition;
+		        });
 
-		        var slaves = master.Slaves
+				var slaves = master.Slaves
 			        .Where(s => s.Account.FixApiAccountId.HasValue)
 			        .Where(s => s.Account.Connector?.IsConnected == true)
 					.Where(s => s.Copiers.Any(c => c.OrderType != Copier.CopierOrderTypes.Market) ||
 			                    s.FixApiCopiers.Any(c => c.OrderType != FixApiCopier.FixApiOrderTypes.Market));
 
-				foreach (var slave in slaves)
+		        foreach (var slave in slaves)
 		        foreach (var symbolMapping in slave.SymbolMappings)
 			        slave.Account.Connector.Subscribe(symbolMapping.To);
 
@@ -60,7 +65,7 @@ namespace TradeSystem.Orchestration.Services
 			Logger.Info("Copiers are started");
         }
 
-        public void Stop()
+		public void Stop()
         {
 	        _cancellation?.Cancel(true);
 	        Logger.Info("Copiers are stopped");
@@ -141,9 +146,35 @@ namespace TradeSystem.Orchestration.Services
 	        if (!master.Run) return;
 
 	        _masterQueues.GetOrAdd(master.Id, new FastBlockingCollection<NewPosition>()).Add(e);
-        }
+		}
 
-        private Task CopyToAccount(NewPosition e, Slave slave)
+	    private void Slave_NewPosition(object sender, NewPosition e)
+		{
+			if (_cancellation.IsCancellationRequested) return;
+			if (e.Action != NewPositionActions.Close) return;
+			if (!(sender is Slave slave)) return;
+			if (!slave.Master.Run) return;
+			if (!slave.Run) return;
+			if (!slave.CloseBothWays) return;
+
+			if (e.Position.Comment?.Contains($"-{slave.Id}-") != true) return;
+			if (e.Position.Symbol != GetSlaveSymbol(e, slave)) return;
+
+			if (!int.TryParse(e.Position.Comment.Split('-').Last(), out var copierId)) return;
+			var copier = slave.Copiers.FirstOrDefault(c => c.Id == copierId);
+			if (copier?.Run != true) return;
+
+			if (!long.TryParse(e.Position.Comment.Split('-').First(), out var masterPositionId)) return;
+			if (!(slave.Master.Account.Connector is Mt4Integration.Connector connector)) return;
+
+			DelayedRun(() =>
+			{
+				connector.SendClosePositionRequests(masterPositionId, copier.MaxRetryCount, copier.RetryPeriodInMs);
+				return Task.CompletedTask;
+			}, copier.DelayInMilliseconds);
+		}
+
+		private Task CopyToAccount(NewPosition e, Slave slave)
         {
 			if (slave.Account.MetaTraderAccountId.HasValue) return CopyToMtAccount(e, slave);
 			if (slave.Account.CTraderAccountId.HasValue) return CopyToCtAccount(e, slave);
@@ -155,24 +186,23 @@ namespace TradeSystem.Orchestration.Services
         {
 	        if (!(slave.Account?.Connector is CTraderIntegration.Connector slaveConnector)) return Task.FromResult(0);
 
-            var symbol = slave.SymbolMappings?.Any(m => m.From == e.Position.Symbol) == true
-                ? slave.SymbolMappings.First(m => m.From == e.Position.Symbol).To
-                : e.Position.Symbol + (slave.SymbolSuffix ?? "");
+	        var symbol = GetSlaveSymbol(e, slave);
 
-            var tasks = slave.Copiers.Where(s => s.Run).Select(copier => DelayedRun(() =>
+			var tasks = slave.Copiers.Where(s => s.Run).Select(copier => DelayedRun(() =>
 			{
 				var volume = (long)(100 * Math.Abs(e.Position.RealVolume * copier.CopyRatio));
 				var side = copier.CopyRatio < 0 ? e.Position.Side.Inv() : e.Position.Side;
 				var type = side == Sides.Buy ? ProtoTradeSide.BUY : ProtoTradeSide.SELL;
+				var comment = $"{e.Position.Id}-{slave.Id}-{copier.Id}";
 
 				if (e.Action == NewPositionActions.Open && copier.OrderType == Copier.CopierOrderTypes.MarketRange)
 					slaveConnector.SendMarketRangeOrderRequest(symbol, type, volume, e.Position.OpenPrice,
-						copier.SlippageInPips, $"{slave.Id}-{e.Position.Id}", copier.MaxRetryCount, copier.RetryPeriodInMs);
+						copier.SlippageInPips, comment, copier.MaxRetryCount, copier.RetryPeriodInMs);
 				else if (e.Action == NewPositionActions.Open && copier.OrderType == Copier.CopierOrderTypes.Market)
-					slaveConnector.SendMarketOrderRequest(symbol, type, volume, $"{slave.Id}-{e.Position.Id}",
+					slaveConnector.SendMarketOrderRequest(symbol, type, volume, comment,
 						copier.MaxRetryCount, copier.RetryPeriodInMs);
 				else if (e.Action == NewPositionActions.Close)
-					slaveConnector.SendClosePositionRequests($"{slave.Id}-{e.Position.Id}",
+					slaveConnector.SendClosePositionRequests(comment,
 						copier.MaxRetryCount, copier.RetryPeriodInMs);
 				return Task.CompletedTask;
 			}, copier.DelayInMilliseconds));
@@ -183,9 +213,7 @@ namespace TradeSystem.Orchestration.Services
         {
 	        if (!(slave.Account?.Connector is Mt4Integration.Connector slaveConnector)) return Task.FromResult(0);
 
-            var symbol = slave.SymbolMappings?.Any(m => m.From == e.Position.Symbol) == true
-                ? slave.SymbolMappings.First(m => m.From == e.Position.Symbol).To
-                : e.Position.Symbol + (slave.SymbolSuffix ?? "");
+            var symbol = GetSlaveSymbol(e, slave);
 
 	        var tasks = slave.Copiers.Where(s => s.Run).Select(copier => DelayedRun(() =>
 	        {
@@ -194,7 +222,8 @@ namespace TradeSystem.Orchestration.Services
 		        //           (double) copier.CopyRatio;
 		        var lots = Math.Abs((double) e.Position.Lots * (double) copier.CopyRatio);
 		        var side = copier.CopyRatio < 0 ? e.Position.Side.Inv() : e.Position.Side;
-		        var comment = $"{slave.Id}-{e.Position.Id}-{copier.Id}";
+		        var comment = $"{e.Position.Id}-{slave.Id}-{copier.Id}";
+
 		        if (e.Action == NewPositionActions.Open)
 			        slaveConnector.SendMarketOrderRequest(symbol, side, lots, e.Position.MagicNumber,
 				        comment, copier.MaxRetryCount, copier.RetryPeriodInMs);
@@ -204,6 +233,14 @@ namespace TradeSystem.Orchestration.Services
 			}, copier.DelayInMilliseconds));
             return Task.WhenAll(tasks);
 		}
+
+	    private static string GetSlaveSymbol(NewPosition e, Slave slave)
+	    {
+		    var symbol = slave.SymbolMappings?.Any(m => m.From == e.Position.Symbol) == true
+			    ? slave.SymbolMappings.First(m => m.From == e.Position.Symbol).To
+			    : e.Position.Symbol + (slave.SymbolSuffix ?? "");
+		    return symbol;
+	    }
 
 	    private async Task DelayedRun(Func<Task> action, int millisecondsDelay)
 	    {

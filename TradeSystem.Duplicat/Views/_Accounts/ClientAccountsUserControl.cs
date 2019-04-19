@@ -1,5 +1,4 @@
 ﻿using System.Windows.Forms;
-using Microsoft.EntityFrameworkCore;
 using TradeSystem.Duplicat.ViewModel;
 
 namespace TradeSystem.Duplicat.Views
@@ -23,8 +22,8 @@ namespace TradeSystem.Duplicat.Views
 
 		public void AttachDataSources()
 		{
-			dgvCqgAccounts.DataSource = _viewModel.CqgClientApiAccounts.ToBindingList();
-			dgvIbAccounts.DataSource = _viewModel.IbAccounts.ToBindingList();
+			dgvCqgAccounts.DataSource = _viewModel.CqgClientApiAccounts;
+			dgvIbAccounts.DataSource = _viewModel.IbAccounts;
 		}
 	}
 }

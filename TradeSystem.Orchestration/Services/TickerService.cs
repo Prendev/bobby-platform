@@ -157,6 +157,7 @@ namespace TradeSystem.Orchestration.Services
 	    private void CheckArchive()
 	    {
 		    var now = HiResDatetime.UtcNow;
+		    if (now.Minute < 45) return;
 
 		    var toArchive = _csvWriters
 			    .Where(w => !w.Value.Archived)

@@ -1,5 +1,4 @@
 ﻿using System.Windows.Forms;
-using Microsoft.EntityFrameworkCore;
 using TradeSystem.Data.Models;
 using TradeSystem.Duplicat.ViewModel;
 
@@ -41,8 +40,8 @@ namespace TradeSystem.Duplicat.Views
 	        dgvAccounts.AddComboBoxColumn(_viewModel.IbAccounts);
 	        dgvAccounts.AddComboBoxColumn(_viewModel.ProfileProxies);
 
-			dgvProfiles.DataSource = _viewModel.Profiles.ToBindingList();
-			dgvAccounts.DataSource = _viewModel.Accounts.ToBindingList();
+			dgvProfiles.DataSource = _viewModel.Profiles;
+			dgvAccounts.DataSource = _viewModel.Accounts;
 		}
     }
 }

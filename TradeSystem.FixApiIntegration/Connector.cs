@@ -19,6 +19,7 @@ using TradeSystem.Communication.FixApi.Connectors.Strategies;
 using TradeSystem.Communication.FixApi.Connectors.Strategies.AggressiveOrder;
 using TradeSystem.Communication.FixApi.Connectors.Strategies.AggressiveOrder.Delayed;
 using TradeSystem.Communication.FixApi.Connectors.Strategies.MarketOrder;
+using IConnector = TradeSystem.Communication.Interfaces.IConnector;
 using OrderResponse = TradeSystem.Common.Integration.OrderResponse;
 using TimeInForce = TradeSystem.Communication.TimeInForce;
 
@@ -26,6 +27,7 @@ namespace TradeSystem.FixApiIntegration
 {
 	public class Connector : FixApiConnectorBase
 	{
+		private readonly FixConnectorBase _fixConnector;
 		private readonly AccountInfo _accountInfo;
 		private readonly IEmailService _emailService;
 		private readonly SubscribeMarketData _subscribeMarketData = new SubscribeMarketData();
@@ -39,7 +41,7 @@ namespace TradeSystem.FixApiIntegration
 		public override string Description => _accountInfo?.Description ?? "";
 		public override bool IsConnected => ConnectionManager?.IsConnected == true;
 
-		public readonly FixConnectorBase FixConnector;
+		public readonly IConnector GeneralConnector;
 		public readonly ConnectionManager ConnectionManager;
 
 		public event EventHandler<QuoteSet> NewQuote;
@@ -59,10 +61,11 @@ namespace TradeSystem.FixApiIntegration
 			var connType = ConnectorHelper.GetConnectorType(confType);
 			var conf = new XmlSerializer(confType).Deserialize(File.OpenRead(_accountInfo.ConfigPath));
 
-			FixConnector = (FixConnectorBase)Activator.CreateInstance(connType, conf);
-			FixConnector.ExecutionReport += FixConnector_ExecutionReport;
+			GeneralConnector = (IConnector)Activator.CreateInstance(connType, conf);
+			GeneralConnector.OrderUpdate += Connector_OrderUpdate;
+			_fixConnector = GeneralConnector as FixConnectorBase;
 
-			ConnectionManager = new ConnectionManager(FixConnector,
+			ConnectionManager = new ConnectionManager(GeneralConnector,
 				new RulesCollection {new ReconnectAfterDelay() {Delay = 30}, _subscribeMarketData});
 			ConnectionManager.Connected += ConnectionManager_Connected;
 			ConnectionManager.Closed += ConnectionManager_Closed;
@@ -109,7 +112,7 @@ namespace TradeSystem.FixApiIntegration
 			try
 			{
 				quantity = Math.Abs(quantity);
-				var response = await FixConnector.MarketOrderAsync(new OrderRequest()
+				var response = await _fixConnector.MarketOrderAsync(new OrderRequest()
 				{
 					IsLong = side == Sides.Buy,
 					Symbol = Symbol.Parse(symbol),
@@ -148,7 +151,7 @@ namespace TradeSystem.FixApiIntegration
 			decimal limitPrice, decimal deviation, decimal priceDiff,
 			int timeout, int retryCount, int retryPeriod)
 		{
-			if (!FixConnector.IsAggressiveOrderSupported())
+			if (!_fixConnector.IsAggressiveOrderSupported())
 				return await SendMarketOrderRequest(symbol, side, quantity);
 
 			var retValue = new OrderResponse()
@@ -166,7 +169,7 @@ namespace TradeSystem.FixApiIntegration
 					$"{limitPrice}, {deviation}, {timeout}, {retryCount}, {retryPeriod}) ");
 
 				quantity = Math.Abs(quantity);
-				var response = await FixConnector.AggressiveOrderAsync(new AggressiveOrderRequest()
+				var response = await _fixConnector.AggressiveOrderAsync(new AggressiveOrderRequest()
 				{
 					IsLong = side == Sides.Buy,
 					Symbol = Symbol.Parse(symbol),
@@ -211,7 +214,7 @@ namespace TradeSystem.FixApiIntegration
 			decimal limitPrice, decimal deviation, decimal priceDiff, decimal correction,
 			int timeout, int retryCount, int retryPeriod)
 		{
-			if (!FixConnector.IsAggressiveOrderSupported())
+			if (!_fixConnector.IsAggressiveOrderSupported())
 				return await SendMarketOrderRequest(symbol, side, quantity);
 
 			var retValue = new OrderResponse()
@@ -229,7 +232,7 @@ namespace TradeSystem.FixApiIntegration
 					$"{limitPrice}, {deviation}, {correction}, {timeout}, {retryCount}, {retryPeriod}) ");
 
 				quantity = Math.Abs(quantity);
-				var response = await FixConnector.DelayedAggressiveOrderAsync(new DelayedAggressiveOrderRequest()
+				var response = await _fixConnector.DelayedAggressiveOrderAsync(new DelayedAggressiveOrderRequest()
 				{
 					IsLong = side == Sides.Buy,
 					Symbol = Symbol.Parse(symbol),
@@ -290,7 +293,7 @@ namespace TradeSystem.FixApiIntegration
 					$"{limitPrice}, {deviation}, {timeout}, {retryCount}, {retryPeriod}) ");
 
 				quantity = Math.Abs(quantity);
-				var response = await FixConnector.GtcLimitOrderAsync(new AggressiveOrderRequest()
+				var response = await _fixConnector.GtcLimitOrderAsync(new AggressiveOrderRequest()
 				{
 					IsLong = side == Sides.Buy,
 					Symbol = Symbol.Parse(symbol),
@@ -330,13 +333,12 @@ namespace TradeSystem.FixApiIntegration
 			return retValue;
 		}
 
-		public override async Task<LimitResponse> SendSpoofOrderRequest(string symbol, Sides side, decimal quantity,
+		public override async Task<LimitResponse> PutNewOrderRequest(string symbol, Sides side, decimal quantity,
 			decimal limitPrice)
 		{
 			try
 			{
-				var con = FixConnector as Communication.Interfaces.IConnector;
-				var newOrderStatus = await con.PutNewOrderAsync(new NewOrderRequest()
+				var newOrderStatus = await GeneralConnector.PutNewOrderAsync(new NewOrderRequest()
 				{
 					Side = side == Sides.Buy ? BuySell.Buy : BuySell.Sell,
 					Type = OrderType.Limit,
@@ -348,7 +350,7 @@ namespace TradeSystem.FixApiIntegration
 				if (newOrderStatus.Status == OrderStatus.Rejected)
 					throw new Exception(newOrderStatus.Message);
 
-				con.SubscribeOrderUpdate(newOrderStatus.OrderId, SpoofOrderUpdate, true);
+				GeneralConnector.SubscribeOrderUpdate(newOrderStatus.OrderId, PutNewOrderUpdate, true);
 				var response = new LimitResponse()
 				{
 					Symbol = symbol,
@@ -360,25 +362,25 @@ namespace TradeSystem.FixApiIntegration
 				_limitOrderMapping.AddOrUpdate(response, newOrderStatus, (k, o) => newOrderStatus);
 
 				Logger.Debug(
-					$"{Description} Connector.SendSpoofOrderRequest({symbol}, {side}, {quantity}, {limitPrice}) " +
+					$"{Description} Connector.PutNewOrderRequest({symbol}, {side}, {quantity}, {limitPrice}) " +
 					$"{newOrderStatus.OrderId} opened {response.FilledQuantity} at price {response.OrderPrice}");
 				return response;
 			}
 			catch (TimeoutException)
 			{
 				Logger.Warn(
-					$"{Description} Connector.SendSpoofOrderRequest({symbol}, {side}, {quantity}, {limitPrice}) timeout");
+					$"{Description} Connector.PutNewOrderRequest({symbol}, {side}, {quantity}, {limitPrice}) timeout");
 			}
 			catch (Exception e)
 			{
 				Logger.Error(
-					$"{Description} Connector.SendSpoofOrderRequest({symbol}, {side}, {quantity}, {limitPrice}) exception", e);
+					$"{Description} Connector.PutNewOrderRequest({symbol}, {side}, {quantity}, {limitPrice}) exception", e);
 			}
 
 			return null;
 		}
 
-		private void SpoofOrderUpdate(object sender, EventArgs<OrderStatusReport> e)
+		private void PutNewOrderUpdate(object sender, EventArgs<OrderStatusReport> e)
 		{
 			if (e.EventData.OrderType != OrderType.Limit) return;
 
@@ -409,13 +411,10 @@ namespace TradeSystem.FixApiIntegration
 				//if (order.GWStatus == eOrderStatus.osFilled) return false;
 				if (lastOrderStatus.OrderLimitPrice == limitPrice) return true;
 
-
-				var con = FixConnector as Communication.Interfaces.IConnector;
-
 				var lastPrice = lastOrderStatus.OrderLimitPrice;
-				var updateOrderStatus = await con.UpdateOrderAsync(new UpdateOrderRequest()
+				var updateOrderStatus = await GeneralConnector.UpdateOrderAsync(new UpdateOrderRequest()
 				{
-					OriginalOrderId	= lastOrderStatus.OrderId,
+					OriginalOrderId = lastOrderStatus.OriginalOrderId,
 					LimitPrice = limitPrice,
 					Side = lastOrderStatus.Side,
 					Type = lastOrderStatus.OrderType,
@@ -433,7 +432,11 @@ namespace TradeSystem.FixApiIntegration
 			}
 			catch (Exception e)
 			{
-				Logger.Error($"{Description} Connector.ChangeLimitPrice({lastOrderStatus?.OrderId}, {limitPrice}) exception", e);
+				if (e.Message.Contains("Order not in book"))
+					Logger.Warn($"{Description} Connector.ChangeLimitPrice({lastOrderStatus?.OrderId}, {limitPrice}) not in book");
+				else if (e.Message.Contains("Too late to modify the order"))
+					Logger.Warn($"{Description} Connector.ChangeLimitPrice({lastOrderStatus?.OrderId}, {limitPrice}) too late to modify");
+				else Logger.Error($"{Description} Connector.ChangeLimitPrice({lastOrderStatus?.OrderId}, {limitPrice}) exception", e);
 				return false;
 			}
 		}
@@ -443,16 +446,18 @@ namespace TradeSystem.FixApiIntegration
 			OrderStatusReport lastOrderStatus = null;
 			try
 			{
+				if (response.RemainingQuantity == 0) return true;
 				if (!_limitOrderMapping.TryGetValue(response, out lastOrderStatus)) return false;
 				if (lastOrderStatus.OrderType != OrderType.Limit) return false;
 
-				var con = FixConnector as Communication.Interfaces.IConnector;
-				var result = await con.CancelOrderAsync(lastOrderStatus.OrderId);
+				var result = await GeneralConnector.CancelOrderAsync(lastOrderStatus.OrderId);
 				return result.Status == OrderStatus.Canceled || result.Status == OrderStatus.Accepted;
 			}
 			catch (Exception e)
 			{
-				Logger.Error($"{Description} Connector.CancelLimit({lastOrderStatus?.OrderId}) exception", e);
+				if (e.Message.Contains("Too late to cancel"))
+					Logger.Error($"{Description} Connector.CancelLimit({lastOrderStatus?.OrderId}) too late to cancel");
+				else Logger.Error($"{Description} Connector.CancelLimit({lastOrderStatus?.OrderId}) exception", e);
 				return false;
 			}
 		}
@@ -469,8 +474,8 @@ namespace TradeSystem.FixApiIntegration
 		{
 			try
 			{
-				FixConnector.UnsubscribeBookChange(Symbol.Parse(symbol), (sender, e) => _quoteQueue.Add(e.QuoteSet));
-				FixConnector.SubscribeBookChange(Symbol.Parse(symbol), (sender, e) => _quoteQueue.Add(e.QuoteSet));
+				GeneralConnector.UnsubscribeBookChange(Symbol.Parse(symbol), (sender, e) => _quoteQueue.Add(e.QuoteSet));
+				GeneralConnector.SubscribeBookChange(Symbol.Parse(symbol), (sender, e) => _quoteQueue.Add(e.QuoteSet));
 
 				lock (_subscribeMarketData)
 				{
@@ -483,7 +488,7 @@ namespace TradeSystem.FixApiIntegration
 				}
 
 				if (!IsConnected) return;
-				await FixConnector.SubscribeMarketDataAsync(Symbol.Parse(symbol), _marketDepth);
+				await GeneralConnector.SubscribeMarketDataAsync(Symbol.Parse(symbol), _marketDepth);
 				Logger.Debug($"{Description} Connector.Subscribe({symbol})");
 			}
 			catch (Exception e)
@@ -499,13 +504,13 @@ namespace TradeSystem.FixApiIntegration
 			{
 				new QuoteEntry(HiResDatetime.UtcNow) { Ask = 1, Bid = 1, AskVolume = 100000, BidVolume = 10000 }
 			};
-			MarketDataManager.PostQuoteSet(FixConnector, new QuoteSet(Symbol.Parse(symbol), entries));
+			GeneralConnector.PostQuoteSet(new QuoteSet(Symbol.Parse(symbol), entries));
 			await SendAggressiveOrderRequest(symbol, Sides.Buy, 1000, 1, 0, 0, 500, 0, 0);
 		}
 
 		public override bool Is(object o)
 		{
-			return o == FixConnector;
+			return o == GeneralConnector;
 		}
 
 		private void ConnectionManager_Connected(object sender, EventArgs e)
@@ -523,26 +528,27 @@ namespace TradeSystem.FixApiIntegration
 				$"{e.Error.Message}");
 		}
 
-		private void FixConnector_ExecutionReport(object sender, ExecutionReportEventArgs e)
+		private void Connector_OrderUpdate(object sender, EventArgs<OrderStatusReport> e)
 		{
-			FillLogger.Log(this, e);
-			var r = e.ExecutionReport;
+			var r = e.EventData;
+			FillLogger.Log(this, r);
+
 			var quantity = r.FulfilledQuantity ?? 0;
 			if ((r.FulfilledQuantity ?? 0) == 0) return;
-			if (r.Side != Side.Buy && r.Side != Side.Sell) return;
+			if (r.Side != BuySell.Buy && r.Side != BuySell.Sell) return;
 
-			if (_unfinishedOrderIds.Contains(e.ExecutionReport.OrderId))
+			if (_unfinishedOrderIds.Contains(r.OrderId))
 			{
 				Logger.Error(
 					$"{Description} FixConnector.ExecutionReport unfinished order ({r.Symbol}, {r.Side}, {r.FulfilledQuantity})!!!");
-				var side = e.ExecutionReport.Side == Side.Buy ? Sides.Sell : Sides.Buy;
+				var side = r.Side == BuySell.Buy ? Sides.Sell : Sides.Buy;
 				SendMarketOrderRequest(r.Symbol.ToString(), side, quantity, 5000, 5, 25);
 			}
 
 			CheckNewPosition(r);
 			//Checked on order update CheckLimit(r);
 
-			if (r.Side == Side.Sell) quantity *= -1;
+			if (r.Side == BuySell.Sell) quantity *= -1;
 			SymbolInfos.AddOrUpdate(r.Symbol.ToString(),
 				new SymbolData { SumContracts = quantity },
 				(key, oldValue) =>
@@ -550,16 +556,17 @@ namespace TradeSystem.FixApiIntegration
 					oldValue.SumContracts += quantity;
 					return oldValue;
 				});
+			throw new NotImplementedException();
 		}
 
-		private void CheckNewPosition(ExecutionReport r)
+		private void CheckNewPosition(OrderStatusReport r)
 		{
 			var position = new Position
 			{
 				Id = HiResDatetime.UtcNow.Ticks,
 				Lots = r.FulfilledQuantity ?? 0,
 				Symbol = r.Symbol.ToString(),
-				Side = r.Side == Side.Buy ? Sides.Buy : Sides.Sell,
+				Side = r.Side == BuySell.Buy ? Sides.Buy : Sides.Sell,
 				OpenTime = HiResDatetime.UtcNow,
 				OpenPrice = r.FulfilledPrice ?? 0
 			};

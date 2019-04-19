@@ -13,9 +13,8 @@ namespace TradeSystem.Orchestration.Services
 		{
 			if (!(slave.Account?.Connector is FixApiIntegration.Connector slaveConnector)) return Task.CompletedTask;
 			if (slave.SymbolMappings?.Any(m => m.From == e.Position.Symbol) != true) return Task.CompletedTask;
-			var symbol = slave.SymbolMappings?.Any(m => m.From == e.Position.Symbol) == true
-				? slave.SymbolMappings.First(m => m.From == e.Position.Symbol).To
-				: e.Position.Symbol + (slave.SymbolSuffix ?? "");
+
+			var symbol = GetSlaveSymbol(e, slave);
 
 			var tasks = slave.FixApiCopiers.Where(s => s.Run).Select(copier => DelayedRun(async () =>
 			{

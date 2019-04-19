@@ -4,13 +4,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using TradeSystem.Common.Integration;
 using TradeSystem.Communication;
-using TradeSystem.Communication.FixApi;
-using TradeSystem.Communication.Interfaces;
 using TradeSystem.Data;
 using TradeSystem.Data.Models;
 using TradeSystem.Orchestration.Services;
 using TradeSystem.Orchestration.Services.Strategies;
-using IConnector = TradeSystem.Communication.Interfaces.IConnector;
 
 namespace TradeSystem.Orchestration
 {
@@ -39,7 +36,7 @@ namespace TradeSystem.Orchestration
         private DuplicatContext _duplicatContext;
         private readonly Func<SynchronizationContext> _synchronizationContextFactory;
         private readonly ICopierService _copierService;
-        private readonly IPushingService _pushingService;
+        private readonly IPushStrategyService _pushStrategyService;
 	    private readonly ISpoofStrategyService _spoofStrategyService;
 		private readonly ITickerService _tickerService;
 	    private readonly IHubArbService _hubArbService;
@@ -48,20 +45,23 @@ namespace TradeSystem.Orchestration
 	    private readonly IMtAccountImportService _mtAccountImportService;
 	    private readonly IProxyService _proxyService;
 	    private readonly IMarketMakerService _marketMakerService;
+	    private readonly IAntiMarketMakerService _antiMarketMakerService;
 
 	    public Orchestrator(
             Func<SynchronizationContext> synchronizationContextFactory,
 			IConnectorFactory connectorFactory,
             ICopierService copierService,
-            IPushingService pushingService,
+            IPushStrategyService pushStrategyService,
 			ISpoofStrategyService spoofStrategyService,
 			ITickerService tickerService,
             IHubArbService hubArbService,
 			IMarketMakerService marketMakerService,
+			IAntiMarketMakerService antiMarketMakerService,
 			IReportService reportService,
             IMtAccountImportService mtAccountImportService,
 			IProxyService proxyService)
         {
+	        _antiMarketMakerService = antiMarketMakerService;
 	        _marketMakerService = marketMakerService;
 	        _spoofStrategyService = spoofStrategyService;
 	        _proxyService = proxyService;
@@ -70,7 +70,7 @@ namespace TradeSystem.Orchestration
 	        _connectorFactory = connectorFactory;
 	        _hubArbService = hubArbService;
 			_tickerService = tickerService;
-            _pushingService = pushingService;
+            _pushStrategyService = pushStrategyService;
             _copierService = copierService;
             _synchronizationContextFactory = synchronizationContextFactory;
         }
@@ -97,6 +97,7 @@ namespace TradeSystem.Orchestration
 			        .Where(a => a.Account?.Run == true)
 			        .Where(a => a.Account.FixApiAccountId.HasValue)
 			        .Where(a => a.Account.Connector is FixApiIntegration.Connector)
+			        .Where(a => !string.IsNullOrWhiteSpace(a.Symbol))
 			        .ToList();
 
 		        foreach (var aggAccount in aggAccounts)
@@ -105,9 +106,9 @@ namespace TradeSystem.Orchestration
 				var groups = aggAccounts.Select(a =>
 				        new
 				        {
-					        ((FixApiIntegration.Connector) a.Account.Connector).FixConnector,
+					        IConnector = ((FixApiIntegration.Connector) a.Account.Connector).GeneralConnector,
 					        Symbol = Symbol.Parse(a.Symbol)
-				        }).ToDictionary(x => x.FixConnector as IConnector, x => x.Symbol);
+				        }).ToDictionary(x => x.IConnector, x => x.Symbol);
 
 				agg.QuoteAggregator = MarketDataManager.CreateQuoteAggregator(groups);
 			}

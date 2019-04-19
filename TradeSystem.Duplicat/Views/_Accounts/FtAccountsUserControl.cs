@@ -1,5 +1,4 @@
 ﻿using System.Windows.Forms;
-using Microsoft.EntityFrameworkCore;
 using TradeSystem.Duplicat.ViewModel;
 
 namespace TradeSystem.Duplicat.Views
@@ -22,8 +21,8 @@ namespace TradeSystem.Duplicat.Views
 
         public void AttachDataSources()
         {
-            dgvFtAccounts.DataSource = _viewModel.FtAccounts.ToBindingList();
-	        dgvFixAccounts.DataSource = _viewModel.FixAccounts.ToBindingList();
+            dgvFtAccounts.DataSource = _viewModel.FtAccounts;
+	        dgvFixAccounts.DataSource = _viewModel.FixAccounts;
 		}
     }
 }

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Windows.Forms;
-using Microsoft.EntityFrameworkCore;
 using TradeSystem.Common.Integration;
 using TradeSystem.Data.Models;
 using TradeSystem.Duplicat.ViewModel;
@@ -64,12 +63,12 @@ namespace TradeSystem.Duplicat.Views
 			btnBuyFutures.Click += (s, e) =>
 			{
 				var pushing = dgvSpoofings.GetSelectedItem<Spoofing>();
-				_viewModel.SendOrderCommand(pushing.SpoofAccount, Sides.Buy, pushing.SpoofSymbol, nudFuturesContractSize.Value);
+				_viewModel.SendOrderCommand(pushing.TradeAccount, Sides.Buy, pushing.TradeSymbol, nudFuturesContractSize.Value);
 			};
 			btnSellFutures.Click += (s, e) =>
 			{
 				var pushing = dgvSpoofings.GetSelectedItem<Spoofing>();
-				_viewModel.SendOrderCommand(pushing.SpoofAccount, Sides.Sell, pushing.SpoofSymbol, nudFuturesContractSize.Value);
+				_viewModel.SendOrderCommand(pushing.TradeAccount, Sides.Sell, pushing.TradeSymbol, nudFuturesContractSize.Value);
 			};
 
 			btnOpenSpoofUp.Click += (s, e) => { _viewModel.SpoofingOpenCommand(dgvSpoofings.GetSelectedItem<Spoofing>(), Sides.Sell); };
@@ -93,17 +92,18 @@ namespace TradeSystem.Duplicat.Views
 
 		private void Load_Click(object sender, EventArgs e)
 		{
-			if (_viewModel.IsConfigReadonly) return;
+			if (_viewModel.IsLoading) return;
 			_viewModel.ShowSpoofingCommand(dgvSpoofings.GetSelectedItem<Spoofing>());
 		}
 
 		public void AttachDataSources()
 		{
 			dgvSpoofings.AddComboBoxColumn(_viewModel.Accounts, "FeedAccount");
-			dgvSpoofings.AddComboBoxColumn(_viewModel.Accounts, "SpoofAccount");
+			dgvSpoofings.AddComboBoxColumn(_viewModel.Accounts, "TradeAccount");
 			dgvSpoofings.AddComboBoxColumn(_viewModel.Accounts, "AlphaMaster");
 			dgvSpoofings.AddComboBoxColumn(_viewModel.Accounts, "BetaMaster");
-			dgvSpoofings.DataSource = _viewModel.Spoofings.ToBindingList();
+			dgvSpoofings.AddComboBoxColumn(_viewModel.Accounts, "HedgeAccount");
+			dgvSpoofings.DataSource = _viewModel.Spoofings;
 		}
 	}
 }

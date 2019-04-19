@@ -1,5 +1,4 @@
 ﻿using System.Windows.Forms;
-using Microsoft.EntityFrameworkCore;
 using TradeSystem.Duplicat.ViewModel;
 
 namespace TradeSystem.Duplicat.Views
@@ -33,7 +32,7 @@ namespace TradeSystem.Duplicat.Views
 		{
 			dgvTickers.AddComboBoxColumn(_viewModel.Accounts, "MainAccount");
 			dgvTickers.AddComboBoxColumn(_viewModel.Accounts, "PairAccount");
-			dgvTickers.DataSource = _viewModel.Tickers.ToBindingList();
+			dgvTickers.DataSource = _viewModel.Tickers;
 		}
 	}
 }

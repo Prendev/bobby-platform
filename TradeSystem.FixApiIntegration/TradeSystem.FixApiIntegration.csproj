@@ -80,6 +80,10 @@
     <Compile Include="FillLogger.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\git\QvaDev.Wololo\TradeSystem.Communication.DtcApi\TradeSystem.Communication.DtcApi.csproj">
+      <Project>{eed1bd13-cc26-4ede-99e4-dd59eb4d09bb}</Project>
+      <Name>TradeSystem.Communication.DtcApi</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\git\QvaDev.Wololo\TradeSystem.Communication.FixApi.Connectors.Strategies\TradeSystem.Communication.FixApi.Connectors.Strategies.csproj">
       <Project>{D025DB83-5628-432A-832D-0BB89E807252}</Project>
       <Name>TradeSystem.Communication.FixApi.Connectors.Strategies</Name>

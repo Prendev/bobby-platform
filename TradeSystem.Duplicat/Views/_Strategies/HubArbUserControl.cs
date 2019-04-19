@@ -1,5 +1,4 @@
 ﻿using System.Windows.Forms;
-using Microsoft.EntityFrameworkCore;
 using TradeSystem.Data.Models;
 using TradeSystem.Duplicat.ViewModel;
 
@@ -46,7 +45,7 @@ namespace TradeSystem.Duplicat.Views
 		public void AttachDataSources()
 		{
 			dgvHubArb.AddComboBoxColumn(_viewModel.Aggregators, "Aggregator");
-			dgvHubArb.DataSource = _viewModel.StratHubArbs.ToBindingList();
+			dgvHubArb.DataSource = _viewModel.StratHubArbs;
 		}
 	}
 }

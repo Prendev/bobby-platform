@@ -80,13 +80,16 @@ namespace TradeSystem.Duplicat
 			builder.RegisterType<TradingAccountsService>().As<ITradingAccountsService>();
             builder.RegisterType<RestService>().As<IRestService>();
             builder.RegisterType<CopierService>().As<ICopierService>();
+	        builder.RegisterType<PushingService>().As<IPushingService>();
 	        builder.RegisterType<SpoofingService>().As<ISpoofingService>();
-			builder.RegisterType<PushingService>().As<IPushingService>();
+	        builder.RegisterType<TwoWaySpoofingService>().As<ITwoWaySpoofingService>();
+			builder.RegisterType<PushStrategyService>().As<IPushStrategyService>();
 			builder.RegisterType<SpoofStrategyService>().As<ISpoofStrategyService>();
             builder.RegisterType<ReportService>().As<IReportService>();
 			builder.RegisterType<TickerService>().As<ITickerService>();
 			builder.RegisterType<HubArbService>().As<IHubArbService>();
 			builder.RegisterType<MarketMakerService>().As<IMarketMakerService>();
+			builder.RegisterType<AntiMarketMakerService>().As<IAntiMarketMakerService>();
 			builder.RegisterType<MtAccountImportService>().As<IMtAccountImportService>();
 			builder.RegisterType<ProxyService>().As<IProxyService>();
 		}

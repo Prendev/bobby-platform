@@ -9,7 +9,7 @@ using MtConnector = TradeSystem.Mt4Integration.IConnector;
 
 namespace TradeSystem.Orchestration.Services.Strategies
 {
-    public interface IPushingService
+    public interface IPushStrategyService
     {
         void OpeningBeta(Pushing pushing);
 	    Task OpeningPull(Pushing pushing);
@@ -23,7 +23,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 	    Task ClosingFinish(Pushing pushing);
 	}
 
-    public class PushingService : IPushingService
+    public class PushStrategyService : IPushStrategyService
     {
 	    private readonly IRndService _rndService;
 	    private readonly IThreadService _threadService;
@@ -36,7 +36,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			Ending,
 		}
 
-	    public PushingService(
+	    public PushStrategyService(
 		    IRndService rndService,
 		    IThreadService threadService,
 		    ISpoofingService spoofingService)
@@ -58,7 +58,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 			if (pushing.BetaPosition == null)
 			{
-				throw new Exception("PushingService.OpeningBeta failed!!!");
+				throw new Exception("PushStrategyService.OpeningBeta failed!!!");
 			}
 		}
 
@@ -67,22 +67,22 @@ namespace TradeSystem.Orchestration.Services.Strategies
 		    var pd = pushing.PushingDetail;
 		    var futureSide = pushing.BetaOpenSide.Inv();
 		    // Start spoofing
-		    pushing.SpoofingState = _spoofingService.Spoofing(pushing.Spoof, futureSide);
+		    pushing.StratState = _spoofingService.Spoofing(pushing.Spoof, futureSide);
 
 		    // Pull the price and wait a bit
 		    var contractsNeeded = pd.PullContractSize;
 		    await FutureBuildUp(pushing, futureSide, contractsNeeded, Phases.Pulling);
 
 		    // Turn spoofing
-		    if (pushing.SpoofingState != null)
+		    if (pushing.StratState != null)
 			{
-				await pushing.SpoofingState.Cancel();
-				lock (pushing.SpoofingState)
-					pushing.PushingDetail.OpenedFutures -= pushing.SpoofingState.FilledQuantity;
+				await pushing.StratState.Cancel();
+				lock (pushing.StratState)
+					pushing.PushingDetail.OpenedFutures -= pushing.StratState.FilledQuantity;
 			}
 
 		    _threadService.Sleep(pushing.PushingDetail.FutureOpenDelayInMs);
-		    pushing.SpoofingState = _spoofingService.Spoofing(pushing.Spoof, futureSide.Inv());
+		    pushing.StratState = _spoofingService.Spoofing(pushing.Spoof, futureSide.Inv());
 	    }
 
 	    public async Task OpeningAlpha(Pushing pushing)
@@ -100,7 +100,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 			if (pushing.AlphaPosition == null)
 			{
-				throw new Exception("PushingService.OpeningAlpha failed!!!");
+				throw new Exception("PushStrategyService.OpeningAlpha failed!!!");
 			}
 		}
 
@@ -115,11 +115,11 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			await FutureBuildUp(pushing, futureSide, contractsNeeded, Phases.Ending);
 
 			// Stop spoofing
-			if (pushing.SpoofingState != null)
+			if (pushing.StratState != null)
 			{
-				await pushing.SpoofingState.Cancel();
-				lock (pushing.SpoofingState)
-					pushing.PushingDetail.OpenedFutures += pushing.SpoofingState.FilledQuantity;
+				await pushing.StratState.Cancel();
+				lock (pushing.StratState)
+					pushing.PushingDetail.OpenedFutures += pushing.StratState.FilledQuantity;
 			}
 
 			// Partial close
@@ -151,22 +151,22 @@ namespace TradeSystem.Orchestration.Services.Strategies
 		    var pd = pushing.PushingDetail;
 		    var futureSide = pushing.FirstCloseSide;
 		    // Start spoofing
-		    pushing.SpoofingState = _spoofingService.Spoofing(pushing.Spoof, futureSide);
+		    pushing.StratState = _spoofingService.Spoofing(pushing.Spoof, futureSide);
 
 			// Pull the price and wait a bit
 			var contractsNeeded = pd.PullContractSize;
 		    await FutureBuildUp(pushing, futureSide, contractsNeeded, Phases.Pulling);
 
 			// Turn spoofing
-		    if (pushing.SpoofingState != null)
+		    if (pushing.StratState != null)
 			{
-				await pushing.SpoofingState.Cancel();
-				lock (pushing.SpoofingState)
-					pushing.PushingDetail.OpenedFutures -= pushing.SpoofingState.FilledQuantity;
+				await pushing.StratState.Cancel();
+				lock (pushing.StratState)
+					pushing.PushingDetail.OpenedFutures -= pushing.StratState.FilledQuantity;
 			}
 
 			_threadService.Sleep(pushing.PushingDetail.FutureOpenDelayInMs);
-		    pushing.SpoofingState = _spoofingService.Spoofing(pushing.Spoof, futureSide.Inv());
+		    pushing.StratState = _spoofingService.Spoofing(pushing.Spoof, futureSide.Inv());
 		}
 
 		public async Task OpeningHedge(Pushing pushing)
@@ -221,11 +221,11 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			await FutureBuildUp(pushing, futureSide, contractsNeeded, Phases.Ending);
 
 			// Stop spoofing
-			if (pushing.SpoofingState != null)
+			if (pushing.StratState != null)
 			{
-				await pushing.SpoofingState.Cancel();
-				lock (pushing.SpoofingState)
-					pushing.PushingDetail.OpenedFutures += pushing.SpoofingState.FilledQuantity;
+				await pushing.StratState.Cancel();
+				lock (pushing.StratState)
+					pushing.PushingDetail.OpenedFutures += pushing.StratState.FilledQuantity;
 			}
 
 			// Partial close

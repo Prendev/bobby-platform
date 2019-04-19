@@ -1,5 +1,4 @@
 ﻿using System.Windows.Forms;
-using Microsoft.EntityFrameworkCore;
 using TradeSystem.Duplicat.ViewModel;
 
 namespace TradeSystem.Duplicat.Views
@@ -26,8 +25,8 @@ namespace TradeSystem.Duplicat.Views
 		public void AttachDataSources()
 		{
 			dgvProfileProxies.AddComboBoxColumn(_viewModel.Proxies);
-			dgvProfileProxies.DataSource = _viewModel.ProfileProxies.ToBindingList();
-			dgvProxies.DataSource = _viewModel.Proxies.ToBindingList();
+			dgvProfileProxies.DataSource = _viewModel.ProfileProxies;
+			dgvProxies.DataSource = _viewModel.Proxies;
 		}
 	}
 }

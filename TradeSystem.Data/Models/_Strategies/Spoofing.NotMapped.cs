@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Threading;
 using TradeSystem.Common.Attributes;
@@ -10,16 +11,18 @@ namespace TradeSystem.Data.Models
 	{
 		public event EventHandler<ConnectionStates> ConnectionChanged;
 
-		[NotMapped] [InvisibleColumn] public Spoof Spoof { get; set; }
-		[NotMapped] [InvisibleColumn] public ISpoofingState SpoofingState { get; set; }
+		[NotMapped] [InvisibleColumn] public TwoWaySpoof TwoWaySpoof { get; set; }
+		[NotMapped] [InvisibleColumn] public IStratState SpoofState { get; set; }
+		[NotMapped] [InvisibleColumn] public decimal PrevFilledQuantity { get; set; }
 
-		[NotMapped] [InvisibleColumn] public Spoof Pull { get; set; }
-		[NotMapped] [InvisibleColumn] public ISpoofingState PullingState { get; set; }
+		[NotMapped] [InvisibleColumn] public Push Push { get; set; }
+		[NotMapped] [InvisibleColumn] public IStratState PushState { get; set; }
 
 		[NotMapped] [InvisibleColumn] public Sides BetaOpenSide { get; set; }
 		[NotMapped] [InvisibleColumn] public Sides FirstCloseSide { get; set; }
 		[NotMapped] [InvisibleColumn] public Position AlphaPosition { get; set; }
 		[NotMapped] [InvisibleColumn] public Position BetaPosition { get; set; }
+		[NotMapped] [InvisibleColumn] public ConcurrentBag<Position> HedgePositions { get; set; } = new ConcurrentBag<Position>();
 		/// <summary>
 		/// Use only from orchestration
 		/// </summary>
@@ -34,7 +37,7 @@ namespace TradeSystem.Data.Models
 			SetAction<Account>(nameof(FeedAccount),
 				a => { if (a != null) a.ConnectionChanged -= Account_ConnectionChanged; },
 				a => { if (a != null) a.ConnectionChanged += Account_ConnectionChanged; });
-			SetAction<Account>(nameof(SpoofAccount),
+			SetAction<Account>(nameof(TradeAccount),
 				a => { if (a != null) a.ConnectionChanged -= Account_ConnectionChanged; },
 				a => { if (a != null) a.ConnectionChanged += Account_ConnectionChanged; });
 			SetAction<Account>(nameof(AlphaMaster),
@@ -61,7 +64,7 @@ namespace TradeSystem.Data.Models
 				AlphaMaster?.Connector?.IsConnected == true &&
 				BetaMaster?.Connector?.IsConnected == true &&
 				FeedAccount?.Connector?.IsConnected == true &&
-				SpoofAccount?.Connector?.IsConnected == true;
+				TradeAccount?.Connector?.IsConnected == true;
 			ConnectionChanged?.Invoke(this, IsConnected ? ConnectionStates.Connected : ConnectionStates.Disconnected);
 		}
 	}
