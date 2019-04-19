@@ -45,6 +45,7 @@ namespace TradeSystem.Orchestration
 	    private readonly IMtAccountImportService _mtAccountImportService;
 	    private readonly IProxyService _proxyService;
 	    private readonly IMarketMakerService _marketMakerService;
+	    private readonly IAntiMarketMakerService _antiMarketMakerService;
 
 	    public Orchestrator(
             Func<SynchronizationContext> synchronizationContextFactory,
@@ -55,10 +56,12 @@ namespace TradeSystem.Orchestration
 			ITickerService tickerService,
             IHubArbService hubArbService,
 			IMarketMakerService marketMakerService,
+			IAntiMarketMakerService antiMarketMakerService,
 			IReportService reportService,
             IMtAccountImportService mtAccountImportService,
 			IProxyService proxyService)
         {
+	        _antiMarketMakerService = antiMarketMakerService;
 	        _marketMakerService = marketMakerService;
 	        _spoofStrategyService = spoofStrategyService;
 	        _proxyService = proxyService;
@@ -94,6 +97,7 @@ namespace TradeSystem.Orchestration
 			        .Where(a => a.Account?.Run == true)
 			        .Where(a => a.Account.FixApiAccountId.HasValue)
 			        .Where(a => a.Account.Connector is FixApiIntegration.Connector)
+			        .Where(a => !string.IsNullOrWhiteSpace(a.Symbol))
 			        .ToList();
 
 		        foreach (var aggAccount in aggAccounts)

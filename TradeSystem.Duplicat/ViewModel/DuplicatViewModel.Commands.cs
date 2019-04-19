@@ -32,46 +32,72 @@ namespace TradeSystem.Duplicat.ViewModel
 
 	    public async void QuickStartCommand()
 		{
-			IsLoading = true;
-			IsConfigReadonly = true;
+			try
+			{
+				IsLoading = true;
+				IsConfigReadonly = true;
 
-			await _orchestrator.Connect(_duplicatContext);
-			await _orchestrator.StartCopiers(_duplicatContext);
-			await _orchestrator.StartTickers(_duplicatContext);
-			await _orchestrator.StartStrategies(_duplicatContext);
+				await _orchestrator.Connect(_duplicatContext);
+				await _orchestrator.StartCopiers(_duplicatContext);
+				await _orchestrator.StartTickers(_duplicatContext);
+				await _orchestrator.StartStrategies(_duplicatContext);
 
-			AreCopiersStarted = true;
-			AreTickersStarted = true;
-			AreStrategiesStarted = true;
-			IsLoading = false;
-			IsConfigReadonly = true;
-			IsConnected = true;
+				AreCopiersStarted = true;
+				AreTickersStarted = true;
+				AreStrategiesStarted = true;
+				IsLoading = false;
+				IsConfigReadonly = true;
+				IsConnected = true;
+			}
+			catch (Exception e)
+			{
+				Logger.Error("DuplicatViewModel.QuickStartCommand exception", e);
+				DisconnectCommand();
+			}
 		}
 		public async void ConnectCommand()
         {
-            IsLoading = true;
-            IsConfigReadonly = true;
-			await _orchestrator.Connect(_duplicatContext);
+	        try
+	        {
+		        IsLoading = true;
+		        IsConfigReadonly = true;
+		        await _orchestrator.Connect(_duplicatContext);
 
-			IsLoading = false;
-			IsConfigReadonly = true;
-			IsConnected = true;
+		        IsLoading = false;
+		        IsConfigReadonly = true;
+		        IsConnected = true;
+	        }
+	        catch (Exception e)
+	        {
+		        Logger.Error("DuplicatViewModel.ConnectCommand exception", e);
+		        DisconnectCommand();
+	        }
         }
 		public async void DisconnectCommand()
         {
-            StopCopiersCommand();
-			StopTickersCommand();
-	        StopStrategiesCommand();
+	        try
+	        {
+		        StopCopiersCommand();
+		        StopTickersCommand();
+		        StopStrategiesCommand();
 
-			IsLoading = true;
-            IsConfigReadonly = true;
-			await _orchestrator.Disconnect();
-	        if (SelectedPushing != null) SelectedPushing.LastFeedTick = null;
+		        IsLoading = true;
+		        IsConfigReadonly = true;
+		        await _orchestrator.Disconnect();
+		        if (SelectedPushing != null) SelectedPushing.LastFeedTick = null;
 
-			IsLoading = false;
-			IsConfigReadonly = false;
-			IsConnected = false;
-		}
+		        IsLoading = false;
+		        IsConfigReadonly = false;
+		        IsConnected = false;
+	        }
+	        catch (Exception e)
+	        {
+		        Logger.Error("DuplicatViewModel.DisconnectCommand exception", e);
+		        IsLoading = false;
+		        IsConfigReadonly = false;
+		        IsConnected = false;
+			}
+        }
 
         public void LoadProfileCommand(Profile profile)
         {

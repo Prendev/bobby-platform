@@ -120,8 +120,10 @@ namespace TradeSystem.Orchestration
 			var hubArbs = duplicatContext.StratHubArbs.Local.ToList();
 			_hubArbService.Start(hubArbs);
 
-			var marketMakers = duplicatContext.MarketMakers.Local.ToList();
+			var marketMakers = duplicatContext.MarketMakers.Local.Where(mm => mm.Type == MarketMaker.MarketMakerTypes.Normal).ToList();
 			_marketMakerService.Start(marketMakers);
+			var antiMarketMakers = duplicatContext.MarketMakers.Local.Where(mm => mm.Type == MarketMaker.MarketMakerTypes.Anti).ToList();
+			_antiMarketMakerService.Start(antiMarketMakers);
 		}
 
 		public void StopStrategies()

@@ -89,6 +89,7 @@ namespace TradeSystem.Duplicat
 			builder.RegisterType<TickerService>().As<ITickerService>();
 			builder.RegisterType<HubArbService>().As<IHubArbService>();
 			builder.RegisterType<MarketMakerService>().As<IMarketMakerService>();
+			builder.RegisterType<AntiMarketMakerService>().As<IAntiMarketMakerService>();
 			builder.RegisterType<MtAccountImportService>().As<IMtAccountImportService>();
 			builder.RegisterType<ProxyService>().As<IProxyService>();
 		}

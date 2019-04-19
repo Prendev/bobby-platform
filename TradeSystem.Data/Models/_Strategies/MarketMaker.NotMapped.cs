@@ -6,9 +6,21 @@ using TradeSystem.Common.Integration;
 
 namespace TradeSystem.Data.Models
 {
-
 	public partial class MarketMaker
 	{
+		public class Level
+		{
+			public LimitResponse LongOpenLimitResponse { get; set; }
+			public OrderResponse LongOpenOrderResponse { get; set; }
+			public LimitResponse LongCloseLimitResponse { get; set; }
+			public bool LongFilled => LongOpenOrderResponse != null || (LongOpenLimitResponse?.FilledQuantity ?? 0) > 0;
+
+			public LimitResponse ShortOpenLimitResponse { get; set; }
+			public OrderResponse ShortOpenOrderResponse { get; set; }
+			public LimitResponse ShortCloseLimitResponse { get; set; }
+			public bool ShortFilled => ShortOpenOrderResponse != null || (ShortOpenLimitResponse?.FilledQuantity ?? 0) > 0;
+		}
+
 		public event EventHandler<NewTick> FeedNewTick;
 		public event EventHandler<LimitFill> LimitFill;
 
@@ -22,11 +34,12 @@ namespace TradeSystem.Data.Models
 		private volatile bool _isBusy;
 
 
-		[NotMapped] [InvisibleColumn] public decimal? LongBase { get; set; }
-		[NotMapped] [InvisibleColumn] public decimal? ShortBase { get; set; }
-		[NotMapped] [InvisibleColumn] public decimal? MinLongLimit { get; set; }
-		[NotMapped] [InvisibleColumn] public decimal? MaxShortLimit { get; set; }
-		[NotMapped] [InvisibleColumn] public readonly ConcurrentBag<LimitResponse> Limits = new ConcurrentBag<LimitResponse>();
+		[NotMapped] [InvisibleColumn] public decimal? BottomBase { get; set; }
+		[NotMapped] [InvisibleColumn] public decimal? TopBase { get; set; }
+		[NotMapped] [InvisibleColumn] public decimal? LowestLimit { get; set; }
+		[NotMapped] [InvisibleColumn] public decimal? HighestLimit { get; set; }
+		[NotMapped] [InvisibleColumn] public readonly ConcurrentBag<LimitResponse> MarketMakerLimits = new ConcurrentBag<LimitResponse>();
+		[NotMapped] [InvisibleColumn] public readonly ConcurrentDictionary<int, Level> AntiLevels = new ConcurrentDictionary<int, Level>();
 
 		public MarketMaker()
 		{
