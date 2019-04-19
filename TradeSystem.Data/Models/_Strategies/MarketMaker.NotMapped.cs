@@ -11,14 +11,10 @@ namespace TradeSystem.Data.Models
 		public class Level
 		{
 			public LimitResponse LongOpenLimitResponse { get; set; }
-			public OrderResponse LongOpenOrderResponse { get; set; }
 			public LimitResponse LongCloseLimitResponse { get; set; }
-			public bool LongFilled => LongOpenOrderResponse != null || (LongOpenLimitResponse?.FilledQuantity ?? 0) > 0;
 
 			public LimitResponse ShortOpenLimitResponse { get; set; }
-			public OrderResponse ShortOpenOrderResponse { get; set; }
 			public LimitResponse ShortCloseLimitResponse { get; set; }
-			public bool ShortFilled => ShortOpenOrderResponse != null || (ShortOpenLimitResponse?.FilledQuantity ?? 0) > 0;
 		}
 
 		public event EventHandler<NewTick> FeedNewTick;
@@ -32,7 +28,6 @@ namespace TradeSystem.Data.Models
 			set => _isBusy = value;
 		}
 		private volatile bool _isBusy;
-
 
 		[NotMapped] [InvisibleColumn] public decimal? BottomBase { get; set; }
 		[NotMapped] [InvisibleColumn] public decimal? TopBase { get; set; }

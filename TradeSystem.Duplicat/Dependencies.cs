@@ -40,7 +40,12 @@ namespace TradeSystem.Duplicat
 	    private static void RegisterLoggers()
 	    {
 		    Logger.AddLogger(new LogAdapter(LogManager.GetLogger("General")),
-			    filePathExclude: new[] {"TradeSystem.Communication" });
+			    filePathExclude: new[]
+			    {
+				    "TradeSystem.Communication",
+				    @"TradeSystem.Orchestration\Services\CopyLogger",
+				    @"TradeSystem.FixApiIntegration\FillLogger"
+			    });
 		    Logger.AddLogger(new LogAdapter(LogManager.GetLogger("FIX")),
 			    filePathInclude: new[] { "TradeSystem.Communication" });
 		    Logger.AddLogger(new LogAdapter(LogManager.GetLogger("FIX copy")),

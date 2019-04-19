@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using TradeSystem.Collections;
 using TradeSystem.Common.Integration;
 using TradeSystem.Data.Models;
@@ -83,6 +83,8 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			_queues.TryRemove(set.Id, out queue);
 
 			set.State = MarketMaker.MarketMakerStates.None;
+			set.NextBottomDepth = 0;
+			set.NextTopDepth = 0;
 		}
 
 		private void InitBases(MarketMaker set)
@@ -111,11 +113,19 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			if (set.State != MarketMaker.MarketMakerStates.Trade) return;
 			if (!newTick.Tick.HasValue) return;
 
-			CheckClose(set, newTick.Tick);
-			CheckOpen(set, newTick.Tick);
+			_queues.GetOrAdd(set.Id, new FastBlockingCollection<Action>()).Add(() => Check(set));
 		}
 
-		private void CheckClose(MarketMaker set, Tick tick)
+		private void Check(MarketMaker set)
+		{
+			lock (set)
+			{
+				//CheckClose(set, tick);
+				CheckOpen(set);
+			}
+		}
+
+		/*private void CheckClose(MarketMaker set, Tick tick)
 		{
 			foreach (var level in set.AntiLevels.OrderByDescending(l => l.Key).ToList())
 			{
@@ -226,58 +236,80 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			{
 				Logger.Error("AntiMarketMakerService.ShortClose exception", e);
 			}
-		}
+		}*/
 
-
-		private void CheckOpen(MarketMaker set, Tick tick)
+		private void CheckOpen(MarketMaker set)
 		{
-			var d = 0;
+			var d = set.NextTopDepth;
 			while (set.MaxDepth <= 0 || d < set.MaxDepth)
-				if (CheckLongOpen(set, tick, d)) break;
+			{
+				if (_cancellation.IsCancellationRequested) return;
+				if (!set.TopBase.HasValue) break;
+				var limit = set.TopBase.Value + d * set.LimitGapsInTick * set.TickSize;
+				var lastTick = set.FeedAccount.GetLastTick(set.FeedSymbol);
+				if (lastTick.Ask < limit) break;
+				if (lastTick.Ask == limit && set.DomTrigger > 0 && lastTick.AskVolume > set.DomTrigger) break;
+
+				CheckLongOpen(set, d).Wait();
+				d++;
+			}
+			d = set.NextBottomDepth;
 			while (set.MaxDepth <= 0 || d < set.MaxDepth)
-				if (CheckShortOpen(set, tick, d)) break;
-		}
-		private bool CheckLongOpen(MarketMaker set, Tick tick, int d)
-		{
-			if (!set.TopBase.HasValue) return true;
-			var price = set.TopBase.Value + d * set.LimitGapsInTick * set.TickSize;
-			if (tick.Ask < price) return true;
-			if (tick.Ask == price && set.DomTrigger > 0 && tick.AskVolume > set.DomTrigger) return true;
+			{
+				if (_cancellation.IsCancellationRequested) return;
+				if (!set.BottomBase.HasValue) break;
+				var limit = set.BottomBase.Value - d * set.LimitGapsInTick * set.TickSize;
+				var lastTick = set.FeedAccount.GetLastTick(set.FeedSymbol);
+				if (lastTick.Bid > limit) break;
+				if (lastTick.Bid == limit && set.DomTrigger > 0 && lastTick.BidVolume > set.DomTrigger) break;
 
-			var level = set.AntiLevels.GetOrAdd(d, new MarketMaker.Level());
-			if (level.LongOpenOrderResponse?.IsFilled == true) return false;
-			if (level.LongOpenLimitResponse?.FilledQuantity > 0) return false;
-
-			_queues.GetOrAdd(set.Id, new FastBlockingCollection<Action>()).Add(() => LongOpen(set, level, price));
-			return false;
+				CheckShortOpen(set, d).Wait();
+				d++;
+			}
 		}
-		private async void LongOpen(MarketMaker set, MarketMaker.Level level, decimal limit)
+		private async Task CheckLongOpen(MarketMaker set, int d)
 		{
 			try
 			{
+				var limit = set.TopBase.Value + d * set.LimitGapsInTick * set.TickSize;
 				var lastTick = set.FeedAccount.GetLastTick(set.FeedSymbol);
-				var price = lastTick.Ask;
-				if (price < limit) return;
-				if (price == limit && set.DomTrigger > 0 && lastTick.AskVolume > set.DomTrigger) return;
 				var connector = (FixApiConnectorBase) set.TradeAccount.Connector;
+				var level = set.AntiLevels.GetOrAdd(d, new MarketMaker.Level());
 
-				if (price < limit + set.MarketThresholdInTick * set.TickSize)
+				if (lastTick.Ask < limit + set.MarketThresholdInTick * set.TickSize)
 				{
-					if (level.LongOpenLimitResponse != null) return;
-					if (level.LongOpenOrderResponse != null) return;
-					level.LongOpenLimitResponse = await connector.PutNewOrderRequest(set.TradeSymbol, Sides.Buy, set.ContractSize, limit);
+					if (level.LongOpenLimitResponse != null)
+					{
+						if (level.LongOpenLimitResponse.RemainingQuantity != 0) return;
+						set.NextTopDepth++;
+						level.LongOpenLimitResponse = null;
+					}
+					else level.LongOpenLimitResponse = await connector.PutNewOrderRequest(set.TradeSymbol, Sides.Buy, set.ContractSize, limit);
 				}
 				// Switch to market
 				else
 				{
-					if (level.LongOpenOrderResponse != null) return;
-					if (level.LongOpenLimitResponse != null && level.LongOpenLimitResponse.FilledQuantity != 0) return;
-					if (level.LongOpenLimitResponse != null && !(await connector.CancelLimit(level.LongOpenLimitResponse))) return;
-					level.LongOpenLimitResponse = null;
+					if (level.LongOpenLimitResponse != null)
+					{
+						if (level.LongOpenLimitResponse.RemainingQuantity == 0)
+						{
+							set.NextTopDepth++;
+							level.LongOpenLimitResponse = null;
+							return;
+						}
 
+						if (!(await connector.CancelLimit(level.LongOpenLimitResponse))) return;
+						if (level.LongOpenLimitResponse.FilledQuantity != 0)
+						{
+							set.NextTopDepth++;
+							level.LongOpenLimitResponse = null;
+							return;
+						}
+						level.LongOpenLimitResponse = null;
+					}
 					var orderResponse = await connector.SendMarketOrderRequest(set.TradeSymbol, Sides.Buy, set.ContractSize);
 					if (!orderResponse.IsFilled) return;
-					level.LongOpenOrderResponse = orderResponse;
+					set.NextTopDepth++;
 				}
 			}
 			catch (Exception e)
@@ -285,48 +317,49 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				Logger.Error("AntiMarketMakerService.LongOpen exception", e);
 			}
 		}
-
-		private bool CheckShortOpen(MarketMaker set, Tick tick, int d)
-		{
-			if (!set.BottomBase.HasValue) return true;
-			var price = set.BottomBase.Value - d * set.LimitGapsInTick * set.TickSize;
-			if (tick.Bid > price) return true;
-			if (tick.Bid == price && set.DomTrigger > 0 && tick.BidVolume > set.DomTrigger) return true;
-
-			var level = set.AntiLevels.GetOrAdd(d, new MarketMaker.Level());
-			if (level.ShortOpenOrderResponse?.IsFilled == true) return false;
-			if (level.ShortOpenLimitResponse?.FilledQuantity > 0) return false;
-
-			_queues.GetOrAdd(set.Id, new FastBlockingCollection<Action>()).Add(() => ShortOpen(set, level, price));
-			return false;
-		}
-		private async void ShortOpen(MarketMaker set, MarketMaker.Level level, decimal limit)
+		private async Task CheckShortOpen(MarketMaker set, int d)
 		{
 			try
 			{
+				var limit = set.BottomBase.Value - d * set.LimitGapsInTick * set.TickSize;
 				var lastTick = set.FeedAccount.GetLastTick(set.FeedSymbol);
-				var price = lastTick.Bid;
-				if (price < limit) return;
-				if (price == limit && set.DomTrigger > 0 && lastTick.BidVolume > set.DomTrigger) return;
 				var connector = (FixApiConnectorBase)set.TradeAccount.Connector;
+				var level = set.AntiLevels.GetOrAdd(d, new MarketMaker.Level());
 
-				if (price > limit - set.MarketThresholdInTick * set.TickSize)
+				if (lastTick.Bid > limit - set.MarketThresholdInTick * set.TickSize)
 				{
-					if (level.ShortOpenLimitResponse != null) return;
-					if (level.ShortOpenOrderResponse != null) return;
-					level.ShortOpenLimitResponse = await connector.PutNewOrderRequest(set.TradeSymbol, Sides.Sell, set.ContractSize, limit);
+					if (level.ShortOpenLimitResponse != null)
+					{
+						if (level.ShortOpenLimitResponse.RemainingQuantity != 0) return;
+						set.NextBottomDepth++;
+						level.ShortOpenLimitResponse = null;
+					}
+					else level.ShortOpenLimitResponse = await connector.PutNewOrderRequest(set.TradeSymbol, Sides.Sell, set.ContractSize, limit);
 				}
 				// Switch to market
 				else
 				{
-					if (level.ShortOpenOrderResponse != null) return;
-					if (level.ShortOpenLimitResponse != null && level.ShortOpenLimitResponse.FilledQuantity != 0) return;
-					if (level.ShortOpenLimitResponse != null && !(await connector.CancelLimit(level.ShortOpenLimitResponse))) return;
-					level.ShortOpenLimitResponse = null;
+					if (level.ShortOpenLimitResponse != null)
+					{
+						if (level.ShortOpenLimitResponse.RemainingQuantity == 0)
+						{
+							set.NextBottomDepth++;
+							level.ShortOpenLimitResponse = null;
+							return;
+						}
 
+						if (!(await connector.CancelLimit(level.ShortOpenLimitResponse))) return;
+						if (level.ShortOpenLimitResponse.FilledQuantity != 0)
+						{
+							set.NextBottomDepth++;
+							level.ShortOpenLimitResponse = null;
+							return;
+						}
+						level.ShortOpenLimitResponse = null;
+					}
 					var orderResponse = await connector.SendMarketOrderRequest(set.TradeSymbol, Sides.Sell, set.ContractSize);
 					if (!orderResponse.IsFilled) return;
-					level.ShortOpenOrderResponse = orderResponse;
+					set.NextBottomDepth++;
 				}
 			}
 			catch (Exception e)

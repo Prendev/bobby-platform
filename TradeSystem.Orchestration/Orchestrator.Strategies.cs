@@ -130,6 +130,7 @@ namespace TradeSystem.Orchestration
 		{
 			_hubArbService.Stop();
 			_marketMakerService.Stop();
+			_antiMarketMakerService.Stop();
 		}
 
 		public async Task HubArbsGoFlat(DuplicatContext duplicatContext)

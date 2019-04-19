@@ -449,6 +449,7 @@ namespace TradeSystem.FixApiIntegration
 				if (response.RemainingQuantity == 0) return true;
 				if (!_limitOrderMapping.TryGetValue(response, out lastOrderStatus)) return false;
 				if (lastOrderStatus.OrderType != OrderType.Limit) return false;
+				if (lastOrderStatus.Status == OrderStatus.Canceled || lastOrderStatus.Status == OrderStatus.Accepted) return true;
 
 				var result = await GeneralConnector.CancelOrderAsync(lastOrderStatus.OrderId);
 				return result.Status == OrderStatus.Canceled || result.Status == OrderStatus.Accepted;
@@ -556,7 +557,6 @@ namespace TradeSystem.FixApiIntegration
 					oldValue.SumContracts += quantity;
 					return oldValue;
 				});
-			throw new NotImplementedException();
 		}
 
 		private void CheckNewPosition(OrderStatusReport r)
