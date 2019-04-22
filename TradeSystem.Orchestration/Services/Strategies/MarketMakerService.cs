@@ -48,14 +48,14 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 		private void SetLoop(MarketMaker set, CancellationToken token)
 		{
-			set.FeedNewTick -= Set_FeedNewTick;
+			set.NewTick -= Set_FeedNewTick;
 			set.LimitFill -= Set_LimitFill;
 			var queue = _queues.GetOrAdd(set.Id, new FastBlockingCollection<Action>());
 
-			if(!set.InitBidPrice.HasValue && set.FeedAccount != null)
+			if(!set.InitBidPrice.HasValue && set.Account != null)
 			{
-				set.FeedNewTick += Set_FeedNewTick;
-				set.FeedAccount?.Connector.Subscribe(set.FeedSymbol);
+				set.NewTick += Set_FeedNewTick;
+				set.Account.Connector.Subscribe(set.Symbol);
 			}
 
 			while (!token.IsCancellationRequested)
@@ -86,7 +86,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				}
 			}
 
-			set.FeedNewTick -= Set_FeedNewTick;
+			set.NewTick -= Set_FeedNewTick;
 			set.LimitFill -= Set_LimitFill;
 			_queues.TryRemove(set.Id, out queue);
 
@@ -96,7 +96,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 		private void ClearLimits(MarketMaker set)
 		{
-			var connector = (FixApiConnectorBase)set.TradeAccount.Connector;
+			var connector = (FixApiConnectorBase)set.Account.Connector;
 
 			var i = 0;
 			while (set.MarketMakerLimits.TryTake(out var limit))
@@ -144,9 +144,9 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			set.LimitFill -= Set_LimitFill;
 			set.LimitFill += Set_LimitFill;
 
-			var connector = (FixApiConnectorBase)set.TradeAccount.Connector;
-			var bid = set.InitBidPrice.HasValue ? set.InitBidPrice.Value : set.FeedAccount.GetLastTick(set.FeedSymbol).Bid;
-			var ask = set.InitBidPrice.HasValue ? (set.InitBidPrice.Value + set.TickSize) : set.FeedAccount.GetLastTick(set.FeedSymbol).Ask;
+			var connector = (FixApiConnectorBase)set.Account.Connector;
+			var bid = set.InitBidPrice.HasValue ? set.InitBidPrice.Value : set.Account.GetLastTick(set.Symbol).Bid;
+			var ask = set.InitBidPrice.HasValue ? (set.InitBidPrice.Value + set.TickSize) : set.Account.GetLastTick(set.Symbol).Ask;
 			set.BottomBase = bid - set.InitialDistanceInTick * set.TickSize;
 			set.TopBase = ask + set.InitialDistanceInTick * set.TickSize;
 			set.LowestLimit = null;
@@ -154,7 +154,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 			var gap = set.LimitGapsInTick * set.TickSize;
 			var quant = set.ContractSize;
-			var sym = set.TradeSymbol;
+			var sym = set.Symbol;
 			for (var i = 0; i < set.InitDepth; i++)
 			{
 				if (i > 0 && set.ThrottlingLimit > 0 && i % (set.ThrottlingLimit / 2) == 0)
@@ -202,8 +202,8 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 		private async void PostLimitFill(MarketMaker set, LimitFill limitFill)
 		{
-			var connector = (FixApiConnectorBase)set.TradeAccount.Connector;
-			var sym = set.TradeSymbol;
+			var connector = (FixApiConnectorBase)set.Account.Connector;
+			var sym = set.Symbol;
 			var quant = limitFill.Quantity;
 			var tp = set.TpOrSlInTick * set.TickSize;
 			var gap = set.LimitGapsInTick * set.TickSize;

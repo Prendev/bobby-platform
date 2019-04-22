@@ -28,8 +28,7 @@ namespace TradeSystem.Duplicat.Views
 
 		public void AttachDataSources()
 		{
-			dgvMarketMaker.AddComboBoxColumn(_viewModel.Accounts, "FeedAccount");
-			dgvMarketMaker.AddComboBoxColumn(_viewModel.Accounts, "TradeAccount");
+			dgvMarketMaker.AddComboBoxColumn(_viewModel.Accounts);
 			dgvMarketMaker.DataSource = _viewModel.MarketMakers;
 		}
 	}

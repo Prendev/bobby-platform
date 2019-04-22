@@ -17,7 +17,7 @@ namespace TradeSystem.Data.Models
 			public LimitResponse ShortCloseLimitResponse { get; set; }
 		}
 
-		public event EventHandler<NewTick> FeedNewTick;
+		public event EventHandler<NewTick> NewTick;
 		public event EventHandler<LimitFill> LimitFill;
 
 		[NotMapped]
@@ -38,16 +38,16 @@ namespace TradeSystem.Data.Models
 
 		public MarketMaker()
 		{
-			SetAction<Account>(nameof(FeedAccount),
-				a => { if (a != null) a.NewTick -= FeedAccount_NewTick; },
-				a => { if (a != null) a.NewTick += FeedAccount_NewTick; });
+			SetAction<Account>(nameof(Account),
+				a => { if (a != null) a.NewTick -= Account_NewTick; },
+				a => { if (a != null) a.NewTick += Account_NewTick; });
 
-			SetAction<Account>(nameof(TradeAccount),
-				a => { if (a != null) a.LimitFill -= TradeAccount_LimitFill; },
-				a => { if (a != null) a.LimitFill += TradeAccount_LimitFill; });
+			SetAction<Account>(nameof(Account),
+				a => { if (a != null) a.LimitFill -= Account_LimitFill; },
+				a => { if (a != null) a.LimitFill += Account_LimitFill; });
 		}
 
-		private void FeedAccount_NewTick(object sender, NewTick newTick) => FeedNewTick?.Invoke(this, newTick);
-		private void TradeAccount_LimitFill(object sender, LimitFill limitFill) => LimitFill?.Invoke(this, limitFill);
+		private void Account_NewTick(object sender, NewTick newTick) => NewTick?.Invoke(this, newTick);
+		private void Account_LimitFill(object sender, LimitFill limitFill) => LimitFill?.Invoke(this, limitFill);
 	}
 }

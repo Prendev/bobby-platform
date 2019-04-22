@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using TradeSystem.Common.Attributes;
 
 namespace TradeSystem.Data.Models
@@ -29,17 +30,13 @@ namespace TradeSystem.Data.Models
 		public MarketMakerStates State { get => Get<MarketMakerStates>(); set => Set(value); }
 		public MarketMakerTypes Type { get => Get<MarketMakerTypes>(); set => Set(value); }
 
-		public int? FeedAccountId { get; set; }
-		public Account FeedAccount { get => Get<Account>(); set => Set(value); }
-		[Required] public string FeedSymbol { get; set; }
-
 		public decimal? InitBidPrice { get; set; }
 
-		public int TradeAccountId { get; set; }
-		public Account TradeAccount { get => Get<Account>(); set => Set(value); }
-		[Required] public string TradeSymbol { get; set; }
+		public int AccountId { get; set; }
+		public Account Account { get => Get<Account>(); set => Set(value); }
+		[Required] public string Symbol { get; set; }
 
-		public int ContractSize { get; set; }
+		[NotMapped] [ReadOnly(true)] public int ContractSize { get; set; } = 1;
 
 		public int MaxDepth { get; set; }
 		public int InitDepth { get; set; }
