@@ -111,7 +111,6 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 			if (!set.Run) return;
 			if (set.State != MarketMaker.MarketMakerStates.Trade) return;
-			if (!newTick.Tick.HasValue) return;
 
 			_queues.GetOrAdd(set.Id, new FastBlockingCollection<Action>()).Add(() => Check(set));
 		}
