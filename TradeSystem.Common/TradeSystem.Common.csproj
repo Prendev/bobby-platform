@@ -113,6 +113,7 @@
     <Compile Include="Integration\LimitFill.cs" />
     <Compile Include="Integration\LimitResponse.cs" />
     <Compile Include="Integration\OrderResponse.cs" />
+    <Compile Include="Integration\StopResponse.cs" />
     <Compile Include="Integration\SymbolData.cs" />
     <Compile Include="Integration\Tick.cs" />
     <Compile Include="Integration\Bar.cs" />

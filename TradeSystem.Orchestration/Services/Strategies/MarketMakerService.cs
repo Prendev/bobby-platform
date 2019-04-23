@@ -52,7 +52,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			set.LimitFill -= Set_LimitFill;
 			var queue = _queues.GetOrAdd(set.Id, new FastBlockingCollection<Action>());
 
-			if(!set.InitBidPrice.HasValue && set.Account != null)
+			if(!set.InitBidPrice.HasValue)
 			{
 				set.NewTick += Set_FeedNewTick;
 				set.Account.Connector.Subscribe(set.Symbol);

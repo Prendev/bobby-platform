@@ -196,6 +196,7 @@
     <Compile Include="Services\ProxyService.cs" />
     <Compile Include="Services\PushingService.cs" />
     <Compile Include="Services\Strategies\AntiMarketMakerService.cs" />
+    <Compile Include="Services\StopOrderService.cs" />
     <Compile Include="Services\TwoWaySpoofingService.cs" />
     <Compile Include="Services\Strategies\HubArbService.SendPosition.cs" />
     <Compile Include="Services\Strategies\HubArbService.Opening.cs" />

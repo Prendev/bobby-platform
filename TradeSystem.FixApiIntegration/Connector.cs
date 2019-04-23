@@ -449,10 +449,11 @@ namespace TradeSystem.FixApiIntegration
 				if (response.RemainingQuantity == 0) return true;
 				if (!_limitOrderMapping.TryGetValue(response, out lastOrderStatus)) return false;
 				if (lastOrderStatus.OrderType != OrderType.Limit) return false;
-				if (lastOrderStatus.Status == OrderStatus.Canceled || lastOrderStatus.Status == OrderStatus.Accepted) return true;
+				if (lastOrderStatus.Status == OrderStatus.Canceled) return true;
 
 				var result = await GeneralConnector.CancelOrderAsync(lastOrderStatus.OrderId);
-				return result.Status == OrderStatus.Canceled || result.Status == OrderStatus.Accepted;
+				if (result.CumulativeQuantity.HasValue) response.FilledQuantity = Math.Abs(result.CumulativeQuantity.Value);
+				return result.Status == OrderStatus.Canceled;
 			}
 			catch (Exception e)
 			{
