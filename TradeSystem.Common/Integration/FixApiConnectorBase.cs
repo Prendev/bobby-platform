@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
+using TradeSystem.Communication;
 
 namespace TradeSystem.Common.Integration
 {
@@ -44,6 +45,9 @@ namespace TradeSystem.Common.Integration
 
 		public virtual Task<LimitResponse> PutNewOrderRequest(string symbol, Sides side, decimal quantity,
 			decimal limitPrice) => throw new NotImplementedException();
+
+		public virtual OrderStatusReport GetOrderStatusReport(LimitResponse response) =>
+			throw new NotImplementedException();
 
 		public virtual Task<bool> ChangeLimitPrice(LimitResponse response, decimal limitPrice) => throw new NotImplementedException();
 		public virtual Task<bool> CancelLimit(LimitResponse response) => throw new NotImplementedException();

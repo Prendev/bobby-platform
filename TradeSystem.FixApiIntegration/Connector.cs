@@ -453,6 +453,8 @@ namespace TradeSystem.FixApiIntegration
 
 				var result = await GeneralConnector.CancelOrderAsync(lastOrderStatus.OrderId);
 				if (result.CumulativeQuantity.HasValue) response.FilledQuantity = Math.Abs(result.CumulativeQuantity.Value);
+				Logger.Debug(
+					$"{Description} Connector.CancelLimit({lastOrderStatus.OrderId}) with status {OrderStatus.Canceled}");
 				return result.Status == OrderStatus.Canceled;
 			}
 			catch (Exception e)
@@ -461,6 +463,21 @@ namespace TradeSystem.FixApiIntegration
 					Logger.Error($"{Description} Connector.CancelLimit({lastOrderStatus?.OrderId}) too late to cancel");
 				else Logger.Error($"{Description} Connector.CancelLimit({lastOrderStatus?.OrderId}) exception", e);
 				return false;
+			}
+		}
+
+		public override OrderStatusReport GetOrderStatusReport(LimitResponse response)
+		{
+			OrderStatusReport lastOrderStatus = null;
+			try
+			{
+				_limitOrderMapping.TryGetValue(response, out lastOrderStatus);
+				return lastOrderStatus;
+			}
+			catch (Exception e)
+			{
+				Logger.Error($"{Description} Connector.GetOrderStatusReport({lastOrderStatus?.OrderId}) exception", e);
+				return null;
 			}
 		}
 

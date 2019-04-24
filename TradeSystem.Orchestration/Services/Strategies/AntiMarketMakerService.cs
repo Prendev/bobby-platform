@@ -126,29 +126,15 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			var market = set.MarketThresholdInTick * set.TickSize;
 			for (var i = 0; i < set.InitDepth; i++)
 			{
-				try
-				{
-					var buy = _stopOrderService.SendStopOrder(set, Sides.Buy, set.TopBase.Value + i * gap,
-						set.TopBase.Value + i * gap + market);
-					set.HighestLimit = Math.Max(buy.StopPrice, set.HighestLimit ?? buy.StopPrice);
-					set.AntiMarketMakerStops.Add(buy);
-				}
-				catch (Exception e)
-				{
-					Logger.Error("AntiMarketMakerService.InitLimits exception", e);
-				}
+				var buy = _stopOrderService.SendStopOrder(set, Sides.Buy, set.TopBase.Value + i * gap,
+					set.TopBase.Value + i * gap + market);
+				set.HighestLimit = Math.Max(buy.StopPrice, set.HighestLimit ?? buy.StopPrice);
+				set.AntiMarketMakerStops.Add(buy);
 
-				try
-				{
-					var sell = _stopOrderService.SendStopOrder(set, Sides.Sell, set.BottomBase.Value - i * gap,
-						set.BottomBase.Value - i * gap - market);
-					set.LowestLimit = Math.Min(sell.StopPrice, set.LowestLimit ?? sell.StopPrice);
-					set.AntiMarketMakerStops.Add(sell);
-				}
-				catch (Exception e)
-				{
-					Logger.Error("AntiMarketMakerService.InitLimits exception", e);
-				}
+				var sell = _stopOrderService.SendStopOrder(set, Sides.Sell, set.BottomBase.Value - i * gap,
+					set.BottomBase.Value - i * gap - market);
+				set.LowestLimit = Math.Min(sell.StopPrice, set.LowestLimit ?? sell.StopPrice);
+				set.AntiMarketMakerStops.Add(sell);
 			}
 
 			set.State = MarketMaker.MarketMakerStates.Trade;
@@ -168,6 +154,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 		private void PostFill(MarketMaker set, StopResponse response)
 		{
+			Logger.Debug($"{set} AntiMarketMakerService.PostFill {response.Side} at {response.StopPrice} stop price");
 			var stop = set.TpOrSlInTick * set.TickSize;
 			var market = set.MarketThresholdInTick * set.TickSize;
 			var gap = set.LimitGapsInTick * set.TickSize;

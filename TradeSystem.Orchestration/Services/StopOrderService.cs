@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using TradeSystem.Common.Integration;
+using TradeSystem.Communication;
 using TradeSystem.Data.Models;
 
 namespace TradeSystem.Orchestration.Services
@@ -117,61 +116,48 @@ namespace TradeSystem.Orchestration.Services
 
 		private void CheckBuy(MarketMaker set, StopResponse response)
 		{
+			if (response.IsFilled) return;
+			if (response.LimitResponse?.FilledQuantity > 0) return;
 			var lastTick = set.Account.GetLastTick(response.Symbol);
 			if (lastTick.Ask < response.StopPrice) return;
 			if (lastTick.Ask == response.StopPrice && response.DomTrigger > 0 && lastTick.AskVolume > response.DomTrigger) return;
 
 			var connector = (FixApiConnectorBase)set.Account.Connector;
 
-			if (lastTick.Ask < response.MarketPrice)
+			if (response.LimitResponse == null)
+				response.LimitResponse = connector.PutNewOrderRequest(response.Symbol, Sides.Buy, set.ContractSize, lastTick.Ask).Result;
+			else if (lastTick.Ask >= response.MarketPrice && lastTick.Ask > response.LimitResponse.OrderPrice)
 			{
-				if (response.LimitResponse != null) return;
-				response.LimitResponse = connector.PutNewOrderRequest(response.Symbol, Sides.Buy, set.ContractSize, response.StopPrice).Result;
-			}
-			// Switch to market
-			else
-			{
-				if (response.LimitResponse != null)
+				connector.CancelLimit(response.LimitResponse).Wait();
+				var lastStatus = connector.GetOrderStatusReport(response.LimitResponse);
+				if (lastStatus.Status == OrderStatus.Canceled)
 				{
-					if (!connector.CancelLimit(response.LimitResponse).Result) return;
-					if (response.LimitResponse.FilledQuantity != 0)
-						OnFill(set, response);
-					else response.LimitResponse = null;
+					response.LimitResponse = null;
+					CheckBuy(set, response);
 				}
-				var orderResponse = connector.SendMarketOrderRequest(response.Symbol, Sides.Buy, set.ContractSize).Result;
-				if (!orderResponse.IsFilled) return;
-				OnFill(set, response);
 			}
 		}
 
 		private void CheckSell(MarketMaker set, StopResponse response)
 		{
-			lock (response)
+			if (response.IsFilled) return;
+			if (response.LimitResponse?.FilledQuantity > 0) return;
+			var lastTick = set.Account.GetLastTick(response.Symbol);
+			if (lastTick.Bid > response.StopPrice) return;
+			if (lastTick.Bid == response.StopPrice && response.DomTrigger > 0 && lastTick.BidVolume > response.DomTrigger) return;
+
+			var connector = (FixApiConnectorBase)set.Account.Connector;
+
+			if (response.LimitResponse == null)
+				response.LimitResponse = connector.PutNewOrderRequest(response.Symbol, Sides.Sell, set.ContractSize, lastTick.Bid).Result;
+			else if (lastTick.Bid > response.MarketPrice && lastTick.Bid < response.LimitResponse.OrderPrice)
 			{
-				var lastTick = set.Account.GetLastTick(response.Symbol);
-				if (lastTick.Bid > response.StopPrice) return;
-				if (lastTick.Bid == response.StopPrice && response.DomTrigger > 0 && lastTick.BidVolume > response.DomTrigger) return;
-
-				var connector = (FixApiConnectorBase)set.Account.Connector;
-
-				if (lastTick.Bid > response.MarketPrice)
+				connector.CancelLimit(response.LimitResponse).Wait();
+				var lastStatus = connector.GetOrderStatusReport(response.LimitResponse);
+				if (lastStatus.Status == OrderStatus.Canceled)
 				{
-					if (response.LimitResponse != null) return;
-					response.LimitResponse = connector.PutNewOrderRequest(response.Symbol, Sides.Sell, set.ContractSize, response.StopPrice).Result;
-				}
-				// Switch to market
-				else
-				{
-					if (response.LimitResponse != null)
-					{
-						if (!connector.CancelLimit(response.LimitResponse).Result) return;
-						if (response.LimitResponse.FilledQuantity != 0)
-							OnFill(set, response);
-						else response.LimitResponse = null;
-					}
-					var orderResponse = connector.SendMarketOrderRequest(response.Symbol, Sides.Sell, set.ContractSize).Result;
-					if (!orderResponse.IsFilled) return;
-					OnFill(set, response);
+					response.LimitResponse = null;
+					CheckSell(set, response);
 				}
 			}
 		}
@@ -179,11 +165,8 @@ namespace TradeSystem.Orchestration.Services
 		private void OnFill(MarketMaker set, StopResponse response)
 		{
 			if (response == null) return;
-			lock (response)
-			{
-				if(response.IsFilled) return;
-				response.IsFilled = true;
-			}
+			if (response.IsFilled) return;
+			response.IsFilled = true;
 			Fill?.Invoke(set, response);
 		}
 	}
