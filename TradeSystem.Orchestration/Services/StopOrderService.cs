@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using TradeSystem.Common.Integration;
 using TradeSystem.Communication;
@@ -10,9 +11,10 @@ namespace TradeSystem.Orchestration.Services
 {
 	public interface IStopOrderService
 	{
-		StopResponse SendStopOrder(MarketMaker set, Sides side, decimal stopPrice, decimal marketPrice);
-		void Stop();
+		void Start(MarketMaker set);
+		StopResponse SendStopOrder(MarketMaker set, Sides side, decimal stopPrice, decimal marketPrice, string desc);
 		void ClearLimits(MarketMaker set);
+		void Stop();
 		event EventHandler<StopResponse> Fill;
 	}
 
@@ -20,8 +22,50 @@ namespace TradeSystem.Orchestration.Services
 	{
 		private readonly ConcurrentDictionary<MarketMaker, ConcurrentBag<StopResponse>> _stopOrders =
 			new ConcurrentDictionary<MarketMaker, ConcurrentBag<StopResponse>>();
+		private readonly ConcurrentDictionary<LimitResponse, StopResponse> _limitMapping =
+			new ConcurrentDictionary<LimitResponse, StopResponse>();
 
 		public event EventHandler<StopResponse> Fill;
+
+		public void Start(MarketMaker set)
+		{
+			set.NewTick -= Set_NewTick;
+			set.NewTick += Set_NewTick;
+			set.LimitFill -= Set_LimitFill;
+			set.LimitFill += Set_LimitFill;
+		}
+
+		public StopResponse SendStopOrder(MarketMaker set, Sides side, decimal stopPrice, decimal marketPrice, string desc)
+		{
+			lock (_stopOrders)
+			{
+				var stopOrders = _stopOrders.GetOrAdd(set, new ConcurrentBag<StopResponse>());
+				var stopResponse = new StopResponse()
+				{
+					Symbol = set.Symbol,
+					Side = side,
+					StopPrice = stopPrice,
+					MarketPrice = marketPrice,
+					DomTrigger = set.DomTrigger,
+					Description = desc
+				};
+				stopOrders.Add(stopResponse);
+
+				Logger.Debug($"{set} StopOrderService.SendStopOrder({side}, {stopPrice}, {marketPrice}, {desc})");
+				return stopResponse;
+			}
+		}
+
+		public void ClearLimits(MarketMaker set)
+		{
+			lock (_stopOrders)
+			{
+				if (!_stopOrders.TryGetValue(set, out var orders)) return;
+				if (orders.IsEmpty) return;
+				Logger.Debug($"{set} StopOrderService.ClearLimits");
+				while (orders.TryTake(out var _)) ;
+			}
+		}
 
 		public void Stop()
 		{
@@ -31,43 +75,9 @@ namespace TradeSystem.Orchestration.Services
 				{
 					stopOrder.Key.NewTick -= Set_NewTick;
 					stopOrder.Key.LimitFill -= Set_LimitFill;
-					Logger.Debug($"{stopOrder.Key.Account} StopOrderService.Stop({stopOrder.Key})");
+					Logger.Debug($"{stopOrder.Key} StopOrderService.Stop");
 				}
 				_stopOrders.Clear();
-			}
-		}
-
-		public void ClearLimits(MarketMaker set)
-		{
-			lock (_stopOrders)
-			{
-				if (!_stopOrders.TryGetValue(set, out var orders)) return;
-				while (orders.TryTake(out var _)) ;
-			}
-		}
-
-		public StopResponse SendStopOrder(MarketMaker set, Sides side, decimal stopPrice, decimal marketPrice)
-		{
-			lock (_stopOrders)
-			{
-				set.NewTick -= Set_NewTick;
-				set.NewTick += Set_NewTick;
-				set.LimitFill -= Set_LimitFill;
-				set.LimitFill += Set_LimitFill;
-
-				var stopOrders = _stopOrders.GetOrAdd(set, new ConcurrentBag<StopResponse>());
-				var stopResponse = new StopResponse()
-				{
-					Symbol = set.Symbol,
-					Side = side,
-					StopPrice = stopPrice,
-					MarketPrice = marketPrice,
-					DomTrigger = set.DomTrigger
-				};
-				stopOrders.Add(stopResponse);
-
-				Logger.Debug($"{set.Account} StopOrderService.SendStopOrder({set}, {side}, {stopPrice}, {marketPrice})");
-				return stopResponse;
 			}
 		}
 
@@ -84,20 +94,16 @@ namespace TradeSystem.Orchestration.Services
 			if (!(sender is MarketMaker set)) return;
 			if (set.Token.IsCancellationRequested) return;
 			if (!(set.Account.Connector is FixApiConnectorBase)) return;
-			Task.Run(() => CheckFills(set, e));
-		}
-
-		private void CheckFills(MarketMaker set, LimitFill e)
-		{
-			var responses = _stopOrders.GetOrAdd(set, new ConcurrentBag<StopResponse>());
-			OnFill(set, responses.FirstOrDefault(r => r.LimitResponse == e.LimitResponse));
+			if (e.LimitResponse == null) return;
+			if (!_limitMapping.TryGetValue(e.LimitResponse, out var stopResponse)) return;
+			OnFill(set, stopResponse);
 		}
 
 		private void CheckStopOrders(MarketMaker set)
 		{
 			if (set.Token.IsCancellationRequested) return;
 			var responses = _stopOrders.GetOrAdd(set, new ConcurrentBag<StopResponse>());
-			foreach (var response in responses.Where(o => !o.IsFilled))
+			foreach (var response in responses)
 			{
 				if (set.Token.IsCancellationRequested) return;
 
@@ -125,9 +131,15 @@ namespace TradeSystem.Orchestration.Services
 			var connector = (FixApiConnectorBase)set.Account.Connector;
 
 			if (response.LimitResponse == null)
+			{
 				response.LimitResponse = connector.PutNewOrderRequest(response.Symbol, Sides.Buy, set.ContractSize, lastTick.Ask).Result;
+				if (response.LimitResponse == null) return;
+				_limitMapping.AddOrUpdate(response.LimitResponse, response, (l, s) => response);
+				if (response.LimitResponse.RemainingQuantity == 0) OnFill(set, response);
+			}
 			else if (lastTick.Ask >= response.MarketPrice && lastTick.Ask > response.LimitResponse.OrderPrice)
 			{
+				Logger.Warn($"{set} StopOrderService.CheckBuy.CancelLimit of {response?.StopPrice} stop price - {response.Side} {response.Description}");
 				connector.CancelLimit(response.LimitResponse).Wait();
 				var lastStatus = connector.GetOrderStatusReport(response.LimitResponse);
 				if (lastStatus.Status == OrderStatus.Canceled)
@@ -149,8 +161,13 @@ namespace TradeSystem.Orchestration.Services
 			var connector = (FixApiConnectorBase)set.Account.Connector;
 
 			if (response.LimitResponse == null)
+			{
 				response.LimitResponse = connector.PutNewOrderRequest(response.Symbol, Sides.Sell, set.ContractSize, lastTick.Bid).Result;
-			else if (lastTick.Bid > response.MarketPrice && lastTick.Bid < response.LimitResponse.OrderPrice)
+				if (response.LimitResponse == null) return;
+				_limitMapping.AddOrUpdate(response.LimitResponse, response, (l, s) => response);
+				if (response.LimitResponse.RemainingQuantity == 0) OnFill(set, response);
+			}
+			else if (lastTick.Bid <= response.MarketPrice && lastTick.Bid < response.LimitResponse.OrderPrice)
 			{
 				connector.CancelLimit(response.LimitResponse).Wait();
 				var lastStatus = connector.GetOrderStatusReport(response.LimitResponse);
@@ -165,8 +182,12 @@ namespace TradeSystem.Orchestration.Services
 		private void OnFill(MarketMaker set, StopResponse response)
 		{
 			if (response == null) return;
-			if (response.IsFilled) return;
-			response.IsFilled = true;
+			lock (response)
+			{
+				if (response.IsFilled) return;
+				response.IsFilled = true;
+			}
+			Logger.Info($"{set} StopOrderService.OnFill at {response?.StopPrice} stop price - {response.Side} {response.Description}");
 			Fill?.Invoke(set, response);
 		}
 	}

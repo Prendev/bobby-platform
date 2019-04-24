@@ -350,7 +350,6 @@ namespace TradeSystem.FixApiIntegration
 				if (newOrderStatus.Status == OrderStatus.Rejected)
 					throw new Exception(newOrderStatus.Message);
 
-				GeneralConnector.SubscribeOrderUpdate(newOrderStatus.OrderId, PutNewOrderUpdate, true);
 				var response = new LimitResponse()
 				{
 					Symbol = symbol,
@@ -360,6 +359,7 @@ namespace TradeSystem.FixApiIntegration
 				};
 				_limitOrders.AddOrUpdate(newOrderStatus.OrderId, response, (k, o) => response);
 				_limitOrderMapping.AddOrUpdate(response, newOrderStatus, (k, o) => newOrderStatus);
+				GeneralConnector.SubscribeOrderUpdate(newOrderStatus.OrderId, PutNewOrderUpdate, true);
 
 				Logger.Debug(
 					$"{Description} Connector.PutNewOrderRequest({symbol}, {side}, {quantity}, {limitPrice}) " +
@@ -388,7 +388,8 @@ namespace TradeSystem.FixApiIntegration
 			if (!e.EventData.FulfilledQuantity.HasValue) return;
 			if (!e.EventData.CumulativeQuantity.HasValue) return;
 
-			if (!_limitOrders.TryGetValue(e.EventData.OrderId, out var limitResponse)) return;
+			if (!_limitOrders.TryGetValue(e.EventData.OrderId, out var limitResponse))
+				return;
 			lock (limitResponse) limitResponse.FilledQuantity = Math.Abs(e.EventData.CumulativeQuantity.Value);
 
 			if (!e.EventData.FulfilledPrice.HasValue) return;
