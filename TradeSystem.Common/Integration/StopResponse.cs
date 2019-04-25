@@ -19,7 +19,7 @@
 		public LimitResponse LimitResponse { get; set; }
 		public string Symbol { get; set; }
 		public decimal StopPrice { get; set; }
-		public decimal MarketPrice { get; set; }
+		public decimal AggressivePrice { get; set; }
 		public int DomTrigger { get; set; }
 		public Sides Side { get; set; }
 		public string Description { get; set; }

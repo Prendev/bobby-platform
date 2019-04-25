@@ -45,7 +45,7 @@ namespace TradeSystem.Data.Models
 		[DisplayName("InitDistance")] public int InitialDistanceInTick { get; set; }
 
 		public int DomTrigger { get; set; }
-		[DisplayName("MarketThreshold")] public int MarketThresholdInTick { get; set; }
+		[DisplayName("AggThreshold")] public int AggressiveThresholdInTick { get; set; }
 
 		public decimal TickSize { get; set; }
 

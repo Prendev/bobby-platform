@@ -45,7 +45,7 @@ namespace TradeSystem.Orchestration.Services
 					Symbol = set.Symbol,
 					Side = side,
 					StopPrice = stopPrice,
-					MarketPrice = marketPrice,
+					AggressivePrice = marketPrice,
 					DomTrigger = set.DomTrigger,
 					Description = desc
 				};
@@ -137,15 +137,14 @@ namespace TradeSystem.Orchestration.Services
 				_limitMapping.AddOrUpdate(response.LimitResponse, response, (l, s) => response);
 				if (response.LimitResponse.RemainingQuantity == 0) OnFill(set, response);
 			}
-			else if (lastTick.Ask >= response.MarketPrice && lastTick.Ask > response.LimitResponse.OrderPrice)
+			else if (lastTick.Ask >= response.AggressivePrice && lastTick.Ask > response.LimitResponse.OrderPrice)
 			{
+				Logger.Warn($"{set} StopOrderService.CheckBuy.CancelLimit of {response?.StopPrice} stop price - {response.Side} {response.Description}");
 				connector.CancelLimit(response.LimitResponse).Wait();
 				var lastStatus = connector.GetOrderStatusReport(response.LimitResponse);
-				if (lastStatus.Status == OrderStatus.Canceled)
-				{
-					response.LimitResponse = null;
-					CheckBuy(set, response);
-				}
+				if (lastStatus.Status != OrderStatus.Canceled) return;
+				response.LimitResponse = null;
+				CheckBuy(set, response);
 			}
 		}
 
@@ -166,16 +165,14 @@ namespace TradeSystem.Orchestration.Services
 				_limitMapping.AddOrUpdate(response.LimitResponse, response, (l, s) => response);
 				if (response.LimitResponse.RemainingQuantity == 0) OnFill(set, response);
 			}
-			else if (lastTick.Bid <= response.MarketPrice && lastTick.Bid < response.LimitResponse.OrderPrice)
+			else if (lastTick.Bid <= response.AggressivePrice && lastTick.Bid < response.LimitResponse.OrderPrice)
 			{
 				Logger.Warn($"{set} StopOrderService.CheckSell.CancelLimit of {response?.StopPrice} stop price - {response.Side} {response.Description}");
 				connector.CancelLimit(response.LimitResponse).Wait();
 				var lastStatus = connector.GetOrderStatusReport(response.LimitResponse);
-				if (lastStatus.Status == OrderStatus.Canceled)
-				{
-					response.LimitResponse = null;
-					CheckSell(set, response);
-				}
+				if (lastStatus.Status != OrderStatus.Canceled) return;
+				response.LimitResponse = null;
+				CheckSell(set, response);
 			}
 		}
 
