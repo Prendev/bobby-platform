@@ -85,8 +85,6 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			_queues.TryRemove(set.Id, out queue);
 
 			set.State = MarketMaker.MarketMakerStates.None;
-			set.NextBottomDepth = 0;
-			set.NextTopDepth = 0;
 		}
 
 		private void Set_NewTick(object sender, NewTick newTick)
@@ -129,6 +127,8 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			set.TopBase = ask + set.InitialDistanceInTick * set.TickSize;
 			set.LowestLimit = null;
 			set.HighestLimit = null;
+			while (set.AntiMarketMakerTopStops.TryTake(out _)) ;
+			while (set.AntiMarketMakerBottomStops.TryTake(out _)) ;
 
 			var gap = set.LimitGapsInTick * set.TickSize;
 			var market = set.MarketThresholdInTick * set.TickSize;
@@ -137,12 +137,12 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				var buy = _stopOrderService.SendStopOrder(set, Sides.Buy, set.TopBase.Value + i * gap,
 					set.TopBase.Value + i * gap + market, $"Top{i}");
 				set.HighestLimit = Math.Max(buy.StopPrice, set.HighestLimit ?? buy.StopPrice);
-				set.AntiMarketMakerStops.Add(buy);
+				set.AntiMarketMakerTopStops.Add(buy);
 
 				var sell = _stopOrderService.SendStopOrder(set, Sides.Sell, set.BottomBase.Value - i * gap,
 					set.BottomBase.Value - i * gap - market, $"Bottom{i}");
 				set.LowestLimit = Math.Min(sell.StopPrice, set.LowestLimit ?? sell.StopPrice);
-				set.AntiMarketMakerStops.Add(sell);
+				set.AntiMarketMakerBottomStops.Add(sell);
 			}
 
 			set.State = MarketMaker.MarketMakerStates.Trade;
@@ -154,13 +154,16 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			if (!(sender is MarketMaker set)) return;
 			if (set.Token.IsCancellationRequested) return;
 			if (!set.Run) return;
-			if (!set.AntiMarketMakerStops.Contains(e)) return;
 			if (set.State == MarketMaker.MarketMakerStates.None) return;
 
-			_queues.GetOrAdd(set.Id, new FastBlockingCollection<Action>()).Add(() => PostFill(set, e));
+			if (set.AntiMarketMakerTopStops.Contains(e))
+				_queues.GetOrAdd(set.Id, new FastBlockingCollection<Action>()).Add(() => PostFillTop(set, e));
+			else if (set.AntiMarketMakerBottomStops.Contains(e))
+				_queues.GetOrAdd(set.Id, new FastBlockingCollection<Action>()).Add(() => PostFillBottom(set, e));
+
 		}
 
-		private void PostFill(MarketMaker set, StopResponse response)
+		private void PostFillTop(MarketMaker set, StopResponse response)
 		{
 			var stop = set.TpOrSlInTick * set.TickSize;
 			var market = set.MarketThresholdInTick * set.TickSize;
@@ -169,8 +172,9 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			if (response.Side == Sides.Buy)
 			{
 				var sellStop = _stopOrderService.SendStopOrder(set, Sides.Sell, response.StopPrice - stop, response.StopPrice - stop - market, response.Description);
-				set.AntiMarketMakerStops.Add(sellStop);
+				set.AntiMarketMakerTopStops.Add(sellStop);
 
+				// Check new level
 				if (!set.TopBase.HasValue) return;
 				if (!set.HighestLimit.HasValue) return;
 				var newDepth = response.StopPrice + set.InitDepth * gap;
@@ -180,13 +184,32 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				var i = (int)((newDepth - set.TopBase.Value) / gap);
 				var buyStop = _stopOrderService.SendStopOrder(set, Sides.Buy, newDepth, newDepth + market, $"Top{i}");
 				set.HighestLimit = Math.Max(buyStop.StopPrice, set.HighestLimit ?? buyStop.StopPrice);
-				set.AntiMarketMakerStops.Add(buyStop);
+				set.AntiMarketMakerTopStops.Add(buyStop);
 			}
 			else if (response.Side == Sides.Sell)
 			{
 				var buyStop = _stopOrderService.SendStopOrder(set, Sides.Buy, response.StopPrice + stop, response.StopPrice + stop + market, response.Description);
-				set.AntiMarketMakerStops.Add(buyStop);
+				set.AntiMarketMakerTopStops.Add(buyStop);
+			}
+		}
 
+		private void PostFillBottom(MarketMaker set, StopResponse response)
+		{
+			var stop = set.TpOrSlInTick * set.TickSize;
+			var market = set.MarketThresholdInTick * set.TickSize;
+			var gap = set.LimitGapsInTick * set.TickSize;
+
+			if (response.Side == Sides.Buy)
+			{
+				var sellStop = _stopOrderService.SendStopOrder(set, Sides.Sell, response.StopPrice - stop, response.StopPrice - stop - market, response.Description);
+				set.AntiMarketMakerBottomStops.Add(sellStop);
+			}
+			else if (response.Side == Sides.Sell)
+			{
+				var buyStop = _stopOrderService.SendStopOrder(set, Sides.Buy, response.StopPrice + stop, response.StopPrice + stop + market, response.Description);
+				set.AntiMarketMakerBottomStops.Add(buyStop);
+
+				// Check new level
 				if (!set.BottomBase.HasValue) return;
 				if (!set.LowestLimit.HasValue) return;
 				var newDepth = response.StopPrice - set.InitDepth * gap;
@@ -194,9 +217,9 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				if (newDepth <= set.BottomBase - set.MaxDepth * gap) return;
 
 				var i = (int)((set.BottomBase.Value - newDepth) / gap);
-				var sellStop = _stopOrderService.SendStopOrder(set, Sides.Buy, newDepth, newDepth + market, $"Bottom{i}");
+				var sellStop = _stopOrderService.SendStopOrder(set, Sides.Sell, newDepth, newDepth - market, $"Bottom{i}");
 				set.LowestLimit = Math.Min(sellStop.StopPrice, set.LowestLimit ?? sellStop.StopPrice);
-				set.AntiMarketMakerStops.Add(sellStop);
+				set.AntiMarketMakerBottomStops.Add(sellStop);
 			}
 		}
 	}

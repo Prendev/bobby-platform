@@ -40,9 +40,6 @@ namespace TradeSystem.Data.Models
 
 		public int MaxDepth { get; set; }
 		public int InitDepth { get; set; }
-		[DisplayName("Top depth")] public int NextTopDepth { get; set; }
-		[DisplayName("Bottom depth")] public int NextBottomDepth { get; set; }
-
 		[DisplayName("TP/SL")] public int TpOrSlInTick { get; set; }
 		[DisplayName("LimitGaps")] public int LimitGapsInTick { get; set; }
 		[DisplayName("InitDistance")] public int InitialDistanceInTick { get; set; }

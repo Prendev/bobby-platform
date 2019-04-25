@@ -382,14 +382,16 @@ namespace TradeSystem.FixApiIntegration
 
 		private void PutNewOrderUpdate(object sender, EventArgs<OrderStatusReport> e)
 		{
+			if (!_limitOrders.TryGetValue(e.EventData.OrderId, out var limitResponse)) return;
+			_limitOrderMapping.AddOrUpdate(limitResponse, e.EventData,
+				(k, o) => GeneralConnector.GetOrderStatus(e.EventData.OrderId));
+
 			if (e.EventData.OrderType != OrderType.Limit) return;
 
 			// Fill
 			if (!e.EventData.FulfilledQuantity.HasValue) return;
 			if (!e.EventData.CumulativeQuantity.HasValue) return;
 
-			if (!_limitOrders.TryGetValue(e.EventData.OrderId, out var limitResponse))
-				return;
 			lock (limitResponse) limitResponse.FilledQuantity = Math.Abs(e.EventData.CumulativeQuantity.Value);
 
 			if (!e.EventData.FulfilledPrice.HasValue) return;
@@ -424,7 +426,8 @@ namespace TradeSystem.FixApiIntegration
 				});
 				response.OrderPrice = updateOrderStatus.OrderLimitPrice ?? response.OrderPrice;
 				_limitOrders.AddOrUpdate(updateOrderStatus.OrderId, response, (k, o) => response);
-				_limitOrderMapping.AddOrUpdate(response, updateOrderStatus, (k, o) => updateOrderStatus);
+				_limitOrderMapping.AddOrUpdate(response, updateOrderStatus,
+					(k, o) => GeneralConnector.GetOrderStatus(updateOrderStatus.OrderId));
 
 				Logger.Debug(
 					$"{Description} Connector.ChangeLimitPrice({lastOrderStatus.OrderId}, {limitPrice}) " +
@@ -452,11 +455,13 @@ namespace TradeSystem.FixApiIntegration
 				if (lastOrderStatus.OrderType != OrderType.Limit) return false;
 				if (lastOrderStatus.Status == OrderStatus.Canceled) return true;
 
-				var result = await GeneralConnector.CancelOrderAsync(lastOrderStatus.OrderId);
-				if (result.CumulativeQuantity.HasValue) response.FilledQuantity = Math.Abs(result.CumulativeQuantity.Value);
+				var cancelOrderStatus = await GeneralConnector.CancelOrderAsync(lastOrderStatus.OrderId);
+				cancelOrderStatus = _limitOrderMapping.AddOrUpdate(response, cancelOrderStatus,
+					(k, o) => GeneralConnector.GetOrderStatus(cancelOrderStatus.OrderId));
+				if (cancelOrderStatus.CumulativeQuantity.HasValue) response.FilledQuantity = Math.Abs(cancelOrderStatus.CumulativeQuantity.Value);
 				Logger.Debug(
 					$"{Description} Connector.CancelLimit({lastOrderStatus.OrderId}) with status {OrderStatus.Canceled}");
-				return result.Status == OrderStatus.Canceled;
+				return cancelOrderStatus.Status == OrderStatus.Canceled;
 			}
 			catch (Exception e)
 			{
@@ -472,8 +477,8 @@ namespace TradeSystem.FixApiIntegration
 			OrderStatusReport lastOrderStatus = null;
 			try
 			{
-				_limitOrderMapping.TryGetValue(response, out lastOrderStatus);
-				return lastOrderStatus;
+				if (!_limitOrderMapping.TryGetValue(response, out lastOrderStatus)) return null;
+				return GeneralConnector.GetOrderStatus(lastOrderStatus.OrderId);
 			}
 			catch (Exception e)
 			{

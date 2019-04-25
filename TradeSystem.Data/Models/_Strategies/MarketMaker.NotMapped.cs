@@ -35,7 +35,8 @@ namespace TradeSystem.Data.Models
 		[NotMapped] [InvisibleColumn] public decimal? LowestLimit { get; set; }
 		[NotMapped] [InvisibleColumn] public decimal? HighestLimit { get; set; }
 		[NotMapped] [InvisibleColumn] public readonly ConcurrentBag<LimitResponse> MarketMakerLimits = new ConcurrentBag<LimitResponse>();
-		[NotMapped] [InvisibleColumn] public readonly ConcurrentBag<StopResponse> AntiMarketMakerStops = new ConcurrentBag<StopResponse>();
+		[NotMapped] [InvisibleColumn] public readonly ConcurrentBag<StopResponse> AntiMarketMakerTopStops = new ConcurrentBag<StopResponse>();
+		[NotMapped] [InvisibleColumn] public readonly ConcurrentBag<StopResponse> AntiMarketMakerBottomStops = new ConcurrentBag<StopResponse>();
 		[NotMapped] [InvisibleColumn] public CancellationToken Token { get; set; }
 
 		public MarketMaker()

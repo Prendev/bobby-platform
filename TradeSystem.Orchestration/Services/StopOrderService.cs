@@ -139,7 +139,6 @@ namespace TradeSystem.Orchestration.Services
 			}
 			else if (lastTick.Ask >= response.MarketPrice && lastTick.Ask > response.LimitResponse.OrderPrice)
 			{
-				Logger.Warn($"{set} StopOrderService.CheckBuy.CancelLimit of {response?.StopPrice} stop price - {response.Side} {response.Description}");
 				connector.CancelLimit(response.LimitResponse).Wait();
 				var lastStatus = connector.GetOrderStatusReport(response.LimitResponse);
 				if (lastStatus.Status == OrderStatus.Canceled)
@@ -169,6 +168,7 @@ namespace TradeSystem.Orchestration.Services
 			}
 			else if (lastTick.Bid <= response.MarketPrice && lastTick.Bid < response.LimitResponse.OrderPrice)
 			{
+				Logger.Warn($"{set} StopOrderService.CheckSell.CancelLimit of {response?.StopPrice} stop price - {response.Side} {response.Description}");
 				connector.CancelLimit(response.LimitResponse).Wait();
 				var lastStatus = connector.GetOrderStatusReport(response.LimitResponse);
 				if (lastStatus.Status == OrderStatus.Canceled)
