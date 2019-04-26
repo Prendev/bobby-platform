@@ -16,6 +16,13 @@
 		}
 		private volatile bool _isFilled;
 
+		public int Magic
+		{
+			get => _magic;
+			set => _magic = value;
+		}
+		private volatile int _magic;
+
 		public LimitResponse LimitResponse { get; set; }
 		public string Symbol { get; set; }
 		public decimal StopPrice { get; set; }

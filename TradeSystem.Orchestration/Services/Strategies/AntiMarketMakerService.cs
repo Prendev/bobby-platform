@@ -135,16 +135,14 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 			var gap = set.LimitGapsInTick * set.TickSize;
 			var agg = set.AggressiveThresholdInTick * set.TickSize;
-			for (var i = 0; i < set.InitDepth; i++)
-			{
-				var buy = _stopOrderService.SendStopOrder(set, Sides.Buy, set.TopBase.Value + (i+set.NextTopDepth) * gap,
-					set.TopBase.Value + (i + set.NextTopDepth) * gap + agg, $"Top{i}");
-				set.AntiMarketMakerTopStops.Add(buy);
 
-				var sell = _stopOrderService.SendStopOrder(set, Sides.Sell, set.BottomBase.Value - (i + set.NextBottomDepth) * gap,
-					set.BottomBase.Value - (i + set.NextBottomDepth) * gap - agg, $"Bottom{i}");
-				set.AntiMarketMakerBottomStops.Add(sell);
-			}
+			var buy = _stopOrderService.SendStopOrder(set, Sides.Buy, set.TopBase.Value + set.NextTopDepth * gap,
+				set.TopBase.Value + set.NextTopDepth * gap + agg, $"Top", set.NextTopDepth);
+			set.AntiMarketMakerTopStops.Add(buy);
+
+			var sell = _stopOrderService.SendStopOrder(set, Sides.Sell, set.BottomBase.Value - set.NextBottomDepth * gap,
+				set.BottomBase.Value - set.NextBottomDepth * gap - agg, $"Bottom", set.NextBottomDepth);
+			set.AntiMarketMakerBottomStops.Add(sell);
 
 			set.State = MarketMaker.MarketMakerStates.Trade;
 			set.IsBusy = false;
@@ -173,22 +171,23 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			// Opening side
 			if (response.Side == Sides.Buy)
 			{
-				set.NextTopDepth++;
-				var sellStop = _stopOrderService.SendStopOrder(set, Sides.Sell, response.StopPrice - stop, response.StopPrice - stop - agg, response.Description);
+				set.NextTopDepth = Math.Max(set.NextTopDepth + 1, response.Magic + 1);
+				// Set stop
+				var sellStop = _stopOrderService.SendStopOrder(set, Sides.Sell, response.StopPrice - stop, response.StopPrice - stop - agg, response.Description, response.Magic);
 				set.AntiMarketMakerTopStops.Add(sellStop);
 
 				// Check new level
 				if (set.NextTopDepth >= set.MaxDepth) return;
 				if (!set.TopBase.HasValue) return;
 				var newDepth = set.TopBase.Value + set.NextTopDepth * gap;
-				var buyStop = _stopOrderService.SendStopOrder(set, Sides.Buy, newDepth, newDepth + agg, $"Top{set.NextTopDepth}");
+				var buyStop = _stopOrderService.SendStopOrder(set, Sides.Buy, newDepth, newDepth + agg, "Top", set.NextTopDepth);
 				set.AntiMarketMakerTopStops.Add(buyStop);
 			}
 			// Closing side
 			else if (response.Side == Sides.Sell)
 			{
-				set.NextTopDepth--;
-				var buyStop = _stopOrderService.SendStopOrder(set, Sides.Buy, response.StopPrice + stop, response.StopPrice + stop + agg, response.Description);
+				set.NextTopDepth = Math.Max(set.NextTopDepth - 1, response.Magic - 1);
+				var buyStop = _stopOrderService.SendStopOrder(set, Sides.Buy, response.StopPrice + stop, response.StopPrice + stop + agg, response.Description, response.Magic);
 				set.AntiMarketMakerTopStops.Add(buyStop);
 			}
 		}
@@ -202,22 +201,24 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			// Closing side
 			if (response.Side == Sides.Buy)
 			{
-				set.NextBottomDepth--;
-				var sellStop = _stopOrderService.SendStopOrder(set, Sides.Sell, response.StopPrice - stop, response.StopPrice - stop - agg, response.Description);
+				set.NextBottomDepth = Math.Max(set.NextBottomDepth - 1, response.Magic - 1);
+				// Set stop
+				var sellStop = _stopOrderService.SendStopOrder(set, Sides.Sell, response.StopPrice - stop, response.StopPrice - stop - agg, response.Description, response.Magic);
 				set.AntiMarketMakerBottomStops.Add(sellStop);
 			}
 			// Opening side
 			else if (response.Side == Sides.Sell)
 			{
-				set.NextBottomDepth++;
-				var buyStop = _stopOrderService.SendStopOrder(set, Sides.Buy, response.StopPrice + stop, response.StopPrice + stop + agg, response.Description);
+				set.NextBottomDepth = Math.Max(set.NextBottomDepth + 1, response.Magic + 1);
+				// Set stop
+				var buyStop = _stopOrderService.SendStopOrder(set, Sides.Buy, response.StopPrice + stop, response.StopPrice + stop + agg, response.Description, response.Magic);
 				set.AntiMarketMakerBottomStops.Add(buyStop);
 
 				// Check new level
 				if (set.NextBottomDepth >= set.MaxDepth) return;
 				if (!set.BottomBase.HasValue) return;
 				var newDepth = set.BottomBase.Value - set.NextBottomDepth * gap;
-				var sellStop = _stopOrderService.SendStopOrder(set, Sides.Sell, newDepth, newDepth - agg, $"Bottom{set.NextBottomDepth}");
+				var sellStop = _stopOrderService.SendStopOrder(set, Sides.Sell, newDepth, newDepth - agg, "Bottom", set.NextBottomDepth);
 				set.AntiMarketMakerBottomStops.Add(sellStop);
 			}
 		}

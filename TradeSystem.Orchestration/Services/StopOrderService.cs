@@ -10,7 +10,7 @@ namespace TradeSystem.Orchestration.Services
 	public interface IStopOrderService
 	{
 		void Start(MarketMaker set);
-		StopResponse SendStopOrder(MarketMaker set, Sides side, decimal stopPrice, decimal marketPrice, string desc);
+		StopResponse SendStopOrder(MarketMaker set, Sides side, decimal stopPrice, decimal marketPrice, string desc, int magic);
 		void ClearLimits(MarketMaker set);
 		void Stop();
 		event EventHandler<StopResponse> Fill;
@@ -18,8 +18,8 @@ namespace TradeSystem.Orchestration.Services
 
 	public class StopOrderService : IStopOrderService
 	{
-		private readonly ConcurrentDictionary<MarketMaker, ConcurrentBag<StopResponse>> _stopOrders =
-			new ConcurrentDictionary<MarketMaker, ConcurrentBag<StopResponse>>();
+		private readonly ConcurrentDictionary<MarketMaker, ConcurrentDictionary<string, StopResponse>> _stopOrders =
+			new ConcurrentDictionary<MarketMaker, ConcurrentDictionary<string,StopResponse>>();
 		private readonly ConcurrentDictionary<LimitResponse, StopResponse> _limitMapping =
 			new ConcurrentDictionary<LimitResponse, StopResponse>();
 
@@ -33,11 +33,11 @@ namespace TradeSystem.Orchestration.Services
 			set.LimitFill += Set_LimitFill;
 		}
 
-		public StopResponse SendStopOrder(MarketMaker set, Sides side, decimal stopPrice, decimal marketPrice, string desc)
+		public StopResponse SendStopOrder(MarketMaker set, Sides side, decimal stopPrice, decimal marketPrice, string desc, int magic)
 		{
 			lock (_stopOrders)
 			{
-				var stopOrders = _stopOrders.GetOrAdd(set, new ConcurrentBag<StopResponse>());
+				var stopOrders = _stopOrders.GetOrAdd(set, new ConcurrentDictionary<string, StopResponse>());
 				var stopResponse = new StopResponse()
 				{
 					Symbol = set.Symbol,
@@ -45,11 +45,12 @@ namespace TradeSystem.Orchestration.Services
 					StopPrice = stopPrice,
 					AggressivePrice = marketPrice,
 					DomTrigger = set.DomTrigger,
-					Description = desc
+					Description = desc,
+					Magic = magic
 				};
-				stopOrders.Add(stopResponse);
+				stopOrders.AddOrUpdate($"{desc}_{magic}", stopResponse, (s, o) => stopResponse);
 
-				Logger.Debug($"{set} StopOrderService.SendStopOrder({side}, {stopPrice}, {marketPrice}, {desc})");
+				Logger.Debug($"{set} StopOrderService.SendStopOrder({side}, {stopPrice}, {marketPrice}, {desc}, {magic})");
 				return stopResponse;
 			}
 		}
@@ -61,7 +62,7 @@ namespace TradeSystem.Orchestration.Services
 				if (!_stopOrders.TryGetValue(set, out var orders)) return;
 				if (orders.IsEmpty) return;
 				Logger.Debug($"{set} StopOrderService.ClearLimits");
-				while (orders.TryTake(out var _)) ;
+				orders.Clear();
 			}
 		}
 
@@ -100,8 +101,8 @@ namespace TradeSystem.Orchestration.Services
 		private void CheckStopOrders(MarketMaker set)
 		{
 			if (set.Token.IsCancellationRequested) return;
-			var responses = _stopOrders.GetOrAdd(set, new ConcurrentBag<StopResponse>());
-			foreach (var response in responses)
+			var responses = _stopOrders.GetOrAdd(set, new ConcurrentDictionary<string, StopResponse>());
+			foreach (var response in responses.Values)
 			{
 				if (set.Token.IsCancellationRequested) return;
 
@@ -137,7 +138,7 @@ namespace TradeSystem.Orchestration.Services
 			}
 			else if (lastTick.Ask >= response.AggressivePrice && lastTick.Ask > response.LimitResponse.OrderPrice)
 			{
-				Logger.Warn($"{set} StopOrderService.CheckBuy.CancelLimit of {response?.StopPrice} stop price - {response.Side} {response.Description}");
+				Logger.Warn($"{set} StopOrderService.CheckBuy.CancelLimit of {response?.StopPrice} stop price - {response.Side} {response.Description}_{response.Magic}");
 				connector.CancelLimit(response.LimitResponse).Wait();
 				var lastStatus = connector.GetOrderStatusReport(response.LimitResponse);
 				if (lastStatus.Status != OrderStatus.Canceled) return;
@@ -165,7 +166,7 @@ namespace TradeSystem.Orchestration.Services
 			}
 			else if (lastTick.Bid <= response.AggressivePrice && lastTick.Bid < response.LimitResponse.OrderPrice)
 			{
-				Logger.Warn($"{set} StopOrderService.CheckSell.CancelLimit of {response?.StopPrice} stop price - {response.Side} {response.Description}");
+				Logger.Warn($"{set} StopOrderService.CheckSell.CancelLimit of {response?.StopPrice} stop price - {response.Side} {response.Description}_{response.Magic}");
 				connector.CancelLimit(response.LimitResponse).Wait();
 				var lastStatus = connector.GetOrderStatusReport(response.LimitResponse);
 				if (lastStatus.Status != OrderStatus.Canceled) return;
@@ -182,7 +183,7 @@ namespace TradeSystem.Orchestration.Services
 				if (response.IsFilled) return;
 				response.IsFilled = true;
 			}
-			Logger.Info($"{set} StopOrderService.OnFill at {response?.StopPrice} stop price - {response.Side} {response.Description}");
+			Logger.Info($"{set} StopOrderService.OnFill at {response.StopPrice} stop price - {response.Side} {response.Description}_{response.Magic}");
 			Fill?.Invoke(set, response);
 		}
 	}
