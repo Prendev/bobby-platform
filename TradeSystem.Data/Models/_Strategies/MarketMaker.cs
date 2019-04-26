@@ -11,6 +11,7 @@ namespace TradeSystem.Data.Models
 		{
 			None,
 			Init,
+			Continue,
 			PreTrade,
 			Trade
 			// Cancel
@@ -30,7 +31,7 @@ namespace TradeSystem.Data.Models
 		public MarketMakerStates State { get => Get<MarketMakerStates>(); set => Set(value); }
 		public MarketMakerTypes Type { get => Get<MarketMakerTypes>(); set => Set(value); }
 
-		public decimal? InitBidPrice { get; set; }
+		public decimal? InitBidPrice { get => Get<decimal?>(); set => Set(value); }
 
 		public int AccountId { get; set; }
 		public Account Account { get => Get<Account>(); set => Set(value); }
@@ -40,6 +41,8 @@ namespace TradeSystem.Data.Models
 
 		public int MaxDepth { get; set; }
 		public int InitDepth { get; set; }
+		[DisplayName("Top depth")] public int NextTopDepth { get => Get<int>(); set => Set(value); }
+		[DisplayName("Bottom depth")] public int NextBottomDepth { get => Get<int>(); set => Set(value); }
 		[DisplayName("TP/SL")] public int TpOrSlInTick { get; set; }
 		[DisplayName("LimitGaps")] public int LimitGapsInTick { get; set; }
 		[DisplayName("InitDistance")] public int InitialDistanceInTick { get; set; }

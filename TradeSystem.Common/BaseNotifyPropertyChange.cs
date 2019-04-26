@@ -1,15 +1,15 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using TradeSystem.Common;
 using TradeSystem.Common.Annotations;
 
-namespace TradeSystem.Data.Models
+namespace TradeSystem.Common
 {
 	public abstract class BaseNotifyPropertyChange : INotifyPropertyChanged
 	{
-		private readonly Dictionary<string, object> _propertyValues = new Dictionary<string, object>();
+		private readonly ConcurrentDictionary<string, object> _propertyValues = new ConcurrentDictionary<string, object>();
 		private readonly Dictionary<string, object> _propertyPrevActions = new Dictionary<string, object>();
 		private readonly Dictionary<string, object> _propertyPostActions = new Dictionary<string, object>();
 
@@ -18,13 +18,9 @@ namespace TradeSystem.Data.Models
 		[NotifyPropertyChangedInvocator]
 		protected T Get<T>(Func<T> defaultValueFactory = null, [CallerMemberName] string propertyName = null)
 		{
-			if (string.IsNullOrWhiteSpace(propertyName))
-				return default(T);
-
-			if (!_propertyValues.ContainsKey(propertyName))
-				_propertyValues[propertyName] = defaultValueFactory == null ? default(T) : defaultValueFactory.Invoke();
-
-			return (T)_propertyValues[propertyName];
+			if (string.IsNullOrWhiteSpace(propertyName)) return default(T);
+			return (T) _propertyValues.GetOrAdd(propertyName,
+				p => defaultValueFactory == null ? default(T) : defaultValueFactory.Invoke());
 		}
 
 		[NotifyPropertyChangedInvocator]
@@ -32,20 +28,21 @@ namespace TradeSystem.Data.Models
 		{
 			if (string.IsNullOrWhiteSpace(propertyName)) return;
 
-			var oldValue = Get<T>(null, propertyName);
-			if (value?.Equals(oldValue) == true) return;
-
+			var updated = false;
+			_propertyValues.AddOrUpdate(propertyName, value, (p, oldValue) =>
 			{
-				if (_propertyPrevActions.TryGetValue(propertyName, out var prev) && prev is Action<T> prevAction)
-					prevAction.Invoke(oldValue);
+				if (value?.Equals(oldValue) == true) return oldValue;
+				updated = true;
 
+				if (_propertyPrevActions.TryGetValue(propertyName, out var prev) && prev is Action<T> prevAction)
+					prevAction.Invoke((T) oldValue);
 				if (_propertyPostActions.TryGetValue(propertyName, out var post) && post is Action<T> postAction)
 					postAction.Invoke(value);
-			}
 
-			_propertyValues[propertyName] = value;
+				return value;
+			});
 
-			if (raiseEvent) OnPropertyChanged(propertyName);
+			if (raiseEvent && updated) OnPropertyChanged(propertyName);
 		}
 
 		[NotifyPropertyChangedInvocator]
