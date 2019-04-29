@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Threading;
 using TradeSystem.Common.Attributes;
 using TradeSystem.Common.Integration;
 
@@ -34,17 +35,26 @@ namespace TradeSystem.Data.Models
 		[NotMapped] [InvisibleColumn] public decimal? LowestLimit { get; set; }
 		[NotMapped] [InvisibleColumn] public decimal? HighestLimit { get; set; }
 		[NotMapped] [InvisibleColumn] public readonly ConcurrentBag<LimitResponse> MarketMakerLimits = new ConcurrentBag<LimitResponse>();
-		[NotMapped] [InvisibleColumn] public readonly ConcurrentDictionary<int, Level> AntiLevels = new ConcurrentDictionary<int, Level>();
+		[NotMapped] [InvisibleColumn] public readonly ConcurrentDictionary<string, StopResponse> AntiMarketMakerTopStops = new ConcurrentDictionary<string, StopResponse>();
+		[NotMapped] [InvisibleColumn] public readonly ConcurrentDictionary<string, StopResponse> AntiMarketMakerBottomStops = new ConcurrentDictionary<string, StopResponse>();
+		[NotMapped] [InvisibleColumn] public CancellationToken Token { get; set; }
 
 		public MarketMaker()
 		{
 			SetAction<Account>(nameof(Account),
-				a => { if (a != null) a.NewTick -= Account_NewTick; },
-				a => { if (a != null) a.NewTick += Account_NewTick; });
+				a =>
+				{
+					if (a == null) return;
+					a.NewTick -= Account_NewTick;
+					a.LimitFill -= Account_LimitFill;
+				},
+				a =>
+				{
+					if (a == null) return;
+					a.NewTick += Account_NewTick;
+					a.LimitFill += Account_LimitFill;
 
-			SetAction<Account>(nameof(Account),
-				a => { if (a != null) a.LimitFill -= Account_LimitFill; },
-				a => { if (a != null) a.LimitFill += Account_LimitFill; });
+				});
 		}
 
 		private void Account_NewTick(object sender, NewTick newTick) => NewTick?.Invoke(this, newTick);

@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using TradeSystem.Communication;
 
 namespace TradeSystem.Common.Integration
 {
@@ -25,6 +26,7 @@ namespace TradeSystem.Common.Integration
 			int timeout, int retryCount, int retryPeriod);
 
 		Task<LimitResponse> PutNewOrderRequest(string symbol, Sides side, decimal quantity, decimal limitPrice);
+		OrderStatusReport GetOrderStatusReport(LimitResponse response);
 
 		Task<bool> ChangeLimitPrice(LimitResponse response, decimal limitPrice);
 		Task<bool> CancelLimit(LimitResponse response);

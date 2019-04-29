@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using TradeSystem.Common;
 
 namespace TradeSystem.Data.Models
 {

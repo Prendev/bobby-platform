@@ -113,6 +113,7 @@
     <Compile Include="Integration\LimitFill.cs" />
     <Compile Include="Integration\LimitResponse.cs" />
     <Compile Include="Integration\OrderResponse.cs" />
+    <Compile Include="Integration\StopResponse.cs" />
     <Compile Include="Integration\SymbolData.cs" />
     <Compile Include="Integration\Tick.cs" />
     <Compile Include="Integration\Bar.cs" />
@@ -141,6 +142,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\git\QvaDev.Wololo\TradeSystem.Communication\TradeSystem.Communication.csproj">
+      <Project>{9B577BD6-AEA9-4F64-9F1D-6EC760103295}</Project>
+      <Name>TradeSystem.Communication</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\git\QvaDev.Wololo\TradeSystem\TradeSystem.csproj">
       <Project>{FDFCE270-50AC-4930-8680-A760F6F7C637}</Project>
       <Name>TradeSystem</Name>

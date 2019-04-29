@@ -350,7 +350,6 @@ namespace TradeSystem.FixApiIntegration
 				if (newOrderStatus.Status == OrderStatus.Rejected)
 					throw new Exception(newOrderStatus.Message);
 
-				GeneralConnector.SubscribeOrderUpdate(newOrderStatus.OrderId, PutNewOrderUpdate, true);
 				var response = new LimitResponse()
 				{
 					Symbol = symbol,
@@ -360,6 +359,7 @@ namespace TradeSystem.FixApiIntegration
 				};
 				_limitOrders.AddOrUpdate(newOrderStatus.OrderId, response, (k, o) => response);
 				_limitOrderMapping.AddOrUpdate(response, newOrderStatus, (k, o) => newOrderStatus);
+				GeneralConnector.SubscribeOrderUpdate(newOrderStatus.OrderId, PutNewOrderUpdate, true);
 
 				Logger.Debug(
 					$"{Description} Connector.PutNewOrderRequest({symbol}, {side}, {quantity}, {limitPrice}) " +
@@ -382,13 +382,16 @@ namespace TradeSystem.FixApiIntegration
 
 		private void PutNewOrderUpdate(object sender, EventArgs<OrderStatusReport> e)
 		{
+			if (!_limitOrders.TryGetValue(e.EventData.OrderId, out var limitResponse)) return;
+			_limitOrderMapping.AddOrUpdate(limitResponse, e.EventData,
+				(k, o) => GeneralConnector.GetOrderStatus(e.EventData.OrderId));
+
 			if (e.EventData.OrderType != OrderType.Limit) return;
 
 			// Fill
 			if (!e.EventData.FulfilledQuantity.HasValue) return;
 			if (!e.EventData.CumulativeQuantity.HasValue) return;
 
-			if (!_limitOrders.TryGetValue(e.EventData.OrderId, out var limitResponse)) return;
 			lock (limitResponse) limitResponse.FilledQuantity = Math.Abs(e.EventData.CumulativeQuantity.Value);
 
 			if (!e.EventData.FulfilledPrice.HasValue) return;
@@ -423,7 +426,8 @@ namespace TradeSystem.FixApiIntegration
 				});
 				response.OrderPrice = updateOrderStatus.OrderLimitPrice ?? response.OrderPrice;
 				_limitOrders.AddOrUpdate(updateOrderStatus.OrderId, response, (k, o) => response);
-				_limitOrderMapping.AddOrUpdate(response, updateOrderStatus, (k, o) => updateOrderStatus);
+				_limitOrderMapping.AddOrUpdate(response, updateOrderStatus,
+					(k, o) => GeneralConnector.GetOrderStatus(updateOrderStatus.OrderId));
 
 				Logger.Debug(
 					$"{Description} Connector.ChangeLimitPrice({lastOrderStatus.OrderId}, {limitPrice}) " +
@@ -449,10 +453,15 @@ namespace TradeSystem.FixApiIntegration
 				if (response.RemainingQuantity == 0) return true;
 				if (!_limitOrderMapping.TryGetValue(response, out lastOrderStatus)) return false;
 				if (lastOrderStatus.OrderType != OrderType.Limit) return false;
-				if (lastOrderStatus.Status == OrderStatus.Canceled || lastOrderStatus.Status == OrderStatus.Accepted) return true;
+				if (lastOrderStatus.Status == OrderStatus.Canceled) return true;
 
-				var result = await GeneralConnector.CancelOrderAsync(lastOrderStatus.OrderId);
-				return result.Status == OrderStatus.Canceled || result.Status == OrderStatus.Accepted;
+				var cancelOrderStatus = await GeneralConnector.CancelOrderAsync(lastOrderStatus.OrderId);
+				cancelOrderStatus = _limitOrderMapping.AddOrUpdate(response, cancelOrderStatus,
+					(k, o) => GeneralConnector.GetOrderStatus(cancelOrderStatus.OrderId));
+				if (cancelOrderStatus.CumulativeQuantity.HasValue) response.FilledQuantity = Math.Abs(cancelOrderStatus.CumulativeQuantity.Value);
+				Logger.Debug(
+					$"{Description} Connector.CancelLimit({lastOrderStatus.OrderId}) with status {OrderStatus.Canceled}");
+				return cancelOrderStatus.Status == OrderStatus.Canceled;
 			}
 			catch (Exception e)
 			{
@@ -460,6 +469,21 @@ namespace TradeSystem.FixApiIntegration
 					Logger.Error($"{Description} Connector.CancelLimit({lastOrderStatus?.OrderId}) too late to cancel");
 				else Logger.Error($"{Description} Connector.CancelLimit({lastOrderStatus?.OrderId}) exception", e);
 				return false;
+			}
+		}
+
+		public override OrderStatusReport GetOrderStatusReport(LimitResponse response)
+		{
+			OrderStatusReport lastOrderStatus = null;
+			try
+			{
+				if (!_limitOrderMapping.TryGetValue(response, out lastOrderStatus)) return null;
+				return GeneralConnector.GetOrderStatus(lastOrderStatus.OrderId);
+			}
+			catch (Exception e)
+			{
+				Logger.Error($"{Description} Connector.GetOrderStatusReport({lastOrderStatus?.OrderId}) exception", e);
+				return null;
 			}
 		}
 

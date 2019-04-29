@@ -11,7 +11,6 @@ namespace TradeSystem.Common.Integration
         public string Symbol { get; set; }
         public DateTime Time { get; set; }
 
-	    public bool HasValue => !string.IsNullOrWhiteSpace(Symbol)
-	                            && Ask > 0 && Bid > 0 && AskVolume > 0 && BidVolume > 0;
+	    public bool HasValue => !string.IsNullOrWhiteSpace(Symbol) && Ask > 0 && Bid > 0;
     }
 }
