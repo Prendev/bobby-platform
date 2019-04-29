@@ -37,7 +37,7 @@ namespace TradeSystem.Data.Models
 		public Account Account { get => Get<Account>(); set => Set(value); }
 		[Required] public string Symbol { get; set; }
 
-		[NotMapped] [ReadOnly(true)] public int ContractSize { get; set; } = 1000;
+		[NotMapped] [ReadOnly(true)] public int ContractSize { get; set; } = 1;
 
 		public int MaxDepth { get; set; }
 		public int InitDepth { get; set; }
