@@ -10,7 +10,7 @@ namespace TradeSystem.Orchestration.Services
 	public interface IStopOrderService
 	{
 		void Start(MarketMaker set);
-		StopResponse SendStopOrder(MarketMaker set, Sides side, decimal stopPrice, decimal marketPrice, string desc, int magic);
+		StopResponse SendStopOrder(MarketMaker set, Sides side, decimal stopPrice, decimal marketPrice, string userId);
 		void ClearLimits(MarketMaker set);
 		void Stop();
 		event EventHandler<StopResponse> Fill;
@@ -33,7 +33,7 @@ namespace TradeSystem.Orchestration.Services
 			set.LimitFill += Set_LimitFill;
 		}
 
-		public StopResponse SendStopOrder(MarketMaker set, Sides side, decimal stopPrice, decimal marketPrice, string desc, int magic)
+		public StopResponse SendStopOrder(MarketMaker set, Sides side, decimal stopPrice, decimal marketPrice, string userId)
 		{
 			lock (_stopOrders)
 			{
@@ -45,12 +45,11 @@ namespace TradeSystem.Orchestration.Services
 					StopPrice = stopPrice,
 					AggressivePrice = marketPrice,
 					DomTrigger = set.DomTrigger,
-					Description = desc,
-					Magic = magic
+					UserId = userId,
 				};
-				stopOrders.AddOrUpdate($"{desc}_{magic}", stopResponse, (s, o) => stopResponse);
+				stopOrders.AddOrUpdate($"{userId}", stopResponse, (s, o) => stopResponse);
 
-				Logger.Debug($"{set} StopOrderService.SendStopOrder({side}, {stopPrice}, {marketPrice}, {desc}, {magic})");
+				Logger.Debug($"{set} StopOrderService.SendStopOrder({side}, {stopPrice}, {marketPrice}, {userId})");
 				return stopResponse;
 			}
 		}
@@ -131,14 +130,15 @@ namespace TradeSystem.Orchestration.Services
 
 			if (response.LimitResponse == null)
 			{
-				response.LimitResponse = connector.PutNewOrderRequest(response.Symbol, Sides.Buy, set.ContractSize, lastTick.Ask).Result;
+				var price = lastTick.Ask < response.AggressivePrice ? response.StopPrice : lastTick.Ask;
+				response.LimitResponse = connector.PutNewOrderRequest(response.Symbol, Sides.Buy, set.ContractSize, price).Result;
 				if (response.LimitResponse == null) return;
 				_limitMapping.AddOrUpdate(response.LimitResponse, response, (l, s) => response);
 				if (response.LimitResponse.RemainingQuantity == 0) OnFill(set, response);
 			}
 			else if (lastTick.Ask >= response.AggressivePrice && lastTick.Ask > response.LimitResponse.OrderPrice)
 			{
-				Logger.Warn($"{set} StopOrderService.CheckBuy.CancelLimit of {response?.StopPrice} stop price - {response.Side} {response.Description}_{response.Magic}");
+				Logger.Warn($"{set} StopOrderService.CheckBuy.CancelLimit of {response?.StopPrice} stop price - {response.Side} {response}");
 				connector.CancelLimit(response.LimitResponse).Wait();
 				var lastStatus = connector.GetOrderStatusReport(response.LimitResponse);
 				if (lastStatus.Status != OrderStatus.Canceled) return;
@@ -159,14 +159,15 @@ namespace TradeSystem.Orchestration.Services
 
 			if (response.LimitResponse == null)
 			{
-				response.LimitResponse = connector.PutNewOrderRequest(response.Symbol, Sides.Sell, set.ContractSize, lastTick.Bid).Result;
+				var price = lastTick.Bid > response.AggressivePrice ? response.StopPrice : lastTick.Bid;
+				response.LimitResponse = connector.PutNewOrderRequest(response.Symbol, Sides.Sell, set.ContractSize, price).Result;
 				if (response.LimitResponse == null) return;
 				_limitMapping.AddOrUpdate(response.LimitResponse, response, (l, s) => response);
 				if (response.LimitResponse.RemainingQuantity == 0) OnFill(set, response);
 			}
 			else if (lastTick.Bid <= response.AggressivePrice && lastTick.Bid < response.LimitResponse.OrderPrice)
 			{
-				Logger.Warn($"{set} StopOrderService.CheckSell.CancelLimit of {response?.StopPrice} stop price - {response.Side} {response.Description}_{response.Magic}");
+				Logger.Warn($"{set} StopOrderService.CheckSell.CancelLimit of {response?.StopPrice} stop price - {response.Side} {response}");
 				connector.CancelLimit(response.LimitResponse).Wait();
 				var lastStatus = connector.GetOrderStatusReport(response.LimitResponse);
 				if (lastStatus.Status != OrderStatus.Canceled) return;
@@ -183,7 +184,7 @@ namespace TradeSystem.Orchestration.Services
 				if (response.IsFilled) return;
 				response.IsFilled = true;
 			}
-			Logger.Info($"{set} StopOrderService.OnFill at {response.StopPrice} stop price - {response.Side} {response.Description}_{response.Magic}");
+			Logger.Info($"{set} StopOrderService.OnFill at {response.StopPrice} stop price - {response.Side} {response}");
 			Fill?.Invoke(set, response);
 		}
 	}

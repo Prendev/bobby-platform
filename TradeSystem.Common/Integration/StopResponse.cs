@@ -16,24 +16,17 @@
 		}
 		private volatile bool _isFilled;
 
-		public int Magic
-		{
-			get => _magic;
-			set => _magic = value;
-		}
-		private volatile int _magic;
-
 		public LimitResponse LimitResponse { get; set; }
 		public string Symbol { get; set; }
 		public decimal StopPrice { get; set; }
 		public decimal AggressivePrice { get; set; }
 		public int DomTrigger { get; set; }
 		public Sides Side { get; set; }
-		public string Description { get; set; }
+		public string UserId { get; set; }
 
 		public override string ToString()
 		{
-			return Description;
+			return UserId;
 		}
 	}
 }
