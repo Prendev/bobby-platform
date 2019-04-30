@@ -1,5 +1,4 @@
-﻿using System;
-using System.Windows.Forms;
+﻿using System.Windows.Forms;
 using TradeSystem.Duplicat.ViewModel;
 
 namespace TradeSystem.Duplicat.Views
@@ -19,12 +18,15 @@ namespace TradeSystem.Duplicat.Views
 
 			gbControl.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsLoading), true);
 
-			btnSwaps.Click += (s, e) => { };
+			dgvExports.DefaultValuesNeeded += (s, e) => e.Row.Cells["ProfileId"].Value = _viewModel.SelectedProfile.Id;
+
+			btnSwaps.Click += (s, e) => { _viewModel.SwapExport(); };
 		}
 
 		public void AttachDataSources()
 		{
-			throw new NotImplementedException();
+			dgvExports.AddComboBoxColumn(_viewModel.Accounts);
+			dgvExports.DataSource = _viewModel.Exports;
 		}
 	}
 }

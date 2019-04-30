@@ -217,6 +217,7 @@
       <DependentUpon>20181004143449_StratHubArbHighRiskSignalDiffInPip.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\DuplicatContextModelSnapshot.cs" />
+    <Compile Include="Models\Export.cs" />
     <Compile Include="Models\FixApiCopierPosition.cs" />
     <Compile Include="Models\Slave.NotMapped.cs" />
     <Compile Include="Models\_Strategies\Spoofing.NotMapped.cs" />

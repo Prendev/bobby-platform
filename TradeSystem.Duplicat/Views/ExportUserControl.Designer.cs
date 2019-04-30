@@ -32,11 +32,11 @@
 			this.btnSwaps = new System.Windows.Forms.Button();
 			this.tlpMain = new System.Windows.Forms.TableLayoutPanel();
 			this.groupBox1 = new System.Windows.Forms.GroupBox();
-			this.dgvTickers = new TradeSystem.Duplicat.Views.CustomDataGridView();
+			this.dgvExports = new TradeSystem.Duplicat.Views.CustomDataGridView();
 			this.gbControl.SuspendLayout();
 			this.tlpMain.SuspendLayout();
 			this.groupBox1.SuspendLayout();
-			((System.ComponentModel.ISupportInitialize)(this.dgvTickers)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.dgvExports)).BeginInit();
 			this.SuspendLayout();
 			// 
 			// gbControl
@@ -77,7 +77,7 @@
 			// 
 			// groupBox1
 			// 
-			this.groupBox1.Controls.Add(this.dgvTickers);
+			this.groupBox1.Controls.Add(this.dgvExports);
 			this.groupBox1.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.groupBox1.Location = new System.Drawing.Point(3, 67);
 			this.groupBox1.Name = "groupBox1";
@@ -86,17 +86,17 @@
 			this.groupBox1.TabStop = false;
 			this.groupBox1.Text = "Export accounts";
 			// 
-			// dgvTickers
+			// dgvExports
 			// 
-			this.dgvTickers.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
-			this.dgvTickers.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-			this.dgvTickers.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.dgvTickers.Location = new System.Drawing.Point(3, 18);
-			this.dgvTickers.MultiSelect = false;
-			this.dgvTickers.Name = "dgvTickers";
-			this.dgvTickers.RowTemplate.Height = 24;
-			this.dgvTickers.Size = new System.Drawing.Size(899, 499);
-			this.dgvTickers.TabIndex = 0;
+			this.dgvExports.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
+			this.dgvExports.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+			this.dgvExports.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.dgvExports.Location = new System.Drawing.Point(3, 18);
+			this.dgvExports.MultiSelect = false;
+			this.dgvExports.Name = "dgvExports";
+			this.dgvExports.RowTemplate.Height = 24;
+			this.dgvExports.Size = new System.Drawing.Size(899, 499);
+			this.dgvExports.TabIndex = 0;
 			// 
 			// ExportUserControl
 			// 
@@ -108,7 +108,7 @@
 			this.gbControl.ResumeLayout(false);
 			this.tlpMain.ResumeLayout(false);
 			this.groupBox1.ResumeLayout(false);
-			((System.ComponentModel.ISupportInitialize)(this.dgvTickers)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.dgvExports)).EndInit();
 			this.ResumeLayout(false);
 
 		}
@@ -119,6 +119,6 @@
 		private System.Windows.Forms.Button btnSwaps;
 		private System.Windows.Forms.TableLayoutPanel tlpMain;
 		private System.Windows.Forms.GroupBox groupBox1;
-		private CustomDataGridView dgvTickers;
+		private CustomDataGridView dgvExports;
 	}
 }

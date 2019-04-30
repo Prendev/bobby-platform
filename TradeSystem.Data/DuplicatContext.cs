@@ -82,8 +82,8 @@ namespace TradeSystem.Data
 
 	    public DbSet<MarketMaker> MarketMakers { get; set; }
 
-
 		public DbSet<Ticker> Tickers { get; set; }
+		public DbSet<Export> Exports { get; set; }
 
 		public void Init()
 		{
