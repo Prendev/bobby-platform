@@ -32,6 +32,9 @@
 			this.btnSwaps = new System.Windows.Forms.Button();
 			this.tlpMain = new System.Windows.Forms.TableLayoutPanel();
 			this.groupBox1 = new System.Windows.Forms.GroupBox();
+			this.dtpTo = new System.Windows.Forms.DateTimePicker();
+			this.dtpFrom = new System.Windows.Forms.DateTimePicker();
+			this.btnBalanceProfit = new System.Windows.Forms.Button();
 			this.dgvExports = new TradeSystem.Duplicat.Views.CustomDataGridView();
 			this.gbControl.SuspendLayout();
 			this.tlpMain.SuspendLayout();
@@ -41,6 +44,9 @@
 			// 
 			// gbControl
 			// 
+			this.gbControl.Controls.Add(this.dtpTo);
+			this.gbControl.Controls.Add(this.dtpFrom);
+			this.gbControl.Controls.Add(this.btnBalanceProfit);
 			this.gbControl.Controls.Add(this.btnSwaps);
 			this.gbControl.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.gbControl.Location = new System.Drawing.Point(3, 3);
@@ -86,6 +92,32 @@
 			this.groupBox1.TabStop = false;
 			this.groupBox1.Text = "Export accounts";
 			// 
+			// dtpTo
+			// 
+			this.dtpTo.Format = System.Windows.Forms.DateTimePickerFormat.Short;
+			this.dtpTo.Location = new System.Drawing.Point(548, 25);
+			this.dtpTo.Name = "dtpTo";
+			this.dtpTo.Size = new System.Drawing.Size(120, 22);
+			this.dtpTo.TabIndex = 28;
+			// 
+			// dtpFrom
+			// 
+			this.dtpFrom.Format = System.Windows.Forms.DateTimePickerFormat.Short;
+			this.dtpFrom.Location = new System.Drawing.Point(422, 25);
+			this.dtpFrom.Name = "dtpFrom";
+			this.dtpFrom.Size = new System.Drawing.Size(120, 22);
+			this.dtpFrom.TabIndex = 27;
+			// 
+			// btnBalanceProfit
+			// 
+			this.btnBalanceProfit.Location = new System.Drawing.Point(215, 23);
+			this.btnBalanceProfit.Margin = new System.Windows.Forms.Padding(4);
+			this.btnBalanceProfit.Name = "btnBalanceProfit";
+			this.btnBalanceProfit.Size = new System.Drawing.Size(200, 28);
+			this.btnBalanceProfit.TabIndex = 26;
+			this.btnBalanceProfit.Text = "Export balance-profits";
+			this.btnBalanceProfit.UseVisualStyleBackColor = true;
+			// 
 			// dgvExports
 			// 
 			this.dgvExports.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
@@ -120,5 +152,8 @@
 		private System.Windows.Forms.TableLayoutPanel tlpMain;
 		private System.Windows.Forms.GroupBox groupBox1;
 		private CustomDataGridView dgvExports;
+		private System.Windows.Forms.DateTimePicker dtpTo;
+		private System.Windows.Forms.DateTimePicker dtpFrom;
+		private System.Windows.Forms.Button btnBalanceProfit;
 	}
 }

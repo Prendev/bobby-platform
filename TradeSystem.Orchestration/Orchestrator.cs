@@ -27,6 +27,7 @@ namespace TradeSystem.Orchestration
 
 		Task OrderHistoryExport(DuplicatContext duplicatContext);
 		Task SwapExport(DuplicatContext duplicatContext);
+		Task BalanceProfitExport(DuplicatContext duplicatContext, DateTime from, DateTime to);
 		void MtAccountImport(DuplicatContext duplicatContext);
 		void SaveTheWeekend(DuplicatContext duplicatContext, DateTime from, DateTime to);
 	}
@@ -201,6 +202,15 @@ namespace TradeSystem.Orchestration
 				.ToList();
 
 			await _reportService.SwapExport(exports);
+		}
+
+		public async Task BalanceProfitExport(DuplicatContext duplicatContext, DateTime from, DateTime to)
+		{
+			var exports = duplicatContext.Exports.Local
+				.Where(a => a.Account.ConnectionState == ConnectionStates.Connected && a.Account.MetaTraderAccountId.HasValue)
+				.ToList();
+
+			await _reportService.BalanceProfitExport(exports, from, to);
 		}
 	}
 }

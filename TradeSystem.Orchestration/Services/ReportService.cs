@@ -14,7 +14,7 @@ namespace TradeSystem.Orchestration.Services
         Task OrderHistoryExport(List<Account> accounts);
         Task HubArbsExport(List<StratHubArbPosition> arbPositions);
 	    Task SwapExport(List<Export> exports);
-
+	    Task BalanceProfitExport(List<Export> exports, DateTime from, DateTime to);
     }
 
     public class ReportService : IReportService
@@ -130,7 +130,7 @@ namespace TradeSystem.Orchestration.Services
 	    private void InnerSwapExport(List<Export> exports)
 	    {
 		    var templatePath = $@"{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}\Templates\SwapReport.xlsx";
-		    var filePath = $@"{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}\Reports\SwapReports\swap_{HiResDatetime.UtcNow:yyyyMMdd_hhmmss}.xlsx";
+		    var filePath = $@"{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}\Reports\SwapReports\Swap_{HiResDatetime.UtcNow:yyyyMMdd_hhmmss}.xlsx";
 		    new FileInfo(filePath).Directory?.Create();
 		    using (var stream = new FileStream(filePath, FileMode.OpenOrCreate, FileAccess.ReadWrite))
 		    {
@@ -165,6 +165,41 @@ namespace TradeSystem.Orchestration.Services
 						wb.CreateCell(row, c++, symbolInfo.Ex.swap_short);
 						wb.CreateCell(row, c++, symbolInfo.Ex.swap_rollover3days);
 					}
+				}
+
+			    wb.Write(stream);
+		    }
+	    }
+
+	    public async Task BalanceProfitExport(List<Export> exports, DateTime from, DateTime to)
+	    {
+		    await Task.Run(() => InnerBalanceProfitExport(exports, from, to));
+		    Logger.Debug("Balance-profit export is READY!");
+		}
+	    private void InnerBalanceProfitExport(List<Export> exports, DateTime from, DateTime to)
+	    {
+		    var templatePath = $@"{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}\Templates\BalanceProfitReport.xlsx";
+		    var filePath = $@"{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}\Reports\BalanceProfitReports\BalanceProfit_{from:yyyyMMdd}_{to:yyyyMMdd}.xlsx";
+		    new FileInfo(filePath).Directory?.Create();
+		    using (var stream = new FileStream(filePath, FileMode.OpenOrCreate, FileAccess.ReadWrite))
+		    {
+			    var wb = new CustomWorkbook(templatePath);
+			    var sheet = wb.GetSheetAt(0);
+
+			    var r = 0;
+
+			    foreach (var export in exports)
+			    {
+				    var qc = ((Connector)export.Account.Connector).QuoteClient;
+				    var history = qc.DownloadOrderHistory(from, to);
+
+				    var c = 0;
+				    var row = sheet.GetRow(++r) ?? sheet.CreateRow(r);
+
+				    wb.CreateTextCell(row, c++, export.Account.Connector.Description);
+				    wb.CreateCell(row, c++, export.Account.Connector.Id);
+				    wb.CreateCell(row, c++, qc.AccountBalance);
+				    wb.CreateCell(row, c++, history.Sum(h => h.Profit + h.Swap + h.Commission));
 				}
 
 			    wb.Write(stream);

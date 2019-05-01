@@ -21,6 +21,7 @@ namespace TradeSystem.Duplicat.Views
 			dgvExports.DefaultValuesNeeded += (s, e) => e.Row.Cells["ProfileId"].Value = _viewModel.SelectedProfile.Id;
 
 			btnSwaps.Click += (s, e) => { _viewModel.SwapExport(); };
+			btnBalanceProfit.Click += (s, e) => { _viewModel.BalanceProfitExport(dtpFrom.Value, dtpTo.Value); };
 		}
 
 		public void AttachDataSources()
