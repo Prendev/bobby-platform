@@ -81,6 +81,7 @@ namespace TradeSystem.Duplicat.ViewModel
 		public BindingList<Pushing> Pushings { get; private set; }
 		public BindingList<Spoofing> Spoofings { get; private set; }
 		public BindingList<Ticker> Tickers { get; private set; }
+		public BindingList<Export> Exports { get; private set; }
 		public BindingList<StratHubArb> StratHubArbs { get; private set; }
 		public BindingList<MarketMaker> MarketMakers { get; private set; }
 
@@ -204,6 +205,7 @@ namespace TradeSystem.Duplicat.ViewModel
 			_duplicatContext.Pushings.Where(e => e.ProfileId == p).Select(e => e.PushingDetail).OrderBy(e => e.ToString()).Load();
 			_duplicatContext.Spoofings.Where(e => e.ProfileId == p).OrderBy(e => e.ToString()).Load();
 			_duplicatContext.Tickers.Where(e => e.ProfileId == p).OrderBy(e => e.ToString()).Load();
+			_duplicatContext.Exports.Where(e => e.ProfileId == p).OrderBy(e => e.ToString()).Load();
 			_duplicatContext.StratHubArbs.Where(e => e.Aggregator.ProfileId == p).OrderBy(e => e.ToString())
 				.Include(e => e.StratHubArbPositions).ThenInclude(e => e.Position).Load();
 			_duplicatContext.MarketMakers.Where(e => e.ProfileId == p).OrderBy(e => e.ToString()).Load();
@@ -232,6 +234,7 @@ namespace TradeSystem.Duplicat.ViewModel
 			Pushings = _duplicatContext.Pushings.Local.ToBindingList();
 			Spoofings = _duplicatContext.Spoofings.Local.ToBindingList();
 			Tickers = _duplicatContext.Tickers.Local.ToBindingList();
+			Exports = _duplicatContext.Exports.Local.ToBindingList();
 			StratHubArbs = _duplicatContext.StratHubArbs.Local.ToBindingList();
 			MarketMakers = _duplicatContext.MarketMakers.Local.ToBindingList();
 

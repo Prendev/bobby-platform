@@ -11,118 +11,121 @@ using TradeSystem.Orchestration.Services.Strategies;
 
 namespace TradeSystem.Orchestration
 {
-    public partial interface IOrchestrator
+	public partial interface IOrchestrator
 	{
 		Task Connect(DuplicatContext duplicatContext);
 		Task Disconnect();
 		Task HeatUp();
 
 		Task StartCopiers(DuplicatContext duplicatContext);
-        void StopCopiers();
+		void StopCopiers();
 		Task CopierSync(Slave slave);
 		Task CopierClose(Slave slave);
 
 		Task StartTickers(DuplicatContext duplicatContext);
 		void StopTickers();
 
-        Task OrderHistoryExport(DuplicatContext duplicatContext);
+		Task OrderHistoryExport(DuplicatContext duplicatContext);
+		Task SwapExport(DuplicatContext duplicatContext);
+		Task BalanceProfitExport(DuplicatContext duplicatContext, DateTime from, DateTime to);
 		void MtAccountImport(DuplicatContext duplicatContext);
 		void SaveTheWeekend(DuplicatContext duplicatContext, DateTime from, DateTime to);
-    }
+	}
 
-    public partial class Orchestrator : IOrchestrator
-    {
-        private SynchronizationContext _synchronizationContext;
-        private DuplicatContext _duplicatContext;
-        private readonly Func<SynchronizationContext> _synchronizationContextFactory;
-        private readonly ICopierService _copierService;
-        private readonly IPushStrategyService _pushStrategyService;
-	    private readonly ISpoofStrategyService _spoofStrategyService;
+	public partial class Orchestrator : IOrchestrator
+	{
+		private SynchronizationContext _synchronizationContext;
+		private DuplicatContext _duplicatContext;
+		private readonly Func<SynchronizationContext> _synchronizationContextFactory;
+		private readonly ICopierService _copierService;
+		private readonly IPushStrategyService _pushStrategyService;
+		private readonly ISpoofStrategyService _spoofStrategyService;
 		private readonly ITickerService _tickerService;
-	    private readonly IHubArbService _hubArbService;
+		private readonly IHubArbService _hubArbService;
 		private readonly IConnectorFactory _connectorFactory;
-	    private readonly IReportService _reportService;
-	    private readonly IMtAccountImportService _mtAccountImportService;
-	    private readonly IProxyService _proxyService;
-	    private readonly IMarketMakerService _marketMakerService;
-	    private readonly IAntiMarketMakerService _antiMarketMakerService;
+		private readonly IReportService _reportService;
+		private readonly IMtAccountImportService _mtAccountImportService;
+		private readonly IProxyService _proxyService;
+		private readonly IMarketMakerService _marketMakerService;
+		private readonly IAntiMarketMakerService _antiMarketMakerService;
 
-	    public Orchestrator(
-            Func<SynchronizationContext> synchronizationContextFactory,
+		public Orchestrator(
+			Func<SynchronizationContext> synchronizationContextFactory,
 			IConnectorFactory connectorFactory,
-            ICopierService copierService,
-            IPushStrategyService pushStrategyService,
+			ICopierService copierService,
+			IPushStrategyService pushStrategyService,
 			ISpoofStrategyService spoofStrategyService,
 			ITickerService tickerService,
-            IHubArbService hubArbService,
+			IHubArbService hubArbService,
 			IMarketMakerService marketMakerService,
 			IAntiMarketMakerService antiMarketMakerService,
 			IReportService reportService,
-            IMtAccountImportService mtAccountImportService,
+			IMtAccountImportService mtAccountImportService,
 			IProxyService proxyService)
-        {
-	        _antiMarketMakerService = antiMarketMakerService;
-	        _marketMakerService = marketMakerService;
-	        _spoofStrategyService = spoofStrategyService;
-	        _proxyService = proxyService;
+		{
+			_antiMarketMakerService = antiMarketMakerService;
+			_marketMakerService = marketMakerService;
+			_spoofStrategyService = spoofStrategyService;
+			_proxyService = proxyService;
 			_mtAccountImportService = mtAccountImportService;
-	        _reportService = reportService;
-	        _connectorFactory = connectorFactory;
-	        _hubArbService = hubArbService;
+			_reportService = reportService;
+			_connectorFactory = connectorFactory;
+			_hubArbService = hubArbService;
 			_tickerService = tickerService;
-            _pushStrategyService = pushStrategyService;
-            _copierService = copierService;
-            _synchronizationContextFactory = synchronizationContextFactory;
-        }
+			_pushStrategyService = pushStrategyService;
+			_copierService = copierService;
+			_synchronizationContextFactory = synchronizationContextFactory;
+		}
 
-        public async Task Connect(DuplicatContext duplicatContext)
-        {
-            _duplicatContext = duplicatContext;
-            _synchronizationContext = _synchronizationContext ?? _synchronizationContextFactory.Invoke();
+		public async Task Connect(DuplicatContext duplicatContext)
+		{
+			_duplicatContext = duplicatContext;
+			_synchronizationContext = _synchronizationContext ?? _synchronizationContextFactory.Invoke();
 
 			var accounts = _duplicatContext.Accounts.Local
-		        .Where(pa => pa.Run).ToList()
-		        .Where(pa => pa.ConnectionState != ConnectionStates.Connected)
-		        .ToList();
+				.Where(pa => pa.Run).ToList()
+				.Where(pa => pa.ConnectionState != ConnectionStates.Connected)
+				.ToList();
 
-	        _proxyService.Start(duplicatContext.ProfileProxies.Local.Where(a => a.Run).ToList(), accounts);
+			_proxyService.Start(duplicatContext.ProfileProxies.Local.Where(a => a.Run).ToList(), accounts);
 
 			var tasks = accounts.Select(account => Task.Run(() => _connectorFactory.Create(account))).ToList();
 
-	        await Task.WhenAll(tasks);
+			await Task.WhenAll(tasks);
 
-	        foreach (var agg in _duplicatContext.Aggregators.Local.Where(a => a.Run))
-	        {
-		        var aggAccounts = agg.Accounts
-			        .Where(a => a.Account?.Run == true)
-			        .Where(a => a.Account.FixApiAccountId.HasValue)
-			        .Where(a => a.Account.Connector is FixApiIntegration.Connector)
-			        .Where(a => !string.IsNullOrWhiteSpace(a.Symbol))
-			        .ToList();
+			foreach (var agg in _duplicatContext.Aggregators.Local.Where(a => a.Run))
+			{
+				var aggAccounts = agg.Accounts
+					.Where(a => a.Account?.Run == true)
+					.Where(a => a.Account.FixApiAccountId.HasValue)
+					.Where(a => a.Account.Connector is FixApiIntegration.Connector)
+					.Where(a => !string.IsNullOrWhiteSpace(a.Symbol))
+					.ToList();
 
-		        foreach (var aggAccount in aggAccounts)
-			        aggAccount.Account.Connector.Subscribe(aggAccount.Symbol);
+				foreach (var aggAccount in aggAccounts)
+					aggAccount.Account.Connector.Subscribe(aggAccount.Symbol);
 
 				var groups = aggAccounts.Select(a =>
-				        new
-				        {
-					        IConnector = ((FixApiIntegration.Connector) a.Account.Connector).GeneralConnector,
-					        Symbol = Symbol.Parse(a.Symbol)
-				        }).ToDictionary(x => x.IConnector, x => x.Symbol);
+					new
+					{
+						IConnector = ((FixApiIntegration.Connector) a.Account.Connector).GeneralConnector,
+						Symbol = Symbol.Parse(a.Symbol)
+					}).ToDictionary(x => x.IConnector, x => x.Symbol);
 
 				agg.QuoteAggregator = MarketDataManager.CreateQuoteAggregator(groups);
 			}
-        }
-		public async Task Disconnect()
-        {
-            _duplicatContext.SaveChanges();
+		}
 
-	        _proxyService.Stop();
+		public async Task Disconnect()
+		{
+			_duplicatContext.SaveChanges();
+
+			_proxyService.Stop();
 			foreach (var agg in _duplicatContext.Aggregators.Local)
-	        {
-		        agg.QuoteAggregator?.Dispose();
-		        agg.QuoteAggregator = null;
-	        }
+			{
+				agg.QuoteAggregator?.Dispose();
+				agg.QuoteAggregator = null;
+			}
 
 			var accounts = _duplicatContext.Accounts.Local.ToList();
 			var tasks = accounts.Select(pa => Task.Run(() => pa.Connector?.Disconnect()));
@@ -130,17 +133,17 @@ namespace TradeSystem.Orchestration
 			await Task.WhenAll(tasks);
 		}
 
-	    public async Task HeatUp()
-	    {
-		    var accounts = _duplicatContext.Accounts.Local
-			    .Where(a => a.FixApiAccountId.HasValue)
-			    .Where(a => a.Connector?.IsConnected == true)
-			    .ToList();
+		public async Task HeatUp()
+		{
+			var accounts = _duplicatContext.Accounts.Local
+				.Where(a => a.FixApiAccountId.HasValue)
+				.Where(a => a.Connector?.IsConnected == true)
+				.ToList();
 
-		    var tasks = accounts.Select(pa => Task.Run(() => (pa.Connector as FixApiIntegration.Connector)?.HeatUp()));
+			var tasks = accounts.Select(pa => Task.Run(() => (pa.Connector as FixApiIntegration.Connector)?.HeatUp()));
 
-		    await Task.WhenAll(tasks);
-	    }
+			await Task.WhenAll(tasks);
+		}
 
 		public async Task StartCopiers(DuplicatContext duplicatContext)
 		{
@@ -159,7 +162,8 @@ namespace TradeSystem.Orchestration
 			var masters = copiers.Union(fixApiCopiers).Distinct().ToList();
 
 			_copierService.Start(masters);
-        }
+		}
+
 		public void StopCopiers() => _copierService.Stop();
 		public Task CopierSync(Slave slave) => _copierService.Sync(slave);
 		public Task CopierClose(Slave slave) => _copierService.Close(slave);
@@ -174,6 +178,7 @@ namespace TradeSystem.Orchestration
 
 			_tickerService.Start(tickers);
 		}
+
 		public void StopTickers() => _tickerService.Stop();
 
 		public async Task OrderHistoryExport(DuplicatContext duplicatContext)
@@ -184,8 +189,28 @@ namespace TradeSystem.Orchestration
 
 			await _reportService.OrderHistoryExport(accounts);
 		}
+
 		public void MtAccountImport(DuplicatContext duplicatContext) => _mtAccountImportService.Import(duplicatContext);
-	    public void SaveTheWeekend(DuplicatContext duplicatContext, DateTime from, DateTime to) =>
-		    _mtAccountImportService.SaveTheWeekend(duplicatContext, from, to);
-    }
+
+		public void SaveTheWeekend(DuplicatContext duplicatContext, DateTime from, DateTime to) =>
+			_mtAccountImportService.SaveTheWeekend(duplicatContext, from, to);
+
+		public async Task SwapExport(DuplicatContext duplicatContext)
+		{
+			var exports = duplicatContext.Exports.Local
+				.Where(a => a.Account.ConnectionState == ConnectionStates.Connected && a.Account.MetaTraderAccountId.HasValue)
+				.ToList();
+
+			await _reportService.SwapExport(exports);
+		}
+
+		public async Task BalanceProfitExport(DuplicatContext duplicatContext, DateTime from, DateTime to)
+		{
+			var exports = duplicatContext.Exports.Local
+				.Where(a => a.Account.ConnectionState == ConnectionStates.Connected && a.Account.MetaTraderAccountId.HasValue)
+				.ToList();
+
+			await _reportService.BalanceProfitExport(exports, from, to);
+		}
+	}
 }

@@ -270,6 +270,12 @@
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
+    <None Include="Templates\BalanceProfitReport.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Templates\SwapReport.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="Templates\OrderHistory.xlsx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

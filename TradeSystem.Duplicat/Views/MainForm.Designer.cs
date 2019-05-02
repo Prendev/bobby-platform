@@ -59,7 +59,7 @@
 			this.hubArbUserControl = new TradeSystem.Duplicat.Views.HubArbUserControl();
 			this.tabPageMarketMaker = new System.Windows.Forms.TabPage();
 			this.marketMakerUserControl1 = new TradeSystem.Duplicat.Views.MarketMakerUserControl();
-			this.tabPageTicker = new System.Windows.Forms.TabPage();
+			this.tabPageLiveData = new System.Windows.Forms.TabPage();
 			this.tickersUserControl = new TradeSystem.Duplicat.Views.TickersUserControl();
 			this.tabPageLog = new System.Windows.Forms.TabPage();
 			this.tabControl1 = new System.Windows.Forms.TabControl();
@@ -67,6 +67,8 @@
 			this.rtbGeneral = new System.Windows.Forms.RichTextBox();
 			this.tabPage2 = new System.Windows.Forms.TabPage();
 			this.rtbFix = new System.Windows.Forms.RichTextBox();
+			this.tabPage5 = new System.Windows.Forms.TabPage();
+			this.rtbFixCopy = new System.Windows.Forms.RichTextBox();
 			this.tabPage4 = new System.Windows.Forms.TabPage();
 			this.rtbFixOrders = new System.Windows.Forms.RichTextBox();
 			this.tabPage3 = new System.Windows.Forms.TabPage();
@@ -79,8 +81,10 @@
 			this.btnDisconnect = new System.Windows.Forms.Button();
 			this.btnConnect = new System.Windows.Forms.Button();
 			this.btnSave = new System.Windows.Forms.Button();
-			this.tabPage5 = new System.Windows.Forms.TabPage();
-			this.rtbFixCopy = new System.Windows.Forms.RichTextBox();
+			this.tabControl2 = new System.Windows.Forms.TabControl();
+			this.tabPageTicker = new System.Windows.Forms.TabPage();
+			this.tabPageExport = new System.Windows.Forms.TabPage();
+			this.exportUserControl1 = new TradeSystem.Duplicat.Views.ExportUserControl();
 			this.tabControlMain.SuspendLayout();
 			this.tabPageProfile.SuspendLayout();
 			this.tabPageAccount.SuspendLayout();
@@ -99,16 +103,19 @@
 			this.tabPageSpoofing.SuspendLayout();
 			this.tabPageHubArb.SuspendLayout();
 			this.tabPageMarketMaker.SuspendLayout();
-			this.tabPageTicker.SuspendLayout();
+			this.tabPageLiveData.SuspendLayout();
 			this.tabPageLog.SuspendLayout();
 			this.tabControl1.SuspendLayout();
 			this.tabPage1.SuspendLayout();
 			this.tabPage2.SuspendLayout();
+			this.tabPage5.SuspendLayout();
 			this.tabPage4.SuspendLayout();
 			this.tabPage3.SuspendLayout();
 			this.tlpMain.SuspendLayout();
 			this.gbControl.SuspendLayout();
-			this.tabPage5.SuspendLayout();
+			this.tabControl2.SuspendLayout();
+			this.tabPageTicker.SuspendLayout();
+			this.tabPageExport.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// tabControlMain
@@ -119,7 +126,7 @@
 			this.tabControlMain.Controls.Add(this.tabPageProxy);
 			this.tabControlMain.Controls.Add(this.tabPageCopier);
 			this.tabControlMain.Controls.Add(this.tabPageStrategy);
-			this.tabControlMain.Controls.Add(this.tabPageTicker);
+			this.tabControlMain.Controls.Add(this.tabPageLiveData);
 			this.tabControlMain.Controls.Add(this.tabPageLog);
 			this.tabControlMain.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.tabControlMain.Location = new System.Drawing.Point(4, 68);
@@ -426,22 +433,22 @@
 			this.marketMakerUserControl1.Size = new System.Drawing.Size(1471, 629);
 			this.marketMakerUserControl1.TabIndex = 0;
 			// 
-			// tabPageTicker
+			// tabPageLiveData
 			// 
-			this.tabPageTicker.Controls.Add(this.tickersUserControl);
-			this.tabPageTicker.Location = new System.Drawing.Point(4, 25);
-			this.tabPageTicker.Name = "tabPageTicker";
-			this.tabPageTicker.Size = new System.Drawing.Size(1485, 733);
-			this.tabPageTicker.TabIndex = 9;
-			this.tabPageTicker.Text = "Tickers";
-			this.tabPageTicker.UseVisualStyleBackColor = true;
+			this.tabPageLiveData.Controls.Add(this.tabControl2);
+			this.tabPageLiveData.Location = new System.Drawing.Point(4, 25);
+			this.tabPageLiveData.Name = "tabPageLiveData";
+			this.tabPageLiveData.Size = new System.Drawing.Size(1485, 733);
+			this.tabPageLiveData.TabIndex = 9;
+			this.tabPageLiveData.Text = "Live data";
+			this.tabPageLiveData.UseVisualStyleBackColor = true;
 			// 
 			// tickersUserControl
 			// 
 			this.tickersUserControl.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.tickersUserControl.Location = new System.Drawing.Point(0, 0);
+			this.tickersUserControl.Location = new System.Drawing.Point(3, 3);
 			this.tickersUserControl.Name = "tickersUserControl";
-			this.tickersUserControl.Size = new System.Drawing.Size(1485, 733);
+			this.tickersUserControl.Size = new System.Drawing.Size(1471, 698);
 			this.tickersUserControl.TabIndex = 0;
 			// 
 			// tabPageLog
@@ -515,6 +522,29 @@
 			this.rtbFix.TabIndex = 1;
 			this.rtbFix.Text = "";
 			this.rtbFix.WordWrap = false;
+			// 
+			// tabPage5
+			// 
+			this.tabPage5.Controls.Add(this.rtbFixCopy);
+			this.tabPage5.Location = new System.Drawing.Point(4, 25);
+			this.tabPage5.Name = "tabPage5";
+			this.tabPage5.Padding = new System.Windows.Forms.Padding(3);
+			this.tabPage5.Size = new System.Drawing.Size(1469, 696);
+			this.tabPage5.TabIndex = 5;
+			this.tabPage5.Text = "FIX copy";
+			this.tabPage5.UseVisualStyleBackColor = true;
+			// 
+			// rtbFixCopy
+			// 
+			this.rtbFixCopy.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.rtbFixCopy.Location = new System.Drawing.Point(3, 3);
+			this.rtbFixCopy.Name = "rtbFixCopy";
+			this.rtbFixCopy.ReadOnly = true;
+			this.rtbFixCopy.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Vertical;
+			this.rtbFixCopy.Size = new System.Drawing.Size(1463, 690);
+			this.rtbFixCopy.TabIndex = 3;
+			this.rtbFixCopy.Text = "";
+			this.rtbFixCopy.WordWrap = false;
 			// 
 			// tabPage4
 			// 
@@ -660,28 +690,46 @@
 			this.btnSave.Text = "Save config changes";
 			this.btnSave.UseVisualStyleBackColor = true;
 			// 
-			// tabPage5
+			// tabControl2
 			// 
-			this.tabPage5.Controls.Add(this.rtbFixCopy);
-			this.tabPage5.Location = new System.Drawing.Point(4, 25);
-			this.tabPage5.Name = "tabPage5";
-			this.tabPage5.Padding = new System.Windows.Forms.Padding(3);
-			this.tabPage5.Size = new System.Drawing.Size(1469, 696);
-			this.tabPage5.TabIndex = 5;
-			this.tabPage5.Text = "FIX copy";
-			this.tabPage5.UseVisualStyleBackColor = true;
+			this.tabControl2.Controls.Add(this.tabPageTicker);
+			this.tabControl2.Controls.Add(this.tabPageExport);
+			this.tabControl2.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.tabControl2.Location = new System.Drawing.Point(0, 0);
+			this.tabControl2.Name = "tabControl2";
+			this.tabControl2.SelectedIndex = 0;
+			this.tabControl2.Size = new System.Drawing.Size(1485, 733);
+			this.tabControl2.TabIndex = 0;
 			// 
-			// rtbFixCopy
+			// tabPageTicker
 			// 
-			this.rtbFixCopy.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.rtbFixCopy.Location = new System.Drawing.Point(3, 3);
-			this.rtbFixCopy.Name = "rtbFixCopy";
-			this.rtbFixCopy.ReadOnly = true;
-			this.rtbFixCopy.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Vertical;
-			this.rtbFixCopy.Size = new System.Drawing.Size(1463, 690);
-			this.rtbFixCopy.TabIndex = 3;
-			this.rtbFixCopy.Text = "";
-			this.rtbFixCopy.WordWrap = false;
+			this.tabPageTicker.Controls.Add(this.tickersUserControl);
+			this.tabPageTicker.Location = new System.Drawing.Point(4, 25);
+			this.tabPageTicker.Name = "tabPageTicker";
+			this.tabPageTicker.Padding = new System.Windows.Forms.Padding(3);
+			this.tabPageTicker.Size = new System.Drawing.Size(1477, 704);
+			this.tabPageTicker.TabIndex = 0;
+			this.tabPageTicker.Text = "Tickers";
+			this.tabPageTicker.UseVisualStyleBackColor = true;
+			// 
+			// tabPageExport
+			// 
+			this.tabPageExport.Controls.Add(this.exportUserControl1);
+			this.tabPageExport.Location = new System.Drawing.Point(4, 25);
+			this.tabPageExport.Name = "tabPageExport";
+			this.tabPageExport.Padding = new System.Windows.Forms.Padding(3);
+			this.tabPageExport.Size = new System.Drawing.Size(1477, 704);
+			this.tabPageExport.TabIndex = 1;
+			this.tabPageExport.Text = "Exports";
+			this.tabPageExport.UseVisualStyleBackColor = true;
+			// 
+			// exportUserControl1
+			// 
+			this.exportUserControl1.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.exportUserControl1.Location = new System.Drawing.Point(3, 3);
+			this.exportUserControl1.Name = "exportUserControl1";
+			this.exportUserControl1.Size = new System.Drawing.Size(1471, 698);
+			this.exportUserControl1.TabIndex = 0;
 			// 
 			// MainForm
 			// 
@@ -710,17 +758,20 @@
 			this.tabPageSpoofing.ResumeLayout(false);
 			this.tabPageHubArb.ResumeLayout(false);
 			this.tabPageMarketMaker.ResumeLayout(false);
-			this.tabPageTicker.ResumeLayout(false);
+			this.tabPageLiveData.ResumeLayout(false);
 			this.tabPageLog.ResumeLayout(false);
 			this.tabControl1.ResumeLayout(false);
 			this.tabPage1.ResumeLayout(false);
 			this.tabPage2.ResumeLayout(false);
+			this.tabPage5.ResumeLayout(false);
 			this.tabPage4.ResumeLayout(false);
 			this.tabPage3.ResumeLayout(false);
 			this.tlpMain.ResumeLayout(false);
 			this.gbControl.ResumeLayout(false);
 			this.gbControl.PerformLayout();
-			this.tabPage5.ResumeLayout(false);
+			this.tabControl2.ResumeLayout(false);
+			this.tabPageTicker.ResumeLayout(false);
+			this.tabPageExport.ResumeLayout(false);
 			this.ResumeLayout(false);
 
         }
@@ -748,7 +799,7 @@
         private ProfilesUserControl profilesUserControl;
         private System.Windows.Forms.Label labelProfile;
         private System.Windows.Forms.Label label1;
-		private System.Windows.Forms.TabPage tabPageTicker;
+		private System.Windows.Forms.TabPage tabPageLiveData;
 		private TickersUserControl tickersUserControl;
 		private System.Windows.Forms.TabPage tabPageStrategy;
 		private System.Windows.Forms.Button btnQuickStart;
@@ -788,6 +839,10 @@
 		private SpoofingUserControl spoofingUserControl1;
 		private System.Windows.Forms.TabPage tabPage5;
 		private System.Windows.Forms.RichTextBox rtbFixCopy;
+		private System.Windows.Forms.TabControl tabControl2;
+		private System.Windows.Forms.TabPage tabPageTicker;
+		private System.Windows.Forms.TabPage tabPageExport;
+		private ExportUserControl exportUserControl1;
 	}
 }
 

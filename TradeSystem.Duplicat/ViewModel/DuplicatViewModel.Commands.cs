@@ -206,6 +206,20 @@ namespace TradeSystem.Duplicat.ViewModel
 		    _orchestrator.SaveTheWeekend(_duplicatContext, from, to);
 		    IsLoading = false;
 		}
+	    public void SwapExport()
+	    {
+		    if (!IsConnected) return;
+		    IsLoading = true;
+		    _orchestrator.SwapExport(_duplicatContext);
+		    IsLoading = false;
+	    }
+	    public void BalanceProfitExport(DateTime from, DateTime to)
+	    {
+		    if (!IsConnected) return;
+		    IsLoading = true;
+		    _orchestrator.BalanceProfitExport(_duplicatContext, from, to);
+		    IsLoading = false;
+	    }
 
 		public async void StartTickersCommand()
 		{
