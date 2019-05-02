@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using TradeSystem.Data.Models;
 using TradeSystem.Mt4Integration;
+using TradingAPI.MT4Server;
 
 namespace TradeSystem.Orchestration.Services
 {
@@ -48,8 +49,8 @@ namespace TradeSystem.Orchestration.Services
 				var r = 0;
 				foreach (var order in orders)
 				{
-					if (order.Type != TradingAPI.MT4Server.Op.Buy &&
-						order.Type != TradingAPI.MT4Server.Op.Sell) continue;
+					if (order.Type != Op.Buy &&
+						order.Type != Op.Sell) continue;
 
 					var c = 0;
 					var row = sheet.GetRow(++r) ?? sheet.CreateRow(r);
@@ -150,7 +151,6 @@ namespace TradeSystem.Orchestration.Services
 				    foreach (var symbol in symbols)
 					{
 						var symbolInfo = qc.GetSymbolInfo(symbol);
-
 						var c = 0;
 						var row = sheet.GetRow(++r) ?? sheet.CreateRow(r);
 
@@ -159,19 +159,75 @@ namespace TradeSystem.Orchestration.Services
 						wb.CreateCell(row, c++, export.Account.Connector.Id);
 						wb.CreateCell(row, c++, qc.AccountLeverage);
 						wb.CreateTextCell(row, c++, symbol);
-						wb.CreateCell(row, c++, symbolInfo.Ex.swap_enable);
-						wb.CreateCell(row, c++, symbolInfo.Ex.swap_type);
+						wb.CreateTextCell(row, c++, TradeMode(symbolInfo.Ex.trade));
+						if (symbolInfo.Ex.trade == 0) continue;
+						wb.CreateTextCell(row, c++, symbolInfo.MarginMode.ToString());
+						wb.CreateCell(row, c++, symbolInfo.MarginDivider);
+						wb.CreateTextCell(row, c++, symbolInfo.MarginCurrency);
+						wb.CreateCell(row, c++, SymbolLeverage(qc.AccountLeverage, symbolInfo));
+						wb.CreateTextCell(row, c++, symbolInfo.Ex.swap_enable == 0 ? "False" : "True");
+						if (symbolInfo.Ex.swap_enable == 0) continue;
+						wb.CreateTextCell(row, c++, SwapType(symbolInfo.Ex.swap_type));
 						wb.CreateCell(row, c++, symbolInfo.Ex.swap_long);
 						wb.CreateCell(row, c++, symbolInfo.Ex.swap_short);
-						wb.CreateCell(row, c++, symbolInfo.Ex.swap_rollover3days);
+						wb.CreateTextCell(row, c++, ThreeDays(symbolInfo.Ex.swap_rollover3days));
 					}
 				}
 
 			    wb.Write(stream);
 		    }
 	    }
+	    private string TradeMode(int mode)
+	    {
+		    switch (mode)
+		    {
+				case 0: return "Disabled";
+				case 1: return "CloseOnly";
+				case 2: return "Full";
+				case 3: return "LongOnly";
+				case 4: return "ShortOnly";
+				default: return "Unknown";
+		    }
+		}
+	    private string SwapType(int type)
+	    {
+		    switch (type)
+		    {
+			    case 0: return "Points";
+			    case 1: return "InBaseCurrency";
+			    case 2: return "ByInterest";
+			    case 3: return "InMarginCurrency";
+			    default: return "Unknown";
+		    }
+		}
+	    private string ThreeDays(int day)
+	    {
+		    switch (day)
+		    {
+			    case 1: return "Monday";
+			    case 2: return "Tuesday";
+			    case 3: return "Wednesday";
+			    case 4: return "Thursday";
+			    case 5: return "Friday";
+				default: return "Unknown";
+		    }
+	    }
+	    private double? SymbolLeverage(int accountLeverage, SymbolInfo symbolInfo)
+	    {
+		    switch (symbolInfo.MarginMode)
+		    {
+			    case MarginMode.Forex:
+				    return accountLeverage * symbolInfo.MarginDivider;
+			    case MarginMode.CfdLeverage:
+				    return accountLeverage * symbolInfo.MarginDivider;
+			    case MarginMode.CFD:
+				    return 1.0 / symbolInfo.MarginDivider;
+				default: return null;
+		    }
+	    }
 
-	    public async Task BalanceProfitExport(List<Export> exports, DateTime from, DateTime to)
+
+		public async Task BalanceProfitExport(List<Export> exports, DateTime from, DateTime to)
 	    {
 		    await Task.Run(() => InnerBalanceProfitExport(exports, from, to));
 		    Logger.Debug("Balance-profit export is READY!");
