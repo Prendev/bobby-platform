@@ -140,21 +140,21 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			for (var d = set.NextTopDepth - 1; d > 0; d--)
 			{
 				var buyStop = _stopOrderService.SendStopOrder(set, Sides.Sell, set.TopBase.Value + d * gap - stop,
-					set.TopBase.Value + d * gap - stop - agg, $"Top_{d}");
+					set.TopBase.Value + d * gap - stop - agg, $"{d:0000}_Top");
 				set.AntiMarketMakerTopStops.AddOrUpdate(buyStop.UserId, buyStop, (s, o) => buyStop);
 			}
 			var buy = _stopOrderService.SendStopOrder(set, Sides.Buy, set.TopBase.Value + set.NextTopDepth * gap,
-				set.TopBase.Value + set.NextTopDepth * gap + agg, $"Top_{set.NextTopDepth}");
+				set.TopBase.Value + set.NextTopDepth * gap + agg, $"{set.NextTopDepth:0000}_Top");
 			set.AntiMarketMakerTopStops.AddOrUpdate(buy.UserId, buy, (s, o) => buy);
 
 			for (var d = set.NextBottomDepth - 1; d > 0; d--)
 			{
 				var sellStop = _stopOrderService.SendStopOrder(set, Sides.Buy, set.BottomBase.Value - d * gap + stop,
-					set.BottomBase.Value - d * gap + stop + agg, $"Bottom_{d}");
+					set.BottomBase.Value - d * gap + stop + agg, $"{d:0000}_Bottom");
 				set.AntiMarketMakerBottomStops.AddOrUpdate(sellStop.UserId, sellStop, (s, o) => sellStop);
 			}
 			var sell = _stopOrderService.SendStopOrder(set, Sides.Sell, set.BottomBase.Value - set.NextBottomDepth * gap,
-				set.BottomBase.Value - set.NextBottomDepth * gap - agg, $"Bottom_{set.NextBottomDepth}");
+				set.BottomBase.Value - set.NextBottomDepth * gap - agg, $"{set.NextBottomDepth:0000}_Bottom");
 			set.AntiMarketMakerBottomStops.AddOrUpdate(sell.UserId, sell, (s, o) => sell);
 
 			set.State = MarketMaker.MarketMakerStates.Trade;
@@ -169,9 +169,9 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			if (set.State == MarketMaker.MarketMakerStates.None) return;
 
 			if (set.AntiMarketMakerTopStops.ContainsKey(e.UserId))
-				_queues.GetOrAdd(set.Id, new FastBlockingCollection<Action>()).Add(() => PostFillTop(set, e, Int32.Parse(e.UserId.Split('_').Last())));
+				_queues.GetOrAdd(set.Id, new FastBlockingCollection<Action>()).Add(() => PostFillTop(set, e, Int32.Parse(e.UserId.Split('_').First())));
 			else if (set.AntiMarketMakerBottomStops.ContainsKey(e.UserId))
-				_queues.GetOrAdd(set.Id, new FastBlockingCollection<Action>()).Add(() => PostFillBottom(set, e, Int32.Parse(e.UserId.Split('_').Last())));
+				_queues.GetOrAdd(set.Id, new FastBlockingCollection<Action>()).Add(() => PostFillBottom(set, e, Int32.Parse(e.UserId.Split('_').First())));
 
 		}
 
@@ -194,7 +194,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				if (set.NextTopDepth >= set.MaxDepth) return;
 				if (!set.TopBase.HasValue) return;
 				var newDepth = set.TopBase.Value + set.NextTopDepth * gap;
-				var buy = _stopOrderService.SendStopOrder(set, Sides.Buy, newDepth, newDepth + agg, $"Top_{set.NextTopDepth}");
+				var buy = _stopOrderService.SendStopOrder(set, Sides.Buy, newDepth, newDepth + agg, $"{set.NextTopDepth:0000}_Top");
 				set.AntiMarketMakerTopStops.AddOrUpdate(buy.UserId, buy, (s, o) => buy);
 			}
 			// Closing side
@@ -234,7 +234,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				if (set.NextBottomDepth >= set.MaxDepth) return;
 				if (!set.BottomBase.HasValue) return;
 				var newDepth = set.BottomBase.Value - set.NextBottomDepth * gap;
-				var sell = _stopOrderService.SendStopOrder(set, Sides.Sell, newDepth, newDepth - agg, $"Bottom_{set.NextBottomDepth}");
+				var sell = _stopOrderService.SendStopOrder(set, Sides.Sell, newDepth, newDepth - agg, $"{set.NextBottomDepth:0000}_Bottom");
 				set.AntiMarketMakerBottomStops.AddOrUpdate(sell.UserId, sell, (s, o) => sell);
 			}
 		}

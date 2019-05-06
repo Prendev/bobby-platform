@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Linq;
 using System.Threading.Tasks;
 using TradeSystem.Common.Integration;
 using TradeSystem.Communication;
@@ -101,7 +102,7 @@ namespace TradeSystem.Orchestration.Services
 		{
 			if (set.Token.IsCancellationRequested) return;
 			var responses = _stopOrders.GetOrAdd(set, new ConcurrentDictionary<string, StopResponse>());
-			foreach (var response in responses.Values)
+			foreach (var response in responses.Values.ToList().OrderBy(r => r.UserId))
 			{
 				if (set.Token.IsCancellationRequested) return;
 
