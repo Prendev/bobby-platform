@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using TradeSystem.Data.Models;
 using TradeSystem.Mt4Integration;
@@ -139,24 +140,35 @@ namespace TradeSystem.Orchestration.Services
 			    var sheet = wb.GetSheetAt(0);
 
 			    var r = 0;
-
 			    foreach (var export in exports)
+				{
+					var qc = ((Connector)export.Account.Connector).QuoteClient;
+					var symbols = export.Symbol.Contains('*')
+						? qc.Symbols.Where(s => s.Contains(export.Symbol.Replace("*", ""))).ToList()
+						: qc.Symbols.Where(s => s == export.Symbol).ToList();
+					qc.Subscribe(symbols.ToArray());
+				}
+			    Thread.Sleep(TimeSpan.FromSeconds(5));
+
+				foreach (var export in exports)
 			    {
 				    var qc = ((Connector)export.Account.Connector).QuoteClient;
 
 				    var symbols = export.Symbol.Contains('*')
 					    ? qc.Symbols.Where(s => s.Contains(export.Symbol.Replace("*", "")))
-					    : qc.Symbols.Where(s => s == export.Symbol);
+						: qc.Symbols.Where(s => s == export.Symbol);
 
 				    foreach (var symbol in symbols)
-					{
+				    {
+					    var quote = qc.GetQuote(symbol);
 						var symbolInfo = qc.GetSymbolInfo(symbol);
 						var c = 0;
 						var row = sheet.GetRow(++r) ?? sheet.CreateRow(r);
 
 						wb.CreateTextCell(row, c++, export.Group ?? "");
+						wb.CreateTextCell(row, c++, qc.Account.company);
 						wb.CreateTextCell(row, c++, export.Account.Connector.Description);
-						wb.CreateCell(row, c++, export.Account.Connector.Id);
+						wb.CreateCell(row, c++, qc.User);
 						wb.CreateCell(row, c++, qc.AccountLeverage);
 						wb.CreateTextCell(row, c++, symbol);
 						wb.CreateTextCell(row, c++, TradeMode(symbolInfo.Ex.trade));
@@ -165,6 +177,9 @@ namespace TradeSystem.Orchestration.Services
 						wb.CreateCell(row, c++, symbolInfo.MarginDivider);
 						wb.CreateTextCell(row, c++, symbolInfo.MarginCurrency);
 						wb.CreateCell(row, c++, SymbolLeverage(qc.AccountLeverage, symbolInfo));
+					    wb.CreateCell(row, c++, symbolInfo.Digits);
+					    wb.CreateCell(row, c++, quote?.Ask);
+					    wb.CreateCell(row, c++, quote?.Bid);
 						wb.CreateTextCell(row, c++, symbolInfo.Ex.swap_enable == 0 ? "False" : "True");
 						if (symbolInfo.Ex.swap_enable == 0) continue;
 						wb.CreateTextCell(row, c++, SwapType(symbolInfo.Ex.swap_type));
