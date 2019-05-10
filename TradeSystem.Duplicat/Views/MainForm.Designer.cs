@@ -60,7 +60,11 @@
 			this.tabPageMarketMaker = new System.Windows.Forms.TabPage();
 			this.marketMakerUserControl1 = new TradeSystem.Duplicat.Views.MarketMakerUserControl();
 			this.tabPageLiveData = new System.Windows.Forms.TabPage();
+			this.tabControl2 = new System.Windows.Forms.TabControl();
+			this.tabPageTicker = new System.Windows.Forms.TabPage();
 			this.tickersUserControl = new TradeSystem.Duplicat.Views.TickersUserControl();
+			this.tabPageExport = new System.Windows.Forms.TabPage();
+			this.exportUserControl1 = new TradeSystem.Duplicat.Views.ExportUserControl();
 			this.tabPageLog = new System.Windows.Forms.TabPage();
 			this.tabControl1 = new System.Windows.Forms.TabControl();
 			this.tabPage1 = new System.Windows.Forms.TabPage();
@@ -81,10 +85,8 @@
 			this.btnDisconnect = new System.Windows.Forms.Button();
 			this.btnConnect = new System.Windows.Forms.Button();
 			this.btnSave = new System.Windows.Forms.Button();
-			this.tabControl2 = new System.Windows.Forms.TabControl();
-			this.tabPageTicker = new System.Windows.Forms.TabPage();
-			this.tabPageExport = new System.Windows.Forms.TabPage();
-			this.exportUserControl1 = new TradeSystem.Duplicat.Views.ExportUserControl();
+			this.tabPageLatencyArb = new System.Windows.Forms.TabPage();
+			this.latencyArbUserControl1 = new TradeSystem.Duplicat.Views.LatencyArbUserControl();
 			this.tabControlMain.SuspendLayout();
 			this.tabPageProfile.SuspendLayout();
 			this.tabPageAccount.SuspendLayout();
@@ -104,6 +106,9 @@
 			this.tabPageHubArb.SuspendLayout();
 			this.tabPageMarketMaker.SuspendLayout();
 			this.tabPageLiveData.SuspendLayout();
+			this.tabControl2.SuspendLayout();
+			this.tabPageTicker.SuspendLayout();
+			this.tabPageExport.SuspendLayout();
 			this.tabPageLog.SuspendLayout();
 			this.tabControl1.SuspendLayout();
 			this.tabPage1.SuspendLayout();
@@ -113,9 +118,7 @@
 			this.tabPage3.SuspendLayout();
 			this.tlpMain.SuspendLayout();
 			this.gbControl.SuspendLayout();
-			this.tabControl2.SuspendLayout();
-			this.tabPageTicker.SuspendLayout();
-			this.tabPageExport.SuspendLayout();
+			this.tabPageLatencyArb.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// tabControlMain
@@ -352,6 +355,7 @@
 			this.tabControlStrategies.Controls.Add(this.tabPageSpoofing);
 			this.tabControlStrategies.Controls.Add(this.tabPageHubArb);
 			this.tabControlStrategies.Controls.Add(this.tabPageMarketMaker);
+			this.tabControlStrategies.Controls.Add(this.tabPageLatencyArb);
 			this.tabControlStrategies.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.tabControlStrategies.Location = new System.Drawing.Point(3, 3);
 			this.tabControlStrategies.Name = "tabControlStrategies";
@@ -443,6 +447,28 @@
 			this.tabPageLiveData.Text = "Live data";
 			this.tabPageLiveData.UseVisualStyleBackColor = true;
 			// 
+			// tabControl2
+			// 
+			this.tabControl2.Controls.Add(this.tabPageTicker);
+			this.tabControl2.Controls.Add(this.tabPageExport);
+			this.tabControl2.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.tabControl2.Location = new System.Drawing.Point(0, 0);
+			this.tabControl2.Name = "tabControl2";
+			this.tabControl2.SelectedIndex = 0;
+			this.tabControl2.Size = new System.Drawing.Size(1485, 733);
+			this.tabControl2.TabIndex = 0;
+			// 
+			// tabPageTicker
+			// 
+			this.tabPageTicker.Controls.Add(this.tickersUserControl);
+			this.tabPageTicker.Location = new System.Drawing.Point(4, 25);
+			this.tabPageTicker.Name = "tabPageTicker";
+			this.tabPageTicker.Padding = new System.Windows.Forms.Padding(3);
+			this.tabPageTicker.Size = new System.Drawing.Size(1477, 704);
+			this.tabPageTicker.TabIndex = 0;
+			this.tabPageTicker.Text = "Tickers";
+			this.tabPageTicker.UseVisualStyleBackColor = true;
+			// 
 			// tickersUserControl
 			// 
 			this.tickersUserControl.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -450,6 +476,25 @@
 			this.tickersUserControl.Name = "tickersUserControl";
 			this.tickersUserControl.Size = new System.Drawing.Size(1471, 698);
 			this.tickersUserControl.TabIndex = 0;
+			// 
+			// tabPageExport
+			// 
+			this.tabPageExport.Controls.Add(this.exportUserControl1);
+			this.tabPageExport.Location = new System.Drawing.Point(4, 25);
+			this.tabPageExport.Name = "tabPageExport";
+			this.tabPageExport.Padding = new System.Windows.Forms.Padding(3);
+			this.tabPageExport.Size = new System.Drawing.Size(1477, 704);
+			this.tabPageExport.TabIndex = 1;
+			this.tabPageExport.Text = "Exports";
+			this.tabPageExport.UseVisualStyleBackColor = true;
+			// 
+			// exportUserControl1
+			// 
+			this.exportUserControl1.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.exportUserControl1.Location = new System.Drawing.Point(3, 3);
+			this.exportUserControl1.Name = "exportUserControl1";
+			this.exportUserControl1.Size = new System.Drawing.Size(1471, 698);
+			this.exportUserControl1.TabIndex = 0;
 			// 
 			// tabPageLog
 			// 
@@ -690,46 +735,24 @@
 			this.btnSave.Text = "Save config changes";
 			this.btnSave.UseVisualStyleBackColor = true;
 			// 
-			// tabControl2
+			// tabPageLatencyArb
 			// 
-			this.tabControl2.Controls.Add(this.tabPageTicker);
-			this.tabControl2.Controls.Add(this.tabPageExport);
-			this.tabControl2.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.tabControl2.Location = new System.Drawing.Point(0, 0);
-			this.tabControl2.Name = "tabControl2";
-			this.tabControl2.SelectedIndex = 0;
-			this.tabControl2.Size = new System.Drawing.Size(1485, 733);
-			this.tabControl2.TabIndex = 0;
+			this.tabPageLatencyArb.Controls.Add(this.latencyArbUserControl1);
+			this.tabPageLatencyArb.Location = new System.Drawing.Point(4, 25);
+			this.tabPageLatencyArb.Name = "tabPageLatencyArb";
+			this.tabPageLatencyArb.Padding = new System.Windows.Forms.Padding(3);
+			this.tabPageLatencyArb.Size = new System.Drawing.Size(1471, 698);
+			this.tabPageLatencyArb.TabIndex = 6;
+			this.tabPageLatencyArb.Text = "Latency arb";
+			this.tabPageLatencyArb.UseVisualStyleBackColor = true;
 			// 
-			// tabPageTicker
+			// latencyArbUserControl1
 			// 
-			this.tabPageTicker.Controls.Add(this.tickersUserControl);
-			this.tabPageTicker.Location = new System.Drawing.Point(4, 25);
-			this.tabPageTicker.Name = "tabPageTicker";
-			this.tabPageTicker.Padding = new System.Windows.Forms.Padding(3);
-			this.tabPageTicker.Size = new System.Drawing.Size(1477, 704);
-			this.tabPageTicker.TabIndex = 0;
-			this.tabPageTicker.Text = "Tickers";
-			this.tabPageTicker.UseVisualStyleBackColor = true;
-			// 
-			// tabPageExport
-			// 
-			this.tabPageExport.Controls.Add(this.exportUserControl1);
-			this.tabPageExport.Location = new System.Drawing.Point(4, 25);
-			this.tabPageExport.Name = "tabPageExport";
-			this.tabPageExport.Padding = new System.Windows.Forms.Padding(3);
-			this.tabPageExport.Size = new System.Drawing.Size(1477, 704);
-			this.tabPageExport.TabIndex = 1;
-			this.tabPageExport.Text = "Exports";
-			this.tabPageExport.UseVisualStyleBackColor = true;
-			// 
-			// exportUserControl1
-			// 
-			this.exportUserControl1.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.exportUserControl1.Location = new System.Drawing.Point(3, 3);
-			this.exportUserControl1.Name = "exportUserControl1";
-			this.exportUserControl1.Size = new System.Drawing.Size(1471, 698);
-			this.exportUserControl1.TabIndex = 0;
+			this.latencyArbUserControl1.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.latencyArbUserControl1.Location = new System.Drawing.Point(3, 3);
+			this.latencyArbUserControl1.Name = "latencyArbUserControl1";
+			this.latencyArbUserControl1.Size = new System.Drawing.Size(1465, 692);
+			this.latencyArbUserControl1.TabIndex = 0;
 			// 
 			// MainForm
 			// 
@@ -759,6 +782,9 @@
 			this.tabPageHubArb.ResumeLayout(false);
 			this.tabPageMarketMaker.ResumeLayout(false);
 			this.tabPageLiveData.ResumeLayout(false);
+			this.tabControl2.ResumeLayout(false);
+			this.tabPageTicker.ResumeLayout(false);
+			this.tabPageExport.ResumeLayout(false);
 			this.tabPageLog.ResumeLayout(false);
 			this.tabControl1.ResumeLayout(false);
 			this.tabPage1.ResumeLayout(false);
@@ -769,9 +795,7 @@
 			this.tlpMain.ResumeLayout(false);
 			this.gbControl.ResumeLayout(false);
 			this.gbControl.PerformLayout();
-			this.tabControl2.ResumeLayout(false);
-			this.tabPageTicker.ResumeLayout(false);
-			this.tabPageExport.ResumeLayout(false);
+			this.tabPageLatencyArb.ResumeLayout(false);
 			this.ResumeLayout(false);
 
         }
@@ -843,6 +867,8 @@
 		private System.Windows.Forms.TabPage tabPageTicker;
 		private System.Windows.Forms.TabPage tabPageExport;
 		private ExportUserControl exportUserControl1;
+		private System.Windows.Forms.TabPage tabPageLatencyArb;
+		private LatencyArbUserControl latencyArbUserControl1;
 	}
 }
 

@@ -84,6 +84,7 @@ namespace TradeSystem.Duplicat.ViewModel
 		public BindingList<Export> Exports { get; private set; }
 		public BindingList<StratHubArb> StratHubArbs { get; private set; }
 		public BindingList<MarketMaker> MarketMakers { get; private set; }
+		public BindingList<LatencyArb> LatencyArbs { get; private set; }
 
 		public event DataContextChangedEventHandler DataContextChanged;
 
@@ -209,6 +210,7 @@ namespace TradeSystem.Duplicat.ViewModel
 			_duplicatContext.StratHubArbs.Where(e => e.Aggregator.ProfileId == p).OrderBy(e => e.ToString())
 				.Include(e => e.StratHubArbPositions).ThenInclude(e => e.Position).Load();
 			_duplicatContext.MarketMakers.Where(e => e.ProfileId == p).OrderBy(e => e.ToString()).Load();
+			_duplicatContext.LatencyArbs.Where(e => e.ProfileId == p).OrderBy(e => e.ToString()).Load();
 
 			MtPlatforms = _duplicatContext.MetaTraderPlatforms.Local.ToBindingList();
 			CtPlatforms = _duplicatContext.CTraderPlatforms.Local.ToBindingList();
@@ -237,6 +239,7 @@ namespace TradeSystem.Duplicat.ViewModel
 			Exports = _duplicatContext.Exports.Local.ToBindingList();
 			StratHubArbs = _duplicatContext.StratHubArbs.Local.ToBindingList();
 			MarketMakers = _duplicatContext.MarketMakers.Local.ToBindingList();
+			LatencyArbs = _duplicatContext.LatencyArbs.Local.ToBindingList();
 
 			_duplicatContext.Profiles.Local.CollectionChanged -= Profiles_CollectionChanged;
 			_duplicatContext.Profiles.Local.CollectionChanged += Profiles_CollectionChanged;

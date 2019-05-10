@@ -220,6 +220,8 @@
     <Compile Include="Models\Export.cs" />
     <Compile Include="Models\FixApiCopierPosition.cs" />
     <Compile Include="Models\Slave.NotMapped.cs" />
+    <Compile Include="Models\_Strategies\LatencyArb.NotMapped.cs" />
+    <Compile Include="Models\_Strategies\LatencyArb.cs" />
     <Compile Include="Models\_Strategies\Spoofing.NotMapped.cs" />
     <Compile Include="Models\_Strategies\Spoofing.cs" />
     <Compile Include="Models\_Accounts\Account.NotMapped.cs" />

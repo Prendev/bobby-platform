@@ -225,6 +225,12 @@
     <Compile Include="Views\_Strategies\HubArbUserControl.Designer.cs">
       <DependentUpon>HubArbUserControl.cs</DependentUpon>
     </Compile>
+    <Compile Include="Views\_Strategies\LatencyArbUserControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Views\_Strategies\LatencyArbUserControl.Designer.cs">
+      <DependentUpon>LatencyArbUserControl.cs</DependentUpon>
+    </Compile>
     <Compile Include="Views\_Strategies\MarketMakerUserControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -324,6 +330,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Views\_Strategies\HubArbUserControl.resx">
       <DependentUpon>HubArbUserControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\_Strategies\LatencyArbUserControl.resx">
+      <DependentUpon>LatencyArbUserControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\_Strategies\MarketMakerUserControl.resx">
       <DependentUpon>MarketMakerUserControl.cs</DependentUpon>
