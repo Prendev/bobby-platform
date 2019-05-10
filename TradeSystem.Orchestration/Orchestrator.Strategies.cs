@@ -124,6 +124,9 @@ namespace TradeSystem.Orchestration
 			_marketMakerService.Start(marketMakers);
 			var antiMarketMakers = duplicatContext.MarketMakers.Local.Where(mm => mm.Type == MarketMaker.MarketMakerTypes.Anti).ToList();
 			_antiMarketMakerService.Start(antiMarketMakers);
+
+			var latArbs = duplicatContext.LatencyArbs.Local.ToList();
+			_latencyArbService.Start(latArbs);
 		}
 
 		public void StopStrategies()

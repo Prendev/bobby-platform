@@ -48,6 +48,7 @@ namespace TradeSystem.Orchestration
 		private readonly IProxyService _proxyService;
 		private readonly IMarketMakerService _marketMakerService;
 		private readonly IAntiMarketMakerService _antiMarketMakerService;
+		private readonly ILatencyArbService _latencyArbService;
 
 		public Orchestrator(
 			Func<SynchronizationContext> synchronizationContextFactory,
@@ -58,11 +59,13 @@ namespace TradeSystem.Orchestration
 			ITickerService tickerService,
 			IHubArbService hubArbService,
 			IMarketMakerService marketMakerService,
+			ILatencyArbService latencyArbService,
 			IAntiMarketMakerService antiMarketMakerService,
 			IReportService reportService,
 			IMtAccountImportService mtAccountImportService,
 			IProxyService proxyService)
 		{
+			_latencyArbService = latencyArbService;
 			_antiMarketMakerService = antiMarketMakerService;
 			_marketMakerService = marketMakerService;
 			_spoofStrategyService = spoofStrategyService;
