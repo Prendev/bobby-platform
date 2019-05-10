@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Threading;
+using TradeSystem.Collections;
 using TradeSystem.Common.Attributes;
 using TradeSystem.Common.Integration;
 
@@ -35,9 +36,8 @@ namespace TradeSystem.Data.Models
 		[NotMapped] [InvisibleColumn] public decimal? LowestLimit { get; set; }
 		[NotMapped] [InvisibleColumn] public decimal? HighestLimit { get; set; }
 		[NotMapped] [InvisibleColumn] public readonly ConcurrentBag<LimitResponse> MarketMakerLimits = new ConcurrentBag<LimitResponse>();
-		[NotMapped] [InvisibleColumn] public readonly ConcurrentDictionary<string, StopResponse> AntiMarketMakerTopStops = new ConcurrentDictionary<string, StopResponse>();
-		[NotMapped] [InvisibleColumn] public readonly ConcurrentDictionary<string, StopResponse> AntiMarketMakerBottomStops = new ConcurrentDictionary<string, StopResponse>();
 		[NotMapped] [InvisibleColumn] public CancellationToken Token { get; set; }
+		[NotMapped] [InvisibleColumn] public FastBlockingCollection<Action> Queue { get; set; }
 
 		public MarketMaker()
 		{

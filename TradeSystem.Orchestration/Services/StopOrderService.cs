@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Linq;
-using System.Threading.Tasks;
 using TradeSystem.Common.Integration;
 using TradeSystem.Communication;
 using TradeSystem.Data.Models;
@@ -85,17 +84,18 @@ namespace TradeSystem.Orchestration.Services
 			if (!(sender is MarketMaker set)) return;
 			if (set.Token.IsCancellationRequested) return;
 			if (!(set.Account.Connector is FixApiConnectorBase)) return;
-			Task.Run(() => CheckStopOrders(set));
+			set.Queue?.Add(() => CheckStopOrders(set));
 		}
 
 		private void Set_LimitFill(object sender, LimitFill e)
 		{
+			if (e.LimitResponse?.RemainingQuantity != 0) return;
 			if (!(sender is MarketMaker set)) return;
 			if (set.Token.IsCancellationRequested) return;
 			if (!(set.Account.Connector is FixApiConnectorBase)) return;
-			if (e.LimitResponse == null) return;
 			if (!_limitMapping.TryGetValue(e.LimitResponse, out var stopResponse)) return;
-			OnFill(set, stopResponse);
+			set.Queue?.Add(() => OnFill(set, stopResponse));
+
 		}
 
 		private void CheckStopOrders(MarketMaker set)
@@ -105,17 +105,8 @@ namespace TradeSystem.Orchestration.Services
 			foreach (var response in responses.Values.ToList().OrderBy(r => r.UserId))
 			{
 				if (set.Token.IsCancellationRequested) return;
-
-				lock (response)
-				{
-					if (response.IsBusy) return;
-					response.IsBusy = true;
-				}
-
 				if (response.Side == Sides.Buy) CheckBuy(set, response);
 				else if (response.Side == Sides.Sell) CheckSell(set, response);
-
-				response.IsBusy = false;
 			}
 		}
 
