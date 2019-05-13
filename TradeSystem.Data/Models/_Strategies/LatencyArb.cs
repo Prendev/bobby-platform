@@ -6,10 +6,19 @@ namespace TradeSystem.Data.Models
 {
 	public partial class LatencyArb : BaseDescriptionEntity
 	{
+		public enum LatencyArbStates
+		{
+			None,
+			Opening,
+			Closing
+		}
+
 		[DisplayPriority(-1)] public bool Run { get; set; }
 
 		[InvisibleColumn] public int ProfileId { get; set; }
 		[InvisibleColumn] public Profile Profile { get; set; }
+
+		public LatencyArbStates State { get => Get<LatencyArbStates>(); set => Set(value); }
 
 		public int FastFeedAccountId { get; set; }
 		public Account FastFeedAccount { get => Get<Account>(); set => Set(value); }
