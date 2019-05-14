@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using TradeSystem.Common.Attributes;
 
@@ -33,7 +34,7 @@ namespace TradeSystem.Data.Models
 		[Required] public string LongSymbol { get; set; }
 
 		public decimal Size { get; set; } = 1;
-		public decimal MaxSize { get; set; } = 5;
+		public int MaxCount { get; set; } = 5;
 
 		[DisplayName("Signal")] public decimal SignalDiffInPip { get; set; }
 		[DisplayName("Trail")] public decimal TrailingInPip { get; set; }
@@ -41,7 +42,6 @@ namespace TradeSystem.Data.Models
 		[DisplayName("TP")] public decimal TpInPip { get; set; }
 		public decimal PipSize { get; set; }
 
-		[DisplayName("MaxRetry")] public int MaxRetryCount { get; set; } = 5;
-		[DisplayName("RetryPeriod")] public int RetryPeriodInMs { get; set; } = 25;
+		public List<LatencyArbPosition> LatencyArbPositions { get; } = new List<LatencyArbPosition>();
 	}
 }

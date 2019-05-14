@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
+using Microsoft.EntityFrameworkCore.Internal;
 using TradeSystem.Common.Attributes;
 using TradeSystem.Common.Integration;
 
@@ -7,6 +10,13 @@ namespace TradeSystem.Data.Models
 {
 	public partial class LatencyArb
 	{
+		public class LatencyArbPos
+		{
+			public long? ShortTicket { get; set; }
+			public long? LongTicket { get; set; }
+			public decimal? MinMax { get; set; }
+		}
+
 		public event EventHandler<NewTick> NewTick;
 		public event EventHandler<ConnectionStates> ConnectionChanged;
 
@@ -18,24 +28,44 @@ namespace TradeSystem.Data.Models
 		public LatencyArb()
 		{
 			SetAction<Account>(nameof(FastFeedAccount),
-				a => { if (a != null) a.ConnectionChanged -= Account_ConnectionChanged; },
-				a => { if (a != null) a.ConnectionChanged += Account_ConnectionChanged; });
+				a =>
+				{
+					if (a == null) return;
+					a.ConnectionChanged -= Account_ConnectionChanged;
+					a.NewTick -= Account_NewTick;
+				},
+				a =>
+				{
+					if (a == null) return;
+					a.ConnectionChanged += Account_ConnectionChanged;
+					a.NewTick += Account_NewTick;
+				});
 			SetAction<Account>(nameof(ShortAccount),
-				a => { if (a != null) a.ConnectionChanged -= Account_ConnectionChanged; },
-				a => { if (a != null) a.ConnectionChanged += Account_ConnectionChanged; });
+				a =>
+				{
+					if (a == null) return;
+					a.ConnectionChanged -= Account_ConnectionChanged;
+					a.NewTick -= Account_NewTick;
+				},
+				a =>
+				{
+					if (a == null) return;
+					a.ConnectionChanged += Account_ConnectionChanged;
+					a.NewTick += Account_NewTick;
+				});
 			SetAction<Account>(nameof(LongAccount),
-				a => { if (a != null) a.ConnectionChanged -= Account_ConnectionChanged; },
-				a => { if (a != null) a.ConnectionChanged += Account_ConnectionChanged; });
-
-			SetAction<Account>(nameof(FastFeedAccount),
-				a => { if (a != null) a.NewTick -= Account_NewTick; },
-				a => { if (a != null) a.NewTick += Account_NewTick; });
-			SetAction<Account>(nameof(ShortAccount),
-				a => { if (a != null) a.NewTick -= Account_NewTick; },
-				a => { if (a != null) a.NewTick += Account_NewTick; });
-			SetAction<Account>(nameof(LongAccount),
-				a => { if (a != null) a.NewTick -= Account_NewTick; },
-				a => { if (a != null) a.NewTick += Account_NewTick; });
+				a =>
+				{
+					if (a == null) return;
+					a.ConnectionChanged -= Account_ConnectionChanged;
+					a.NewTick -= Account_NewTick;
+				},
+				a =>
+				{
+					if (a == null) return;
+					a.ConnectionChanged += Account_ConnectionChanged;
+					a.NewTick += Account_NewTick;
+				});
 		}
 
 		private void Account_NewTick(object sender, NewTick newTick)
