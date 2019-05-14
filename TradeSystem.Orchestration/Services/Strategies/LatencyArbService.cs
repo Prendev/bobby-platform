@@ -80,6 +80,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				}
 			}
 
+			set.State = LatencyArb.LatencyArbStates.None;
 			_queues.TryRemove(set.Id, out queue);
 		}
 
@@ -144,11 +145,10 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			{
 				var hedge = false;
 				var price = set.LastShortTick.Bid;
-				if (price - set.TrailingInPip * set.PipSize > last.Trailing)
-					last.Trailing = price - set.TrailingInPip * set.PipSize;
+				if (price - set.TrailingInPip * set.PipSize > last.Trailing) last.Trailing = price - set.TrailingInPip * set.PipSize;
+				if (price >= last.Price + set.TrailingInPip * set.PipSize && price <= last.Trailing) hedge = true;
 				if (price >= last.Price + set.TpInPip * set.PipSize) hedge = true;
 				if (price <= last.Price - set.SlInPip * set.PipSize) hedge = true;
-				if (price <= last.Trailing) hedge = true;
 				if (!hedge) return;
 				var pos = SendShortOrder(set);
 				if (pos == null) return;
@@ -159,11 +159,10 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			{
 				var hedge = false;
 				var price = set.LastLongTick.Ask;
-				if (price + set.TrailingInPip * set.PipSize < last.Trailing)
-					last.Trailing = price + set.TrailingInPip * set.PipSize;
-				if (price <= last.Price + set.TpInPip * set.PipSize) hedge = true;
-				if (price >= last.Price - set.SlInPip * set.PipSize) hedge = true;
-				if (price >= last.Trailing) hedge = true;
+				if (price + set.TrailingInPip * set.PipSize < last.Trailing) last.Trailing = price + set.TrailingInPip * set.PipSize;
+				if (price <= last.Price - set.TrailingInPip * set.PipSize && price >= last.Trailing) hedge = true;
+				if (price <= last.Price - set.TpInPip * set.PipSize) hedge = true;
+				if (price >= last.Price + set.SlInPip * set.PipSize) hedge = true;
 				if (!hedge) return;
 				var pos = SendLongOrder(set);
 				if (pos == null) return;
@@ -217,11 +216,10 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			{
 				var hedge = false;
 				var price = set.LastShortTick.Ask;
-				if (price + set.TrailingInPip * set.PipSize < first.Trailing)
-					first.Trailing = price + set.TrailingInPip * set.PipSize;
-				if (price <= first.Price + set.TpInPip * set.PipSize) hedge = true;
-				if (price >= first.Price - set.SlInPip * set.PipSize) hedge = true;
-				if (price >= first.Trailing) hedge = true;
+				if (price + set.TrailingInPip * set.PipSize < first.Trailing) first.Trailing = price + set.TrailingInPip * set.PipSize;
+				if (price <= first.Price - set.TrailingInPip * set.PipSize && price >= first.Trailing) hedge = true;
+				if (price <= first.Price - set.TpInPip * set.PipSize) hedge = true;
+				if (price >= first.Price + set.SlInPip * set.PipSize) hedge = true;
 				if (!hedge) return;
 				var pos = CloseShort(set, first.ShortTicket.Value);
 				if (pos?.IsClosed != true) return;
@@ -232,11 +230,10 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			{
 				var hedge = false;
 				var price = set.LastLongTick.Bid;
-				if (price - set.TrailingInPip * set.PipSize > first.Trailing)
-					first.Trailing = price - set.TrailingInPip * set.PipSize;
+				if (price - set.TrailingInPip * set.PipSize > first.Trailing) first.Trailing = price - set.TrailingInPip * set.PipSize;
+				if (price >= first.Price + set.TrailingInPip * set.PipSize && price <= first.Trailing) hedge = true;
 				if (price >= first.Price + set.TpInPip * set.PipSize) hedge = true;
 				if (price <= first.Price - set.SlInPip * set.PipSize) hedge = true;
-				if (price <= first.Trailing) hedge = true;
 				if (!hedge) return;
 				var pos = CloseLong(set, first.LongTicket.Value);
 				if (pos?.IsClosed != true) return;
