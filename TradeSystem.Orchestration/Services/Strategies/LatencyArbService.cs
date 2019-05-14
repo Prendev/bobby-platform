@@ -95,9 +95,11 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 		private void Check(LatencyArb set)
 		{
-			CheckPositions(set);
 			if (set.State == LatencyArb.LatencyArbStates.None) return;
-			if (set.State == LatencyArb.LatencyArbStates.Opening) CheckOpening(set);
+
+			CheckPositions(set);
+			CheckOpening(set);
+			CheckClosing(set);
 		}
 
 
@@ -119,7 +121,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 					{
 						LatencyArb = set,
 						LongTicket = pos.Id,
-						OpenPrice = pos.OpenPrice,
+						Price = pos.OpenPrice,
 						Trailing = pos.OpenPrice - set.TrailingInPip * set.PipSize,
 					});
 				}
@@ -132,7 +134,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 					{
 						LatencyArb = set,
 						ShortTicket = pos.Id,
-						OpenPrice = pos.OpenPrice,
+						Price = pos.OpenPrice,
 						Trailing = pos.OpenPrice + set.TrailingInPip * set.PipSize,
 					});
 				}
@@ -140,13 +142,14 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			// Long side opened
 			else if (!last.ShortTicket.HasValue)
 			{
-				var close = false;
+				var hedge = false;
 				var price = set.LastShortTick.Bid;
-				if (price - set.TrailingInPip * set.PipSize > last.Trailing) last.Trailing = price - set.TrailingInPip * set.PipSize;
-				if (price >= last.OpenPrice + set.TpInPip * set.PipSize) close = true;
-				if (price <= last.OpenPrice - set.SlInPip * set.PipSize) close = true;
-				if (price <= last.Trailing) close = true;
-				if (!close) return;
+				if (price - set.TrailingInPip * set.PipSize > last.Trailing)
+					last.Trailing = price - set.TrailingInPip * set.PipSize;
+				if (price >= last.Price + set.TpInPip * set.PipSize) hedge = true;
+				if (price <= last.Price - set.SlInPip * set.PipSize) hedge = true;
+				if (price <= last.Trailing) hedge = true;
+				if (!hedge) return;
 				var pos = SendShortOrder(set);
 				if (pos == null) return;
 				last.ShortTicket = pos.Id;
@@ -154,19 +157,19 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			// Short side opened
 			else if (!last.LongTicket.HasValue)
 			{
-				var close = false;
+				var hedge = false;
 				var price = set.LastLongTick.Ask;
-				if (price + set.TrailingInPip * set.PipSize < last.Trailing) last.Trailing = price + set.TrailingInPip * set.PipSize;
-				if (price <= last.OpenPrice + set.TpInPip * set.PipSize) close = true;
-				if (price >= last.OpenPrice - set.SlInPip * set.PipSize) close = true;
-				if (price >= last.Trailing) close = true;
-				if (!close) return;
+				if (price + set.TrailingInPip * set.PipSize < last.Trailing)
+					last.Trailing = price + set.TrailingInPip * set.PipSize;
+				if (price <= last.Price + set.TpInPip * set.PipSize) hedge = true;
+				if (price >= last.Price - set.SlInPip * set.PipSize) hedge = true;
+				if (price >= last.Trailing) hedge = true;
+				if (!hedge) return;
 				var pos = SendLongOrder(set);
 				if (pos == null) return;
 				last.LongTicket = pos.Id;
 			}
 		}
-
 		private Position SendLongOrder(LatencyArb set)
 		{
 			return ((Mt4Integration.Connector) set.LongAccount.Connector).SendMarketOrderRequest(set.LongSymbol, Sides.Buy,
@@ -176,6 +179,86 @@ namespace TradeSystem.Orchestration.Services.Strategies
 		{
 			return ((Mt4Integration.Connector)set.ShortAccount.Connector).SendMarketOrderRequest(set.ShortSymbol, Sides.Sell,
 				(double)set.Size, 0, null);
+		}
+
+		private void CheckClosing(LatencyArb set)
+		{
+			if (set.State != LatencyArb.LatencyArbStates.Closing) return;
+
+			var first = set.LatencyArbPositions.FirstOrDefault(p => p.LongTicket.HasValue && p.ShortTicket.HasValue);
+			if (first == null) return;
+			if (!first.LongTicket.HasValue) return;
+			if (!first.ShortTicket.HasValue) return;
+
+			// No closed side
+			if (!first.LongClosed && !first.ShortClosed)
+			{
+				// Long close signal
+				if (set.LastFeedTick.Bid <= set.LastLongTick.Bid - set.SignalDiffInPip * set.PipSize)
+				{
+					var pos = CloseLong(set, first.LongTicket.Value);
+					if (pos?.IsClosed != true) return;
+					first.LongClosed = true;
+					first.Price = pos.ClosePrice;
+					first.Trailing = pos.ClosePrice - set.TrailingInPip * set.PipSize;
+				}
+				// Short close signal
+				else if (set.LastFeedTick.Ask >= set.LastShortTick.Ask + set.SignalDiffInPip * set.PipSize)
+				{
+					var pos = CloseShort(set, first.ShortTicket.Value);
+					if (pos?.IsClosed != true) return;
+					first.ShortClosed = true;
+					first.Price = pos.ClosePrice;
+					first.Trailing = pos.ClosePrice + set.TrailingInPip * set.PipSize;
+				}
+			}
+			// Long side closed
+			else if (first.LongClosed)
+			{
+				var hedge = false;
+				var price = set.LastShortTick.Ask;
+				if (price + set.TrailingInPip * set.PipSize < first.Trailing)
+					first.Trailing = price + set.TrailingInPip * set.PipSize;
+				if (price <= first.Price + set.TpInPip * set.PipSize) hedge = true;
+				if (price >= first.Price - set.SlInPip * set.PipSize) hedge = true;
+				if (price >= first.Trailing) hedge = true;
+				if (!hedge) return;
+				var pos = CloseShort(set, first.ShortTicket.Value);
+				if (pos?.IsClosed != true) return;
+				first.ShortClosed = true;
+			}
+			// Short side closed
+			else if (first.ShortClosed)
+			{
+				var hedge = false;
+				var price = set.LastLongTick.Bid;
+				if (price - set.TrailingInPip * set.PipSize > first.Trailing)
+					first.Trailing = price - set.TrailingInPip * set.PipSize;
+				if (price >= first.Price + set.TpInPip * set.PipSize) hedge = true;
+				if (price <= first.Price - set.SlInPip * set.PipSize) hedge = true;
+				if (price <= first.Trailing) hedge = true;
+				if (!hedge) return;
+				var pos = CloseLong(set, first.LongTicket.Value);
+				if (pos?.IsClosed != true) return;
+				first.LongClosed = true;
+			}
+		}
+
+		private Position CloseLong(LatencyArb set, long ticket)
+		{
+			var connector = (Mt4Integration.Connector) set.LongAccount.Connector;
+			connector.Positions.TryGetValue(ticket, out var pos);
+			if (pos == null) return null;
+			connector.SendClosePositionRequests(pos);
+			return pos;
+		}
+		private Position CloseShort(LatencyArb set, long ticket)
+		{
+			var connector = (Mt4Integration.Connector)set.ShortAccount.Connector;
+			connector.Positions.TryGetValue(ticket, out var pos);
+			if (pos == null) return null;
+			connector.SendClosePositionRequests(pos);
+			return pos;
 		}
 
 		private void CheckPositions(LatencyArb set)

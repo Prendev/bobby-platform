@@ -11,7 +11,7 @@
 		public bool ShortClosed { get; set; }
 		public bool LongClosed { get; set; }
 
-		public decimal? OpenPrice { get; set; }
+		public decimal? Price { get; set; }
 		public decimal? Trailing { get; set; }
 	}
 }
