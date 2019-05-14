@@ -34,7 +34,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			{
 				if (!set.Run) continue;
 				if (!set.IsConnected) continue;
-				new Thread(() => SetLoop(set, _cancellation.Token)) { Name = $"MarketMaker_{set.Id}", IsBackground = true }
+				new Thread(() => SetLoop(set, _cancellation.Token)) { Name = $"LatencyArb_{set.Id}", IsBackground = true }
 					.Start();
 			}
 
