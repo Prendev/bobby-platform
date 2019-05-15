@@ -117,10 +117,11 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				// Long signal
 				if (set.LastFeedTick.Ask >= set.LastLongTick.Ask + set.SignalDiffInPip * set.PipSize)
 				{
+					var level = set.LatencyArbPositions.Count + 1;
 					var pos = SendLongOrder(set);
 					if (pos == null)
 					{
-						Logger.Warn($"{set} latency arb - {set.LatencyArbPositions.Count}. long first side open error");
+						Logger.Warn($"{set} latency arb - {level}. long first side open error");
 						return;
 					}
 					set.LatencyArbPositions.Add(new LatencyArbPosition()
@@ -128,17 +129,18 @@ namespace TradeSystem.Orchestration.Services.Strategies
 						LatencyArb = set,
 						LongTicket = pos.Id,
 						Price = pos.OpenPrice,
-						Level = set.LatencyArbPositions.Count + 1
+						Level = level
 					});
-					Logger.Info($"{set} latency arb - {set.LatencyArbPositions.Count}. long first side opened at {pos.OpenPrice}");
+					Logger.Info($"{set} latency arb - {level}. long first side opened at {pos.OpenPrice}");
 				}
 				// Short signal
 				else if (set.LastFeedTick.Bid <= set.LastShortTick.Bid - set.SignalDiffInPip * set.PipSize)
 				{
+					var level = set.LatencyArbPositions.Count + 1;
 					var pos = SendShortOrder(set);
 					if (pos == null)
 					{
-						Logger.Warn($"{set} latency arb - {set.LatencyArbPositions.Count}. short first side open error");
+						Logger.Warn($"{set} latency arb - {level}. short first side open error");
 						return;
 					}
 					set.LatencyArbPositions.Add(new LatencyArbPosition()
@@ -146,9 +148,9 @@ namespace TradeSystem.Orchestration.Services.Strategies
 						LatencyArb = set,
 						ShortTicket = pos.Id,
 						Price = pos.OpenPrice,
-						Level = set.LatencyArbPositions.Count + 1
+						Level = level
 					});
-					Logger.Info($"{set} latency arb - {set.LatencyArbPositions.Count}. short first side opened at {pos.OpenPrice}");
+					Logger.Info($"{set} latency arb - {level}. short first side opened at {pos.OpenPrice}");
 				}
 			}
 			// Long side opened
@@ -158,8 +160,8 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				var price = set.LastShortTick.Bid;
 
 				if (last.Trailing.HasValue || price >= last.Price + set.TrailingSwitchInPip * set.PipSize)
-					last.Trailing = Math.Max(last.Trailing ?? price - set.TrailingDistanceInPip * set.PipSize,
-						price - set.TrailingDistanceInPip * set.PipSize);
+					last.Trailing = Math.Max(price - set.TrailingDistanceInPip * set.PipSize,
+						last.Trailing ?? price - set.TrailingDistanceInPip * set.PipSize);
 				if (last.Trailing.HasValue && price <= last.Trailing) hedge = true;
 
 				if (price >= last.Price + set.TpInPip * set.PipSize) hedge = true;
@@ -182,8 +184,8 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				var price = set.LastLongTick.Ask;
 
 				if (last.Trailing.HasValue || price <= last.Price - set.TrailingSwitchInPip * set.PipSize)
-					last.Trailing = Math.Min(last.Trailing ?? price + set.TrailingDistanceInPip * set.PipSize,
-						price + set.TrailingDistanceInPip * set.PipSize);
+					last.Trailing = Math.Min(price + set.TrailingDistanceInPip * set.PipSize,
+						last.Trailing ?? price + set.TrailingDistanceInPip * set.PipSize);
 				if (last.Trailing.HasValue && price >= last.Trailing) hedge = true;
 
 				if (price <= last.Price - set.TpInPip * set.PipSize) hedge = true;
@@ -253,8 +255,8 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				var price = set.LastShortTick.Ask;
 
 				if (first.Trailing.HasValue || price <= first.Price - set.TrailingSwitchInPip * set.PipSize)
-					first.Trailing = Math.Min(first.Trailing ?? price + set.TrailingDistanceInPip * set.PipSize,
-						price + set.TrailingDistanceInPip * set.PipSize);
+					first.Trailing = Math.Min(price + set.TrailingDistanceInPip * set.PipSize,
+						first.Trailing ?? price + set.TrailingDistanceInPip * set.PipSize);
 				if (first.Trailing.HasValue && price >= first.Trailing) hedge = true;
 
 				if (price <= first.Price - set.TpInPip * set.PipSize) hedge = true;
@@ -273,8 +275,8 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				var price = set.LastLongTick.Bid;
 
 				if (first.Trailing.HasValue || price >= first.Price + set.TrailingSwitchInPip * set.PipSize)
-					first.Trailing = Math.Max(first.Trailing ?? price - set.TrailingDistanceInPip * set.PipSize,
-						price - set.TrailingDistanceInPip * set.PipSize);
+					first.Trailing = Math.Max(price - set.TrailingDistanceInPip * set.PipSize,
+						first.Trailing ?? price - set.TrailingDistanceInPip * set.PipSize);
 				if (first.Trailing.HasValue && price <= first.Trailing) hedge = true;
 
 				if (price >= first.Price + set.TpInPip * set.PipSize) hedge = true;

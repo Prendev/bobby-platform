@@ -100,21 +100,21 @@ namespace TradeSystem.Orchestration
 			{
 				var aggAccounts = agg.Accounts
 					.Where(a => a.Account?.Run == true)
-					.Where(a => a.Account.FixApiAccountId.HasValue)
-					.Where(a => a.Account.Connector is FixApiIntegration.Connector)
 					.Where(a => !string.IsNullOrWhiteSpace(a.Symbol))
 					.ToList();
-
 				foreach (var aggAccount in aggAccounts)
 					aggAccount.Account.Connector.Subscribe(aggAccount.Symbol);
 
+				aggAccounts = aggAccounts
+					.Where(a => a.Account.FixApiAccountId.HasValue)
+					.Where(a => a.Account.Connector is FixApiIntegration.Connector)
+					.ToList();
 				var groups = aggAccounts.Select(a =>
 					new
 					{
 						IConnector = ((FixApiIntegration.Connector) a.Account.Connector).GeneralConnector,
 						Symbol = Symbol.Parse(a.Symbol)
 					}).ToDictionary(x => x.IConnector, x => x.Symbol);
-
 				agg.QuoteAggregator = MarketDataManager.CreateQuoteAggregator(groups);
 			}
 		}
