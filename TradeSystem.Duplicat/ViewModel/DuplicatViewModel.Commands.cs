@@ -107,7 +107,8 @@ namespace TradeSystem.Duplicat.ViewModel
 			SelectedProfile = profile;
 	        SelectedAggregator = null;
 	        SelectedSlave = null;
-	        SelectedPushing = null;
+	        SelectedCopier = null;
+			SelectedPushing = null;
 
             InitDataContext();
             DataContextChanged?.Invoke();
@@ -130,7 +131,13 @@ namespace TradeSystem.Duplicat.ViewModel
             SelectedSlave = slave;
 		}
 
-        public void AccessNewCTraderCommand(CTraderPlatform p)
+	    public void ShowSelectedCopierCommand(Copier copier)
+	    {
+		    if (IsLoading) return;
+		    SelectedCopier = copier;
+	    }
+
+		public void AccessNewCTraderCommand(CTraderPlatform p)
         {
             _xmlService.Save(CtPlatforms.ToList(), ConfigurationManager.AppSettings["CTraderPlatformsPath"]);
 

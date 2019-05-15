@@ -1,4 +1,5 @@
-﻿using TradeSystem.Common.Attributes;
+﻿using System.Collections.Generic;
+using TradeSystem.Common.Attributes;
 
 namespace TradeSystem.Data.Models
 {
@@ -20,5 +21,7 @@ namespace TradeSystem.Data.Models
         public int MaxRetryCount { get; set; }
         public int RetryPeriodInMs { get; set; }
         public int DelayInMilliseconds { get; set; }
-    }
+
+		public List<CopierPosition> CopierPositions { get; } = new List<CopierPosition>();
+	}
 }

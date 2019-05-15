@@ -77,6 +77,7 @@ namespace TradeSystem.Duplicat.ViewModel
 		public BindingList<Slave> Slaves { get; private set; }
 		public BindingList<SymbolMapping> SymbolMappings { get; private set; }
 		public BindingList<Copier> Copiers { get; private set; }
+		public BindingList<CopierPosition> CopierPositions { get; private set; }
 		public BindingList<FixApiCopier> FixApiCopiers { get; private set; }
 		public BindingList<Pushing> Pushings { get; private set; }
 		public BindingList<Spoofing> Spoofings { get; private set; }
@@ -90,6 +91,7 @@ namespace TradeSystem.Duplicat.ViewModel
 
 		public bool IsConfigReadonly { get => Get<bool>(); set => Set(value); }
 		public bool IsCopierConfigAddEnabled { get => Get<bool>(); set => Set(value); }
+		public bool IsCopierPositionAddEnabled { get => Get<bool>(); set => Set(value); }
 		public bool IsLoading { get => Get<bool>(); set => Set(value); }
 		public bool IsConnected { get => Get<bool>(); set => Set(value); }
 		public bool AreCopiersStarted { get => Get<bool>(); set => Set(value); }
@@ -106,6 +108,7 @@ namespace TradeSystem.Duplicat.ViewModel
 		public Profile SelectedProfile { get => Get<Profile>(); set => Set(value); }
 		public Aggregator SelectedAggregator { get => Get<Aggregator>(); set => Set(value); }
 		public Slave SelectedSlave { get => Get<Slave>(); set => Set(value); }
+		public Copier SelectedCopier { get => Get<Copier>(); set => Set(value); }
 		public Pushing SelectedPushing { get => Get<Pushing>(); set => Set(value); }
 		public Spoofing SelectedSpoofing { get => Get<Spoofing>(); set => Set(value); }
 
@@ -129,7 +132,7 @@ namespace TradeSystem.Duplicat.ViewModel
 					SelectedPushing.ConnectionChanged += SelectedPushing_ConnectionChanged;
 				}
 			}
-			else if (e.PropertyName == nameof(SelectedSpoofing))
+			if (e.PropertyName == nameof(SelectedSpoofing))
 			{
 				SetSpoofingEnabled();
 				if (SelectedSpoofing != null)
@@ -138,9 +141,13 @@ namespace TradeSystem.Duplicat.ViewModel
 					SelectedSpoofing.ConnectionChanged += SelectedSpoofing_ConnectionChanged;
 				}
 			}
-			else if (e.PropertyName == nameof(IsConfigReadonly) || e.PropertyName == nameof(SelectedSlave))
+
+			if (e.PropertyName == nameof(IsConfigReadonly) || e.PropertyName == nameof(SelectedSlave))
 				IsCopierConfigAddEnabled = !IsConfigReadonly && SelectedSlave?.Id > 0;
-			else if (e.PropertyName == nameof(AreCopiersStarted))
+			if (e.PropertyName == nameof(IsConfigReadonly) || e.PropertyName == nameof(SelectedCopier))
+				IsCopierPositionAddEnabled = !IsConfigReadonly && SelectedCopier?.Id > 0;
+
+			if (e.PropertyName == nameof(AreCopiersStarted))
 			{
 				SetPushingEnabled();
 				SetSpoofingEnabled();
@@ -197,7 +204,9 @@ namespace TradeSystem.Duplicat.ViewModel
 
 			_duplicatContext.Masters.Where(e => e.ProfileId == p).OrderBy(e => e.ToString()).Load();
 			_duplicatContext.Slaves.Where(e => e.Master.ProfileId == p).OrderBy(e => e.ToString()).Load();
-			_duplicatContext.Copiers.Where(e => e.Slave.Master.ProfileId == p).OrderBy(e => e.ToString()).Load();
+			_duplicatContext.Copiers.Where(e => e.Slave.Master.ProfileId == p).OrderBy(e => e.ToString())
+				.Include(e => e.CopierPositions).Load();
+			_duplicatContext.CopierPositions.Where(e => e.Copier.Slave.Master.ProfileId == p).OrderBy(e => e.ToString()).Load();
 			_duplicatContext.FixApiCopiers.Where(e => e.Slave.Master.ProfileId == p).OrderBy(e => e.ToString())
 				.Include(e => e.FixApiCopierPositions).ThenInclude(e => e.OpenPosition)
 				.Include(e => e.FixApiCopierPositions).ThenInclude(e => e.ClosePosition).Load();
@@ -233,6 +242,7 @@ namespace TradeSystem.Duplicat.ViewModel
 			Slaves = _duplicatContext.Slaves.Local.ToBindingList();
 			SymbolMappings = ToFilteredBindingList(_duplicatContext.SymbolMappings.Local, e => e.Slave, () => SelectedSlave);
 			Copiers = ToFilteredBindingList(_duplicatContext.Copiers.Local, e => e.Slave, () => SelectedSlave);
+			CopierPositions = ToFilteredBindingList(_duplicatContext.CopierPositions.Local, e => e.Copier, () => SelectedCopier);
 			FixApiCopiers = ToFilteredBindingList(_duplicatContext.FixApiCopiers.Local, e => e.Slave, () => SelectedSlave);
 			Pushings = _duplicatContext.Pushings.Local.ToBindingList();
 			Spoofings = _duplicatContext.Spoofings.Local.ToBindingList();

@@ -38,8 +38,10 @@ namespace TradeSystem.Duplicat.Views
 	        dgvFixApiCopiers.AddBinding("AllowUserToDeleteRows", _viewModel, nameof(_viewModel.IsCopierConfigAddEnabled));
 	        dgvSymbolMappings.AddBinding("AllowUserToAddRows", _viewModel, nameof(_viewModel.IsCopierConfigAddEnabled));
 	        dgvSymbolMappings.AddBinding("AllowUserToDeleteRows", _viewModel, nameof(_viewModel.IsCopierConfigAddEnabled));
+	        dgvCopierPositions.AddBinding("AllowUserToAddRows", _viewModel, nameof(_viewModel.IsCopierPositionAddEnabled));
+	        dgvCopierPositions.AddBinding("AllowUserToDeleteRows", _viewModel, nameof(_viewModel.IsCopierPositionAddEnabled));
 
-	        gbSlaves.AddBinding<Slave, string>("Text", _viewModel, nameof(_viewModel.SelectedSlave),
+			gbSlaves.AddBinding<Slave, string>("Text", _viewModel, nameof(_viewModel.SelectedSlave),
 		        s => $"Slaves (use double-click) - {s?.ToString() ?? "Save before load!!!"}");
 
 			btnStart.Click += (s, e) => { _viewModel.StartCopiersCommand(); };
@@ -54,22 +56,13 @@ namespace TradeSystem.Duplicat.Views
 	        };
 
 			dgvSlaves.RowDoubleClick += (s, e) => _viewModel.ShowSelectedSlaveCommand(dgvSlaves.GetSelectedItem<Slave>());
+	        dgvCopiers.RowDoubleClick += (s, e) => _viewModel.ShowSelectedCopierCommand(dgvCopiers.GetSelectedItem<Copier>());
 
-	        dgvMasters.DefaultValuesNeeded += (s, e) => e.Row.Cells["ProfileId"].Value = _viewModel.SelectedProfile.Id;
+			dgvMasters.DefaultValuesNeeded += (s, e) => e.Row.Cells["ProfileId"].Value = _viewModel.SelectedProfile.Id;
 			dgvSymbolMappings.DefaultValuesNeeded += (s, e) => { e.Row.Cells["SlaveId"].Value = _viewModel.SelectedSlave.Id; };
-            dgvCopiers.DefaultValuesNeeded += (s, e) =>
-            {
-                e.Row.Cells["SlaveId"].Value = _viewModel.SelectedSlave.Id;
-                e.Row.Cells["SlippageInPips"].Value = 1;
-                e.Row.Cells["MaxRetryCount"].Value = 5;
-                e.Row.Cells["RetryPeriodInMs"].Value = 25;
-            };
-	        dgvFixApiCopiers.DefaultValuesNeeded += (s, e) =>
-	        {
-		        e.Row.Cells["SlaveId"].Value = _viewModel.SelectedSlave.Id;
-		        e.Row.Cells["MaxRetryCount"].Value = 5;
-		        e.Row.Cells["RetryPeriodInMs"].Value = 25;
-	        };
+            dgvCopiers.DefaultValuesNeeded += (s, e) => e.Row.Cells["SlaveId"].Value = _viewModel.SelectedSlave.Id;
+	        dgvFixApiCopiers.DefaultValuesNeeded += (s, e) => e.Row.Cells["SlaveId"].Value = _viewModel.SelectedSlave.Id;
+	        dgvCopierPositions.DefaultValuesNeeded += (s, e) => e.Row.Cells["CopierId"].Value = _viewModel.SelectedCopier.Id;
 		}
 
         public void AttachDataSources()
@@ -82,6 +75,7 @@ namespace TradeSystem.Duplicat.Views
             dgvSlaves.DataSource = _viewModel.Slaves;
             dgvSymbolMappings.DataSource = _viewModel.SymbolMappings;
             dgvCopiers.DataSource = _viewModel.Copiers;
+            dgvCopierPositions.DataSource = _viewModel.CopierPositions;
 	        dgvFixApiCopiers.DataSource = _viewModel.FixApiCopiers;
 		}
     }

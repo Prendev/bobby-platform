@@ -68,6 +68,7 @@ namespace TradeSystem.Data
         public DbSet<Slave> Slaves { get; set; }
 
         public DbSet<Copier> Copiers { get; set; }
+        public DbSet<CopierPosition> CopierPositions { get; set; }
 	    public DbSet<FixApiCopier> FixApiCopiers { get; set; }
 	    public DbSet<FixApiCopierPosition> FixApiCopierPositions { get; set; }
 		public DbSet<SymbolMapping> SymbolMappings { get; set; }
