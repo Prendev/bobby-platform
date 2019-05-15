@@ -37,7 +37,8 @@ namespace TradeSystem.Data.Models
 		public int MaxCount { get; set; } = 5;
 
 		[DisplayName("Signal")] public decimal SignalDiffInPip { get; set; }
-		[DisplayName("Trail")] public decimal TrailingInPip { get; set; }
+		[DisplayName("Trail dist.")] public decimal TrailingDistanceInPip { get; set; }
+		[DisplayName("Trail switch")] public decimal TrailingSwitchInPip { get; set; }
 		[DisplayName("SL")] public decimal SlInPip { get; set; }
 		[DisplayName("TP")] public decimal TpInPip { get; set; }
 		public decimal PipSize { get; set; }
