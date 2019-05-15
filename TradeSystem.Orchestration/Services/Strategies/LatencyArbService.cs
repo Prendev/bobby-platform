@@ -107,17 +107,22 @@ namespace TradeSystem.Orchestration.Services.Strategies
 		private void CheckOpening(LatencyArb set)
 		{
 			if (set.State != LatencyArb.LatencyArbStates.Opening) return;
-			var last = set.LatencyArbPositions.FirstOrDefault(p => !p.LongTicket.HasValue || !p.ShortTicket.HasValue);
+			var last = set.LatencyArbPositions.OrderByDescending(p => p.Level).FirstOrDefault();
 
 			// Check for new signal
-			if (last == null)
+			var checkNew = last == null || (last.LongTicket.HasValue && last.ShortTicket.HasValue);
+			if (checkNew)
 			{
 				if (set.LatencyArbPositions.Count >= set.MaxCount) return;
 				// Long signal
 				if (set.LastFeedTick.Ask >= set.LastLongTick.Ask + set.SignalDiffInPip * set.PipSize)
 				{
 					var pos = SendLongOrder(set);
-					if (pos == null) return;
+					if (pos == null)
+					{
+						Logger.Warn($"{set} latency arb - {set.LatencyArbPositions.Count}. long first side open error");
+						return;
+					}
 					set.LatencyArbPositions.Add(new LatencyArbPosition()
 					{
 						LatencyArb = set,
@@ -132,7 +137,11 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				else if (set.LastFeedTick.Bid <= set.LastShortTick.Bid - set.SignalDiffInPip * set.PipSize)
 				{
 					var pos = SendShortOrder(set);
-					if (pos == null) return;
+					if (pos == null)
+					{
+						Logger.Warn($"{set} latency arb - {set.LatencyArbPositions.Count}. short first side open error");
+						return;
+					}
 					set.LatencyArbPositions.Add(new LatencyArbPosition()
 					{
 						LatencyArb = set,
@@ -155,7 +164,11 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				if (price <= last.Price - set.SlInPip * set.PipSize) hedge = true;
 				if (!hedge) return;
 				var pos = SendShortOrder(set);
-				if (pos == null) return;
+				if (pos == null)
+				{
+					Logger.Warn($"{set} latency arb - {last.Level}. short hedge side open error");
+					return;
+				}
 				last.ShortTicket = pos.Id;
 				Logger.Info($"{set} latency arb - {last.Level}. short hedge side opened at {pos.OpenPrice} with {(pos.OpenPrice - last.Price)/set.PipSize} pips");
 			}
@@ -170,7 +183,11 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				if (price >= last.Price + set.SlInPip * set.PipSize) hedge = true;
 				if (!hedge) return;
 				var pos = SendLongOrder(set);
-				if (pos == null) return;
+				if (pos == null)
+				{
+					Logger.Warn($"{set} latency arb - {last.Level}. long hedge side open error");
+					return;
+				}
 				last.LongTicket = pos.Id;
 				Logger.Info($"{set} latency arb - {last.Level}. long hedge side opened at {pos.OpenPrice} with {(last.Price - pos.OpenPrice) / set.PipSize} pips");
 			}

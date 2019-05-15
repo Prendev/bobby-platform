@@ -157,9 +157,7 @@ namespace TradeSystem.Mt4Integration
 					OpenPrice = (decimal)o.OpenPrice,
 					Comment = o.Comment
 				};
-				Positions.AddOrUpdate(position.Id, t => position, (t, old) => position);
-
-				return position;
+				return Positions.AddOrUpdate(position.Id, t => position, (t, old) => position);
 			}
             catch (Exception e)
             {
