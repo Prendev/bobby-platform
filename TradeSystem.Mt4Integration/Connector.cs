@@ -223,9 +223,9 @@ namespace TradeSystem.Mt4Integration
 
 	    public bool SendClosePositionRequests(long ticket, int maxRetryCount, int retryPeriodInMs)
 	    {
-		    var position = Positions.FirstOrDefault(p => p.Key == ticket && !p.Value.IsClosed);
-		    if (position.Value == null) return true;
-		    return SendClosePositionRequests(position.Value, null, maxRetryCount, retryPeriodInMs);
+		    if (!Positions.TryGetValue(ticket, out var position)) return true;
+		    if (position.IsClosed) return true;
+		    return SendClosePositionRequests(position, null, maxRetryCount, retryPeriodInMs);
 	    }
 
 	    public long GetOpenContracts(string symbol)
@@ -452,7 +452,7 @@ namespace TradeSystem.Mt4Integration
 				OpenPrice = (decimal)order.OpenPrice,
 				CloseTime = order.CloseTime,
 				ClosePrice = (decimal)order.ClosePrice,
-				IsClosed = order.ClosePrice > 0,
+				IsClosed = order.Ex.close_time > 0,
 				MagicNumber = order.MagicNumber,
 				Profit = order.Profit,
 				Commission = order.Commission,
@@ -463,7 +463,7 @@ namespace TradeSystem.Mt4Integration
 			{
 				old.CloseTime = order.CloseTime;
 				old.ClosePrice = (decimal) order.ClosePrice;
-				old.IsClosed = order.ClosePrice > 0;
+				old.IsClosed = order.Ex.close_time > 0;
 				old.Profit = order.Profit;
 				old.Commission = order.Commission;
 				old.Swap = order.Swap;

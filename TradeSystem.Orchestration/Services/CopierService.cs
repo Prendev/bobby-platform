@@ -156,22 +156,37 @@ namespace TradeSystem.Orchestration.Services
 			if (!slave.Master.Run) return;
 			if (!slave.Run) return;
 			if (!slave.CloseBothWays) return;
-
-			if (e.Position.Comment?.Contains($"-{slave.Id}-") != true) return;
-			if (e.Position.Symbol != GetSlaveSymbol(e, slave)) return;
-
-			if (!int.TryParse(e.Position.Comment.Split('-').Last(), out var copierId)) return;
-			var copier = slave.Copiers.FirstOrDefault(c => c.Id == copierId);
-			if (copier?.Run != true) return;
-
-			if (!long.TryParse(e.Position.Comment.Split('-').First(), out var masterPositionId)) return;
 			if (!(slave.Master.Account.Connector is Mt4Integration.Connector connector)) return;
 
-			DelayedRun(() =>
+			// Close by copier position table
+			foreach (var copier in slave.Copiers)
 			{
-				connector.SendClosePositionRequests(masterPositionId, copier.MaxRetryCount, copier.RetryPeriodInMs);
-				return Task.CompletedTask;
-			}, copier.DelayInMilliseconds);
+				if (copier.Run != true) continue;
+				foreach (var copierPosition in copier.CopierPositions.Where(p => p.SlaveTicket == e.Position.Id))
+				{
+					DelayedRun(() =>
+					{
+						connector.SendClosePositionRequests(copierPosition.MasterTicket, copier.MaxRetryCount, copier.RetryPeriodInMs);
+						return Task.CompletedTask;
+					}, copier.DelayInMilliseconds);
+				}
+			}
+
+			// Close by comment
+			{
+				if (e.Position.Comment?.Contains($"-{slave.Id}-") != true) return;
+				if (e.Position.Symbol != GetSlaveSymbol(e, slave)) return;
+				if (!int.TryParse(e.Position.Comment.Split('-').Last(), out var copierId)) return;
+				if (!long.TryParse(e.Position.Comment.Split('-').First(), out var masterPositionId)) return;
+				var copier = slave.Copiers.FirstOrDefault(c => c.Id == copierId);
+				if (copier?.Run != true) return;
+
+				DelayedRun(() =>
+				{
+					connector.SendClosePositionRequests(masterPositionId, copier.MaxRetryCount, copier.RetryPeriodInMs);
+					return Task.CompletedTask;
+				}, copier.DelayInMilliseconds);
+			}
 		}
 
 		private Task CopyToAccount(NewPosition e, Slave slave)
@@ -228,7 +243,11 @@ namespace TradeSystem.Orchestration.Services
 			        slaveConnector.SendMarketOrderRequest(symbol, side, lots, e.Position.MagicNumber,
 				        comment, copier.MaxRetryCount, copier.RetryPeriodInMs);
 		        else if (e.Action == NewPositionActions.Close)
-			        slaveConnector.SendClosePositionRequests(comment, copier.MaxRetryCount, copier.RetryPeriodInMs);
+				{
+					slaveConnector.SendClosePositionRequests(comment, copier.MaxRetryCount, copier.RetryPeriodInMs);
+			        foreach (var copierPosition in copier.CopierPositions.Where(p => p.MasterTicket == e.Position.Id))
+						slaveConnector.SendClosePositionRequests(copierPosition.SlaveTicket, copier.MaxRetryCount, copier.RetryPeriodInMs);
+		        }
 		        return Task.CompletedTask;
 			}, copier.DelayInMilliseconds));
             return Task.WhenAll(tasks);
