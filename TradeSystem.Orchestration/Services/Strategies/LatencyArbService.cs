@@ -124,7 +124,9 @@ namespace TradeSystem.Orchestration.Services.Strategies
 						LongTicket = pos.Id,
 						Price = pos.OpenPrice,
 						Trailing = pos.OpenPrice - set.TrailingInPip * set.PipSize,
+						Level = set.LatencyArbPositions.Count + 1
 					});
+					Logger.Info($"{set} latency arb - {set.LatencyArbPositions.Count}. long first side opened at {pos.OpenPrice}");
 				}
 				// Short signal
 				else if (set.LastFeedTick.Bid <= set.LastShortTick.Bid - set.SignalDiffInPip * set.PipSize)
@@ -137,11 +139,13 @@ namespace TradeSystem.Orchestration.Services.Strategies
 						ShortTicket = pos.Id,
 						Price = pos.OpenPrice,
 						Trailing = pos.OpenPrice + set.TrailingInPip * set.PipSize,
+						Level = set.LatencyArbPositions.Count + 1
 					});
+					Logger.Info($"{set} latency arb - {set.LatencyArbPositions.Count}. short first side opened at {pos.OpenPrice}");
 				}
 			}
 			// Long side opened
-			else if (!last.ShortTicket.HasValue)
+			else if (last.LongTicket.HasValue)
 			{
 				var hedge = false;
 				var price = set.LastShortTick.Bid;
@@ -153,9 +157,10 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				var pos = SendShortOrder(set);
 				if (pos == null) return;
 				last.ShortTicket = pos.Id;
+				Logger.Info($"{set} latency arb - {last.Level}. short hedge side opened at {pos.OpenPrice} with {(pos.OpenPrice - last.Price)/set.PipSize} pips");
 			}
 			// Short side opened
-			else if (!last.LongTicket.HasValue)
+			else if (last.ShortTicket.HasValue)
 			{
 				var hedge = false;
 				var price = set.LastLongTick.Ask;
@@ -167,6 +172,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				var pos = SendLongOrder(set);
 				if (pos == null) return;
 				last.LongTicket = pos.Id;
+				Logger.Info($"{set} latency arb - {last.Level}. long hedge side opened at {pos.OpenPrice} with {(last.Price - pos.OpenPrice) / set.PipSize} pips");
 			}
 		}
 		private Position SendLongOrder(LatencyArb set)
@@ -184,7 +190,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 		{
 			if (set.State != LatencyArb.LatencyArbStates.Closing) return;
 
-			var first = set.LatencyArbPositions.FirstOrDefault(p => p.LongTicket.HasValue && p.ShortTicket.HasValue);
+			var first = set.LatencyArbPositions.OrderBy(p => p.Level).FirstOrDefault(p => p.LongTicket.HasValue && p.ShortTicket.HasValue);
 			if (first == null) return;
 			if (!first.LongTicket.HasValue) return;
 			if (!first.ShortTicket.HasValue) return;
@@ -196,19 +202,23 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				if (set.LastFeedTick.Bid <= set.LastLongTick.Bid - set.SignalDiffInPip * set.PipSize)
 				{
 					var pos = CloseLong(set, first.LongTicket.Value);
-					if (pos?.IsClosed != true) return;
+					if (pos?.IsClosed != true)
+						return;
 					first.LongClosed = true;
 					first.Price = pos.ClosePrice;
 					first.Trailing = pos.ClosePrice - set.TrailingInPip * set.PipSize;
+					Logger.Info($"{set} latency arb - {first.Level}. long first side closed at {pos.ClosePrice}");
 				}
 				// Short close signal
 				else if (set.LastFeedTick.Ask >= set.LastShortTick.Ask + set.SignalDiffInPip * set.PipSize)
 				{
 					var pos = CloseShort(set, first.ShortTicket.Value);
-					if (pos?.IsClosed != true) return;
+					if (pos?.IsClosed != true)
+						return;
 					first.ShortClosed = true;
 					first.Price = pos.ClosePrice;
 					first.Trailing = pos.ClosePrice + set.TrailingInPip * set.PipSize;
+					Logger.Info($"{set} latency arb - {first.Level}. short first side closed at {pos.ClosePrice}");
 				}
 			}
 			// Long side closed
@@ -224,6 +234,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				var pos = CloseShort(set, first.ShortTicket.Value);
 				if (pos?.IsClosed != true) return;
 				first.ShortClosed = true;
+				Logger.Info($"{set} latency arb - {first.Level}. short hedge side closed at {pos.ClosePrice} with {(first.Price - pos.ClosePrice)/set.PipSize} pips");
 			}
 			// Short side closed
 			else if (first.ShortClosed)
@@ -238,6 +249,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				var pos = CloseLong(set, first.LongTicket.Value);
 				if (pos?.IsClosed != true) return;
 				first.LongClosed = true;
+				Logger.Info($"{set} latency arb - {first.Level}. long hedge side closed at {pos.ClosePrice} with {(pos.ClosePrice - first.Price) / set.PipSize} pips");
 			}
 		}
 

@@ -5,13 +5,15 @@
 		public int LatencyArbId { get; set; }
 		public LatencyArb LatencyArb { get; set; }
 
-		public long? ShortTicket { get; set; }
-		public long? LongTicket { get; set; }
+		public int Level { get => Get<int>(); set => Set(value); }
 
-		public bool ShortClosed { get; set; }
-		public bool LongClosed { get; set; }
+		public long? ShortTicket { get => Get<long?>(); set => Set(value); }
+		public long? LongTicket { get => Get<long?>(); set => Set(value); }
 
-		public decimal? Price { get; set; }
-		public decimal? Trailing { get; set; }
+		public bool ShortClosed { get => Get<bool>(); set => Set(value); }
+		public bool LongClosed { get => Get<bool>(); set => Set(value); }
+
+		public decimal? Price { get => Get<decimal?>(); set => Set(value); }
+		public decimal? Trailing { get => Get<decimal?>(); set => Set(value); }
 	}
 }

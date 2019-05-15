@@ -140,7 +140,7 @@ namespace TradeSystem.Mt4Integration
 			{
 				var op = side == Sides.Buy ? Op.Buy : Op.Sell;
 				var o = OrderClient.OrderSend(symbol, op, lots, 0, 0, 0, 0, comment, magicNumber, DateTime.MaxValue);
-				Logger.Info($"{_accountInfo.Description} Connector.SendMarketOrderRequest({symbol}, {side}, {lots}, {magicNumber}, {comment}) is successful with id {o.Ticket}");
+				Logger.Debug($"{_accountInfo.Description} Connector.SendMarketOrderRequest({symbol}, {side}, {lots}, {magicNumber}, {comment}) is successful with id {o.Ticket}");
 
 				var position = new Position
 				{
@@ -189,8 +189,9 @@ namespace TradeSystem.Mt4Integration
 				var price = position.Side == Sides.Buy
                     ? QuoteClient.GetQuote(position.Symbol).Bid
                     : QuoteClient.GetQuote(position.Symbol).Ask;
-				OrderClient.OrderClose(position.Symbol, (int) position.Id, lots ?? (double) position.Lots, price, 0);
-				Logger.Info($"{_accountInfo.Description} Connector.SendClosePositionRequests({position.Id}, {position.Comment}) is successful");
+				var order = OrderClient.OrderClose(position.Symbol, (int) position.Id, lots ?? (double) position.Lots, price, 0);
+				UpdatePosition(order);
+				Logger.Debug($"{_accountInfo.Description} Connector.SendClosePositionRequests({position.Id}, {position.Comment}) is successful");
 				return true;
 			}
             catch (Exception e)
@@ -431,25 +432,7 @@ namespace TradeSystem.Mt4Integration
             if (update.Action != UpdateAction.PositionOpen && update.Action != UpdateAction.PositionClose) return;
             if (update.Order.Type != Op.Buy && update.Order.Type != Op.Sell) return;
 
-			var position = new Position
-            {
-                Id = update.Order.Ticket,
-                Lots = (decimal) update.Order.Lots,
-                Symbol = update.Order.Symbol,
-                Side = update.Order.Type == Op.Buy ? Sides.Buy : Sides.Sell,
-                RealVolume = (long)(update.Order.Lots * GetSymbolInfo(update.Order.Symbol).ContractSize * (update.Order.Type == Op.Buy ? 1 : -1)),
-                OpenTime = update.Order.OpenTime,
-                OpenPrice = (decimal)update.Order.OpenPrice,
-                CloseTime = update.Order.CloseTime,
-                ClosePrice = (decimal)update.Order.ClosePrice,
-                IsClosed = update.Action == UpdateAction.PositionClose,
-                MagicNumber = update.Order.MagicNumber,
-                Profit = update.Order.Profit,
-                Commission = update.Order.Commission,
-                Swap = update.Order.Swap,
-                Comment = update.Order.Comment
-            };
-            Positions.AddOrUpdate(update.Order.Ticket, t => position, (t, old) => position);
+	        var position = UpdatePosition(update.Order);
 
             OnNewPosition(new NewPosition
             {
@@ -458,6 +441,37 @@ namespace TradeSystem.Mt4Integration
                 Action = update.Action == UpdateAction.PositionOpen ? NewPositionActions.Open : NewPositionActions.Close,
 			});
         }
+		private Position UpdatePosition(Order order)
+		{
+			var position = new Position
+			{
+				Id = order.Ticket,
+				Lots = (decimal)order.Lots,
+				Symbol = order.Symbol,
+				Side = order.Type == Op.Buy ? Sides.Buy : Sides.Sell,
+				RealVolume = (long)(order.Lots * GetSymbolInfo(order.Symbol).ContractSize * (order.Type == Op.Buy ? 1 : -1)),
+				OpenTime = order.OpenTime,
+				OpenPrice = (decimal)order.OpenPrice,
+				CloseTime = order.CloseTime,
+				ClosePrice = (decimal)order.ClosePrice,
+				IsClosed = order.ClosePrice > 0,
+				MagicNumber = order.MagicNumber,
+				Profit = order.Profit,
+				Commission = order.Commission,
+				Swap = order.Swap,
+				Comment = order.Comment
+			};
+			return Positions.AddOrUpdate(order.Ticket, t => position, (t, old) =>
+			{
+				old.CloseTime = order.CloseTime;
+				old.ClosePrice = (decimal) order.ClosePrice;
+				old.IsClosed = order.ClosePrice > 0;
+				old.Profit = order.Profit;
+				old.Commission = order.Commission;
+				old.Swap = order.Swap;
+				return old;
+			});
+		}
 
 		private SymbolInfo GetSymbolInfo(string symbol)
         {
