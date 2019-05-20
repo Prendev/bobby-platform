@@ -274,7 +274,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			if (first == null) return;
 			if (!first.LongTicket.HasValue) return;
 			if (!first.ShortTicket.HasValue) return;
-			if (set.LastFeedTick.Bid < set.LastLongTick.Bid - set.SignalDiffInPip * set.PipSize) return;
+			if (set.LastFeedTick.Bid > set.LastLongTick.Bid - set.SignalDiffInPip * set.PipSize) return;
 
 			var closePos = CloseLong(set, first.LongTicket.Value);
 			if (closePos?.IsClosed != true) return;
