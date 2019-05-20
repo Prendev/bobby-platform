@@ -66,6 +66,37 @@ namespace TradeSystem.Orchestration.Services
 			return Task.WhenAll(tasks);
 		}
 
+		private void  SyncToFixAccount(NewPosition e, Slave slave)
+		{
+			if (e.Action != NewPositionActions.Open) return;
+			if (!(slave.Account?.Connector is FixApiIntegration.Connector)) return;
+			if (slave.SymbolMappings?.Any(m => m.From == e.Position.Symbol) != true) return;
+
+			var symbol = GetSlaveSymbol(e, slave);
+
+			foreach (var copier in slave.FixApiCopiers.Where(s => s.Run))
+			{
+				if (copier.FixApiCopierPositions.Any(p => !p.Archived && p.MasterPositionId == e.Position.Id && p.ClosePosition == null)) continue;
+
+				var quantity = Math.Floor(Math.Abs(e.Position.Lots * copier.CopyRatio));
+				if (quantity == 0)
+				{
+					Logger.Warn($"CopierService.CopyToFixAccount {slave} {symbol} quantity is zero!!!");
+					continue;
+				}
+
+				var response = new OrderResponse()
+				{
+					Side = copier.CopyRatio < 0 ? e.Position.Side.Inv() : e.Position.Side,
+					OrderPrice = e.Position.OpenPrice,
+					AveragePrice = e.Position.OpenPrice,
+					FilledQuantity = quantity,
+					OrderedQuantity = quantity
+				};
+				PersistOpenPosition(copier, symbol, e.Position.Id, response);
+			}
+		}
+
 		private void PersistOpenPosition(FixApiCopier copier, string symbol, long masterPositionId, OrderResponse response)
 		{
 			if (!response.IsFilled) return;

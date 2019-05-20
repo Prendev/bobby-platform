@@ -47,6 +47,7 @@ namespace TradeSystem.Duplicat.Views
 			btnStart.Click += (s, e) => { _viewModel.StartCopiersCommand(); };
             btnStop.Click += (s, e) => { _viewModel.StopCopiersCommand(); };
 	        btnSync.Click += (s, e) => { _viewModel.CopierSyncCommand(dgvSlaves.GetSelectedItem<Slave>()); };
+	        btnSyncNoOpen.Click += (s, e) => { _viewModel.CopierSyncNoOpenCommand(dgvSlaves.GetSelectedItem<Slave>()); };
 	        btnClose.Click += (s, e) => { _viewModel.CopierCloseCommand(dgvSlaves.GetSelectedItem<Slave>()); };
 	        btnArchive.Click += (s, e) =>
 	        {

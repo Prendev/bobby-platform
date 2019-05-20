@@ -16,6 +16,7 @@ namespace TradeSystem.Orchestration.Services
         void Start(List<Master> masters);
         void Stop();
 	    Task Sync(Slave slave);
+	    Task SyncNoOpen(Slave slave);
 	    Task Close(Slave slave);
 	}
 
@@ -90,8 +91,27 @@ namespace TradeSystem.Orchestration.Services
 			}
 			Logger.Info("CopierService.Sync finished");
 		}
+	    public async Task SyncNoOpen(Slave slave)
+	    {
+		    if (!(slave.Master.Account.Connector is Mt4Integration.Connector masterCon)) return;
+		    if (!(slave.Account.Connector is FixApiIntegration.Connector)) return;
 
-	    public async Task Close(Slave slave)
+		    Logger.Info("CopierService.Sync started");
+		    var positions = masterCon.Positions.Where(p => !p.Value.IsClosed).ToList();
+		    foreach (var pos in positions)
+		    {
+			    var newPos = new NewPosition()
+			    {
+				    AccountType = AccountTypes.Mt4,
+				    Action = NewPositionActions.Open,
+				    Position = pos.Value
+			    };
+			    SyncToFixAccount(newPos, slave);
+		    }
+		    Logger.Info("CopierService.Sync finished");
+	    }
+
+		public async Task Close(Slave slave)
 		{
 			if (!(slave.Account.Connector is FixApiIntegration.Connector connector)) return;
 

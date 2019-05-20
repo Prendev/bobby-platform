@@ -20,6 +20,7 @@ namespace TradeSystem.Orchestration
 		Task StartCopiers(DuplicatContext duplicatContext);
 		void StopCopiers();
 		Task CopierSync(Slave slave);
+		Task CopierSyncNoOpen(Slave slave);
 		Task CopierClose(Slave slave);
 
 		Task StartTickers(DuplicatContext duplicatContext);
@@ -169,6 +170,7 @@ namespace TradeSystem.Orchestration
 
 		public void StopCopiers() => _copierService.Stop();
 		public Task CopierSync(Slave slave) => _copierService.Sync(slave);
+		public Task CopierSyncNoOpen(Slave slave) => _copierService.SyncNoOpen(slave);
 		public Task CopierClose(Slave slave) => _copierService.Close(slave);
 
 		public async Task StartTickers(DuplicatContext duplicatContext)

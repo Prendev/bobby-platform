@@ -177,6 +177,13 @@ namespace TradeSystem.Duplicat.ViewModel
 			await _orchestrator.CopierSync(slave);
 			IsLoading = false;
 		}
+	    public async void CopierSyncNoOpenCommand(Slave slave)
+	    {
+		    if (slave == null || !IsConnected) return;
+		    IsLoading = true;
+		    await _orchestrator.CopierSyncNoOpen(slave);
+		    IsLoading = false;
+	    }
 		public async void CopierCloseCommand(Slave slave)
 		{
 			if (slave == null || !IsConnected) return;
