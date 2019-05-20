@@ -11,6 +11,8 @@ namespace TradeSystem.Data.Models
 		{
 			None,
 			Opening,
+			ReopeningShort,
+			ReopeningLong,
 			Closing
 		}
 
@@ -35,6 +37,7 @@ namespace TradeSystem.Data.Models
 
 		public decimal Size { get; set; } = 1;
 		public int MaxCount { get; set; } = 5;
+		[DisplayName("ReopenDaysOld")] public int ReopenThresholdInDay { get; set; } = 5;
 
 		[DisplayName("Signal")] public decimal SignalDiffInPip { get; set; }
 		[DisplayName("Trail dist.")] public decimal TrailingDistanceInPip { get; set; }
