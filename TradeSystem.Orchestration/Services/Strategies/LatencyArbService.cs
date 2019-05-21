@@ -112,7 +112,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 			var last = set.LatencyArbPositions
 				.OrderByDescending(p => p.Level)
-				.FirstOrDefault(p => !p.LongTicket.HasValue || !p.ShortTicket.HasValue);
+				.FirstOrDefault(p => !p.HasLong || !p.HasShort);
 
 			// Check for new signal
 			if (last == null)
@@ -159,7 +159,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				}
 			}
 			// Long side opened
-			else if (last.LongTicket.HasValue)
+			else if (last.HasLong)
 			{
 				var hedge = false;
 				var price = set.LastShortTick.Bid;
@@ -183,7 +183,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				Logger.Info($"{set} latency arb - {last.Level}. short hedge side opened at {pos.OpenPrice} with {(pos.OpenPrice - last.Price)/set.PipSize} pips");
 			}
 			// Short side opened
-			else if (last.ShortTicket.HasValue)
+			else if (last.HasShort)
 			{
 				var hedge = false;
 				var price = set.LastLongTick.Ask;
@@ -220,7 +220,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 		private void CheckReopening(LatencyArb set)
 		{
-			if (set.LatencyArbPositions.Any(p => !p.ShortTicket.HasValue || !p.LongTicket.HasValue)) return;
+			if (set.LatencyArbPositions.Any(p => !p.HasShort || !p.HasLong)) return;
 			CheckReopeningShort(set);
 			CheckReopeningLong(set);
 		}
@@ -229,70 +229,87 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			if (set.State != LatencyArb.LatencyArbStates.ReopeningShort) return;
 
 			LatencyArbPosition first = null;
-			var connector = (Mt4Integration.Connector)set.ShortAccount.Connector;
-			var positions = set.LatencyArbPositions.OrderBy(p => p.Level).Where(p => p.LongTicket.HasValue && p.ShortTicket.HasValue);
+			var positions = set.LatencyArbPositions.OrderBy(p => p.Level).Where(p => p.HasBothSides);
 			foreach (var position in positions)
 			{
-				if (!position.LongTicket.HasValue) continue;
-				if (!position.ShortTicket.HasValue) continue;
-				connector.Positions.TryGetValue(position.ShortTicket.Value, out var pos);
-				if (pos == null) continue;
-				if ((HiResDatetime.UtcNow - pos.OpenTime).Days < set.ReopenThresholdInDay) continue;
+				if (!position.HasBothSides) continue;
+				var openTime = GetShortOpenTime(set, position);
+				if (!openTime.HasValue) continue;
+				if ((HiResDatetime.UtcNow - openTime.Value).Days < set.ReopenThresholdInDay) continue;
 				first = position;
 				break;
 			}
 			if (first == null) return;
-			if (!first.LongTicket.HasValue) return;
-			if (!first.ShortTicket.HasValue) return;
+			if (!first.HasBothSides) return;
 			if (set.LastFeedTick.Ask < set.LastShortTick.Ask + set.SignalDiffInPip * set.PipSize) return;
 
-			var closePos = CloseShort(set, first.ShortTicket.Value);
-			if (closePos?.IsClosed != true) return;
-			first.Price = closePos.ClosePrice;
+			var closePrice = CloseShort(set, first);
+			if (!closePrice.HasValue) return;
+			first.Price = closePrice;
 			first.Trailing = null;
 			first.ShortTicket = null;
-			Logger.Info($"{set} latency arb - {first.Level}. short side closed for reopening at {closePos.ClosePrice}");
-
+			Logger.Info($"{set} latency arb - {first.Level}. short side closed for reopening at {closePrice}");
 		}
 		private void CheckReopeningLong(LatencyArb set)
 		{
 			if (set.State != LatencyArb.LatencyArbStates.ReopeningLong) return;
 
 			LatencyArbPosition first = null;
-			var connector = (Mt4Integration.Connector)set.LongAccount.Connector;
-			var positions = set.LatencyArbPositions.OrderBy(p => p.Level).Where(p => p.LongTicket.HasValue && p.ShortTicket.HasValue);
+			var positions = set.LatencyArbPositions.OrderBy(p => p.Level).Where(p => p.HasBothSides);
 			foreach (var position in positions)
 			{
-				if (!position.LongTicket.HasValue) continue;
-				if (!position.ShortTicket.HasValue) continue;
-				connector.Positions.TryGetValue(position.LongTicket.Value, out var pos);
-				if (pos == null) continue;
-				if ((HiResDatetime.UtcNow - pos.OpenTime).Days < set.ReopenThresholdInDay) continue;
+				if (!position.HasBothSides) continue;
+				var openTime = GetLongOpenTime(set, position);
+				if (!openTime.HasValue) continue;
+				if ((HiResDatetime.UtcNow - openTime.Value).Days < set.ReopenThresholdInDay) continue;
 				first = position;
 				break;
 			}
 			if (first == null) return;
-			if (!first.LongTicket.HasValue) return;
-			if (!first.ShortTicket.HasValue) return;
+			if (!first.HasBothSides) return;
 			if (set.LastFeedTick.Bid > set.LastLongTick.Bid - set.SignalDiffInPip * set.PipSize) return;
 
-			var closePos = CloseLong(set, first.LongTicket.Value);
-			if (closePos?.IsClosed != true) return;
-			first.Price = closePos.ClosePrice;
+			var closePrice = CloseLong(set, first);
+			if (!closePrice.HasValue) return;
+			first.Price = closePrice;
 			first.Trailing = null;
 			first.LongTicket = null;
-			Logger.Info($"{set} latency arb - {first.Level}. long side closed for reopening at {closePos.ClosePrice}");
+			Logger.Info($"{set} latency arb - {first.Level}. long side closed for reopening at {closePrice}");
 		}
+		private DateTime? GetShortOpenTime(LatencyArb set, LatencyArbPosition arbPos)
+		{
+			if (set.ShortAccount.Connector is Mt4Integration.Connector connector)
+			{
+				if (!arbPos.ShortTicket.HasValue) return null;
+				connector.Positions.TryGetValue(arbPos.ShortTicket.Value, out var pos);
+				if (pos == null) return null;
+				if (pos.IsClosed) return null;
+				return pos.OpenTime;
+			}
 
+			return null;
+		}
+		private DateTime? GetLongOpenTime(LatencyArb set, LatencyArbPosition arbPos)
+		{
+			if (set.LongAccount.Connector is Mt4Integration.Connector connector)
+			{
+				if (!arbPos.LongTicket.HasValue) return null;
+				connector.Positions.TryGetValue(arbPos.LongTicket.Value, out var pos);
+				if (pos == null) return null;
+				if (pos.IsClosed) return null;
+				return pos.OpenTime;
+			}
+
+			return null;
+		}
 
 		private void CheckClosing(LatencyArb set)
 		{
 			if (set.State != LatencyArb.LatencyArbStates.Closing) return;
 
-			var first = set.LatencyArbPositions.OrderBy(p => p.Level).FirstOrDefault(p => p.LongTicket.HasValue && p.ShortTicket.HasValue);
+			var first = set.LatencyArbPositions.OrderBy(p => p.Level).FirstOrDefault(p => p.HasBothSides);
 			if (first == null) return;
-			if (!first.LongTicket.HasValue) return;
-			if (!first.ShortTicket.HasValue) return;
+			if (!first.HasBothSides) return;
 
 			// No closed side
 			if (!first.LongClosed && !first.ShortClosed)
@@ -300,22 +317,22 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				// Long close signal
 				if (set.LastFeedTick.Bid <= set.LastLongTick.Bid - set.SignalDiffInPip * set.PipSize)
 				{
-					var pos = CloseLong(set, first.LongTicket.Value);
-					if (pos?.IsClosed != true) return;
+					var closePrice = CloseLong(set, first);
+					if (!closePrice.HasValue) return;
 					first.LongClosed = true;
-					first.Price = pos.ClosePrice;
+					first.Price = closePrice;
 					first.Trailing = null;
-					Logger.Info($"{set} latency arb - {first.Level}. long first side closed at {pos.ClosePrice}");
+					Logger.Info($"{set} latency arb - {first.Level}. long first side closed at {closePrice}");
 				}
 				// Short close signal
 				else if (set.LastFeedTick.Ask >= set.LastShortTick.Ask + set.SignalDiffInPip * set.PipSize)
 				{
-					var pos = CloseShort(set, first.ShortTicket.Value);
-					if (pos?.IsClosed != true) return;
+					var closePrice = CloseShort(set, first);
+					if (!closePrice.HasValue) return;
 					first.ShortClosed = true;
-					first.Price = pos.ClosePrice;
+					first.Price = closePrice;
 					first.Trailing = null;
-					Logger.Info($"{set} latency arb - {first.Level}. short first side closed at {pos.ClosePrice}");
+					Logger.Info($"{set} latency arb - {first.Level}. short first side closed at {closePrice}");
 				}
 			}
 			// Long side closed
@@ -333,10 +350,10 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				if (price >= first.Price + set.SlInPip * set.PipSize) hedge = true;
 				if (!hedge) return;
 
-				var pos = CloseShort(set, first.ShortTicket.Value);
-				if (pos?.IsClosed != true) return;
+				var closePrice = CloseShort(set, first);
+				if (!closePrice.HasValue) return;
 				first.ShortClosed = true;
-				Logger.Info($"{set} latency arb - {first.Level}. short hedge side closed at {pos.ClosePrice} with {(first.Price - pos.ClosePrice)/set.PipSize} pips");
+				Logger.Info($"{set} latency arb - {first.Level}. short hedge side closed at {closePrice} with {(first.Price - closePrice) /set.PipSize} pips");
 			}
 			// Short side closed
 			else if (first.ShortClosed)
@@ -353,48 +370,68 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				if (price <= first.Price - set.SlInPip * set.PipSize) hedge = true;
 				if (!hedge) return;
 
-				var pos = CloseLong(set, first.LongTicket.Value);
-				if (pos?.IsClosed != true) return;
+				var closePrice = CloseLong(set, first);
+				if (!closePrice.HasValue) return;
 				first.LongClosed = true;
-				Logger.Info($"{set} latency arb - {first.Level}. long hedge side closed at {pos.ClosePrice} with {(pos.ClosePrice - first.Price) / set.PipSize} pips");
+				Logger.Info($"{set} latency arb - {first.Level}. long hedge side closed at {closePrice} with {(closePrice - first.Price) / set.PipSize} pips");
 			}
 		}
 
-		private Position CloseLong(LatencyArb set, long ticket)
+		private decimal? CloseLong(LatencyArb set, LatencyArbPosition arbPos)
 		{
-			var connector = (Mt4Integration.Connector) set.LongAccount.Connector;
-			connector.Positions.TryGetValue(ticket, out var pos);
-			if (pos == null) return null;
-			connector.SendClosePositionRequests(pos);
-			return pos;
+			if (set.LongAccount.Connector is Mt4Integration.Connector connector)
+			{
+				if (!arbPos.LongTicket.HasValue) return null;
+				connector.Positions.TryGetValue(arbPos.LongTicket.Value, out var pos);
+				if (pos == null) return null;
+				connector.SendClosePositionRequests(pos);
+				return pos.ClosePrice;
+			}
+
+			if (set.LongAccount.Connector is FixApiIntegration.Connector fixConnector)
+			{
+			}
+
+			return null;
 		}
-		private Position CloseShort(LatencyArb set, long ticket)
+		private decimal? CloseShort(LatencyArb set, LatencyArbPosition arbPos)
 		{
-			var connector = (Mt4Integration.Connector)set.ShortAccount.Connector;
-			connector.Positions.TryGetValue(ticket, out var pos);
-			if (pos == null) return null;
-			connector.SendClosePositionRequests(pos);
-			return pos;
+			if (set.ShortAccount.Connector is Mt4Integration.Connector connector)
+			{
+				if (!arbPos.ShortTicket.HasValue) return null;
+				connector.Positions.TryGetValue(arbPos.ShortTicket.Value, out var pos);
+				if (pos == null) return null;
+				connector.SendClosePositionRequests(pos);
+				return pos.ClosePrice;
+			}
+
+			if (set.ShortAccount.Connector is FixApiIntegration.Connector fixConnector)
+			{
+			}
+
+			return null;
 		}
 
 		private void CheckPositions(LatencyArb set)
 		{
+			var longPositions = (set.LongAccount.Connector as Mt4Integration.Connector)?.Positions;
+			var shortPositions = (set.ShortAccount.Connector as Mt4Integration.Connector)?.Positions;
+
 			foreach (var pos in set.LatencyArbPositions)
 			{
-				var longPositions = ((Mt4Integration.Connector)set.LongAccount.Connector).Positions;
-				var shortPositions = ((Mt4Integration.Connector)set.ShortAccount.Connector).Positions;
-
-				if (pos.LongTicket.HasValue &&
-				    (!longPositions.TryGetValue(pos.LongTicket.Value, out var longPos) || longPos.IsClosed))
+				if (pos.HasLong && longPositions != null && pos.LongTicket.HasValue &&
+					(!longPositions.TryGetValue(pos.LongTicket.Value, out var longPos) || longPos.IsClosed))
 					pos.LongClosed = true;
 
-				if (pos.ShortTicket.HasValue &&
-				    (!shortPositions.TryGetValue(pos.ShortTicket.Value, out var shortPos) || shortPos.IsClosed))
+				if (pos.HasShort && shortPositions != null && pos.ShortTicket.HasValue &&
+					(!shortPositions.TryGetValue(pos.ShortTicket.Value, out var shortPos) || shortPos.IsClosed))
 					pos.ShortClosed = true;
 
-				if (pos.LongClosed && (!pos.ShortTicket.HasValue || !shortPositions.TryGetValue(pos.ShortTicket.Value, out var _)))
+				if (pos.LongClosed && shortPositions != null && pos.ShortTicket.HasValue &&
+					(!pos.HasShort || !shortPositions.TryGetValue(pos.ShortTicket.Value, out var _)))
 					pos.ShortClosed = true;
-				if (pos.ShortClosed && (!pos.LongTicket.HasValue || !longPositions.TryGetValue(pos.LongTicket.Value, out var _)))
+				if (pos.ShortClosed && longPositions != null && pos.LongTicket.HasValue &&
+					(!pos.HasLong || !longPositions.TryGetValue(pos.LongTicket.Value, out var _)))
 					pos.LongClosed = true;
 			}
 			set.LatencyArbPositions.RemoveAll(p => p.LongClosed && p.ShortClosed);

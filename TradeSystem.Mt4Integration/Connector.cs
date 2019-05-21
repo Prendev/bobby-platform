@@ -39,16 +39,11 @@ namespace TradeSystem.Mt4Integration
 		public override string Description => _accountInfo?.Description;
 		public override bool IsConnected => QuoteClient?.Connected == true && OrderClient?.Connected == true;
 	    public DateTime? ServerTime => QuoteClient?.ServerTime;
-		public ConcurrentDictionary<long, Position> Positions { get; }
+		public ConcurrentDictionary<long, Position> Positions { get; } = new ConcurrentDictionary<long, Position>();
 
 		public QuoteClient QuoteClient;
         public OrderClient OrderClient;
 		private Action<string, int> _destinationSetter;
-
-		public Connector()
-        {
-            Positions = new ConcurrentDictionary<long, Position>();
-        }
 
 		public override void Disconnect()
         {
@@ -67,7 +62,6 @@ namespace TradeSystem.Mt4Integration
 
 			OnConnectionChanged(ConnectionStates.Disconnected);
 		}
-
 
         public void Connect(AccountInfo accountInfo, Action<string, int> destinationSetter)
         {

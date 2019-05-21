@@ -1,6 +1,6 @@
 ﻿namespace TradeSystem.Data.Models
 {
-	public class LatencyArbPosition : BaseEntity
+	public partial class LatencyArbPosition : BaseEntity
 	{
 		public int LatencyArbId { get; set; }
 		public LatencyArb LatencyArb { get; set; }
@@ -15,5 +15,11 @@
 
 		public decimal? Price { get => Get<decimal?>(); set => Set(value); }
 		public decimal? Trailing { get => Get<decimal?>(); set => Set(value); }
+
+		public int? ShortPositionId { get; set; }
+		public StratPosition ShortPosition { get; set; }
+
+		public int? LongPositionId { get; set; }
+		public StratPosition LongPosition { get; set; }
 	}
 }
