@@ -220,7 +220,8 @@ namespace TradeSystem.Duplicat.ViewModel
 				.Include(e => e.StratHubArbPositions).ThenInclude(e => e.Position).Load();
 			_duplicatContext.MarketMakers.Where(e => e.ProfileId == p).OrderBy(e => e.ToString()).Load();
 			_duplicatContext.LatencyArbs.Where(e => e.ProfileId == p).OrderBy(e => e.ToString())
-				.Include(e => e.LatencyArbPositions).Load();
+				.Include(e => e.LatencyArbPositions).ThenInclude(e => e.LongPosition)
+				.Include(e => e.LatencyArbPositions).ThenInclude(e => e.ShortPosition).Load();
 
 			MtPlatforms = _duplicatContext.MetaTraderPlatforms.Local.ToBindingList();
 			CtPlatforms = _duplicatContext.CTraderPlatforms.Local.ToBindingList();

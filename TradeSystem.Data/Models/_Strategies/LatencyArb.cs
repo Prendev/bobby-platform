@@ -35,7 +35,8 @@ namespace TradeSystem.Data.Models
 		public Account LongAccount { get => Get<Account>(); set => Set(value); }
 		[Required] public string LongSymbol { get; set; }
 
-		public decimal Size { get; set; } = 1;
+		public decimal ShortSize { get; set; } = 1;
+		public decimal LongSize { get; set; } = 1;
 		public int MaxCount { get; set; } = 5;
 		[DisplayName("ReopenDaysOld")] public int ReopenThresholdInDay { get; set; } = 5;
 

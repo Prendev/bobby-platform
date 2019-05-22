@@ -222,13 +222,13 @@ namespace TradeSystem.Orchestration.Services.Strategies
 		{
 			if (set.LongAccount.Connector is Mt4Integration.Connector connector)
 			{
-				var pos = connector.SendMarketOrderRequest(set.LongSymbol, Sides.Buy, (double)set.Size, 0, null);
+				var pos = connector.SendMarketOrderRequest(set.LongSymbol, Sides.Buy, (double)set.LongSize, 0, null);
 				return pos == null ? null : new OpenResult {Ticket = pos.Id, OpenPrice = pos.OpenPrice};
 			}
 
 			if (set.LongAccount.Connector is FixApiIntegration.Connector fixConnector)
 			{
-				var result = fixConnector.SendMarketOrderRequest(set.LongSymbol, Sides.Buy, set.Size).Result;
+				var result = fixConnector.SendMarketOrderRequest(set.LongSymbol, Sides.Buy, set.LongSize).Result;
 				if (result?.IsFilled != true) return null;
 				return new OpenResult
 				{
@@ -250,13 +250,13 @@ namespace TradeSystem.Orchestration.Services.Strategies
 		{
 			if (set.ShortAccount.Connector is Mt4Integration.Connector connector)
 			{
-				var pos = connector.SendMarketOrderRequest(set.ShortSymbol, Sides.Sell, (double)set.Size, 0, null);
+				var pos = connector.SendMarketOrderRequest(set.ShortSymbol, Sides.Sell, (double)set.ShortSize, 0, null);
 				return pos == null ? null : new OpenResult { Ticket = pos.Id, OpenPrice = pos.OpenPrice };
 			}
 
 			if (set.ShortAccount.Connector is FixApiIntegration.Connector fixConnector)
 			{
-				var result = fixConnector.SendMarketOrderRequest(set.ShortSymbol, Sides.Sell, set.Size).Result;
+				var result = fixConnector.SendMarketOrderRequest(set.ShortSymbol, Sides.Sell, set.ShortSize).Result;
 				if (result?.IsFilled != true) return null;
 				return new OpenResult
 				{
@@ -449,7 +449,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			if (set.LongAccount.Connector is FixApiIntegration.Connector fixConnector)
 			{
 				if (arbPos.LongPosition == null) return null;
-				var result = fixConnector.SendMarketOrderRequest(set.LongSymbol, Sides.Sell, set.Size).Result;
+				var result = fixConnector.SendMarketOrderRequest(set.LongSymbol, Sides.Sell, set.LongSize).Result;
 				if (result?.IsFilled != true) return null;
 				return result.AveragePrice;
 			}
@@ -468,7 +468,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			if (set.ShortAccount.Connector is FixApiIntegration.Connector fixConnector)
 			{
 				if (arbPos.ShortPosition == null) return null;
-				var result = fixConnector.SendMarketOrderRequest(set.ShortSymbol, Sides.Buy, set.Size).Result;
+				var result = fixConnector.SendMarketOrderRequest(set.ShortSymbol, Sides.Buy, set.ShortSize).Result;
 				if (result?.IsFilled != true) return null;
 				return result.AveragePrice;
 			}
