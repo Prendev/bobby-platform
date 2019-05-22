@@ -17,6 +17,13 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 	public class LatencyArbService : ILatencyArbService
 	{
+		private class OpenResult
+		{
+			public long? Ticket { get; set; }
+			public StratPosition StratPosition { get; set; }
+			public decimal OpenPrice { get; set; }
+		}
+
 		private volatile CancellationTokenSource _cancellation;
 
 		private List<LatencyArb> _sets;
@@ -132,7 +139,8 @@ namespace TradeSystem.Orchestration.Services.Strategies
 					set.LatencyArbPositions.Add(new LatencyArbPosition()
 					{
 						LatencyArb = set,
-						LongTicket = pos.Id,
+						LongTicket = pos.Ticket,
+						LongPosition = pos.StratPosition,
 						Price = pos.OpenPrice,
 						Level = level
 					});
@@ -151,7 +159,8 @@ namespace TradeSystem.Orchestration.Services.Strategies
 					set.LatencyArbPositions.Add(new LatencyArbPosition()
 					{
 						LatencyArb = set,
-						ShortTicket = pos.Id,
+						ShortTicket = pos.Ticket,
+						ShortPosition = pos.StratPosition,
 						Price = pos.OpenPrice,
 						Level = level
 					});
@@ -179,7 +188,8 @@ namespace TradeSystem.Orchestration.Services.Strategies
 					Logger.Warn($"{set} latency arb - {last.Level}. short hedge side open error");
 					return;
 				}
-				last.ShortTicket = pos.Id;
+				last.ShortTicket = pos.Ticket;
+				last.ShortPosition = pos.StratPosition;
 				Logger.Info($"{set} latency arb - {last.Level}. short hedge side opened at {pos.OpenPrice} with {(pos.OpenPrice - last.Price)/set.PipSize} pips");
 			}
 			// Short side opened
@@ -203,19 +213,66 @@ namespace TradeSystem.Orchestration.Services.Strategies
 					Logger.Warn($"{set} latency arb - {last.Level}. long hedge side open error");
 					return;
 				}
-				last.LongTicket = pos.Id;
+				last.LongTicket = pos.Ticket;
+				last.LongPosition = pos.StratPosition;
 				Logger.Info($"{set} latency arb - {last.Level}. long hedge side opened at {pos.OpenPrice} with {(last.Price - pos.OpenPrice) / set.PipSize} pips");
 			}
 		}
-		private Position SendLongOrder(LatencyArb set)
+		private OpenResult SendLongOrder(LatencyArb set)
 		{
-			return ((Mt4Integration.Connector) set.LongAccount.Connector).SendMarketOrderRequest(set.LongSymbol, Sides.Buy,
-				(double) set.Size, 0, null);
+			if (set.LongAccount.Connector is Mt4Integration.Connector connector)
+			{
+				var pos = connector.SendMarketOrderRequest(set.LongSymbol, Sides.Buy, (double)set.Size, 0, null);
+				return pos == null ? null : new OpenResult {Ticket = pos.Id, OpenPrice = pos.OpenPrice};
+			}
+
+			if (set.LongAccount.Connector is FixApiIntegration.Connector fixConnector)
+			{
+				var result = fixConnector.SendMarketOrderRequest(set.LongSymbol, Sides.Buy, set.Size).Result;
+				if (result?.IsFilled != true) return null;
+				return new OpenResult
+				{
+					OpenPrice = result.AveragePrice.Value,
+					StratPosition = new StratPosition()
+					{
+						Account = set.LongAccount,
+						AvgPrice = result.AveragePrice.Value,
+						OpenTime = HiResDatetime.UtcNow,
+						Side = result.Side == Sides.Buy ? StratPosition.Sides.Buy : StratPosition.Sides.Sell,
+						Symbol = set.LongSymbol
+					}
+				};
+			}
+
+			return null;
 		}
-		private Position SendShortOrder(LatencyArb set)
+		private OpenResult SendShortOrder(LatencyArb set)
 		{
-			return ((Mt4Integration.Connector)set.ShortAccount.Connector).SendMarketOrderRequest(set.ShortSymbol, Sides.Sell,
-				(double)set.Size, 0, null);
+			if (set.ShortAccount.Connector is Mt4Integration.Connector connector)
+			{
+				var pos = connector.SendMarketOrderRequest(set.ShortSymbol, Sides.Sell, (double)set.Size, 0, null);
+				return pos == null ? null : new OpenResult { Ticket = pos.Id, OpenPrice = pos.OpenPrice };
+			}
+
+			if (set.ShortAccount.Connector is FixApiIntegration.Connector fixConnector)
+			{
+				var result = fixConnector.SendMarketOrderRequest(set.ShortSymbol, Sides.Sell, set.Size).Result;
+				if (result?.IsFilled != true) return null;
+				return new OpenResult
+				{
+					OpenPrice = result.AveragePrice.Value,
+					StratPosition = new StratPosition()
+					{
+						Account = set.ShortAccount,
+						AvgPrice = result.AveragePrice.Value,
+						OpenTime = HiResDatetime.UtcNow,
+						Side = result.Side == Sides.Buy ? StratPosition.Sides.Buy : StratPosition.Sides.Sell,
+						Symbol = set.ShortSymbol
+					}
+				};
+			}
+
+			return null;
 		}
 
 		private void CheckReopening(LatencyArb set)
@@ -248,6 +305,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			first.Price = closePrice;
 			first.Trailing = null;
 			first.ShortTicket = null;
+			first.ShortPosition = null;
 			Logger.Info($"{set} latency arb - {first.Level}. short side closed for reopening at {closePrice}");
 		}
 		private void CheckReopeningLong(LatencyArb set)
@@ -274,6 +332,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			first.Price = closePrice;
 			first.Trailing = null;
 			first.LongTicket = null;
+			first.LongPosition = null;
 			Logger.Info($"{set} latency arb - {first.Level}. long side closed for reopening at {closePrice}");
 		}
 		private DateTime? GetShortOpenTime(LatencyArb set, LatencyArbPosition arbPos)
@@ -287,7 +346,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				return pos.OpenTime;
 			}
 
-			return null;
+			return arbPos.ShortPosition?.OpenTime;
 		}
 		private DateTime? GetLongOpenTime(LatencyArb set, LatencyArbPosition arbPos)
 		{
@@ -300,7 +359,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				return pos.OpenTime;
 			}
 
-			return null;
+			return arbPos.LongPosition?.OpenTime;
 		}
 
 		private void CheckClosing(LatencyArb set)
@@ -387,11 +446,13 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				connector.SendClosePositionRequests(pos);
 				return pos.ClosePrice;
 			}
-
 			if (set.LongAccount.Connector is FixApiIntegration.Connector fixConnector)
 			{
+				if (arbPos.LongPosition == null) return null;
+				var result = fixConnector.SendMarketOrderRequest(set.LongSymbol, Sides.Sell, set.Size).Result;
+				if (result?.IsFilled != true) return null;
+				return result.AveragePrice;
 			}
-
 			return null;
 		}
 		private decimal? CloseShort(LatencyArb set, LatencyArbPosition arbPos)
@@ -404,11 +465,13 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				connector.SendClosePositionRequests(pos);
 				return pos.ClosePrice;
 			}
-
 			if (set.ShortAccount.Connector is FixApiIntegration.Connector fixConnector)
 			{
+				if (arbPos.ShortPosition == null) return null;
+				var result = fixConnector.SendMarketOrderRequest(set.ShortSymbol, Sides.Buy, set.Size).Result;
+				if (result?.IsFilled != true) return null;
+				return result.AveragePrice;
 			}
-
 			return null;
 		}
 
