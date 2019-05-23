@@ -23,7 +23,7 @@ namespace TradeSystem.Data.Models
 		public string Extension { get; set; }
 
 		public string GetDateTimeFormat() =>
-			String.IsNullOrWhiteSpace(DateTimeFormat) ? "yyyy/MM/dd hh:mm:ss.fff" : DateTimeFormat;
+			String.IsNullOrWhiteSpace(DateTimeFormat) ? "yyyy/MM/dd HH:mm:ss.fff" : DateTimeFormat;
 		public string GetDelimeter() =>
 			String.IsNullOrWhiteSpace(Delimeter) ? ", " : Delimeter;
 		public string GetExtension() =>

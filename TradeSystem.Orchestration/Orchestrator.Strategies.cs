@@ -134,6 +134,7 @@ namespace TradeSystem.Orchestration
 			_hubArbService.Stop();
 			_marketMakerService.Stop();
 			_antiMarketMakerService.Stop();
+			_latencyArbService.Stop();
 		}
 
 		public async Task HubArbsGoFlat(DuplicatContext duplicatContext)
