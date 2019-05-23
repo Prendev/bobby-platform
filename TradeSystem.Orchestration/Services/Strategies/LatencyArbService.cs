@@ -126,6 +126,8 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			{
 				if (set.State != LatencyArb.LatencyArbStates.Opening) return;
 				if (set.LatencyArbPositions.Count >= set.MaxCount) return;
+				if (set.LastShortTick.Ask - set.LastShortTick.Bid > set.ShortSpreadFilterInPip * set.PipSize) return;
+				if (set.LastLongTick.Ask - set.LastLongTick.Bid > set.LongSpreadFilterInPip * set.PipSize) return;
 				// Long signal
 				if (set.LastFeedTick.Ask >= set.LastLongTick.Ask + set.SignalDiffInPip * set.PipSize)
 				{
@@ -284,6 +286,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 		private void CheckReopeningShort(LatencyArb set)
 		{
 			if (set.State != LatencyArb.LatencyArbStates.ReopeningShort) return;
+			if (set.LastShortTick.Ask - set.LastShortTick.Bid > set.ShortSpreadFilterInPip * set.PipSize) return;
 
 			LatencyArbPosition first = null;
 			var positions = set.LatencyArbPositions.OrderBy(p => p.Level).Where(p => p.HasBothSides);
@@ -311,6 +314,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 		private void CheckReopeningLong(LatencyArb set)
 		{
 			if (set.State != LatencyArb.LatencyArbStates.ReopeningLong) return;
+			if (set.LastLongTick.Ask - set.LastLongTick.Bid > set.LongSpreadFilterInPip * set.PipSize) return;
 
 			LatencyArbPosition first = null;
 			var positions = set.LatencyArbPositions.OrderBy(p => p.Level).Where(p => p.HasBothSides);
@@ -373,6 +377,8 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			// No closed side
 			if (!first.LongClosed && !first.ShortClosed)
 			{
+				if (set.LastShortTick.Ask - set.LastShortTick.Bid > set.ShortSpreadFilterInPip * set.PipSize) return;
+				if (set.LastLongTick.Ask - set.LastLongTick.Bid > set.LongSpreadFilterInPip * set.PipSize) return;
 				// Long close signal
 				if (set.LastFeedTick.Bid <= set.LastLongTick.Bid - set.SignalDiffInPip * set.PipSize)
 				{

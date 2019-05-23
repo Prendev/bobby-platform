@@ -25,18 +25,20 @@ namespace TradeSystem.Data.Models
 
 		public int FastFeedAccountId { get; set; }
 		public Account FastFeedAccount { get => Get<Account>(); set => Set(value); }
-		[Required] public string FastFeedSymbol { get; set; }
+		[DisplayName("FF Sym")] [Required] public string FastFeedSymbol { get; set; }
 
 		public int ShortAccountId { get; set; }
 		public Account ShortAccount { get => Get<Account>(); set => Set(value); }
-		[Required] public string ShortSymbol { get; set; }
+		[DisplayName("S Sym")] [Required] public string ShortSymbol { get; set; }
+		[DisplayName("S Size")] public decimal ShortSize { get; set; } = 1;
+		[DisplayName("S Spread")] public decimal ShortSpreadFilterInPip { get; set; }
 
 		public int LongAccountId { get; set; }
 		public Account LongAccount { get => Get<Account>(); set => Set(value); }
-		[Required] public string LongSymbol { get; set; }
+		[DisplayName("L Sym")] [Required] public string LongSymbol { get; set; }
+		[DisplayName("L Size")] public decimal LongSize { get; set; } = 1;
+		[DisplayName("L Spread")] public decimal LongSpreadFilterInPip { get; set; }
 
-		public decimal ShortSize { get; set; } = 1;
-		public decimal LongSize { get; set; } = 1;
 		public int MaxCount { get; set; } = 5;
 		[DisplayName("ReopenDaysOld")] public int ReopenThresholdInDay { get; set; } = 5;
 
