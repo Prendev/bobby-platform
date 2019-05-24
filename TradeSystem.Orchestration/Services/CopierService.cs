@@ -259,7 +259,7 @@ namespace TradeSystem.Orchestration.Services
 		        var side = copier.CopyRatio < 0 ? e.Position.Side.Inv() : e.Position.Side;
 		        var comment = $"{e.Position.Id}-{slave.Id}-{copier.Id}";
 
-		        if (e.Action == NewPositionActions.Open)
+		        if (e.Action == NewPositionActions.Open && !copier.CloseOnly)
 			        slaveConnector.SendMarketOrderRequest(symbol, side, lots, e.Position.MagicNumber,
 				        comment, copier.MaxRetryCount, copier.RetryPeriodInMs);
 		        else if (e.Action == NewPositionActions.Close)

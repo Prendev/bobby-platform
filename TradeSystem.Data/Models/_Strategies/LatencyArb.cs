@@ -13,7 +13,9 @@ namespace TradeSystem.Data.Models
 			Opening,
 			ReopeningShort,
 			ReopeningLong,
-			Closing
+			Closing,
+			Sync,
+			Reset
 		}
 
 		[DisplayPriority(-1)] public bool Run { get; set; }
@@ -48,6 +50,9 @@ namespace TradeSystem.Data.Models
 		[DisplayName("SL")] public decimal SlInPip { get; set; }
 		[DisplayName("TP")] public decimal TpInPip { get; set; }
 		public decimal PipSize { get; set; }
+
+		public int? CopierId { get; set; }
+		public Copier Copier { get; set; }
 
 		public List<LatencyArbPosition> LatencyArbPositions { get; } = new List<LatencyArbPosition>();
 	}

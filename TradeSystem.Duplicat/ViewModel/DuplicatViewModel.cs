@@ -77,6 +77,7 @@ namespace TradeSystem.Duplicat.ViewModel
 		public BindingList<Slave> Slaves { get; private set; }
 		public BindingList<SymbolMapping> SymbolMappings { get; private set; }
 		public BindingList<Copier> Copiers { get; private set; }
+		public BindingList<Copier> CopiersAll { get; private set; }
 		public BindingList<CopierPosition> CopierPositions { get; private set; }
 		public BindingList<FixApiCopier> FixApiCopiers { get; private set; }
 		public BindingList<Pushing> Pushings { get; private set; }
@@ -221,7 +222,8 @@ namespace TradeSystem.Duplicat.ViewModel
 			_duplicatContext.MarketMakers.Where(e => e.ProfileId == p).OrderBy(e => e.ToString()).Load();
 			_duplicatContext.LatencyArbs.Where(e => e.ProfileId == p).OrderBy(e => e.ToString())
 				.Include(e => e.LatencyArbPositions).ThenInclude(e => e.LongPosition)
-				.Include(e => e.LatencyArbPositions).ThenInclude(e => e.ShortPosition).Load();
+				.Include(e => e.LatencyArbPositions).ThenInclude(e => e.ShortPosition)
+				.Include(e => e.Copier).ThenInclude(e => e.CopierPositions).Load();
 
 			MtPlatforms = _duplicatContext.MetaTraderPlatforms.Local.ToBindingList();
 			CtPlatforms = _duplicatContext.CTraderPlatforms.Local.ToBindingList();
@@ -243,7 +245,8 @@ namespace TradeSystem.Duplicat.ViewModel
 			Slaves = _duplicatContext.Slaves.Local.ToBindingList();
 			SymbolMappings = ToFilteredBindingList(_duplicatContext.SymbolMappings.Local, e => e.Slave, () => SelectedSlave);
 			Copiers = ToFilteredBindingList(_duplicatContext.Copiers.Local, e => e.Slave, () => SelectedSlave);
-			CopierPositions = ToFilteredBindingList(_duplicatContext.CopierPositions.Local, e => e.Copier, () => SelectedCopier);
+			CopiersAll = _duplicatContext.Copiers.Local.ToBindingList();
+			CopierPositions = ToBindingList(_duplicatContext.CopierPositions.Local, () => SelectedCopier, e => e.CopierPositions);
 			FixApiCopiers = ToFilteredBindingList(_duplicatContext.FixApiCopiers.Local, e => e.Slave, () => SelectedSlave);
 			Pushings = _duplicatContext.Pushings.Local.ToBindingList();
 			Spoofings = _duplicatContext.Spoofings.Local.ToBindingList();
@@ -263,6 +266,72 @@ namespace TradeSystem.Duplicat.ViewModel
 		{
 			if (SelectedProfile != null && _duplicatContext.Profiles.Local.Any(l => l.Id == SelectedProfile.Id)) return;
 			LoadLocals();
+		}
+
+		private BindingList<T> ToBindingList<T, TSelected>(
+			ICollection<T> local,
+			Expression<Func<TSelected>> selected,
+			Func<TSelected, List<T>> property) where T : class where TSelected : class
+		{
+			var bindingList = new BindingList<T>();
+			var items = new List<T>();
+			var sync = true;
+
+			bindingList.ListChanged += (sender, args) =>
+			{
+				if (!sync) return;
+
+				if (args.ListChangedType == ListChangedType.ItemAdded)
+				{
+					items.Add(bindingList[args.NewIndex]);
+					local.Add(bindingList[args.NewIndex]);
+
+					var sel = selected.Compile().Invoke();
+					if (sel == null) return;
+					var list = property.Invoke(selected.Compile().Invoke());
+					list.Add(bindingList[args.NewIndex]);
+				}
+
+				if (args.ListChangedType == ListChangedType.ItemDeleted)
+				{
+					local.Remove(items[args.NewIndex]);
+
+					var sel = selected.Compile().Invoke();
+					if (sel != null)
+					{
+						var list = property.Invoke(selected.Compile().Invoke());
+						list.Remove(items[args.NewIndex]);
+					}
+
+					items.RemoveAt(args.NewIndex);
+				}
+			};
+
+			void PropChanged(object sender, PropertyChangedEventArgs args)
+			{
+				var sn = ((MemberExpression)selected.Body).Member.Name;
+				if (args.PropertyName != sn) return;
+				sync = false;
+				bindingList.Clear();
+				items.Clear();
+
+				var sel = selected.Compile().Invoke();
+				if (sel != null)
+				{
+					var list = property.Invoke(selected.Compile().Invoke());
+					foreach (var e in list)
+					{
+						items.Add(e);
+						bindingList.Add(e);
+					}
+				}
+				
+				sync = true;
+			}
+
+			_filteredDelegates.Add(PropChanged);
+			PropertyChanged += PropChanged;
+			return bindingList;
 		}
 
 		private BindingList<T> ToFilteredBindingList<T, TProp>(

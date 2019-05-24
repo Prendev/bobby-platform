@@ -31,6 +31,7 @@ namespace TradeSystem.Duplicat.Views
 			dgvLatencyArb.AddComboBoxColumn(_viewModel.Accounts, "FastFeedAccount");
 			dgvLatencyArb.AddComboBoxColumn(_viewModel.Accounts, "ShortAccount");
 			dgvLatencyArb.AddComboBoxColumn(_viewModel.Accounts, "LongAccount");
+			dgvLatencyArb.AddComboBoxColumn(_viewModel.CopiersAll);
 			dgvLatencyArb.DataSource = _viewModel.LatencyArbs;
 		}
 	}

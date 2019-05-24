@@ -134,8 +134,9 @@ namespace TradeSystem.Duplicat.ViewModel
 	    public void ShowSelectedCopierCommand(Copier copier)
 	    {
 		    if (IsLoading) return;
-		    SelectedCopier = copier;
-	    }
+		    SelectedCopier = null;
+			SelectedCopier = copier;
+		}
 
 		public void AccessNewCTraderCommand(CTraderPlatform p)
         {

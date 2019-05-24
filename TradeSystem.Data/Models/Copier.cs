@@ -15,7 +15,8 @@ namespace TradeSystem.Data.Models
 		[InvisibleColumn] public Slave Slave { get; set; }
 
 		[DisplayPriority(-1)] public bool Run { get; set; }
-        public decimal CopyRatio { get; set; }
+		public bool CloseOnly { get; set; }
+		public decimal CopyRatio { get; set; }
 		public CopierOrderTypes OrderType { get; set; }
 		public int SlippageInPips { get; set; }
         public int MaxRetryCount { get; set; }
@@ -23,5 +24,10 @@ namespace TradeSystem.Data.Models
         public int DelayInMilliseconds { get; set; }
 
 		public List<CopierPosition> CopierPositions { get; } = new List<CopierPosition>();
+
+		public override string ToString()
+		{
+			return $"{(Id == 0 ? "UNSAVED - " : "")}{Slave} - {Id}";
+		}
 	}
 }
