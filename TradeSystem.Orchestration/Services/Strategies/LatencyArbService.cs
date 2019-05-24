@@ -106,9 +106,9 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			if (set.State == LatencyArb.LatencyArbStates.None) return;
 			if (set.State == LatencyArb.LatencyArbStates.Reset)
 			{
-				set.LatencyArbPositions.Clear();
 				foreach (var arbPos in set.LatencyArbPositions)
 					RemoveCopierPosition(set, arbPos);
+				set.LatencyArbPositions.Clear();
 				set.State = LatencyArb.LatencyArbStates.None;
 				return;
 			}
@@ -141,7 +141,13 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				    (!pos.HasLong || !longPositions.TryGetValue(pos.LongTicket.Value, out var _)))
 					pos.LongClosed = true;
 			}
-			set.LatencyArbPositions.RemoveAll(p => p.LongClosed && p.ShortClosed);
+
+			if (set.LatencyArbPositions.Any(p => p.LongClosed && p.ShortClosed))
+			{
+				set.LatencyArbPositions.RemoveAll(p => p.LongClosed && p.ShortClosed);
+				set.State = LatencyArb.LatencyArbStates.Error;
+				Logger.Error($"{set} latency arb - unexpected closed or missing position(s)");
+			}
 
 			Sync(set);
 		}
@@ -471,6 +477,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				var closePrice = CloseShort(set, first);
 				if (!closePrice.HasValue) return;
 				first.ShortClosed = true;
+				set.LatencyArbPositions.Remove(first);
 				Logger.Info($"{set} latency arb - {first.Level}. short hedge side closed at {closePrice} with {(first.Price - closePrice) /set.PipSize} pips");
 			}
 			// Short side closed
@@ -491,6 +498,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				var closePrice = CloseLong(set, first);
 				if (!closePrice.HasValue) return;
 				first.LongClosed = true;
+				set.LatencyArbPositions.Remove(first);
 				Logger.Info($"{set} latency arb - {first.Level}. long hedge side closed at {closePrice} with {(closePrice - first.Price) / set.PipSize} pips");
 			}
 		}
@@ -561,14 +569,17 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 				if (!match.HasValue) break;
 				var level = set.LatencyArbPositions.Count + 1;
-				set.LatencyArbPositions.Add(new LatencyArbPosition()
+				var arbPos = new LatencyArbPosition()
 				{
 					LatencyArb = set,
 					LongTicket = longPos.Key,
 					ShortTicket = match.Value.Key,
 					Level = level
-				});
+				};
+				set.LatencyArbPositions.Add(arbPos);
 			}
+			foreach (var arbPos in set.LatencyArbPositions)
+				AddCopierPosition(set, arbPos);
 
 			set.State = LatencyArb.LatencyArbStates.None;
 		}

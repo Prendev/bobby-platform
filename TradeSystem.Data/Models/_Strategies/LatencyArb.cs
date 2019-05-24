@@ -15,7 +15,8 @@ namespace TradeSystem.Data.Models
 			ReopeningLong,
 			Closing,
 			Sync,
-			Reset
+			Reset,
+			Error
 		}
 
 		[DisplayPriority(-1)] public bool Run { get; set; }
