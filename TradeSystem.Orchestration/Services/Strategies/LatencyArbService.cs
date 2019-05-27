@@ -322,6 +322,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 		private void CheckReopening(LatencyArb set)
 		{
+			if (set.ReopenCount <= 0) return;
 			if (set.LatencyArbPositions.Any(p => !p.HasShort || !p.HasLong)) return;
 			CheckReopeningShort(set);
 			CheckReopeningLong(set);
@@ -352,6 +353,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			if (set.Copier != null) set.Copier.Run = true;
 			if (!closePrice.HasValue) return;
 
+			set.ReopenCount--;
 			first.Price = closePrice;
 			first.Trailing = null;
 			first.ShortTicket = null;
@@ -384,6 +386,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			if (set.Copier != null) set.Copier.Run = true;
 			if (!closePrice.HasValue) return;
 
+			set.ReopenCount--;
 			first.Price = closePrice;
 			first.Trailing = null;
 			first.LongTicket = null;

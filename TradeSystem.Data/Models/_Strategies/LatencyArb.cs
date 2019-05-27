@@ -44,6 +44,7 @@ namespace TradeSystem.Data.Models
 
 		public int MaxCount { get; set; } = 5;
 		[DisplayName("ReopenDaysOld")] public int ReopenThresholdInDay { get; set; } = 5;
+		[DisplayName("R Count")] public int ReopenCount { get => Get<int>(); set => Set(value); }
 
 		[DisplayName("Signal")] public decimal SignalDiffInPip { get; set; }
 		[DisplayName("Trail dist.")] public decimal TrailingDistanceInPip { get; set; }
