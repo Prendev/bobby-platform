@@ -173,7 +173,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				if (set.LastFeedTick.Ask >= set.LastLongTick.Ask + set.SignalDiffInPip * set.PipSize)
 				{
 					var level = set.LatencyArbPositions.Count + 1;
-					var pos = SendLongOrder(set);
+					var pos = SendLongOrder(set, true);
 					if (pos == null)
 					{
 						Logger.Warn($"{set} latency arb - {level}. long first side open error");
@@ -193,7 +193,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				else if (set.LastFeedTick.Bid <= set.LastShortTick.Bid - set.SignalDiffInPip * set.PipSize)
 				{
 					var level = set.LatencyArbPositions.Count + 1;
-					var pos = SendShortOrder(set);
+					var pos = SendShortOrder(set, true);
 					if (pos == null)
 					{
 						Logger.Warn($"{set} latency arb - {level}. short first side open error");
@@ -225,7 +225,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				if (price <= last.Price - set.SlInPip * set.PipSize) hedge = true;
 				if (!hedge) return;
 				
-				var pos = SendShortOrder(set);
+				var pos = SendShortOrder(set, false);
 				if (pos == null)
 				{
 					Logger.Warn($"{set} latency arb - {last.Level}. short hedge side open error");
@@ -251,7 +251,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				if (price >= last.Price + set.SlInPip * set.PipSize) hedge = true;
 				if (!hedge) return;
 				
-				var pos = SendLongOrder(set);
+				var pos = SendLongOrder(set, false);
 				if (pos == null)
 				{
 					Logger.Warn($"{set} latency arb - {last.Level}. long hedge side open error");
@@ -263,7 +263,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				Logger.Info($"{set} latency arb - {last.Level}. long hedge side opened at {pos.OpenPrice} with {(last.Price - pos.OpenPrice) / set.PipSize} pips");
 			}
 		}
-		private OpenResult SendLongOrder(LatencyArb set)
+		private OpenResult SendLongOrder(LatencyArb set, bool isFirst)
 		{
 			if (set.LongAccount.Connector is Mt4Integration.Connector connector)
 			{
@@ -273,7 +273,13 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 			if (set.LongAccount.Connector is FixApiIntegration.Connector fixConnector)
 			{
-				var result = fixConnector.SendMarketOrderRequest(set.LongSymbol, Sides.Buy, set.LongSize).Result;
+				OrderResponse result = null;
+				if (!isFirst || set.FirstOrderType == LatencyArb.LatencyArbOrderTypes.Market)
+					result = fixConnector.SendMarketOrderRequest(set.LongSymbol, Sides.Buy, set.LongSize).Result;
+				else if (set.FirstOrderType == LatencyArb.LatencyArbOrderTypes.Aggressive)
+					result = fixConnector.SendAggressiveOrderRequest(set.LongSymbol, Sides.Buy, set.LongSize, set.LastLongTick.Ask,
+						set.Deviation, 0, set.TimeWindowInMs, set.MaxRetryCount, set.RetryPeriodInMs).Result;
+
 				if (result?.IsFilled != true) return null;
 				return new OpenResult
 				{
@@ -284,24 +290,31 @@ namespace TradeSystem.Orchestration.Services.Strategies
 						AvgPrice = result.AveragePrice.Value,
 						OpenTime = HiResDatetime.UtcNow,
 						Side = result.Side == Sides.Buy ? StratPosition.Sides.Buy : StratPosition.Sides.Sell,
-						Symbol = set.LongSymbol
+						Symbol = set.LongSymbol,
+						Size = result.FilledQuantity
 					}
 				};
 			}
 
 			return null;
 		}
-		private OpenResult SendShortOrder(LatencyArb set)
+		private OpenResult SendShortOrder(LatencyArb set, bool isFirst)
 		{
 			if (set.ShortAccount.Connector is Mt4Integration.Connector connector)
 			{
 				var pos = connector.SendMarketOrderRequest(set.ShortSymbol, Sides.Sell, (double)set.ShortSize, 0, null);
-				return pos == null ? null : new OpenResult { Ticket = pos.Id, OpenPrice = pos.OpenPrice };
+				return pos == null ? null : new OpenResult {Ticket = pos.Id, OpenPrice = pos.OpenPrice};
 			}
 
 			if (set.ShortAccount.Connector is FixApiIntegration.Connector fixConnector)
 			{
-				var result = fixConnector.SendMarketOrderRequest(set.ShortSymbol, Sides.Sell, set.ShortSize).Result;
+				OrderResponse result = null;
+				if (!isFirst || set.FirstOrderType == LatencyArb.LatencyArbOrderTypes.Market)
+					result = fixConnector.SendMarketOrderRequest(set.ShortSymbol, Sides.Sell, set.ShortSize).Result;
+				else if (set.FirstOrderType == LatencyArb.LatencyArbOrderTypes.Aggressive)
+					result = fixConnector.SendAggressiveOrderRequest(set.ShortSymbol, Sides.Sell, set.ShortSize, set.LastShortTick.Bid,
+						set.Deviation, 0, set.TimeWindowInMs, set.MaxRetryCount, set.RetryPeriodInMs).Result;
+
 				if (result?.IsFilled != true) return null;
 				return new OpenResult
 				{
@@ -312,7 +325,8 @@ namespace TradeSystem.Orchestration.Services.Strategies
 						AvgPrice = result.AveragePrice.Value,
 						OpenTime = HiResDatetime.UtcNow,
 						Side = result.Side == Sides.Buy ? StratPosition.Sides.Buy : StratPosition.Sides.Sell,
-						Symbol = set.ShortSymbol
+						Symbol = set.ShortSymbol,
+						Size = result.FilledQuantity
 					}
 				};
 			}

@@ -19,6 +19,13 @@ namespace TradeSystem.Data.Models
 			Error
 		}
 
+		public enum LatencyArbOrderTypes
+		{
+			Market,
+			Aggressive
+		}
+
+
 		[DisplayPriority(-1)] public bool Run { get; set; }
 
 		[InvisibleColumn] public int ProfileId { get; set; }
@@ -51,6 +58,19 @@ namespace TradeSystem.Data.Models
 		[DisplayName("Trail switch")] public decimal TrailingSwitchInPip { get; set; }
 		[DisplayName("SL")] public decimal SlInPip { get; set; }
 		[DisplayName("TP")] public decimal TpInPip { get; set; }
+
+		public LatencyArbOrderTypes FirstOrderType { get; set; }
+		[DisplayName("MaxRetry")]
+		public int MaxRetryCount { get; set; }
+		[DisplayName("RetryPeriod")]
+		public int RetryPeriodInMs { get; set; }
+		[DisplayName("Slippage")]
+		public decimal SlippageInPip { get; set; }
+		[DisplayName("Correction")]
+		public decimal CorrectionInPip { get; set; }
+		[DisplayName("TimeWindow")]
+		public int TimeWindowInMs { get; set; }
+
 		public decimal PipSize { get; set; }
 
 		public int? CopierId { get; set; }
