@@ -250,7 +250,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			    pushing.PushingDetail.SpoofDistance,
 			    pushing.PushingDetail.SpoofDistance, 1, 0,
 			    null);
-		    pushing.Spoof.FeedAccount.Connector.Subscribe(pushing.Spoof.FeedSymbol);
+		    pushing.Spoof?.FeedAccount?.Connector?.Subscribe(pushing.Spoof.FeedSymbol);
 	    }
 
 		private async Task FutureBuildUp(Pushing pushing, Sides side, decimal contractsNeeded, Phases phase)
