@@ -19,6 +19,13 @@ namespace TradeSystem.Data.Models
 			Error
 		}
 
+		public enum LatencyArbFirstSides
+		{
+			Any,
+			Short,
+			Long
+		}
+
 		public enum LatencyArbOrderTypes
 		{
 			Market,
@@ -32,6 +39,8 @@ namespace TradeSystem.Data.Models
 		[InvisibleColumn] public Profile Profile { get; set; }
 
 		public LatencyArbStates State { get => Get<LatencyArbStates>(); set => Set(value); }
+		[DisplayName("ReopenDaysOld")] public int ReopenThresholdInDay { get; set; } = 5;
+		[DisplayName("R Count")] public int ReopenCount { get => Get<int>(); set => Set(value); }
 
 		public int FastFeedAccountId { get; set; }
 		public Account FastFeedAccount { get => Get<Account>(); set => Set(value); }
@@ -49,10 +58,8 @@ namespace TradeSystem.Data.Models
 		[DisplayName("L Size")] public decimal LongSize { get; set; } = 1;
 		[DisplayName("L Spread")] public decimal LongSpreadFilterInPip { get; set; }
 
+		public LatencyArbFirstSides FirstSide { get => Get<LatencyArbFirstSides>(); set => Set(value); }
 		public int MaxCount { get; set; } = 5;
-		[DisplayName("ReopenDaysOld")] public int ReopenThresholdInDay { get; set; } = 5;
-		[DisplayName("R Count")] public int ReopenCount { get => Get<int>(); set => Set(value); }
-
 		[DisplayName("Signal")] public decimal SignalDiffInPip { get; set; }
 		[DisplayName("Trail dist.")] public decimal TrailingDistanceInPip { get; set; }
 		[DisplayName("Trail switch")] public decimal TrailingSwitchInPip { get; set; }
