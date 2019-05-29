@@ -71,7 +71,7 @@ namespace TradeSystem.Orchestration.Services
 
 		public IStratState Spoofing(Spoof spoof, Sides side, CancellationTokenSource stop = null)
 		{
-			if (!(spoof.TradeAccount?.Connector is IFixConnector)) return null;
+			if (!(spoof?.TradeAccount?.Connector is IFixConnector)) return null;
 			if (spoof.FeedAccount == null) return null;
 			if (string.IsNullOrWhiteSpace(spoof.TradeSymbol)) return null;
 			if (string.IsNullOrWhiteSpace(spoof.FeedSymbol)) return null;
