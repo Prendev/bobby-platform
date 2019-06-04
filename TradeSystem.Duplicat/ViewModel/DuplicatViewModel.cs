@@ -145,9 +145,12 @@ namespace TradeSystem.Duplicat.ViewModel
 			}
 
 			if (e.PropertyName == nameof(IsConfigReadonly) || e.PropertyName == nameof(SelectedSlave))
+			{
+				SelectedCopier = null;
 				IsCopierConfigAddEnabled = !IsConfigReadonly && SelectedSlave?.Id > 0;
-			if (e.PropertyName == nameof(IsConfigReadonly) || e.PropertyName == nameof(SelectedCopier))
-				IsCopierPositionAddEnabled = SelectedCopier?.Id > 0;
+			}
+			if (e.PropertyName == nameof(IsLoading) || e.PropertyName == nameof(SelectedCopier))
+				IsCopierPositionAddEnabled = !IsLoading && SelectedCopier?.Id > 0;
 
 			if (e.PropertyName == nameof(AreCopiersStarted))
 			{
