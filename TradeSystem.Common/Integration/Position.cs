@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 
 namespace TradeSystem.Common.Integration
 {
@@ -29,5 +30,16 @@ namespace TradeSystem.Common.Integration
         public RetryOrder CloseOrder { get; set; }
 
         public double NetProfit => Profit + Swap + Commission;
-    }
+
+	    public long? ReopenTicket => GetReopenTicket();
+
+		private long? GetReopenTicket()
+	    {
+		    if (string.IsNullOrWhiteSpace(Comment)) return null;
+		    if (Comment.Split('|').Length != 2) return null;
+		    if (Comment.Split('|').First() != "RE") return null;
+		    if (!long.TryParse(Comment.Split('|').Last(), out var ticket)) return null;
+		    return ticket;
+		}
+	}
 }

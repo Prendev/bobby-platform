@@ -1,4 +1,5 @@
-﻿using TradeSystem.Common.Attributes;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using TradeSystem.Common.Attributes;
 
 namespace TradeSystem.Data.Models
 {
@@ -9,5 +10,8 @@ namespace TradeSystem.Data.Models
 
 		[InvisibleColumn] public int CopierId { get; set; }
 		[InvisibleColumn] public Copier Copier { get; set; }
+
+		[NotMapped] [InvisibleColumn] public bool Remove { get => Get<bool>(); set => Set(value); }
+		public bool Paused { get => Get<bool>(); set => Set(value); }
 	}
 }

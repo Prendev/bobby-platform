@@ -71,6 +71,7 @@ namespace TradeSystem.Duplicat.Views
             dgvMasters.AddComboBoxColumn(_viewModel.Accounts);
 			dgvSlaves.AddComboBoxColumn(_viewModel.Masters);
             dgvSlaves.AddComboBoxColumn(_viewModel.Accounts);
+	        dgvSlaves.AddComboBoxColumn(_viewModel.ComboBoxSlaves, "ParentSlave");
 
 			dgvMasters.DataSource = _viewModel.Masters;
             dgvSlaves.DataSource = _viewModel.Slaves;

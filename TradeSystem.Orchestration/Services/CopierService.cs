@@ -210,7 +210,7 @@ namespace TradeSystem.Orchestration.Services
 		}
 
 		private Task CopyToAccount(NewPosition e, Slave slave)
-        {
+		{
 			if (slave.Account.MetaTraderAccountId.HasValue) return CopyToMtAccount(e, slave);
 			if (slave.Account.CTraderAccountId.HasValue) return CopyToCtAccount(e, slave);
 			if (slave.Account.FixApiAccountId.HasValue) return CopyToFixAccount(e, slave);
@@ -252,23 +252,66 @@ namespace TradeSystem.Orchestration.Services
 
 	        var tasks = slave.Copiers.Where(s => s.Run).Select(copier => DelayedRun(() =>
 	        {
-		        // TODO
-		        //var lots = Math.Abs(e.Position.RealVolume) / slaveConnector.GetContractSize(symbol) *
-		        //           (double) copier.CopyRatio;
-		        var lots = Math.Abs((double) e.Position.Lots * (double) copier.CopyRatio);
+				// TODO
+				//var lots = Math.Abs(e.Position.RealVolume) / slaveConnector.GetContractSize(symbol) *
+				//           (double) copier.CopyRatio;
+				var lots = Math.Abs((double) e.Position.Lots * (double) copier.CopyRatio);
 		        var side = copier.CopyRatio < 0 ? e.Position.Side.Inv() : e.Position.Side;
-		        var comment = $"{e.Position.Id}-{slave.Id}-{copier.Id}";
 
-		        if (e.Action == NewPositionActions.Open && !copier.CloseOnly)
-			        slaveConnector.SendMarketOrderRequest(symbol, side, lots, e.Position.MagicNumber,
-				        comment, copier.MaxRetryCount, copier.RetryPeriodInMs);
+		        if (e.Action == NewPositionActions.Open)
+		        {
+			        if (copier.CloseOnly) return Task.CompletedTask;
+			        if (e.Position.ReopenTicket.HasValue)
+			        {
+				        foreach (var copierPosition in copier.CopierPositions.Where(p => p.MasterTicket == e.Position.ReopenTicket))
+				        {
+					        copierPosition.MasterTicket = e.Position.Id;
+					        var newPos = slaveConnector.SendMarketOrderRequest(symbol, side, lots, e.Position.MagicNumber,
+						        null, copier.MaxRetryCount, copier.RetryPeriodInMs);
+					        if (newPos == null) continue;
+
+					        foreach (var subPos in slave.SubSlaves.SelectMany(s => s.Copiers).SelectMany(c => c.CopierPositions)
+						        .Where(p => p.MasterTicket == copierPosition.SlaveTicket))
+					        {
+						        subPos.MasterTicket = newPos.Id;
+						        subPos.Paused = false;
+					        }
+					        copierPosition.SlaveTicket = newPos.Id;
+				        }
+			        }
+			        else
+			        {
+				        var newPos = slaveConnector.SendMarketOrderRequest(symbol, side, lots, e.Position.MagicNumber,
+					        null, copier.MaxRetryCount, copier.RetryPeriodInMs);
+
+				        if (newPos == null) return Task.CompletedTask;
+				        copier.CopierPositions.Add(new CopierPosition()
+				        {
+					        Copier = copier,
+					        MasterTicket = e.Position.Id,
+					        SlaveTicket = newPos.Id
+				        });
+					}
+
+				}
 		        else if (e.Action == NewPositionActions.Close)
-				{
-					slaveConnector.SendClosePositionRequests(comment, copier.MaxRetryCount, copier.RetryPeriodInMs);
+		        {
 			        foreach (var copierPosition in copier.CopierPositions.Where(p => p.MasterTicket == e.Position.Id))
-						slaveConnector.SendClosePositionRequests(copierPosition.SlaveTicket, copier.MaxRetryCount, copier.RetryPeriodInMs);
-		        }
-		        return Task.CompletedTask;
+			        {
+				        foreach (var subPos in slave.SubSlaves.SelectMany(s => s.Copiers).SelectMany(c => c.CopierPositions)
+					        .Where(p => p.MasterTicket == copierPosition.SlaveTicket))
+					        subPos.Paused = true;
+
+				        if (copierPosition.Paused) continue;
+				        var closed = slaveConnector.SendClosePositionRequests(copierPosition.SlaveTicket, copier.MaxRetryCount,
+					        copier.RetryPeriodInMs);
+				        if (closed && !slave.SubSlaves.Any()) copierPosition.Remove = true;
+			        }
+
+			        copier.CopierPositions.RemoveAll(p => p.Remove);
+				}
+
+				return Task.CompletedTask;
 			}, copier.DelayInMilliseconds));
             return Task.WhenAll(tasks);
 		}
