@@ -16,6 +16,8 @@ namespace TradeSystem.Mt4Integration
 			string comment, int maxRetryCount, int retryPeriodInMs);
 
 		bool SendClosePositionRequests(Position position, double? lots, int maxRetryCount, int retryPeriodInMs);
+
+		ConcurrentDictionary<long, Position> Positions { get; }
 	}
 
 	public class Connector : ConnectorBase, IConnector

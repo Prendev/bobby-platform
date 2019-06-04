@@ -48,6 +48,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 		public void OpeningBeta(Pushing pushing)
 		{
+			CheckReopen(pushing);
 			InitSpoof(pushing);
 			pushing.PushingDetail.OpenedFutures = 0;
 			var betaConnector = (MtConnector)pushing.BetaMaster.Connector;
@@ -55,6 +56,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			// Open first side
 			pushing.BetaPosition = betaConnector.SendMarketOrderRequest(pushing.BetaSymbol, pushing.BetaOpenSide, pushing.PushingDetail.BetaLots, 0,
 				null, pushing.PushingDetail.MaxRetryCount, pushing.PushingDetail.RetryPeriodInMs);
+			ClosingForReopen(pushing, pushing.BetaOpenSide);
 
 			if (pushing.BetaPosition == null)
 			{
@@ -97,6 +99,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 			pushing.AlphaPosition = alphaConnector.SendMarketOrderRequest(pushing.AlphaSymbol, futureSide.Inv(), pd.AlphaLots, 0,
 				null, pushing.PushingDetail.MaxRetryCount, pushing.PushingDetail.RetryPeriodInMs);
+			Reopening(pushing, futureSide);
 
 			if (pushing.AlphaPosition == null)
 			{
@@ -135,6 +138,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 		public void ClosingFirst(Pushing pushing)
 		{
+			CheckReopen(pushing);
 			InitSpoof(pushing);
 			pushing.PushingDetail.OpenedFutures = 0;
 			var firstConnector = pushing.BetaOpenSide == pushing.FirstCloseSide
@@ -144,6 +148,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 			// Close first side
 			firstConnector.SendClosePositionRequests(firstPos, null, pushing.PushingDetail.MaxRetryCount, pushing.PushingDetail.RetryPeriodInMs);
+			ClosingForReopen(pushing, pushing.FirstCloseSide.Inv());
 		}
 
 	    public async Task ClosingPull(Pushing pushing)
@@ -208,6 +213,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 			// Close second side
 			secondConnector.SendClosePositionRequests(secondPos, null, pushing.PushingDetail.MaxRetryCount, pushing.PushingDetail.RetryPeriodInMs);
+			Reopening(pushing, futureSide);
 		}
 
 		public async Task ClosingFinish(Pushing pushing)
@@ -347,5 +353,56 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			maxValue = Math.Max(minValue, maxValue);
 			_threadService.Sleep(_rndService.Next(minValue, maxValue));
 		}
-    }
+
+	    private void CheckReopen(Pushing pushing)
+		{
+			if (pushing.ReopenAccount?.Connector?.IsConnected != true) return;
+			if (!pushing.ReopenTicket.HasValue) return;
+			if (!(pushing.ReopenAccount.Connector is MtConnector reopenConnector))
+				throw new Exception("PushStrategyService.CheckReopen is not MtConnector!!!");
+			if (!reopenConnector.Positions.TryGetValue(pushing.ReopenTicket.Value, out var reopenPos))
+				throw new Exception("PushStrategyService.CheckReopen position not found!!!");
+			if (reopenPos.IsClosed)
+				throw new Exception("PushStrategyService.CheckReopen position is already closed!!!");
+		}
+	    private void ClosingForReopen(Pushing pushing, Sides futureSide)
+		{
+			pushing.ReopenPosition = null;
+			if (pushing.ReopenAccount?.Connector?.IsConnected != true) return;
+			if (!pushing.ReopenTicket.HasValue) return;
+			if (!(pushing.ReopenAccount.Connector is MtConnector reopenConnector)) return;
+			if (!reopenConnector.Positions.TryGetValue(pushing.ReopenTicket.Value, out var reopenPos)) return;
+			if (reopenPos.IsClosed) return;
+			if (reopenPos.Side == futureSide)
+			{
+				Logger.Warn("PushStrategyService.ClosingForReopen side mismatch");
+				return;
+			}
+
+			pushing.ReopenPosition = reopenPos;
+			var closed = reopenConnector.SendClosePositionRequests(reopenPos, null, pushing.PushingDetail.MaxRetryCount,
+				pushing.PushingDetail.RetryPeriodInMs);
+
+			if (closed)
+			{
+				Logger.Info("PushStrategyService.ClosingForReopen closed for reopen");
+				pushing.ReopenTicket = null;
+			}
+			else Logger.Error("PushStrategyService.ClosingForReopen closing issue!!!");
+		}
+	    private void Reopening(Pushing pushing, Sides futureSide)
+		{
+			if (pushing.ReopenPosition == null) return;
+		    if (pushing.ReopenPosition.Side == futureSide) return;
+		    if (!pushing.ReopenPosition.IsClosed) return;
+			if (!(pushing.ReopenAccount.Connector is MtConnector reopenConnector)) return;
+
+			var reopenPos = pushing.ReopenPosition;
+			var open = reopenConnector.SendMarketOrderRequest(reopenPos.Symbol, reopenPos.Side, (double) reopenPos.Lots, 0,
+				null, pushing.PushingDetail.MaxRetryCount, pushing.PushingDetail.RetryPeriodInMs);
+
+			if (open != null) Logger.Info("PushStrategyService.ClosingForReopen reopened");
+			else Logger.Error("PushStrategyService.ClosingForReopen opening issue!!!");
+		}
+	}
 }
