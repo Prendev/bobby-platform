@@ -191,22 +191,6 @@ namespace TradeSystem.Orchestration.Services
 					}, copier.DelayInMilliseconds);
 				}
 			}
-
-			// Close by comment
-			{
-				if (e.Position.Comment?.Contains($"-{slave.Id}-") != true) return;
-				if (e.Position.Symbol != GetSlaveSymbol(e, slave)) return;
-				if (!int.TryParse(e.Position.Comment.Split('-').Last(), out var copierId)) return;
-				if (!long.TryParse(e.Position.Comment.Split('-').First(), out var masterPositionId)) return;
-				var copier = slave.Copiers.FirstOrDefault(c => c.Id == copierId);
-				if (copier?.Run != true) return;
-
-				DelayedRun(() =>
-				{
-					connector.SendClosePositionRequests(masterPositionId, copier.MaxRetryCount, copier.RetryPeriodInMs);
-					return Task.CompletedTask;
-				}, copier.DelayInMilliseconds);
-			}
 		}
 
 		private Task CopyToAccount(NewPosition e, Slave slave)
