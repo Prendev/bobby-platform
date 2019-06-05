@@ -8,7 +8,8 @@ namespace TradeSystem.Data.Models
 		public enum CopierOrderTypes
 		{
 			Market,
-			MarketRange
+			MarketRange,
+			Hedge
 		}
 
 		[InvisibleColumn] public int SlaveId { get; set; }

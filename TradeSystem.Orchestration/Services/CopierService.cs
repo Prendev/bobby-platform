@@ -274,10 +274,11 @@ namespace TradeSystem.Orchestration.Services
 						        .Where(p => p.MasterTicket == copierPosition.SlaveTicket))
 					        {
 						        subPos.MasterTicket = newPos.Id;
-						        subPos.Paused = false;
+						        subPos.State = CopierPosition.CopierPositionStates.Active;
 					        }
 					        copierPosition.SlaveTicket = newPos.Id;
-				        }
+					        copierPosition.State = CopierPosition.CopierPositionStates.Active;
+						}
 			        }
 			        else
 			        {
@@ -300,15 +301,35 @@ namespace TradeSystem.Orchestration.Services
 			        {
 				        foreach (var subPos in slave.SubSlaves.SelectMany(s => s.Copiers).SelectMany(c => c.CopierPositions)
 					        .Where(p => p.MasterTicket == copierPosition.SlaveTicket))
-					        subPos.Paused = true;
+					        subPos.State = CopierPosition.CopierPositionStates.Paused;
 
-				        if (copierPosition.Paused) continue;
-				        var closed = slaveConnector.SendClosePositionRequests(copierPosition.SlaveTicket, copier.MaxRetryCount,
-					        copier.RetryPeriodInMs);
-				        if (closed && !slave.SubSlaves.Any()) copierPosition.Remove = true;
+				        if (copierPosition.State != CopierPosition.CopierPositionStates.Active) continue;
+
+				        if (copier.OrderType == Copier.CopierOrderTypes.Hedge)
+				        {
+					        if (!slaveConnector.Positions.TryGetValue(copierPosition.SlaveTicket, out var slavePos))
+						        continue;
+					        if (slavePos.IsClosed) continue;
+					        var hedge = slaveConnector.SendMarketOrderRequest(slavePos.Symbol, slavePos.Side.Inv(),
+						        (double) slavePos.Lots, slavePos.MagicNumber, null, copier.MaxRetryCount, copier.RetryPeriodInMs);
+							if (hedge == null) continue;
+					        copierPosition.State = slave.SubSlaves.Any()
+						        ? CopierPosition.CopierPositionStates.Inactive
+						        : CopierPosition.CopierPositionStates.ToBeRemoved;
+
+				        }
+						else
+						{
+							var closed = slaveConnector.SendClosePositionRequests(copierPosition.SlaveTicket, copier.MaxRetryCount,
+								copier.RetryPeriodInMs);
+							if (!closed) continue;
+							copierPosition.State = slave.SubSlaves.Any()
+								? CopierPosition.CopierPositionStates.Inactive
+								: CopierPosition.CopierPositionStates.ToBeRemoved;
+						}
 			        }
 
-			        copier.CopierPositions.RemoveAll(p => p.Remove);
+			        copier.CopierPositions.RemoveAll(p => p.State == CopierPosition.CopierPositionStates.ToBeRemoved);
 				}
 
 				return Task.CompletedTask;
