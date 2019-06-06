@@ -8,6 +8,7 @@ using TradeSystem.Collections;
 using TradeSystem.Common;
 using TradeSystem.Common.Integration;
 using TradeSystem.Data.Models;
+using TradeSystem.Mt4Integration;
 
 namespace TradeSystem.Orchestration.Services
 {
@@ -182,14 +183,13 @@ namespace TradeSystem.Orchestration.Services
 			foreach (var copier in slave.Copiers)
 			{
 				if (copier.Run != true) continue;
-				foreach (var copierPosition in copier.CopierPositions.Where(p => p.SlaveTicket == e.Position.Id))
+				DelayedRun(() =>
 				{
-					DelayedRun(() =>
-					{
-						connector.SendClosePositionRequests(copierPosition.MasterTicket, copier.MaxRetryCount, copier.RetryPeriodInMs);
-						return Task.CompletedTask;
-					}, copier.DelayInMilliseconds);
-				}
+					foreach (var copierPos in copier.CopierPositions.Where(p => p.SlaveTicket == e.Position.Id).ToList())
+						CopyToMtAccountClose(copier, copierPos, connector, copierPos.MasterTicket);
+					copier.CopierPositions.RemoveAll(p => p.State == CopierPosition.CopierPositionStates.ToBeRemoved);
+					return Task.CompletedTask;
+				}, copier.DelayInMilliseconds);
 			}
 		}
 
@@ -247,22 +247,17 @@ namespace TradeSystem.Orchestration.Services
 			        if (copier.CloseOnly) return Task.CompletedTask;
 			        if (e.Position.ReopenTicket.HasValue)
 			        {
-				        foreach (var copierPosition in copier.CopierPositions.Where(p => p.MasterTicket == e.Position.ReopenTicket))
-				        {
-					        copierPosition.MasterTicket = e.Position.Id;
-					        var newPos = slaveConnector.SendMarketOrderRequest(symbol, side, lots, e.Position.MagicNumber,
-						        null, copier.MaxRetryCount, copier.RetryPeriodInMs);
-					        if (newPos == null) continue;
+				        var reopenPos = copier.CopierPositions.FirstOrDefault(p => p.MasterTicket == e.Position.ReopenTicket);
+				        if (reopenPos == null) return Task.CompletedTask;
 
-					        foreach (var subPos in slave.SubSlaves.SelectMany(s => s.Copiers).SelectMany(c => c.CopierPositions)
-						        .Where(p => p.MasterTicket == copierPosition.SlaveTicket))
-					        {
-						        subPos.MasterTicket = newPos.Id;
-						        subPos.State = CopierPosition.CopierPositionStates.Active;
-					        }
-					        copierPosition.SlaveTicket = newPos.Id;
-					        copierPosition.State = CopierPosition.CopierPositionStates.Active;
-						}
+				        reopenPos.MasterTicket = e.Position.Id;
+					    var newPos = slaveConnector.SendMarketOrderRequest(symbol, side, lots, e.Position.MagicNumber,
+						    null, copier.MaxRetryCount, copier.RetryPeriodInMs);
+					    if (newPos == null) return Task.CompletedTask;
+
+						UpdateCrossPosition(copier, reopenPos.SlaveTicket, newPos.Id);
+				        reopenPos.SlaveTicket = newPos.Id;
+				        reopenPos.State = CopierPosition.CopierPositionStates.Active;
 			        }
 			        else
 			        {
@@ -276,43 +271,16 @@ namespace TradeSystem.Orchestration.Services
 					        MasterTicket = e.Position.Id,
 					        SlaveTicket = newPos.Id
 				        });
+
+				        if (!e.Position.CrossTicket.HasValue) return Task.CompletedTask;
+						AddCrossPosition(copier, e.Position.CrossTicket.Value, newPos.Id);
 					}
 
 				}
 		        else if (e.Action == NewPositionActions.Close)
 		        {
-			        foreach (var copierPosition in copier.CopierPositions.Where(p => p.MasterTicket == e.Position.Id))
-			        {
-				        foreach (var subPos in slave.SubSlaves.SelectMany(s => s.Copiers).SelectMany(c => c.CopierPositions)
-					        .Where(p => p.MasterTicket == copierPosition.SlaveTicket))
-					        subPos.State = CopierPosition.CopierPositionStates.Paused;
-
-				        if (copierPosition.State != CopierPosition.CopierPositionStates.Active) continue;
-
-				        if (copier.OrderType == Copier.CopierOrderTypes.Hedge)
-				        {
-					        if (!slaveConnector.Positions.TryGetValue(copierPosition.SlaveTicket, out var slavePos))
-						        continue;
-					        if (slavePos.IsClosed) continue;
-					        var hedge = slaveConnector.SendMarketOrderRequest(slavePos.Symbol, slavePos.Side.Inv(),
-						        (double) slavePos.Lots, slavePos.MagicNumber, null, copier.MaxRetryCount, copier.RetryPeriodInMs);
-							if (hedge == null) continue;
-					        copierPosition.State = slave.SubSlaves.Any()
-						        ? CopierPosition.CopierPositionStates.Inactive
-						        : CopierPosition.CopierPositionStates.ToBeRemoved;
-
-				        }
-						else
-						{
-							var closed = slaveConnector.SendClosePositionRequests(copierPosition.SlaveTicket, copier.MaxRetryCount,
-								copier.RetryPeriodInMs);
-							if (!closed) continue;
-							copierPosition.State = slave.SubSlaves.Any()
-								? CopierPosition.CopierPositionStates.Inactive
-								: CopierPosition.CopierPositionStates.ToBeRemoved;
-						}
-			        }
-
+			        foreach (var copierPos in copier.CopierPositions.Where(p => p.MasterTicket == e.Position.Id).ToList())
+				        CopyToMtAccountClose(copier, copierPos, slaveConnector, copierPos.SlaveTicket);
 			        copier.CopierPositions.RemoveAll(p => p.State == CopierPosition.CopierPositionStates.ToBeRemoved);
 				}
 
@@ -320,6 +288,93 @@ namespace TradeSystem.Orchestration.Services
 			}, copier.DelayInMilliseconds));
             return Task.WhenAll(tasks);
 		}
+	    private static void CopyToMtAccountClose(Copier copier, CopierPosition copierPos, Connector connector, long ticket)
+	    {
+		    if (copier.CrossCopier != null)
+		    {
+			    foreach (var cross in copier.CrossCopier.CopierPositions)
+			    {
+				    if (copier.CrossCopier.Slave.Master.Account == copier.Slave.Account &&
+				        cross.MasterTicket == ticket)
+					    cross.State = CopierPosition.CopierPositionStates.Paused;
+				    else if (copier.CrossCopier.Slave.Account == copier.Slave.Account &&
+				             cross.SlaveTicket == ticket)
+					    cross.State = CopierPosition.CopierPositionStates.Paused;
+			    }
+		    }
+
+		    if (copierPos.State != CopierPosition.CopierPositionStates.Active) return;
+		    if (!connector.Positions.TryGetValue(ticket, out var pos) || pos.IsClosed)
+		    {
+			    copierPos.State = CopierPosition.CopierPositionStates.ToBeRemoved;
+				return;
+		    }
+
+			if (copier.OrderType == Copier.CopierOrderTypes.Hedge)
+		    {
+			    if (pos.IsClosed) return;
+			    var hedge = connector.SendMarketOrderRequest(pos.Symbol, pos.Side.Inv(),
+				    (double) pos.Lots, pos.MagicNumber, null, copier.MaxRetryCount, copier.RetryPeriodInMs);
+			    if (hedge == null) return;
+			    copierPos.State = copier.CrossCopier != null
+				    ? CopierPosition.CopierPositionStates.Inactive
+				    : CopierPosition.CopierPositionStates.ToBeRemoved;
+		    }
+		    else
+		    {
+			    var closed = connector.SendClosePositionRequests(ticket, copier.MaxRetryCount,
+				    copier.RetryPeriodInMs);
+			    if (!closed) return;
+			    copierPos.State = copier.CrossCopier != null
+				    ? CopierPosition.CopierPositionStates.Inactive
+				    : CopierPosition.CopierPositionStates.ToBeRemoved;
+		    }
+	    }
+
+	    private static void UpdateCrossPosition(Copier copier, long existingTicket, long newTicket)
+	    {
+		    if (copier.CrossCopier == null) return;
+		    foreach (var cross in copier.CrossCopier.CopierPositions)
+		    {
+			    if (copier.CrossCopier.Slave.Master.Account == copier.Slave.Account &&
+			        cross.MasterTicket == existingTicket)
+			    {
+				    cross.MasterTicket = newTicket;
+				    cross.State = CopierPosition.CopierPositionStates.Active;
+			    }
+			    else if (copier.CrossCopier.Slave.Account == copier.Slave.Account &&
+			             cross.SlaveTicket == existingTicket)
+			    {
+				    cross.SlaveTicket = newTicket;
+				    cross.State = CopierPosition.CopierPositionStates.Active;
+			    }
+		    }
+	    }
+
+	    private void AddCrossPosition(Copier copier, long existingTicket, long newTicket)
+	    {
+		    if (copier.CrossCopier == null) return;
+
+			var slaveSideParent =
+				copier.CrossCopier.ParentCopiers.FirstOrDefault(p => p.Slave.Account == copier.CrossCopier.Slave.Account);
+			var masterSideParent =
+				copier.CrossCopier.ParentCopiers.FirstOrDefault(p => p.Slave.Account == copier.CrossCopier.Slave.Master.Account);
+
+		    if (slaveSideParent == null) return;
+		    if (masterSideParent == null) return;
+			var isMasterSide = copier.Slave.Account == masterSideParent.Slave.Account;
+		    var otherSideTicket = isMasterSide
+			    ? slaveSideParent.CopierPositions.FirstOrDefault(p => p.MasterTicket == existingTicket)?.SlaveTicket
+			    : masterSideParent.CopierPositions.FirstOrDefault(p => p.MasterTicket == existingTicket)?.SlaveTicket;
+		    if (!otherSideTicket.HasValue) return;
+
+		    copier.CrossCopier.CopierPositions.Add(new CopierPosition()
+			{
+				Copier = copier,
+				MasterTicket = isMasterSide ? newTicket : otherSideTicket.Value,
+				SlaveTicket = !isMasterSide ? newTicket : otherSideTicket.Value
+			});
+	    }
 
 	    private static string GetSlaveSymbol(NewPosition e, Slave slave)
 	    {

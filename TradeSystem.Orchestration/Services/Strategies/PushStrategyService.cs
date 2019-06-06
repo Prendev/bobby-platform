@@ -98,7 +98,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			await FutureBuildUp(pushing, futureSide, contractsNeeded, Phases.Pushing);
 
 			pushing.AlphaPosition = alphaConnector.SendMarketOrderRequest(pushing.AlphaSymbol, futureSide.Inv(), pd.AlphaLots, 0,
-				null, pushing.PushingDetail.MaxRetryCount, pushing.PushingDetail.RetryPeriodInMs);
+				$"CROSS|{pushing.BetaPosition.Id}", pushing.PushingDetail.MaxRetryCount, pushing.PushingDetail.RetryPeriodInMs);
 			Reopening(pushing, futureSide);
 
 			if (pushing.AlphaPosition == null)
@@ -399,7 +399,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 			var reopenPos = pushing.ReopenPosition;
 			var open = reopenConnector.SendMarketOrderRequest(reopenPos.Symbol, reopenPos.Side, (double) reopenPos.Lots, 0,
-				null, pushing.PushingDetail.MaxRetryCount, pushing.PushingDetail.RetryPeriodInMs);
+				$"REOPEN|{reopenPos.Id}", pushing.PushingDetail.MaxRetryCount, pushing.PushingDetail.RetryPeriodInMs);
 
 			if (open != null) Logger.Info("PushStrategyService.ClosingForReopen reopened");
 			else Logger.Error("PushStrategyService.ClosingForReopen opening issue!!!");

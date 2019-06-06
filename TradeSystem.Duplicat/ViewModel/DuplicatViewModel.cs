@@ -75,7 +75,6 @@ namespace TradeSystem.Duplicat.ViewModel
 
 		public BindingList<Master> Masters { get; private set; }
 		public BindingList<Slave> Slaves { get; private set; }
-		public BindingList<Slave> ComboBoxSlaves { get; private set; }
 		public BindingList<SymbolMapping> SymbolMappings { get; private set; }
 		public BindingList<Copier> Copiers { get; private set; }
 		public BindingList<Copier> CopiersAll { get; private set; }
@@ -146,7 +145,7 @@ namespace TradeSystem.Duplicat.ViewModel
 
 			if (e.PropertyName == nameof(IsConfigReadonly) || e.PropertyName == nameof(SelectedSlave))
 			{
-				SelectedCopier = null;
+				SelectedCopier = SelectedSlave?.Copiers.FirstOrDefault();
 				IsCopierConfigAddEnabled = !IsConfigReadonly && SelectedSlave?.Id > 0;
 			}
 			if (e.PropertyName == nameof(IsLoading) || e.PropertyName == nameof(SelectedCopier))
@@ -208,8 +207,7 @@ namespace TradeSystem.Duplicat.ViewModel
 			_duplicatContext.AggregatorAccounts.Where(e => e.Aggregator.ProfileId == p).OrderBy(e => e.ToString()).Load();
 
 			_duplicatContext.Masters.Where(e => e.ProfileId == p).OrderBy(e => e.ToString()).Load();
-			_duplicatContext.Slaves.Where(e => e.Master.ProfileId == p).OrderBy(e => e.ToString())
-				.Include(e => e.SubSlaves).ThenInclude(e => e.Copiers).ThenInclude(e => e.CopierPositions).Load();
+			_duplicatContext.Slaves.Where(e => e.Master.ProfileId == p).OrderBy(e => e.ToString()).Load();
 			_duplicatContext.Copiers.Where(e => e.Slave.Master.ProfileId == p).OrderBy(e => e.ToString())
 				.Include(e => e.CopierPositions).Load();
 			_duplicatContext.CopierPositions.Where(e => e.Copier.Slave.Master.ProfileId == p).OrderBy(e => e.ToString()).Load();
@@ -248,7 +246,6 @@ namespace TradeSystem.Duplicat.ViewModel
 
 			Masters = _duplicatContext.Masters.Local.ToBindingList();
 			Slaves = _duplicatContext.Slaves.Local.ToBindingList();
-			ComboBoxSlaves = ToSeparateBindingList(Slaves);
 			SymbolMappings = ToFilteredBindingList(_duplicatContext.SymbolMappings.Local, e => e.Slave, () => SelectedSlave);
 			Copiers = ToFilteredBindingList(_duplicatContext.Copiers.Local, e => e.Slave, () => SelectedSlave);
 			CopiersAll = _duplicatContext.Copiers.Local.ToBindingList();

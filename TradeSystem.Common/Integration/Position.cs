@@ -32,14 +32,24 @@ namespace TradeSystem.Common.Integration
         public double NetProfit => Profit + Swap + Commission;
 
 	    public long? ReopenTicket => GetReopenTicket();
+	    public long? CrossTicket => GetCrossTicket();
 
 		private long? GetReopenTicket()
 	    {
 		    if (string.IsNullOrWhiteSpace(Comment)) return null;
 		    if (Comment.Split('|').Length != 2) return null;
-		    if (Comment.Split('|').First() != "RE") return null;
+		    if (Comment.Split('|').First() != "REOPEN") return null;
 		    if (!long.TryParse(Comment.Split('|').Last(), out var ticket)) return null;
 		    return ticket;
 		}
+
+	    private long? GetCrossTicket()
+	    {
+		    if (string.IsNullOrWhiteSpace(Comment)) return null;
+		    if (Comment.Split('|').Length != 2) return null;
+		    if (Comment.Split('|').First() != "CROSS") return null;
+		    if (!long.TryParse(Comment.Split('|').Last(), out var ticket)) return null;
+		    return ticket;
+	    }
 	}
 }
