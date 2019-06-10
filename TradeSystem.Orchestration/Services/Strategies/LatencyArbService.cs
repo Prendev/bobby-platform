@@ -235,6 +235,10 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				last.ShortPosition = pos.StratPosition;
 				AddCopierPosition(set, last);
 				Logger.Info($"{set} latency arb - {last.Level}. short hedge side opened at {pos.OpenPrice} with {(pos.OpenPrice - last.Price)/set.PipSize} pips");
+				// Switch state if rotating
+				if (set.Rotating && set.State == LatencyArb.LatencyArbStates.Opening &&
+				    set.LatencyArbPositions.Count >= set.MaxCount)
+					set.State = LatencyArb.LatencyArbStates.Closing;
 			}
 			// Short side opened
 			else if (last.HasShort)
@@ -261,6 +265,10 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				last.LongPosition = pos.StratPosition;
 				AddCopierPosition(set, last);
 				Logger.Info($"{set} latency arb - {last.Level}. long hedge side opened at {pos.OpenPrice} with {(last.Price - pos.OpenPrice) / set.PipSize} pips");
+				// Switch state if rotating
+				if (set.Rotating && set.State == LatencyArb.LatencyArbStates.Opening &&
+				    set.LatencyArbPositions.Count >= set.MaxCount)
+					set.State = LatencyArb.LatencyArbStates.Closing;
 			}
 		}
 		private OpenResult SendLongOrder(LatencyArb set, bool isFirst)
@@ -496,6 +504,10 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				first.ShortClosed = true;
 				set.LatencyArbPositions.Remove(first);
 				Logger.Info($"{set} latency arb - {first.Level}. short hedge side closed at {closePrice} with {(first.Price - closePrice) /set.PipSize} pips");
+				// Switch state if rotating
+				if (set.Rotating && set.State == LatencyArb.LatencyArbStates.Closing &&
+				    set.LatencyArbPositions.Count == 0)
+					set.State = LatencyArb.LatencyArbStates.Opening;
 			}
 			// Short side closed
 			else if (first.ShortClosed)
@@ -517,6 +529,10 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				first.LongClosed = true;
 				set.LatencyArbPositions.Remove(first);
 				Logger.Info($"{set} latency arb - {first.Level}. long hedge side closed at {closePrice} with {(closePrice - first.Price) / set.PipSize} pips");
+				// Switch state if rotating
+				if (set.Rotating && set.State == LatencyArb.LatencyArbStates.Closing &&
+				    set.LatencyArbPositions.Count == 0)
+					set.State = LatencyArb.LatencyArbStates.Opening;
 			}
 		}
 		private decimal? CloseLong(LatencyArb set, LatencyArbPosition arbPos, bool isFirst)

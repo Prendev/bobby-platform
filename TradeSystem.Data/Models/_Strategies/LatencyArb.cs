@@ -39,6 +39,7 @@ namespace TradeSystem.Data.Models
 		[InvisibleColumn] public Profile Profile { get; set; }
 
 		public LatencyArbStates State { get => Get<LatencyArbStates>(); set => Set(value); }
+		public bool Rotating { get; set; }
 		[DisplayName("ReopenDaysOld")] public int ReopenThresholdInDay { get; set; } = 5;
 		[DisplayName("R Count")] public int ReopenCount { get => Get<int>(); set => Set(value); }
 
