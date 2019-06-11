@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Timers;
 using Microsoft.EntityFrameworkCore;
 using TradeSystem.Common;
 using TradeSystem.Common.Services;
@@ -56,6 +57,7 @@ namespace TradeSystem.Duplicat.ViewModel
 		private readonly IOrchestrator _orchestrator;
 		private readonly IXmlService _xmlService;
 		private readonly List<PropertyChangedEventHandler> _filteredDelegates = new List<PropertyChangedEventHandler>();
+		private readonly Timer _autoSaveTimer = new Timer { AutoReset = true };
 
 		public BindingList<MetaTraderPlatform> MtPlatforms { get; private set; }
 		public BindingList<CTraderPlatform> CtPlatforms { get; private set; }
@@ -90,6 +92,7 @@ namespace TradeSystem.Duplicat.ViewModel
 
 		public event DataContextChangedEventHandler DataContextChanged;
 
+		public int AutoSavePeriodInMin { get => Get<int>(); set => Set(value); }
 		public bool IsConfigReadonly { get => Get<bool>(); set => Set(value); }
 		public bool IsCopierConfigAddEnabled { get => Get<bool>(); set => Set(value); }
 		public bool IsCopierPositionAddEnabled { get => Get<bool>(); set => Set(value); }
@@ -117,6 +120,17 @@ namespace TradeSystem.Duplicat.ViewModel
 			IOrchestrator orchestrator,
 			IXmlService xmlService)
 		{
+			AutoSavePeriodInMin = 1;
+			_autoSaveTimer.Elapsed += (sender, args) =>
+			{
+				if (AutoSavePeriodInMin <= 0)
+				{
+					_autoSaveTimer.Interval = 1000 * 60;
+					return;
+				}
+				_autoSaveTimer.Interval = 1000 * 60 * AutoSavePeriodInMin;
+				SaveCommand();
+			};
 			_xmlService = xmlService;
 			_orchestrator = orchestrator;
 			InitDataContext();

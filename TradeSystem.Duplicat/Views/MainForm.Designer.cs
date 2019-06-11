@@ -30,41 +30,27 @@
         {
 			this.tabControlMain = new System.Windows.Forms.TabControl();
 			this.tabPageProfile = new System.Windows.Forms.TabPage();
-			this.profilesUserControl = new TradeSystem.Duplicat.Views.ProfilesUserControl();
 			this.tabPageAccount = new System.Windows.Forms.TabPage();
 			this.tabControlAccounts = new System.Windows.Forms.TabControl();
 			this.tabPageMt = new System.Windows.Forms.TabPage();
-			this.mtAccountsUserControl = new TradeSystem.Duplicat.Views.MtAccountsUserControl();
 			this.tabPageCt = new System.Windows.Forms.TabPage();
-			this.ctAccountsUserControl = new TradeSystem.Duplicat.Views.CtAccountsUserControl();
 			this.tabPageFix = new System.Windows.Forms.TabPage();
-			this.ftAccountsUserControl = new TradeSystem.Duplicat.Views.FtAccountsUserControl();
 			this.tabPageIlyaFastFeed = new System.Windows.Forms.TabPage();
-			this.iffAccountsUserControl = new TradeSystem.Duplicat.Views.IffAccountsUserControl();
 			this.tabPageClientApi = new System.Windows.Forms.TabPage();
-			this._clientAccountsUserControl = new TradeSystem.Duplicat.Views.ClientAccountsUserControl();
 			this.tabPageAggregator = new System.Windows.Forms.TabPage();
-			this.aggregatorUserControl = new TradeSystem.Duplicat.Views.AggregatorUserControl();
 			this.tabPageProxy = new System.Windows.Forms.TabPage();
-			this.proxyUserControl = new TradeSystem.Duplicat.Views.ProxyUserControl();
 			this.tabPageCopier = new System.Windows.Forms.TabPage();
-			this.copiersUserControl = new TradeSystem.Duplicat.Views.CopiersUserControl();
 			this.tabPageStrategy = new System.Windows.Forms.TabPage();
 			this.tabControlStrategies = new System.Windows.Forms.TabControl();
 			this.tabPagePushing = new System.Windows.Forms.TabPage();
-			this.pushingUserControl = new TradeSystem.Duplicat.Views.PushingUserControl();
 			this.tabPageSpoofing = new System.Windows.Forms.TabPage();
-			this.spoofingUserControl1 = new TradeSystem.Duplicat.Views.SpoofingUserControl();
 			this.tabPageHubArb = new System.Windows.Forms.TabPage();
-			this.hubArbUserControl = new TradeSystem.Duplicat.Views.HubArbUserControl();
 			this.tabPageMarketMaker = new System.Windows.Forms.TabPage();
-			this.marketMakerUserControl1 = new TradeSystem.Duplicat.Views.MarketMakerUserControl();
+			this.tabPageLatencyArb = new System.Windows.Forms.TabPage();
 			this.tabPageLiveData = new System.Windows.Forms.TabPage();
 			this.tabControl2 = new System.Windows.Forms.TabControl();
 			this.tabPageTicker = new System.Windows.Forms.TabPage();
-			this.tickersUserControl = new TradeSystem.Duplicat.Views.TickersUserControl();
 			this.tabPageExport = new System.Windows.Forms.TabPage();
-			this.exportUserControl1 = new TradeSystem.Duplicat.Views.ExportUserControl();
 			this.tabPageLog = new System.Windows.Forms.TabPage();
 			this.tabControl1 = new System.Windows.Forms.TabControl();
 			this.tabPage1 = new System.Windows.Forms.TabPage();
@@ -85,8 +71,24 @@
 			this.btnDisconnect = new System.Windows.Forms.Button();
 			this.btnConnect = new System.Windows.Forms.Button();
 			this.btnSave = new System.Windows.Forms.Button();
-			this.tabPageLatencyArb = new System.Windows.Forms.TabPage();
+			this.nudAutoSave = new System.Windows.Forms.NumericUpDown();
+			this.label2 = new System.Windows.Forms.Label();
+			this.profilesUserControl = new TradeSystem.Duplicat.Views.ProfilesUserControl();
+			this.mtAccountsUserControl = new TradeSystem.Duplicat.Views.MtAccountsUserControl();
+			this.ctAccountsUserControl = new TradeSystem.Duplicat.Views.CtAccountsUserControl();
+			this.ftAccountsUserControl = new TradeSystem.Duplicat.Views.FtAccountsUserControl();
+			this.iffAccountsUserControl = new TradeSystem.Duplicat.Views.IffAccountsUserControl();
+			this._clientAccountsUserControl = new TradeSystem.Duplicat.Views.ClientAccountsUserControl();
+			this.aggregatorUserControl = new TradeSystem.Duplicat.Views.AggregatorUserControl();
+			this.proxyUserControl = new TradeSystem.Duplicat.Views.ProxyUserControl();
+			this.copiersUserControl = new TradeSystem.Duplicat.Views.CopiersUserControl();
+			this.pushingUserControl = new TradeSystem.Duplicat.Views.PushingUserControl();
+			this.spoofingUserControl1 = new TradeSystem.Duplicat.Views.SpoofingUserControl();
+			this.hubArbUserControl = new TradeSystem.Duplicat.Views.HubArbUserControl();
+			this.marketMakerUserControl1 = new TradeSystem.Duplicat.Views.MarketMakerUserControl();
 			this.latencyArbUserControl1 = new TradeSystem.Duplicat.Views.LatencyArbUserControl();
+			this.tickersUserControl = new TradeSystem.Duplicat.Views.TickersUserControl();
+			this.exportUserControl1 = new TradeSystem.Duplicat.Views.ExportUserControl();
 			this.tabControlMain.SuspendLayout();
 			this.tabPageProfile.SuspendLayout();
 			this.tabPageAccount.SuspendLayout();
@@ -105,6 +107,7 @@
 			this.tabPageSpoofing.SuspendLayout();
 			this.tabPageHubArb.SuspendLayout();
 			this.tabPageMarketMaker.SuspendLayout();
+			this.tabPageLatencyArb.SuspendLayout();
 			this.tabPageLiveData.SuspendLayout();
 			this.tabControl2.SuspendLayout();
 			this.tabPageTicker.SuspendLayout();
@@ -118,7 +121,7 @@
 			this.tabPage3.SuspendLayout();
 			this.tlpMain.SuspendLayout();
 			this.gbControl.SuspendLayout();
-			this.tabPageLatencyArb.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)(this.nudAutoSave)).BeginInit();
 			this.SuspendLayout();
 			// 
 			// tabControlMain
@@ -150,15 +153,6 @@
 			this.tabPageProfile.TabIndex = 3;
 			this.tabPageProfile.Text = "Profiles";
 			this.tabPageProfile.UseVisualStyleBackColor = true;
-			// 
-			// profilesUserControl
-			// 
-			this.profilesUserControl.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.profilesUserControl.Location = new System.Drawing.Point(4, 4);
-			this.profilesUserControl.Margin = new System.Windows.Forms.Padding(5);
-			this.profilesUserControl.Name = "profilesUserControl";
-			this.profilesUserControl.Size = new System.Drawing.Size(1477, 725);
-			this.profilesUserControl.TabIndex = 0;
 			// 
 			// tabPageAccount
 			// 
@@ -196,15 +190,6 @@
 			this.tabPageMt.Text = "MT4";
 			this.tabPageMt.UseVisualStyleBackColor = true;
 			// 
-			// mtAccountsUserControl
-			// 
-			this.mtAccountsUserControl.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.mtAccountsUserControl.Location = new System.Drawing.Point(3, 3);
-			this.mtAccountsUserControl.Margin = new System.Windows.Forms.Padding(5);
-			this.mtAccountsUserControl.Name = "mtAccountsUserControl";
-			this.mtAccountsUserControl.Size = new System.Drawing.Size(1465, 692);
-			this.mtAccountsUserControl.TabIndex = 1;
-			// 
 			// tabPageCt
 			// 
 			this.tabPageCt.Controls.Add(this.ctAccountsUserControl);
@@ -216,15 +201,6 @@
 			this.tabPageCt.Text = "cTrader";
 			this.tabPageCt.UseVisualStyleBackColor = true;
 			// 
-			// ctAccountsUserControl
-			// 
-			this.ctAccountsUserControl.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.ctAccountsUserControl.Location = new System.Drawing.Point(3, 3);
-			this.ctAccountsUserControl.Margin = new System.Windows.Forms.Padding(5);
-			this.ctAccountsUserControl.Name = "ctAccountsUserControl";
-			this.ctAccountsUserControl.Size = new System.Drawing.Size(1465, 692);
-			this.ctAccountsUserControl.TabIndex = 1;
-			// 
 			// tabPageFix
 			// 
 			this.tabPageFix.Controls.Add(this.ftAccountsUserControl);
@@ -234,15 +210,6 @@
 			this.tabPageFix.TabIndex = 2;
 			this.tabPageFix.Text = "FIX";
 			this.tabPageFix.UseVisualStyleBackColor = true;
-			// 
-			// ftAccountsUserControl
-			// 
-			this.ftAccountsUserControl.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.ftAccountsUserControl.Location = new System.Drawing.Point(0, 0);
-			this.ftAccountsUserControl.Margin = new System.Windows.Forms.Padding(5);
-			this.ftAccountsUserControl.Name = "ftAccountsUserControl";
-			this.ftAccountsUserControl.Size = new System.Drawing.Size(1471, 698);
-			this.ftAccountsUserControl.TabIndex = 1;
 			// 
 			// tabPageIlyaFastFeed
 			// 
@@ -254,14 +221,6 @@
 			this.tabPageIlyaFastFeed.Text = "Ilya Fast Feed";
 			this.tabPageIlyaFastFeed.UseVisualStyleBackColor = true;
 			// 
-			// iffAccountsUserControl
-			// 
-			this.iffAccountsUserControl.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.iffAccountsUserControl.Location = new System.Drawing.Point(0, 0);
-			this.iffAccountsUserControl.Name = "iffAccountsUserControl";
-			this.iffAccountsUserControl.Size = new System.Drawing.Size(1471, 698);
-			this.iffAccountsUserControl.TabIndex = 0;
-			// 
 			// tabPageClientApi
 			// 
 			this.tabPageClientApi.Controls.Add(this._clientAccountsUserControl);
@@ -271,14 +230,6 @@
 			this.tabPageClientApi.TabIndex = 4;
 			this.tabPageClientApi.Text = "CQG and IB";
 			this.tabPageClientApi.UseVisualStyleBackColor = true;
-			// 
-			// _clientAccountsUserControl
-			// 
-			this._clientAccountsUserControl.Dock = System.Windows.Forms.DockStyle.Fill;
-			this._clientAccountsUserControl.Location = new System.Drawing.Point(0, 0);
-			this._clientAccountsUserControl.Name = "_clientAccountsUserControl";
-			this._clientAccountsUserControl.Size = new System.Drawing.Size(1471, 698);
-			this._clientAccountsUserControl.TabIndex = 0;
 			// 
 			// tabPageAggregator
 			// 
@@ -291,14 +242,6 @@
 			this.tabPageAggregator.Text = "Aggregators";
 			this.tabPageAggregator.UseVisualStyleBackColor = true;
 			// 
-			// aggregatorUserControl
-			// 
-			this.aggregatorUserControl.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.aggregatorUserControl.Location = new System.Drawing.Point(3, 3);
-			this.aggregatorUserControl.Name = "aggregatorUserControl";
-			this.aggregatorUserControl.Size = new System.Drawing.Size(1479, 727);
-			this.aggregatorUserControl.TabIndex = 0;
-			// 
 			// tabPageProxy
 			// 
 			this.tabPageProxy.Controls.Add(this.proxyUserControl);
@@ -308,14 +251,6 @@
 			this.tabPageProxy.TabIndex = 13;
 			this.tabPageProxy.Text = "Proxies";
 			this.tabPageProxy.UseVisualStyleBackColor = true;
-			// 
-			// proxyUserControl
-			// 
-			this.proxyUserControl.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.proxyUserControl.Location = new System.Drawing.Point(0, 0);
-			this.proxyUserControl.Name = "proxyUserControl";
-			this.proxyUserControl.Size = new System.Drawing.Size(1485, 733);
-			this.proxyUserControl.TabIndex = 0;
 			// 
 			// tabPageCopier
 			// 
@@ -328,15 +263,6 @@
 			this.tabPageCopier.TabIndex = 0;
 			this.tabPageCopier.Text = "Copiers";
 			this.tabPageCopier.UseVisualStyleBackColor = true;
-			// 
-			// copiersUserControl
-			// 
-			this.copiersUserControl.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.copiersUserControl.Location = new System.Drawing.Point(4, 4);
-			this.copiersUserControl.Margin = new System.Windows.Forms.Padding(5);
-			this.copiersUserControl.Name = "copiersUserControl";
-			this.copiersUserControl.Size = new System.Drawing.Size(1477, 725);
-			this.copiersUserControl.TabIndex = 0;
 			// 
 			// tabPageStrategy
 			// 
@@ -373,15 +299,6 @@
 			this.tabPagePushing.Text = "Pushing";
 			this.tabPagePushing.UseVisualStyleBackColor = true;
 			// 
-			// pushingUserControl
-			// 
-			this.pushingUserControl.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.pushingUserControl.Location = new System.Drawing.Point(0, 0);
-			this.pushingUserControl.Margin = new System.Windows.Forms.Padding(5);
-			this.pushingUserControl.Name = "pushingUserControl";
-			this.pushingUserControl.Size = new System.Drawing.Size(1471, 698);
-			this.pushingUserControl.TabIndex = 1;
-			// 
 			// tabPageSpoofing
 			// 
 			this.tabPageSpoofing.Controls.Add(this.spoofingUserControl1);
@@ -391,14 +308,6 @@
 			this.tabPageSpoofing.TabIndex = 5;
 			this.tabPageSpoofing.Text = "Spoofing";
 			this.tabPageSpoofing.UseVisualStyleBackColor = true;
-			// 
-			// spoofingUserControl1
-			// 
-			this.spoofingUserControl1.Dock = System.Windows.Forms.DockStyle.Top;
-			this.spoofingUserControl1.Location = new System.Drawing.Point(0, 0);
-			this.spoofingUserControl1.Name = "spoofingUserControl1";
-			this.spoofingUserControl1.Size = new System.Drawing.Size(1471, 711);
-			this.spoofingUserControl1.TabIndex = 0;
 			// 
 			// tabPageHubArb
 			// 
@@ -411,14 +320,6 @@
 			this.tabPageHubArb.Text = "Hub arb";
 			this.tabPageHubArb.UseVisualStyleBackColor = true;
 			// 
-			// hubArbUserControl
-			// 
-			this.hubArbUserControl.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.hubArbUserControl.Location = new System.Drawing.Point(3, 3);
-			this.hubArbUserControl.Name = "hubArbUserControl";
-			this.hubArbUserControl.Size = new System.Drawing.Size(1465, 692);
-			this.hubArbUserControl.TabIndex = 0;
-			// 
 			// tabPageMarketMaker
 			// 
 			this.tabPageMarketMaker.Controls.Add(this.marketMakerUserControl1);
@@ -429,13 +330,16 @@
 			this.tabPageMarketMaker.Text = "Market maker";
 			this.tabPageMarketMaker.UseVisualStyleBackColor = true;
 			// 
-			// marketMakerUserControl1
+			// tabPageLatencyArb
 			// 
-			this.marketMakerUserControl1.Dock = System.Windows.Forms.DockStyle.Top;
-			this.marketMakerUserControl1.Location = new System.Drawing.Point(0, 0);
-			this.marketMakerUserControl1.Name = "marketMakerUserControl1";
-			this.marketMakerUserControl1.Size = new System.Drawing.Size(1471, 629);
-			this.marketMakerUserControl1.TabIndex = 0;
+			this.tabPageLatencyArb.Controls.Add(this.latencyArbUserControl1);
+			this.tabPageLatencyArb.Location = new System.Drawing.Point(4, 25);
+			this.tabPageLatencyArb.Name = "tabPageLatencyArb";
+			this.tabPageLatencyArb.Padding = new System.Windows.Forms.Padding(3);
+			this.tabPageLatencyArb.Size = new System.Drawing.Size(1471, 698);
+			this.tabPageLatencyArb.TabIndex = 6;
+			this.tabPageLatencyArb.Text = "Latency arb";
+			this.tabPageLatencyArb.UseVisualStyleBackColor = true;
 			// 
 			// tabPageLiveData
 			// 
@@ -469,14 +373,6 @@
 			this.tabPageTicker.Text = "Tickers";
 			this.tabPageTicker.UseVisualStyleBackColor = true;
 			// 
-			// tickersUserControl
-			// 
-			this.tickersUserControl.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.tickersUserControl.Location = new System.Drawing.Point(3, 3);
-			this.tickersUserControl.Name = "tickersUserControl";
-			this.tickersUserControl.Size = new System.Drawing.Size(1471, 698);
-			this.tickersUserControl.TabIndex = 0;
-			// 
 			// tabPageExport
 			// 
 			this.tabPageExport.Controls.Add(this.exportUserControl1);
@@ -487,14 +383,6 @@
 			this.tabPageExport.TabIndex = 1;
 			this.tabPageExport.Text = "Exports";
 			this.tabPageExport.UseVisualStyleBackColor = true;
-			// 
-			// exportUserControl1
-			// 
-			this.exportUserControl1.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.exportUserControl1.Location = new System.Drawing.Point(3, 3);
-			this.exportUserControl1.Name = "exportUserControl1";
-			this.exportUserControl1.Size = new System.Drawing.Size(1471, 698);
-			this.exportUserControl1.TabIndex = 0;
 			// 
 			// tabPageLog
 			// 
@@ -655,6 +543,8 @@
 			// 
 			// gbControl
 			// 
+			this.gbControl.Controls.Add(this.label2);
+			this.gbControl.Controls.Add(this.nudAutoSave);
 			this.gbControl.Controls.Add(this.btnQuickStart);
 			this.gbControl.Controls.Add(this.labelProfile);
 			this.gbControl.Controls.Add(this.label1);
@@ -686,7 +576,7 @@
 			// 
 			this.labelProfile.AutoSize = true;
 			this.labelProfile.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.labelProfile.Location = new System.Drawing.Point(339, 29);
+			this.labelProfile.Location = new System.Drawing.Point(128, 27);
 			this.labelProfile.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.labelProfile.Name = "labelProfile";
 			this.labelProfile.Size = new System.Drawing.Size(14, 17);
@@ -696,7 +586,7 @@
 			// label1
 			// 
 			this.label1.AutoSize = true;
-			this.label1.Location = new System.Drawing.Point(220, 29);
+			this.label1.Location = new System.Drawing.Point(9, 27);
 			this.label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.label1.Name = "label1";
 			this.label1.Size = new System.Drawing.Size(110, 17);
@@ -727,7 +617,8 @@
 			// 
 			// btnSave
 			// 
-			this.btnSave.Location = new System.Drawing.Point(12, 23);
+			this.btnSave.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.btnSave.Location = new System.Drawing.Point(661, 23);
 			this.btnSave.Margin = new System.Windows.Forms.Padding(4);
 			this.btnSave.Name = "btnSave";
 			this.btnSave.Size = new System.Drawing.Size(200, 28);
@@ -735,16 +626,138 @@
 			this.btnSave.Text = "Save config changes";
 			this.btnSave.UseVisualStyleBackColor = true;
 			// 
-			// tabPageLatencyArb
+			// nudAutoSave
 			// 
-			this.tabPageLatencyArb.Controls.Add(this.latencyArbUserControl1);
-			this.tabPageLatencyArb.Location = new System.Drawing.Point(4, 25);
-			this.tabPageLatencyArb.Name = "tabPageLatencyArb";
-			this.tabPageLatencyArb.Padding = new System.Windows.Forms.Padding(3);
-			this.tabPageLatencyArb.Size = new System.Drawing.Size(1471, 698);
-			this.tabPageLatencyArb.TabIndex = 6;
-			this.tabPageLatencyArb.Text = "Latency arb";
-			this.tabPageLatencyArb.UseVisualStyleBackColor = true;
+			this.nudAutoSave.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.nudAutoSave.Location = new System.Drawing.Point(604, 27);
+			this.nudAutoSave.Name = "nudAutoSave";
+			this.nudAutoSave.Size = new System.Drawing.Size(50, 22);
+			this.nudAutoSave.TabIndex = 26;
+			this.nudAutoSave.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+			// 
+			// label2
+			// 
+			this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.label2.AutoSize = true;
+			this.label2.Location = new System.Drawing.Point(487, 27);
+			this.label2.Name = "label2";
+			this.label2.Size = new System.Drawing.Size(111, 17);
+			this.label2.TabIndex = 27;
+			this.label2.Text = "Auto save (min):";
+			// 
+			// profilesUserControl
+			// 
+			this.profilesUserControl.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.profilesUserControl.Location = new System.Drawing.Point(4, 4);
+			this.profilesUserControl.Margin = new System.Windows.Forms.Padding(5);
+			this.profilesUserControl.Name = "profilesUserControl";
+			this.profilesUserControl.Size = new System.Drawing.Size(1477, 725);
+			this.profilesUserControl.TabIndex = 0;
+			// 
+			// mtAccountsUserControl
+			// 
+			this.mtAccountsUserControl.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.mtAccountsUserControl.Location = new System.Drawing.Point(3, 3);
+			this.mtAccountsUserControl.Margin = new System.Windows.Forms.Padding(5);
+			this.mtAccountsUserControl.Name = "mtAccountsUserControl";
+			this.mtAccountsUserControl.Size = new System.Drawing.Size(1465, 692);
+			this.mtAccountsUserControl.TabIndex = 1;
+			// 
+			// ctAccountsUserControl
+			// 
+			this.ctAccountsUserControl.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.ctAccountsUserControl.Location = new System.Drawing.Point(3, 3);
+			this.ctAccountsUserControl.Margin = new System.Windows.Forms.Padding(5);
+			this.ctAccountsUserControl.Name = "ctAccountsUserControl";
+			this.ctAccountsUserControl.Size = new System.Drawing.Size(1465, 692);
+			this.ctAccountsUserControl.TabIndex = 1;
+			// 
+			// ftAccountsUserControl
+			// 
+			this.ftAccountsUserControl.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.ftAccountsUserControl.Location = new System.Drawing.Point(0, 0);
+			this.ftAccountsUserControl.Margin = new System.Windows.Forms.Padding(5);
+			this.ftAccountsUserControl.Name = "ftAccountsUserControl";
+			this.ftAccountsUserControl.Size = new System.Drawing.Size(1471, 698);
+			this.ftAccountsUserControl.TabIndex = 1;
+			// 
+			// iffAccountsUserControl
+			// 
+			this.iffAccountsUserControl.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.iffAccountsUserControl.Location = new System.Drawing.Point(0, 0);
+			this.iffAccountsUserControl.Name = "iffAccountsUserControl";
+			this.iffAccountsUserControl.Size = new System.Drawing.Size(1471, 698);
+			this.iffAccountsUserControl.TabIndex = 0;
+			// 
+			// _clientAccountsUserControl
+			// 
+			this._clientAccountsUserControl.Dock = System.Windows.Forms.DockStyle.Fill;
+			this._clientAccountsUserControl.Location = new System.Drawing.Point(0, 0);
+			this._clientAccountsUserControl.Name = "_clientAccountsUserControl";
+			this._clientAccountsUserControl.Size = new System.Drawing.Size(1471, 698);
+			this._clientAccountsUserControl.TabIndex = 0;
+			// 
+			// aggregatorUserControl
+			// 
+			this.aggregatorUserControl.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.aggregatorUserControl.Location = new System.Drawing.Point(3, 3);
+			this.aggregatorUserControl.Name = "aggregatorUserControl";
+			this.aggregatorUserControl.Size = new System.Drawing.Size(1479, 727);
+			this.aggregatorUserControl.TabIndex = 0;
+			// 
+			// proxyUserControl
+			// 
+			this.proxyUserControl.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.proxyUserControl.Location = new System.Drawing.Point(0, 0);
+			this.proxyUserControl.Name = "proxyUserControl";
+			this.proxyUserControl.Size = new System.Drawing.Size(1485, 733);
+			this.proxyUserControl.TabIndex = 0;
+			// 
+			// copiersUserControl
+			// 
+			this.copiersUserControl.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.copiersUserControl.Location = new System.Drawing.Point(4, 4);
+			this.copiersUserControl.Margin = new System.Windows.Forms.Padding(5);
+			this.copiersUserControl.Name = "copiersUserControl";
+			this.copiersUserControl.Size = new System.Drawing.Size(1477, 725);
+			this.copiersUserControl.TabIndex = 0;
+			// 
+			// pushingUserControl
+			// 
+			this.pushingUserControl.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.pushingUserControl.Location = new System.Drawing.Point(0, 0);
+			this.pushingUserControl.Margin = new System.Windows.Forms.Padding(5);
+			this.pushingUserControl.Name = "pushingUserControl";
+			this.pushingUserControl.Size = new System.Drawing.Size(1471, 698);
+			this.pushingUserControl.TabIndex = 1;
+			// 
+			// spoofingUserControl1
+			// 
+			this.spoofingUserControl1.Dock = System.Windows.Forms.DockStyle.Top;
+			this.spoofingUserControl1.Location = new System.Drawing.Point(0, 0);
+			this.spoofingUserControl1.Name = "spoofingUserControl1";
+			this.spoofingUserControl1.Size = new System.Drawing.Size(1471, 711);
+			this.spoofingUserControl1.TabIndex = 0;
+			// 
+			// hubArbUserControl
+			// 
+			this.hubArbUserControl.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.hubArbUserControl.Location = new System.Drawing.Point(3, 3);
+			this.hubArbUserControl.Name = "hubArbUserControl";
+			this.hubArbUserControl.Size = new System.Drawing.Size(1465, 692);
+			this.hubArbUserControl.TabIndex = 0;
+			// 
+			// marketMakerUserControl1
+			// 
+			this.marketMakerUserControl1.Dock = System.Windows.Forms.DockStyle.Top;
+			this.marketMakerUserControl1.Location = new System.Drawing.Point(0, 0);
+			this.marketMakerUserControl1.Name = "marketMakerUserControl1";
+			this.marketMakerUserControl1.Size = new System.Drawing.Size(1471, 629);
+			this.marketMakerUserControl1.TabIndex = 0;
 			// 
 			// latencyArbUserControl1
 			// 
@@ -753,6 +766,22 @@
 			this.latencyArbUserControl1.Name = "latencyArbUserControl1";
 			this.latencyArbUserControl1.Size = new System.Drawing.Size(1465, 692);
 			this.latencyArbUserControl1.TabIndex = 0;
+			// 
+			// tickersUserControl
+			// 
+			this.tickersUserControl.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.tickersUserControl.Location = new System.Drawing.Point(3, 3);
+			this.tickersUserControl.Name = "tickersUserControl";
+			this.tickersUserControl.Size = new System.Drawing.Size(1471, 698);
+			this.tickersUserControl.TabIndex = 0;
+			// 
+			// exportUserControl1
+			// 
+			this.exportUserControl1.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.exportUserControl1.Location = new System.Drawing.Point(3, 3);
+			this.exportUserControl1.Name = "exportUserControl1";
+			this.exportUserControl1.Size = new System.Drawing.Size(1471, 698);
+			this.exportUserControl1.TabIndex = 0;
 			// 
 			// MainForm
 			// 
@@ -781,6 +810,7 @@
 			this.tabPageSpoofing.ResumeLayout(false);
 			this.tabPageHubArb.ResumeLayout(false);
 			this.tabPageMarketMaker.ResumeLayout(false);
+			this.tabPageLatencyArb.ResumeLayout(false);
 			this.tabPageLiveData.ResumeLayout(false);
 			this.tabControl2.ResumeLayout(false);
 			this.tabPageTicker.ResumeLayout(false);
@@ -795,7 +825,7 @@
 			this.tlpMain.ResumeLayout(false);
 			this.gbControl.ResumeLayout(false);
 			this.gbControl.PerformLayout();
-			this.tabPageLatencyArb.ResumeLayout(false);
+			((System.ComponentModel.ISupportInitialize)(this.nudAutoSave)).EndInit();
 			this.ResumeLayout(false);
 
         }
@@ -869,6 +899,8 @@
 		private ExportUserControl exportUserControl1;
 		private System.Windows.Forms.TabPage tabPageLatencyArb;
 		private LatencyArbUserControl latencyArbUserControl1;
+		private System.Windows.Forms.Label label2;
+		private System.Windows.Forms.NumericUpDown nudAutoSave;
 	}
 }
 
