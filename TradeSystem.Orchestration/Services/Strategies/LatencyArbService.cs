@@ -543,7 +543,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				connector.Positions.TryGetValue(arbPos.LongTicket.Value, out var pos);
 				if (pos == null) return null;
 				connector.SendClosePositionRequests(pos);
-				return pos.ClosePrice;
+				return pos.IsClosed ? pos.ClosePrice : (decimal?) null;
 			}
 			if (set.LongAccount.Connector is FixApiIntegration.Connector fixConnector && arbPos.LongPosition != null)
 			{
@@ -567,7 +567,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				connector.Positions.TryGetValue(arbPos.ShortTicket.Value, out var pos);
 				if (pos == null) return null;
 				connector.SendClosePositionRequests(pos);
-				return pos.ClosePrice;
+				return pos.IsClosed ? pos.ClosePrice : (decimal?)null;
 			}
 			if (set.ShortAccount.Connector is FixApiIntegration.Connector fixConnector && arbPos.ShortPosition != null)
 			{
