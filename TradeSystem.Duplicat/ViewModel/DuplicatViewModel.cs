@@ -215,6 +215,7 @@ namespace TradeSystem.Duplicat.ViewModel
 				.Include(e => e.FixApiCopierPositions).ThenInclude(e => e.OpenPosition)
 				.Include(e => e.FixApiCopierPositions).ThenInclude(e => e.ClosePosition).Load();
 			_duplicatContext.SymbolMappings.Where(e => e.Slave.Master.ProfileId == p).OrderBy(e => e.ToString()).Load();
+			_duplicatContext.Pushings.Where(e => e.ProfileId == p).OrderBy(e => e.ToString()).Load();
 			_duplicatContext.Pushings.Where(e => e.ProfileId == p).Include(e => e.PushingDetail).OrderBy(e => e.ToString()).Load();
 			_duplicatContext.Pushings.Where(e => e.ProfileId == p).Select(e => e.PushingDetail).OrderBy(e => e.ToString()).Load();
 			_duplicatContext.Spoofings.Where(e => e.ProfileId == p).OrderBy(e => e.ToString()).Load();
