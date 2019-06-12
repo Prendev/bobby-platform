@@ -14,7 +14,6 @@ namespace TradeSystem.Data.Models
         public Account Account { get => Get<Account>(); set => Set(value); }
 
 		public bool CloseBothWays { get; set; }
-
 		public string SymbolSuffix { get; set; }
 
         public List<SymbolMapping> SymbolMappings { get; } = new List<SymbolMapping>();

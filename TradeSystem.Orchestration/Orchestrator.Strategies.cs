@@ -52,6 +52,7 @@ namespace TradeSystem.Orchestration
 
 		public Task OpeningBeta(Pushing pushing)
 		{
+			pushing.ReopenPosition = null;
 			pushing.PushingDetail.OpenedFutures = 0;
 			pushing.InPanic = false;
 			return Task.Run(() => _pushStrategyService.OpeningBeta(pushing));

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Timers;
 using Microsoft.EntityFrameworkCore;
 using TradeSystem.Common;
 using TradeSystem.Common.Services;
@@ -56,6 +57,7 @@ namespace TradeSystem.Duplicat.ViewModel
 		private readonly IOrchestrator _orchestrator;
 		private readonly IXmlService _xmlService;
 		private readonly List<PropertyChangedEventHandler> _filteredDelegates = new List<PropertyChangedEventHandler>();
+		private readonly Timer _autoSaveTimer = new Timer { AutoReset = true };
 
 		public BindingList<MetaTraderPlatform> MtPlatforms { get; private set; }
 		public BindingList<CTraderPlatform> CtPlatforms { get; private set; }
@@ -90,6 +92,7 @@ namespace TradeSystem.Duplicat.ViewModel
 
 		public event DataContextChangedEventHandler DataContextChanged;
 
+		public int AutoSavePeriodInMin { get => Get<int>(); set => Set(value); }
 		public bool IsConfigReadonly { get => Get<bool>(); set => Set(value); }
 		public bool IsCopierConfigAddEnabled { get => Get<bool>(); set => Set(value); }
 		public bool IsCopierPositionAddEnabled { get => Get<bool>(); set => Set(value); }
@@ -117,6 +120,17 @@ namespace TradeSystem.Duplicat.ViewModel
 			IOrchestrator orchestrator,
 			IXmlService xmlService)
 		{
+			AutoSavePeriodInMin = 1;
+			_autoSaveTimer.Elapsed += (sender, args) =>
+			{
+				if (AutoSavePeriodInMin <= 0)
+				{
+					_autoSaveTimer.Interval = 1000 * 60;
+					return;
+				}
+				_autoSaveTimer.Interval = 1000 * 60 * AutoSavePeriodInMin;
+				SaveCommand();
+			};
 			_xmlService = xmlService;
 			_orchestrator = orchestrator;
 			InitDataContext();
@@ -144,9 +158,12 @@ namespace TradeSystem.Duplicat.ViewModel
 			}
 
 			if (e.PropertyName == nameof(IsConfigReadonly) || e.PropertyName == nameof(SelectedSlave))
+			{
+				SelectedCopier = SelectedSlave?.Copiers.FirstOrDefault();
 				IsCopierConfigAddEnabled = !IsConfigReadonly && SelectedSlave?.Id > 0;
-			if (e.PropertyName == nameof(IsConfigReadonly) || e.PropertyName == nameof(SelectedCopier))
-				IsCopierPositionAddEnabled = !IsConfigReadonly && SelectedCopier?.Id > 0;
+			}
+			if (e.PropertyName == nameof(IsLoading) || e.PropertyName == nameof(SelectedCopier))
+				IsCopierPositionAddEnabled = !IsLoading && SelectedCopier?.Id > 0;
 
 			if (e.PropertyName == nameof(AreCopiersStarted))
 			{
@@ -212,6 +229,7 @@ namespace TradeSystem.Duplicat.ViewModel
 				.Include(e => e.FixApiCopierPositions).ThenInclude(e => e.OpenPosition)
 				.Include(e => e.FixApiCopierPositions).ThenInclude(e => e.ClosePosition).Load();
 			_duplicatContext.SymbolMappings.Where(e => e.Slave.Master.ProfileId == p).OrderBy(e => e.ToString()).Load();
+			_duplicatContext.Pushings.Where(e => e.ProfileId == p).OrderBy(e => e.ToString()).Load();
 			_duplicatContext.Pushings.Where(e => e.ProfileId == p).Include(e => e.PushingDetail).OrderBy(e => e.ToString()).Load();
 			_duplicatContext.Pushings.Where(e => e.ProfileId == p).Select(e => e.PushingDetail).OrderBy(e => e.ToString()).Load();
 			_duplicatContext.Spoofings.Where(e => e.ProfileId == p).OrderBy(e => e.ToString()).Load();
@@ -266,6 +284,34 @@ namespace TradeSystem.Duplicat.ViewModel
 		{
 			if (SelectedProfile != null && _duplicatContext.Profiles.Local.Any(l => l.Id == SelectedProfile.Id)) return;
 			LoadLocals();
+		}
+
+		private BindingList<T> ToSeparateBindingList<T>(BindingList<T> parent)
+		{
+			var bindingList = new BindingList<T>();
+			var items = new List<T>();
+			foreach (var item in parent)
+			{
+				bindingList.Add(item);
+				items.Add(item);
+			}
+
+			parent.ListChanged += (sender, args) =>
+			{
+				if (args.ListChangedType == ListChangedType.ItemAdded)
+				{
+					items.Add(parent[args.NewIndex]);
+					bindingList.Add(parent[args.NewIndex]);
+				}
+
+				if (args.ListChangedType == ListChangedType.ItemDeleted)
+				{
+					bindingList.Remove(items[args.NewIndex]);
+					items.RemoveAt(args.NewIndex);
+				}
+			};
+
+			return bindingList;
 		}
 
 		private BindingList<T> ToBindingList<T, TSelected>(

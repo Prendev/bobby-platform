@@ -37,6 +37,7 @@ namespace TradeSystem.Duplicat.Views
 		private void InitView()
         {
 			//btnRestore.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsConfigReadonly), true);
+	        nudAutoSave.AddBinding("Value", _viewModel, nameof(_viewModel.AutoSavePeriodInMin));
 			gbControl.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsLoading), true);
             btnConnect.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsConnected), true);
             btnDisconnect.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsConnected));

@@ -16,6 +16,8 @@ namespace TradeSystem.Mt4Integration
 			string comment, int maxRetryCount, int retryPeriodInMs);
 
 		bool SendClosePositionRequests(Position position, double? lots, int maxRetryCount, int retryPeriodInMs);
+
+		ConcurrentDictionary<long, Position> Positions { get; }
 	}
 
 	public class Connector : ConnectorBase, IConnector
@@ -195,13 +197,6 @@ namespace TradeSystem.Mt4Integration
 				return SendClosePositionRequests(position, lots, --maxRetryCount, retryPeriodInMs);
 			}
         }
-
-        public bool SendClosePositionRequests(string comment, int maxRetryCount , int retryPeriodInMs)
-        {
-            foreach (var pos in Positions.Where(p => p.Value.Comment == comment && !p.Value.IsClosed))
-                SendClosePositionRequests(pos.Value, null, maxRetryCount, retryPeriodInMs);
-			return true;
-		}
 
 	    public bool SendClosePositionRequests(List<Position> positions, int maxRetryCount, int retryPeriodInMs)
 	    {

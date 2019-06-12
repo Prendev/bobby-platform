@@ -21,6 +21,7 @@ namespace TradeSystem.Data.Models
 		[NotMapped] [InvisibleColumn] public Tick LastFeedTick { get; set; }
 		[NotMapped] [InvisibleColumn] public Tick LastShortTick { get; set; }
 		[NotMapped] [InvisibleColumn] public Tick LastLongTick { get; set; }
+		[NotMapped] [InvisibleColumn] public decimal Deviation => SlippageInPip * PipSize;
 
 		public LatencyArb()
 		{

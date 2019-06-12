@@ -48,6 +48,9 @@ namespace TradeSystem.Duplicat.ViewModel
 				IsLoading = false;
 				IsConfigReadonly = true;
 				IsConnected = true;
+
+				_autoSaveTimer.Interval = 1000 * 60 * Math.Max(AutoSavePeriodInMin, 1);
+				_autoSaveTimer.Start();
 			}
 			catch (Exception e)
 			{
@@ -66,6 +69,9 @@ namespace TradeSystem.Duplicat.ViewModel
 		        IsLoading = false;
 		        IsConfigReadonly = true;
 		        IsConnected = true;
+
+		        _autoSaveTimer.Interval = 1000 * 60 * Math.Max(AutoSavePeriodInMin, 1);
+				_autoSaveTimer.Start();
 	        }
 	        catch (Exception e)
 	        {
@@ -96,6 +102,10 @@ namespace TradeSystem.Duplicat.ViewModel
 		        IsLoading = false;
 		        IsConfigReadonly = false;
 		        IsConnected = false;
+	        }
+	        finally
+	        {
+		        _autoSaveTimer.Stop();
 			}
         }
 

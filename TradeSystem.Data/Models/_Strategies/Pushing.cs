@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using TradeSystem.Common.Attributes;
 
 namespace TradeSystem.Data.Models
@@ -16,30 +17,34 @@ namespace TradeSystem.Data.Models
 
 		public int? FeedAccountId { get; set; }
 		public Account FeedAccount { get => Get<Account>(); set => Set(value); }
-		public string FeedSymbol { get; set; }
+		[DisplayName("Feed Sym")] public string FeedSymbol { get; set; }
 
 		public int? SpoofAccountId { get; set; }
 		public Account SpoofAccount { get => Get<Account>(); set => Set(value); }
-		public string SpoofSymbol { get; set; }
+		[DisplayName("S Sym")] public string SpoofSymbol { get; set; }
 
-		public FutureExecutionModes FutureExecutionMode { get; set; }
 		public int FutureAccountId { get; set; }
         public Account FutureAccount { get => Get<Account>(); set => Set(value); }
-		[Required] public string FutureSymbol { get; set; }
+		[DisplayName("F Mode")] public FutureExecutionModes FutureExecutionMode { get; set; }
+		[DisplayName("F Sym")] [Required] public string FutureSymbol { get; set; }
 
-        public int AlphaMasterId { get; set; }
+		public int AlphaMasterId { get; set; }
 		public Account AlphaMaster { get => Get<Account>(); set => Set(value); }
-		[Required] public string AlphaSymbol { get; set; }
+		[DisplayName("A Sym")] [Required] public string AlphaSymbol { get; set; }
 
         public int BetaMasterId { get; set; }
 		public Account BetaMaster { get => Get<Account>(); set => Set(value); }
-		[Required] public string BetaSymbol { get; set; }
+		[DisplayName("B Sym")] [Required] public string BetaSymbol { get; set; }
 
         public int? HedgeAccountId { get; set; }
 		public Account HedgeAccount { get => Get<Account>(); set => Set(value); }
-		public string HedgeSymbol { get; set; }
+		[DisplayName("H Sym")] public string HedgeSymbol { get; set; }
 
-        [InvisibleColumn] public int PushingDetailId { get; set; }
+		public int? ReopenAccountId { get; set; }
+		public Account ReopenAccount { get => Get<Account>(); set => Set(value); }
+		[DisplayName("R Ticket")] public long? ReopenTicket { get => Get<long?>(); set => Set(value); }
+
+		[InvisibleColumn] public int PushingDetailId { get; set; }
 		[InvisibleColumn] public PushingDetail PushingDetail { get; set; }
 	}
 }
