@@ -491,8 +491,8 @@ namespace TradeSystem.FixApiIntegration
 		{
 			try
 			{
-				GeneralConnector.UnsubscribeBookChange(Symbol.Parse(symbol), (sender, e) => _quoteQueue.Add(e.QuoteSet));
-				GeneralConnector.SubscribeBookChange(Symbol.Parse(symbol), (sender, e) => _quoteQueue.Add(e.QuoteSet));
+				GeneralConnector.UnsubscribeBookChange(Symbol.Parse(symbol), OnBookChange);
+				GeneralConnector.SubscribeBookChange(Symbol.Parse(symbol), OnBookChange);
 
 				lock (_subscribeMarketData)
 				{
@@ -513,6 +513,7 @@ namespace TradeSystem.FixApiIntegration
 				Logger.Error($"{Description} Connector.Subscribe({symbol}) exception", e);
 			}
 		}
+		private void OnBookChange(object sender, QuoteEventArgs e) => _quoteQueue.Add(e.QuoteSet);
 
 		public async Task HeatUp()
 		{
