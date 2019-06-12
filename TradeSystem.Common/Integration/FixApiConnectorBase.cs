@@ -9,17 +9,10 @@ namespace TradeSystem.Common.Integration
 	{
 		protected readonly ConcurrentDictionary<string, Tick> LastTicks =
 			new ConcurrentDictionary<string, Tick>();
-		protected readonly ConcurrentDictionary<string, SymbolData> SymbolInfos =
-			new ConcurrentDictionary<string, SymbolData>();
 
 		public override Tick GetLastTick(string symbol)
 		{
 			return LastTicks.GetOrAdd(symbol, (Tick)null);
-		}
-
-		public SymbolData GetSymbolInfo(string symbol)
-		{
-			return SymbolInfos.GetOrAdd(symbol, new SymbolData());
 		}
 
 		public virtual Task<OrderResponse> SendMarketOrderRequest(string symbol, Sides side, decimal quantity) =>
@@ -51,7 +44,5 @@ namespace TradeSystem.Common.Integration
 
 		public virtual Task<bool> ChangeLimitPrice(LimitResponse response, decimal limitPrice) => throw new NotImplementedException();
 		public virtual Task<bool> CancelLimit(LimitResponse response) => throw new NotImplementedException();
-
-		public virtual void OrderMultipleCloseBy(string symbol) => throw new NotImplementedException();
 	}
 }

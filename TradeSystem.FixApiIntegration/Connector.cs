@@ -487,14 +487,6 @@ namespace TradeSystem.FixApiIntegration
 			}
 		}
 
-		public override async void OrderMultipleCloseBy(string symbol)
-		{
-			var symbolInfo = GetSymbolInfo(symbol);
-			if (symbolInfo.SumContracts == 0) return;
-			var side = symbolInfo.SumContracts > 0 ? Sides.Sell : Sides.Buy;
-			await SendMarketOrderRequest(symbol, side, Math.Abs(symbolInfo.SumContracts));
-		}
-
 		public override async void Subscribe(string symbol)
 		{
 			try
@@ -572,15 +564,6 @@ namespace TradeSystem.FixApiIntegration
 
 			CheckNewPosition(r);
 			//Checked on order update CheckLimit(r);
-
-			if (r.Side == BuySell.Sell) quantity *= -1;
-			SymbolInfos.AddOrUpdate(r.Symbol.ToString(),
-				new SymbolData { SumContracts = quantity },
-				(key, oldValue) =>
-				{
-					oldValue.SumContracts += quantity;
-					return oldValue;
-				});
 		}
 
 		private void CheckNewPosition(OrderStatusReport r)
@@ -628,15 +611,6 @@ namespace TradeSystem.FixApiIntegration
 			var askVol = quoteSet.Entries.First().AskVolume;
 			var bidVol = quoteSet.Entries.First().BidVolume;
 			var symbol = quoteSet.Symbol.ToString();
-
-			SymbolInfos.AddOrUpdate(symbol,
-				new SymbolData { Bid = bid ?? 0, Ask = ask ?? 0 },
-				(key, oldValue) =>
-				{
-					oldValue.Bid = bid ?? oldValue.Bid;
-					oldValue.Ask = ask ?? oldValue.Ask;
-					return oldValue;
-				});
 
 			if (!ask.HasValue || !bid.HasValue) return;
 			if (!askVol.HasValue || !bidVol.HasValue) return;

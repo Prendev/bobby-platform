@@ -24,7 +24,6 @@ namespace TradeSystem.Orchestration.Services
 			{
 				if (account.MetaTraderAccountId.HasValue) ConnectMtAccount(account);
 				else if (account.CTraderAccountId.HasValue) ConenctCtAccount(account);
-				else if (account.FixTraderAccountId.HasValue) ConnectFtAccount(account);
 				else if (account.FixApiAccountId.HasValue) await ConnectFixAccount(account);
 				else if (account.IlyaFastFeedAccountId.HasValue) await ConnectIlyaFastFeedAccount(account);
 				else if (account.CqgClientApiAccountId.HasValue) await ConnectCqgClientApiAccount(account);
@@ -89,26 +88,6 @@ namespace TradeSystem.Orchestration.Services
 					});
 			}
 			((CTraderIntegration.Connector)account.Connector).Connect();
-		}
-
-		private void ConnectFtAccount(Account account)
-		{
-			if (!(account.Connector is FixTraderIntegration.Connector) ||
-			    account.Connector.Id != account.FixTraderAccountId)
-				account.Connector = null;
-
-			if (account.Connector == null)
-				account.Connector = new FixTraderIntegration.Connector();
-
-			((FixTraderIntegration.Connector) account.Connector)
-				.Connect(new FixTraderIntegration.AccountInfo
-				{
-					DbId = account.FixTraderAccount.Id,
-					Description = account.FixTraderAccount.Description,
-					IpAddress = account.FixTraderAccount.IpAddress,
-					CommandSocketPort = account.FixTraderAccount.CommandSocketPort,
-					EventsSocketPort = account.FixTraderAccount.EventsSocketPort
-				});
 		}
 
 		private async Task ConnectFixAccount(Account account)

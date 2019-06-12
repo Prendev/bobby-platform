@@ -63,7 +63,6 @@ namespace TradeSystem.Duplicat.ViewModel
 		public BindingList<CTraderPlatform> CtPlatforms { get; private set; }
 		public BindingList<MetaTraderAccount> MtAccounts { get; private set; }
 		public BindingList<CTraderAccount> CtAccounts { get; private set; }
-		public BindingList<FixTraderAccount> FtAccounts { get; private set; }
 		public BindingList<FixApiAccount> FixAccounts { get; private set; }
 		public BindingList<IlyaFastFeedAccount> IlyaFastFeedAccounts { get; private set; }
 		public BindingList<CqgClientApiAccount> CqgClientApiAccounts { get; private set; }
@@ -207,7 +206,6 @@ namespace TradeSystem.Duplicat.ViewModel
 			_duplicatContext.CTraderPlatforms.OrderBy(e => e.ToString()).Load();
 			_duplicatContext.MetaTraderAccounts.OrderBy(e => e.ToString()).Load();
 			_duplicatContext.CTraderAccounts.OrderBy(e => e.ToString()).Load();
-			_duplicatContext.FixTraderAccounts.OrderBy(e => e.ToString()).Load();
 			_duplicatContext.FixApiAccounts.OrderBy(e => e.ToString()).Load();
 			_duplicatContext.IlyaFastFeedAccounts.OrderBy(e => e.ToString()).Load();
 			_duplicatContext.CqgClientApiAccounts.OrderBy(e => e.ToString()).Load();
@@ -247,7 +245,6 @@ namespace TradeSystem.Duplicat.ViewModel
 			CtPlatforms = _duplicatContext.CTraderPlatforms.Local.ToBindingList();
 			MtAccounts = _duplicatContext.MetaTraderAccounts.Local.ToBindingList();
 			CtAccounts = _duplicatContext.CTraderAccounts.Local.ToBindingList();
-			FtAccounts = _duplicatContext.FixTraderAccounts.Local.ToBindingList();
 			FixAccounts = _duplicatContext.FixApiAccounts.Local.ToBindingList();
 			IlyaFastFeedAccounts = _duplicatContext.IlyaFastFeedAccounts.Local.ToBindingList();
 			CqgClientApiAccounts = _duplicatContext.CqgClientApiAccounts.Local.ToBindingList();

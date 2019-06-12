@@ -30,8 +30,5 @@ namespace TradeSystem.Common.Integration
 
 		Task<bool> ChangeLimitPrice(LimitResponse response, decimal limitPrice);
 		Task<bool> CancelLimit(LimitResponse response);
-
-		void OrderMultipleCloseBy(string symbol);
-		SymbolData GetSymbolInfo(string symbol);
 	}
 }

@@ -250,7 +250,6 @@
     <Compile Include="Models\_Accounts\IlyaFastFeedAccount.cs" />
     <Compile Include="Models\_Strategies\Pushing.cs" />
     <Compile Include="Models\_Strategies\PushingDetail.cs" />
-    <Compile Include="Models\_Accounts\FixTraderAccount.cs" />
     <Compile Include="Models\_Strategies\MarketMaker.cs" />
     <Compile Include="Models\_Strategies\StratHubArb.NotMapped.cs" />
     <Compile Include="Models\_Strategies\StratHubArbQuoteEventArgs.cs" />

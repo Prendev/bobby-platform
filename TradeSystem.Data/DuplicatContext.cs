@@ -51,7 +51,6 @@ namespace TradeSystem.Data
         public DbSet<CTraderPlatform> CTraderPlatforms { get; set; }
         public DbSet<MetaTraderAccount> MetaTraderAccounts { get; set; }
         public DbSet<CTraderAccount> CTraderAccounts { get; set; }
-        public DbSet<FixTraderAccount> FixTraderAccounts { get; set; }
 		public DbSet<FixApiAccount> FixApiAccounts { get; set; }
 		public DbSet<IlyaFastFeedAccount> IlyaFastFeedAccounts { get; set; }
 		public DbSet<CqgClientApiAccount> CqgClientApiAccounts { get; set; }
