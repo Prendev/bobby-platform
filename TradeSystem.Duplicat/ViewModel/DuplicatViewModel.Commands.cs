@@ -10,13 +10,13 @@ namespace TradeSystem.Duplicat.ViewModel
 {
     public partial class DuplicatViewModel
     {
-        public void SaveCommand()
+        public void SaveCommand(bool log = true)
         {
 			SaveState = SaveStates.Default;
             try
             {
                 _duplicatContext.SaveChanges();
-	            Logger.Debug($"Database is saved");
+	            if (log) Logger.Debug($"Database is saved");
 				SaveState = SaveStates.Success;
 			}
             catch (Exception e)

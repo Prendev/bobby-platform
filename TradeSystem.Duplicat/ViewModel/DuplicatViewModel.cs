@@ -128,7 +128,7 @@ namespace TradeSystem.Duplicat.ViewModel
 					return;
 				}
 				_autoSaveTimer.Interval = 1000 * 60 * AutoSavePeriodInMin;
-				SaveCommand();
+				SaveCommand(false);
 			};
 			_xmlService = xmlService;
 			_orchestrator = orchestrator;
