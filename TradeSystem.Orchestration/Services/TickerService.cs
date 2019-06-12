@@ -4,7 +4,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
-using System.Threading.Tasks;
+using System.Threading;
+using TradeSystem.Collections;
 using TradeSystem.Common.Integration;
 using TradeSystem.Communication;
 using TradeSystem.Data.Models;
@@ -18,10 +19,13 @@ namespace TradeSystem.Orchestration.Services
     }
 
     public class TickerService : ITickerService
-    {
-	    private const string TickersFolderPath = "Tickers";
-	    private const string ZipArchivePath = "Tickers/Tickers.zip";
-	    private readonly object _syncRoot = new object();
+	{
+		public class TickOrQuote
+		{
+			public object Sender { get; set; }
+			public NewTick NewTick { get; set; }
+			public QuoteSet QuoteSet { get; set; }
+		}
 
 		public class CsvRow : IEquatable<CsvRow>
 		{
@@ -112,109 +116,157 @@ namespace TradeSystem.Orchestration.Services
 			}
 		}
 
-		private bool _isStarted;
-        private IEnumerable<Ticker> _tickers;
-
+		private volatile CancellationTokenSource _cancellation;
+		private const string TickersFolderPath = "Tickers";
+		private const string ZipArchivePath = "Tickers/Tickers.zip";
 		private readonly ConcurrentDictionary<string, Writer> _csvWriters =
 			new ConcurrentDictionary<string, Writer>();
 
         public void Start(List<Ticker> tickers)
-        {
-	        Directory.CreateDirectory(TickersFolderPath);
+		{
+			_cancellation?.Dispose();
+			_cancellation = new CancellationTokenSource();
+
+			Directory.CreateDirectory(TickersFolderPath);
 	        using (new FileStream(ZipArchivePath, FileMode.OpenOrCreate)) { }
 
-			_tickers = tickers;
-
-			foreach (var ticker in _tickers)
-			{
-				if (ticker.PairAccount == null && ticker.MainAccount.Connector is FixApiIntegration.Connector fix)	
-				{
-					fix.NewQuote -= Fix_NewQuote;
-					fix.NewQuote += Fix_NewQuote;
-				}
-				else
-				{
-					ticker.MainAccount.NewTick -= Account_NewTick;
-					ticker.MainAccount.NewTick += Account_NewTick;
-				}
-
-				ticker.MainAccount?.Connector?.Subscribe(ticker.MainSymbol);
-				ticker.PairAccount?.Connector?.Subscribe(ticker.PairSymbol);
-			}
-
-			_isStarted = true;
-	        Logger.Info("Tickers are started");
-        }
+			new Thread(() => Loop(tickers, _cancellation.Token)) { Name = "Tickers", IsBackground = true }.Start();
+			Logger.Info("Tickers are started");
+		}
 
 		public void Stop()
 		{
-			_isStarted = false;
-			foreach (var csvWriter in _csvWriters.Where(w => !w.Value.Archived))
-				csvWriter.Value.Disconnect();
-			_csvWriters.Clear();
+			_cancellation?.Cancel(true);
+			Logger.Info("Tickers are stopped");
 		}
 
-	    private void CheckArchive()
-	    {
-		    var now = HiResDatetime.UtcNow;
-		    if (now.Minute < 45) return;
-
-		    var toArchive = _csvWriters
-			    .Where(w => !w.Value.Archived)
-			    .Where(w => w.Value.LastFlush.Date.AddHours(w.Value.LastFlush.Hour) != now.Date.AddHours(now.Hour))
-			    .ToList();
-
-			if (!toArchive.Any()) return;
-
-		    Task.Run(() =>
-			{
-				lock (_syncRoot)
-				{
-					toArchive = toArchive.Where(w => !w.Value.Archived).ToList();
-					toArchive.ForEach(a => a.Value.Archived = true);
-					if (!toArchive.Any()) return;
-
-					using (var zipToOpen = new FileStream(ZipArchivePath, FileMode.OpenOrCreate))
-					using (var zipArchive = new ZipArchive(zipToOpen, ZipArchiveMode.Update))
-						foreach (var csvWriter in toArchive)
-						{
-							csvWriter.Value.Disconnect();
-							var fileInfo = new FileInfo(csvWriter.Key);
-							zipArchive.CreateEntryFromFile(fileInfo.FullName, fileInfo.Name);
-
-							File.Delete(csvWriter.Key);
-						}
-				}
-			});
-		}
-
-	    private void Fix_NewQuote(object sender, QuoteSet quoteSet)
+		private void Loop(List<Ticker> tickers, CancellationToken token)
 		{
-			if (!_isStarted) return;
-			CheckArchive();
+			using (var queue = new FastBlockingCollection<TickOrQuote>())
+			{
+				void FixOnNewQuote(object sender, QuoteSet quoteSet)
+				{
+					if (token.IsCancellationRequested) return;
+					queue.Add(new TickOrQuote {Sender = sender, QuoteSet = quoteSet});
+				}
 
-			var connector = (IConnector)sender;
+				void MainAccountOnNewTick(object sender, NewTick newTick)
+				{
+					if (token.IsCancellationRequested) return;
+					queue.Add(new TickOrQuote() {Sender = sender, NewTick = newTick});
+				}
 
+				try
+				{
+					// Subscribe to events
+					foreach (var ticker in tickers)
+					{
+						if (ticker.PairAccount == null && ticker.MainAccount.Connector is FixApiIntegration.Connector fix)
+							fix.NewQuote += FixOnNewQuote;
+						else ticker.MainAccount.NewTick += MainAccountOnNewTick;
+
+						ticker.MainAccount?.Connector?.Subscribe(ticker.MainSymbol);
+						ticker.PairAccount?.Connector?.Subscribe(ticker.PairSymbol);
+					}
+
+					while (!token.IsCancellationRequested)
+					{
+						Check(tickers, queue.Take(token));
+						CheckArchive();
+					}
+				}
+				catch (OperationCanceledException) { }
+				catch (Exception e)
+				{
+					Logger.Error("TickerService.Loop exception", e);
+				}
+				finally
+				{
+					foreach (var ticker in tickers)
+					{
+						if (ticker.MainAccount.Connector is FixApiIntegration.Connector fix)
+							fix.NewQuote -= FixOnNewQuote;
+						ticker.MainAccount.NewTick -= MainAccountOnNewTick;
+					}
+
+					foreach (var csvWriter in _csvWriters.Where(w => !w.Value.Archived))
+						csvWriter.Value.Disconnect();
+					_csvWriters.Clear();
+				}
+			}
+		}
+
+		private void Check(List<Ticker> tickers, TickOrQuote newTickOrQuote)
+		{
+			try
+			{
+				if (newTickOrQuote.Sender == null) return;
+				if (newTickOrQuote.QuoteSet != null)
+					Fix_NewQuote(newTickOrQuote.Sender, newTickOrQuote.QuoteSet, tickers);
+				if (newTickOrQuote.NewTick != null)
+					Account_NewTick(newTickOrQuote.Sender, newTickOrQuote.NewTick, tickers);
+			}
+			catch (Exception e)
+			{
+				Logger.Error("TickerService.Check exception", e);
+			}
+		}
+
+		private void CheckArchive()
+		{
+			try
+			{
+				var now = HiResDatetime.UtcNow;
+				if (now.Minute < 45) return;
+
+				var toArchive = _csvWriters
+					.Where(w => !w.Value.Archived)
+					.Where(w => w.Value.LastFlush.Date.AddHours(w.Value.LastFlush.Hour) != now.Date.AddHours(now.Hour))
+					.ToList();
+
+				if (!toArchive.Any()) return;
+
+				toArchive = toArchive.Where(w => !w.Value.Archived).ToList();
+				toArchive.ForEach(a => a.Value.Archived = true);
+				if (!toArchive.Any()) return;
+
+				using (var zipToOpen = new FileStream(ZipArchivePath, FileMode.OpenOrCreate))
+				using (var zipArchive = new ZipArchive(zipToOpen, ZipArchiveMode.Update))
+					foreach (var csvWriter in toArchive)
+					{
+						csvWriter.Value.Disconnect();
+						var fileInfo = new FileInfo(csvWriter.Key);
+						zipArchive.CreateEntryFromFile(fileInfo.FullName, fileInfo.Name);
+
+						File.Delete(csvWriter.Key);
+					}
+			}
+			catch (Exception e)
+			{
+				Logger.Error("TickerService.CheckArchive exception", e);
+			}
+		}
+
+		private void Fix_NewQuote(object sender, QuoteSet quoteSet, List<Ticker> tickers)
+	    {
+		    if (!(sender is IConnector connector)) return;
 			if (quoteSet?.Entries?.Any() != true) return;
 
-			var tickers = _tickers
-				.Where(t => !t.PairAccountId.HasValue)
-				.Where(t => t.MainAccount.Connector == connector)
-				.Where(t => t.MainSymbol == quoteSet.Symbol.ToString() || t.MainSymbol == null);
-
-			foreach (var ticker in tickers)
-				WriteQuoteCsv(ticker, GetCsvFile(ticker, connector.Description, quoteSet.Symbol.ToString()), quoteSet, ticker.MarketDepth);
+		    foreach (var ticker in tickers)
+		    {
+			    if (ticker.PairAccount != null) continue;
+			    if (ticker.MainAccount?.Connector != connector) continue;
+			    if (!string.IsNullOrWhiteSpace(ticker.MainSymbol) && ticker.MainSymbol != quoteSet.Symbol.ToString()) continue;
+			    WriteQuoteCsv(ticker, GetCsvFile(ticker, connector.Description, quoteSet.Symbol.ToString()), quoteSet, ticker.MarketDepth);
+		    }
 		}
 
-		private void Account_NewTick(object sender, NewTick e)
+		private void Account_NewTick(object sender, NewTick e, List<Ticker> tickers)
 		{
-			if (!_isStarted) return;
-			CheckArchive();
-
 			var connector = (sender as Account)?.Connector;
 			if (connector == null) return;
 
-			foreach (var ticker in _tickers)
+			foreach (var ticker in tickers)
 			{
 				if (ticker.MainAccount?.Connector != connector) continue;
 
@@ -224,7 +276,6 @@ namespace TradeSystem.Orchestration.Services
 
 				if (ticker.MainSymbol != e.Tick.Symbol) continue;
 					
-
 				Tick lastTick = null;
 				string pair = "";
 				if (ticker.PairAccount?.Connector?.IsConnected == true)
