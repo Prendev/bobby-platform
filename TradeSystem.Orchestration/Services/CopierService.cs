@@ -244,7 +244,7 @@ namespace TradeSystem.Orchestration.Services
 
 		        if (e.Action == NewPositionActions.Open)
 		        {
-			        if (copier.CloseOnly) return Task.CompletedTask;
+			        if (copier.Mode == Copier.CopierModes.CloseOnly) return Task.CompletedTask;
 			        if (e.Position.ReopenTicket.HasValue)
 			        {
 				        var reopenPos = copier.CopierPositions.FirstOrDefault(p => p.MasterTicket == e.Position.ReopenTicket);
@@ -278,8 +278,9 @@ namespace TradeSystem.Orchestration.Services
 
 				}
 		        else if (e.Action == NewPositionActions.Close)
-		        {
-			        foreach (var copierPos in copier.CopierPositions.Where(p => p.MasterTicket == e.Position.Id).ToList())
+				{
+					if (copier.Mode == Copier.CopierModes.OpenOnly) return Task.CompletedTask;
+					foreach (var copierPos in copier.CopierPositions.Where(p => p.MasterTicket == e.Position.Id).ToList())
 				        CopyToMtAccountClose(copier, copierPos, slaveConnector, copierPos.SlaveTicket);
 			        copier.CopierPositions.RemoveAll(p => p.State == CopierPosition.CopierPositionStates.ToBeRemoved);
 				}
