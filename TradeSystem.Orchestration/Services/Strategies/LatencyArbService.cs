@@ -270,6 +270,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				}
 				last.LongTicket = pos.Ticket;
 				last.LongPosition = pos.StratPosition;
+				last.LongOpenPrice = pos.OpenPrice;
 				AddCopierPosition(set, last);
 				Logger.Info($"{set} latency arb - {last.Level}. long hedge side opened at {pos.OpenPrice} with {(last.ShortOpenPrice - pos.OpenPrice) / set.PipSize} pips");
 				// Switch state if rotating

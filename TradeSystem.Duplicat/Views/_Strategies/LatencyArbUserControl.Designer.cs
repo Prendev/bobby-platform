@@ -34,10 +34,14 @@
 			this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
 			this.gbLatencyArb = new System.Windows.Forms.GroupBox();
 			this.dgvLatencyArb = new TradeSystem.Duplicat.Views.CustomDataGridView();
+			this.groupBox1 = new System.Windows.Forms.GroupBox();
+			this.dgvStatistics = new TradeSystem.Duplicat.Views.CustomDataGridView();
 			this.gbControl.SuspendLayout();
 			this.tableLayoutPanel1.SuspendLayout();
 			this.gbLatencyArb.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.dgvLatencyArb)).BeginInit();
+			this.groupBox1.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)(this.dgvStatistics)).BeginInit();
 			this.SuspendLayout();
 			// 
 			// gbControl
@@ -78,12 +82,14 @@
 			this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
 			this.tableLayoutPanel1.Controls.Add(this.gbControl, 0, 0);
 			this.tableLayoutPanel1.Controls.Add(this.gbLatencyArb, 0, 1);
+			this.tableLayoutPanel1.Controls.Add(this.groupBox1, 0, 2);
 			this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
 			this.tableLayoutPanel1.Name = "tableLayoutPanel1";
-			this.tableLayoutPanel1.RowCount = 2;
+			this.tableLayoutPanel1.RowCount = 3;
 			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 64F));
 			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 164F));
 			this.tableLayoutPanel1.Size = new System.Drawing.Size(1129, 696);
 			this.tableLayoutPanel1.TabIndex = 1;
 			// 
@@ -93,10 +99,10 @@
 			this.gbLatencyArb.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.gbLatencyArb.Location = new System.Drawing.Point(3, 67);
 			this.gbLatencyArb.Name = "gbLatencyArb";
-			this.gbLatencyArb.Size = new System.Drawing.Size(1123, 626);
+			this.gbLatencyArb.Size = new System.Drawing.Size(1123, 462);
 			this.gbLatencyArb.TabIndex = 1;
 			this.gbLatencyArb.TabStop = false;
-			this.gbLatencyArb.Text = "Latency arbs";
+			this.gbLatencyArb.Text = "Latency arbs (use double-click for current stat)";
 			// 
 			// dgvLatencyArb
 			// 
@@ -107,8 +113,34 @@
 			this.dgvLatencyArb.MultiSelect = false;
 			this.dgvLatencyArb.Name = "dgvLatencyArb";
 			this.dgvLatencyArb.RowTemplate.Height = 24;
-			this.dgvLatencyArb.Size = new System.Drawing.Size(1117, 605);
+			this.dgvLatencyArb.Size = new System.Drawing.Size(1117, 441);
 			this.dgvLatencyArb.TabIndex = 0;
+			// 
+			// groupBox1
+			// 
+			this.groupBox1.Controls.Add(this.dgvStatistics);
+			this.groupBox1.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.groupBox1.Location = new System.Drawing.Point(3, 535);
+			this.groupBox1.Name = "groupBox1";
+			this.groupBox1.Size = new System.Drawing.Size(1123, 158);
+			this.groupBox1.TabIndex = 2;
+			this.groupBox1.TabStop = false;
+			this.groupBox1.Text = "Statistics";
+			// 
+			// dgvStatistics
+			// 
+			this.dgvStatistics.AllowUserToAddRows = false;
+			this.dgvStatistics.AllowUserToDeleteRows = false;
+			this.dgvStatistics.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
+			this.dgvStatistics.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+			this.dgvStatistics.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.dgvStatistics.Location = new System.Drawing.Point(3, 18);
+			this.dgvStatistics.MultiSelect = false;
+			this.dgvStatistics.Name = "dgvStatistics";
+			this.dgvStatistics.ReadOnly = true;
+			this.dgvStatistics.RowTemplate.Height = 24;
+			this.dgvStatistics.Size = new System.Drawing.Size(1117, 137);
+			this.dgvStatistics.TabIndex = 0;
 			// 
 			// LatencyArbUserControl
 			// 
@@ -121,6 +153,8 @@
 			this.tableLayoutPanel1.ResumeLayout(false);
 			this.gbLatencyArb.ResumeLayout(false);
 			((System.ComponentModel.ISupportInitialize)(this.dgvLatencyArb)).EndInit();
+			this.groupBox1.ResumeLayout(false);
+			((System.ComponentModel.ISupportInitialize)(this.dgvStatistics)).EndInit();
 			this.ResumeLayout(false);
 
 		}
@@ -133,5 +167,7 @@
 		private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
 		private System.Windows.Forms.GroupBox gbLatencyArb;
 		private CustomDataGridView dgvLatencyArb;
+		private System.Windows.Forms.GroupBox groupBox1;
+		private CustomDataGridView dgvStatistics;
 	}
 }

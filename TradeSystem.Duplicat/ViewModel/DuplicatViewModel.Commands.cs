@@ -296,6 +296,10 @@ namespace TradeSystem.Duplicat.ViewModel
 		public IList GetArbStatistics(StratHubArb arb)
 	    {
 		    return arb?.CalculateStatistics();
+		}
+	    public IList GetArbStatistics(LatencyArb arb)
+	    {
+		    return arb?.CalculateStatistics();
 	    }
 	}
 }

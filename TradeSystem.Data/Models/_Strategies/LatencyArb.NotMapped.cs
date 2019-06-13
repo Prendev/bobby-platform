@@ -10,6 +10,13 @@ namespace TradeSystem.Data.Models
 {
 	public partial class LatencyArb
 	{
+		public class Statistics
+		{
+			public string Group { get; set; }
+			public int Total { get; set; }
+			public decimal? AvgPip { get; set; }
+		}
+
 		public class LatencyArbPos
 		{
 			public long? ShortTicket { get; set; }
@@ -106,8 +113,27 @@ namespace TradeSystem.Data.Models
 
 		public IList CalculateStatistics()
 		{
-			var total = LatencyArbPositions.Count;
-			return null;
+
+			var closedPositions = LatencyArbPositions.Where(p => p.IsFull).ToList();
+			var avgClosed = closedPositions.Sum(p => p.Result) / Math.Max(1, closedPositions.Count) / PipSize;
+
+			var livePositions = LivePositions.Where(p => p.HasBothSides).ToList();
+			var avgLive = livePositions.Sum(p => p.OpenResult) / Math.Max(1, livePositions.Count) / PipSize;
+
+			var statistics = new List<Statistics>()
+			{
+				new Statistics() {Group = "All", Total = LatencyArbPositions.Count},
+				new Statistics() {Group = "Live", Total = LivePositions.Count, AvgPip = avgLive},
+				new Statistics() {Group = "Closed", Total = closedPositions.Count, AvgPip = avgClosed},
+			};
+
+
+			return statistics.Select(s => new
+			{
+				Group = s.Group,
+				Total = s.Total.ToString("0"),
+				AvgPip = s.AvgPip?.ToString("F2")
+			}).ToList();
 		}
 	}
 }
