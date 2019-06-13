@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
 using TradeSystem.Common.Attributes;
 using TradeSystem.Common.Integration;
 
@@ -17,11 +20,19 @@ namespace TradeSystem.Data.Models
 		public event EventHandler<NewTick> NewTick;
 		public event EventHandler<ConnectionStates> ConnectionChanged;
 
-		[NotMapped] [InvisibleColumn] public bool IsConnected { get => Get<bool>(); set => Set(value); }
+		[NotMapped]
+		[InvisibleColumn]
+		public bool IsConnected
+		{
+			get => Get<bool>();
+			set => Set(value);
+		}
+
 		[NotMapped] [InvisibleColumn] public Tick LastFeedTick { get; set; }
 		[NotMapped] [InvisibleColumn] public Tick LastShortTick { get; set; }
 		[NotMapped] [InvisibleColumn] public Tick LastLongTick { get; set; }
 		[NotMapped] [InvisibleColumn] public decimal Deviation => SlippageInPip * PipSize;
+		[NotMapped] public List<LatencyArbPosition> LivePositions => LatencyArbPositions.Where(p => !p.Archived).ToList();
 
 		public LatencyArb()
 		{
@@ -91,6 +102,12 @@ namespace TradeSystem.Data.Models
 				ShortAccount?.Connector?.IsConnected == true &&
 				LongAccount?.Connector?.IsConnected == true;
 			ConnectionChanged?.Invoke(this, IsConnected ? ConnectionStates.Connected : ConnectionStates.Disconnected);
+		}
+
+		public IList CalculateStatistics()
+		{
+			var total = LatencyArbPositions.Count;
+			return null;
 		}
 	}
 }
