@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using TradeSystem.Common.Attributes;
@@ -32,7 +33,6 @@ namespace TradeSystem.Data.Models
 			Aggressive
 		}
 
-
 		[DisplayPriority(-1)] public bool Run { get; set; }
 
 		[InvisibleColumn] public int ProfileId { get; set; }
@@ -40,6 +40,7 @@ namespace TradeSystem.Data.Models
 
 		public LatencyArbStates State { get => Get<LatencyArbStates>(); set => Set(value); }
 		public bool Rotating { get; set; }
+		[DisplayName("AvgPeriod")] public int AveragingPeriodInSeconds { get; set; }
 		[DisplayName("ReopenDaysOld")] public int ReopenThresholdInDay { get; set; } = 5;
 		[DisplayName("R Count")] public int ReopenCount { get => Get<int>(); set => Set(value); }
 
@@ -60,6 +61,8 @@ namespace TradeSystem.Data.Models
 		[DisplayName("L Spread")] public decimal LongSpreadFilterInPip { get; set; }
 
 		public LatencyArbFirstSides FirstSide { get => Get<LatencyArbFirstSides>(); set => Set(value); }
+		[DisplayName("EarliestTrade")] public TimeSpan? EarliestTradeTime { get; set; }
+		[DisplayName("LatestTrade")] public TimeSpan? LatestTradeTime { get; set; }
 		public int MaxCount { get; set; } = 5;
 		[DisplayName("Signal")] public decimal SignalDiffInPip { get; set; }
 		[DisplayName("Trail dist.")] public decimal TrailingDistanceInPip { get; set; }
