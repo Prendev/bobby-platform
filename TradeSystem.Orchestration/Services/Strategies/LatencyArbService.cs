@@ -117,6 +117,9 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 			if (!set.HasPrices) return;
 			if (set.HasTiming && IsTime(HiResDatetime.UtcNow.TimeOfDay, set.LatestTradeTime, set.EarliestTradeTime)) return;
+			if (HiResDatetime.UtcNow - set.LastFeedTick.Time > TimeSpan.FromSeconds(Math.Max(60, set.AveragingPeriodInSeconds))) return;
+			if (HiResDatetime.UtcNow - set.LastLongTick.Time > TimeSpan.FromSeconds(Math.Max(60, set.AveragingPeriodInSeconds))) return;
+			if (HiResDatetime.UtcNow - set.LastShortTick.Time > TimeSpan.FromSeconds(Math.Max(60, set.AveragingPeriodInSeconds))) return;
 
 			CheckPositions(set);
 			CheckOpening(set);
