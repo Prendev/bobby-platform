@@ -135,28 +135,51 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 			foreach (var pos in set.LivePositions)
 			{
-				var longClosed = false;
-				var shortClosed = false;
-				if (pos.HasLong && longPositions != null && pos.LongTicket.HasValue &&
-				    (!longPositions.TryGetValue(pos.LongTicket.Value, out var longPos) || longPos.IsClosed))
-					longClosed = true;
-
-				if (pos.HasShort && shortPositions != null && pos.ShortTicket.HasValue &&
-				    (!shortPositions.TryGetValue(pos.ShortTicket.Value, out var shortPos) || shortPos.IsClosed))
-					shortClosed = true;
-
-				if (longClosed && shortPositions != null && pos.ShortTicket.HasValue &&
-				    (!pos.HasShort || !shortPositions.TryGetValue(pos.ShortTicket.Value, out var _)))
-					shortClosed = true;
-				if (shortClosed && longPositions != null && pos.LongTicket.HasValue &&
-				    (!pos.HasLong || !longPositions.TryGetValue(pos.LongTicket.Value, out var _)))
-					longClosed = true;
-
-				if (shortClosed && longClosed)
 				{
-					pos.Archived = true;
-					set.State = LatencyArb.LatencyArbStates.Error;
-					error = true;
+					if (!pos.ShortOpenPrice.HasValue)
+					{
+						pos.ShortOpenPrice = pos.ShortPosition?.AvgPrice;
+						if (pos.ShortTicket.HasValue && shortPositions != null &&
+						    shortPositions.TryGetValue(pos.ShortTicket.Value, out var shortPos))
+						{
+							pos.ShortOpenPrice = shortPos.OpenPrice;
+						}
+					}
+
+					if (!pos.LongOpenPrice.HasValue)
+					{
+						pos.LongOpenPrice = pos.LongPosition?.AvgPrice;
+						if (pos.LongTicket.HasValue && longPositions != null &&
+						    longPositions.TryGetValue(pos.LongTicket.Value, out var longPos))
+						{
+							pos.LongOpenPrice = longPos.OpenPrice;
+						}
+					}
+				}
+				{
+					var longClosed = false;
+					var shortClosed = false;
+					if (pos.HasLong && longPositions != null && pos.LongTicket.HasValue &&
+					    (!longPositions.TryGetValue(pos.LongTicket.Value, out var longPos) || longPos.IsClosed))
+						longClosed = true;
+
+					if (pos.HasShort && shortPositions != null && pos.ShortTicket.HasValue &&
+					    (!shortPositions.TryGetValue(pos.ShortTicket.Value, out var shortPos) || shortPos.IsClosed))
+						shortClosed = true;
+
+					if (longClosed && shortPositions != null && pos.ShortTicket.HasValue &&
+					    (!pos.HasShort || !shortPositions.TryGetValue(pos.ShortTicket.Value, out var _)))
+						shortClosed = true;
+					if (shortClosed && longPositions != null && pos.LongTicket.HasValue &&
+					    (!pos.HasLong || !longPositions.TryGetValue(pos.LongTicket.Value, out var _)))
+						longClosed = true;
+
+					if (shortClosed && longClosed)
+					{
+						pos.Archived = true;
+						set.State = LatencyArb.LatencyArbStates.Error;
+						error = true;
+					}
 				}
 			}
 
