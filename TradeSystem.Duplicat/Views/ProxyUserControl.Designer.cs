@@ -30,13 +30,13 @@
 		{
 			this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
 			this.gbProfileProxies = new System.Windows.Forms.GroupBox();
-			this.gbProxies = new System.Windows.Forms.GroupBox();
 			this.dgvProfileProxies = new TradeSystem.Duplicat.Views.CustomDataGridView();
+			this.gbProxies = new System.Windows.Forms.GroupBox();
 			this.dgvProxies = new TradeSystem.Duplicat.Views.CustomDataGridView();
 			this.tableLayoutPanel1.SuspendLayout();
 			this.gbProfileProxies.SuspendLayout();
-			this.gbProxies.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.dgvProfileProxies)).BeginInit();
+			this.gbProxies.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.dgvProxies)).BeginInit();
 			this.SuspendLayout();
 			// 
@@ -45,8 +45,8 @@
 			this.tableLayoutPanel1.ColumnCount = 2;
 			this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
 			this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-			this.tableLayoutPanel1.Controls.Add(this.gbProfileProxies, 0, 0);
-			this.tableLayoutPanel1.Controls.Add(this.gbProxies, 1, 0);
+			this.tableLayoutPanel1.Controls.Add(this.gbProxies, 0, 0);
+			this.tableLayoutPanel1.Controls.Add(this.gbProfileProxies, 1, 0);
 			this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
 			this.tableLayoutPanel1.Name = "tableLayoutPanel1";
@@ -59,23 +59,12 @@
 			// 
 			this.gbProfileProxies.Controls.Add(this.dgvProfileProxies);
 			this.gbProfileProxies.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.gbProfileProxies.Location = new System.Drawing.Point(3, 3);
+			this.gbProfileProxies.Location = new System.Drawing.Point(567, 3);
 			this.gbProfileProxies.Name = "gbProfileProxies";
-			this.gbProfileProxies.Size = new System.Drawing.Size(558, 793);
+			this.gbProfileProxies.Size = new System.Drawing.Size(559, 793);
 			this.gbProfileProxies.TabIndex = 0;
 			this.gbProfileProxies.TabStop = false;
 			this.gbProfileProxies.Text = "Profile proxies";
-			// 
-			// gbProxies
-			// 
-			this.gbProxies.Controls.Add(this.dgvProxies);
-			this.gbProxies.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.gbProxies.Location = new System.Drawing.Point(567, 3);
-			this.gbProxies.Name = "gbProxies";
-			this.gbProxies.Size = new System.Drawing.Size(559, 793);
-			this.gbProxies.TabIndex = 1;
-			this.gbProxies.TabStop = false;
-			this.gbProxies.Text = "Proxies";
 			// 
 			// dgvProfileProxies
 			// 
@@ -86,8 +75,19 @@
 			this.dgvProfileProxies.MultiSelect = false;
 			this.dgvProfileProxies.Name = "dgvProfileProxies";
 			this.dgvProfileProxies.RowTemplate.Height = 24;
-			this.dgvProfileProxies.Size = new System.Drawing.Size(552, 772);
+			this.dgvProfileProxies.Size = new System.Drawing.Size(553, 772);
 			this.dgvProfileProxies.TabIndex = 0;
+			// 
+			// gbProxies
+			// 
+			this.gbProxies.Controls.Add(this.dgvProxies);
+			this.gbProxies.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.gbProxies.Location = new System.Drawing.Point(3, 3);
+			this.gbProxies.Name = "gbProxies";
+			this.gbProxies.Size = new System.Drawing.Size(558, 793);
+			this.gbProxies.TabIndex = 1;
+			this.gbProxies.TabStop = false;
+			this.gbProxies.Text = "Proxies";
 			// 
 			// dgvProxies
 			// 
@@ -98,7 +98,7 @@
 			this.dgvProxies.MultiSelect = false;
 			this.dgvProxies.Name = "dgvProxies";
 			this.dgvProxies.RowTemplate.Height = 24;
-			this.dgvProxies.Size = new System.Drawing.Size(553, 772);
+			this.dgvProxies.Size = new System.Drawing.Size(552, 772);
 			this.dgvProxies.TabIndex = 0;
 			// 
 			// ProxyUserControl
@@ -110,8 +110,8 @@
 			this.Size = new System.Drawing.Size(1129, 799);
 			this.tableLayoutPanel1.ResumeLayout(false);
 			this.gbProfileProxies.ResumeLayout(false);
-			this.gbProxies.ResumeLayout(false);
 			((System.ComponentModel.ISupportInitialize)(this.dgvProfileProxies)).EndInit();
+			this.gbProxies.ResumeLayout(false);
 			((System.ComponentModel.ISupportInitialize)(this.dgvProxies)).EndInit();
 			this.ResumeLayout(false);
 

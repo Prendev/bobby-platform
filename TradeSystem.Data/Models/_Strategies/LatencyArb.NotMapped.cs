@@ -46,9 +46,9 @@ namespace TradeSystem.Data.Models
 			set => Set(value);
 		}
 
-		[NotMapped] [InvisibleColumn] public Tick LastFeedTick { get => Get<Tick>(); set => Set(value); }
-		[NotMapped] [InvisibleColumn] public Tick LastShortTick { get => Get<Tick>(); set => Set(value); }
-		[NotMapped] [InvisibleColumn] public Tick LastLongTick { get => Get<Tick>(); set => Set(value); }
+		[NotMapped] [InvisibleColumn] public Tick LastFeedTick { get; set; }
+		[NotMapped] [InvisibleColumn] public Tick LastShortTick { get; set; }
+		[NotMapped] [InvisibleColumn] public Tick LastLongTick { get; set; }
 		[NotMapped] [InvisibleColumn] public bool ShortSpreadCheck => SpreadCheck(LastShortTick, ShortSpreadFilterInPip);
 		[NotMapped] [InvisibleColumn] public bool LongSpreadCheck => SpreadCheck(LastLongTick, LongSpreadFilterInPip);
 
