@@ -19,6 +19,8 @@ namespace TradeSystem.Data.Models
 			public decimal? Ask { get; set; }
 			public decimal? Bid { get; set; }
 			public decimal? AvgPrice { get; set; }
+			public decimal? OpenPip { get; set; }
+			public decimal? ClosePip { get; set; }
 		}
 
 		public class LatencyArbPos
@@ -171,12 +173,39 @@ namespace TradeSystem.Data.Models
 
 			var statistics = new List<Statistics>()
 			{
-				new Statistics() {Group = "All", Total = LatencyArbPositions.Count,
-					Account = "Feed", AvgPrice = _feedAvg, Ask = LastFeedTick?.Ask, Bid = LastFeedTick?.Bid},
-				new Statistics() {Group = "Live", Total = LivePositions.Count, AvgPip = avgLive,
-					Account = "Long", AvgPrice = _longAvg, Ask = LastLongTick?.Ask, Bid = LastLongTick?.Bid},
-				new Statistics() {Group = "Closed", Total = closedPositions.Count, AvgPip = avgClosed,
-					Account = "Short", AvgPrice = _shortAvg, Ask = LastShortTick?.Ask, Bid = LastShortTick?.Bid},
+				new Statistics()
+				{
+					Group = "All",
+					Total = LatencyArbPositions.Count,
+					Account = "Feed",
+					AvgPrice = _feedAvg,
+					Ask = LastFeedTick?.Ask,
+					Bid = LastFeedTick?.Bid
+				},
+				new Statistics()
+				{
+					Group = "Live",
+					Total = LivePositions.Count,
+					AvgPip = avgLive,
+					Account = "Long",
+					AvgPrice = _longAvg,
+					Ask = LastLongTick?.Ask,
+					Bid = LastLongTick?.Bid,
+					OpenPip = (LastFeedTick?.Ask - LastLongTick?.Ask - (_feedAvg ?? 0) + (_longAvg ?? 0)) / PipSize,
+					ClosePip = (LastLongTick?.Bid - LastFeedTick?.Bid + (_feedAvg ?? 0) - (_longAvg ?? 0)) / PipSize
+				},
+				new Statistics()
+				{
+					Group = "Closed",
+					Total = closedPositions.Count,
+					AvgPip = avgClosed,
+					Account = "Short",
+					AvgPrice = _shortAvg,
+					Ask = LastShortTick?.Ask,
+					Bid = LastShortTick?.Bid,
+					OpenPip = (LastShortTick?.Bid - LastFeedTick?.Bid + (_feedAvg ?? 0) - (_shortAvg ?? 0)) / PipSize,
+					ClosePip = (LastFeedTick?.Ask - LastShortTick?.Ask - (_feedAvg ?? 0) + (_shortAvg ?? 0)) / PipSize
+				}
 			};
 
 			return statistics.Select(s => new
@@ -186,9 +215,11 @@ namespace TradeSystem.Data.Models
 				AvgPip = s.AvgPip?.ToString("F2"),
 				III = "",
 				Account = s.Account,
-				AvgPrice = s.AvgPrice?.ToString("F5"),
 				Ask = s.Ask?.ToString("F5"),
 				Bid = s.Bid?.ToString("F5"),
+				AvgPrice = s.AvgPrice?.ToString("F5"),
+				OpenDiff = s.OpenPip?.ToString("F5"),
+				CloseDiff = s.ClosePip?.ToString("F2"),
 			}).ToList();
 		}
 

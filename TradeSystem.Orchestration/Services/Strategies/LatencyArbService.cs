@@ -518,7 +518,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				Logger.Info($"{set} latency arb - {first.Level}. short hedge side closed at {closePrice} with {(first.LongClosePrice - closePrice) /set.PipSize} pips");
 				// Switch state if rotating
 				if (set.Rotating && set.State == LatencyArb.LatencyArbStates.Closing &&
-				    set.LatencyArbPositions.Count == 0)
+				    set.LivePositions.Count == 0)
 					set.State = LatencyArb.LatencyArbStates.Opening;
 			}
 			// Short side closed
@@ -543,7 +543,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				Logger.Info($"{set} latency arb - {first.Level}. long hedge side closed at {closePrice} with {(closePrice - first.ShortClosePrice) / set.PipSize} pips");
 				// Switch state if rotating
 				if (set.Rotating && set.State == LatencyArb.LatencyArbStates.Closing &&
-				    set.LatencyArbPositions.Count == 0)
+				    set.LivePositions.Count == 0)
 					set.State = LatencyArb.LatencyArbStates.Opening;
 			}
 		}
