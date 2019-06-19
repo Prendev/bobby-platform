@@ -87,7 +87,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				}
 			}
 
-			set.State = LatencyArb.LatencyArbStates.None;
+			//set.State = LatencyArb.LatencyArbStates.None;
 			_queues.TryRemove(set.Id, out queue);
 		}
 
