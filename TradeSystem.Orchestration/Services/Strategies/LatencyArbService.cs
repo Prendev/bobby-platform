@@ -205,7 +205,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				if (!set.ShortSpreadCheck) return;
 				if (!set.LongSpreadCheck) return;
 				// Long signal
-				if (set.FirstSide != LatencyArb.LatencyArbFirstSides.Short && set.NormFeedAsk >= set.NormLongAsk + set.SignalDiffInPip * set.PipSize)
+				if (set.FirstSide != LatencyArb.LatencyArbFirstSides.Short && set.NormFeedAsk >= set.NormLongAsk + set.LongSignalDiffInPip * set.PipSize)
 				{
 					var level = set.LivePositions.Count + 1;
 					var pos = SendLongOrder(set, true);
@@ -225,7 +225,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 					Logger.Info($"{set} latency arb - {level}. long first side opened at {pos.OpenPrice}");
 				}
 				// Short signal
-				else if (set.FirstSide != LatencyArb.LatencyArbFirstSides.Long && set.NormFeedBid <= set.NormShortBid - set.SignalDiffInPip * set.PipSize)
+				else if (set.FirstSide != LatencyArb.LatencyArbFirstSides.Long && set.NormFeedBid <= set.NormShortBid - set.ShortSignalDiffInPip * set.PipSize)
 				{
 					var level = set.LivePositions.Count + 1;
 					var pos = SendShortOrder(set, true);
@@ -404,7 +404,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			}
 			if (first == null) return;
 			if (!first.HasBothSides) return;
-			if (set.NormFeedAsk < set.NormShortAsk + set.SignalDiffInPip * set.PipSize) return;
+			if (set.NormFeedAsk < set.NormShortAsk + set.ShortSignalDiffInPip * set.PipSize) return;
 
 			if (set.Copier != null) set.Copier.Run = false;
 			var closePrice = CloseShort(set, first, true);
@@ -437,7 +437,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			}
 			if (first == null) return;
 			if (!first.HasBothSides) return;
-			if (set.NormFeedBid > set.NormLongBid - set.SignalDiffInPip * set.PipSize) return;
+			if (set.NormFeedBid > set.NormLongBid - set.LongSignalDiffInPip * set.PipSize) return;
 
 			if (set.Copier != null) set.Copier.Run = false;
 			var closePrice = CloseLong(set, first, true);
@@ -493,7 +493,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				if (!set.ShortSpreadCheck) return;
 				if (!set.LongSpreadCheck) return;
 				// Long close signal
-				if (set.FirstSide != LatencyArb.LatencyArbFirstSides.Short && set.NormFeedBid <= set.NormLongBid - set.SignalDiffInPip * set.PipSize)
+				if (set.FirstSide != LatencyArb.LatencyArbFirstSides.Short && set.NormFeedBid <= set.NormLongBid - set.LongSignalDiffInPip * set.PipSize)
 				{
 					if (set.Copier != null) set.Copier.Run = false;
 					var closePrice = CloseLong(set, first, true);
@@ -506,7 +506,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 					Logger.Info($"{set} latency arb - {first.Level}. long first side closed at {closePrice}");
 				}
 				// Short close signal
-				else if (set.FirstSide != LatencyArb.LatencyArbFirstSides.Long && set.NormFeedAsk >= set.NormShortAsk + set.SignalDiffInPip * set.PipSize)
+				else if (set.FirstSide != LatencyArb.LatencyArbFirstSides.Long && set.NormFeedAsk >= set.NormShortAsk + set.ShortSignalDiffInPip * set.PipSize)
 				{
 					if (set.Copier != null) set.Copier.Run = false;
 					var closePrice = CloseShort(set, first, true);

@@ -53,18 +53,19 @@ namespace TradeSystem.Data.Models
 		[DisplayName("S Sym")] [Required] public string ShortSymbol { get; set; }
 		[DisplayName("S Size")] public decimal ShortSize { get; set; } = 1;
 		[DisplayName("S Spread")] public decimal ShortSpreadFilterInPip { get; set; }
+		[DisplayName("S Signal")] public decimal ShortSignalDiffInPip { get; set; }
 
 		public int LongAccountId { get; set; }
 		public Account LongAccount { get => Get<Account>(); set => Set(value); }
 		[DisplayName("L Sym")] [Required] public string LongSymbol { get; set; }
 		[DisplayName("L Size")] public decimal LongSize { get; set; } = 1;
 		[DisplayName("L Spread")] public decimal LongSpreadFilterInPip { get; set; }
+		[DisplayName("L Signal")] public decimal LongSignalDiffInPip { get; set; }
 
 		public LatencyArbFirstSides FirstSide { get => Get<LatencyArbFirstSides>(); set => Set(value); }
 		[DisplayName("EarliestTrade")] public TimeSpan? EarliestTradeTime { get; set; }
 		[DisplayName("LatestTrade")] public TimeSpan? LatestTradeTime { get; set; }
 		public int MaxCount { get; set; } = 5;
-		[DisplayName("Signal")] public decimal SignalDiffInPip { get; set; }
 		[DisplayName("Trail dist.")] public decimal TrailingDistanceInPip { get; set; }
 		[DisplayName("Trail switch")] public decimal TrailingSwitchInPip { get; set; }
 		[DisplayName("SL")] public decimal SlInPip { get; set; }
