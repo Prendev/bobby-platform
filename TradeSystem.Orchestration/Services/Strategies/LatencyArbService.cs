@@ -87,7 +87,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				}
 			}
 
-			set.State = LatencyArb.LatencyArbStates.None;
+			//set.State = LatencyArb.LatencyArbStates.None;
 			_queues.TryRemove(set.Id, out queue);
 		}
 
@@ -107,11 +107,19 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			if (set.State == LatencyArb.LatencyArbStates.Reset)
 			{
 				foreach (var arbPos in set.LatencyArbPositions)
+				{
+					arbPos.Archived = true;
 					RemoveCopierPosition(set, arbPos);
-				set.LatencyArbPositions.Clear();
+				}
 				set.State = LatencyArb.LatencyArbStates.None;
 				return;
 			}
+
+			if (!set.HasPrices) return;
+			if (set.HasTiming && IsTime(HiResDatetime.UtcNow.TimeOfDay, set.LatestTradeTime, set.EarliestTradeTime)) return;
+			if (HiResDatetime.UtcNow - set.LastFeedTick.Time > TimeSpan.FromSeconds(Math.Max(60, set.AveragingPeriodInSeconds))) return;
+			if (HiResDatetime.UtcNow - set.LastLongTick.Time > TimeSpan.FromSeconds(Math.Max(60, set.AveragingPeriodInSeconds))) return;
+			if (HiResDatetime.UtcNow - set.LastShortTick.Time > TimeSpan.FromSeconds(Math.Max(60, set.AveragingPeriodInSeconds))) return;
 
 			CheckPositions(set);
 			CheckOpening(set);
@@ -123,32 +131,59 @@ namespace TradeSystem.Orchestration.Services.Strategies
 		{
 			var longPositions = (set.LongAccount.Connector as Mt4Integration.Connector)?.Positions;
 			var shortPositions = (set.ShortAccount.Connector as Mt4Integration.Connector)?.Positions;
+			var error = false;
 
-			foreach (var pos in set.LatencyArbPositions)
+			foreach (var pos in set.LivePositions)
 			{
-				if (pos.HasLong && longPositions != null && pos.LongTicket.HasValue &&
-				    (!longPositions.TryGetValue(pos.LongTicket.Value, out var longPos) || longPos.IsClosed))
-					pos.LongClosed = true;
+				{
+					if (!pos.ShortOpenPrice.HasValue)
+					{
+						pos.ShortOpenPrice = pos.ShortPosition?.AvgPrice;
+						if (pos.ShortTicket.HasValue && shortPositions != null &&
+						    shortPositions.TryGetValue(pos.ShortTicket.Value, out var shortPos))
+						{
+							pos.ShortOpenPrice = shortPos.OpenPrice;
+						}
+					}
 
-				if (pos.HasShort && shortPositions != null && pos.ShortTicket.HasValue &&
-				    (!shortPositions.TryGetValue(pos.ShortTicket.Value, out var shortPos) || shortPos.IsClosed))
-					pos.ShortClosed = true;
+					if (!pos.LongOpenPrice.HasValue)
+					{
+						pos.LongOpenPrice = pos.LongPosition?.AvgPrice;
+						if (pos.LongTicket.HasValue && longPositions != null &&
+						    longPositions.TryGetValue(pos.LongTicket.Value, out var longPos))
+						{
+							pos.LongOpenPrice = longPos.OpenPrice;
+						}
+					}
+				}
+				{
+					var longClosed = false;
+					var shortClosed = false;
+					if (pos.HasLong && longPositions != null && pos.LongTicket.HasValue &&
+					    (!longPositions.TryGetValue(pos.LongTicket.Value, out var longPos) || longPos.IsClosed))
+						longClosed = true;
 
-				if (pos.LongClosed && shortPositions != null && pos.ShortTicket.HasValue &&
-				    (!pos.HasShort || !shortPositions.TryGetValue(pos.ShortTicket.Value, out var _)))
-					pos.ShortClosed = true;
-				if (pos.ShortClosed && longPositions != null && pos.LongTicket.HasValue &&
-				    (!pos.HasLong || !longPositions.TryGetValue(pos.LongTicket.Value, out var _)))
-					pos.LongClosed = true;
+					if (pos.HasShort && shortPositions != null && pos.ShortTicket.HasValue &&
+					    (!shortPositions.TryGetValue(pos.ShortTicket.Value, out var shortPos) || shortPos.IsClosed))
+						shortClosed = true;
+
+					if (longClosed && shortPositions != null && pos.ShortTicket.HasValue &&
+					    (!pos.HasShort || !shortPositions.TryGetValue(pos.ShortTicket.Value, out var _)))
+						shortClosed = true;
+					if (shortClosed && longPositions != null && pos.LongTicket.HasValue &&
+					    (!pos.HasLong || !longPositions.TryGetValue(pos.LongTicket.Value, out var _)))
+						longClosed = true;
+
+					if (shortClosed && longClosed)
+					{
+						pos.Archived = true;
+						set.State = LatencyArb.LatencyArbStates.Error;
+						error = true;
+					}
+				}
 			}
 
-			if (set.LatencyArbPositions.Any(p => p.LongClosed && p.ShortClosed))
-			{
-				set.LatencyArbPositions.RemoveAll(p => p.LongClosed && p.ShortClosed);
-				set.State = LatencyArb.LatencyArbStates.Error;
-				Logger.Error($"{set} latency arb - unexpected closed or missing position(s)");
-			}
-
+			if (error) Logger.Error($"{set} latency arb - unexpected closed or missing position(s)");
 			Sync(set);
 		}
 
@@ -158,7 +193,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			    set.State != LatencyArb.LatencyArbStates.ReopeningShort &&
 			    set.State != LatencyArb.LatencyArbStates.ReopeningLong) return;
 
-			var last = set.LatencyArbPositions
+			var last = set.LivePositions
 				.OrderByDescending(p => p.Level)
 				.FirstOrDefault(p => !p.HasLong || !p.HasShort);
 
@@ -166,13 +201,13 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			if (last == null)
 			{
 				if (set.State != LatencyArb.LatencyArbStates.Opening) return;
-				if (set.LatencyArbPositions.Count >= set.MaxCount) return;
-				if (set.LastShortTick.Ask - set.LastShortTick.Bid > set.ShortSpreadFilterInPip * set.PipSize) return;
-				if (set.LastLongTick.Ask - set.LastLongTick.Bid > set.LongSpreadFilterInPip * set.PipSize) return;
+				if (set.LivePositions.Count >= set.MaxCount) return;
+				if (!set.ShortSpreadCheck) return;
+				if (!set.LongSpreadCheck) return;
 				// Long signal
-				if (set.FirstSide != LatencyArb.LatencyArbFirstSides.Short && set.LastFeedTick.Ask >= set.LastLongTick.Ask + set.SignalDiffInPip * set.PipSize)
+				if (set.FirstSide != LatencyArb.LatencyArbFirstSides.Short && set.NormFeedAsk >= set.NormLongAsk + set.LongSignalDiffInPip * set.PipSize)
 				{
-					var level = set.LatencyArbPositions.Count + 1;
+					var level = set.LivePositions.Count + 1;
 					var pos = SendLongOrder(set, true);
 					if (pos == null)
 					{
@@ -184,15 +219,15 @@ namespace TradeSystem.Orchestration.Services.Strategies
 						LatencyArb = set,
 						LongTicket = pos.Ticket,
 						LongPosition = pos.StratPosition,
-						Price = pos.OpenPrice,
+						LongOpenPrice = pos.OpenPrice,
 						Level = level
 					});
 					Logger.Info($"{set} latency arb - {level}. long first side opened at {pos.OpenPrice}");
 				}
 				// Short signal
-				else if (set.FirstSide != LatencyArb.LatencyArbFirstSides.Long && set.LastFeedTick.Bid <= set.LastShortTick.Bid - set.SignalDiffInPip * set.PipSize)
+				else if (set.FirstSide != LatencyArb.LatencyArbFirstSides.Long && set.NormFeedBid <= set.NormShortBid - set.ShortSignalDiffInPip * set.PipSize)
 				{
-					var level = set.LatencyArbPositions.Count + 1;
+					var level = set.LivePositions.Count + 1;
 					var pos = SendShortOrder(set, true);
 					if (pos == null)
 					{
@@ -204,7 +239,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 						LatencyArb = set,
 						ShortTicket = pos.Ticket,
 						ShortPosition = pos.StratPosition,
-						Price = pos.OpenPrice,
+						ShortOpenPrice = pos.OpenPrice,
 						Level = level
 					});
 					Logger.Info($"{set} latency arb - {level}. short first side opened at {pos.OpenPrice}");
@@ -216,13 +251,13 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				var hedge = false;
 				var price = set.LastShortTick.Bid;
 
-				if (last.Trailing.HasValue || price >= last.Price + set.TrailingSwitchInPip * set.PipSize)
+				if (last.Trailing.HasValue || price >= last.LongOpenPrice + set.TrailingSwitchInPip * set.PipSize)
 					last.Trailing = Math.Max(price - set.TrailingDistanceInPip * set.PipSize,
 						last.Trailing ?? price - set.TrailingDistanceInPip * set.PipSize);
 				if (last.Trailing.HasValue && price <= last.Trailing) hedge = true;
 
-				if (price >= last.Price + set.TpInPip * set.PipSize) hedge = true;
-				if (price <= last.Price - set.SlInPip * set.PipSize) hedge = true;
+				if (price >= last.LongOpenPrice + set.TpInPip * set.PipSize) hedge = true;
+				if (price <= last.LongOpenPrice - set.SlInPip * set.PipSize) hedge = true;
 				if (!hedge) return;
 				
 				var pos = SendShortOrder(set, false);
@@ -233,11 +268,12 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				}
 				last.ShortTicket = pos.Ticket;
 				last.ShortPosition = pos.StratPosition;
+				last.ShortOpenPrice = pos.OpenPrice;
 				AddCopierPosition(set, last);
-				Logger.Info($"{set} latency arb - {last.Level}. short hedge side opened at {pos.OpenPrice} with {(pos.OpenPrice - last.Price)/set.PipSize} pips");
+				Logger.Info($"{set} latency arb - {last.Level}. short hedge side opened at {pos.OpenPrice} with {(pos.OpenPrice - last.LongOpenPrice)/set.PipSize} pips");
 				// Switch state if rotating
 				if (set.Rotating && set.State == LatencyArb.LatencyArbStates.Opening &&
-				    set.LatencyArbPositions.Count >= set.MaxCount)
+				    set.LivePositions.Count >= set.MaxCount)
 					set.State = LatencyArb.LatencyArbStates.Closing;
 			}
 			// Short side opened
@@ -246,13 +282,13 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				var hedge = false;
 				var price = set.LastLongTick.Ask;
 
-				if (last.Trailing.HasValue || price <= last.Price - set.TrailingSwitchInPip * set.PipSize)
+				if (last.Trailing.HasValue || price <= last.ShortOpenPrice - set.TrailingSwitchInPip * set.PipSize)
 					last.Trailing = Math.Min(price + set.TrailingDistanceInPip * set.PipSize,
 						last.Trailing ?? price + set.TrailingDistanceInPip * set.PipSize);
 				if (last.Trailing.HasValue && price >= last.Trailing) hedge = true;
 
-				if (price <= last.Price - set.TpInPip * set.PipSize) hedge = true;
-				if (price >= last.Price + set.SlInPip * set.PipSize) hedge = true;
+				if (price <= last.ShortOpenPrice - set.TpInPip * set.PipSize) hedge = true;
+				if (price >= last.ShortOpenPrice + set.SlInPip * set.PipSize) hedge = true;
 				if (!hedge) return;
 				
 				var pos = SendLongOrder(set, false);
@@ -263,11 +299,12 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				}
 				last.LongTicket = pos.Ticket;
 				last.LongPosition = pos.StratPosition;
+				last.LongOpenPrice = pos.OpenPrice;
 				AddCopierPosition(set, last);
-				Logger.Info($"{set} latency arb - {last.Level}. long hedge side opened at {pos.OpenPrice} with {(last.Price - pos.OpenPrice) / set.PipSize} pips");
+				Logger.Info($"{set} latency arb - {last.Level}. long hedge side opened at {pos.OpenPrice} with {(last.ShortOpenPrice - pos.OpenPrice) / set.PipSize} pips");
 				// Switch state if rotating
 				if (set.Rotating && set.State == LatencyArb.LatencyArbStates.Opening &&
-				    set.LatencyArbPositions.Count >= set.MaxCount)
+				    set.LivePositions.Count >= set.MaxCount)
 					set.State = LatencyArb.LatencyArbStates.Closing;
 			}
 		}
@@ -345,17 +382,17 @@ namespace TradeSystem.Orchestration.Services.Strategies
 		private void CheckReopening(LatencyArb set)
 		{
 			if (set.ReopenCount <= 0) return;
-			if (set.LatencyArbPositions.Any(p => !p.HasShort || !p.HasLong)) return;
+			if (set.LivePositions.Any(p => !p.HasShort || !p.HasLong)) return;
 			CheckReopeningShort(set);
 			CheckReopeningLong(set);
 		}
 		private void CheckReopeningShort(LatencyArb set)
 		{
 			if (set.State != LatencyArb.LatencyArbStates.ReopeningShort) return;
-			if (set.LastShortTick.Ask - set.LastShortTick.Bid > set.ShortSpreadFilterInPip * set.PipSize) return;
+			if (!set.ShortSpreadCheck) return;
 
 			LatencyArbPosition first = null;
-			var positions = set.LatencyArbPositions.OrderBy(p => p.Level).Where(p => p.HasBothSides);
+			var positions = set.LivePositions.OrderBy(p => p.Level).Where(p => p.HasBothSides);
 			foreach (var position in positions)
 			{
 				if (!position.HasBothSides) continue;
@@ -367,7 +404,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			}
 			if (first == null) return;
 			if (!first.HasBothSides) return;
-			if (set.LastFeedTick.Ask < set.LastShortTick.Ask + set.SignalDiffInPip * set.PipSize) return;
+			if (set.NormFeedAsk < set.NormShortAsk + set.ShortSignalDiffInPip * set.PipSize) return;
 
 			if (set.Copier != null) set.Copier.Run = false;
 			var closePrice = CloseShort(set, first, true);
@@ -376,7 +413,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			if (!closePrice.HasValue) return;
 
 			set.ReopenCount--;
-			first.Price = closePrice;
+			first.ShortOpenPrice = closePrice;
 			first.Trailing = null;
 			first.ShortTicket = null;
 			first.ShortPosition = null;
@@ -385,10 +422,10 @@ namespace TradeSystem.Orchestration.Services.Strategies
 		private void CheckReopeningLong(LatencyArb set)
 		{
 			if (set.State != LatencyArb.LatencyArbStates.ReopeningLong) return;
-			if (set.LastLongTick.Ask - set.LastLongTick.Bid > set.LongSpreadFilterInPip * set.PipSize) return;
+			if (!set.LongSpreadCheck) return;
 
 			LatencyArbPosition first = null;
-			var positions = set.LatencyArbPositions.OrderBy(p => p.Level).Where(p => p.HasBothSides);
+			var positions = set.LivePositions.OrderBy(p => p.Level).Where(p => p.HasBothSides);
 			foreach (var position in positions)
 			{
 				if (!position.HasBothSides) continue;
@@ -400,7 +437,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			}
 			if (first == null) return;
 			if (!first.HasBothSides) return;
-			if (set.LastFeedTick.Bid > set.LastLongTick.Bid - set.SignalDiffInPip * set.PipSize) return;
+			if (set.NormFeedBid > set.NormLongBid - set.LongSignalDiffInPip * set.PipSize) return;
 
 			if (set.Copier != null) set.Copier.Run = false;
 			var closePrice = CloseLong(set, first, true);
@@ -409,7 +446,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			if (!closePrice.HasValue) return;
 
 			set.ReopenCount--;
-			first.Price = closePrice;
+			first.LongOpenPrice = closePrice;
 			first.Trailing = null;
 			first.LongTicket = null;
 			first.LongPosition = null;
@@ -446,17 +483,17 @@ namespace TradeSystem.Orchestration.Services.Strategies
 		{
 			if (set.State != LatencyArb.LatencyArbStates.Closing) return;
 
-			var first = set.LatencyArbPositions.OrderBy(p => p.Level).FirstOrDefault(p => p.HasBothSides);
+			var first = set.LivePositions.OrderBy(p => p.Level).FirstOrDefault(p => p.HasBothSides);
 			if (first == null) return;
 			if (!first.HasBothSides) return;
 
 			// No closed side
 			if (!first.LongClosed && !first.ShortClosed)
 			{
-				if (set.LastShortTick.Ask - set.LastShortTick.Bid > set.ShortSpreadFilterInPip * set.PipSize) return;
-				if (set.LastLongTick.Ask - set.LastLongTick.Bid > set.LongSpreadFilterInPip * set.PipSize) return;
+				if (!set.ShortSpreadCheck) return;
+				if (!set.LongSpreadCheck) return;
 				// Long close signal
-				if (set.FirstSide != LatencyArb.LatencyArbFirstSides.Short && set.LastFeedTick.Bid <= set.LastLongTick.Bid - set.SignalDiffInPip * set.PipSize)
+				if (set.FirstSide != LatencyArb.LatencyArbFirstSides.Short && set.NormFeedBid <= set.NormLongBid - set.LongSignalDiffInPip * set.PipSize)
 				{
 					if (set.Copier != null) set.Copier.Run = false;
 					var closePrice = CloseLong(set, first, true);
@@ -464,13 +501,12 @@ namespace TradeSystem.Orchestration.Services.Strategies
 					if (set.Copier != null) set.Copier.Run = true;
 					if (!closePrice.HasValue) return;
 
-					first.LongClosed = true;
-					first.Price = closePrice;
+					first.LongClosePrice = closePrice;
 					first.Trailing = null;
 					Logger.Info($"{set} latency arb - {first.Level}. long first side closed at {closePrice}");
 				}
 				// Short close signal
-				else if (set.FirstSide != LatencyArb.LatencyArbFirstSides.Long && set.LastFeedTick.Ask >= set.LastShortTick.Ask + set.SignalDiffInPip * set.PipSize)
+				else if (set.FirstSide != LatencyArb.LatencyArbFirstSides.Long && set.NormFeedAsk >= set.NormShortAsk + set.ShortSignalDiffInPip * set.PipSize)
 				{
 					if (set.Copier != null) set.Copier.Run = false;
 					var closePrice = CloseShort(set, first, true);
@@ -478,8 +514,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 					if (set.Copier != null) set.Copier.Run = true;
 					if (!closePrice.HasValue) return;
 
-					first.ShortClosed = true;
-					first.Price = closePrice;
+					first.ShortClosePrice = closePrice;
 					first.Trailing = null;
 					Logger.Info($"{set} latency arb - {first.Level}. short first side closed at {closePrice}");
 				}
@@ -490,23 +525,23 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				var hedge = false;
 				var price = set.LastShortTick.Ask;
 
-				if (first.Trailing.HasValue || price <= first.Price - set.TrailingSwitchInPip * set.PipSize)
+				if (first.Trailing.HasValue || price <= first.LongClosePrice - set.TrailingSwitchInPip * set.PipSize)
 					first.Trailing = Math.Min(price + set.TrailingDistanceInPip * set.PipSize,
 						first.Trailing ?? price + set.TrailingDistanceInPip * set.PipSize);
 				if (first.Trailing.HasValue && price >= first.Trailing) hedge = true;
 
-				if (price <= first.Price - set.TpInPip * set.PipSize) hedge = true;
-				if (price >= first.Price + set.SlInPip * set.PipSize) hedge = true;
+				if (price <= first.LongClosePrice - set.TpInPip * set.PipSize) hedge = true;
+				if (price >= first.LongClosePrice + set.SlInPip * set.PipSize) hedge = true;
 				if (!hedge) return;
 
 				var closePrice = CloseShort(set, first, false);
 				if (!closePrice.HasValue) return;
-				first.ShortClosed = true;
-				set.LatencyArbPositions.Remove(first);
-				Logger.Info($"{set} latency arb - {first.Level}. short hedge side closed at {closePrice} with {(first.Price - closePrice) /set.PipSize} pips");
+				first.ShortClosePrice = closePrice;
+				first.Archived = true;
+				Logger.Info($"{set} latency arb - {first.Level}. short hedge side closed at {closePrice} with {(first.LongClosePrice - closePrice) /set.PipSize} pips");
 				// Switch state if rotating
 				if (set.Rotating && set.State == LatencyArb.LatencyArbStates.Closing &&
-				    set.LatencyArbPositions.Count == 0)
+				    set.LivePositions.Count == 0)
 					set.State = LatencyArb.LatencyArbStates.Opening;
 			}
 			// Short side closed
@@ -515,23 +550,23 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				var hedge = false;
 				var price = set.LastLongTick.Bid;
 
-				if (first.Trailing.HasValue || price >= first.Price + set.TrailingSwitchInPip * set.PipSize)
+				if (first.Trailing.HasValue || price >= first.ShortClosePrice + set.TrailingSwitchInPip * set.PipSize)
 					first.Trailing = Math.Max(price - set.TrailingDistanceInPip * set.PipSize,
 						first.Trailing ?? price - set.TrailingDistanceInPip * set.PipSize);
 				if (first.Trailing.HasValue && price <= first.Trailing) hedge = true;
 
-				if (price >= first.Price + set.TpInPip * set.PipSize) hedge = true;
-				if (price <= first.Price - set.SlInPip * set.PipSize) hedge = true;
+				if (price >= first.ShortClosePrice + set.TpInPip * set.PipSize) hedge = true;
+				if (price <= first.ShortClosePrice - set.SlInPip * set.PipSize) hedge = true;
 				if (!hedge) return;
 
 				var closePrice = CloseLong(set, first, false);
 				if (!closePrice.HasValue) return;
-				first.LongClosed = true;
-				set.LatencyArbPositions.Remove(first);
-				Logger.Info($"{set} latency arb - {first.Level}. long hedge side closed at {closePrice} with {(closePrice - first.Price) / set.PipSize} pips");
+				first.LongClosePrice = closePrice;
+				first.Archived = true;
+				Logger.Info($"{set} latency arb - {first.Level}. long hedge side closed at {closePrice} with {(closePrice - first.ShortClosePrice) / set.PipSize} pips");
 				// Switch state if rotating
 				if (set.Rotating && set.State == LatencyArb.LatencyArbStates.Closing &&
-				    set.LatencyArbPositions.Count == 0)
+				    set.LivePositions.Count == 0)
 					set.State = LatencyArb.LatencyArbStates.Opening;
 			}
 		}
@@ -549,9 +584,9 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			{
 				OrderResponse result = null;
 				if (!isFirst || set.FirstOrderType == LatencyArb.LatencyArbOrderTypes.Market)
-					result = fixConnector.SendMarketOrderRequest(set.LongSymbol, Sides.Sell, set.LongSize).Result;
+					result = fixConnector.SendMarketOrderRequest(set.LongSymbol, Sides.Sell, arbPos.LongPosition.Size).Result;
 				else if (set.FirstOrderType == LatencyArb.LatencyArbOrderTypes.Aggressive)
-					result = fixConnector.SendAggressiveOrderRequest(set.LongSymbol, Sides.Sell, set.LongSize, set.LastLongTick.Bid,
+					result = fixConnector.SendAggressiveOrderRequest(set.LongSymbol, Sides.Sell, arbPos.LongPosition.Size, set.LastLongTick.Bid,
 						set.Deviation, 0, set.TimeWindowInMs, set.MaxRetryCount, set.RetryPeriodInMs).Result;
 
 				if (result?.IsFilled != true) return null;
@@ -573,9 +608,9 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			{
 				OrderResponse result = null;
 				if (!isFirst || set.FirstOrderType == LatencyArb.LatencyArbOrderTypes.Market)
-					result = fixConnector.SendMarketOrderRequest(set.ShortSymbol, Sides.Buy, set.ShortSize).Result;
+					result = fixConnector.SendMarketOrderRequest(set.ShortSymbol, Sides.Buy, arbPos.ShortPosition.Size).Result;
 				else if (set.FirstOrderType == LatencyArb.LatencyArbOrderTypes.Aggressive)
-					result = fixConnector.SendAggressiveOrderRequest(set.ShortSymbol, Sides.Buy, set.ShortSize, set.LastShortTick.Ask,
+					result = fixConnector.SendAggressiveOrderRequest(set.ShortSymbol, Sides.Buy, arbPos.ShortPosition.Size, set.LastShortTick.Ask,
 						set.Deviation, 0, set.TimeWindowInMs, set.MaxRetryCount, set.RetryPeriodInMs).Result;
 
 				if (result?.IsFilled != true) return null;
@@ -597,7 +632,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				if (longPos.Value.Side != Sides.Buy) continue;
 				if (longPos.Value.Lots != set.LongSize) continue;
 				if (longPos.Value.Symbol != set.LongSymbol) continue;
-				if (set.LatencyArbPositions.Any(p => p.LongTicket == longPos.Key)) continue;
+				if (set.LivePositions.Any(p => p.LongTicket == longPos.Key)) continue;
 
 				KeyValuePair<long, Position>? match = null;
 				foreach (var shortPos in shortPositions)
@@ -605,13 +640,13 @@ namespace TradeSystem.Orchestration.Services.Strategies
 					if (shortPos.Value.Side != Sides.Sell) continue;
 					if (shortPos.Value.Lots != set.ShortSize) continue;
 					if (shortPos.Value.Symbol != set.ShortSymbol) continue;
-					if (set.LatencyArbPositions.Any(p => p.ShortTicket == shortPos.Key)) continue;
+					if (set.LivePositions.Any(p => p.ShortTicket == shortPos.Key)) continue;
 					match = shortPos;
 					break;
 				}
 
 				if (!match.HasValue) break;
-				var level = set.LatencyArbPositions.Count + 1;
+				var level = set.LivePositions.Count + 1;
 				var arbPos = new LatencyArbPosition()
 				{
 					LatencyArb = set,
@@ -621,7 +656,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				};
 				set.LatencyArbPositions.Add(arbPos);
 			}
-			foreach (var arbPos in set.LatencyArbPositions)
+			foreach (var arbPos in set.LivePositions)
 				AddCopierPosition(set, arbPos);
 
 			set.State = LatencyArb.LatencyArbStates.None;
@@ -675,6 +710,16 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			else if (set.Copier.Slave.Account == set.ShortAccount)
 				set.Copier.CopierPositions.RemoveAll(cp =>
 					cp.SlaveTicket == arbPos.ShortTicket && cp.MasterTicket == arbPos.LongTicket);
+		}
+
+		private bool IsTime(TimeSpan current, TimeSpan? start, TimeSpan? end)
+		{
+			if (!start.HasValue || !end.HasValue) return false;
+			var startOk = current >= start;
+			var endOk = current < end;
+
+			if (end < start) return startOk || endOk;
+			return startOk && endOk;
 		}
 	}
 }

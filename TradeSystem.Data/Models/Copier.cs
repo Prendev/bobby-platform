@@ -6,6 +6,12 @@ namespace TradeSystem.Data.Models
 {
     public class Copier : BaseEntity
 	{
+		public enum CopierModes
+		{
+			Both,
+			CloseOnly,
+			OpenOnly
+		}
 		public enum CopierOrderTypes
 		{
 			Market,
@@ -17,7 +23,7 @@ namespace TradeSystem.Data.Models
 		[InvisibleColumn] public Slave Slave { get; set; }
 
 		[DisplayPriority(-1)] public bool Run { get; set; }
-		public bool CloseOnly { get; set; }
+		public CopierModes Mode { get; set; }
 		public decimal CopyRatio { get; set; }
 		public CopierOrderTypes OrderType { get; set; }
 		public int SlippageInPips { get; set; }

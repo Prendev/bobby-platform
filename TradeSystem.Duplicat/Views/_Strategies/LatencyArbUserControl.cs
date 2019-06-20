@@ -1,4 +1,5 @@
 ﻿using System.Windows.Forms;
+using TradeSystem.Data.Models;
 using TradeSystem.Duplicat.ViewModel;
 
 namespace TradeSystem.Duplicat.Views
@@ -24,6 +25,9 @@ namespace TradeSystem.Duplicat.Views
 
 			btnStart.Click += (s, e) => { _viewModel.StartStrategiesCommand(); };
 			btnStop.Click += (s, e) => { _viewModel.StopStrategiesCommand(); };
+
+			dgvLatencyArb.RowDoubleClick += (s, e) =>
+				dgvStatistics.DataSource = _viewModel.GetArbStatistics(dgvLatencyArb.GetSelectedItem<LatencyArb>());
 		}
 
 		public void AttachDataSources()

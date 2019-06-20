@@ -251,10 +251,6 @@
       <Project>{7f7f4b22-f0bd-4375-baf4-ffafe9b3a853}</Project>
       <Name>TradeSystem.FixApiIntegration</Name>
     </ProjectReference>
-    <ProjectReference Include="..\TradeSystem.FixTraderIntegration\TradeSystem.FixTraderIntegration.csproj">
-      <Project>{e3002184-b948-49ee-b313-3167948c3f97}</Project>
-      <Name>TradeSystem.FixTraderIntegration</Name>
-    </ProjectReference>
     <ProjectReference Include="..\TradeSystem.IbIntegration\TradeSystem.IbIntegration.csproj">
       <Project>{62ce29d7-e16c-4b48-b017-586c4b22edc9}</Project>
       <Name>TradeSystem.IbIntegration</Name>

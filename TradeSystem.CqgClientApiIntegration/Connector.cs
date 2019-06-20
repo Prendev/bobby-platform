@@ -288,21 +288,8 @@ namespace TradeSystem.CqgClientApiIntegration
 				_taskCompletionManager.SetCompleted(_accountInfo.Description, true);
 				OnConnectionChanged(GetStatus());
 			}
-			// After successful login open positions are loaded
 			else if (changeType == eAccountChangeType.actPositionsReloaded)
 			{
-				foreach (CQGPosition pos in cqgAccount.Positions)
-				{
-					var quantity = (decimal) pos.Quantity;
-					var symbol = pos.InstrumentName;
-
-					SymbolInfos.AddOrUpdate(symbol, new SymbolData {SumContracts = quantity},
-						(key, oldValue) =>
-						{
-							oldValue.SumContracts = quantity;
-							return oldValue;
-						});
-				}
 			}
 			else if (changeType == eAccountChangeType.actPositionChanged)
 			{
@@ -408,13 +395,6 @@ namespace TradeSystem.CqgClientApiIntegration
 			if (cqgOrder.Type != eOrderType.otMarket) return;
 			if (cqgFill == null) return;
 
-			SymbolInfos.AddOrUpdate(cqgOrder.InstrumentName, new SymbolData {SumContracts = cqgFill.Quantity},
-				(key, oldValue) =>
-				{
-					oldValue.SumContracts += cqgFill.Quantity;
-					return oldValue;
-				});
-
 			var quantity = (decimal) cqgFill.Quantity;
 			var response = new OrderResponse()
 			{
@@ -429,27 +409,16 @@ namespace TradeSystem.CqgClientApiIntegration
 			if (cqgInstrument == null) return;
 			var ask = cqgInstrument.Ask.IsValid ? (decimal?) cqgInstrument.Ask.Price : null;
 			var bid = cqgInstrument.Bid.IsValid ? (decimal?) cqgInstrument.Bid.Price : null;
-			var symbol = cqgInstrument.FullName;
-
-			SymbolInfos.AddOrUpdate(symbol,
-				new SymbolData { Bid = bid ?? 0, Ask = ask ?? 0 },
-				(key, oldValue) =>
-				{
-					oldValue.Bid = bid ?? oldValue.Bid;
-					oldValue.Ask = ask ?? oldValue.Ask;
-					return oldValue;
-				});
-
 			if (!ask.HasValue || !bid.HasValue) return;
 
 			var tick = new Tick
 			{
-				Symbol = symbol,
+				Symbol = cqgInstrument.FullName,
 				Ask = (decimal)ask,
 				Bid = (decimal)bid,
 				Time = HiResDatetime.UtcNow
 			};
-			LastTicks.AddOrUpdate(symbol, key => tick, (key, old) => tick);
+			LastTicks.AddOrUpdate(cqgInstrument.FullName, key => tick, (key, old) => tick);
 			OnNewTick(new NewTick { Tick = tick });
 		}
 

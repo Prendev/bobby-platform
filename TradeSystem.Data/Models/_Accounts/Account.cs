@@ -26,9 +26,6 @@ namespace TradeSystem.Data.Models
 		public int? CTraderAccountId { get; set; }
 		public CTraderAccount CTraderAccount { get; set; }
 
-		[InvisibleColumn] public int? FixTraderAccountId { get; set; }
-		[InvisibleColumn] public FixTraderAccount FixTraderAccount { get; set; }
-
 		[InvisibleColumn] public int? IlyaFastFeedAccountId { get; set; }
 		[InvisibleColumn] public IlyaFastFeedAccount IlyaFastFeedAccount { get; set; }
 

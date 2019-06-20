@@ -16,12 +16,11 @@ namespace TradeSystem.Duplicat.Views
         {
             _viewModel = viewModel;
 
-            dgvFtAccounts.AddBinding("ReadOnly", _viewModel, nameof(_viewModel.IsConfigReadonly));
+            dgvFixAccounts.AddBinding("ReadOnly", _viewModel, nameof(_viewModel.IsConfigReadonly));
         }
 
         public void AttachDataSources()
         {
-            dgvFtAccounts.DataSource = _viewModel.FtAccounts;
 	        dgvFixAccounts.DataSource = _viewModel.FixAccounts;
 		}
     }
