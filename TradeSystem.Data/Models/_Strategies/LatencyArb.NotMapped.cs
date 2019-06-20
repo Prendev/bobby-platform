@@ -218,7 +218,7 @@ namespace TradeSystem.Data.Models
 				Ask = s.Ask?.ToString("F5"),
 				Bid = s.Bid?.ToString("F5"),
 				AvgPrice = s.AvgPrice?.ToString("F5"),
-				OpenDiff = s.OpenPip?.ToString("F5"),
+				OpenDiff = s.OpenPip?.ToString("F2"),
 				CloseDiff = s.ClosePip?.ToString("F2"),
 			}).ToList();
 		}
