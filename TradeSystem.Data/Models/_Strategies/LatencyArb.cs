@@ -63,13 +63,14 @@ namespace TradeSystem.Data.Models
 		[DisplayName("L Signal")] public decimal LongSignalDiffInPip { get; set; }
 
 		public LatencyArbFirstSides FirstSide { get => Get<LatencyArbFirstSides>(); set => Set(value); }
-		[DisplayName("EarliestTrade")] public TimeSpan? EarliestTradeTime { get; set; }
-		[DisplayName("LatestTrade")] public TimeSpan? LatestTradeTime { get; set; }
 		public int MaxCount { get; set; } = 5;
 		[DisplayName("Trail dist.")] public decimal TrailingDistanceInPip { get; set; }
 		[DisplayName("Trail switch")] public decimal TrailingSwitchInPip { get; set; }
 		[DisplayName("SL")] public decimal SlInPip { get; set; }
 		[DisplayName("TP")] public decimal TpInPip { get; set; }
+
+		[DisplayName("Earliest")] public TimeSpan? EarliestTradeTime { get; set; }
+		[DisplayName("Latest")] public TimeSpan? LatestTradeTime { get; set; }
 
 		public LatencyArbOrderTypes FirstOrderType { get; set; }
 		[DisplayName("MaxRetry")]
