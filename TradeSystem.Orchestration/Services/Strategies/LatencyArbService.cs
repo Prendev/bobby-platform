@@ -413,10 +413,11 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			if (!closePrice.HasValue) return;
 
 			set.ReopenCount--;
-			first.ShortOpenPrice = closePrice;
+			first.LongOpenPrice = closePrice;
 			first.Trailing = null;
 			first.ShortTicket = null;
 			first.ShortPosition = null;
+			first.ShortOpenPrice = null;
 			Logger.Info($"{set} latency arb - {first.Level}. short side closed for reopening at {closePrice}");
 		}
 		private void CheckReopeningLong(LatencyArb set)
@@ -446,10 +447,11 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			if (!closePrice.HasValue) return;
 
 			set.ReopenCount--;
-			first.LongOpenPrice = closePrice;
+			first.ShortOpenPrice = closePrice;
 			first.Trailing = null;
 			first.LongTicket = null;
 			first.LongPosition = null;
+			first.LongOpenPrice = null;
 			Logger.Info($"{set} latency arb - {first.Level}. long side closed for reopening at {closePrice}");
 		}
 		private DateTime? GetShortOpenTime(LatencyArb set, LatencyArbPosition arbPos)
