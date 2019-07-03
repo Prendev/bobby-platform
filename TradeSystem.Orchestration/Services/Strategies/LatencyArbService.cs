@@ -22,6 +22,15 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			public long? Ticket { get; set; }
 			public StratPosition StratPosition { get; set; }
 			public decimal OpenPrice { get; set; }
+			public decimal Slippage { get; set; }
+			public long ExecutionTime { get; set; }
+		}
+
+		private class CloseResult
+		{
+			public decimal ClosePrice { get; set; }
+			public decimal Slippage { get; set; }
+			public long ExecutionTime { get; set; }
 		}
 
 		private volatile CancellationTokenSource _cancellation;
@@ -222,7 +231,8 @@ namespace TradeSystem.Orchestration.Services.Strategies
 						LongOpenPrice = pos.OpenPrice,
 						Level = level
 					});
-					Logger.Info($"{set} latency arb - {level}. long first side opened at {pos.OpenPrice}");
+					Logger.Info($"{set} latency arb - {level}. long first side opened at {pos.OpenPrice}" +
+					            $"{Environment.NewLine}\tExecution time is {pos.ExecutionTime} ms with {pos.Slippage / set.PipSize:F2} pip slippage");
 				}
 				// Short signal
 				else if (set.FirstSide != LatencyArb.LatencyArbFirstSides.Long && set.NormFeedBid <= set.NormShortBid - set.ShortSignalDiffInPip * set.PipSize)
@@ -242,7 +252,8 @@ namespace TradeSystem.Orchestration.Services.Strategies
 						ShortOpenPrice = pos.OpenPrice,
 						Level = level
 					});
-					Logger.Info($"{set} latency arb - {level}. short first side opened at {pos.OpenPrice}");
+					Logger.Info($"{set} latency arb - {level}. short first side opened at {pos.OpenPrice}" +
+					            $"{Environment.NewLine}\tExecution time is {pos.ExecutionTime} ms with {pos.Slippage / set.PipSize:F2} pip slippage");
 				}
 			}
 			// Long side opened
@@ -270,7 +281,8 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				last.ShortPosition = pos.StratPosition;
 				last.ShortOpenPrice = pos.OpenPrice;
 				AddCopierPosition(set, last);
-				Logger.Info($"{set} latency arb - {last.Level}. short hedge side opened at {pos.OpenPrice} with {(pos.OpenPrice - last.LongOpenPrice)/set.PipSize} pips");
+				Logger.Info($"{set} latency arb - {last.Level}. short hedge side opened at {pos.OpenPrice} with {(pos.OpenPrice - last.LongOpenPrice)/set.PipSize} pips" +
+				            $"{Environment.NewLine}\tExecution time is {pos.ExecutionTime} ms with {pos.Slippage / set.PipSize:F2} pip slippage");
 				// Switch state if rotating
 				if (set.Rotating && set.State == LatencyArb.LatencyArbStates.Opening &&
 				    set.LivePositions.Count >= set.MaxCount)
@@ -301,79 +313,118 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				last.LongPosition = pos.StratPosition;
 				last.LongOpenPrice = pos.OpenPrice;
 				AddCopierPosition(set, last);
-				Logger.Info($"{set} latency arb - {last.Level}. long hedge side opened at {pos.OpenPrice} with {(last.ShortOpenPrice - pos.OpenPrice) / set.PipSize} pips");
+				Logger.Info($"{set} latency arb - {last.Level}. long hedge side opened at {pos.OpenPrice} with {(last.ShortOpenPrice - pos.OpenPrice) / set.PipSize} pips" +
+				            $"{Environment.NewLine}\tExecution time is {pos.ExecutionTime} ms with {pos.Slippage/set.PipSize:F2} pip slippage");
 				// Switch state if rotating
 				if (set.Rotating && set.State == LatencyArb.LatencyArbStates.Opening &&
 				    set.LivePositions.Count >= set.MaxCount)
 					set.State = LatencyArb.LatencyArbStates.Closing;
 			}
 		}
+
 		private OpenResult SendLongOrder(LatencyArb set, bool isFirst)
 		{
-			if (set.LongAccount.Connector is Mt4Integration.Connector connector)
+			var signalPrice = set.LastLongTick.Ask;
+			set.Stopwatch.Restart();
+			try
 			{
-				var pos = connector.SendMarketOrderRequest(set.LongSymbol, Sides.Buy, (double)set.LongSize, 0, null);
-				return pos == null ? null : new OpenResult {Ticket = pos.Id, OpenPrice = pos.OpenPrice};
-			}
-
-			if (set.LongAccount.Connector is FixApiIntegration.Connector fixConnector)
-			{
-				OrderResponse result = null;
-				if (!isFirst || set.FirstOrderType == LatencyArb.LatencyArbOrderTypes.Market)
-					result = fixConnector.SendMarketOrderRequest(set.LongSymbol, Sides.Buy, set.LongSize).Result;
-				else if (set.FirstOrderType == LatencyArb.LatencyArbOrderTypes.Aggressive)
-					result = fixConnector.SendAggressiveOrderRequest(set.LongSymbol, Sides.Buy, set.LongSize, set.LastLongTick.Ask,
-						set.Deviation, 0, set.TimeWindowInMs, set.MaxRetryCount, set.RetryPeriodInMs).Result;
-
-				if (result?.IsFilled != true) return null;
-				return new OpenResult
+				if (set.LongAccount.Connector is Mt4Integration.Connector connector)
 				{
-					OpenPrice = result.AveragePrice.Value,
-					StratPosition = new StratPosition()
+					var pos = connector.SendMarketOrderRequest(set.LongSymbol, Sides.Buy, (double) set.LongSize, 0, set.Comment);
+					if (pos == null) return null;
+					return new OpenResult
 					{
-						Account = set.LongAccount,
-						AvgPrice = result.AveragePrice.Value,
-						OpenTime = HiResDatetime.UtcNow,
-						Side = result.Side == Sides.Buy ? StratPosition.Sides.Buy : StratPosition.Sides.Sell,
-						Symbol = set.LongSymbol,
-						Size = result.FilledQuantity
-					}
-				};
+						Slippage = signalPrice - pos.OpenPrice,
+						ExecutionTime = set.Stopwatch.ElapsedMilliseconds,
+						Ticket = pos.Id,
+						OpenPrice = pos.OpenPrice
+					};
+				}
+
+				if (set.LongAccount.Connector is FixApiIntegration.Connector fixConnector)
+				{
+					OrderResponse result = null;
+					if (!isFirst || set.FirstOrderType == LatencyArb.LatencyArbOrderTypes.Market)
+						result = fixConnector.SendMarketOrderRequest(set.LongSymbol, Sides.Buy, set.LongSize).Result;
+					else if (set.FirstOrderType == LatencyArb.LatencyArbOrderTypes.Aggressive)
+						result = fixConnector.SendAggressiveOrderRequest(set.LongSymbol, Sides.Buy, set.LongSize, set.LastLongTick.Ask,
+							set.Deviation, 0, set.TimeWindowInMs, set.MaxRetryCount, set.RetryPeriodInMs).Result;
+
+					if (result?.IsFilled != true) return null;
+					return new OpenResult
+					{
+						Slippage = signalPrice - result.AveragePrice.Value,
+						ExecutionTime = set.Stopwatch.ElapsedMilliseconds,
+						OpenPrice = result.AveragePrice.Value,
+						StratPosition = new StratPosition()
+						{
+							Account = set.LongAccount,
+							AvgPrice = result.AveragePrice.Value,
+							OpenTime = HiResDatetime.UtcNow,
+							Side = result.Side == Sides.Buy ? StratPosition.Sides.Buy : StratPosition.Sides.Sell,
+							Symbol = set.LongSymbol,
+							Size = result.FilledQuantity
+						}
+					};
+				}
+			}
+			finally
+			{
+				set.Stopwatch.Stop();
 			}
 
 			return null;
 		}
+
 		private OpenResult SendShortOrder(LatencyArb set, bool isFirst)
 		{
-			if (set.ShortAccount.Connector is Mt4Integration.Connector connector)
+			var signalPrice = set.LastShortTick.Bid;
+			set.Stopwatch.Restart();
+			try
 			{
-				var pos = connector.SendMarketOrderRequest(set.ShortSymbol, Sides.Sell, (double)set.ShortSize, 0, null);
-				return pos == null ? null : new OpenResult {Ticket = pos.Id, OpenPrice = pos.OpenPrice};
-			}
-
-			if (set.ShortAccount.Connector is FixApiIntegration.Connector fixConnector)
-			{
-				OrderResponse result = null;
-				if (!isFirst || set.FirstOrderType == LatencyArb.LatencyArbOrderTypes.Market)
-					result = fixConnector.SendMarketOrderRequest(set.ShortSymbol, Sides.Sell, set.ShortSize).Result;
-				else if (set.FirstOrderType == LatencyArb.LatencyArbOrderTypes.Aggressive)
-					result = fixConnector.SendAggressiveOrderRequest(set.ShortSymbol, Sides.Sell, set.ShortSize, set.LastShortTick.Bid,
-						set.Deviation, 0, set.TimeWindowInMs, set.MaxRetryCount, set.RetryPeriodInMs).Result;
-
-				if (result?.IsFilled != true) return null;
-				return new OpenResult
+				if (set.ShortAccount.Connector is Mt4Integration.Connector connector)
 				{
-					OpenPrice = result.AveragePrice.Value,
-					StratPosition = new StratPosition()
+					var pos = connector.SendMarketOrderRequest(set.ShortSymbol, Sides.Sell, (double) set.ShortSize, 0, set.Comment);
+					if (pos == null) return null;
+					return new OpenResult
 					{
-						Account = set.ShortAccount,
-						AvgPrice = result.AveragePrice.Value,
-						OpenTime = HiResDatetime.UtcNow,
-						Side = result.Side == Sides.Buy ? StratPosition.Sides.Buy : StratPosition.Sides.Sell,
-						Symbol = set.ShortSymbol,
-						Size = result.FilledQuantity
-					}
-				};
+						Slippage = pos.OpenPrice - signalPrice,
+						ExecutionTime = set.Stopwatch.ElapsedMilliseconds,
+						Ticket = pos.Id,
+						OpenPrice = pos.OpenPrice
+					};
+				}
+
+				if (set.ShortAccount.Connector is FixApiIntegration.Connector fixConnector)
+				{
+					OrderResponse result = null;
+					if (!isFirst || set.FirstOrderType == LatencyArb.LatencyArbOrderTypes.Market)
+						result = fixConnector.SendMarketOrderRequest(set.ShortSymbol, Sides.Sell, set.ShortSize).Result;
+					else if (set.FirstOrderType == LatencyArb.LatencyArbOrderTypes.Aggressive)
+						result = fixConnector.SendAggressiveOrderRequest(set.ShortSymbol, Sides.Sell, set.ShortSize, set.LastShortTick.Bid,
+							set.Deviation, 0, set.TimeWindowInMs, set.MaxRetryCount, set.RetryPeriodInMs).Result;
+
+					if (result?.IsFilled != true) return null;
+					return new OpenResult
+					{
+						Slippage = result.AveragePrice.Value - signalPrice,
+						ExecutionTime = set.Stopwatch.ElapsedMilliseconds,
+						OpenPrice = result.AveragePrice.Value,
+						StratPosition = new StratPosition()
+						{
+							Account = set.ShortAccount,
+							AvgPrice = result.AveragePrice.Value,
+							OpenTime = HiResDatetime.UtcNow,
+							Side = result.Side == Sides.Buy ? StratPosition.Sides.Buy : StratPosition.Sides.Sell,
+							Symbol = set.ShortSymbol,
+							Size = result.FilledQuantity
+						}
+					};
+				}
+			}
+			finally
+			{
+				set.Stopwatch.Stop();
 			}
 
 			return null;
@@ -407,18 +458,19 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			if (set.NormFeedAsk < set.NormShortAsk + set.ShortSignalDiffInPip * set.PipSize) return;
 
 			if (set.Copier != null) set.Copier.Run = false;
-			var closePrice = CloseShort(set, first, true);
-			if (closePrice.HasValue) RemoveCopierPosition(set, first);
+			var closePos = CloseShort(set, first, true);
+			if (closePos != null) RemoveCopierPosition(set, first);
 			if (set.Copier != null) set.Copier.Run = true;
-			if (!closePrice.HasValue) return;
+			if (closePos == null) return;
 
 			set.ReopenCount--;
-			first.LongOpenPrice = closePrice;
+			first.LongOpenPrice = closePos.ClosePrice;
 			first.Trailing = null;
 			first.ShortTicket = null;
 			first.ShortPosition = null;
 			first.ShortOpenPrice = null;
-			Logger.Info($"{set} latency arb - {first.Level}. short side closed for reopening at {closePrice}");
+			Logger.Info($"{set} latency arb - {first.Level}. short side closed for reopening at {closePos.ClosePrice}" +
+			            $"{Environment.NewLine}\tExecution time is {closePos.ExecutionTime} ms with {closePos.Slippage / set.PipSize:F2} pip slippage");
 		}
 		private void CheckReopeningLong(LatencyArb set)
 		{
@@ -441,18 +493,19 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			if (set.NormFeedBid > set.NormLongBid - set.LongSignalDiffInPip * set.PipSize) return;
 
 			if (set.Copier != null) set.Copier.Run = false;
-			var closePrice = CloseLong(set, first, true);
-			if (closePrice.HasValue) RemoveCopierPosition(set, first);
+			var closePos = CloseLong(set, first, true);
+			if (closePos != null) RemoveCopierPosition(set, first);
 			if (set.Copier != null) set.Copier.Run = true;
-			if (!closePrice.HasValue) return;
+			if (closePos == null) return;
 
 			set.ReopenCount--;
-			first.ShortOpenPrice = closePrice;
+			first.ShortOpenPrice = closePos.ClosePrice;
 			first.Trailing = null;
 			first.LongTicket = null;
 			first.LongPosition = null;
 			first.LongOpenPrice = null;
-			Logger.Info($"{set} latency arb - {first.Level}. long side closed for reopening at {closePrice}");
+			Logger.Info($"{set} latency arb - {first.Level}. long side closed for reopening at {closePos.ClosePrice}" +
+			            $"{Environment.NewLine}\tExecution time is {closePos.ExecutionTime} ms with {closePos.Slippage / set.PipSize:F2} pip slippage");
 		}
 		private DateTime? GetShortOpenTime(LatencyArb set, LatencyArbPosition arbPos)
 		{
@@ -498,27 +551,29 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				if (set.FirstSide != LatencyArb.LatencyArbFirstSides.Short && set.NormFeedBid <= set.NormLongBid - set.LongSignalDiffInPip * set.PipSize)
 				{
 					if (set.Copier != null) set.Copier.Run = false;
-					var closePrice = CloseLong(set, first, true);
-					if (closePrice.HasValue) RemoveCopierPosition(set, first);
+					var closePos = CloseLong(set, first, true);
+					if (closePos != null) RemoveCopierPosition(set, first);
 					if (set.Copier != null) set.Copier.Run = true;
-					if (!closePrice.HasValue) return;
+					if (closePos == null) return;
 
-					first.LongClosePrice = closePrice;
+					first.LongClosePrice = closePos.ClosePrice;
 					first.Trailing = null;
-					Logger.Info($"{set} latency arb - {first.Level}. long first side closed at {closePrice}");
+					Logger.Info($"{set} latency arb - {first.Level}. long first side closed at {closePos.ClosePrice}" +
+					            $"{Environment.NewLine}\tExecution time is {closePos.ExecutionTime} ms with {closePos.Slippage / set.PipSize:F2} pip slippage");
 				}
 				// Short close signal
 				else if (set.FirstSide != LatencyArb.LatencyArbFirstSides.Long && set.NormFeedAsk >= set.NormShortAsk + set.ShortSignalDiffInPip * set.PipSize)
 				{
 					if (set.Copier != null) set.Copier.Run = false;
-					var closePrice = CloseShort(set, first, true);
-					if (closePrice.HasValue) RemoveCopierPosition(set, first);
+					var closePos = CloseShort(set, first, true);
+					if (closePos != null) RemoveCopierPosition(set, first);
 					if (set.Copier != null) set.Copier.Run = true;
-					if (!closePrice.HasValue) return;
+					if (closePos == null) return;
 
-					first.ShortClosePrice = closePrice;
+					first.ShortClosePrice = closePos.ClosePrice;
 					first.Trailing = null;
-					Logger.Info($"{set} latency arb - {first.Level}. short first side closed at {closePrice}");
+					Logger.Info($"{set} latency arb - {first.Level}. short first side closed at {closePos.ClosePrice}" +
+					            $"{Environment.NewLine}\tExecution time is {closePos.ExecutionTime} ms with {closePos.Slippage / set.PipSize:F2} pip slippage");
 				}
 			}
 			// Long side closed
@@ -536,11 +591,12 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				if (price >= first.LongClosePrice + set.SlInPip * set.PipSize) hedge = true;
 				if (!hedge) return;
 
-				var closePrice = CloseShort(set, first, false);
-				if (!closePrice.HasValue) return;
-				first.ShortClosePrice = closePrice;
+				var closePos = CloseShort(set, first, false);
+				if (closePos == null) return;
+				first.ShortClosePrice = closePos.ClosePrice;
 				first.Archived = true;
-				Logger.Info($"{set} latency arb - {first.Level}. short hedge side closed at {closePrice} with {(first.LongClosePrice - closePrice) /set.PipSize} pips");
+				Logger.Info($"{set} latency arb - {first.Level}. short hedge side closed at {closePos.ClosePrice} with {(first.LongClosePrice - closePos.ClosePrice) /set.PipSize} pips" +
+				            $"{Environment.NewLine}\tExecution time is {closePos.ExecutionTime} ms with {closePos.Slippage / set.PipSize:F2} pip slippage");
 				// Switch state if rotating
 				if (set.Rotating && set.State == LatencyArb.LatencyArbStates.Closing &&
 				    set.LivePositions.Count == 0)
@@ -561,63 +617,112 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				if (price <= first.ShortClosePrice - set.SlInPip * set.PipSize) hedge = true;
 				if (!hedge) return;
 
-				var closePrice = CloseLong(set, first, false);
-				if (!closePrice.HasValue) return;
-				first.LongClosePrice = closePrice;
+				var closePos = CloseLong(set, first, false);
+				if (closePos == null) return;
+				first.LongClosePrice = closePos.ClosePrice;
 				first.Archived = true;
-				Logger.Info($"{set} latency arb - {first.Level}. long hedge side closed at {closePrice} with {(closePrice - first.ShortClosePrice) / set.PipSize} pips");
+				Logger.Info($"{set} latency arb - {first.Level}. long hedge side closed at {closePos.ClosePrice} with {(closePos.ClosePrice - first.ShortClosePrice) / set.PipSize} pips" +
+				            $"{Environment.NewLine}\tExecution time is {closePos.ExecutionTime} ms with {closePos.Slippage / set.PipSize:F2} pip slippage");
 				// Switch state if rotating
 				if (set.Rotating && set.State == LatencyArb.LatencyArbStates.Closing &&
 				    set.LivePositions.Count == 0)
 					set.State = LatencyArb.LatencyArbStates.Opening;
 			}
 		}
-		private decimal? CloseLong(LatencyArb set, LatencyArbPosition arbPos, bool isFirst)
-		{
-			if (set.LongAccount.Connector is Mt4Integration.Connector connector)
-			{
-				if (!arbPos.LongTicket.HasValue) return null;
-				connector.Positions.TryGetValue(arbPos.LongTicket.Value, out var pos);
-				if (pos == null) return null;
-				connector.SendClosePositionRequests(pos);
-				return pos.IsClosed ? pos.ClosePrice : (decimal?) null;
-			}
-			if (set.LongAccount.Connector is FixApiIntegration.Connector fixConnector && arbPos.LongPosition != null)
-			{
-				OrderResponse result = null;
-				if (!isFirst || set.FirstOrderType == LatencyArb.LatencyArbOrderTypes.Market)
-					result = fixConnector.SendMarketOrderRequest(set.LongSymbol, Sides.Sell, arbPos.LongPosition.Size).Result;
-				else if (set.FirstOrderType == LatencyArb.LatencyArbOrderTypes.Aggressive)
-					result = fixConnector.SendAggressiveOrderRequest(set.LongSymbol, Sides.Sell, arbPos.LongPosition.Size, set.LastLongTick.Bid,
-						set.Deviation, 0, set.TimeWindowInMs, set.MaxRetryCount, set.RetryPeriodInMs).Result;
 
-				if (result?.IsFilled != true) return null;
-				return result.AveragePrice;
+		private CloseResult CloseLong(LatencyArb set, LatencyArbPosition arbPos, bool isFirst)
+		{
+			var signalPrice = set.LastLongTick.Bid;
+			set.Stopwatch.Restart();
+			try
+			{
+				if (set.LongAccount.Connector is Mt4Integration.Connector connector)
+				{
+					if (!arbPos.LongTicket.HasValue) return null;
+					connector.Positions.TryGetValue(arbPos.LongTicket.Value, out var pos);
+					if (pos == null) return null;
+					connector.SendClosePositionRequests(pos);
+					if (!pos.IsClosed) return null;
+					return new CloseResult
+					{
+						Slippage = pos.ClosePrice - signalPrice,
+						ExecutionTime = set.Stopwatch.ElapsedMilliseconds,
+						ClosePrice = pos.ClosePrice
+					};
+				}
+
+				if (set.LongAccount.Connector is FixApiIntegration.Connector fixConnector && arbPos.LongPosition != null)
+				{
+					OrderResponse result = null;
+					if (!isFirst || set.FirstOrderType == LatencyArb.LatencyArbOrderTypes.Market)
+						result = fixConnector.SendMarketOrderRequest(set.LongSymbol, Sides.Sell, arbPos.LongPosition.Size).Result;
+					else if (set.FirstOrderType == LatencyArb.LatencyArbOrderTypes.Aggressive)
+						result = fixConnector.SendAggressiveOrderRequest(set.LongSymbol, Sides.Sell, arbPos.LongPosition.Size,
+							set.LastLongTick.Bid,
+							set.Deviation, 0, set.TimeWindowInMs, set.MaxRetryCount, set.RetryPeriodInMs).Result;
+
+					if (result?.IsFilled != true) return null;
+					return new CloseResult
+					{
+						Slippage = result.AveragePrice.Value - signalPrice,
+						ExecutionTime = set.Stopwatch.ElapsedMilliseconds,
+						ClosePrice = result.AveragePrice.Value
+					};
+				}
 			}
+			finally
+			{
+				set.Stopwatch.Stop();
+			}
+
 			return null;
 		}
-		private decimal? CloseShort(LatencyArb set, LatencyArbPosition arbPos, bool isFirst)
-		{
-			if (set.ShortAccount.Connector is Mt4Integration.Connector connector)
-			{
-				if (!arbPos.ShortTicket.HasValue) return null;
-				connector.Positions.TryGetValue(arbPos.ShortTicket.Value, out var pos);
-				if (pos == null) return null;
-				connector.SendClosePositionRequests(pos);
-				return pos.IsClosed ? pos.ClosePrice : (decimal?)null;
-			}
-			if (set.ShortAccount.Connector is FixApiIntegration.Connector fixConnector && arbPos.ShortPosition != null)
-			{
-				OrderResponse result = null;
-				if (!isFirst || set.FirstOrderType == LatencyArb.LatencyArbOrderTypes.Market)
-					result = fixConnector.SendMarketOrderRequest(set.ShortSymbol, Sides.Buy, arbPos.ShortPosition.Size).Result;
-				else if (set.FirstOrderType == LatencyArb.LatencyArbOrderTypes.Aggressive)
-					result = fixConnector.SendAggressiveOrderRequest(set.ShortSymbol, Sides.Buy, arbPos.ShortPosition.Size, set.LastShortTick.Ask,
-						set.Deviation, 0, set.TimeWindowInMs, set.MaxRetryCount, set.RetryPeriodInMs).Result;
 
-				if (result?.IsFilled != true) return null;
-				return result.AveragePrice;
+		private CloseResult CloseShort(LatencyArb set, LatencyArbPosition arbPos, bool isFirst)
+		{
+			var signalPrice = set.LastShortTick.Ask;
+			set.Stopwatch.Restart();
+			try
+			{
+				if (set.ShortAccount.Connector is Mt4Integration.Connector connector)
+				{
+					if (!arbPos.ShortTicket.HasValue) return null;
+					connector.Positions.TryGetValue(arbPos.ShortTicket.Value, out var pos);
+					if (pos == null) return null;
+					connector.SendClosePositionRequests(pos);
+					if (!pos.IsClosed) return null;
+					return new CloseResult
+					{
+						Slippage = signalPrice - pos.ClosePrice,
+						ExecutionTime = set.Stopwatch.ElapsedMilliseconds,
+						ClosePrice = pos.ClosePrice
+					};
+				}
+
+				if (set.ShortAccount.Connector is FixApiIntegration.Connector fixConnector && arbPos.ShortPosition != null)
+				{
+					OrderResponse result = null;
+					if (!isFirst || set.FirstOrderType == LatencyArb.LatencyArbOrderTypes.Market)
+						result = fixConnector.SendMarketOrderRequest(set.ShortSymbol, Sides.Buy, arbPos.ShortPosition.Size).Result;
+					else if (set.FirstOrderType == LatencyArb.LatencyArbOrderTypes.Aggressive)
+						result = fixConnector.SendAggressiveOrderRequest(set.ShortSymbol, Sides.Buy, arbPos.ShortPosition.Size,
+							set.LastShortTick.Ask,
+							set.Deviation, 0, set.TimeWindowInMs, set.MaxRetryCount, set.RetryPeriodInMs).Result;
+
+					if (result?.IsFilled != true) return null;
+					return new CloseResult
+					{
+						Slippage = signalPrice - result.AveragePrice.Value,
+						ExecutionTime = set.Stopwatch.ElapsedMilliseconds,
+						ClosePrice = result.AveragePrice.Value
+					};
+				}
 			}
+			finally
+			{
+				set.Stopwatch.Stop();
+			}
+
 			return null;
 		}
 

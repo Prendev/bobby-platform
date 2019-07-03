@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Diagnostics;
 using System.Linq;
 using TradeSystem.Common.Attributes;
 using TradeSystem.Common.Integration;
@@ -67,6 +68,8 @@ namespace TradeSystem.Data.Models
 		[NotMapped] [InvisibleColumn] public bool HasTiming => EarliestTradeTime.HasValue && LatestTradeTime.HasValue;
 		[NotMapped] [InvisibleColumn] public decimal Deviation => SlippageInPip * PipSize;
 		[NotMapped] public List<LatencyArbPosition> LivePositions => LatencyArbPositions.Where(p => !p.Archived).ToList();
+
+		[NotMapped] [InvisibleColumn] public Stopwatch Stopwatch { get; } = new Stopwatch();
 
 		public LatencyArb()
 		{

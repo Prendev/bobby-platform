@@ -85,6 +85,7 @@ namespace TradeSystem.Data.Models
 		public int TimeWindowInMs { get; set; }
 
 		public decimal PipSize { get; set; }
+		public string Comment { get; set; }
 
 		public int? CopierId { get; set; }
 		public Copier Copier { get; set; }
