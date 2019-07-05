@@ -253,8 +253,8 @@ namespace TradeSystem.Mt4Integration
 
         private void QuoteClient_OnOrderUpdate(object sender, OrderUpdateEventArgs update)
         {
-            if (update.Action != UpdateAction.PositionOpen && update.Action != UpdateAction.PositionClose) return;
-            if (update.Order.Type != Op.Buy && update.Order.Type != Op.Sell) return;
+	        if (!new[] {UpdateAction.PositionOpen, UpdateAction.PositionClose, UpdateAction.PendingFill}.Contains(update.Action)) return;
+	        if (!new[] {Op.Buy, Op.Sell}.Contains(update.Order.Type)) return;
 
 	        var position = UpdatePosition(update.Order);
 
@@ -262,7 +262,7 @@ namespace TradeSystem.Mt4Integration
             {
                 AccountType = AccountTypes.Mt4,
                 Position = position,
-                Action = update.Action == UpdateAction.PositionOpen ? NewPositionActions.Open : NewPositionActions.Close,
+                Action = update.Action == UpdateAction.PositionClose ? NewPositionActions.Close : NewPositionActions.Open,
 			});
         }
 		private Position UpdatePosition(Order order)
