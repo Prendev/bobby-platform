@@ -92,6 +92,10 @@
       <Project>{5A7C14E4-C1F0-4A9E-8284-D01F0082B483}</Project>
       <Name>TradeSystem.Communication.FixApi</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\git\QvaDev.Wololo\TradeSystem.Communication.SnwApi\TradeSystem.Communication.SnwApi.csproj">
+      <Project>{3455f630-ea48-4c6f-8012-a9dfa9ce1428}</Project>
+      <Name>TradeSystem.Communication.SnwApi</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\git\QvaDev.Wololo\TradeSystem.Communication\TradeSystem.Communication.csproj">
       <Project>{9B577BD6-AEA9-4F64-9F1D-6EC760103295}</Project>
       <Name>TradeSystem.Communication</Name>
