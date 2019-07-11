@@ -83,6 +83,8 @@ namespace TradeSystem.Data
 	    public DbSet<MarketMaker> MarketMakers { get; set; }
 	    public DbSet<LatencyArb> LatencyArbs { get; set; }
 	    public DbSet<LatencyArbPosition> LatencyArbPositions { get; set; }
+	    public DbSet<NewsArb> NewsArbs { get; set; }
+		public DbSet<NewsArbPosition> NewsArbPositions { get; set; }
 
 		public DbSet<Ticker> Tickers { get; set; }
 		public DbSet<Export> Exports { get; set; }
