@@ -144,8 +144,11 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				if (set.State != NewsArb.NewsArbStates.Opening) return;
 				if (!set.ShortSpreadCheck) return;
 				if (!set.LongSpreadCheck) return;
-				if (!set.LastSnwTick.HasValue) return;
-				if (HiResDatetime.UtcNow - set.LastSnwTick.Time > TimeSpan.FromSeconds(60)) return;
+				if (set.LastSnwTick == null) return;
+				if (set.LastSnwTick.Ask == 0 && set.LastSnwTick.Bid == 0) return;
+				if (HiResDatetime.UtcNow - set.LastSnwTick.Time > TimeSpan.FromMilliseconds(set.SnwTimeWindowInMs)) return;
+				if (set.LastSnwTick.Ask > 0) Logger.Debug($"{set} News arb buy signal {set.LastSnwTick.Ask}");
+				if (set.LastSnwTick.Bid > 0) Logger.Debug($"{set} News arb sell signal {set.LastSnwTick.Bid}");
 				// Long signal
 				if (set.LastSnwTick.Ask == set.SnwSignal)
 				{
@@ -209,6 +212,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				last.ShortTicket = pos.Ticket;
 				last.ShortPosition = pos.StratPosition;
 				last.ShortOpenPrice = pos.OpenPrice;
+				set.State = NewsArb.NewsArbStates.Closing;
 				Logger.Info($"{set} News arb short hedge side opened at {pos.OpenPrice} with {(pos.OpenPrice - last.LongOpenPrice)/set.PipSize} pips" +
 				            $"{Environment.NewLine}\tExecution time is {pos.ExecutionTime} ms with {pos.Slippage / set.PipSize:F2} pip slippage");
 			}
@@ -236,6 +240,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				last.LongTicket = pos.Ticket;
 				last.LongPosition = pos.StratPosition;
 				last.LongOpenPrice = pos.OpenPrice;
+				set.State = NewsArb.NewsArbStates.Closing;
 				Logger.Info($"{set} News arb long hedge side opened at {pos.OpenPrice} with {(last.ShortOpenPrice - pos.OpenPrice) / set.PipSize} pips" +
 				            $"{Environment.NewLine}\tExecution time is {pos.ExecutionTime} ms with {pos.Slippage/set.PipSize:F2} pip slippage");
 			}

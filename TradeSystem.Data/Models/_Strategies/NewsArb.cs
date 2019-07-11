@@ -11,6 +11,7 @@ namespace TradeSystem.Data.Models
 		{
 			None,
 			Opening,
+			Closing,
 			Reset,
 			Error
 		}
@@ -32,6 +33,7 @@ namespace TradeSystem.Data.Models
 		public Account SnwAccount { get => Get<Account>(); set => Set(value); }
 		[DisplayName("SNW Sym")] [Required] public string SnwSymbol { get; set; }
 		[DisplayName("SNW Signal")] public int SnwSignal { get; set; }
+		[DisplayName("SNW Window")] public int SnwTimeWindowInMs { get; set; }
 
 		public int FirstAccountId { get; set; }
 		public Account FirstAccount { get => Get<Account>(); set => Set(value); }
