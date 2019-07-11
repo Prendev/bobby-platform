@@ -46,6 +46,7 @@ namespace TradeSystem.Data.Models
 		[NotMapped] [InvisibleColumn] public Tick LastHedgeTick { get; set; }
 		[NotMapped] [InvisibleColumn] public bool ShortSpreadCheck => SpreadCheck(LastFirstTick, FirstSpreadFilterInPip);
 		[NotMapped] [InvisibleColumn] public bool LongSpreadCheck => SpreadCheck(LastHedgeTick, HedgeSpreadFilterInPip);
+		[NotMapped] [InvisibleColumn] public bool HasPrices => LastFirstTick?.HasValue == true && LastHedgeTick?.HasValue == true;
 
 		[NotMapped] [InvisibleColumn] public decimal Deviation => SlippageInPip * PipSize;
 		[NotMapped] public List<NewsArbPosition> LivePositions => NewsArbPositions.Where(p => !p.Archived).ToList();
@@ -99,6 +100,8 @@ namespace TradeSystem.Data.Models
 		{
 			if (newTick?.Tick == null) return;
 			if (sender == SnwAccount && newTick.Tick.Symbol != SnwSymbol) return;
+			if (sender == SnwAccount && newTick.Tick.Ask != SnwSignal && newTick.Tick.Bid != SnwSignal) return;
+
 			if (sender == FirstAccount && newTick.Tick.Symbol != FirstSymbol) return;
 			if (sender == HedgeAccount && newTick.Tick.Symbol != HedgeSymbol) return;
 
