@@ -129,6 +129,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			if (HiResDatetime.UtcNow - set.LastHedgeTick.Time > TimeSpan.FromSeconds(60)) return;
 
 			CheckOpening(set);
+			CheckClosing(set);
 		}
 
 		private void CheckOpening(NewsArb set)
@@ -160,6 +161,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 					}
 					set.NewsArbPositions.Add(new NewsArbPosition()
 					{
+						IsLongFirst = true,
 						NewsArb = set,
 						LongTicket = pos.Ticket,
 						LongPosition = pos.StratPosition,
@@ -179,6 +181,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 					}
 					set.NewsArbPositions.Add(new NewsArbPosition()
 					{
+						IsLongFirst = false,
 						NewsArb = set,
 						ShortTicket = pos.Ticket,
 						ShortPosition = pos.StratPosition,
@@ -364,111 +367,99 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			return null;
 		}
 
-		#region close
-		/*
 		private void CheckClosing(NewsArb set)
 		{
 			if (set.State != NewsArb.NewsArbStates.Closing) return;
 
-			var first = set.LivePositions.OrderBy(p => p.Level).FirstOrDefault(p => p.HasBothSides);
+			var first = set.LivePositions.FirstOrDefault(p => p.HasBothSides);
 			if (first == null) return;
-			if (!first.HasBothSides) return;
+			if (set.ClosingTimeInMin <= 0)
+			{
+				first.Archived = true;
+				set.State = NewsArb.NewsArbStates.None;
+				return;
+			}
+			if (HiResDatetime.UtcNow < first.FirstOpenTime.AddMinutes(set.ClosingTimeInMin)) return;
 
 			// No closed side
 			if (!first.LongClosed && !first.ShortClosed)
 			{
 				if (!set.ShortSpreadCheck) return;
 				if (!set.LongSpreadCheck) return;
-				// Long close signal
-				if (set.FirstSide != NewsArb.NewsArbFirstSides.Short && set.NormFeedBid <= set.NormLongBid - set.LongSignalDiffInPip * set.PipSize)
-				{
-					if (set.Copier != null) set.Copier.Run = false;
-					var closePos = CloseLong(set, first, true);
-					if (closePos != null) RemoveCopierPosition(set, first);
-					if (set.Copier != null) set.Copier.Run = true;
-					if (closePos == null) return;
-
-					first.LongClosePrice = closePos.ClosePrice;
-					first.Trailing = null;
-					Logger.Info($"{set} News arb - {first.Level}. long first side closed at {closePos.ClosePrice}" +
-					            $"{Environment.NewLine}\tExecution time is {closePos.ExecutionTime} ms with {closePos.Slippage / set.PipSize:F2} pip slippage");
-				}
-				// Short close signal
-				else if (set.FirstSide != NewsArb.NewsArbFirstSides.Long && set.NormFeedAsk >= set.NormShortAsk + set.ShortSignalDiffInPip * set.PipSize)
-				{
-					if (set.Copier != null) set.Copier.Run = false;
-					var closePos = CloseShort(set, first, true);
-					if (closePos != null) RemoveCopierPosition(set, first);
-					if (set.Copier != null) set.Copier.Run = true;
-					if (closePos == null) return;
-
-					first.ShortClosePrice = closePos.ClosePrice;
-					first.Trailing = null;
-					Logger.Info($"{set} News arb - {first.Level}. short first side closed at {closePos.ClosePrice}" +
-					            $"{Environment.NewLine}\tExecution time is {closePos.ExecutionTime} ms with {closePos.Slippage / set.PipSize:F2} pip slippage");
-				}
+				if (!CloseFirst(set, first)) return;
 			}
-			// Long side closed
-			else if (first.LongClosed)
+
+			if (!CloseHedge(set, first)) return;
+			set.State = NewsArb.NewsArbStates.None;
+		}
+
+		private bool CloseFirst(NewsArb set, NewsArbPosition first)
+		{
+			// Long close signal
+			if (first.IsLongFirst)
 			{
-				var hedge = false;
-				var price = set.LastShortTick.Ask;
+				if (!first.HasLong) return true;
+				var closePos = CloseLong(set, first, true);
+				if (closePos == null) return false;
 
-				if (first.Trailing.HasValue || price <= first.LongClosePrice - set.TrailingSwitchInPip * set.PipSize)
-					first.Trailing = Math.Min(price + set.TrailingDistanceInPip * set.PipSize,
-						first.Trailing ?? price + set.TrailingDistanceInPip * set.PipSize);
-				if (first.Trailing.HasValue && price >= first.Trailing) hedge = true;
+				first.LongClosePrice = closePos.ClosePrice;
+				first.Trailing = null;
+				Logger.Info($"{set} News arb long first side closed at {closePos.ClosePrice}" +
+				            $"{Environment.NewLine}\tExecution time is {closePos.ExecutionTime} ms with {closePos.Slippage / set.PipSize:F2} pip slippage");
+			}
+			// Short close signal
+			else
+			{
+				if (!first.HasShort) return true;
+				var closePos = CloseShort(set, first, true);
+				if (closePos == null) return false;
 
-				if (price <= first.LongClosePrice - set.TpInPip * set.PipSize) hedge = true;
-				if (price >= first.LongClosePrice + set.SlInPip * set.PipSize) hedge = true;
-				if (!hedge) return;
+				first.ShortClosePrice = closePos.ClosePrice;
+				first.Trailing = null;
+				Logger.Info($"{set} News arb short first side closed at {closePos.ClosePrice}" +
+				            $"{Environment.NewLine}\tExecution time is {closePos.ExecutionTime} ms with {closePos.Slippage / set.PipSize:F2} pip slippage");
+			}
+			return true;
+		}
 
+		private bool CloseHedge(NewsArb set, NewsArbPosition first)
+		{
+			// Long side closed
+			if (first.IsLongFirst)
+			{
+				if (!first.HasShort) return true;
 				var closePos = CloseShort(set, first, false);
-				if (closePos == null) return;
+				if (closePos == null) return false;
 				first.ShortClosePrice = closePos.ClosePrice;
 				first.Archived = true;
-				Logger.Info($"{set} News arb - {first.Level}. short hedge side closed at {closePos.ClosePrice} with {(first.LongClosePrice - closePos.ClosePrice) /set.PipSize} pips" +
-				            $"{Environment.NewLine}\tExecution time is {closePos.ExecutionTime} ms with {closePos.Slippage / set.PipSize:F2} pip slippage");
-				// Switch state if rotating
-				if (set.Rotating && set.State == NewsArb.NewsArbStates.Closing &&
-				    set.LivePositions.Count == 0)
-					set.State = NewsArb.NewsArbStates.Opening;
+				Logger.Info(
+					$"{set} News arb short hedge side closed at {closePos.ClosePrice} with {(first.LongClosePrice - closePos.ClosePrice) / set.PipSize} pips" +
+					$"{Environment.NewLine}\tExecution time is {closePos.ExecutionTime} ms with {closePos.Slippage / set.PipSize:F2} pip slippage");
 			}
 			// Short side closed
-			else if (first.ShortClosed)
+			else
 			{
-				var hedge = false;
-				var price = set.LastLongTick.Bid;
-
-				if (first.Trailing.HasValue || price >= first.ShortClosePrice + set.TrailingSwitchInPip * set.PipSize)
-					first.Trailing = Math.Max(price - set.TrailingDistanceInPip * set.PipSize,
-						first.Trailing ?? price - set.TrailingDistanceInPip * set.PipSize);
-				if (first.Trailing.HasValue && price <= first.Trailing) hedge = true;
-
-				if (price >= first.ShortClosePrice + set.TpInPip * set.PipSize) hedge = true;
-				if (price <= first.ShortClosePrice - set.SlInPip * set.PipSize) hedge = true;
-				if (!hedge) return;
-
+				if (!first.HasLong) return true;
 				var closePos = CloseLong(set, first, false);
-				if (closePos == null) return;
+				if (closePos == null) return false;
 				first.LongClosePrice = closePos.ClosePrice;
 				first.Archived = true;
-				Logger.Info($"{set} News arb - {first.Level}. long hedge side closed at {closePos.ClosePrice} with {(closePos.ClosePrice - first.ShortClosePrice) / set.PipSize} pips" +
-				            $"{Environment.NewLine}\tExecution time is {closePos.ExecutionTime} ms with {closePos.Slippage / set.PipSize:F2} pip slippage");
-				// Switch state if rotating
-				if (set.Rotating && set.State == NewsArb.NewsArbStates.Closing &&
-				    set.LivePositions.Count == 0)
-					set.State = NewsArb.NewsArbStates.Opening;
+				Logger.Info(
+					$"{set} News arb long hedge side closed at {closePos.ClosePrice} with {(closePos.ClosePrice - first.ShortClosePrice) / set.PipSize} pips" +
+					$"{Environment.NewLine}\tExecution time is {closePos.ExecutionTime} ms with {closePos.Slippage / set.PipSize:F2} pip slippage");
 			}
+			return true;
 		}
 
 		private CloseResult CloseLong(NewsArb set, NewsArbPosition arbPos, bool isFirst)
 		{
-			var signalPrice = set.LastLongTick.Bid;
+			var account = isFirst ? set.FirstAccount : set.HedgeAccount;
+			var symbol = isFirst ? set.FirstSymbol : set.HedgeSymbol;
+			var signalPrice = isFirst ? set.LastFirstTick.Bid : set.LastHedgeTick.Bid;
 			set.Stopwatch.Restart();
 			try
 			{
-				if (set.LongAccount.Connector is Mt4Integration.Connector connector)
+				if (account.Connector is Mt4Integration.Connector connector)
 				{
 					if (!arbPos.LongTicket.HasValue) return null;
 					connector.Positions.TryGetValue(arbPos.LongTicket.Value, out var pos);
@@ -483,15 +474,14 @@ namespace TradeSystem.Orchestration.Services.Strategies
 					};
 				}
 
-				if (set.LongAccount.Connector is FixApiIntegration.Connector fixConnector && arbPos.LongPosition != null)
+				if (account.Connector is FixApiIntegration.Connector fixConnector && arbPos.LongPosition != null)
 				{
 					OrderResponse result = null;
 					if (!isFirst || set.FirstOrderType == NewsArb.NewsArbOrderTypes.Market)
-						result = fixConnector.SendMarketOrderRequest(set.LongSymbol, Sides.Sell, arbPos.LongPosition.Size).Result;
+						result = fixConnector.SendMarketOrderRequest(symbol, Sides.Sell, arbPos.LongPosition.Size).Result;
 					else if (set.FirstOrderType == NewsArb.NewsArbOrderTypes.Aggressive)
-						result = fixConnector.SendAggressiveOrderRequest(set.LongSymbol, Sides.Sell, arbPos.LongPosition.Size,
-							set.LastLongTick.Bid,
-							set.Deviation, 0, set.TimeWindowInMs, set.MaxRetryCount, set.RetryPeriodInMs).Result;
+						result = fixConnector.SendAggressiveOrderRequest(symbol, Sides.Sell, arbPos.LongPosition.Size,
+							signalPrice, set.Deviation, 0, set.TimeWindowInMs, set.MaxRetryCount, set.RetryPeriodInMs).Result;
 
 					if (result?.IsFilled != true) return null;
 					return new CloseResult
@@ -512,11 +502,13 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 		private CloseResult CloseShort(NewsArb set, NewsArbPosition arbPos, bool isFirst)
 		{
-			var signalPrice = set.LastShortTick.Ask;
+			var account = isFirst ? set.FirstAccount : set.HedgeAccount;
+			var symbol = isFirst ? set.FirstSymbol : set.HedgeSymbol;
+			var signalPrice = isFirst ? set.LastFirstTick.Ask : set.LastHedgeTick.Ask;
 			set.Stopwatch.Restart();
 			try
 			{
-				if (set.ShortAccount.Connector is Mt4Integration.Connector connector)
+				if (account.Connector is Mt4Integration.Connector connector)
 				{
 					if (!arbPos.ShortTicket.HasValue) return null;
 					connector.Positions.TryGetValue(arbPos.ShortTicket.Value, out var pos);
@@ -531,15 +523,14 @@ namespace TradeSystem.Orchestration.Services.Strategies
 					};
 				}
 
-				if (set.ShortAccount.Connector is FixApiIntegration.Connector fixConnector && arbPos.ShortPosition != null)
+				if (account.Connector is FixApiIntegration.Connector fixConnector && arbPos.ShortPosition != null)
 				{
 					OrderResponse result = null;
 					if (!isFirst || set.FirstOrderType == NewsArb.NewsArbOrderTypes.Market)
-						result = fixConnector.SendMarketOrderRequest(set.ShortSymbol, Sides.Buy, arbPos.ShortPosition.Size).Result;
+						result = fixConnector.SendMarketOrderRequest(symbol, Sides.Buy, arbPos.ShortPosition.Size).Result;
 					else if (set.FirstOrderType == NewsArb.NewsArbOrderTypes.Aggressive)
-						result = fixConnector.SendAggressiveOrderRequest(set.ShortSymbol, Sides.Buy, arbPos.ShortPosition.Size,
-							set.LastShortTick.Ask,
-							set.Deviation, 0, set.TimeWindowInMs, set.MaxRetryCount, set.RetryPeriodInMs).Result;
+						result = fixConnector.SendAggressiveOrderRequest(symbol, Sides.Buy, arbPos.ShortPosition.Size,
+							signalPrice, set.Deviation, 0, set.TimeWindowInMs, set.MaxRetryCount, set.RetryPeriodInMs).Result;
 
 					if (result?.IsFilled != true) return null;
 					return new CloseResult
@@ -557,7 +548,5 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 			return null;
 		}
-		*/
-		#endregion 
 	}
 }

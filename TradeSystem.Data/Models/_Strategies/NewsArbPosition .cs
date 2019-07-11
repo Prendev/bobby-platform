@@ -1,9 +1,14 @@
-﻿namespace TradeSystem.Data.Models
+﻿using System;
+
+namespace TradeSystem.Data.Models
 {
 	public partial class NewsArbPosition : BaseEntity
 	{
 		public int NewsArbId { get; set; }
 		public NewsArb NewsArb { get; set; }
+
+		public bool IsLongFirst { get; set; }
+		public DateTime FirstOpenTime { get; set; } = HiResDatetime.UtcNow;
 
 		public long? ShortTicket { get => Get<long?>(); set => Set(value); }
 		public long? LongTicket { get => Get<long?>(); set => Set(value); }

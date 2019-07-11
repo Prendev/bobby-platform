@@ -52,6 +52,8 @@ namespace TradeSystem.Data.Models
 		[DisplayName("SL")] public decimal SlInPip { get; set; }
 		[DisplayName("TP")] public decimal TpInPip { get; set; }
 
+		[DisplayName("ClosingTime")] public int ClosingTimeInMin { get; set; }
+
 		public NewsArbOrderTypes FirstOrderType { get; set; }
 		[DisplayName("MaxRetry")]
 		public int MaxRetryCount { get; set; }
