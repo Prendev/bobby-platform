@@ -88,6 +88,7 @@ namespace TradeSystem.Duplicat.ViewModel
 		public BindingList<StratHubArb> StratHubArbs { get; private set; }
 		public BindingList<MarketMaker> MarketMakers { get; private set; }
 		public BindingList<LatencyArb> LatencyArbs { get; private set; }
+		public BindingList<NewsArb> NewsArbs { get; private set; }
 
 		public event DataContextChangedEventHandler DataContextChanged;
 
@@ -240,6 +241,9 @@ namespace TradeSystem.Duplicat.ViewModel
 				.Include(e => e.LatencyArbPositions).ThenInclude(e => e.LongPosition)
 				.Include(e => e.LatencyArbPositions).ThenInclude(e => e.ShortPosition)
 				.Include(e => e.Copier).ThenInclude(e => e.CopierPositions).Load();
+			_duplicatContext.NewsArbs.Where(e => e.ProfileId == p).OrderBy(e => e.ToString())
+				.Include(e => e.NewsArbPositions).ThenInclude(e => e.LongPosition)
+				.Include(e => e.NewsArbPositions).ThenInclude(e => e.ShortPosition).Load();
 
 			MtPlatforms = _duplicatContext.MetaTraderPlatforms.Local.ToBindingList();
 			CtPlatforms = _duplicatContext.CTraderPlatforms.Local.ToBindingList();
@@ -270,6 +274,7 @@ namespace TradeSystem.Duplicat.ViewModel
 			StratHubArbs = _duplicatContext.StratHubArbs.Local.ToBindingList();
 			MarketMakers = _duplicatContext.MarketMakers.Local.ToBindingList();
 			LatencyArbs = _duplicatContext.LatencyArbs.Local.ToBindingList();
+			NewsArbs = _duplicatContext.NewsArbs.Local.ToBindingList();
 
 			_duplicatContext.Profiles.Local.CollectionChanged -= Profiles_CollectionChanged;
 			_duplicatContext.Profiles.Local.CollectionChanged += Profiles_CollectionChanged;

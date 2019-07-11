@@ -87,6 +87,8 @@
 			this.btnDisconnect = new System.Windows.Forms.Button();
 			this.btnConnect = new System.Windows.Forms.Button();
 			this.btnSave = new System.Windows.Forms.Button();
+			this.tabPageNewsArb = new System.Windows.Forms.TabPage();
+			this.newsArbUserControl1 = new TradeSystem.Duplicat.Views.NewsArbUserControl();
 			this.tabControlMain.SuspendLayout();
 			this.tabPageProfile.SuspendLayout();
 			this.tabPageAccount.SuspendLayout();
@@ -119,6 +121,7 @@
 			this.tlpMain.SuspendLayout();
 			this.gbControl.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.nudAutoSave)).BeginInit();
+			this.tabPageNewsArb.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// tabControlMain
@@ -337,6 +340,7 @@
 			this.tabControlStrategies.Controls.Add(this.tabPageHubArb);
 			this.tabControlStrategies.Controls.Add(this.tabPageMarketMaker);
 			this.tabControlStrategies.Controls.Add(this.tabPageLatencyArb);
+			this.tabControlStrategies.Controls.Add(this.tabPageNewsArb);
 			this.tabControlStrategies.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.tabControlStrategies.Location = new System.Drawing.Point(3, 3);
 			this.tabControlStrategies.Name = "tabControlStrategies";
@@ -386,7 +390,6 @@
 			this.tabPageHubArb.Controls.Add(this.hubArbUserControl);
 			this.tabPageHubArb.Location = new System.Drawing.Point(4, 25);
 			this.tabPageHubArb.Name = "tabPageHubArb";
-			this.tabPageHubArb.Padding = new System.Windows.Forms.Padding(3);
 			this.tabPageHubArb.Size = new System.Drawing.Size(1471, 698);
 			this.tabPageHubArb.TabIndex = 2;
 			this.tabPageHubArb.Text = "Hub arb";
@@ -395,9 +398,9 @@
 			// hubArbUserControl
 			// 
 			this.hubArbUserControl.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.hubArbUserControl.Location = new System.Drawing.Point(3, 3);
+			this.hubArbUserControl.Location = new System.Drawing.Point(0, 0);
 			this.hubArbUserControl.Name = "hubArbUserControl";
-			this.hubArbUserControl.Size = new System.Drawing.Size(1465, 692);
+			this.hubArbUserControl.Size = new System.Drawing.Size(1471, 698);
 			this.hubArbUserControl.TabIndex = 0;
 			// 
 			// tabPageMarketMaker
@@ -423,7 +426,6 @@
 			this.tabPageLatencyArb.Controls.Add(this.latencyArbUserControl1);
 			this.tabPageLatencyArb.Location = new System.Drawing.Point(4, 25);
 			this.tabPageLatencyArb.Name = "tabPageLatencyArb";
-			this.tabPageLatencyArb.Padding = new System.Windows.Forms.Padding(3);
 			this.tabPageLatencyArb.Size = new System.Drawing.Size(1471, 698);
 			this.tabPageLatencyArb.TabIndex = 6;
 			this.tabPageLatencyArb.Text = "Latency arb";
@@ -432,9 +434,9 @@
 			// latencyArbUserControl1
 			// 
 			this.latencyArbUserControl1.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.latencyArbUserControl1.Location = new System.Drawing.Point(3, 3);
+			this.latencyArbUserControl1.Location = new System.Drawing.Point(0, 0);
 			this.latencyArbUserControl1.Name = "latencyArbUserControl1";
-			this.latencyArbUserControl1.Size = new System.Drawing.Size(1465, 692);
+			this.latencyArbUserControl1.Size = new System.Drawing.Size(1471, 698);
 			this.latencyArbUserControl1.TabIndex = 0;
 			// 
 			// tabPageLiveData
@@ -761,6 +763,24 @@
 			this.btnSave.Text = "Save config changes";
 			this.btnSave.UseVisualStyleBackColor = true;
 			// 
+			// tabPageNewsArb
+			// 
+			this.tabPageNewsArb.Controls.Add(this.newsArbUserControl1);
+			this.tabPageNewsArb.Location = new System.Drawing.Point(4, 25);
+			this.tabPageNewsArb.Name = "tabPageNewsArb";
+			this.tabPageNewsArb.Size = new System.Drawing.Size(1471, 698);
+			this.tabPageNewsArb.TabIndex = 7;
+			this.tabPageNewsArb.Text = "News arb";
+			this.tabPageNewsArb.UseVisualStyleBackColor = true;
+			// 
+			// newsArbUserControl1
+			// 
+			this.newsArbUserControl1.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.newsArbUserControl1.Location = new System.Drawing.Point(0, 0);
+			this.newsArbUserControl1.Name = "newsArbUserControl1";
+			this.newsArbUserControl1.Size = new System.Drawing.Size(1471, 698);
+			this.newsArbUserControl1.TabIndex = 0;
+			// 
 			// MainForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -803,6 +823,7 @@
 			this.gbControl.ResumeLayout(false);
 			this.gbControl.PerformLayout();
 			((System.ComponentModel.ISupportInitialize)(this.nudAutoSave)).EndInit();
+			this.tabPageNewsArb.ResumeLayout(false);
 			this.ResumeLayout(false);
 
         }
@@ -876,6 +897,8 @@
 		private LatencyArbUserControl latencyArbUserControl1;
 		private System.Windows.Forms.Label label2;
 		private System.Windows.Forms.NumericUpDown nudAutoSave;
+		private System.Windows.Forms.TabPage tabPageNewsArb;
+		private NewsArbUserControl newsArbUserControl1;
 	}
 }
 

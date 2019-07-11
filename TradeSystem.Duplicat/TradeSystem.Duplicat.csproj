@@ -262,6 +262,12 @@
     <Compile Include="Views\_Accounts\IffAccountsUserControl.Designer.cs">
       <DependentUpon>IffAccountsUserControl.cs</DependentUpon>
     </Compile>
+    <Compile Include="Views\_Strategies\NewsArbUserControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Views\_Strategies\NewsArbUserControl.Designer.cs">
+      <DependentUpon>NewsArbUserControl.cs</DependentUpon>
+    </Compile>
     <Compile Include="Views\_Strategies\PushingUserControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -348,6 +354,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Views\_Accounts\IffAccountsUserControl.resx">
       <DependentUpon>IffAccountsUserControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\_Strategies\NewsArbUserControl.resx">
+      <DependentUpon>NewsArbUserControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\_Strategies\PushingUserControl.resx">
       <DependentUpon>PushingUserControl.cs</DependentUpon>

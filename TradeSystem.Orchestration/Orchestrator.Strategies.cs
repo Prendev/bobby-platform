@@ -128,6 +128,9 @@ namespace TradeSystem.Orchestration
 
 			var latArbs = duplicatContext.LatencyArbs.Local.ToList();
 			_latencyArbService.Start(latArbs);
+
+			var newsArbs = duplicatContext.NewsArbs.Local.ToList();
+			_newsArbService.Start(newsArbs);
 		}
 
 		public void StopStrategies()
@@ -136,6 +139,7 @@ namespace TradeSystem.Orchestration
 			_marketMakerService.Stop();
 			_antiMarketMakerService.Stop();
 			_latencyArbService.Stop();
+			_newsArbService.Stop();
 		}
 
 		public async Task HubArbsGoFlat(DuplicatContext duplicatContext)
