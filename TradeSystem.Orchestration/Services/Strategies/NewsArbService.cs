@@ -376,7 +376,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			if (set.ClosingTimeInMin <= 0)
 			{
 				first.Archived = true;
-				set.State = NewsArb.NewsArbStates.None;
+				set.State = set.Rotating ? NewsArb.NewsArbStates.Opening : NewsArb.NewsArbStates.None;
 				return;
 			}
 			if (HiResDatetime.UtcNow < first.FirstOpenTime.AddMinutes(set.ClosingTimeInMin)) return;
@@ -390,7 +390,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			}
 
 			if (!CloseHedge(set, first)) return;
-			set.State = NewsArb.NewsArbStates.None;
+			set.State = set.Rotating ? NewsArb.NewsArbStates.Opening : NewsArb.NewsArbStates.None;
 		}
 
 		private bool CloseFirst(NewsArb set, NewsArbPosition first)

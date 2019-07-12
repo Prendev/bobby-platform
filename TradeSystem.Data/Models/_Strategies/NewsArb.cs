@@ -28,6 +28,7 @@ namespace TradeSystem.Data.Models
 		[InvisibleColumn] public Profile Profile { get; set; }
 
 		public NewsArbStates State { get => Get<NewsArbStates>(); set => Set(value); }
+		public bool Rotating { get; set; }
 
 		public int SnwAccountId { get; set; }
 		public Account SnwAccount { get => Get<Account>(); set => Set(value); }
