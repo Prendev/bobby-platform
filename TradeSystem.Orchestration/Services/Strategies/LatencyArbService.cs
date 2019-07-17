@@ -640,7 +640,13 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				{
 					if (!arbPos.LongTicket.HasValue) return null;
 					connector.Positions.TryGetValue(arbPos.LongTicket.Value, out var pos);
-					if (pos == null) return null;
+					if (pos == null)
+					{
+						arbPos.Archived = true;
+						set.State = LatencyArb.LatencyArbStates.Error;
+						Logger.Error($"{set} latency arb - {arbPos.Level}. - unexpected closed or missing position(s)");
+						return null;
+					}
 					connector.SendClosePositionRequests(pos);
 					if (!pos.IsClosed) return null;
 					return new CloseResult
@@ -688,7 +694,13 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				{
 					if (!arbPos.ShortTicket.HasValue) return null;
 					connector.Positions.TryGetValue(arbPos.ShortTicket.Value, out var pos);
-					if (pos == null) return null;
+					if (pos == null)
+					{
+						arbPos.Archived = true;
+						set.State = LatencyArb.LatencyArbStates.Error;
+						Logger.Error($"{set} latency arb - {arbPos.Level}. - unexpected closed or missing position(s)");
+						return null;
+					}
 					connector.SendClosePositionRequests(pos);
 					if (!pos.IsClosed) return null;
 					return new CloseResult
