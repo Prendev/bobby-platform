@@ -140,10 +140,10 @@ namespace TradeSystem.Orchestration.Services.Strategies
 		{
 			var longPositions = (set.LongAccount.Connector as Mt4Integration.Connector)?.Positions;
 			var shortPositions = (set.ShortAccount.Connector as Mt4Integration.Connector)?.Positions;
-			var error = false;
 
 			foreach (var pos in set.LivePositions)
 			{
+				var posError = false;
 				{
 					if (!pos.ShortOpenPrice.HasValue)
 					{
@@ -152,6 +152,12 @@ namespace TradeSystem.Orchestration.Services.Strategies
 						    shortPositions.TryGetValue(pos.ShortTicket.Value, out var shortPos))
 						{
 							pos.ShortOpenPrice = shortPos.OpenPrice;
+							if (!pos.ShortClosed && shortPos.IsClosed)
+							{
+								pos.Archived = true;
+								set.State = LatencyArb.LatencyArbStates.Error;
+								posError = true;
+							}
 						}
 					}
 
@@ -162,6 +168,12 @@ namespace TradeSystem.Orchestration.Services.Strategies
 						    longPositions.TryGetValue(pos.LongTicket.Value, out var longPos))
 						{
 							pos.LongOpenPrice = longPos.OpenPrice;
+							if (!pos.LongClosed && longPos.IsClosed)
+							{
+								pos.Archived = true;
+								set.State = LatencyArb.LatencyArbStates.Error;
+								posError = true;
+							}
 						}
 					}
 				}
@@ -187,12 +199,13 @@ namespace TradeSystem.Orchestration.Services.Strategies
 					{
 						pos.Archived = true;
 						set.State = LatencyArb.LatencyArbStates.Error;
-						error = true;
+						posError = true;
 					}
 				}
+				if (!posError) continue;
+				Logger.Error($"{set} latency arb - {pos.Level}. - unexpected closed or missing position(s)");
 			}
 
-			if (error) Logger.Error($"{set} latency arb - unexpected closed or missing position(s)");
 			Sync(set);
 		}
 
@@ -458,9 +471,11 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			if (set.NormFeedAsk < set.NormShortAsk + set.ShortSignalDiffInPip * set.PipSize) return;
 
 			if (set.Copier != null) set.Copier.Run = false;
+			if (set.FixApiCopier != null) set.FixApiCopier.Run = false;
 			var closePos = CloseShort(set, first, true);
 			if (closePos != null) RemoveCopierPosition(set, first);
 			if (set.Copier != null) set.Copier.Run = true;
+			if (set.FixApiCopier != null) set.FixApiCopier.Run = true;
 			if (closePos == null) return;
 
 			set.ReopenCount--;
@@ -493,9 +508,11 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			if (set.NormFeedBid > set.NormLongBid - set.LongSignalDiffInPip * set.PipSize) return;
 
 			if (set.Copier != null) set.Copier.Run = false;
+			if (set.FixApiCopier != null) set.FixApiCopier.Run = false;
 			var closePos = CloseLong(set, first, true);
 			if (closePos != null) RemoveCopierPosition(set, first);
 			if (set.Copier != null) set.Copier.Run = true;
+			if (set.FixApiCopier != null) set.FixApiCopier.Run = true;
 			if (closePos == null) return;
 
 			set.ReopenCount--;
@@ -551,9 +568,11 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				if (set.FirstSide != LatencyArb.LatencyArbFirstSides.Short && set.NormFeedBid <= set.NormLongBid - set.LongSignalDiffInPip * set.PipSize)
 				{
 					if (set.Copier != null) set.Copier.Run = false;
+					if (set.FixApiCopier != null) set.FixApiCopier.Run = false;
 					var closePos = CloseLong(set, first, true);
 					if (closePos != null) RemoveCopierPosition(set, first);
 					if (set.Copier != null) set.Copier.Run = true;
+					if (set.FixApiCopier != null) set.FixApiCopier.Run = true;
 					if (closePos == null) return;
 
 					first.LongClosePrice = closePos.ClosePrice;
@@ -565,9 +584,11 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				else if (set.FirstSide != LatencyArb.LatencyArbFirstSides.Long && set.NormFeedAsk >= set.NormShortAsk + set.ShortSignalDiffInPip * set.PipSize)
 				{
 					if (set.Copier != null) set.Copier.Run = false;
+					if (set.FixApiCopier != null) set.FixApiCopier.Run = false;
 					var closePos = CloseShort(set, first, true);
 					if (closePos != null) RemoveCopierPosition(set, first);
 					if (set.Copier != null) set.Copier.Run = true;
+					if (set.FixApiCopier != null) set.FixApiCopier.Run = true;
 					if (closePos == null) return;
 
 					first.ShortClosePrice = closePos.ClosePrice;
@@ -640,7 +661,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				{
 					if (!arbPos.LongTicket.HasValue) return null;
 					connector.Positions.TryGetValue(arbPos.LongTicket.Value, out var pos);
-					if (pos == null)
+					if (pos == null || pos.IsClosed)
 					{
 						arbPos.Archived = true;
 						set.State = LatencyArb.LatencyArbStates.Error;
@@ -694,7 +715,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				{
 					if (!arbPos.ShortTicket.HasValue) return null;
 					connector.Positions.TryGetValue(arbPos.ShortTicket.Value, out var pos);
-					if (pos == null)
+					if (pos == null || pos.IsClosed)
 					{
 						arbPos.Archived = true;
 						set.State = LatencyArb.LatencyArbStates.Error;
@@ -782,15 +803,21 @@ namespace TradeSystem.Orchestration.Services.Strategies
 		}
 		private void AddCopierPosition(LatencyArb set, LatencyArbPosition arbPos)
 		{
+			if (!arbPos.HasBothSides) return;
+			AddCopierPositionMt4(set, arbPos);
+			AddCopierPositionFix(set, arbPos);
+		}
+		private void AddCopierPositionMt4(LatencyArb set, LatencyArbPosition arbPos)
+		{
 			if (set.Copier == null) return;
-			if (!arbPos.LongTicket.HasValue) return;
-			if (!arbPos.ShortTicket.HasValue) return;
 			if (set.Copier.Slave.Account != set.LongAccount &&
 			    set.Copier.Slave.Account != set.ShortAccount) return;
 			if (set.Copier.Slave.Master.Account != set.LongAccount &&
 			    set.Copier.Slave.Master.Account != set.ShortAccount) return;
+			if (!arbPos.LongTicket.HasValue) return;
+			if (!arbPos.ShortTicket.HasValue) return;
 
-			if (set.Copier.Slave.Account == set.LongAccount)
+			if (set.Copier.Slave.Master.Account == set.ShortAccount)
 			{
 				if (set.Copier.CopierPositions.Any(cp =>
 					cp.SlaveTicket == arbPos.LongTicket || cp.MasterTicket == arbPos.ShortTicket)) return;
@@ -801,7 +828,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 					SlaveTicket = arbPos.LongTicket.Value
 				});
 			}
-			else if (set.Copier.Slave.Account == set.ShortAccount)
+			else if (set.Copier.Slave.Master.Account == set.LongAccount)
 			{
 				if (set.Copier.CopierPositions.Any(cp =>
 					cp.SlaveTicket == arbPos.ShortTicket || cp.MasterTicket == arbPos.LongTicket)) return;
@@ -813,7 +840,46 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				});
 			}
 		}
+		private void AddCopierPositionFix(LatencyArb set, LatencyArbPosition arbPos)
+		{
+			if (set.FixApiCopier == null) return;
+			if (set.FixApiCopier.Slave.Account != set.LongAccount &&
+			    set.FixApiCopier.Slave.Account != set.ShortAccount) return;
+			if (set.FixApiCopier.Slave.Master.Account != set.LongAccount &&
+			    set.FixApiCopier.Slave.Master.Account != set.ShortAccount) return;
+
+			// Short MT4 master
+			if (set.FixApiCopier.Slave.Master.Account == set.ShortAccount &&
+			    arbPos.ShortTicket.HasValue && arbPos.LongPosition != null)
+			{
+				if (set.FixApiCopier.FixApiCopierPositions.Any(cp => cp.MasterPositionId == arbPos.ShortTicket)) return;
+				set.FixApiCopier.FixApiCopierPositions.Add(new FixApiCopierPosition()
+				{
+					FixApiCopier = set.FixApiCopier,
+					MasterPositionId = arbPos.ShortTicket.Value,
+					OpenPosition = arbPos.LongPosition
+				});
+			}
+			// Long MT4 master
+			else if (set.FixApiCopier.Slave.Master.Account == set.LongAccount &&
+			         arbPos.LongTicket.HasValue && arbPos.ShortPosition != null)
+			{
+				if (set.FixApiCopier.FixApiCopierPositions.Any(cp => cp.MasterPositionId == arbPos.LongTicket)) return;
+				set.FixApiCopier.FixApiCopierPositions.Add(new FixApiCopierPosition()
+				{
+					FixApiCopier = set.FixApiCopier,
+					MasterPositionId = arbPos.LongTicket.Value,
+					OpenPosition = arbPos.ShortPosition
+				});
+			}
+		}
 		private void RemoveCopierPosition(LatencyArb set, LatencyArbPosition arbPos)
+		{
+			if (!arbPos.HasBothSides) return;
+			RemoveCopierPositionMt4(set, arbPos);
+			RemoveCopierPositionFix(set, arbPos);
+		}
+		private void RemoveCopierPositionMt4(LatencyArb set, LatencyArbPosition arbPos)
 		{
 			if (set.Copier == null) return;
 			if (!arbPos.LongTicket.HasValue) return;
@@ -823,12 +889,31 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			if (set.Copier.Slave.Master.Account != set.LongAccount &&
 			    set.Copier.Slave.Master.Account != set.ShortAccount) return;
 
-			if (set.Copier.Slave.Account == set.LongAccount)
+			if (set.Copier.Slave.Master.Account == set.ShortAccount)
 				set.Copier.CopierPositions.RemoveAll(cp =>
 					cp.SlaveTicket == arbPos.LongTicket && cp.MasterTicket == arbPos.ShortTicket);
-			else if (set.Copier.Slave.Account == set.ShortAccount)
+			else if (set.Copier.Slave.Master.Account == set.LongAccount)
 				set.Copier.CopierPositions.RemoveAll(cp =>
 					cp.SlaveTicket == arbPos.ShortTicket && cp.MasterTicket == arbPos.LongTicket);
+		}
+		private void RemoveCopierPositionFix(LatencyArb set, LatencyArbPosition arbPos)
+		{
+			if (set.FixApiCopier == null) return;
+			if (set.FixApiCopier.Slave.Account != set.LongAccount &&
+			    set.FixApiCopier.Slave.Account != set.ShortAccount) return;
+			if (set.FixApiCopier.Slave.Master.Account != set.LongAccount &&
+			    set.FixApiCopier.Slave.Master.Account != set.ShortAccount) return;
+
+			// Short MT4 master
+			if (set.FixApiCopier.Slave.Master.Account == set.ShortAccount &&
+			    arbPos.ShortTicket.HasValue && arbPos.LongPosition != null)
+				set.FixApiCopier.FixApiCopierPositions.RemoveAll(cp =>
+					cp.MasterPositionId == arbPos.ShortTicket && cp.OpenPosition == arbPos.LongPosition);
+			// Long MT4 master
+			else if (set.FixApiCopier.Slave.Master.Account == set.LongAccount &&
+			         arbPos.LongTicket.HasValue && arbPos.ShortPosition != null)
+				set.FixApiCopier.FixApiCopierPositions.RemoveAll(cp =>
+					cp.MasterPositionId == arbPos.LongTicket && cp.OpenPosition == arbPos.ShortPosition);
 		}
 
 		private bool IsTime(TimeSpan current, TimeSpan? start, TimeSpan? end)

@@ -89,6 +89,8 @@ namespace TradeSystem.Data.Models
 
 		public int? CopierId { get; set; }
 		public Copier Copier { get; set; }
+		public int? FixApiCopierId { get; set; }
+		public FixApiCopier FixApiCopier { get; set; }
 
 		public List<LatencyArbPosition> LatencyArbPositions { get; } = new List<LatencyArbPosition>();
 	}

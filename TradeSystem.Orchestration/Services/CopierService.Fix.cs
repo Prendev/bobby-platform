@@ -44,6 +44,7 @@ namespace TradeSystem.Orchestration.Services
 
 				if (e.Action == NewPositionActions.Open)
 				{
+					if (copier.Mode == FixApiCopier.FixApiCopierModes.CloseOnly) return;
 					// Check if there is an open position
 					if (copier.FixApiCopierPositions.Any(p => !p.Archived && p.MasterPositionId == e.Position.Id && p.ClosePosition == null)) return;
 					var response = await FixAccountOpening(copier, slaveConnector, symbol, side, quantity, limitPrice);
@@ -53,6 +54,7 @@ namespace TradeSystem.Orchestration.Services
 				}
 				else if (e.Action == NewPositionActions.Close)
 				{
+					if (copier.Mode == FixApiCopier.FixApiCopierModes.OpenOnly) return;
 					var pos = copier.FixApiCopierPositions
 						.FirstOrDefault(p => !p.Archived && p.MasterPositionId == e.Position.Id && p.ClosePosition == null);
 					if (pos == null) return;

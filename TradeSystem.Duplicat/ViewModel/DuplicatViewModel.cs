@@ -81,6 +81,7 @@ namespace TradeSystem.Duplicat.ViewModel
 		public BindingList<Copier> CopiersAll { get; private set; }
 		public BindingList<CopierPosition> CopierPositions { get; private set; }
 		public BindingList<FixApiCopier> FixApiCopiers { get; private set; }
+		public BindingList<FixApiCopier> FixApiCopiersAll { get; private set; }
 		public BindingList<Pushing> Pushings { get; private set; }
 		public BindingList<Spoofing> Spoofings { get; private set; }
 		public BindingList<Ticker> Tickers { get; private set; }
@@ -267,6 +268,7 @@ namespace TradeSystem.Duplicat.ViewModel
 			CopiersAll = _duplicatContext.Copiers.Local.ToBindingList();
 			CopierPositions = ToBindingList(_duplicatContext.CopierPositions.Local, () => SelectedCopier, e => e.CopierPositions);
 			FixApiCopiers = ToFilteredBindingList(_duplicatContext.FixApiCopiers.Local, e => e.Slave, () => SelectedSlave);
+			FixApiCopiersAll = _duplicatContext.FixApiCopiers.Local.ToBindingList();
 			Pushings = _duplicatContext.Pushings.Local.ToBindingList();
 			Spoofings = _duplicatContext.Spoofings.Local.ToBindingList();
 			Tickers = _duplicatContext.Tickers.Local.ToBindingList();

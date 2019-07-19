@@ -7,13 +7,18 @@ namespace TradeSystem.Data.Models
 {
 	public class FixApiCopier : BaseEntity
 	{
+		public enum FixApiCopierModes
+		{
+			Both,
+			CloseOnly,
+			OpenOnly
+		}
 		public enum FixApiOrderTypes
 		{
 			Market,
 			Aggressive,
 			GtcLimit
 		}
-
 		public enum BasePriceTypes
 		{
 			Slave,
@@ -24,6 +29,7 @@ namespace TradeSystem.Data.Models
 		[InvisibleColumn] public Slave Slave { get; set; }
 
 		[DisplayPriority(-1)] public bool Run { get; set; }
+		public FixApiCopierModes Mode { get; set; }
 		public decimal CopyRatio { get; set; }
 		public FixApiOrderTypes OrderType { get; set; } = FixApiOrderTypes.GtcLimit;
 		public BasePriceTypes BasePriceType { get; set; }
@@ -64,5 +70,10 @@ namespace TradeSystem.Data.Models
 		[NotMapped] [InvisibleColumn] public decimal Deviation => SlippageInPip * PipSize;
 		[NotMapped] [InvisibleColumn] public decimal LimitDiff => LimitDiffInPip * PipSize;
 		[NotMapped] [InvisibleColumn] public bool IsFiltered { get => Get<bool>(); set => Set(value); }
+
+		public override string ToString()
+		{
+			return $"{(Id == 0 ? "UNSAVED - " : "")}{Slave} - {Id}";
+		}
 	}
 }
