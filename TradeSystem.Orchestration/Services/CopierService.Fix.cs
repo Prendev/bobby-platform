@@ -16,55 +16,60 @@ namespace TradeSystem.Orchestration.Services
 
 			var symbol = GetSlaveSymbol(e, slave);
 
-			var tasks = slave.FixApiCopiers.Where(s => s.Run).Select(copier => DelayedRun(async () =>
-			{
-				var quantity = Math.Abs(e.Position.Lots * copier.CopyRatio);
-				quantity = Math.Floor(quantity);
-				if (quantity == 0)
+			var tasks = slave.FixApiCopiers
+				.Where(c => c.Run)
+				.Where(c => string.IsNullOrWhiteSpace(c.Comment) || c.Comment == e.Position.Comment)
+				.Select(copier => DelayedRun(async () =>
 				{
-					Logger.Warn($"CopierService.CopyToFixAccount {slave} {symbol} quantity is zero!!!");
-					return;
-				}
-
-				var side = copier.CopyRatio < 0 ? e.Position.Side.Inv() : e.Position.Side;
-				if (e.Action == NewPositionActions.Close) side = side.Inv();
-
-				decimal? limitPrice = null;
-				if (copier.OrderType != FixApiCopier.FixApiOrderTypes.Market)
-				{
-					var lastTick = slaveConnector.GetLastTick(symbol);
-					if (lastTick == null)
+					var quantity = Math.Abs(e.Position.Lots * copier.CopyRatio);
+					quantity = Math.Floor(quantity);
+					if (quantity == 0)
 					{
-						Logger.Warn($"CopierService.CopyToFixAccount {slave} {symbol} no last tick!!!");
-						if (!copier.FallbackToMarketOrderType) return;
+						Logger.Warn($"CopierService.CopyToFixAccount {slave} {symbol} quantity is zero!!!");
+						return;
 					}
-					else limitPrice = copier.BasePriceType == FixApiCopier.BasePriceTypes.Master ? e.Position.OpenPrice :
-						side == Sides.Buy ? lastTick.Ask : lastTick.Bid;
-				}
 
-				if (e.Action == NewPositionActions.Open)
-				{
-					if (copier.Mode == FixApiCopier.FixApiCopierModes.CloseOnly) return;
-					// Check if there is an open position
-					if (copier.FixApiCopierPositions.Any(p => !p.Archived && p.MasterPositionId == e.Position.Id && p.ClosePosition == null)) return;
-					var response = await FixAccountOpening(copier, slaveConnector, symbol, side, quantity, limitPrice);
-					if (response == null) return;
-					PersistOpenPosition(copier, symbol, e.Position.Id, response);
-					CopyLogger.LogOpen(slave, symbol, response);
-				}
-				else if (e.Action == NewPositionActions.Close)
-				{
-					if (copier.Mode == FixApiCopier.FixApiCopierModes.OpenOnly) return;
-					var pos = copier.FixApiCopierPositions
-						.FirstOrDefault(p => !p.Archived && p.MasterPositionId == e.Position.Id && p.ClosePosition == null);
-					if (pos == null) return;
-					var response = await FixAccountClosing(copier, slaveConnector, symbol, side, pos.OpenPosition.Size, limitPrice);
-					if (response == null) return;
-					PersistClosePosition(copier, pos, response);
-					CopyLogger.LogClose(slave, symbol, pos.OpenPosition, response);
-				}
+					var side = copier.CopyRatio < 0 ? e.Position.Side.Inv() : e.Position.Side;
+					if (e.Action == NewPositionActions.Close) side = side.Inv();
 
-			}, copier.DelayInMilliseconds));
+					decimal? limitPrice = null;
+					if (copier.OrderType != FixApiCopier.FixApiOrderTypes.Market)
+					{
+						var lastTick = slaveConnector.GetLastTick(symbol);
+						if (lastTick == null)
+						{
+							Logger.Warn($"CopierService.CopyToFixAccount {slave} {symbol} no last tick!!!");
+							if (!copier.FallbackToMarketOrderType) return;
+						}
+						else
+							limitPrice = copier.BasePriceType == FixApiCopier.BasePriceTypes.Master ? e.Position.OpenPrice :
+								side == Sides.Buy ? lastTick.Ask : lastTick.Bid;
+					}
+
+					if (e.Action == NewPositionActions.Open)
+					{
+						if (copier.Mode == FixApiCopier.FixApiCopierModes.CloseOnly) return;
+						// Check if there is an open position
+						if (copier.FixApiCopierPositions.Any(p =>
+							!p.Archived && p.MasterPositionId == e.Position.Id && p.ClosePosition == null)) return;
+						var response = await FixAccountOpening(copier, slaveConnector, symbol, side, quantity, limitPrice);
+						if (response == null) return;
+						PersistOpenPosition(copier, symbol, e.Position.Id, response);
+						CopyLogger.LogOpen(slave, symbol, response);
+					}
+					else if (e.Action == NewPositionActions.Close)
+					{
+						if (copier.Mode == FixApiCopier.FixApiCopierModes.OpenOnly) return;
+						var pos = copier.FixApiCopierPositions
+							.FirstOrDefault(p => !p.Archived && p.MasterPositionId == e.Position.Id && p.ClosePosition == null);
+						if (pos == null) return;
+						var response = await FixAccountClosing(copier, slaveConnector, symbol, side, pos.OpenPosition.Size, limitPrice);
+						if (response == null) return;
+						PersistClosePosition(copier, pos, response);
+						CopyLogger.LogClose(slave, symbol, pos.OpenPosition, response);
+					}
+
+				}, copier.DelayInMilliseconds));
 			return Task.WhenAll(tasks);
 		}
 

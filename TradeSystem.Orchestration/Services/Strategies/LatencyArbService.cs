@@ -762,6 +762,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 		private void Sync(LatencyArb set)
 		{
 			if (set.State != LatencyArb.LatencyArbStates.Sync) return;
+			set.LatencyArbPositions.ForEach(p => p.Archived = true);
 			var longPositions = (set.LongAccount.Connector as Mt4Integration.Connector)?.Positions;
 			var shortPositions = (set.ShortAccount.Connector as Mt4Integration.Connector)?.Positions;
 			if (longPositions == null) return;
@@ -773,6 +774,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				if (longPos.Value.Lots != set.LongSize) continue;
 				if (longPos.Value.Symbol != set.LongSymbol) continue;
 				if (set.LivePositions.Any(p => p.LongTicket == longPos.Key)) continue;
+				if (!string.IsNullOrWhiteSpace(set.Comment) && longPos.Value.Comment != set.Comment) continue;
 
 				KeyValuePair<long, Position>? match = null;
 				foreach (var shortPos in shortPositions)
@@ -781,6 +783,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 					if (shortPos.Value.Lots != set.ShortSize) continue;
 					if (shortPos.Value.Symbol != set.ShortSymbol) continue;
 					if (set.LivePositions.Any(p => p.ShortTicket == shortPos.Key)) continue;
+					if (!string.IsNullOrWhiteSpace(set.Comment) && shortPos.Value.Comment != set.Comment) continue;
 					match = shortPos;
 					break;
 				}

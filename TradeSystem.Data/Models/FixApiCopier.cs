@@ -64,6 +64,7 @@ namespace TradeSystem.Data.Models
 		public decimal LimitDiffInPip { get; set; }
 
 		public decimal PipSize { get; set; } = 1;
+		public string Comment { get; set; }
 
 		public List<FixApiCopierPosition> FixApiCopierPositions { get; } = new List<FixApiCopierPosition>();
 

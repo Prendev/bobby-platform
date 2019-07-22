@@ -201,94 +201,100 @@ namespace TradeSystem.Orchestration.Services
 	        return Task.FromResult(0);
 		}
 
-		private Task CopyToCtAccount(NewPosition e, Slave slave)
-        {
-	        if (!(slave.Account?.Connector is CTraderIntegration.Connector slaveConnector)) return Task.FromResult(0);
+	    private Task CopyToCtAccount(NewPosition e, Slave slave)
+	    {
+		    if (!(slave.Account?.Connector is CTraderIntegration.Connector slaveConnector)) return Task.FromResult(0);
 
-	        var symbol = GetSlaveSymbol(e, slave);
+		    var symbol = GetSlaveSymbol(e, slave);
 
-			var tasks = slave.Copiers.Where(s => s.Run).Select(copier => DelayedRun(() =>
-			{
-				var volume = (long)(100 * Math.Abs(e.Position.RealVolume * copier.CopyRatio));
-				var side = copier.CopyRatio < 0 ? e.Position.Side.Inv() : e.Position.Side;
-				var type = side == Sides.Buy ? ProtoTradeSide.BUY : ProtoTradeSide.SELL;
-				var comment = $"{e.Position.Id}-{slave.Id}-{copier.Id}";
+		    var tasks = slave.Copiers
+			    .Where(c => c.Run)
+			    .Where(c => string.IsNullOrWhiteSpace(c.Comment) || c.Comment == e.Position.Comment)
+			    .Select(copier => DelayedRun(() =>
+			    {
+				    var volume = (long) (100 * Math.Abs(e.Position.RealVolume * copier.CopyRatio));
+				    var side = copier.CopyRatio < 0 ? e.Position.Side.Inv() : e.Position.Side;
+				    var type = side == Sides.Buy ? ProtoTradeSide.BUY : ProtoTradeSide.SELL;
+				    var comment = $"{e.Position.Id}-{slave.Id}-{copier.Id}";
 
-				if (e.Action == NewPositionActions.Open && copier.OrderType == Copier.CopierOrderTypes.MarketRange)
-					slaveConnector.SendMarketRangeOrderRequest(symbol, type, volume, e.Position.OpenPrice,
-						copier.SlippageInPips, comment, copier.MaxRetryCount, copier.RetryPeriodInMs);
-				else if (e.Action == NewPositionActions.Open && copier.OrderType == Copier.CopierOrderTypes.Market)
-					slaveConnector.SendMarketOrderRequest(symbol, type, volume, comment,
-						copier.MaxRetryCount, copier.RetryPeriodInMs);
-				else if (e.Action == NewPositionActions.Close)
-					slaveConnector.SendClosePositionRequests(comment,
-						copier.MaxRetryCount, copier.RetryPeriodInMs);
-				return Task.CompletedTask;
-			}, copier.DelayInMilliseconds));
-            return Task.WhenAll(tasks);
-        }
+				    if (e.Action == NewPositionActions.Open && copier.OrderType == Copier.CopierOrderTypes.MarketRange)
+					    slaveConnector.SendMarketRangeOrderRequest(symbol, type, volume, e.Position.OpenPrice,
+						    copier.SlippageInPips, comment, copier.MaxRetryCount, copier.RetryPeriodInMs);
+				    else if (e.Action == NewPositionActions.Open && copier.OrderType == Copier.CopierOrderTypes.Market)
+					    slaveConnector.SendMarketOrderRequest(symbol, type, volume, comment,
+						    copier.MaxRetryCount, copier.RetryPeriodInMs);
+				    else if (e.Action == NewPositionActions.Close)
+					    slaveConnector.SendClosePositionRequests(comment,
+						    copier.MaxRetryCount, copier.RetryPeriodInMs);
+				    return Task.CompletedTask;
+			    }, copier.DelayInMilliseconds));
+		    return Task.WhenAll(tasks);
+	    }
 
-        private Task CopyToMtAccount(NewPosition e, Slave slave)
-        {
-	        if (!(slave.Account?.Connector is Mt4Integration.Connector slaveConnector)) return Task.FromResult(0);
+	    private Task CopyToMtAccount(NewPosition e, Slave slave)
+	    {
+		    if (!(slave.Account?.Connector is Mt4Integration.Connector slaveConnector)) return Task.FromResult(0);
 
-            var symbol = GetSlaveSymbol(e, slave);
+		    var symbol = GetSlaveSymbol(e, slave);
 
-	        var tasks = slave.Copiers.Where(s => s.Run).Select(copier => DelayedRun(() =>
-	        {
-				// TODO
-				//var lots = Math.Abs(e.Position.RealVolume) / slaveConnector.GetContractSize(symbol) *
-				//           (double) copier.CopyRatio;
-				var lots = Math.Abs((double) e.Position.Lots * (double) copier.CopyRatio);
-		        var side = copier.CopyRatio < 0 ? e.Position.Side.Inv() : e.Position.Side;
+		    var tasks = slave.Copiers
+			    .Where(c => c.Run)
+			    .Where(c => string.IsNullOrWhiteSpace(c.Comment) || c.Comment == e.Position.Comment)
+			    .Select(copier => DelayedRun(() =>
+			    {
+				    // TODO
+				    //var lots = Math.Abs(e.Position.RealVolume) / slaveConnector.GetContractSize(symbol) *
+				    //           (double) copier.CopyRatio;
+				    var lots = Math.Abs((double) e.Position.Lots * (double) copier.CopyRatio);
+				    var side = copier.CopyRatio < 0 ? e.Position.Side.Inv() : e.Position.Side;
 
-		        if (e.Action == NewPositionActions.Open)
-		        {
-			        if (copier.Mode == Copier.CopierModes.CloseOnly) return Task.CompletedTask;
-			        if (e.Position.ReopenTicket.HasValue)
-			        {
-				        var reopenPos = copier.CopierPositions.FirstOrDefault(p => p.MasterTicket == e.Position.ReopenTicket);
-				        if (reopenPos == null) return Task.CompletedTask;
+				    if (e.Action == NewPositionActions.Open)
+				    {
+					    if (copier.Mode == Copier.CopierModes.CloseOnly) return Task.CompletedTask;
+					    if (e.Position.ReopenTicket.HasValue)
+					    {
+						    var reopenPos = copier.CopierPositions.FirstOrDefault(p => p.MasterTicket == e.Position.ReopenTicket);
+						    if (reopenPos == null) return Task.CompletedTask;
 
-				        reopenPos.MasterTicket = e.Position.Id;
-					    var newPos = slaveConnector.SendMarketOrderRequest(symbol, side, lots, e.Position.MagicNumber,
-						    null, copier.MaxRetryCount, copier.RetryPeriodInMs);
-					    if (newPos == null) return Task.CompletedTask;
+						    reopenPos.MasterTicket = e.Position.Id;
+						    var newPos = slaveConnector.SendMarketOrderRequest(symbol, side, lots, e.Position.MagicNumber,
+							    null, copier.MaxRetryCount, copier.RetryPeriodInMs);
+						    if (newPos == null) return Task.CompletedTask;
 
-						UpdateCrossPosition(copier, reopenPos.SlaveTicket, newPos.Id);
-				        reopenPos.SlaveTicket = newPos.Id;
-				        reopenPos.State = CopierPosition.CopierPositionStates.Active;
-			        }
-			        else
-			        {
-				        var newPos = slaveConnector.SendMarketOrderRequest(symbol, side, lots, e.Position.MagicNumber,
-					        null, copier.MaxRetryCount, copier.RetryPeriodInMs);
+						    UpdateCrossPosition(copier, reopenPos.SlaveTicket, newPos.Id);
+						    reopenPos.SlaveTicket = newPos.Id;
+						    reopenPos.State = CopierPosition.CopierPositionStates.Active;
+					    }
+					    else
+					    {
+						    var newPos = slaveConnector.SendMarketOrderRequest(symbol, side, lots, e.Position.MagicNumber,
+							    null, copier.MaxRetryCount, copier.RetryPeriodInMs);
 
-				        if (newPos == null) return Task.CompletedTask;
-				        copier.CopierPositions.Add(new CopierPosition()
-				        {
-					        Copier = copier,
-					        MasterTicket = e.Position.Id,
-					        SlaveTicket = newPos.Id
-				        });
+						    if (newPos == null) return Task.CompletedTask;
+						    copier.CopierPositions.Add(new CopierPosition()
+						    {
+							    Copier = copier,
+							    MasterTicket = e.Position.Id,
+							    SlaveTicket = newPos.Id
+						    });
 
-				        if (!e.Position.CrossTicket.HasValue) return Task.CompletedTask;
-						AddCrossPosition(copier, e.Position.CrossTicket.Value, newPos.Id);
-					}
+						    if (!e.Position.CrossTicket.HasValue) return Task.CompletedTask;
+						    AddCrossPosition(copier, e.Position.CrossTicket.Value, newPos.Id);
+					    }
 
-				}
-		        else if (e.Action == NewPositionActions.Close)
-				{
-					if (copier.Mode == Copier.CopierModes.OpenOnly) return Task.CompletedTask;
-					foreach (var copierPos in copier.CopierPositions.Where(p => p.MasterTicket == e.Position.Id).ToList())
-				        CopyToMtAccountClose(copier, copierPos, slaveConnector, copierPos.SlaveTicket);
-			        copier.CopierPositions.RemoveAll(p => p.State == CopierPosition.CopierPositionStates.ToBeRemoved);
-				}
+				    }
+				    else if (e.Action == NewPositionActions.Close)
+				    {
+					    if (copier.Mode == Copier.CopierModes.OpenOnly) return Task.CompletedTask;
+					    foreach (var copierPos in copier.CopierPositions.Where(p => p.MasterTicket == e.Position.Id).ToList())
+						    CopyToMtAccountClose(copier, copierPos, slaveConnector, copierPos.SlaveTicket);
+					    copier.CopierPositions.RemoveAll(p => p.State == CopierPosition.CopierPositionStates.ToBeRemoved);
+				    }
 
-				return Task.CompletedTask;
-			}, copier.DelayInMilliseconds));
-            return Task.WhenAll(tasks);
-		}
+				    return Task.CompletedTask;
+			    }, copier.DelayInMilliseconds));
+		    return Task.WhenAll(tasks);
+	    }
 	    private static void CopyToMtAccountClose(Copier copier, CopierPosition copierPos, Connector connector, long ticket)
 	    {
 		    if (copier.CrossCopier != null)

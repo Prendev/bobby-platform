@@ -30,6 +30,7 @@ namespace TradeSystem.Data.Models
 		public int MaxRetryCount { get; set; } = 5;
 		public int RetryPeriodInMs { get; set; } = 25;
         public int DelayInMilliseconds { get; set; }
+		public string Comment { get; set; }
 
 		public List<CopierPosition> CopierPositions { get; } = new List<CopierPosition>();
 
