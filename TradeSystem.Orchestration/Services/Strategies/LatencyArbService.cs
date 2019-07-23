@@ -763,6 +763,13 @@ namespace TradeSystem.Orchestration.Services.Strategies
 		{
 			if (set.State != LatencyArb.LatencyArbStates.Sync) return;
 			set.LatencyArbPositions.ForEach(p => p.Archived = true);
+			SyncOnlyMt4(set);
+			SyncFixMt4(set);
+		}
+		private void SyncOnlyMt4(LatencyArb set)
+		{
+			if (set.State != LatencyArb.LatencyArbStates.Sync) return;
+			set.LatencyArbPositions.ForEach(p => p.Archived = true);
 			var longPositions = (set.LongAccount.Connector as Mt4Integration.Connector)?.Positions;
 			var shortPositions = (set.ShortAccount.Connector as Mt4Integration.Connector)?.Positions;
 			if (longPositions == null) return;
@@ -794,7 +801,80 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				{
 					LatencyArb = set,
 					LongTicket = longPos.Key,
+					LongOpenPrice = longPos.Value.OpenPrice,
 					ShortTicket = match.Value.Key,
+					ShortOpenPrice = match.Value.Value.OpenPrice,
+					Level = level
+				};
+				set.LatencyArbPositions.Add(arbPos);
+			}
+			foreach (var arbPos in set.LivePositions)
+				AddCopierPosition(set, arbPos);
+
+			set.State = LatencyArb.LatencyArbStates.None;
+		}
+		private void SyncFixMt4(LatencyArb set)
+		{
+			if (set.State != LatencyArb.LatencyArbStates.Sync) return;
+			set.LatencyArbPositions.ForEach(p => p.Archived = true);
+			if (!(set.LongAccount.Connector is FixApiIntegration.Connector) &&
+			    !(set.ShortAccount.Connector is FixApiIntegration.Connector))
+				return;
+
+			var longPositions = (set.LongAccount.Connector as Mt4Integration.Connector)?.Positions;
+			var shortPositions = (set.ShortAccount.Connector as Mt4Integration.Connector)?.Positions;
+			if (longPositions == null && shortPositions == null) return;
+			
+			foreach (var longPos in longPositions ?? new ConcurrentDictionary<long, Position>())
+			{
+				if (longPos.Value.Side != Sides.Buy) continue;
+				if (longPos.Value.Lots != set.LongSize) continue;
+				if (longPos.Value.Symbol != set.LongSymbol) continue;
+				if (set.LivePositions.Any(p => p.LongTicket == longPos.Key)) continue;
+				if (!string.IsNullOrWhiteSpace(set.Comment) && longPos.Value.Comment != set.Comment) continue;
+
+				var level = set.LivePositions.Count + 1;
+				var arbPos = new LatencyArbPosition()
+				{
+					LatencyArb = set,
+					LongTicket = longPos.Key,
+					LongOpenPrice = longPos.Value.OpenPrice,
+					ShortOpenPrice = longPos.Value.OpenPrice,
+					ShortPosition = new StratPosition()
+					{
+						Account = set.ShortAccount,
+						AvgPrice = longPos.Value.OpenPrice,
+						OpenTime = longPos.Value.OpenTime,
+						Symbol = set.ShortSymbol,
+						Size = set.ShortSize
+					},
+					Level = level
+				};
+				set.LatencyArbPositions.Add(arbPos);
+			}
+			foreach (var shortPos in shortPositions ?? new ConcurrentDictionary<long, Position>())
+			{
+				if (shortPos.Value.Side != Sides.Sell) continue;
+				if (shortPos.Value.Lots != set.ShortSize) continue;
+				if (shortPos.Value.Symbol != set.ShortSymbol) continue;
+				if (set.LivePositions.Any(p => p.ShortTicket == shortPos.Key)) continue;
+				if (!string.IsNullOrWhiteSpace(set.Comment) && shortPos.Value.Comment != set.Comment) continue;
+
+				var level = set.LivePositions.Count + 1;
+				var arbPos = new LatencyArbPosition()
+				{
+					LatencyArb = set,
+					LongPosition = new StratPosition()
+					{
+						Account = set.LongAccount,
+						AvgPrice = shortPos.Value.OpenPrice,
+						OpenTime = shortPos.Value.OpenTime,
+						Symbol = set.LongSymbol,
+						Size = set.LongSize
+					},
+					LongOpenPrice = shortPos.Value.OpenPrice,
+					ShortTicket = shortPos.Key,
+					ShortOpenPrice = shortPos.Value.OpenPrice,
 					Level = level
 				};
 				set.LatencyArbPositions.Add(arbPos);
