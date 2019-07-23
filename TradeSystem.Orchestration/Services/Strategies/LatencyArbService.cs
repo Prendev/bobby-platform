@@ -112,17 +112,9 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 		private void Check(LatencyArb set)
 		{
+			Reset(set);
+			Sync(set);
 			if (set.State == LatencyArb.LatencyArbStates.None) return;
-			if (set.State == LatencyArb.LatencyArbStates.Reset)
-			{
-				foreach (var arbPos in set.LatencyArbPositions)
-				{
-					arbPos.Archived = true;
-					RemoveCopierPosition(set, arbPos);
-				}
-				set.State = LatencyArb.LatencyArbStates.None;
-				return;
-			}
 
 			if (!set.HasPrices) return;
 			if (set.HasTiming && IsTime(HiResDatetime.UtcNow.TimeOfDay, set.LatestTradeTime, set.EarliestTradeTime)) return;
@@ -205,8 +197,6 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				if (!posError) continue;
 				Logger.Error($"{set} latency arb - {pos.Level}. - unexpected closed or missing position(s)");
 			}
-
-			Sync(set);
 		}
 
 		private void CheckOpening(LatencyArb set)
@@ -759,10 +749,26 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			return null;
 		}
 
+		private void Reset(LatencyArb set)
+		{
+			if (set.State != LatencyArb.LatencyArbStates.Reset) return;
+			set.LivePositions.ForEach(p =>
+			{
+				p.Archived = true;
+				RemoveCopierPosition(set, p);
+			});
+			set.State = LatencyArb.LatencyArbStates.None;
+		}
+
 		private void Sync(LatencyArb set)
 		{
 			if (set.State != LatencyArb.LatencyArbStates.Sync) return;
-			set.LatencyArbPositions.ForEach(p => p.Archived = true);
+			CheckPositions(set);
+			set.LivePositions.ForEach(p =>
+			{
+				p.Archived = true;
+				RemoveCopierPosition(set, p);
+			});
 			SyncOnlyMt4(set);
 			SyncFixMt4(set);
 		}
@@ -777,6 +783,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 			foreach (var longPos in longPositions)
 			{
+				if (longPos.Value.IsClosed) continue;
 				if (longPos.Value.Side != Sides.Buy) continue;
 				if (longPos.Value.Lots != set.LongSize) continue;
 				if (longPos.Value.Symbol != set.LongSymbol) continue;
@@ -786,6 +793,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				KeyValuePair<long, Position>? match = null;
 				foreach (var shortPos in shortPositions)
 				{
+					if (shortPos.Value.IsClosed) continue;
 					if (shortPos.Value.Side != Sides.Sell) continue;
 					if (shortPos.Value.Lots != set.ShortSize) continue;
 					if (shortPos.Value.Symbol != set.ShortSymbol) continue;
@@ -827,6 +835,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			
 			foreach (var longPos in longPositions ?? new ConcurrentDictionary<long, Position>())
 			{
+				if (longPos.Value.IsClosed) continue;
 				if (longPos.Value.Side != Sides.Buy) continue;
 				if (longPos.Value.Lots != set.LongSize) continue;
 				if (longPos.Value.Symbol != set.LongSymbol) continue;
@@ -854,6 +863,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			}
 			foreach (var shortPos in shortPositions ?? new ConcurrentDictionary<long, Position>())
 			{
+				if (shortPos.Value.IsClosed) continue;
 				if (shortPos.Value.Side != Sides.Sell) continue;
 				if (shortPos.Value.Lots != set.ShortSize) continue;
 				if (shortPos.Value.Symbol != set.ShortSymbol) continue;
