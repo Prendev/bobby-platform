@@ -44,6 +44,11 @@ namespace TradeSystem.Data.Models
 		[DisplayName("ReopenDaysOld")] public int ReopenThresholdInDay { get; set; } = 5;
 		[DisplayName("R Count")] public int ReopenCount { get => Get<int>(); set => Set(value); }
 
+		public int EmergencyOff { get; set; }
+		[DisplayName("E Open tr.")] public decimal EmergencyOpenThresholdInPip { get; set; }
+		[DisplayName("E Close tr.")] public decimal EmergencyCloseThresholdInPip { get; set; }
+		[DisplayName("E Count")] public int EmergencyCount { get => Get<int>(); set => Set(value); }
+
 		public int FastFeedAccountId { get; set; }
 		public Account FastFeedAccount { get => Get<Account>(); set => Set(value); }
 		[DisplayName("FF Sym")] [Required] public string FastFeedSymbol { get; set; }
