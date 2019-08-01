@@ -143,15 +143,24 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			if (last == null)
 			{
 				if (set.State != NewsArb.NewsArbStates.Opening) return;
-				if (!set.ShortSpreadCheck) return;
-				if (!set.LongSpreadCheck) return;
+				if (!set.ShortSpreadCheck)
+				{
+					Logger.Debug($"{set} News arb ShortSpreadCheck false");
+					return;
+				}
+				if (!set.LongSpreadCheck)
+				{
+					Logger.Debug($"{set} News arb LongSpreadCheck false");
+					return;
+				}
 				if (set.LastSnwTick == null) return;
 				if (set.LastSnwTick.Ask == 0 && set.LastSnwTick.Bid == 0) return;
 				if (HiResDatetime.UtcNow - set.LastSnwTick.Time > TimeSpan.FromMilliseconds(set.SnwTimeWindowInMs)) return;
 				if (set.LastSnwTick.Ask > 0) Logger.Debug($"{set} News arb buy signal {set.LastSnwTick.Ask}");
 				if (set.LastSnwTick.Bid > 0) Logger.Debug($"{set} News arb sell signal {set.LastSnwTick.Bid}");
 				// Long signal
-				if (set.LastSnwTick.Ask == set.SnwSignal)
+				if (set.LastSnwTick.Ask == set.SnwSignal && !set.SnwInvertSignal ||
+				    set.LastSnwTick.Bid == set.SnwSignal && set.SnwInvertSignal)
 				{
 					var pos = SendLongOrder(set, true);
 					if (pos == null)
@@ -171,7 +180,8 @@ namespace TradeSystem.Orchestration.Services.Strategies
 					            $"{Environment.NewLine}\tExecution time is {pos.ExecutionTime} ms with {pos.Slippage / set.PipSize:F2} pip slippage");
 				}
 				// Short signal
-				else if (set.LastSnwTick.Bid == set.SnwSignal)
+				else if (set.LastSnwTick.Bid == set.SnwSignal && !set.SnwInvertSignal ||
+				         set.LastSnwTick.Ask == set.SnwSignal && set.SnwInvertSignal)
 				{
 					var pos = SendShortOrder(set, true);
 					if (pos == null)

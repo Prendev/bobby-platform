@@ -183,6 +183,7 @@ namespace TradeSystem.Data.Models
 		private bool SpreadCheck(Tick lastTick, decimal spread)
 		{
 			if (lastTick?.HasValue != true) return false;
+			if (spread <= 0) return true;
 			return lastTick.Ask - lastTick.Bid <= spread * PipSize;
 		}
 	}
