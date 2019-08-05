@@ -591,7 +591,7 @@ namespace TradeSystem.FixApiIntegration
 				Logger.Error(
 					$"{Description} FixConnector.ExecutionReport unfinished order ({r.Symbol}, {r.Side}, {r.FulfilledQuantity})!!!");
 				var side = r.Side == BuySell.Buy ? Sides.Sell : Sides.Buy;
-				SendMarketOrderRequest(r.Symbol.ToString(), side, quantity, 10000, 5, 25, true);
+				SendMarketOrderRequest(r.Symbol.ToString(), side, quantity, 30000, 5, 25, true);
 			}
 
 			CheckNewPosition(r);
