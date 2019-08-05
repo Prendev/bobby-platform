@@ -99,7 +99,12 @@ namespace TradeSystem.FixApiIntegration
 			OnConnectionChanged(ConnectionStates.Disconnected);
 		}
 
-		public override async Task<OrderResponse> SendMarketOrderRequest(string symbol, Sides side, decimal quantity, int timeout, int retryCount, int retryPeriod)
+		public override Task<OrderResponse> SendMarketOrderRequest(string symbol, Sides side, decimal quantity, int timeout, int retryCount, int retryPeriod)
+		{
+			return SendMarketOrderRequest(symbol, side, quantity, timeout, retryCount, retryPeriod, false);
+		}
+		private async Task<OrderResponse> SendMarketOrderRequest(string symbol, Sides side, decimal quantity,
+			int timeout, int retryCount, int retryPeriod, bool isUnfinished)
 		{
 			var retValue = new OrderResponse()
 			{
@@ -121,15 +126,27 @@ namespace TradeSystem.FixApiIntegration
 					RetryCount = retryCount,
 					RetryDelay = retryPeriod
 				});
-
-				if (!string.IsNullOrWhiteSpace(response.UnfinishedOrderId))
-					_unfinishedOrderIds.Add(response.UnfinishedOrderId);
-
 				retValue.AveragePrice = response.AveragePrice;
 				retValue.FilledQuantity = response.FilledQuantity;
 
-				Logger.Debug(
-					$"{Description} Connector.SendMarketOrderRequest({symbol}, {side}, {quantity}) opened {retValue.FilledQuantity} at avg price {retValue.AveragePrice}");
+				if (!string.IsNullOrWhiteSpace(response.UnfinishedOrderId))
+				{
+					if (!isUnfinished)
+					{
+						_unfinishedOrderIds.Add(response.UnfinishedOrderId);
+						Logger.Warn(
+							$"{Description} Connector.SendMarketOrderRequest({symbol}, {side}, {quantity}) unfinished " +
+							$"{retValue.FilledQuantity} at avg price {retValue.AveragePrice}");
+					}
+					else
+						Logger.Error(
+							$"{Description} Connector.SendMarketOrderRequest({symbol}, {side}, {quantity}) double unfinished " +
+							$"{retValue.FilledQuantity} at avg price {retValue.AveragePrice}");
+				}
+				else
+					Logger.Debug(
+						$"{Description} Connector.SendMarketOrderRequest({symbol}, {side}, {quantity}) opened " +
+						$"{retValue.FilledQuantity} at avg price {retValue.AveragePrice}");
 			}
 			catch (Exception e)
 			{
@@ -147,8 +164,7 @@ namespace TradeSystem.FixApiIntegration
 		}
 
 		public override async Task<OrderResponse> SendAggressiveOrderRequest(
-			string symbol, Sides side, decimal quantity,
-			decimal limitPrice, decimal deviation, decimal priceDiff,
+			string symbol, Sides side, decimal quantity, decimal limitPrice, decimal deviation, decimal priceDiff,
 			int timeout, int retryCount, int retryPeriod)
 		{
 			if (!_fixConnector.IsAggressiveOrderSupported())
@@ -181,17 +197,22 @@ namespace TradeSystem.FixApiIntegration
 					RetryCount = retryCount,
 					RetryDelay = retryPeriod
 				});
-
-				if (!string.IsNullOrWhiteSpace(response.UnfinishedOrderId))
-					_unfinishedOrderIds.Add(response.UnfinishedOrderId);
-
 				retValue.AveragePrice = response.AveragePrice;
 				retValue.FilledQuantity = response.FilledQuantity;
 
-				Logger.Debug(
-					$"{Description} Connector.SendAggressiveOrderRequest({symbol}, {side}, {quantity}, " +
-					$"{limitPrice}, {deviation}, {priceDiff}, {timeout}, {retryCount}, {retryPeriod}) " +
-					$"opened {response.FilledQuantity} at avg price {response.AveragePrice}");
+				if (!string.IsNullOrWhiteSpace(response.UnfinishedOrderId))
+				{
+					_unfinishedOrderIds.Add(response.UnfinishedOrderId);
+					Logger.Warn(
+						$"{Description} Connector.SendAggressiveOrderRequest({symbol}, {side}, {quantity}, " +
+						$"{limitPrice}, {deviation}, {priceDiff}, {timeout}, {retryCount}, {retryPeriod}) " +
+						$"unfinished {response.FilledQuantity} at avg price {response.AveragePrice}");
+				}
+				else
+					Logger.Debug(
+						$"{Description} Connector.SendAggressiveOrderRequest({symbol}, {side}, {quantity}, " +
+						$"{limitPrice}, {deviation}, {priceDiff}, {timeout}, {retryCount}, {retryPeriod}) " +
+						$"opened {response.FilledQuantity} at avg price {response.AveragePrice}");
 			}
 			catch (TimeoutException)
 			{
@@ -245,17 +266,22 @@ namespace TradeSystem.FixApiIntegration
 					RetryCount = retryCount,
 					RetryDelay = retryPeriod
 				});
-
-				if (!string.IsNullOrWhiteSpace(response.UnfinishedOrderId))
-					_unfinishedOrderIds.Add(response.UnfinishedOrderId);
-
 				retValue.AveragePrice = response.AveragePrice;
 				retValue.FilledQuantity = response.FilledQuantity;
 
-				Logger.Debug(
-					$"{Description} Connector.SendDelayedAggressiveOrderRequest({symbol}, {side}, {quantity}, " +
-					$"{limitPrice}, {deviation}, {priceDiff}, {correction}, {timeout}, {retryCount}, {retryPeriod}) " +
-					$"opened {response.FilledQuantity} at avg price {response.AveragePrice}");
+				if (!string.IsNullOrWhiteSpace(response.UnfinishedOrderId))
+				{
+					_unfinishedOrderIds.Add(response.UnfinishedOrderId);
+					Logger.Warn(
+						$"{Description} Connector.SendDelayedAggressiveOrderRequest({symbol}, {side}, {quantity}, " +
+						$"{limitPrice}, {deviation}, {priceDiff}, {correction}, {timeout}, {retryCount}, {retryPeriod}) " +
+						$"unfinished {response.FilledQuantity} at avg price {response.AveragePrice}");
+				}
+				else
+					Logger.Debug(
+						$"{Description} Connector.SendDelayedAggressiveOrderRequest({symbol}, {side}, {quantity}, " +
+						$"{limitPrice}, {deviation}, {priceDiff}, {correction}, {timeout}, {retryCount}, {retryPeriod}) " +
+						$"opened {response.FilledQuantity} at avg price {response.AveragePrice}");
 			}
 			catch (TimeoutException)
 			{
@@ -305,17 +331,22 @@ namespace TradeSystem.FixApiIntegration
 					RetryCount = retryCount,
 					RetryDelay = retryPeriod
 				});
-
-				if (!string.IsNullOrWhiteSpace(response.UnfinishedOrderId))
-					_unfinishedOrderIds.Add(response.UnfinishedOrderId);
-
 				retValue.AveragePrice = response.AveragePrice;
 				retValue.FilledQuantity = response.FilledQuantity;
 
-				Logger.Debug(
-					$"{Description} Connector.SendGtcLimitOrderRequest({symbol}, {side}, {quantity}, " +
-					$"{limitPrice}, {deviation}, {priceDiff}, {timeout}, {retryCount}, {retryPeriod}) " +
-					$"opened {response.FilledQuantity} at avg price {response.AveragePrice}");
+				if (!string.IsNullOrWhiteSpace(response.UnfinishedOrderId))
+				{
+					_unfinishedOrderIds.Add(response.UnfinishedOrderId);
+					Logger.Warn(
+						$"{Description} Connector.SendGtcLimitOrderRequest({symbol}, {side}, {quantity}, " +
+						$"{limitPrice}, {deviation}, {priceDiff}, {timeout}, {retryCount}, {retryPeriod}) " +
+						$"unfinished {response.FilledQuantity} at avg price {response.AveragePrice}");
+				}
+				else
+					Logger.Debug(
+						$"{Description} Connector.SendGtcLimitOrderRequest({symbol}, {side}, {quantity}, " +
+						$"{limitPrice}, {deviation}, {priceDiff}, {timeout}, {retryCount}, {retryPeriod}) " +
+						$"opened {response.FilledQuantity} at avg price {response.AveragePrice}");
 			}
 			catch (TimeoutException)
 			{
@@ -560,7 +591,7 @@ namespace TradeSystem.FixApiIntegration
 				Logger.Error(
 					$"{Description} FixConnector.ExecutionReport unfinished order ({r.Symbol}, {r.Side}, {r.FulfilledQuantity})!!!");
 				var side = r.Side == BuySell.Buy ? Sides.Sell : Sides.Buy;
-				SendMarketOrderRequest(r.Symbol.ToString(), side, quantity, 5000, 5, 25);
+				SendMarketOrderRequest(r.Symbol.ToString(), side, quantity, 10000, 5, 25, true);
 			}
 
 			CheckNewPosition(r);
