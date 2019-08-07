@@ -38,7 +38,7 @@ namespace TradeSystem.Duplicat
 
 			using (var c = new DuplicatContext()) c.Init();
 
-			Application.EnableVisualStyles();
+			//Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             using (var scope = Dependencies.GetContainer().BeginLifetimeScope())
             {
