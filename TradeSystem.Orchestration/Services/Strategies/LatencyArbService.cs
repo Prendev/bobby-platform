@@ -223,7 +223,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 					var level = set.LivePositions.Count + 1;
 					if (set.Copier != null) set.Copier.Run = false;
 					if (set.FixApiCopier != null) set.FixApiCopier.Run = false;
-					var pos = SendLongOrder(set, true);
+					var pos = SendLongOrder(set, set.LongSize, true);
 					if (set.Copier != null) set.Copier.Run = true;
 					if (set.FixApiCopier != null) set.FixApiCopier.Run = true;
 					if (pos == null)
@@ -248,7 +248,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 					var level = set.LivePositions.Count + 1;
 					if (set.Copier != null) set.Copier.Run = false;
 					if (set.FixApiCopier != null) set.FixApiCopier.Run = false;
-					var pos = SendShortOrder(set, true);
+					var pos = SendShortOrder(set, set.ShortSize, true);
 					if (set.Copier != null) set.Copier.Run = true;
 					if (set.FixApiCopier != null) set.FixApiCopier.Run = true;
 					if (pos == null)
@@ -285,7 +285,8 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 				if (set.Copier != null) set.Copier.Run = false;
 				if (set.FixApiCopier != null) set.FixApiCopier.Run = false;
-				var pos = SendShortOrder(set, false);
+				var quantity = (last.LongPosition?.Size ?? set.LongSize) / set.LongSize * set.ShortSize;
+				var pos = SendShortOrder(set, quantity, false);
 				if (set.Copier != null) set.Copier.Run = true;
 				if (set.FixApiCopier != null) set.FixApiCopier.Run = true;
 				if (pos == null)
@@ -324,7 +325,8 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 				if (set.Copier != null) set.Copier.Run = false;
 				if (set.FixApiCopier != null) set.FixApiCopier.Run = false;
-				var pos = SendLongOrder(set, false);
+				var quantity = (last.ShortPosition?.Size ?? set.ShortSize) / set.ShortSize * set.LongSize;
+				var pos = SendLongOrder(set, quantity, false);
 				if (set.Copier != null) set.Copier.Run = true;
 				if (set.FixApiCopier != null) set.FixApiCopier.Run = true;
 				if (pos == null)
@@ -348,7 +350,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			}
 		}
 
-		private OpenResult SendLongOrder(LatencyArb set, bool isFirst)
+		private OpenResult SendLongOrder(LatencyArb set, decimal quantity, bool isFirst)
 		{
 			var signalPrice = set.LastLongTick.Ask;
 			set.Stopwatch.Restart();
@@ -370,11 +372,29 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				if (set.LongAccount.Connector is FixApiIntegration.Connector fixConnector)
 				{
 					OrderResponse result = null;
-					if (!isFirst || set.FirstOrderType == LatencyArb.LatencyArbOrderTypes.Market)
-						result = fixConnector.SendMarketOrderRequest(set.LongSymbol, Sides.Buy, set.LongSize).Result;
-					else if (set.FirstOrderType == LatencyArb.LatencyArbOrderTypes.Aggressive)
-						result = fixConnector.SendAggressiveOrderRequest(set.LongSymbol, Sides.Buy, set.LongSize, set.LastLongTick.Ask,
+					if (isFirst && set.FirstOrderType == LatencyArb.LatencyArbOrderTypes.Market ||
+					    !isFirst && set.HedgeOrderType == LatencyArb.LatencyArbOrderTypes.Market)
+						result = fixConnector.SendMarketOrderRequest(set.LongSymbol, Sides.Buy, quantity).Result;
+
+					else if (isFirst && set.FirstOrderType == LatencyArb.LatencyArbOrderTypes.Aggressive ||
+					         !isFirst && set.HedgeOrderType == LatencyArb.LatencyArbOrderTypes.Aggressive)
+					{
+						result = fixConnector.SendAggressiveOrderRequest(set.LongSymbol, Sides.Buy, quantity, set.LastLongTick.Ask,
 							set.Deviation, 0, set.TimeWindowInMs, set.MaxRetryCount, set.RetryPeriodInMs).Result;
+						if (!isFirst && result?.FilledQuantity != quantity)
+						{
+							var fq = quantity - (result?.FilledQuantity ?? 0);
+							var fallbackResult = fixConnector.SendMarketOrderRequest(set.LongSymbol, Sides.Buy, fq).Result;
+							if (result?.IsFilled != true) result = fallbackResult;
+							else if (fallbackResult?.IsFilled == true)
+							{
+								result.AveragePrice =
+									(result.AveragePrice * result.FilledQuantity + fallbackResult.AveragePrice * fallbackResult.FilledQuantity) /
+									(result.FilledQuantity + fallbackResult.FilledQuantity);
+								result.FilledQuantity += fallbackResult.FilledQuantity;
+							}
+						}
+					}
 
 					if (result?.IsFilled != true) return null;
 					return new OpenResult
@@ -402,7 +422,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			return null;
 		}
 
-		private OpenResult SendShortOrder(LatencyArb set, bool isFirst)
+		private OpenResult SendShortOrder(LatencyArb set, decimal quantity, bool isFirst)
 		{
 			var signalPrice = set.LastShortTick.Bid;
 			set.Stopwatch.Restart();
@@ -424,11 +444,30 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				if (set.ShortAccount.Connector is FixApiIntegration.Connector fixConnector)
 				{
 					OrderResponse result = null;
-					if (!isFirst || set.FirstOrderType == LatencyArb.LatencyArbOrderTypes.Market)
-						result = fixConnector.SendMarketOrderRequest(set.ShortSymbol, Sides.Sell, set.ShortSize).Result;
-					else if (set.FirstOrderType == LatencyArb.LatencyArbOrderTypes.Aggressive)
-						result = fixConnector.SendAggressiveOrderRequest(set.ShortSymbol, Sides.Sell, set.ShortSize, set.LastShortTick.Bid,
-							set.Deviation, 0, set.TimeWindowInMs, set.MaxRetryCount, set.RetryPeriodInMs).Result;
+					if (isFirst && set.FirstOrderType == LatencyArb.LatencyArbOrderTypes.Market ||
+					    !isFirst && set.HedgeOrderType == LatencyArb.LatencyArbOrderTypes.Market)
+						result = fixConnector.SendMarketOrderRequest(set.ShortSymbol, Sides.Sell, quantity).Result;
+
+					else if (isFirst && set.FirstOrderType == LatencyArb.LatencyArbOrderTypes.Aggressive ||
+					         !isFirst && set.HedgeOrderType == LatencyArb.LatencyArbOrderTypes.Aggressive)
+					{
+						result = fixConnector.SendAggressiveOrderRequest(set.ShortSymbol, Sides.Sell, quantity,
+							set.LastShortTick.Bid, set.Deviation, 0, set.TimeWindowInMs, set.MaxRetryCount, set.RetryPeriodInMs).Result;
+
+						if (!isFirst && result?.FilledQuantity != quantity)
+						{
+							var fq = quantity - (result?.FilledQuantity ?? 0);
+							var fallbackResult = fixConnector.SendMarketOrderRequest(set.ShortSymbol, Sides.Sell, fq).Result;
+							if (result?.IsFilled != true) result = fallbackResult;
+							else if (fallbackResult?.IsFilled == true)
+							{
+								result.AveragePrice =
+									(result.AveragePrice * result.FilledQuantity + fallbackResult.AveragePrice * fallbackResult.FilledQuantity) /
+									(result.FilledQuantity + fallbackResult.FilledQuantity);
+								result.FilledQuantity += fallbackResult.FilledQuantity;
+							}
+						}
+					}
 
 					if (result?.IsFilled != true) return null;
 					return new OpenResult
@@ -700,12 +739,30 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				if (set.LongAccount.Connector is FixApiIntegration.Connector fixConnector && arbPos.LongPosition != null)
 				{
 					OrderResponse result = null;
-					if (!isFirst || set.FirstOrderType == LatencyArb.LatencyArbOrderTypes.Market)
+					if (!isFirst && set.FirstOrderType == LatencyArb.LatencyArbOrderTypes.Market ||
+					    isFirst && set.HedgeOrderType == LatencyArb.LatencyArbOrderTypes.Market)
 						result = fixConnector.SendMarketOrderRequest(set.LongSymbol, Sides.Sell, arbPos.LongPosition.Size).Result;
-					else if (set.FirstOrderType == LatencyArb.LatencyArbOrderTypes.Aggressive)
+
+					else if (isFirst && set.FirstOrderType == LatencyArb.LatencyArbOrderTypes.Aggressive ||
+					         !isFirst && set.HedgeOrderType == LatencyArb.LatencyArbOrderTypes.Aggressive)
+					{
 						result = fixConnector.SendAggressiveOrderRequest(set.LongSymbol, Sides.Sell, arbPos.LongPosition.Size,
-							set.LastLongTick.Bid,
-							set.Deviation, 0, set.TimeWindowInMs, set.MaxRetryCount, set.RetryPeriodInMs).Result;
+							set.LastLongTick.Bid, set.Deviation, 0, set.TimeWindowInMs, set.MaxRetryCount, set.RetryPeriodInMs).Result;
+
+						if (!isFirst && result?.FilledQuantity != set.LongSize)
+						{
+							var quantity = arbPos.LongPosition.Size - (result?.FilledQuantity ?? 0);
+							var fallbackResult = fixConnector.SendMarketOrderRequest(set.LongSymbol, Sides.Sell, quantity).Result;
+							if (result?.IsFilled != true) result = fallbackResult;
+							else if (fallbackResult?.IsFilled == true)
+							{
+								result.AveragePrice =
+									(result.AveragePrice * result.FilledQuantity + fallbackResult.AveragePrice * fallbackResult.FilledQuantity) /
+									(result.FilledQuantity + fallbackResult.FilledQuantity);
+								result.FilledQuantity += fallbackResult.FilledQuantity;
+							}
+						}
+					}
 
 					if (result?.IsFilled != true) return null;
 					return new CloseResult
@@ -754,12 +811,30 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				if (set.ShortAccount.Connector is FixApiIntegration.Connector fixConnector && arbPos.ShortPosition != null)
 				{
 					OrderResponse result = null;
-					if (!isFirst || set.FirstOrderType == LatencyArb.LatencyArbOrderTypes.Market)
+					if (!isFirst && set.FirstOrderType == LatencyArb.LatencyArbOrderTypes.Market ||
+					    isFirst && set.HedgeOrderType == LatencyArb.LatencyArbOrderTypes.Market)
 						result = fixConnector.SendMarketOrderRequest(set.ShortSymbol, Sides.Buy, arbPos.ShortPosition.Size).Result;
-					else if (set.FirstOrderType == LatencyArb.LatencyArbOrderTypes.Aggressive)
+
+					else if (isFirst && set.FirstOrderType == LatencyArb.LatencyArbOrderTypes.Aggressive ||
+					         !isFirst && set.HedgeOrderType == LatencyArb.LatencyArbOrderTypes.Aggressive)
+					{
 						result = fixConnector.SendAggressiveOrderRequest(set.ShortSymbol, Sides.Buy, arbPos.ShortPosition.Size,
-							set.LastShortTick.Ask,
-							set.Deviation, 0, set.TimeWindowInMs, set.MaxRetryCount, set.RetryPeriodInMs).Result;
+							set.LastShortTick.Ask, set.Deviation, 0, set.TimeWindowInMs, set.MaxRetryCount, set.RetryPeriodInMs).Result;
+
+						if (!isFirst && result?.FilledQuantity != set.LongSize)
+						{
+							var quantity = arbPos.ShortPosition.Size - (result?.FilledQuantity ?? 0);
+							var fallbackResult = fixConnector.SendMarketOrderRequest(set.ShortSymbol, Sides.Buy, quantity).Result;
+							if (result?.IsFilled != true) result = fallbackResult;
+							else if (fallbackResult?.IsFilled == true)
+							{
+								result.AveragePrice =
+									(result.AveragePrice * result.FilledQuantity + fallbackResult.AveragePrice * fallbackResult.FilledQuantity) /
+									(result.FilledQuantity + fallbackResult.FilledQuantity);
+								result.FilledQuantity += fallbackResult.FilledQuantity;
+							}
+						}
+					}
 
 					if (result?.IsFilled != true) return null;
 					return new CloseResult

@@ -78,6 +78,7 @@ namespace TradeSystem.Data.Models
 		[DisplayName("Latest")] public TimeSpan? LatestTradeTime { get; set; }
 
 		public LatencyArbOrderTypes FirstOrderType { get; set; }
+		public LatencyArbOrderTypes HedgeOrderType { get; set; }
 		[DisplayName("MaxRetry")]
 		public int MaxRetryCount { get; set; }
 		[DisplayName("RetryPeriod")]
