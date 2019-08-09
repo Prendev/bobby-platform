@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Configuration;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
@@ -20,6 +21,8 @@ namespace TradeSystem.Duplicat.Views
 
 		public CustomDataGridView()
 		{
+			bool.TryParse(ConfigurationManager.AppSettings["ShowCellToolTips"], out bool showCellToolTips);
+			ShowCellToolTips = showCellToolTips;
 			MultiSelect = false;
 			AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
 			DataSourceChanged += CustomDataGridView_DataSourceChanged;

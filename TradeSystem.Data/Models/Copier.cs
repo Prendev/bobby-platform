@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
 using TradeSystem.Common.Attributes;
 
@@ -26,10 +27,10 @@ namespace TradeSystem.Data.Models
 		public CopierModes Mode { get; set; }
 		public decimal CopyRatio { get; set; }
 		public CopierOrderTypes OrderType { get; set; }
-		public int SlippageInPips { get; set; }
-		public int MaxRetryCount { get; set; } = 5;
-		public int RetryPeriodInMs { get; set; } = 25;
-        public int DelayInMilliseconds { get; set; }
+		[DisplayName("Delay")] public int DelayInMilliseconds { get; set; }
+		[DisplayName("Retry")] public int MaxRetryCount { get; set; } = 5;
+		[DisplayName("Period")] public int RetryPeriodInMs { get; set; } = 25;
+		[DisplayName("Slippage")] public int SlippageInPips { get; set; }
 		public string Comment { get; set; }
 
 		public List<CopierPosition> CopierPositions { get; } = new List<CopierPosition>();
