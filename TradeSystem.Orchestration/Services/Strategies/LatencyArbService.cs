@@ -379,8 +379,8 @@ namespace TradeSystem.Orchestration.Services.Strategies
 					else if (isFirst && set.FirstOrderType == LatencyArb.LatencyArbOrderTypes.Aggressive ||
 					         !isFirst && set.HedgeOrderType == LatencyArb.LatencyArbOrderTypes.Aggressive)
 					{
-						result = fixConnector.SendAggressiveOrderRequest(set.LongSymbol, Sides.Buy, quantity, set.LastLongTick.Ask,
-							set.Deviation, 0, set.TimeWindowInMs, set.MaxRetryCount, set.RetryPeriodInMs).Result;
+						result = fixConnector.SendAggressiveOrderRequest(set.LongSymbol, Sides.Buy, quantity,
+							set.LastLongTick.Ask, set.Deviation, 0, set.TimeWindowInMs, set.MaxRetryCount, set.RetryPeriodInMs).Result;
 						if (!isFirst && result?.FilledQuantity != quantity)
 						{
 							var fq = quantity - (result?.FilledQuantity ?? 0);
@@ -749,7 +749,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 						result = fixConnector.SendAggressiveOrderRequest(set.LongSymbol, Sides.Sell, arbPos.LongPosition.Size,
 							set.LastLongTick.Bid, set.Deviation, 0, set.TimeWindowInMs, set.MaxRetryCount, set.RetryPeriodInMs).Result;
 
-						if (!isFirst && result?.FilledQuantity != set.LongSize)
+						if (!isFirst && result?.FilledQuantity != arbPos.LongPosition.Size)
 						{
 							var quantity = arbPos.LongPosition.Size - (result?.FilledQuantity ?? 0);
 							var fallbackResult = fixConnector.SendMarketOrderRequest(set.LongSymbol, Sides.Sell, quantity).Result;
@@ -821,7 +821,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 						result = fixConnector.SendAggressiveOrderRequest(set.ShortSymbol, Sides.Buy, arbPos.ShortPosition.Size,
 							set.LastShortTick.Ask, set.Deviation, 0, set.TimeWindowInMs, set.MaxRetryCount, set.RetryPeriodInMs).Result;
 
-						if (!isFirst && result?.FilledQuantity != set.LongSize)
+						if (!isFirst && result?.FilledQuantity != arbPos.ShortPosition.Size)
 						{
 							var quantity = arbPos.ShortPosition.Size - (result?.FilledQuantity ?? 0);
 							var fallbackResult = fixConnector.SendMarketOrderRequest(set.ShortSymbol, Sides.Buy, quantity).Result;
