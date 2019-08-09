@@ -933,6 +933,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				AddCopierPosition(set, arbPos);
 
 			set.State = LatencyArb.LatencyArbStates.None;
+			Logger.Debug($"{set} latency arb. - SyncOnlyMt4");
 		}
 		private void SyncFixMt4(LatencyArb set)
 		{
@@ -1006,6 +1007,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				AddCopierPosition(set, arbPos);
 
 			set.State = LatencyArb.LatencyArbStates.None;
+			Logger.Debug($"{set} latency arb. - SyncFixMt4");
 		}
 		private void AddCopierPosition(LatencyArb set, LatencyArbPosition arbPos)
 		{

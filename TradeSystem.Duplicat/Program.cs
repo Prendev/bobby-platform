@@ -21,6 +21,9 @@ namespace TradeSystem.Duplicat
         [STAThread]
         static void Main()
 		{
+			Application.EnableVisualStyles();
+			Application.SetCompatibleTextRenderingDefault(false);
+
 			Directory.CreateDirectory("FileContext");
 			Directory.CreateDirectory("Mt4SrvFiles");
 			Directory.CreateDirectory("FixApiConfigFiles");
@@ -37,9 +40,6 @@ namespace TradeSystem.Duplicat
 			Debug.WriteLine($"Generate ThreadPool threads finish at {HiResDatetime.UtcNow:O}");
 
 			using (var c = new DuplicatContext()) c.Init();
-
-			//Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
             using (var scope = Dependencies.GetContainer().BeginLifetimeScope())
             {
 				Application.ThreadException += (s, e) => Application_ThreadException(e);
