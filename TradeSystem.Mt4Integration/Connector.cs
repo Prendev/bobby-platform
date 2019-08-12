@@ -217,12 +217,19 @@ namespace TradeSystem.Mt4Integration
 
 		public override void Subscribe(string symbol)
 		{
-			lock (_symbols)
-				if (!_symbols.Contains(symbol))
-					_symbols.Add(symbol);
+			try
+			{
+				lock (_symbols)
+					if (!_symbols.Contains(symbol))
+						_symbols.Add(symbol);
 
-			if (QuoteClient.IsSubscribed(symbol)) return;
-			QuoteClient.Subscribe(symbol);
+				if (QuoteClient.IsSubscribed(symbol)) return;
+				QuoteClient.Subscribe(symbol);
+			}
+			catch (Exception e)
+			{
+				Logger.Error($"{_accountInfo.Description} Connector.Subscribe({symbol}) exception", e);
+			}
 		}
 
 		private void QuoteClient_OnQuote(object sender, QuoteEventArgs args)
