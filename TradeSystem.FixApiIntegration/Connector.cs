@@ -131,6 +131,7 @@ namespace TradeSystem.FixApiIntegration
 
 				if (!string.IsNullOrWhiteSpace(response.UnfinishedOrderId))
 				{
+					retValue.IsUnfinished = true;
 					if (!isUnfinished)
 					{
 						_unfinishedOrderIds.Add(response.UnfinishedOrderId);
@@ -143,6 +144,10 @@ namespace TradeSystem.FixApiIntegration
 							$"{Description} Connector.SendMarketOrderRequest({symbol}, {side}, {quantity}) double unfinished " +
 							$"{retValue.FilledQuantity} at avg price {retValue.AveragePrice}");
 				}
+				else if(isUnfinished)
+					Logger.Debug(
+						$"{Description} Connector.SendMarketOrderRequest({symbol}, {side}, {quantity}) opened " +
+						$"{retValue.FilledQuantity} at avg price {retValue.AveragePrice} to previous close unfinished");
 				else
 					Logger.Debug(
 						$"{Description} Connector.SendMarketOrderRequest({symbol}, {side}, {quantity}) opened " +
@@ -202,6 +207,7 @@ namespace TradeSystem.FixApiIntegration
 
 				if (!string.IsNullOrWhiteSpace(response.UnfinishedOrderId))
 				{
+					retValue.IsUnfinished = true;
 					_unfinishedOrderIds.Add(response.UnfinishedOrderId);
 					Logger.Warn(
 						$"{Description} Connector.SendAggressiveOrderRequest({symbol}, {side}, {quantity}, " +
@@ -271,6 +277,7 @@ namespace TradeSystem.FixApiIntegration
 
 				if (!string.IsNullOrWhiteSpace(response.UnfinishedOrderId))
 				{
+					retValue.IsUnfinished = true;
 					_unfinishedOrderIds.Add(response.UnfinishedOrderId);
 					Logger.Warn(
 						$"{Description} Connector.SendDelayedAggressiveOrderRequest({symbol}, {side}, {quantity}, " +
@@ -336,6 +343,7 @@ namespace TradeSystem.FixApiIntegration
 
 				if (!string.IsNullOrWhiteSpace(response.UnfinishedOrderId))
 				{
+					retValue.IsUnfinished = true;
 					_unfinishedOrderIds.Add(response.UnfinishedOrderId);
 					Logger.Warn(
 						$"{Description} Connector.SendGtcLimitOrderRequest({symbol}, {side}, {quantity}, " +

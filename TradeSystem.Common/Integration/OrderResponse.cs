@@ -9,6 +9,7 @@
 		public decimal FilledQuantity { get; set; }
 
 		public bool IsFilled => AveragePrice.HasValue && FilledQuantity > 0;
+		public bool IsUnfinished { get; set; }
 
 		public Sides Side { get; set; }
 		public decimal SignedSize => FilledQuantity * (Side == Sides.Buy ? 1 : -1);

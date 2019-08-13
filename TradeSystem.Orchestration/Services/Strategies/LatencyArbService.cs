@@ -381,10 +381,12 @@ namespace TradeSystem.Orchestration.Services.Strategies
 					{
 						result = fixConnector.SendAggressiveOrderRequest(set.LongSymbol, Sides.Buy, quantity,
 							set.LastLongTick.Ask, set.Deviation, 0, set.TimeWindowInMs, set.MaxRetryCount, set.RetryPeriodInMs).Result;
+						CheckUnfinished(set, result);
 						if (!isFirst && result?.FilledQuantity != quantity)
 						{
 							var fq = quantity - (result?.FilledQuantity ?? 0);
 							var fallbackResult = fixConnector.SendMarketOrderRequest(set.LongSymbol, Sides.Buy, fq).Result;
+							CheckUnfinished(set, fallbackResult);
 							if (result?.IsFilled != true) result = fallbackResult;
 							else if (fallbackResult?.IsFilled == true)
 							{
@@ -395,7 +397,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 							}
 						}
 					}
-
+					CheckUnfinished(set, result);
 					if (result?.IsFilled != true) return null;
 					return new OpenResult
 					{
@@ -453,11 +455,12 @@ namespace TradeSystem.Orchestration.Services.Strategies
 					{
 						result = fixConnector.SendAggressiveOrderRequest(set.ShortSymbol, Sides.Sell, quantity,
 							set.LastShortTick.Bid, set.Deviation, 0, set.TimeWindowInMs, set.MaxRetryCount, set.RetryPeriodInMs).Result;
-
+						CheckUnfinished(set, result);
 						if (!isFirst && result?.FilledQuantity != quantity)
 						{
 							var fq = quantity - (result?.FilledQuantity ?? 0);
 							var fallbackResult = fixConnector.SendMarketOrderRequest(set.ShortSymbol, Sides.Sell, fq).Result;
+							CheckUnfinished(set, fallbackResult);
 							if (result?.IsFilled != true) result = fallbackResult;
 							else if (fallbackResult?.IsFilled == true)
 							{
@@ -468,7 +471,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 							}
 						}
 					}
-
+					CheckUnfinished(set, result);
 					if (result?.IsFilled != true) return null;
 					return new OpenResult
 					{
@@ -748,11 +751,12 @@ namespace TradeSystem.Orchestration.Services.Strategies
 					{
 						result = fixConnector.SendAggressiveOrderRequest(set.LongSymbol, Sides.Sell, arbPos.LongPosition.Size,
 							set.LastLongTick.Bid, set.Deviation, 0, set.TimeWindowInMs, set.MaxRetryCount, set.RetryPeriodInMs).Result;
-
+						CheckUnfinished(set, result);
 						if (!isFirst && result?.FilledQuantity != arbPos.LongPosition.Size)
 						{
 							var quantity = arbPos.LongPosition.Size - (result?.FilledQuantity ?? 0);
 							var fallbackResult = fixConnector.SendMarketOrderRequest(set.LongSymbol, Sides.Sell, quantity).Result;
+							CheckUnfinished(set, fallbackResult);
 							if (result?.IsFilled != true) result = fallbackResult;
 							else if (fallbackResult?.IsFilled == true)
 							{
@@ -763,7 +767,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 							}
 						}
 					}
-
+					CheckUnfinished(set, result);
 					if (result?.IsFilled != true) return null;
 					return new CloseResult
 					{
@@ -820,11 +824,12 @@ namespace TradeSystem.Orchestration.Services.Strategies
 					{
 						result = fixConnector.SendAggressiveOrderRequest(set.ShortSymbol, Sides.Buy, arbPos.ShortPosition.Size,
 							set.LastShortTick.Ask, set.Deviation, 0, set.TimeWindowInMs, set.MaxRetryCount, set.RetryPeriodInMs).Result;
-
+						CheckUnfinished(set, result);
 						if (!isFirst && result?.FilledQuantity != arbPos.ShortPosition.Size)
 						{
 							var quantity = arbPos.ShortPosition.Size - (result?.FilledQuantity ?? 0);
 							var fallbackResult = fixConnector.SendMarketOrderRequest(set.ShortSymbol, Sides.Buy, quantity).Result;
+							CheckUnfinished(set, fallbackResult);
 							if (result?.IsFilled != true) result = fallbackResult;
 							else if (fallbackResult?.IsFilled == true)
 							{
@@ -835,7 +840,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 							}
 						}
 					}
-
+					CheckUnfinished(set, result);
 					if (result?.IsFilled != true) return null;
 					return new CloseResult
 					{
@@ -1132,6 +1137,13 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 			if (end < start) return startOk || endOk;
 			return startOk && endOk;
+		}
+
+		private void CheckUnfinished(LatencyArb set, OrderResponse response)
+		{
+			if (response?.IsUnfinished != true) return;
+			set.State = LatencyArb.LatencyArbStates.Error;
+			Logger.Warn($"{set} latency arb. - unfinished ERROR");
 		}
 	}
 }
