@@ -752,7 +752,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 						result = fixConnector.SendAggressiveOrderRequest(set.LongSymbol, Sides.Sell, arbPos.LongPosition.Size,
 							set.LastLongTick.Bid, set.Deviation, 0, set.TimeWindowInMs, set.MaxRetryCount, set.RetryPeriodInMs).Result;
 						CheckUnfinished(set, result);
-						if (!isFirst && result?.FilledQuantity != arbPos.LongPosition.Size)
+						if (result?.FilledQuantity != arbPos.LongPosition.Size)
 						{
 							var quantity = arbPos.LongPosition.Size - (result?.FilledQuantity ?? 0);
 							var fallbackResult = fixConnector.SendMarketOrderRequest(set.LongSymbol, Sides.Sell, quantity).Result;
@@ -825,7 +825,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 						result = fixConnector.SendAggressiveOrderRequest(set.ShortSymbol, Sides.Buy, arbPos.ShortPosition.Size,
 							set.LastShortTick.Ask, set.Deviation, 0, set.TimeWindowInMs, set.MaxRetryCount, set.RetryPeriodInMs).Result;
 						CheckUnfinished(set, result);
-						if (!isFirst && result?.FilledQuantity != arbPos.ShortPosition.Size)
+						if (result?.FilledQuantity != arbPos.ShortPosition.Size)
 						{
 							var quantity = arbPos.ShortPosition.Size - (result?.FilledQuantity ?? 0);
 							var fallbackResult = fixConnector.SendMarketOrderRequest(set.ShortSymbol, Sides.Buy, quantity).Result;
