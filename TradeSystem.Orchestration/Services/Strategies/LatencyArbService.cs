@@ -517,7 +517,8 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				if (!position.HasBothSides) continue;
 				var openTime = GetShortOpenTime(set, position);
 				if (!openTime.HasValue) continue;
-				if ((HiResDatetime.UtcNow - openTime.Value).Days < set.ReopenThresholdInDay) continue;
+				// TODO end of year
+				if (HiResDatetime.UtcNow.DayOfYear - openTime.Value.DayOfYear < set.ReopenThresholdInDay) continue;
 				first = position;
 				break;
 			}
@@ -554,7 +555,8 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				if (!position.HasBothSides) continue;
 				var openTime = GetLongOpenTime(set, position);
 				if (!openTime.HasValue) continue;
-				if ((HiResDatetime.UtcNow - openTime.Value).Days < set.ReopenThresholdInDay) continue;
+				// TODO end of year
+				if (HiResDatetime.UtcNow.DayOfYear - openTime.Value.DayOfYear < set.ReopenThresholdInDay) continue;
 				first = position;
 				break;
 			}
