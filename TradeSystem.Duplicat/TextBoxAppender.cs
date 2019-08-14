@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Drawing;
 using System.Linq;
 using System.Threading;
@@ -21,9 +22,12 @@ namespace TradeSystem.Duplicat
 		private RichTextBox _textBox;
 		private readonly List<string> _filters;
 		private readonly int _maxLines;
+		private readonly bool _logLevelColoring;
 
 		public TextBoxAppender(RichTextBox textBox, int maxLines, params string[] filters)
 		{
+			bool.TryParse(ConfigurationManager.AppSettings["LogLevelColoring"], out bool logLevelColoring);
+			_logLevelColoring = logLevelColoring;
 			_maxLines = maxLines;
 			_filters = (filters ?? new string[] { }).ToList();
 
@@ -104,29 +108,32 @@ namespace TradeSystem.Duplicat
 				{
 					if (_textBox.IsDisposed) return;
 					if (_textBox.Lines.Length > _maxLines) _textBox.Clear();
-					_textBox.AppendText(message);
 
-					//Color color;
-					//if (level == Level.Trace) color = Color.Gray;
-					//else if (level == Level.Debug) color = Color.Black;
-					//else if (level == Level.Info) color = Color.Blue;
-					//else if (level == Level.Warn) color = Color.Olive;
-					//else if (level == Level.Error) color = Color.Red;
-					//else if (level == Level.Fatal) color = Color.Maroon;
-					//else color = SystemColors.WindowText;
+					if (_logLevelColoring)
+					{
+						Color color;
+						if (level == Level.Trace) color = Color.Gray;
+						else if (level == Level.Debug) color = Color.Black;
+						else if (level == Level.Info) color = Color.Blue;
+						else if (level == Level.Warn) color = Color.Olive;
+						else if (level == Level.Error) color = Color.Red;
+						else if (level == Level.Fatal) color = Color.Maroon;
+						else color = SystemColors.WindowText;
 
-					//var selStart = _textBox.SelectionStart;
-					//var selLength = _textBox.SelectionLength;
-					//var resetSelection = selStart != _textBox.TextLength;
+						var selStart = _textBox.SelectionStart;
+						var selLength = _textBox.SelectionLength;
+						var resetSelection = selStart != _textBox.TextLength;
 
-					//_textBox.SelectionStart = _textBox.TextLength;
-					//_textBox.SelectionLength = 0;
-					//_textBox.SelectionColor = color;
-					//_textBox.AppendText(message);
+						_textBox.SelectionStart = _textBox.TextLength;
+						_textBox.SelectionLength = 0;
+						_textBox.SelectionColor = color;
+						_textBox.AppendText(message);
 
-					//if (!resetSelection) return;
-					//_textBox.SelectionStart = selStart;
-					//_textBox.SelectionLength = selLength;
+						if (!resetSelection) return;
+						_textBox.SelectionStart = selStart;
+						_textBox.SelectionLength = selLength;
+					}
+					else _textBox.AppendText(message);
 				}
 			}
 			catch(Exception e)
