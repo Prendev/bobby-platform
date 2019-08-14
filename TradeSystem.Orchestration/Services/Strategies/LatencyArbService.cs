@@ -358,7 +358,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			{
 				if (set.LongAccount.Connector is Mt4Integration.Connector connector)
 				{
-					var pos = connector.SendMarketOrderRequest(set.LongSymbol, Sides.Buy, (double) set.LongSize, 0, set.Comment);
+					var pos = connector.SendMarketOrderRequest(set.LongSymbol, Sides.Buy, (double) quantity, 0, set.Comment);
 					if (pos == null) return null;
 					return new OpenResult
 					{
@@ -432,7 +432,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			{
 				if (set.ShortAccount.Connector is Mt4Integration.Connector connector)
 				{
-					var pos = connector.SendMarketOrderRequest(set.ShortSymbol, Sides.Sell, (double) set.ShortSize, 0, set.Comment);
+					var pos = connector.SendMarketOrderRequest(set.ShortSymbol, Sides.Sell, (double) quantity, 0, set.Comment);
 					if (pos == null) return null;
 					return new OpenResult
 					{
@@ -742,8 +742,8 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				if (set.LongAccount.Connector is FixApiIntegration.Connector fixConnector && arbPos.LongPosition != null)
 				{
 					OrderResponse result = null;
-					if (!isFirst && set.FirstOrderType == LatencyArb.LatencyArbOrderTypes.Market ||
-					    isFirst && set.HedgeOrderType == LatencyArb.LatencyArbOrderTypes.Market)
+					if (isFirst && set.FirstOrderType == LatencyArb.LatencyArbOrderTypes.Market ||
+					    !isFirst && set.HedgeOrderType == LatencyArb.LatencyArbOrderTypes.Market)
 						result = fixConnector.SendMarketOrderRequest(set.LongSymbol, Sides.Sell, arbPos.LongPosition.Size).Result;
 
 					else if (isFirst && set.FirstOrderType == LatencyArb.LatencyArbOrderTypes.Aggressive ||
@@ -815,8 +815,8 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				if (set.ShortAccount.Connector is FixApiIntegration.Connector fixConnector && arbPos.ShortPosition != null)
 				{
 					OrderResponse result = null;
-					if (!isFirst && set.FirstOrderType == LatencyArb.LatencyArbOrderTypes.Market ||
-					    isFirst && set.HedgeOrderType == LatencyArb.LatencyArbOrderTypes.Market)
+					if (isFirst && set.FirstOrderType == LatencyArb.LatencyArbOrderTypes.Market ||
+					    !isFirst && set.HedgeOrderType == LatencyArb.LatencyArbOrderTypes.Market)
 						result = fixConnector.SendMarketOrderRequest(set.ShortSymbol, Sides.Buy, arbPos.ShortPosition.Size).Result;
 
 					else if (isFirst && set.FirstOrderType == LatencyArb.LatencyArbOrderTypes.Aggressive ||
