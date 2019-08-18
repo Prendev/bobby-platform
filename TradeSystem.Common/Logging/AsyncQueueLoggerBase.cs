@@ -47,7 +47,7 @@ namespace TradeSystem.Common.Logging
 
 		static AsyncQueueLoggerBase()
 		{
-			var logThread = new Thread(LoggingLoop) { Name = "Logging", IsBackground = true };
+			var logThread = new Thread(LoggingLoop) { Name = "Logging", IsBackground = true, Priority = ThreadPriority.BelowNormal};
 			logThread.Start();
 		}
 
