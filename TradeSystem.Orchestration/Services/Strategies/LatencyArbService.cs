@@ -374,7 +374,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 					OrderResponse result = null;
 					if (isFirst && set.FirstOrderType == LatencyArb.LatencyArbOrderTypes.Market ||
 					    !isFirst && set.HedgeOrderType == LatencyArb.LatencyArbOrderTypes.Market)
-						result = fixConnector.SendMarketOrderRequest(set.LongSymbol, Sides.Buy, quantity).Result;
+						result = fixConnector.SendMarketOrderRequest(set.LongSymbol, Sides.Buy, quantity, set.MarketTimeWindowInMs, 0, 0).Result;
 
 					else if (isFirst && set.FirstOrderType == LatencyArb.LatencyArbOrderTypes.Aggressive ||
 					         !isFirst && set.HedgeOrderType == LatencyArb.LatencyArbOrderTypes.Aggressive)
@@ -385,7 +385,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 						if (!isFirst && result?.FilledQuantity != quantity)
 						{
 							var fq = quantity - (result?.FilledQuantity ?? 0);
-							var fallbackResult = fixConnector.SendMarketOrderRequest(set.LongSymbol, Sides.Buy, fq).Result;
+							var fallbackResult = fixConnector.SendMarketOrderRequest(set.LongSymbol, Sides.Buy, fq, set.MarketTimeWindowInMs, 0, 0).Result;
 							CheckUnfinished(set, fallbackResult);
 							if (result?.IsFilled != true) result = fallbackResult;
 							else if (fallbackResult?.IsFilled == true)
@@ -448,7 +448,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 					OrderResponse result = null;
 					if (isFirst && set.FirstOrderType == LatencyArb.LatencyArbOrderTypes.Market ||
 					    !isFirst && set.HedgeOrderType == LatencyArb.LatencyArbOrderTypes.Market)
-						result = fixConnector.SendMarketOrderRequest(set.ShortSymbol, Sides.Sell, quantity).Result;
+						result = fixConnector.SendMarketOrderRequest(set.ShortSymbol, Sides.Sell, quantity, set.MarketTimeWindowInMs, 0, 0).Result;
 
 					else if (isFirst && set.FirstOrderType == LatencyArb.LatencyArbOrderTypes.Aggressive ||
 					         !isFirst && set.HedgeOrderType == LatencyArb.LatencyArbOrderTypes.Aggressive)
@@ -459,7 +459,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 						if (!isFirst && result?.FilledQuantity != quantity)
 						{
 							var fq = quantity - (result?.FilledQuantity ?? 0);
-							var fallbackResult = fixConnector.SendMarketOrderRequest(set.ShortSymbol, Sides.Sell, fq).Result;
+							var fallbackResult = fixConnector.SendMarketOrderRequest(set.ShortSymbol, Sides.Sell, fq, set.MarketTimeWindowInMs, 0, 0).Result;
 							CheckUnfinished(set, fallbackResult);
 							if (result?.IsFilled != true) result = fallbackResult;
 							else if (fallbackResult?.IsFilled == true)
@@ -622,7 +622,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				if (!set.ShortSpreadCheck) return;
 				if (!set.LongSpreadCheck) return;
 				// Long close signal
-				if (set.FirstSide != LatencyArb.LatencyArbFirstSides.Short && set.NormFeedBid <= set.NormLongBid - set.LongSignalDiffInPip * set.PipSize)
+				if (set.FirstSide != LatencyArb.LatencyArbFirstSides.Short && set.NormFeedBid <= set.NormLongBid - set.LongCloseSignalDiffInPip * set.PipSize)
 				{
 					if (set.Copier != null) set.Copier.Run = false;
 					if (set.FixApiCopier != null) set.FixApiCopier.Run = false;
@@ -638,7 +638,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 					            $"{Environment.NewLine}\tExecution time is {closePos.ExecutionTime} ms with {closePos.Slippage / set.PipSize:F2} pip slippage");
 				}
 				// Short close signal
-				else if (set.FirstSide != LatencyArb.LatencyArbFirstSides.Long && set.NormFeedAsk >= set.NormShortAsk + set.ShortSignalDiffInPip * set.PipSize)
+				else if (set.FirstSide != LatencyArb.LatencyArbFirstSides.Long && set.NormFeedAsk >= set.NormShortAsk + set.ShortCloseSignalDiffInPip * set.PipSize)
 				{
 					if (set.Copier != null) set.Copier.Run = false;
 					if (set.FixApiCopier != null) set.FixApiCopier.Run = false;
@@ -746,7 +746,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 					OrderResponse result = null;
 					if (isFirst && set.FirstOrderType == LatencyArb.LatencyArbOrderTypes.Market ||
 					    !isFirst && set.HedgeOrderType == LatencyArb.LatencyArbOrderTypes.Market)
-						result = fixConnector.SendMarketOrderRequest(set.LongSymbol, Sides.Sell, arbPos.LongPosition.Size).Result;
+						result = fixConnector.SendMarketOrderRequest(set.LongSymbol, Sides.Sell, arbPos.LongPosition.Size, set.MarketTimeWindowInMs, 0, 0).Result;
 
 					else if (isFirst && set.FirstOrderType == LatencyArb.LatencyArbOrderTypes.Aggressive ||
 					         !isFirst && set.HedgeOrderType == LatencyArb.LatencyArbOrderTypes.Aggressive)
@@ -757,7 +757,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 						if (result?.FilledQuantity != arbPos.LongPosition.Size)
 						{
 							var quantity = arbPos.LongPosition.Size - (result?.FilledQuantity ?? 0);
-							var fallbackResult = fixConnector.SendMarketOrderRequest(set.LongSymbol, Sides.Sell, quantity).Result;
+							var fallbackResult = fixConnector.SendMarketOrderRequest(set.LongSymbol, Sides.Sell, quantity, set.MarketTimeWindowInMs, 0, 0).Result;
 							CheckUnfinished(set, fallbackResult);
 							if (result?.IsFilled != true) result = fallbackResult;
 							else if (fallbackResult?.IsFilled == true)
@@ -819,7 +819,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 					OrderResponse result = null;
 					if (isFirst && set.FirstOrderType == LatencyArb.LatencyArbOrderTypes.Market ||
 					    !isFirst && set.HedgeOrderType == LatencyArb.LatencyArbOrderTypes.Market)
-						result = fixConnector.SendMarketOrderRequest(set.ShortSymbol, Sides.Buy, arbPos.ShortPosition.Size).Result;
+						result = fixConnector.SendMarketOrderRequest(set.ShortSymbol, Sides.Buy, arbPos.ShortPosition.Size, set.MarketTimeWindowInMs, 0, 0).Result;
 
 					else if (isFirst && set.FirstOrderType == LatencyArb.LatencyArbOrderTypes.Aggressive ||
 					         !isFirst && set.HedgeOrderType == LatencyArb.LatencyArbOrderTypes.Aggressive)
@@ -830,7 +830,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 						if (result?.FilledQuantity != arbPos.ShortPosition.Size)
 						{
 							var quantity = arbPos.ShortPosition.Size - (result?.FilledQuantity ?? 0);
-							var fallbackResult = fixConnector.SendMarketOrderRequest(set.ShortSymbol, Sides.Buy, quantity).Result;
+							var fallbackResult = fixConnector.SendMarketOrderRequest(set.ShortSymbol, Sides.Buy, quantity, set.MarketTimeWindowInMs, 0, 0).Result;
 							CheckUnfinished(set, fallbackResult);
 							if (result?.IsFilled != true) result = fallbackResult;
 							else if (fallbackResult?.IsFilled == true)

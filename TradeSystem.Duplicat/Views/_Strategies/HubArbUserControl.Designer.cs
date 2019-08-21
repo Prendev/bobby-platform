@@ -40,6 +40,7 @@
 			this.dgvHubArb = new TradeSystem.Duplicat.Views.CustomDataGridView();
 			this.groupBox1 = new System.Windows.Forms.GroupBox();
 			this.dgvStatistics = new System.Windows.Forms.DataGridView();
+			this.btnRemoveArchive = new System.Windows.Forms.Button();
 			this.tableLayoutPanel1.SuspendLayout();
 			this.gbControl.SuspendLayout();
 			this.gbHubArb.SuspendLayout();
@@ -67,6 +68,7 @@
 			// 
 			// gbControl
 			// 
+			this.gbControl.Controls.Add(this.btnRemoveArchive);
 			this.gbControl.Controls.Add(this.btnArchive);
 			this.gbControl.Controls.Add(this.btnExport);
 			this.gbControl.Controls.Add(this.btnGoFlatAll);
@@ -150,6 +152,7 @@
 			this.dgvHubArb.MultiSelect = false;
 			this.dgvHubArb.Name = "dgvHubArb";
 			this.dgvHubArb.RowTemplate.Height = 24;
+			this.dgvHubArb.ShowCellToolTips = false;
 			this.dgvHubArb.Size = new System.Drawing.Size(1109, 283);
 			this.dgvHubArb.TabIndex = 0;
 			// 
@@ -188,6 +191,16 @@
 			this.dgvStatistics.Size = new System.Drawing.Size(1109, 284);
 			this.dgvStatistics.TabIndex = 0;
 			// 
+			// btnRemoveArchive
+			// 
+			this.btnRemoveArchive.Location = new System.Drawing.Point(839, 58);
+			this.btnRemoveArchive.Margin = new System.Windows.Forms.Padding(4);
+			this.btnRemoveArchive.Name = "btnRemoveArchive";
+			this.btnRemoveArchive.Size = new System.Drawing.Size(200, 28);
+			this.btnRemoveArchive.TabIndex = 31;
+			this.btnRemoveArchive.Text = "Remove archive";
+			this.btnRemoveArchive.UseVisualStyleBackColor = true;
+			// 
 			// HubArbUserControl
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -218,5 +231,6 @@
 		private System.Windows.Forms.Button btnGoFlatAll;
 		private System.Windows.Forms.Button btnExport;
 		private System.Windows.Forms.Button btnArchive;
+		private System.Windows.Forms.Button btnRemoveArchive;
 	}
 }
