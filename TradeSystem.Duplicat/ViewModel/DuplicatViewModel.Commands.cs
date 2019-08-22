@@ -301,5 +301,17 @@ namespace TradeSystem.Duplicat.ViewModel
 	    {
 		    return arb?.CalculateStatistics();
 	    }
-	}
+
+	    public void RemoveArchiveCommand(LatencyArb arb)
+	    {
+		    if (arb?.LatencyArbPositions?.Any() != true) return;
+		    arb.LatencyArbPositions.RemoveAll(p => p.Archived);
+	    }
+
+	    public void RemoveArchiveCommand(StratHubArb arb)
+		{
+			if (arb?.StratHubArbPositions?.Any() != true) return;
+			arb.StratHubArbPositions.RemoveAll(p => p.Archived);
+	    }
+    }
 }

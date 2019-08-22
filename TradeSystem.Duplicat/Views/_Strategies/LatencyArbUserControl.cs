@@ -23,8 +23,15 @@ namespace TradeSystem.Duplicat.Views
 
 			dgvLatencyArb.DefaultValuesNeeded += (s, e) => e.Row.Cells["ProfileId"].Value = _viewModel.SelectedProfile.Id;
 
-			btnStart.Click += (s, e) => { _viewModel.StartStrategiesCommand(); };
-			btnStop.Click += (s, e) => { _viewModel.StopStrategiesCommand(); };
+			btnStart.Click += (s, e) => _viewModel.StartStrategiesCommand();
+			btnStop.Click += (s, e) => _viewModel.StopStrategiesCommand();
+			btnRemoveArchive.Click += (s, e) =>
+			{
+				var selected = dgvLatencyArb.GetSelectedItem<LatencyArb>();
+				if (selected == null) return;
+				_viewModel.RemoveArchiveCommand(selected);
+				dgvStatistics.DataSource = _viewModel.GetArbStatistics(selected);
+			};
 
 			dgvLatencyArb.RowDoubleClick += (s, e) =>
 				dgvStatistics.DataSource = _viewModel.GetArbStatistics(dgvLatencyArb.GetSelectedItem<LatencyArb>());

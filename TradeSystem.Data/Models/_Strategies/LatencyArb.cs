@@ -59,6 +59,7 @@ namespace TradeSystem.Data.Models
 		[DisplayName("S Size")] public decimal ShortSize { get; set; } = 1;
 		[DisplayName("S Spread")] public decimal ShortSpreadFilterInPip { get; set; }
 		[DisplayName("S Signal")] public decimal ShortSignalDiffInPip { get; set; }
+		[DisplayName("S Close Sig.")] public decimal ShortCloseSignalDiffInPip { get; set; }
 
 		public int LongAccountId { get; set; }
 		public Account LongAccount { get => Get<Account>(); set => Set(value); }
@@ -66,6 +67,7 @@ namespace TradeSystem.Data.Models
 		[DisplayName("L Size")] public decimal LongSize { get; set; } = 1;
 		[DisplayName("L Spread")] public decimal LongSpreadFilterInPip { get; set; }
 		[DisplayName("L Signal")] public decimal LongSignalDiffInPip { get; set; }
+		[DisplayName("L Close Sig.")] public decimal LongCloseSignalDiffInPip { get; set; }
 
 		public LatencyArbFirstSides FirstSide { get => Get<LatencyArbFirstSides>(); set => Set(value); }
 		public int MaxCount { get; set; } = 5;
@@ -78,6 +80,7 @@ namespace TradeSystem.Data.Models
 		[DisplayName("Latest")] public TimeSpan? LatestTradeTime { get; set; }
 
 		public LatencyArbOrderTypes FirstOrderType { get; set; }
+		public LatencyArbOrderTypes HedgeOrderType { get; set; }
 		[DisplayName("MaxRetry")]
 		public int MaxRetryCount { get; set; }
 		[DisplayName("RetryPeriod")]
@@ -88,6 +91,8 @@ namespace TradeSystem.Data.Models
 		public decimal CorrectionInPip { get; set; }
 		[DisplayName("TimeWindow")]
 		public int TimeWindowInMs { get; set; }
+		[DisplayName("MarketTimeWindow")]
+		public int MarketTimeWindowInMs { get; set; }
 
 		public decimal PipSize { get; set; }
 		public string Comment { get; set; }

@@ -36,6 +36,13 @@ namespace TradeSystem.Duplicat.Views
 				_viewModel.HubArbsArchiveCommand(selected);
 				dgvStatistics.DataSource = _viewModel.GetArbStatistics(selected);
 			};
+			btnRemoveArchive.Click += (s, e) =>
+			{
+				var selected = dgvHubArb.GetSelectedItem<StratHubArb>();
+				if (selected == null) return;
+				_viewModel.RemoveArchiveCommand(selected);
+				dgvStatistics.DataSource = _viewModel.GetArbStatistics(selected);
+			};
 
 			dgvHubArb.RowDoubleClick += (s, e) =>
 				dgvStatistics.DataSource = _viewModel.GetArbStatistics(dgvHubArb.GetSelectedItem<StratHubArb>());

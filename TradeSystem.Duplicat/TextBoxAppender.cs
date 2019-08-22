@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Drawing;
 using System.Linq;
-using System.Threading;
 using System.Windows.Forms;
 using log4net;
 using log4net.Appender;
@@ -13,17 +13,17 @@ namespace TradeSystem.Duplicat
 {
 	public class TextBoxAppender : IAppender
 	{
-		private static readonly object SyncRoot = new object();
-		private static bool _errorDialog = false;
-
 		public string LoggerNameFilter { get; set; }
 
 		private RichTextBox _textBox;
 		private readonly List<string> _filters;
 		private readonly int _maxLines;
+		private readonly bool _logLevelColoring;
 
 		public TextBoxAppender(RichTextBox textBox, int maxLines, params string[] filters)
 		{
+			bool.TryParse(ConfigurationManager.AppSettings["LogLevelColoring"], out bool logLevelColoring);
+			_logLevelColoring = logLevelColoring;
 			_maxLines = maxLines;
 			_filters = (filters ?? new string[] { }).ToList();
 
@@ -63,97 +63,66 @@ namespace TradeSystem.Duplicat
 
 		public void DoAppend(LoggingEvent loggingEvent)
 		{
-			try
-			{
-				if (loggingEvent.Level.Value < Level.Debug.Value) return;
-				if (_textBox == null || _textBox.IsDisposed)
-					return;
+			if (loggingEvent.Level.Value < Level.Debug.Value) return;
+			if (_textBox == null || _textBox.IsDisposed)
+				return;
 
-				if (!string.IsNullOrWhiteSpace(LoggerNameFilter) && !LoggerNameFilter.Split('|').Contains(loggingEvent.LoggerName))
-					return;
+			if (!string.IsNullOrWhiteSpace(LoggerNameFilter) && !LoggerNameFilter.Split('|').Contains(loggingEvent.LoggerName))
+				return;
 
-				if (loggingEvent.LoggerName.Contains("NHibernate"))
-					return;
+			if (loggingEvent.LoggerName.Contains("NHibernate"))
+				return;
 
-				if (_filters.Any(f => loggingEvent.RenderedMessage?.Contains(f) == true))
-					return;
+			if (_filters.Any(f => loggingEvent.RenderedMessage?.Contains(f) == true))
+				return;
 
-				var msg = $"{loggingEvent.RenderedMessage}{Environment.NewLine}";
-				if (loggingEvent.ExceptionObject != null)
-					msg += loggingEvent.ExceptionObject + Environment.NewLine;
+			var msg = $"{loggingEvent.RenderedMessage}{Environment.NewLine}";
+			if (loggingEvent.ExceptionObject != null)
+				msg += loggingEvent.ExceptionObject + Environment.NewLine;
 
-				Action<Level, string> write = WriteLogEntry;
-				if (_textBox.InvokeRequired)
-					_textBox.BeginInvoke(write, loggingEvent.Level, msg);
-				else
-					write.Invoke(loggingEvent.Level, msg);
-			}
-			catch
-			{
-			}
+			Action<Level, string> write = WriteLogEntry;
+			_textBox.BeginInvoke(write, loggingEvent.Level, msg);
+
+			// No need for checking as it is always called from dedicated Logging thread
+			//if (_textBox.InvokeRequired)
+			//	_textBox.BeginInvoke(write, loggingEvent.Level, msg);
+			//else
+			//	write.Invoke(loggingEvent.Level, msg);
 		}
 
 		private void WriteLogEntry(Level level, string message)
 		{
-			try
+			if (_textBox == null || _textBox.IsDisposed)
+				return;
+
+			if (_textBox.IsDisposed) return;
+			if (_textBox.Lines.Length > _maxLines) _textBox.Clear();
+
+			if (_logLevelColoring)
 			{
-				if (_textBox == null || _textBox.IsDisposed)
-					return;
+				Color color;
+				if (level == Level.Trace) color = Color.Gray;
+				else if (level == Level.Debug) color = Color.Black;
+				else if (level == Level.Info) color = Color.Blue;
+				else if (level == Level.Warn) color = Color.Olive;
+				else if (level == Level.Error) color = Color.Red;
+				else if (level == Level.Fatal) color = Color.Maroon;
+				else color = SystemColors.WindowText;
 
-				lock (_textBox)
-				{
-					if (_textBox.IsDisposed) return;
-					if (_textBox.Lines.Length > _maxLines) _textBox.Clear();
-					_textBox.AppendText(message);
+				var selStart = _textBox.SelectionStart;
+				var selLength = _textBox.SelectionLength;
+				var resetSelection = selStart != _textBox.TextLength;
 
-					//Color color;
-					//if (level == Level.Trace) color = Color.Gray;
-					//else if (level == Level.Debug) color = Color.Black;
-					//else if (level == Level.Info) color = Color.Blue;
-					//else if (level == Level.Warn) color = Color.Olive;
-					//else if (level == Level.Error) color = Color.Red;
-					//else if (level == Level.Fatal) color = Color.Maroon;
-					//else color = SystemColors.WindowText;
+				_textBox.SelectionStart = _textBox.TextLength;
+				_textBox.SelectionLength = 0;
+				_textBox.SelectionColor = color;
+				_textBox.AppendText(message);
 
-					//var selStart = _textBox.SelectionStart;
-					//var selLength = _textBox.SelectionLength;
-					//var resetSelection = selStart != _textBox.TextLength;
-
-					//_textBox.SelectionStart = _textBox.TextLength;
-					//_textBox.SelectionLength = 0;
-					//_textBox.SelectionColor = color;
-					//_textBox.AppendText(message);
-
-					//if (!resetSelection) return;
-					//_textBox.SelectionStart = selStart;
-					//_textBox.SelectionLength = selLength;
-				}
+				if (!resetSelection) return;
+				_textBox.SelectionStart = selStart;
+				_textBox.SelectionLength = selLength;
 			}
-			catch(Exception e)
-			{
-				Error(message, e);
-			}
-		}
-
-		private void Error(string message, Exception e)
-		{
-			try
-			{
-				lock (SyncRoot)
-				{
-					if (_errorDialog) return;
-					_errorDialog = true;
-				}
-
-				new Thread(() =>
-					{
-						MessageBox.Show($"{message}\n...\n\n{e}", "TextBox logger error - missing log(s)", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-						_errorDialog = false;
-					}).Start();
-			}
-			catch
-			{
-			}
+			else _textBox.AppendText(message);
 		}
 	}
 }

@@ -130,7 +130,12 @@ namespace TradeSystem.Orchestration.Services
 			Directory.CreateDirectory(TickersFolderPath);
 	        using (new FileStream(ZipArchivePath, FileMode.OpenOrCreate)) { }
 
-			new Thread(() => Loop(tickers, _cancellation.Token)) { Name = "Tickers", IsBackground = true }.Start();
+			new Thread(() => Loop(tickers, _cancellation.Token))
+			{
+				Name = "Tickers",
+				IsBackground = true,
+				Priority = ThreadPriority.BelowNormal
+			}.Start();
 			Logger.Info("Tickers are started");
 		}
 

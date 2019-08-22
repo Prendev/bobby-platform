@@ -36,6 +36,7 @@
 			this.dgvLatencyArb = new TradeSystem.Duplicat.Views.CustomDataGridView();
 			this.groupBox1 = new System.Windows.Forms.GroupBox();
 			this.dgvStatistics = new TradeSystem.Duplicat.Views.CustomDataGridView();
+			this.btnRemoveArchive = new System.Windows.Forms.Button();
 			this.gbControl.SuspendLayout();
 			this.tableLayoutPanel1.SuspendLayout();
 			this.gbLatencyArb.SuspendLayout();
@@ -46,6 +47,7 @@
 			// 
 			// gbControl
 			// 
+			this.gbControl.Controls.Add(this.btnRemoveArchive);
 			this.gbControl.Controls.Add(this.btnStop);
 			this.gbControl.Controls.Add(this.btnStart);
 			this.gbControl.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -113,6 +115,7 @@
 			this.dgvLatencyArb.MultiSelect = false;
 			this.dgvLatencyArb.Name = "dgvLatencyArb";
 			this.dgvLatencyArb.RowTemplate.Height = 24;
+			this.dgvLatencyArb.ShowCellToolTips = false;
 			this.dgvLatencyArb.Size = new System.Drawing.Size(1117, 441);
 			this.dgvLatencyArb.TabIndex = 0;
 			// 
@@ -139,8 +142,19 @@
 			this.dgvStatistics.Name = "dgvStatistics";
 			this.dgvStatistics.ReadOnly = true;
 			this.dgvStatistics.RowTemplate.Height = 24;
+			this.dgvStatistics.ShowCellToolTips = false;
 			this.dgvStatistics.Size = new System.Drawing.Size(1117, 137);
 			this.dgvStatistics.TabIndex = 0;
+			// 
+			// btnRemoveArchive
+			// 
+			this.btnRemoveArchive.Location = new System.Drawing.Point(423, 22);
+			this.btnRemoveArchive.Margin = new System.Windows.Forms.Padding(4);
+			this.btnRemoveArchive.Name = "btnRemoveArchive";
+			this.btnRemoveArchive.Size = new System.Drawing.Size(200, 28);
+			this.btnRemoveArchive.TabIndex = 30;
+			this.btnRemoveArchive.Text = "Remove archive";
+			this.btnRemoveArchive.UseVisualStyleBackColor = true;
 			// 
 			// LatencyArbUserControl
 			// 
@@ -169,5 +183,6 @@
 		private CustomDataGridView dgvLatencyArb;
 		private System.Windows.Forms.GroupBox groupBox1;
 		private CustomDataGridView dgvStatistics;
+		private System.Windows.Forms.Button btnRemoveArchive;
 	}
 }
