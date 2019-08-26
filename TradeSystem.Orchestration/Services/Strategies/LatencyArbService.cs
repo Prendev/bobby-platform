@@ -610,19 +610,22 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 		private void CheckClosing(LatencyArb set)
 		{
-			if (set.State != LatencyArb.LatencyArbStates.Closing) return;
+			if (set.State != LatencyArb.LatencyArbStates.Closing &&
+			    set.State != LatencyArb.LatencyArbStates.ImmediateExit) return;
 
-			var first = set.LivePositions.OrderBy(p => p.Level).FirstOrDefault(p => p.HasBothSides);
+			var first = set.LivePositions.OrderBy(p => p.Level)
+				.FirstOrDefault(p => p.HasBothSides || set.State == LatencyArb.LatencyArbStates.ImmediateExit);
 			if (first == null) return;
-			if (!first.HasBothSides) return;
 
 			// No closed side
 			if (!first.LongClosed && !first.ShortClosed)
 			{
-				if (!set.ShortSpreadCheck) return;
-				if (!set.LongSpreadCheck) return;
+				if (set.State != LatencyArb.LatencyArbStates.ImmediateExit && !set.ShortSpreadCheck) return;
+				if (set.State != LatencyArb.LatencyArbStates.ImmediateExit && !set.LongSpreadCheck) return;
 				// Long close signal
-				if (set.FirstSide != LatencyArb.LatencyArbFirstSides.Short && set.NormFeedBid <= set.NormLongBid - set.LongCloseSignalDiffInPip * set.PipSize)
+				if (set.FirstSide != LatencyArb.LatencyArbFirstSides.Short &&
+				    (set.State == LatencyArb.LatencyArbStates.ImmediateExit ||
+				     set.NormFeedBid <= set.NormLongBid - set.LongCloseSignalDiffInPip * set.PipSize))
 				{
 					if (set.Copier != null) set.Copier.Run = false;
 					if (set.FixApiCopier != null) set.FixApiCopier.Run = false;
@@ -638,7 +641,9 @@ namespace TradeSystem.Orchestration.Services.Strategies
 					            $"{Environment.NewLine}\tExecution time is {closePos.ExecutionTime} ms with {closePos.Slippage / set.PipSize:F2} pip slippage");
 				}
 				// Short close signal
-				else if (set.FirstSide != LatencyArb.LatencyArbFirstSides.Long && set.NormFeedAsk >= set.NormShortAsk + set.ShortCloseSignalDiffInPip * set.PipSize)
+				else if (set.FirstSide != LatencyArb.LatencyArbFirstSides.Long &&
+				         (set.State == LatencyArb.LatencyArbStates.ImmediateExit ||
+				          set.NormFeedAsk >= set.NormShortAsk + set.ShortCloseSignalDiffInPip * set.PipSize))
 				{
 					if (set.Copier != null) set.Copier.Run = false;
 					if (set.FixApiCopier != null) set.FixApiCopier.Run = false;
@@ -667,7 +672,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 				if (price <= first.LongClosePrice - set.TpInPip * set.PipSize) hedge = true;
 				if (price >= first.LongClosePrice + set.SlInPip * set.PipSize) hedge = true;
-				if (!hedge) return;
+				if (set.State != LatencyArb.LatencyArbStates.ImmediateExit && !hedge) return;
 
 				var closePos = CloseShort(set, first, false);
 				if (closePos == null) return;
@@ -696,7 +701,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 				if (price >= first.ShortClosePrice + set.TpInPip * set.PipSize) hedge = true;
 				if (price <= first.ShortClosePrice - set.SlInPip * set.PipSize) hedge = true;
-				if (!hedge) return;
+				if (set.State != LatencyArb.LatencyArbStates.ImmediateExit && !hedge) return;
 
 				var closePos = CloseLong(set, first, false);
 				if (closePos == null) return;
@@ -870,9 +875,47 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			});
 			set.State = LatencyArb.LatencyArbStates.None;
 		}
+		private void EmergencyImmediateExit(LatencyArb set)
+		{
+			if (set.State == LatencyArb.LatencyArbStates.None) return;
+			if (set.State == LatencyArb.LatencyArbStates.ImmediateExit) return;
+			if (set.State == LatencyArb.LatencyArbStates.Sync) return;
+			if (set.State == LatencyArb.LatencyArbStates.Reset) return;
+			if (set.State == LatencyArb.LatencyArbStates.Error) return;
+			if (!set.LivePositions.Any()) return;
+			if (set.EmergencyShortExitInPip <= 0 && set.EmergencyLongExitInPip <= 0) return;
+
+			var avg = set.LivePositions
+				.Where(p => p.LongOpenPrice.HasValue && p.ShortOpenPrice.HasValue)
+				.Average(p => (p.LongOpenPrice + p.ShortOpenPrice) / 2);
+			var shortExit = avg - set.EmergencyShortExitInPip * set.PipSize;
+			var longExit = avg + set.EmergencyLongExitInPip * set.PipSize;
+
+			if (set.EmergencyShortExitInPip > 0)
+			{
+				if (set.LastFeedTick.HasValue && set.LastFeedTick.Bid <= shortExit ||
+				    set.LastLongTick.HasValue && set.LastLongTick.Bid <= shortExit ||
+				    set.LastShortTick.HasValue && set.LastShortTick.Bid <= shortExit)
+					set.State = LatencyArb.LatencyArbStates.ImmediateExit;
+			}
+			if (set.EmergencyLongExitInPip > 0)
+			{
+				if (set.LastFeedTick.HasValue && set.LastFeedTick.Bid >= longExit ||
+				    set.LastLongTick.HasValue && set.LastLongTick.Bid >= longExit ||
+				    set.LastShortTick.HasValue && set.LastShortTick.Bid >= longExit)
+					set.State = LatencyArb.LatencyArbStates.ImmediateExit;
+			}
+
+			if (set.State == LatencyArb.LatencyArbStates.ImmediateExit)
+				Logger.Warn($"{set} latency arb. - EmergencyImmediateExit");
+		}
 		private void Emergency(LatencyArb set)
 		{
 			if (set.State == LatencyArb.LatencyArbStates.None) return;
+			if (set.State == LatencyArb.LatencyArbStates.ImmediateExit) return;
+			if (set.State == LatencyArb.LatencyArbStates.Sync) return;
+			if (set.State == LatencyArb.LatencyArbStates.Reset) return;
+			if (set.State == LatencyArb.LatencyArbStates.Error) return;
 			if (set.EmergencyOff <= 0) return;
 			if (set.EmergencyCount < set.EmergencyOff) return;
 			set.EmergencyCount = 0;

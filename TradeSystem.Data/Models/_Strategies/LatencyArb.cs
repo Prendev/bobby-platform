@@ -15,6 +15,7 @@ namespace TradeSystem.Data.Models
 			ReopeningShort,
 			ReopeningLong,
 			Closing,
+			ImmediateExit,
 			Sync,
 			Reset,
 			Error
@@ -48,6 +49,8 @@ namespace TradeSystem.Data.Models
 		[DisplayName("E Open tr.")] public decimal EmergencyOpenThresholdInPip { get; set; }
 		[DisplayName("E Close tr.")] public decimal EmergencyCloseThresholdInPip { get; set; }
 		[DisplayName("E Count")] public int EmergencyCount { get => Get<int>(); set => Set(value); }
+		[DisplayName("E Short exit")] public decimal EmergencyShortExitInPip { get; set; }
+		[DisplayName("E Long exit")] public decimal EmergencyLongExitInPip { get; set; }
 
 		public int FastFeedAccountId { get; set; }
 		public Account FastFeedAccount { get => Get<Account>(); set => Set(value); }
