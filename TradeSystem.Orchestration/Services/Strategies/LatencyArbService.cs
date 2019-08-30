@@ -112,6 +112,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 		private void Check(LatencyArb set)
 		{
+			EmergencyImmediateExit(set);
 			Emergency(set);
 			Reset(set);
 			Sync(set);
