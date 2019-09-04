@@ -6,7 +6,9 @@ namespace TradeSystem.Common.Integration
     public class Position
     {
         public long Id { get; set; }
-        public string Symbol { get; set; }
+	    public bool IsUnfinished => Id == 0;
+
+		public string Symbol { get; set; }
         public Sides Side { get; set; }
         public bool IsClosed { get; set; }
 
