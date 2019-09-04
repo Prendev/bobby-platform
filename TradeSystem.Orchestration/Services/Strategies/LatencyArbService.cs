@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using TradeSystem.Collections;
 using TradeSystem.Common.Integration;
+using TradeSystem.Common.Services;
 using TradeSystem.Data.Models;
 
 namespace TradeSystem.Orchestration.Services.Strategies
@@ -38,6 +39,13 @@ namespace TradeSystem.Orchestration.Services.Strategies
 		private List<LatencyArb> _sets;
 		private readonly ConcurrentDictionary<int, FastBlockingCollection<Action>> _queues =
 			new ConcurrentDictionary<int, FastBlockingCollection<Action>>();
+
+		private readonly IEmailService _emailService;
+
+		public LatencyArbService(IEmailService emailService)
+		{
+			_emailService = emailService;
+		}
 
 		public void Start(List<LatencyArb> sets)
 		{
@@ -134,6 +142,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 		{
 			var longPositions = (set.LongAccount.Connector as Mt4Integration.Connector)?.Positions;
 			var shortPositions = (set.ShortAccount.Connector as Mt4Integration.Connector)?.Positions;
+			var error = false;
 
 			foreach (var pos in set.LivePositions)
 			{
@@ -149,7 +158,6 @@ namespace TradeSystem.Orchestration.Services.Strategies
 							if (!pos.ShortClosed && shortPos.IsClosed)
 							{
 								pos.Archived = true;
-								set.State = LatencyArb.LatencyArbStates.Error;
 								posError = true;
 							}
 						}
@@ -165,7 +173,6 @@ namespace TradeSystem.Orchestration.Services.Strategies
 							if (!pos.LongClosed && longPos.IsClosed)
 							{
 								pos.Archived = true;
-								set.State = LatencyArb.LatencyArbStates.Error;
 								posError = true;
 							}
 						}
@@ -192,13 +199,19 @@ namespace TradeSystem.Orchestration.Services.Strategies
 					if (shortClosed && longClosed)
 					{
 						pos.Archived = true;
-						set.State = LatencyArb.LatencyArbStates.Error;
 						posError = true;
 					}
 				}
 				if (!posError) continue;
+				error = true;
 				Logger.Error($"{set} latency arb - {pos.Level}. - unexpected closed or missing position(s)");
 			}
+
+			if (!error) return;
+			if (set.State == LatencyArb.LatencyArbStates.Error) return;
+
+			set.State = LatencyArb.LatencyArbStates.Error;
+			_emailService.Send($"{set} latency arb ERROR state", "Unexpected closed or missing position(s)");
 		}
 
 		private void CheckOpening(LatencyArb set)
@@ -737,6 +750,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 						arbPos.Archived = true;
 						set.State = LatencyArb.LatencyArbStates.Error;
 						Logger.Error($"{set} latency arb - {arbPos.Level}. - unexpected closed or missing position(s)");
+						_emailService.Send($"{set} latency arb ERROR state", $"{arbPos.Level}. - unexpected closed or missing position(s)");
 						return null;
 					}
 					connector.SendClosePositionRequests(pos);
@@ -810,6 +824,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 						arbPos.Archived = true;
 						set.State = LatencyArb.LatencyArbStates.Error;
 						Logger.Error($"{set} latency arb - {arbPos.Level}. - unexpected closed or missing position(s)");
+						_emailService.Send($"{set} latency arb ERROR state", $"{arbPos.Level}. - unexpected closed or missing position(s)");
 						return null;
 					}
 					connector.SendClosePositionRequests(pos);
@@ -909,8 +924,9 @@ namespace TradeSystem.Orchestration.Services.Strategies
 					set.State = LatencyArb.LatencyArbStates.ImmediateExit;
 			}
 
-			if (set.State == LatencyArb.LatencyArbStates.ImmediateExit)
-				Logger.Warn($"{set} latency arb. - EmergencyImmediateExit");
+			if (set.State != LatencyArb.LatencyArbStates.ImmediateExit) return;
+			Logger.Warn($"{set} latency arb. - EmergencyImmediateExit");
+			_emailService.Send($"{set} latency arb. - EmergencyImmediateExit", $"{set} latency arb. - EmergencyImmediateExit");
 		}
 		private void Emergency(LatencyArb set)
 		{
@@ -924,6 +940,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			set.EmergencyCount = 0;
 			set.State = LatencyArb.LatencyArbStates.None;
 			Logger.Warn($"{set} latency arb. - emergency OFF");
+			_emailService.Send($"{set} latency arb. - emergency OFF", $"{set} latency arb. - emergency OFF");
 		}
 
 		private void Sync(LatencyArb set)
@@ -1192,12 +1209,14 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			if (response?.IsUnfinished != true) return;
 			set.State = LatencyArb.LatencyArbStates.Error;
 			Logger.Warn($"{set} latency arb. - unfinished ERROR");
+			_emailService.Send($"{set} latency arb. - unfinished ERROR", $"{set} latency arb. - unfinished ERROR");
 		}
 		private void CheckUnfinished(LatencyArb set, PositionResponse response)
 		{
 			if (response?.IsUnfinished != true) return;
 			set.State = LatencyArb.LatencyArbStates.Error;
 			Logger.Warn($"{set} latency arb. - unfinished ERROR");
+			_emailService.Send($"{set} latency arb. - unfinished ERROR", $"{set} latency arb. - unfinished ERROR");
 		}
 	}
 }

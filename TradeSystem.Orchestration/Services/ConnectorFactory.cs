@@ -48,7 +48,7 @@ namespace TradeSystem.Orchestration.Services
 				account.Connector = null;
 
 			if (account.Connector == null)
-				account.Connector = new Mt4Integration.Connector();
+				account.Connector = new Mt4Integration.Connector(_emailService);
 			((Mt4Integration.Connector) account.Connector)
 				.Connect(new Mt4Integration.AccountInfo()
 				{

@@ -14,6 +14,13 @@ namespace TradeSystem.Common.Services
 	{
 		private readonly object _syncRoot = new object();
 
+		public EmailService()
+		{
+			if (!bool.TryParse(ConfigurationManager.AppSettings["EmailService.TestMailOnStart"], out bool testMailOnStart) ||
+			    !testMailOnStart) return;
+			Send("TradeSystem email alert", "Platform started");
+		}
+
 		public void Send(string subject, string body)
 		{
 			Task.Run(() =>

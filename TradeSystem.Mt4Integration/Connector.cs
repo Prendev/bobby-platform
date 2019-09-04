@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using TradeSystem.Common.Integration;
+using TradeSystem.Common.Services;
 using TradingAPI.MT4Server;
 
 namespace TradeSystem.Mt4Integration
@@ -28,6 +29,7 @@ namespace TradeSystem.Mt4Integration
             new ConcurrentDictionary<string, SymbolInfo>();
         private readonly ConcurrentDictionary<string, Tick> _lastTicks =
             new ConcurrentDictionary<string, Tick>();
+		private readonly IEmailService _emailService;
 		private AccountInfo _accountInfo;
 
 	    public override int Id => _accountInfo?.DbId ?? 0;
@@ -39,6 +41,11 @@ namespace TradeSystem.Mt4Integration
 		public QuoteClient QuoteClient;
         public OrderClient OrderClient;
 		private Action<string, int> _destinationSetter;
+
+		public Connector(IEmailService emailService)
+		{
+			_emailService = emailService;
+		}
 
 		public override void Disconnect()
         {
@@ -169,7 +176,13 @@ namespace TradeSystem.Mt4Integration
             {
 	            Logger.Error($"{_accountInfo.Description} Connector.SendMarketOrderRequest({symbol}, {side}, {lots}, {magicNumber}, {comment}) TIMEOUT exception", e);
 	            retValue.IsUnfinished = true;
-	            return retValue;
+
+	            _emailService.Send("ALERT - Market order TIMEOUT",
+		            $"{Description}" + Environment.NewLine +
+		            $"{symbol}" + Environment.NewLine +
+		            $"{side.ToString()}" + Environment.NewLine +
+		            $"{lots}");
+				return retValue;
             }
 			catch (Exception e)
             {
