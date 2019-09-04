@@ -259,10 +259,10 @@ namespace TradeSystem.Orchestration.Services
 						    reopenPos.MasterTicket = e.Position.Id;
 						    var newPos = slaveConnector.SendMarketOrderRequest(symbol, side, lots, e.Position.MagicNumber,
 							    copier.Comment, copier.MaxRetryCount, copier.RetryPeriodInMs);
-						    if (newPos == null) return Task.CompletedTask;
+						    if (newPos?.Pos == null) return Task.CompletedTask;
 
-						    UpdateCrossPosition(copier, reopenPos.SlaveTicket, newPos.Id);
-						    reopenPos.SlaveTicket = newPos.Id;
+						    UpdateCrossPosition(copier, reopenPos.SlaveTicket, newPos.Pos.Id);
+						    reopenPos.SlaveTicket = newPos.Pos.Id;
 						    reopenPos.State = CopierPosition.CopierPositionStates.Active;
 					    }
 					    else
@@ -275,11 +275,11 @@ namespace TradeSystem.Orchestration.Services
 						    {
 							    Copier = copier,
 							    MasterTicket = e.Position.Id,
-							    SlaveTicket = newPos.Id
+							    SlaveTicket = newPos.Pos.Id
 						    });
 
 						    if (!e.Position.CrossTicket.HasValue) return Task.CompletedTask;
-						    AddCrossPosition(copier, e.Position.CrossTicket.Value, newPos.Id);
+						    AddCrossPosition(copier, e.Position.CrossTicket.Value, newPos.Pos.Id);
 					    }
 
 				    }

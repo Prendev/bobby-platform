@@ -55,7 +55,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 			// Open first side
 			pushing.BetaPosition = betaConnector.SendMarketOrderRequest(pushing.BetaSymbol, pushing.BetaOpenSide, pushing.PushingDetail.BetaLots, 0,
-				null, pushing.PushingDetail.MaxRetryCount, pushing.PushingDetail.RetryPeriodInMs);
+				null, pushing.PushingDetail.MaxRetryCount, pushing.PushingDetail.RetryPeriodInMs)?.Pos;
 			ClosingForReopen(pushing, pushing.BetaOpenSide);
 
 			if (pushing.BetaPosition == null)
@@ -98,7 +98,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			await FutureBuildUp(pushing, futureSide, contractsNeeded, Phases.Pushing);
 
 			pushing.AlphaPosition = alphaConnector.SendMarketOrderRequest(pushing.AlphaSymbol, futureSide.Inv(), pd.AlphaLots, 0,
-				$"CROSS|{pushing.BetaPosition.Id}", pushing.PushingDetail.MaxRetryCount, pushing.PushingDetail.RetryPeriodInMs);
+				$"CROSS|{pushing.BetaPosition.Id}", pushing.PushingDetail.MaxRetryCount, pushing.PushingDetail.RetryPeriodInMs)?.Pos;
 			Reopening(pushing, futureSide);
 
 			if (pushing.AlphaPosition == null)

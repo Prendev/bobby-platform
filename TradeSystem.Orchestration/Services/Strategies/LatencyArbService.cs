@@ -360,13 +360,14 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				if (set.LongAccount.Connector is Mt4Integration.Connector connector)
 				{
 					var pos = connector.SendMarketOrderRequest(set.LongSymbol, Sides.Buy, (double) quantity, 0, set.Comment);
-					if (pos == null) return null;
+					CheckUnfinished(set, pos);
+					if (pos?.Pos == null) return null;
 					return new OpenResult
 					{
-						Slippage = signalPrice - pos.OpenPrice,
+						Slippage = signalPrice - pos.Pos.OpenPrice,
 						ExecutionTime = set.Stopwatch.ElapsedMilliseconds,
-						Ticket = pos.Id,
-						OpenPrice = pos.OpenPrice
+						Ticket = pos.Pos.Id,
+						OpenPrice = pos.Pos.OpenPrice
 					};
 				}
 
@@ -434,13 +435,14 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				if (set.ShortAccount.Connector is Mt4Integration.Connector connector)
 				{
 					var pos = connector.SendMarketOrderRequest(set.ShortSymbol, Sides.Sell, (double) quantity, 0, set.Comment);
-					if (pos == null) return null;
+					CheckUnfinished(set, pos);
+					if (pos?.Pos == null) return null;
 					return new OpenResult
 					{
-						Slippage = pos.OpenPrice - signalPrice,
+						Slippage = pos.Pos.OpenPrice - signalPrice,
 						ExecutionTime = set.Stopwatch.ElapsedMilliseconds,
-						Ticket = pos.Id,
-						OpenPrice = pos.OpenPrice
+						Ticket = pos.Pos.Id,
+						OpenPrice = pos.Pos.OpenPrice
 					};
 				}
 
@@ -1186,6 +1188,12 @@ namespace TradeSystem.Orchestration.Services.Strategies
 		}
 
 		private void CheckUnfinished(LatencyArb set, OrderResponse response)
+		{
+			if (response?.IsUnfinished != true) return;
+			set.State = LatencyArb.LatencyArbStates.Error;
+			Logger.Warn($"{set} latency arb. - unfinished ERROR");
+		}
+		private void CheckUnfinished(LatencyArb set, PositionResponse response)
 		{
 			if (response?.IsUnfinished != true) return;
 			set.State = LatencyArb.LatencyArbStates.Error;

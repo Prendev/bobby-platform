@@ -271,14 +271,14 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				if (account.Connector is Mt4Integration.Connector connector)
 				{
 					var pos = connector.SendMarketOrderRequest(symbol, Sides.Buy, (double)size, 0, set.Comment);
-					if (pos == null) return null;
+					if (pos?.Pos == null) return null;
 					return new OpenResult
 					{
 						Account = account,
-						Slippage = signalPrice - pos.OpenPrice,
+						Slippage = signalPrice - pos.Pos.OpenPrice,
 						ExecutionTime = set.Stopwatch.ElapsedMilliseconds,
-						Ticket = pos.Id,
-						OpenPrice = pos.OpenPrice
+						Ticket = pos.Pos.Id,
+						OpenPrice = pos.Pos.OpenPrice
 					};
 				}
 
@@ -330,14 +330,14 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				if (account.Connector is Mt4Integration.Connector connector)
 				{
 					var pos = connector.SendMarketOrderRequest(symbol, Sides.Sell, (double)size, 0, set.Comment);
-					if (pos == null) return null;
+					if (pos?.Pos == null) return null;
 					return new OpenResult
 					{
 						Account = account,
-						Slippage = pos.OpenPrice - signalPrice,
+						Slippage = pos.Pos.OpenPrice - signalPrice,
 						ExecutionTime = set.Stopwatch.ElapsedMilliseconds,
-						Ticket = pos.Id,
-						OpenPrice = pos.OpenPrice
+						Ticket = pos.Pos.Id,
+						OpenPrice = pos.Pos.OpenPrice
 					};
 				}
 

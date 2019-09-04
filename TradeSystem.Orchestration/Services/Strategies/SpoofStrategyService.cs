@@ -58,7 +58,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 			// Open first side
 			spoofing.BetaPosition = betaConnector.SendMarketOrderRequest(spoofing.BetaSymbol, futureSide.Inv(),
-				spoofing.BetaLots, 0, null, spoofing.MaxRetryCount, spoofing.RetryPeriodInMs);
+				spoofing.BetaLots, 0, null, spoofing.MaxRetryCount, spoofing.RetryPeriodInMs)?.Pos;
 			if (spoofing.BetaPosition == null) throw new Exception("SpoofStrategyService.OpeningBeta failed!!!");
 		}
 
@@ -80,7 +80,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 			// Open second side
 			spoofing.AlphaPosition = alphaConnector.SendMarketOrderRequest(spoofing.AlphaSymbol, futureSide.Inv(),
-				spoofing.AlphaLots, 0, null, spoofing.MaxRetryCount, spoofing.RetryPeriodInMs);
+				spoofing.AlphaLots, 0, null, spoofing.MaxRetryCount, spoofing.RetryPeriodInMs)?.Pos;
 			if (spoofing.AlphaPosition == null) throw new Exception("SpoofStrategyService.OpeningAlpha failed!!!");
 
 			Hedge(spoofing, prevHedges);
@@ -241,8 +241,8 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 			var pos = hedgeConnector.SendMarketOrderRequest(spoofing.HedgeSymbol, state.Side.Inv(), (double) e.Quantity,
 				0, null, spoofing.MaxRetryCount, spoofing.RetryPeriodInMs);
-			if (pos == null) return;
-			spoofing.HedgePositions.Add(pos);
+			if (pos?.Pos == null) return;
+			spoofing.HedgePositions.Add(pos.Pos);
 		}
 
 		private async Task Delay(int millisecondsDelay, CancellationToken cancellationToken)

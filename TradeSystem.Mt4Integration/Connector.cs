@@ -1,4 +1,5 @@
 ﻿using System;
+using System.CodeDom;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +12,7 @@ namespace TradeSystem.Mt4Integration
 {
 	public interface IConnector : Common.Integration.IConnector
 	{
-		Position SendMarketOrderRequest(string symbol, Sides side, double lots, int magicNumber,
+		PositionResponse SendMarketOrderRequest(string symbol, Sides side, double lots, int magicNumber,
 			string comment, int maxRetryCount, int retryPeriodInMs);
 
 		bool SendClosePositionRequests(Position position, double? lots, int maxRetryCount, int retryPeriodInMs);
@@ -131,9 +132,10 @@ namespace TradeSystem.Mt4Integration
 			}
 		}
 
-		public Position SendMarketOrderRequest(string symbol, Sides side, double lots, int magicNumber,
+		public PositionResponse SendMarketOrderRequest(string symbol, Sides side, double lots, int magicNumber,
 			string comment, int maxRetryCount, int retryPeriodInMs)
         {
+			var retValue = new PositionResponse();
             try
 			{
 				var op = side == Sides.Buy ? Op.Buy : Op.Sell;
@@ -160,25 +162,26 @@ namespace TradeSystem.Mt4Integration
 					OpenPrice = (decimal)o.OpenPrice,
 					Comment = o.Comment
 				};
-				return Positions.AddOrUpdate(position.Id, t => position, (t, old) => position);
+				retValue.Pos = Positions.AddOrUpdate(position.Id, t => position, (t, old) => position);
+				return retValue;
 			}
             catch (TradingAPI.MT4Server.TimeoutException e)
             {
 	            Logger.Error($"{_accountInfo.Description} Connector.SendMarketOrderRequest({symbol}, {side}, {lots}, {magicNumber}, {comment}) TIMEOUT exception", e);
-				// TODO return unfinished
-	            return null;
+	            retValue.IsUnfinished = true;
+	            return retValue;
             }
 			catch (Exception e)
             {
                 Logger.Error($"{_accountInfo.Description} Connector.SendMarketOrderRequest({symbol}, {side}, {lots}, {magicNumber}, {comment}) exception", e);
-				if (maxRetryCount <= 0) return null;
+				if (maxRetryCount <= 0) return retValue;
 
 				Thread.Sleep(retryPeriodInMs);
 				return SendMarketOrderRequest(symbol, side, lots, magicNumber, comment, --maxRetryCount, retryPeriodInMs);
 			}
         }
 
-		public Position SendMarketOrderRequest(string symbol, Sides side, double lots, int magicNumber, string comment)
+		public PositionResponse SendMarketOrderRequest(string symbol, Sides side, double lots, int magicNumber, string comment)
 		{
 			return SendMarketOrderRequest(symbol, side, lots, magicNumber, comment, 0, 0);
 		}
