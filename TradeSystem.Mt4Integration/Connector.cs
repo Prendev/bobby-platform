@@ -1,10 +1,8 @@
 ﻿using System;
-using System.CodeDom;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using TradeSystem.Common.Integration;
 using TradeSystem.Common.Services;
 using TradingAPI.MT4Server;
@@ -23,7 +21,7 @@ namespace TradeSystem.Mt4Integration
 
 	public class Connector : ConnectorBase, IConnector
 	{
-		private readonly HashSet<int> _finishedOrderIds = new HashSet<int>();
+		//private readonly HashSet<int> _finishedOrderIds = new HashSet<int>();
 		private readonly List<string> _symbols = new List<string>();
 		private readonly ConcurrentDictionary<string, SymbolInfo> _symbolInfos =
             new ConcurrentDictionary<string, SymbolInfo>();
@@ -146,12 +144,7 @@ namespace TradeSystem.Mt4Integration
             try
 			{
 				var op = side == Sides.Buy ? Op.Buy : Op.Sell;
-				Order o;
-				lock (_finishedOrderIds)
-				{
-					o = OrderClient.OrderSend(symbol, op, lots, 0, 0, 0, 0, comment, magicNumber, DateTime.MaxValue);
-					_finishedOrderIds.Add(o.Ticket);
-				}
+				var o = OrderClient.OrderSend(symbol, op, lots, 0, 0, 0, 0, comment, magicNumber, DateTime.MaxValue);
 				Logger.Debug($"{_accountInfo.Description} Connector.SendMarketOrderRequest({symbol}, {side}, {lots}, {magicNumber}, {comment}) is successful with id {o.Ticket}");
 
 				var position = new Position
@@ -302,17 +295,18 @@ namespace TradeSystem.Mt4Integration
                 Action = update.Action == UpdateAction.PositionClose ? NewPositionActions.Close : NewPositionActions.Open,
 			});
 
-			if (update.Action != UpdateAction.PositionOpen) return;
-			Task.Run(() =>
-			{
-				lock (_finishedOrderIds)
-					if (_finishedOrderIds.Contains(o.Ticket))
-						return;
+			// TODO
+			//if (update.Action != UpdateAction.PositionOpen) return;
+			//Task.Run(() =>
+			//{
+			//	lock (_finishedOrderIds)
+			//		if (_finishedOrderIds.Contains(o.Ticket))
+			//			return;
 
-				Logger.Error(
-					$"{Description} QuoteClient.OnOrderUpdate unfinished order ({o.Symbol}, {o.Type}, {o.Lots})!!!");
-				SendClosePositionRequests(o.Ticket, 5, 25);
-			});
+			//	Logger.Error(
+			//		$"{Description} QuoteClient.OnOrderUpdate unfinished order ({o.Symbol}, {o.Type}, {o.Lots})!!!");
+			//	SendClosePositionRequests(o.Ticket, 5, 25);
+			//});
 		}
 		private Position UpdatePosition(Order order)
 		{
