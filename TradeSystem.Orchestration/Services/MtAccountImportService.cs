@@ -51,7 +51,7 @@ namespace TradeSystem.Orchestration.Services
 
 				foreach (var record in records)
 				{
-					var user = long.Parse(record.User);
+					var user = int.Parse(record.User);
 					var mtAccount = duplicatContext.MetaTraderAccounts.FirstOrDefault(a => a.User == user);
 
 					if (mtAccount == null)

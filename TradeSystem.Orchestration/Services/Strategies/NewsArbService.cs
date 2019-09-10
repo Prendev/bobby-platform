@@ -270,7 +270,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			{
 				if (account.Connector is Mt4Integration.Connector connector)
 				{
-					var pos = connector.SendMarketOrderRequest(symbol, Sides.Buy, (double)size, 0, set.Comment);
+					var pos = connector.SendMarketOrderRequest(symbol, Sides.Buy, (double)size, signalPrice, set.Deviation, 0, set.Comment, 0, 0);
 					if (pos?.Pos == null) return null;
 					return new OpenResult
 					{
@@ -329,7 +329,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			{
 				if (account.Connector is Mt4Integration.Connector connector)
 				{
-					var pos = connector.SendMarketOrderRequest(symbol, Sides.Sell, (double)size, 0, set.Comment);
+					var pos = connector.SendMarketOrderRequest(symbol, Sides.Sell, (double)size, signalPrice, set.Deviation, 0, set.Comment, 0, 0);
 					if (pos?.Pos == null) return null;
 					return new OpenResult
 					{

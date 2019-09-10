@@ -5,7 +5,7 @@ namespace TradeSystem.Data.Models
 {
     public class MetaTraderAccount : BaseDescriptionEntity
 	{
-        public long User { get; set; }
+        public int User { get; set; }
         [Required] public string Password { get; set; }
         public int MetaTraderPlatformId { get; set; }
         public MetaTraderPlatform MetaTraderPlatform { get; set; }

@@ -372,7 +372,8 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			{
 				if (set.LongAccount.Connector is Mt4Integration.Connector connector)
 				{
-					var pos = connector.SendMarketOrderRequest(set.LongSymbol, Sides.Buy, (double) quantity, 0, set.Comment);
+					var pos = connector.SendMarketOrderRequest(set.LongSymbol, Sides.Buy, (double) quantity,
+						signalPrice, set.Deviation, 0, set.Comment, 0, 0);
 					CheckUnfinished(set, pos);
 					if (pos?.Pos == null) return null;
 					return new OpenResult
@@ -447,7 +448,8 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			{
 				if (set.ShortAccount.Connector is Mt4Integration.Connector connector)
 				{
-					var pos = connector.SendMarketOrderRequest(set.ShortSymbol, Sides.Sell, (double) quantity, 0, set.Comment);
+					var pos = connector.SendMarketOrderRequest(set.ShortSymbol, Sides.Sell, (double) quantity,
+						signalPrice, set.Deviation, 0, set.Comment, 0, 0);
 					CheckUnfinished(set, pos);
 					if (pos?.Pos == null) return null;
 					return new OpenResult

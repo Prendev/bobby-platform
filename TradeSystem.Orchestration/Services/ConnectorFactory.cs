@@ -54,7 +54,7 @@ namespace TradeSystem.Orchestration.Services
 				{
 					DbId = account.MetaTraderAccount.Id,
 					Description = account.MetaTraderAccount.Description,
-					User = (uint) account.MetaTraderAccount.User,
+					User = account.MetaTraderAccount.User,
 					Password = account.MetaTraderAccount.Password,
 					Srv = account.MetaTraderAccount.MetaTraderPlatform.SrvFilePath,
 					LocalPortForProxy = account.ProfileProxyId.HasValue ? account.ProfileProxy.LocalPort : (int?) null

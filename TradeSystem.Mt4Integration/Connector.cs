@@ -14,6 +14,9 @@ namespace TradeSystem.Mt4Integration
 		PositionResponse SendMarketOrderRequest(string symbol, Sides side, double lots, int magicNumber,
 			string comment, int maxRetryCount, int retryPeriodInMs);
 
+		PositionResponse SendMarketOrderRequest(string symbol, Sides side, double lots, decimal price, decimal deviation, int magicNumber,
+			string comment, int maxRetryCount, int retryPeriodInMs);
+
 		bool SendClosePositionRequests(Position position, double? lots, int maxRetryCount, int retryPeriodInMs);
 
 		ConcurrentDictionary<long, Position> Positions { get; }
@@ -32,7 +35,7 @@ namespace TradeSystem.Mt4Integration
 
 	    public override int Id => _accountInfo?.DbId ?? 0;
 		public override string Description => _accountInfo?.Description;
-		public override bool IsConnected => QuoteClient?.Connected == true && OrderClient?.Connected == true;
+		public override bool IsConnected => QuoteClient?.Connected == true && OrderClient != null;
 	    public DateTime? ServerTime => QuoteClient?.ServerTime;
 		public ConcurrentDictionary<long, Position> Positions { get; } = new ConcurrentDictionary<long, Position>();
 
@@ -54,7 +57,6 @@ namespace TradeSystem.Mt4Integration
 			try
 			{
 				QuoteClient?.Disconnect();
-				OrderClient?.Disconnect();
 			}
 	        catch (Exception e)
 	        {
@@ -91,8 +93,6 @@ namespace TradeSystem.Mt4Integration
 			}
 
 	        OrderClient = new OrderClient(QuoteClient);
-	        OrderClient.Connect();
-
 			OnConnectionChanged(IsConnected ? ConnectionStates.Connected : ConnectionStates.Error);
 			if (!IsConnected) return;
 
@@ -137,20 +137,24 @@ namespace TradeSystem.Mt4Integration
 			}
 		}
 
-		public PositionResponse SendMarketOrderRequest(string symbol, Sides side, double lots, int magicNumber,
+		public PositionResponse SendMarketOrderRequest(string symbol, Sides side, double lots, decimal price, decimal deviation, int magicNumber,
 			string comment, int maxRetryCount, int retryPeriodInMs)
-        {
+		{
 			var retValue = new PositionResponse();
-            try
+			try
 			{
 				var op = side == Sides.Buy ? Op.Buy : Op.Sell;
-				var o = OrderClient.OrderSend(symbol, op, lots, 0, 0, 0, 0, comment, magicNumber, DateTime.MaxValue);
-				Logger.Debug($"{_accountInfo.Description} Connector.SendMarketOrderRequest({symbol}, {side}, {lots}, {magicNumber}, {comment}) is successful with id {o.Ticket}");
+				var slippage = deviation == 0 ? 0 : Math.Floor((double) Math.Abs(deviation) / GetSymbolInfo(symbol).Point);
+
+				var o = OrderClient.OrderSend(symbol, op, lots, (double) price, (int) slippage,
+					0, 0, comment, magicNumber, DateTime.MaxValue);
+				Logger.Debug($"{_accountInfo.Description} Connector.SendMarketOrderRequest({symbol}, {side}, {lots}, {price}, {deviation}, {magicNumber}, {comment})" +
+				             $" is successful with id {o.Ticket}");
 
 				var position = new Position
 				{
 					Id = o.Ticket,
-					Lots = (decimal) o.Lots,
+					Lots = (decimal)o.Lots,
 					Symbol = o.Symbol,
 					Side = o.Type == Op.Buy ? Sides.Buy : Sides.Sell,
 					RealVolume = (long)(o.Lots * GetSymbolInfo(o.Symbol).ContractSize * (o.Type == Op.Buy ? 1 : -1)),
@@ -165,32 +169,34 @@ namespace TradeSystem.Mt4Integration
 				retValue.Pos = Positions.AddOrUpdate(position.Id, t => position, (t, old) => position);
 				return retValue;
 			}
-            catch (TradingAPI.MT4Server.TimeoutException e)
-            {
-	            Logger.Error($"{_accountInfo.Description} Connector.SendMarketOrderRequest({symbol}, {side}, {lots}, {magicNumber}, {comment}) TIMEOUT exception", e);
-	            retValue.IsUnfinished = true;
+			catch (TradingAPI.MT4Server.TimeoutException e)
+			{
+				Logger.Error($"{_accountInfo.Description} Connector.SendMarketOrderRequest({symbol}, {side}, {lots}, {price}, {deviation}, {magicNumber}, {comment}) TIMEOUT exception", e);
+				retValue.IsUnfinished = true;
 
-	            _emailService.Send("ALERT - Market order TIMEOUT",
-		            $"{Description}" + Environment.NewLine +
-		            $"{symbol}" + Environment.NewLine +
-		            $"{side.ToString()}" + Environment.NewLine +
-		            $"{lots}");
+				_emailService.Send("ALERT - Market order TIMEOUT",
+					$"{Description}" + Environment.NewLine +
+					$"{symbol}" + Environment.NewLine +
+					$"{side.ToString()}" + Environment.NewLine +
+					$"{lots}");
 				return retValue;
-            }
+			}
 			catch (Exception e)
-            {
-                Logger.Error($"{_accountInfo.Description} Connector.SendMarketOrderRequest({symbol}, {side}, {lots}, {magicNumber}, {comment}) exception", e);
+			{
+				Logger.Error($"{_accountInfo.Description} Connector.SendMarketOrderRequest({symbol}, {side}, {lots}, {price}, {deviation}, {magicNumber}, {comment}) exception", e);
 				if (maxRetryCount <= 0) return retValue;
 
 				Thread.Sleep(retryPeriodInMs);
 				return SendMarketOrderRequest(symbol, side, lots, magicNumber, comment, --maxRetryCount, retryPeriodInMs);
 			}
-        }
-
-		public PositionResponse SendMarketOrderRequest(string symbol, Sides side, double lots, int magicNumber, string comment)
-		{
-			return SendMarketOrderRequest(symbol, side, lots, magicNumber, comment, 0, 0);
 		}
+
+		public PositionResponse SendMarketOrderRequest(string symbol, Sides side, double lots, int magicNumber,
+			string comment, int maxRetryCount, int retryPeriodInMs) => SendMarketOrderRequest(symbol, side, lots, 0, 0,
+			magicNumber, comment, maxRetryCount, retryPeriodInMs);
+
+		public PositionResponse SendMarketOrderRequest(string symbol, Sides side, double lots, int magicNumber,
+			string comment) => SendMarketOrderRequest(symbol, side, lots, 0, 0, magicNumber, comment, 0, 0);
 
 		public bool SendClosePositionRequests(Position position, double? lots, int maxRetryCount, int retryPeriodInMs)
         {
@@ -381,8 +387,7 @@ namespace TradeSystem.Mt4Integration
 
         protected virtual void Dispose(bool disposing)
         {
-            QuoteClient?.Disconnect();
-            OrderClient?.Disconnect();
+            QuoteClient?.Disconnect();;
         }
 
         ~Connector()
