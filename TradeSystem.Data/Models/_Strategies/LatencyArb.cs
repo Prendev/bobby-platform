@@ -42,6 +42,7 @@ namespace TradeSystem.Data.Models
 		public LatencyArbStates State { get => Get<LatencyArbStates>(); set => Set(value); }
 		public bool Rotating { get; set; }
 		[DisplayName("AvgPeriod")] public int AveragingPeriodInSeconds { get; set; }
+		[DisplayName("RestPeriod")] public int RestingPeriodInSec { get; set; }
 		[DisplayName("ReopenDaysOld")] public int ReopenThresholdInDay { get; set; } = 5;
 		[DisplayName("R Count")] public int ReopenCount { get => Get<int>(); set => Set(value); }
 

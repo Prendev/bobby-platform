@@ -49,6 +49,7 @@ namespace TradeSystem.Data.Models
 			set => Set(value);
 		}
 
+		[NotMapped] [InvisibleColumn] public DateTime? LastActionTime { get; set; }
 		[NotMapped] [InvisibleColumn] public Tick LastFeedTick { get; set; }
 		[NotMapped] [InvisibleColumn] public Tick LastShortTick { get; set; }
 		[NotMapped] [InvisibleColumn] public Tick LastLongTick { get; set; }
