@@ -24,7 +24,7 @@ namespace TradeSystem.Duplicat
         [HandleProcessCorruptedStateExceptions]
 		static void Main()
         {
-	        IEmailService emailService = null;
+			IEmailService emailService = null;
 			try
 			{
 				Application.EnableVisualStyles();

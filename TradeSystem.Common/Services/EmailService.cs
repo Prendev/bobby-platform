@@ -8,11 +8,18 @@ namespace TradeSystem.Common.Services
 	public interface IEmailService
 	{
 		void Send(string subject, string body);
+		bool IsRolloverTime();
 	}
 
 	public class EmailService : IEmailService
 	{
 		private readonly object _syncRoot = new object();
+		private static readonly int RolloverMinutes;
+
+		static EmailService()
+		{
+			int.TryParse(ConfigurationManager.AppSettings["EmailService.RolloverMinutes"], out RolloverMinutes);
+		}
 
 		public EmailService()
 		{
@@ -60,6 +67,19 @@ namespace TradeSystem.Common.Services
 					Logger.Error("EmailService.Send exception", e);
 				}
 			});
+		}
+
+		public bool IsRolloverTime()
+		{
+			if (RolloverMinutes <= 0) return false;
+
+			var nyTimeOfDay = TimeZoneInfo
+				.ConvertTimeFromUtc(HiResDatetime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time"))
+				.TimeOfDay;
+			var rollover = TimeSpan.FromHours(17);
+
+			return nyTimeOfDay >= rollover.Subtract(TimeSpan.FromMinutes(RolloverMinutes)) &&
+			       nyTimeOfDay < rollover.Add(TimeSpan.FromMinutes(RolloverMinutes));
 		}
 	}
 }

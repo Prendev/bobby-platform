@@ -292,6 +292,7 @@ namespace TradeSystem.Mt4Integration
 			}
 	        OnConnectionChanged(IsConnected ? ConnectionStates.Connected : ConnectionStates.Error);
 
+	        if (_emailService.IsRolloverTime()) return;
 	        _emailService.Send("ALERT - account disconnected",
 		        $"{_accountInfo.Description}" + Environment.NewLine +
 		        $"{args.Exception}");

@@ -580,6 +580,7 @@ namespace TradeSystem.FixApiIntegration
 			OnConnectionChanged(e.Error == null ? ConnectionStates.Disconnected : ConnectionStates.Error);
 			if (e.Error == null) return;
 
+			if (_emailService.IsRolloverTime()) return;
 			_emailService.Send("ALERT - account disconnected",
 				$"{_accountInfo.Description}" + Environment.NewLine +
 				$"{e.Error.Message}");
