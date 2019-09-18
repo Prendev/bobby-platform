@@ -227,6 +227,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			// Check for new signal
 			if (last == null)
 			{
+				if (!set.IsConnected) return;
 				if (set.State != LatencyArb.LatencyArbStates.Opening) return;
 				if (set.LivePositions.Count >= set.MaxCount) return;
 				if (!set.ShortSpreadCheck) return;
@@ -290,6 +291,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			// Long side opened
 			else if (last.HasLong)
 			{
+				if (set.ShortAccount.ConnectionState != ConnectionStates.Connected) return;
 				var hedge = false;
 				var price = set.LastShortTick.Bid;
 
@@ -330,6 +332,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			// Short side opened
 			else if (last.HasShort)
 			{
+				if (set.LongAccount.ConnectionState != ConnectionStates.Connected) return;
 				var hedge = false;
 				var price = set.LastLongTick.Ask;
 
@@ -525,6 +528,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			if (set.LivePositions.Any(p => !p.HasShort || !p.HasLong)) return;
 			if (set.LastActionTime.HasValue &&
 			    (HiResDatetime.UtcNow - set.LastActionTime.Value).TotalSeconds < set.RestingPeriodInSec) return;
+			if (set.FastFeedAccount.ConnectionState != ConnectionStates.Connected) return;
 
 			CheckReopeningShort(set);
 			CheckReopeningLong(set);
@@ -533,6 +537,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 		{
 			if (set.State != LatencyArb.LatencyArbStates.ReopeningShort) return;
 			if (!set.ShortSpreadCheck) return;
+			if (set.ShortAccount.ConnectionState != ConnectionStates.Connected) return;
 
 			LatencyArbPosition first = null;
 			var positions = set.LivePositions.OrderBy(p => p.Level).Where(p => p.HasBothSides);
@@ -572,6 +577,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 		{
 			if (set.State != LatencyArb.LatencyArbStates.ReopeningLong) return;
 			if (!set.LongSpreadCheck) return;
+			if (set.LongAccount.ConnectionState != ConnectionStates.Connected) return;
 
 			LatencyArbPosition first = null;
 			var positions = set.LivePositions.OrderBy(p => p.Level).Where(p => p.HasBothSides);
@@ -646,6 +652,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			// No closed side
 			if (!first.LongClosed && !first.ShortClosed)
 			{
+				if (!set.IsConnected) return;
 				if (set.State != LatencyArb.LatencyArbStates.ImmediateExit && !set.ShortSpreadCheck) return;
 				if (set.State != LatencyArb.LatencyArbStates.ImmediateExit && !set.LongSpreadCheck) return;
 				if (set.LastActionTime.HasValue &&
@@ -693,6 +700,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			// Long side closed
 			else if (first.LongClosed)
 			{
+				if (set.ShortAccount.ConnectionState != ConnectionStates.Connected) return;
 				var hedge = false;
 				var price = set.LastShortTick.Ask;
 
@@ -722,6 +730,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			// Short side closed
 			else if (first.ShortClosed)
 			{
+				if (set.LongAccount.ConnectionState != ConnectionStates.Connected) return;
 				var hedge = false;
 				var price = set.LastLongTick.Bid;
 

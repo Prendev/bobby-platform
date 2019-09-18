@@ -291,6 +291,10 @@ namespace TradeSystem.Mt4Integration
 	            Thread.Sleep(new TimeSpan(0, 1, 0));
 			}
 	        OnConnectionChanged(IsConnected ? ConnectionStates.Connected : ConnectionStates.Error);
+
+	        _emailService.Send("ALERT - account disconnected",
+		        $"{_accountInfo.Description}" + Environment.NewLine +
+		        $"{args.Exception}");
 		}
 
         private void QuoteClient_OnOrderUpdate(object sender, OrderUpdateEventArgs update)
