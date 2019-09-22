@@ -21,5 +21,9 @@ namespace TradeSystem.Data.Models
 
 		public FeedSpeedTypes FeedSpeed { get; set; }
 		[Required] public string Symbol { get; set; }
+
+		// public decimal Multiplier { get; set; } = 1;
+		public bool BuyDisabled { get; set; }
+		public bool SellDisabled { get; set; }
 	}
 }

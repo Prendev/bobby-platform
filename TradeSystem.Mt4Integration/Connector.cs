@@ -57,7 +57,7 @@ namespace TradeSystem.Mt4Integration
 
 		public override void Disconnect()
         {
-            QuoteClient.OnDisconnect -= QuoteClient_OnDisconnect;
+			QuoteClient.OnDisconnect -= QuoteClient_OnDisconnect;
             QuoteClient.OnOrderUpdate -= QuoteClient_OnOrderUpdate;
 	        QuoteClient.OnQuote -= QuoteClient_OnQuote;
 

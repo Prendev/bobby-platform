@@ -187,8 +187,14 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 			if (arb.OffsettingByAvg)
 			{
-				var buyQuotes = quotes.Where(q => q.AggAccount.Avg.HasValue && q.Sum < arb.MaxSizePerAccount).ToList();
-				var sellQuotes = quotes.Where(q => q.AggAccount.Avg.HasValue && q.Sum > -arb.MaxSizePerAccount).ToList();
+				var buyQuotes = quotes
+					.Where(q => !q.AggAccount.BuyDisabled)
+					.Where(q => q.AggAccount.Avg.HasValue && q.Sum < arb.MaxSizePerAccount)
+					.ToList();
+				var sellQuotes = quotes
+					.Where(q => !q.AggAccount.SellDisabled)
+					.Where(q => q.AggAccount.Avg.HasValue && q.Sum > -arb.MaxSizePerAccount)
+					.ToList();
 
 				var bestPairs = new List<Tuple<Quote, Quote, decimal>>();
 				foreach (var buyQuote in buyQuotes)
@@ -222,8 +228,8 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			}
 			else
 			{
-				var buyQuotes = quotes.Where(q => q.Sum < arb.MaxSizePerAccount);
-				var sellQuotes = quotes.Where(q => q.Sum > -arb.MaxSizePerAccount);
+				var buyQuotes = quotes.Where(q => !q.AggAccount.BuyDisabled && q.Sum < arb.MaxSizePerAccount);
+				var sellQuotes = quotes.Where(q => !q.AggAccount.SellDisabled && q.Sum > -arb.MaxSizePerAccount);
 				var buyQuote = buyQuotes.OrderBy(q => q.GroupQuoteEntry.Ask).FirstOrDefault();
 				var sellQuote = sellQuotes.OrderByDescending(q => q.GroupQuoteEntry.Bid)
 					.FirstOrDefault(q => q.AggAccount != buyQuote?.AggAccount);
