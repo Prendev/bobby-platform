@@ -40,6 +40,9 @@
 			this.btnSaveTheWeekend = new System.Windows.Forms.Button();
 			this.btnAccountImport = new System.Windows.Forms.Button();
 			this.btnExport = new System.Windows.Forms.Button();
+			this.tlpRight = new System.Windows.Forms.TableLayoutPanel();
+			this.gbInstrumentConfigs = new System.Windows.Forms.GroupBox();
+			this.dgvInstrumentConfigs = new TradeSystem.Duplicat.Views.CustomDataGridView();
 			this.tlpMain.SuspendLayout();
 			this.groupBox4.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.dgvMtAccounts)).BeginInit();
@@ -47,6 +50,9 @@
 			this.groupBox1.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.dgvMtPlatforms)).BeginInit();
 			this.gbControl.SuspendLayout();
+			this.tlpRight.SuspendLayout();
+			this.gbInstrumentConfigs.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)(this.dgvInstrumentConfigs)).BeginInit();
 			this.SuspendLayout();
 			// 
 			// tlpMain
@@ -54,8 +60,8 @@
 			this.tlpMain.ColumnCount = 2;
 			this.tlpMain.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
 			this.tlpMain.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-			this.tlpMain.Controls.Add(this.groupBox4, 1, 0);
 			this.tlpMain.Controls.Add(this.tlpLeft, 0, 0);
+			this.tlpMain.Controls.Add(this.tlpRight, 1, 0);
 			this.tlpMain.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.tlpMain.Location = new System.Drawing.Point(0, 0);
 			this.tlpMain.Margin = new System.Windows.Forms.Padding(4);
@@ -63,21 +69,21 @@
 			this.tlpMain.RowCount = 1;
 			this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
 			this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 714F));
-			this.tlpMain.Size = new System.Drawing.Size(1392, 714);
+			this.tlpMain.Size = new System.Drawing.Size(1202, 601);
 			this.tlpMain.TabIndex = 1;
 			// 
 			// groupBox4
 			// 
 			this.groupBox4.Controls.Add(this.dgvMtAccounts);
 			this.groupBox4.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.groupBox4.Location = new System.Drawing.Point(700, 4);
+			this.groupBox4.Location = new System.Drawing.Point(4, 4);
 			this.groupBox4.Margin = new System.Windows.Forms.Padding(4);
 			this.groupBox4.Name = "groupBox4";
 			this.groupBox4.Padding = new System.Windows.Forms.Padding(4);
-			this.groupBox4.Size = new System.Drawing.Size(688, 706);
+			this.groupBox4.Size = new System.Drawing.Size(587, 408);
 			this.groupBox4.TabIndex = 0;
 			this.groupBox4.TabStop = false;
-			this.groupBox4.Text = "Accounts";
+			this.groupBox4.Text = "Accounts (use double-click)";
 			// 
 			// dgvMtAccounts
 			// 
@@ -88,7 +94,8 @@
 			this.dgvMtAccounts.Margin = new System.Windows.Forms.Padding(4);
 			this.dgvMtAccounts.MultiSelect = false;
 			this.dgvMtAccounts.Name = "dgvMtAccounts";
-			this.dgvMtAccounts.Size = new System.Drawing.Size(680, 683);
+			this.dgvMtAccounts.ShowCellToolTips = false;
+			this.dgvMtAccounts.Size = new System.Drawing.Size(579, 385);
 			this.dgvMtAccounts.TabIndex = 0;
 			// 
 			// tlpLeft
@@ -104,7 +111,7 @@
 			this.tlpLeft.RowCount = 2;
 			this.tlpLeft.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 100F));
 			this.tlpLeft.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-			this.tlpLeft.Size = new System.Drawing.Size(688, 706);
+			this.tlpLeft.Size = new System.Drawing.Size(593, 593);
 			this.tlpLeft.TabIndex = 1;
 			// 
 			// groupBox1
@@ -115,7 +122,7 @@
 			this.groupBox1.Margin = new System.Windows.Forms.Padding(4);
 			this.groupBox1.Name = "groupBox1";
 			this.groupBox1.Padding = new System.Windows.Forms.Padding(4);
-			this.groupBox1.Size = new System.Drawing.Size(680, 598);
+			this.groupBox1.Size = new System.Drawing.Size(585, 485);
 			this.groupBox1.TabIndex = 2;
 			this.groupBox1.TabStop = false;
 			this.groupBox1.Text = "Platforms (automatically loaded from .srv files)";
@@ -130,7 +137,8 @@
 			this.dgvMtPlatforms.MultiSelect = false;
 			this.dgvMtPlatforms.Name = "dgvMtPlatforms";
 			this.dgvMtPlatforms.ReadOnly = true;
-			this.dgvMtPlatforms.Size = new System.Drawing.Size(672, 575);
+			this.dgvMtPlatforms.ShowCellToolTips = false;
+			this.dgvMtPlatforms.Size = new System.Drawing.Size(577, 462);
 			this.dgvMtPlatforms.TabIndex = 0;
 			// 
 			// gbControl
@@ -145,7 +153,7 @@
 			this.gbControl.Margin = new System.Windows.Forms.Padding(4);
 			this.gbControl.Name = "gbControl";
 			this.gbControl.Padding = new System.Windows.Forms.Padding(4);
-			this.gbControl.Size = new System.Drawing.Size(680, 92);
+			this.gbControl.Size = new System.Drawing.Size(585, 92);
 			this.gbControl.TabIndex = 3;
 			this.gbControl.TabStop = false;
 			this.gbControl.Text = "Control";
@@ -196,6 +204,45 @@
 			this.btnExport.Text = "Order history export";
 			this.btnExport.UseVisualStyleBackColor = true;
 			// 
+			// tlpRight
+			// 
+			this.tlpRight.ColumnCount = 1;
+			this.tlpRight.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+			this.tlpRight.Controls.Add(this.groupBox4, 0, 0);
+			this.tlpRight.Controls.Add(this.gbInstrumentConfigs, 0, 1);
+			this.tlpRight.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.tlpRight.Location = new System.Drawing.Point(604, 3);
+			this.tlpRight.Name = "tlpRight";
+			this.tlpRight.RowCount = 2;
+			this.tlpRight.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 70F));
+			this.tlpRight.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 30F));
+			this.tlpRight.Size = new System.Drawing.Size(595, 595);
+			this.tlpRight.TabIndex = 2;
+			// 
+			// gbInstrumentConfigs
+			// 
+			this.gbInstrumentConfigs.Controls.Add(this.dgvInstrumentConfigs);
+			this.gbInstrumentConfigs.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.gbInstrumentConfigs.Location = new System.Drawing.Point(3, 419);
+			this.gbInstrumentConfigs.Name = "gbInstrumentConfigs";
+			this.gbInstrumentConfigs.Size = new System.Drawing.Size(589, 173);
+			this.gbInstrumentConfigs.TabIndex = 1;
+			this.gbInstrumentConfigs.TabStop = false;
+			this.gbInstrumentConfigs.Text = "Instrument configs";
+			// 
+			// dgvInstrumentConfigs
+			// 
+			this.dgvInstrumentConfigs.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
+			this.dgvInstrumentConfigs.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+			this.dgvInstrumentConfigs.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.dgvInstrumentConfigs.Location = new System.Drawing.Point(3, 18);
+			this.dgvInstrumentConfigs.MultiSelect = false;
+			this.dgvInstrumentConfigs.Name = "dgvInstrumentConfigs";
+			this.dgvInstrumentConfigs.RowTemplate.Height = 24;
+			this.dgvInstrumentConfigs.ShowCellToolTips = false;
+			this.dgvInstrumentConfigs.Size = new System.Drawing.Size(583, 152);
+			this.dgvInstrumentConfigs.TabIndex = 0;
+			// 
 			// MtAccountsUserControl
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -203,7 +250,7 @@
 			this.Controls.Add(this.tlpMain);
 			this.Margin = new System.Windows.Forms.Padding(4);
 			this.Name = "MtAccountsUserControl";
-			this.Size = new System.Drawing.Size(1392, 714);
+			this.Size = new System.Drawing.Size(1202, 601);
 			this.tlpMain.ResumeLayout(false);
 			this.groupBox4.ResumeLayout(false);
 			((System.ComponentModel.ISupportInitialize)(this.dgvMtAccounts)).EndInit();
@@ -211,6 +258,9 @@
 			this.groupBox1.ResumeLayout(false);
 			((System.ComponentModel.ISupportInitialize)(this.dgvMtPlatforms)).EndInit();
 			this.gbControl.ResumeLayout(false);
+			this.tlpRight.ResumeLayout(false);
+			this.gbInstrumentConfigs.ResumeLayout(false);
+			((System.ComponentModel.ISupportInitialize)(this.dgvInstrumentConfigs)).EndInit();
 			this.ResumeLayout(false);
 
         }
@@ -229,5 +279,8 @@
 		private System.Windows.Forms.Button btnSaveTheWeekend;
 		private System.Windows.Forms.DateTimePicker dtpTo;
 		private System.Windows.Forms.DateTimePicker dtpFrom;
+		private System.Windows.Forms.TableLayoutPanel tlpRight;
+		private System.Windows.Forms.GroupBox gbInstrumentConfigs;
+		private CustomDataGridView dgvInstrumentConfigs;
 	}
 }

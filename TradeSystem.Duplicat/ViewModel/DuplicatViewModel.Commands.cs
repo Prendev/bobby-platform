@@ -115,6 +115,7 @@ namespace TradeSystem.Duplicat.ViewModel
 	        if (IsLoading) return;
 
 			SelectedProfile = profile;
+	        SelectedMt4Account = null;
 	        SelectedAggregator = null;
 	        SelectedSlave = null;
 	        SelectedCopier = null;
@@ -129,19 +130,25 @@ namespace TradeSystem.Duplicat.ViewModel
 			await _orchestrator.HeatUp();
 		}
 
-		public void ShowSelectedAggregatorCommand(Aggregator aggregator)
+	    public void ShowSelectedCommand(MetaTraderAccount account)
+	    {
+		    if (IsLoading) return;
+		    SelectedMt4Account = account;
+	    }
+
+		public void ShowSelectedCommand(Aggregator aggregator)
 		{
 			if (IsLoading) return;
 			SelectedAggregator = aggregator;
 		}
 
-		public void ShowSelectedSlaveCommand(Slave slave)
+		public void ShowSelectedCommand(Slave slave)
 		{
 			if (IsLoading) return;
             SelectedSlave = slave;
 		}
 
-	    public void ShowSelectedCopierCommand(Copier copier)
+	    public void ShowSelectedCommand(Copier copier)
 	    {
 		    if (IsLoading) return;
 		    SelectedCopier = null;

@@ -23,7 +23,7 @@ namespace TradeSystem.Duplicat.Views
 			gbAggregators.AddBinding<Aggregator, string>("Text", _viewModel, nameof(_viewModel.SelectedAggregator),
 				s => $"Aggregators (use double-click) - {s?.Description ?? "Save before load!!!"}");
 
-			dgvAggregators.RowDoubleClick += (s, e) => _viewModel.ShowSelectedAggregatorCommand(dgvAggregators.GetSelectedItem<Aggregator>());
+			dgvAggregators.RowDoubleClick += (s, e) => _viewModel.ShowSelectedCommand(dgvAggregators.GetSelectedItem<Aggregator>());
 
 			dgvAggregators.DefaultValuesNeeded += (s, e) => e.Row.Cells["ProfileId"].Value = _viewModel.SelectedProfile.Id;
 			dgvAggregatorAccounts.DefaultValuesNeeded += (s, e) => e.Row.Cells["AggregatorId"].Value = _viewModel.SelectedAggregator.Id;

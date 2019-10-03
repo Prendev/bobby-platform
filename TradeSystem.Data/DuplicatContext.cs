@@ -50,6 +50,7 @@ namespace TradeSystem.Data
 		public DbSet<MetaTraderPlatform> MetaTraderPlatforms { get; set; }
         public DbSet<CTraderPlatform> CTraderPlatforms { get; set; }
         public DbSet<MetaTraderAccount> MetaTraderAccounts { get; set; }
+        public DbSet<MetaTraderInstrumentConfig> MetaTraderInstrumentConfigs { get; set; }
         public DbSet<CTraderAccount> CTraderAccounts { get; set; }
 		public DbSet<FixApiAccount> FixApiAccounts { get; set; }
 		public DbSet<IlyaFastFeedAccount> IlyaFastFeedAccounts { get; set; }

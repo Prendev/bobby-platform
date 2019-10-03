@@ -56,8 +56,8 @@ namespace TradeSystem.Duplicat.Views
 		        _viewModel.CopierArchiveCommand(selected);
 	        };
 
-			dgvSlaves.RowDoubleClick += (s, e) => _viewModel.ShowSelectedSlaveCommand(dgvSlaves.GetSelectedItem<Slave>());
-	        dgvCopiers.RowDoubleClick += (s, e) => _viewModel.ShowSelectedCopierCommand(dgvCopiers.GetSelectedItem<Copier>());
+			dgvSlaves.RowDoubleClick += (s, e) => _viewModel.ShowSelectedCommand(dgvSlaves.GetSelectedItem<Slave>());
+	        dgvCopiers.RowDoubleClick += (s, e) => _viewModel.ShowSelectedCommand(dgvCopiers.GetSelectedItem<Copier>());
 
 			dgvMasters.DefaultValuesNeeded += (s, e) => e.Row.Cells["ProfileId"].Value = _viewModel.SelectedProfile.Id;
 			dgvSymbolMappings.DefaultValuesNeeded += (s, e) => { e.Row.Cells["SlaveId"].Value = _viewModel.SelectedSlave.Id; };

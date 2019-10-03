@@ -62,6 +62,7 @@ namespace TradeSystem.Duplicat.ViewModel
 		public BindingList<MetaTraderPlatform> MtPlatforms { get; private set; }
 		public BindingList<CTraderPlatform> CtPlatforms { get; private set; }
 		public BindingList<MetaTraderAccount> MtAccounts { get; private set; }
+		public BindingList<MetaTraderInstrumentConfig> MtInstrumentConfigs { get; private set; }
 		public BindingList<CTraderAccount> CtAccounts { get; private set; }
 		public BindingList<FixApiAccount> FixAccounts { get; private set; }
 		public BindingList<IlyaFastFeedAccount> IlyaFastFeedAccounts { get; private set; }
@@ -111,6 +112,7 @@ namespace TradeSystem.Duplicat.ViewModel
 		public SaveStates SaveState { get => Get<SaveStates>(); set => Set(value); }
 
 		public Profile SelectedProfile { get => Get<Profile>(); set => Set(value); }
+		public MetaTraderAccount SelectedMt4Account { get => Get<MetaTraderAccount>(); set => Set(value); }
 		public Aggregator SelectedAggregator { get => Get<Aggregator>(); set => Set(value); }
 		public Slave SelectedSlave { get => Get<Slave>(); set => Set(value); }
 		public Copier SelectedCopier { get => Get<Copier>(); set => Set(value); }
@@ -206,7 +208,8 @@ namespace TradeSystem.Duplicat.ViewModel
 			var p = SelectedProfile?.Id;
 			_duplicatContext.MetaTraderPlatforms.OrderBy(e => e.ToString()).Load();
 			_duplicatContext.CTraderPlatforms.OrderBy(e => e.ToString()).Load();
-			_duplicatContext.MetaTraderAccounts.OrderBy(e => e.ToString()).Load();
+			_duplicatContext.MetaTraderAccounts.Include(e => e.InstrumentConfigs).OrderBy(e => e.ToString()).Load();
+			_duplicatContext.MetaTraderInstrumentConfigs.OrderBy(e => e.ToString()).Load();
 			_duplicatContext.CTraderAccounts.OrderBy(e => e.ToString()).Load();
 			_duplicatContext.FixApiAccounts.OrderBy(e => e.ToString()).Load();
 			_duplicatContext.IlyaFastFeedAccounts.OrderBy(e => e.ToString()).Load();
@@ -249,6 +252,8 @@ namespace TradeSystem.Duplicat.ViewModel
 			MtPlatforms = _duplicatContext.MetaTraderPlatforms.Local.ToBindingList();
 			CtPlatforms = _duplicatContext.CTraderPlatforms.Local.ToBindingList();
 			MtAccounts = _duplicatContext.MetaTraderAccounts.Local.ToBindingList();
+			MtInstrumentConfigs = ToFilteredBindingList(_duplicatContext.MetaTraderInstrumentConfigs.Local,
+				e => e.MetaTraderAccount, () => SelectedMt4Account);
 			CtAccounts = _duplicatContext.CTraderAccounts.Local.ToBindingList();
 			FixAccounts = _duplicatContext.FixApiAccounts.Local.ToBindingList();
 			IlyaFastFeedAccounts = _duplicatContext.IlyaFastFeedAccounts.Local.ToBindingList();
