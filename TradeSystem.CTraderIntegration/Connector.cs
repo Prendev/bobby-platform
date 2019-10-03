@@ -2,7 +2,6 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using TradeSystem.Common.Integration;
 using TradeSystem.CTraderIntegration.Dto;
 using TradeSystem.CTraderIntegration.Services;
@@ -101,71 +100,7 @@ namespace TradeSystem.CTraderIntegration
 
             return IsConnected;
         }
-
-        public long GetOpenContracts(string symbol)
-        {
-            return Positions.Where(p => p.Value.Symbol == symbol && !p.Value.IsClosed).Sum(p => p.Value.RealVolume);
-        }
-
-        public double GetBalance()
-        {
-            if (!IsConnected) return 0;
-
-            var accounts = BalanceAccounts.GetOrAdd(_accountInfo.AccessToken,
-                accessToken => new Lazy<List<AccountData>>(() =>
-                {
-                    var accs = _tradingAccountsService
-                        .GetAccounts(new BaseRequest
-                        {
-                            AccessToken = accessToken,
-                            BaseUrl = _cTraderClientWrapper.PlatformInfo.AccountsApi
-                        });
-
-                    Logger.Debug($"Accounts acquired for access token: {accessToken}");
-                    return accs;
-                }, true));
-
-            return (double)(accounts.Value.FirstOrDefault(a => a.accountId == AccountId)?.balance ?? 0);
-        }
-
-        public double GetPnl(DateTime from, DateTime to)
-        {
-            if (!IsConnected) return 0;
-            Thread.Sleep(2000);
-
-            var deals = _tradingAccountsService.GetDeals(new DealsRequest
-            {
-                AccessToken = _accountInfo.AccessToken,
-                BaseUrl = _cTraderClientWrapper.PlatformInfo.AccountsApi,
-                AccountId = AccountId,
-                From = from,
-                To = to
-            });
-
-            return (double) deals.Sum(deal => deal.GetNetProfit());
-        }
-
-        public string GetCurrency()
-        {
-            if (!IsConnected) return "";
-
-            var accounts = BalanceAccounts.GetOrAdd(_accountInfo.AccessToken,
-                accessToken => new Lazy<List<AccountData>>(() =>
-                {
-                    var accs = _tradingAccountsService
-                        .GetAccounts(new BaseRequest
-                        {
-                            AccessToken = accessToken,
-                            BaseUrl = _cTraderClientWrapper.PlatformInfo.AccountsApi
-                        });
-
-                    Logger.Debug($"Accounts acquired for access token: {accessToken}");
-                    return accs;
-                }, true));
-
-            return accounts.Value.FirstOrDefault(a => a.accountId == AccountId)?.depositCurrency ?? "";
-        }
-
+		
         public void SendMarketOrderRequest(string symbol, ProtoTradeSide type, long volume, string clientOrderId, int maxRetryCount = 5, int retryPeriodInMs = 3000)
         {
             var clientMsgId = $"{AccountId}|{clientOrderId}";

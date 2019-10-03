@@ -147,7 +147,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			var firstPos = pushing.BetaOpenSide == pushing.FirstCloseSide ? pushing.BetaPosition : pushing.AlphaPosition;
 
 			// Close first side
-			firstConnector.SendClosePositionRequests(firstPos, null, pushing.PushingDetail.MaxRetryCount, pushing.PushingDetail.RetryPeriodInMs);
+			firstConnector.SendClosePositionRequests(firstPos, pushing.PushingDetail.MaxRetryCount, pushing.PushingDetail.RetryPeriodInMs);
 			ClosingForReopen(pushing, pushing.FirstCloseSide.Inv());
 		}
 
@@ -212,7 +212,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			await FutureBuildUp(pushing, futureSide, contractsNeeded, Phases.Pushing);
 
 			// Close second side
-			secondConnector.SendClosePositionRequests(secondPos, null, pushing.PushingDetail.MaxRetryCount, pushing.PushingDetail.RetryPeriodInMs);
+			secondConnector.SendClosePositionRequests(secondPos, pushing.PushingDetail.MaxRetryCount, pushing.PushingDetail.RetryPeriodInMs);
 			Reopening(pushing, futureSide);
 		}
 
@@ -380,7 +380,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			}
 
 			pushing.ReopenPosition = reopenPos;
-			var closed = reopenConnector.SendClosePositionRequests(reopenPos, null, pushing.PushingDetail.MaxRetryCount,
+			var closed = reopenConnector.SendClosePositionRequests(reopenPos, pushing.PushingDetail.MaxRetryCount,
 				pushing.PushingDetail.RetryPeriodInMs);
 
 			if (closed)

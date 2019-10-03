@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using TradeSystem.Common.Services;
 using TradeSystem.Data;
@@ -57,7 +58,9 @@ namespace TradeSystem.Orchestration.Services
 					User = account.MetaTraderAccount.User,
 					Password = account.MetaTraderAccount.Password,
 					Srv = account.MetaTraderAccount.MetaTraderPlatform.SrvFilePath,
-					LocalPortForProxy = account.ProfileProxyId.HasValue ? account.ProfileProxy.LocalPort : (int?) null
+					LocalPortForProxy = account.ProfileProxyId.HasValue ? account.ProfileProxy.LocalPort : (int?) null,
+					InstrumentConfigs = account.MetaTraderAccount.InstrumentConfigs?
+						.ToDictionary(ic => ic.Symbol, ic => ic.Multiplier ?? 1)
 				}, DestinationSetter);
 		}
 

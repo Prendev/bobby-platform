@@ -11,6 +11,7 @@ namespace TradeSystem.Data.Models
         public MetaTraderPlatform MetaTraderPlatform { get; set; }
 
 		public List<Account> Accounts { get; } = new List<Account>();
+		public List<MetaTraderInstrumentConfig> InstrumentConfigs { get; } = new List<MetaTraderInstrumentConfig>();
 
 		public override string ToString()
         {

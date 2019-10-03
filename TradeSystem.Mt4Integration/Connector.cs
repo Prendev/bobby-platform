@@ -18,7 +18,7 @@ namespace TradeSystem.Mt4Integration
 		PositionResponse SendMarketOrderRequest(string symbol, Sides side, double lots, decimal price, decimal deviation, int magicNumber,
 			string comment, int maxRetryCount, int retryPeriodInMs);
 
-		bool SendClosePositionRequests(Position position, double? lots, int maxRetryCount, int retryPeriodInMs);
+		bool SendClosePositionRequests(Position position, int maxRetryCount, int retryPeriodInMs);
 
 		ConcurrentDictionary<long, Position> Positions { get; }
 	}
@@ -35,7 +35,7 @@ namespace TradeSystem.Mt4Integration
 		private readonly IEmailService _emailService;
 		private AccountInfo _accountInfo;
 
-	    public override int Id => _accountInfo?.DbId ?? 0;
+		public override int Id => _accountInfo?.DbId ?? 0;
 		public override string Description => _accountInfo?.Description;
 		public override bool IsConnected => QuoteClient?.Connected == true && OrderClient != null;
 	    public DateTime? ServerTime => QuoteClient?.ServerTime;
@@ -78,7 +78,7 @@ namespace TradeSystem.Mt4Integration
 	        _destinationSetter = destinationSetter;
 	        _accountInfo = accountInfo;
 
-            Server[] slaves = null;
+	        Server[] slaves = null;
 			try
 			{
 				if (Uri.TryCreate($"http://{_accountInfo.Srv}", UriKind.Absolute, out Uri ip))
@@ -124,7 +124,7 @@ namespace TradeSystem.Mt4Integration
                 var pos = new Position
                 {
                     Id = o.Ticket,
-                    Lots = (decimal) o.Lots,
+                    Lots = (decimal) o.Lots / M(o.Symbol),
                     Symbol = o.Symbol,
                     Side = o.Type == Op.Buy ? Sides.Buy : Sides.Sell,
                     RealVolume = (long) (o.Lots * GetSymbolInfo(o.Symbol).ContractSize * (o.Type == Op.Buy ? 1 : -1)),
@@ -153,15 +153,15 @@ namespace TradeSystem.Mt4Integration
 				var op = side == Sides.Buy ? Op.Buy : Op.Sell;
 				var slippage = deviation == 0 ? 0 : Math.Floor((double) Math.Abs(deviation) / GetSymbolInfo(symbol).Point);
 
-				var o = OrderClient.OrderSend(symbol, op, lots, (double) price, (int) slippage,
-					0, 0, comment, magicNumber, DateTime.MaxValue);
+				var o = OrderClient.OrderSend(symbol, op, lots * (double) M(symbol), (double) price,
+					(int) slippage, 0, 0, comment, magicNumber, DateTime.MaxValue);
 				Logger.Debug($"{_accountInfo.Description} Connector.SendMarketOrderRequest({symbol}, {side}, {lots}, {price}, {deviation}, {magicNumber}, {comment})" +
 				             $" is successful with id {o.Ticket}");
 
 				var position = new Position
 				{
 					Id = o.Ticket,
-					Lots = (decimal)o.Lots,
+					Lots = (decimal)o.Lots / M(symbol),
 					Symbol = o.Symbol,
 					Side = o.Type == Op.Buy ? Sides.Buy : Sides.Sell,
 					RealVolume = (long)(o.Lots * GetSymbolInfo(o.Symbol).ContractSize * (o.Type == Op.Buy ? 1 : -1)),
@@ -197,53 +197,46 @@ namespace TradeSystem.Mt4Integration
 				return SendMarketOrderRequest(symbol, side, lots, magicNumber, comment, --maxRetryCount, retryPeriodInMs);
 			}
 		}
-
 		public PositionResponse SendMarketOrderRequest(string symbol, Sides side, double lots, int magicNumber,
 			string comment, int maxRetryCount, int retryPeriodInMs) => SendMarketOrderRequest(symbol, side, lots, 0, 0,
 			magicNumber, comment, maxRetryCount, retryPeriodInMs);
-
 		public PositionResponse SendMarketOrderRequest(string symbol, Sides side, double lots, int magicNumber,
 			string comment) => SendMarketOrderRequest(symbol, side, lots, 0, 0, magicNumber, comment, 0, 0);
 
-		public bool SendClosePositionRequests(Position position, double? lots, int maxRetryCount, int retryPeriodInMs)
-        {
-	        if (position == null)
+		public bool SendClosePositionRequests(Position position) => SendClosePositionRequests(position, 0, 0);
+		public bool SendClosePositionRequests(long ticket, int maxRetryCount, int retryPeriodInMs)
+	    {
+		    if (!Positions.TryGetValue(ticket, out var position)) return true;
+		    if (position.IsClosed) return true;
+		    return SendClosePositionRequests(position, maxRetryCount, retryPeriodInMs);
+		}
+		public bool SendClosePositionRequests(Position position, int maxRetryCount, int retryPeriodInMs)
+		{
+			if (position == null)
 			{
 				Logger.Error($"{_accountInfo.Description} Connector.SendClosePositionRequests position is NULL");
 				return false;
 			}
 
-            try
+			try
 			{
 				var price = position.Side == Sides.Buy
-                    ? QuoteClient.GetQuote(position.Symbol).Bid
-                    : QuoteClient.GetQuote(position.Symbol).Ask;
-				var order = OrderClient.OrderClose(position.Symbol, (int) position.Id, lots ?? (double) position.Lots, price, 0);
+					? QuoteClient.GetQuote(position.Symbol).Bid
+					: QuoteClient.GetQuote(position.Symbol).Ask;
+				var order = OrderClient.OrderClose(position.Symbol, (int)position.Id, (double)(position.Lots * M(position.Symbol)), price, 0);
 				UpdatePosition(order);
 				Logger.Debug($"{_accountInfo.Description} Connector.SendClosePositionRequests({position.Id}, {position.Comment}) is successful");
 				return true;
 			}
-            catch (Exception e)
-            {
-                Logger.Error($"{_accountInfo.Description} Connector.SendClosePositionRequests({position.Id}, {position.Comment}) exception", e);
+			catch (Exception e)
+			{
+				Logger.Error($"{_accountInfo.Description} Connector.SendClosePositionRequests({position.Id}, {position.Comment}) exception", e);
 				if (maxRetryCount <= 0) return false;
 
 				Thread.Sleep(retryPeriodInMs);
-				return SendClosePositionRequests(position, lots, --maxRetryCount, retryPeriodInMs);
+				return SendClosePositionRequests(position, --maxRetryCount, retryPeriodInMs);
 			}
-        }
-
-		public bool SendClosePositionRequests(Position position, double? lots = null)
-		{
-			return SendClosePositionRequests(position, lots, 0, 0);
 		}
-
-	    public bool SendClosePositionRequests(long ticket, int maxRetryCount, int retryPeriodInMs)
-	    {
-		    if (!Positions.TryGetValue(ticket, out var position)) return true;
-		    if (position.IsClosed) return true;
-		    return SendClosePositionRequests(position, null, maxRetryCount, retryPeriodInMs);
-	    }
 
 		public override Tick GetLastTick(string symbol)
         {
@@ -312,26 +305,13 @@ namespace TradeSystem.Mt4Integration
                 Position = position,
                 Action = update.Action == UpdateAction.PositionClose ? NewPositionActions.Close : NewPositionActions.Open,
 			});
-
-			// TODO
-			//if (update.Action != UpdateAction.PositionOpen) return;
-			//Task.Run(() =>
-			//{
-			//	lock (_finishedOrderIds)
-			//		if (_finishedOrderIds.Contains(o.Ticket))
-			//			return;
-
-			//	Logger.Error(
-			//		$"{Description} QuoteClient.OnOrderUpdate unfinished order ({o.Symbol}, {o.Type}, {o.Lots})!!!");
-			//	SendClosePositionRequests(o.Ticket, 5, 25);
-			//});
 		}
 		private Position UpdatePosition(Order order)
 		{
 			var position = new Position
 			{
 				Id = order.Ticket,
-				Lots = (decimal)order.Lots,
+				Lots = (decimal)order.Lots / M(order.Symbol),
 				Symbol = order.Symbol,
 				Side = order.Type == Op.Buy ? Sides.Buy : Sides.Sell,
 				RealVolume = (long)(order.Lots * GetSymbolInfo(order.Symbol).ContractSize * (order.Type == Op.Buy ? 1 : -1)),
@@ -394,7 +374,14 @@ namespace TradeSystem.Mt4Integration
             }
         }
 
-        public void Dispose()
+		private decimal M(string symbol)
+		{
+			decimal m = 1;
+			_accountInfo?.InstrumentConfigs?.TryGetValue(symbol, out m);
+			return m;
+		}
+
+		public void Dispose()
         {
             Dispose(true);
             GC.SuppressFinalize(this);

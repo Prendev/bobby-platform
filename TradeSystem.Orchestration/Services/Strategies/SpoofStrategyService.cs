@@ -105,7 +105,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			await Delay(spoofing.FirstMasterSignalDurationInMs, panic);
 
 			// Close first side
-			var closed = firstConnector.SendClosePositionRequests(firstPos, null, spoofing.MaxRetryCount, spoofing.RetryPeriodInMs);
+			var closed = firstConnector.SendClosePositionRequests(firstPos, spoofing.MaxRetryCount, spoofing.RetryPeriodInMs);
 			if (!closed) throw new Exception("SpoofStrategyService.ClosingFirst failed!!!");
 		}
 
@@ -129,7 +129,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			await Delay(spoofing.SecondMasterSignalDurationInMs, panic);
 
 			// Close second side
-			var closed = secondConnector.SendClosePositionRequests(secondPos, null, spoofing.MaxRetryCount, spoofing.RetryPeriodInMs);
+			var closed = secondConnector.SendClosePositionRequests(secondPos, spoofing.MaxRetryCount, spoofing.RetryPeriodInMs);
 			if (!closed) throw new Exception("SpoofStrategyService.ClosingSecond failed!!!");
 
 			Hedge(spoofing, prevHedges);
@@ -213,7 +213,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			var hedgeConnector = (IConnector)spoofing.HedgeAccount?.Connector;
 			if (hedgeConnector == null) return;
 			foreach (var hedgePos in prevHedges)
-				hedgeConnector.SendClosePositionRequests(hedgePos, null, spoofing.MaxRetryCount, spoofing.RetryPeriodInMs);
+				hedgeConnector.SendClosePositionRequests(hedgePos, spoofing.MaxRetryCount, spoofing.RetryPeriodInMs);
 		}
 		private void OpenHedgeForMinPush(Spoofing spoofing)
 		{
