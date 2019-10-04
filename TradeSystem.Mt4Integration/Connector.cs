@@ -223,16 +223,34 @@ namespace TradeSystem.Mt4Integration
 				var price = position.Side == Sides.Buy
 					? QuoteClient.GetQuote(position.Symbol).Bid
 					: QuoteClient.GetQuote(position.Symbol).Ask;
-				var order = OrderClient.OrderClose(position.Symbol, (int)position.Id, (double)(position.Lots * M(position.Symbol)), price, 0);
+				var order = OrderClient.OrderClose(position.Symbol, (int) position.Id,
+					(double) (position.Lots * M(position.Symbol)), price, 0);
 				UpdatePosition(order);
-				Logger.Debug($"{_accountInfo.Description} Connector.SendClosePositionRequests({position.Id}, {position.Comment}) is successful");
+				Logger.Debug(
+					$"{_accountInfo.Description} Connector.SendClosePositionRequests({position.Id}, {position.Comment}) is successful");
 				return true;
+			}
+			catch (TradingAPI.MT4Server.TimeoutException e)
+			{
+				Logger.Error($"{_accountInfo.Description} Connector.SendClosePositionRequests({position.Id}, {position.Comment}) exception", e);
+				var orders = QuoteClient.DownloadOrderHistory(HiResDatetime.UtcNow.Date.AddDays(-2), HiResDatetime.UtcNow.Date.AddDays(2));
+				var order = orders?.FirstOrDefault(o => o.Ticket == (int) position.Id);
+				if (order != null)
+				{
+					UpdatePosition(order);
+					Logger.Debug(
+						$"{_accountInfo.Description} Connector.SendClosePositionRequests({position.Id}, {position.Comment}) is successful");
+					return true;
+				}
+
+				if (maxRetryCount <= 0) return false;
+				Thread.Sleep(retryPeriodInMs);
+				return SendClosePositionRequests(position, --maxRetryCount, retryPeriodInMs);
 			}
 			catch (Exception e)
 			{
 				Logger.Error($"{_accountInfo.Description} Connector.SendClosePositionRequests({position.Id}, {position.Comment}) exception", e);
 				if (maxRetryCount <= 0) return false;
-
 				Thread.Sleep(retryPeriodInMs);
 				return SendClosePositionRequests(position, --maxRetryCount, retryPeriodInMs);
 			}
