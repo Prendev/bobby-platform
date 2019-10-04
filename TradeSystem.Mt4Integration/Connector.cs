@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using TradeSystem.Common.Integration;
 using TradeSystem.Common.Services;
 using TradingAPI.MT4Server;
@@ -25,6 +26,7 @@ namespace TradeSystem.Mt4Integration
 
 	public class Connector : ConnectorBase, IConnector
 	{
+		private readonly TaskCompletionManager<int> _taskCompletionManager;
 		private static readonly string Mt4ApiLoginIdWebServerUrl;
 		//private readonly HashSet<int> _finishedOrderIds = new HashSet<int>();
 		private readonly List<string> _symbols = new List<string>();
@@ -53,6 +55,7 @@ namespace TradeSystem.Mt4Integration
 		public Connector(IEmailService emailService)
 		{
 			_emailService = emailService;
+			_taskCompletionManager = new TaskCompletionManager<int>(100, 10000);
 		}
 
 		public override void Disconnect()
@@ -203,14 +206,16 @@ namespace TradeSystem.Mt4Integration
 		public PositionResponse SendMarketOrderRequest(string symbol, Sides side, double lots, int magicNumber,
 			string comment) => SendMarketOrderRequest(symbol, side, lots, 0, 0, magicNumber, comment, 0, 0);
 
-		public bool SendClosePositionRequests(Position position) => SendClosePositionRequests(position, 0, 0);
+		public bool SendClosePositionRequests(Position position) =>SendClosePositionRequests(position, 0, 0);
+		public bool SendClosePositionRequests(Position position, int maxRetryCount, int retryPeriodInMs) =>
+			SendClosePositionRequestsAsync(position, maxRetryCount, retryPeriodInMs).Result;
 		public bool SendClosePositionRequests(long ticket, int maxRetryCount, int retryPeriodInMs)
 	    {
 		    if (!Positions.TryGetValue(ticket, out var position)) return true;
 		    if (position.IsClosed) return true;
 		    return SendClosePositionRequests(position, maxRetryCount, retryPeriodInMs);
 		}
-		public bool SendClosePositionRequests(Position position, int maxRetryCount, int retryPeriodInMs)
+		private async Task<bool> SendClosePositionRequestsAsync(Position position, int maxRetryCount, int retryPeriodInMs)
 		{
 			if (position == null)
 			{
@@ -223,23 +228,27 @@ namespace TradeSystem.Mt4Integration
 				var price = position.Side == Sides.Buy
 					? QuoteClient.GetQuote(position.Symbol).Bid
 					: QuoteClient.GetQuote(position.Symbol).Ask;
-				var order = OrderClient.OrderClose(position.Symbol, (int) position.Id,
+				var closing = _taskCompletionManager.CreateCompletableTask<Order>((int) position.Id);
+				OrderClient.OrderCloseAsync(position.Symbol, (int) position.Id,
 					(double) (position.Lots * M(position.Symbol)), price, 0);
+				var order = await closing;
 				UpdatePosition(order);
 				Logger.Debug(
 					$"{_accountInfo.Description} Connector.SendClosePositionRequests({position.Id}, {position.Comment}) is successful");
 				return true;
 			}
-			catch (TradingAPI.MT4Server.TimeoutException e)
+			catch (Exception e) when (e is TradingAPI.MT4Server.TimeoutException || e is System.TimeoutException)
 			{
-				Logger.Error($"{_accountInfo.Description} Connector.SendClosePositionRequests({position.Id}, {position.Comment}) exception", e);
-				var orders = QuoteClient.DownloadOrderHistory(HiResDatetime.UtcNow.Date.AddDays(-2), HiResDatetime.UtcNow.Date.AddDays(2));
+				Logger.Error(
+					$"{_accountInfo.Description} Connector.SendClosePositionRequests({position.Id}, {position.Comment}) exception", e);
+				var orders =
+					QuoteClient.DownloadOrderHistory(HiResDatetime.UtcNow.Date.AddDays(-2), HiResDatetime.UtcNow.Date.AddDays(2));
 				var order = orders?.FirstOrDefault(o => o.Ticket == (int) position.Id);
 				if (order != null)
 				{
 					UpdatePosition(order);
 					Logger.Debug(
-						$"{_accountInfo.Description} Connector.SendClosePositionRequests({position.Id}, {position.Comment}) is successful");
+						$"{_accountInfo.Description} Connector.SendClosePositionRequests({position.Id}, {position.Comment}) is STILL successful though");
 					return true;
 				}
 
@@ -249,7 +258,8 @@ namespace TradeSystem.Mt4Integration
 			}
 			catch (Exception e)
 			{
-				Logger.Error($"{_accountInfo.Description} Connector.SendClosePositionRequests({position.Id}, {position.Comment}) exception", e);
+				Logger.Error(
+					$"{_accountInfo.Description} Connector.SendClosePositionRequests({position.Id}, {position.Comment}) exception", e);
 				if (maxRetryCount <= 0) return false;
 				Thread.Sleep(retryPeriodInMs);
 				return SendClosePositionRequests(position, --maxRetryCount, retryPeriodInMs);
@@ -316,8 +326,10 @@ namespace TradeSystem.Mt4Integration
 	        if (!new[] {Op.Buy, Op.Sell}.Contains(o.Type)) return;
 
 	        var position = UpdatePosition(o);
+			if (update.Action == UpdateAction.PositionClose)
+				_taskCompletionManager.SetResult(o.Ticket, o);
 
-            OnNewPosition(new NewPosition
+			OnNewPosition(new NewPosition
             {
                 AccountType = AccountTypes.Mt4,
                 Position = position,
