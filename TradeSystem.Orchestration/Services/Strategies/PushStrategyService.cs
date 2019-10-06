@@ -380,10 +380,10 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			}
 
 			pushing.ReopenPosition = reopenPos;
-			var closed = reopenConnector.SendClosePositionRequests(reopenPos, pushing.PushingDetail.MaxRetryCount,
+			var close = reopenConnector.SendClosePositionRequests(reopenPos, pushing.PushingDetail.MaxRetryCount,
 				pushing.PushingDetail.RetryPeriodInMs);
 
-			if (closed)
+			if (close?.Pos?.IsClosed != false)
 			{
 				Logger.Info("PushStrategyService.ClosingForReopen closed for reopen");
 				pushing.ReopenTicket = null;

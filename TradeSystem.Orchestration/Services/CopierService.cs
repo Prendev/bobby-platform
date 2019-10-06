@@ -329,9 +329,9 @@ namespace TradeSystem.Orchestration.Services
 		    }
 		    else
 		    {
-			    var closed = connector.SendClosePositionRequests(ticket, copier.MaxRetryCount,
+			    var close = connector.SendClosePositionRequests(ticket, copier.MaxRetryCount,
 				    copier.RetryPeriodInMs);
-			    if (!closed) return;
+			    if (close?.Pos?.IsClosed == false) return;
 			    copierPos.State = copier.CrossCopier != null
 				    ? CopierPosition.CopierPositionStates.Inactive
 				    : CopierPosition.CopierPositionStates.ToBeRemoved;

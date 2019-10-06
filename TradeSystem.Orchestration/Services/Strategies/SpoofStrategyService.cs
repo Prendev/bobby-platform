@@ -105,8 +105,8 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			await Delay(spoofing.FirstMasterSignalDurationInMs, panic);
 
 			// Close first side
-			var closed = firstConnector.SendClosePositionRequests(firstPos, spoofing.MaxRetryCount, spoofing.RetryPeriodInMs);
-			if (!closed) throw new Exception("SpoofStrategyService.ClosingFirst failed!!!");
+			var close = firstConnector.SendClosePositionRequests(firstPos, spoofing.MaxRetryCount, spoofing.RetryPeriodInMs);
+			if (close?.Pos?.IsClosed == false) throw new Exception("SpoofStrategyService.ClosingFirst failed!!!");
 		}
 
 		public async Task ClosingFirstEnd(Spoofing spoofing, CancellationToken panic) => await Ending(spoofing, panic);
@@ -129,8 +129,8 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			await Delay(spoofing.SecondMasterSignalDurationInMs, panic);
 
 			// Close second side
-			var closed = secondConnector.SendClosePositionRequests(secondPos, spoofing.MaxRetryCount, spoofing.RetryPeriodInMs);
-			if (!closed) throw new Exception("SpoofStrategyService.ClosingSecond failed!!!");
+			var close = secondConnector.SendClosePositionRequests(secondPos, spoofing.MaxRetryCount, spoofing.RetryPeriodInMs);
+			if (close?.Pos?.IsClosed != true) throw new Exception("SpoofStrategyService.ClosingSecond failed!!!");
 
 			Hedge(spoofing, prevHedges);
 		}

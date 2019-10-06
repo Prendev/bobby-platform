@@ -776,7 +776,14 @@ namespace TradeSystem.Orchestration.Services.Strategies
 						_emailService.Send($"{set} latency arb ERROR state", $"{arbPos.Level}. - unexpected closed or missing position(s)");
 						return null;
 					}
-					connector.SendClosePositionRequests(pos);
+					var response = connector.SendClosePositionRequests(pos);
+					if (response?.IsUnfinished == true)
+					{
+						set.State = LatencyArb.LatencyArbStates.Error;
+						Logger.Error($"{set} latency arb - {arbPos.Level}. - unfinished close order");
+						_emailService.Send($"{set} latency arb ERROR state", $"{arbPos.Level}. - unfinished close order");
+						return null;
+					}
 					if (!pos.IsClosed) return null;
 					return new CloseResult
 					{
@@ -849,7 +856,14 @@ namespace TradeSystem.Orchestration.Services.Strategies
 						_emailService.Send($"{set} latency arb ERROR state", $"{arbPos.Level}. - unexpected closed or missing position(s)");
 						return null;
 					}
-					connector.SendClosePositionRequests(pos);
+					var response = connector.SendClosePositionRequests(pos);
+					if (response?.IsUnfinished == true)
+					{
+						set.State = LatencyArb.LatencyArbStates.Error;
+						Logger.Error($"{set} latency arb - {arbPos.Level}. - unfinished close order");
+						_emailService.Send($"{set} latency arb ERROR state", $"{arbPos.Level}. - unfinished close order");
+						return null;
+					}
 					if (!pos.IsClosed) return null;
 					return new CloseResult
 					{

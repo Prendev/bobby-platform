@@ -19,7 +19,7 @@ namespace TradeSystem.Mt4Integration
 		PositionResponse SendMarketOrderRequest(string symbol, Sides side, double lots, decimal price, decimal deviation, int magicNumber,
 			string comment, int maxRetryCount, int retryPeriodInMs);
 
-		bool SendClosePositionRequests(Position position, int maxRetryCount, int retryPeriodInMs);
+		PositionResponse SendClosePositionRequests(Position position, int maxRetryCount, int retryPeriodInMs);
 
 		ConcurrentDictionary<long, Position> Positions { get; }
 	}
@@ -55,7 +55,7 @@ namespace TradeSystem.Mt4Integration
 		public Connector(IEmailService emailService)
 		{
 			_emailService = emailService;
-			_taskCompletionManager = new TaskCompletionManager<int>(100, 10000);
+			_taskCompletionManager = new TaskCompletionManager<int>(100, 30000);
 		}
 
 		public override void Disconnect()
@@ -78,7 +78,7 @@ namespace TradeSystem.Mt4Integration
 
         public void Connect(AccountInfo accountInfo, Action<string, int> destinationSetter)
         {
-	        _destinationSetter = destinationSetter;
+			_destinationSetter = destinationSetter;
 	        _accountInfo = accountInfo;
 
 	        Server[] slaves = null;
@@ -206,21 +206,21 @@ namespace TradeSystem.Mt4Integration
 		public PositionResponse SendMarketOrderRequest(string symbol, Sides side, double lots, int magicNumber,
 			string comment) => SendMarketOrderRequest(symbol, side, lots, 0, 0, magicNumber, comment, 0, 0);
 
-		public bool SendClosePositionRequests(Position position) =>SendClosePositionRequests(position, 0, 0);
-		public bool SendClosePositionRequests(Position position, int maxRetryCount, int retryPeriodInMs) =>
+		public PositionResponse SendClosePositionRequests(Position position) => SendClosePositionRequests(position, 0, 0);
+		public PositionResponse SendClosePositionRequests(Position position, int maxRetryCount, int retryPeriodInMs) =>
 			SendClosePositionRequestsAsync(position, maxRetryCount, retryPeriodInMs).Result;
-		public bool SendClosePositionRequests(long ticket, int maxRetryCount, int retryPeriodInMs)
+		public PositionResponse SendClosePositionRequests(long ticket, int maxRetryCount, int retryPeriodInMs)
 	    {
-		    if (!Positions.TryGetValue(ticket, out var position)) return true;
-		    if (position.IsClosed) return true;
-		    return SendClosePositionRequests(position, maxRetryCount, retryPeriodInMs);
+		    if (!Positions.TryGetValue(ticket, out var position)) return new PositionResponse();
+		    if (position.IsClosed) return new PositionResponse {Pos = position};
+			return SendClosePositionRequests(position, maxRetryCount, retryPeriodInMs);
 		}
-		private async Task<bool> SendClosePositionRequestsAsync(Position position, int maxRetryCount, int retryPeriodInMs)
+		private async Task<PositionResponse> SendClosePositionRequestsAsync(Position position, int maxRetryCount, int retryPeriodInMs)
 		{
 			if (position == null)
 			{
 				Logger.Error($"{_accountInfo.Description} Connector.SendClosePositionRequests position is NULL");
-				return false;
+				return new PositionResponse();
 			}
 
 			try
@@ -235,7 +235,7 @@ namespace TradeSystem.Mt4Integration
 				UpdatePosition(order);
 				Logger.Debug(
 					$"{_accountInfo.Description} Connector.SendClosePositionRequests({position.Id}, {position.Comment}) is successful");
-				return true;
+				return new PositionResponse() {Pos = UpdatePosition(order)};
 			}
 			catch (Exception e) when (e is TradingAPI.MT4Server.TimeoutException || e is System.TimeoutException)
 			{
@@ -249,10 +249,10 @@ namespace TradeSystem.Mt4Integration
 					UpdatePosition(order);
 					Logger.Debug(
 						$"{_accountInfo.Description} Connector.SendClosePositionRequests({position.Id}, {position.Comment}) is STILL successful though");
-					return true;
+					return new PositionResponse() {Pos = UpdatePosition(order)};
 				}
 
-				if (maxRetryCount <= 0) return false;
+				if (maxRetryCount <= 0) return new PositionResponse() { Pos = position, IsUnfinished = true};
 				Thread.Sleep(retryPeriodInMs);
 				return SendClosePositionRequests(position, --maxRetryCount, retryPeriodInMs);
 			}
@@ -260,7 +260,7 @@ namespace TradeSystem.Mt4Integration
 			{
 				Logger.Error(
 					$"{_accountInfo.Description} Connector.SendClosePositionRequests({position.Id}, {position.Comment}) exception", e);
-				if (maxRetryCount <= 0) return false;
+				if (maxRetryCount <= 0) return new PositionResponse() { Pos = position };
 				Thread.Sleep(retryPeriodInMs);
 				return SendClosePositionRequests(position, --maxRetryCount, retryPeriodInMs);
 			}
