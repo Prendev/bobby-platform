@@ -151,6 +151,7 @@ namespace TradeSystem.Mt4Integration
 			string comment, int maxRetryCount, int retryPeriodInMs)
 		{
 			var retValue = new PositionResponse();
+			var startTime = HiResDatetime.UtcNow;
 			try
 			{
 				var op = side == Sides.Buy ? Op.Buy : Op.Sell;
@@ -158,8 +159,9 @@ namespace TradeSystem.Mt4Integration
 
 				var o = OrderClient.OrderSend(symbol, op, lots * (double) M(symbol), (double) price,
 					(int) slippage, 0, 0, comment, magicNumber, DateTime.MaxValue);
-				Logger.Debug($"{_accountInfo.Description} Connector.SendMarketOrderRequest({symbol}, {side}, {lots}, {price}, {deviation}, {magicNumber}, {comment})" +
-				             $" is successful with id {o.Ticket}");
+				Logger.Debug(
+					$"{_accountInfo.Description} Connector.SendMarketOrderRequest({symbol}, {side}, {lots}, {price}, {deviation}, {magicNumber}, {comment})" +
+					$" is successful with id {o.Ticket} and {(HiResDatetime.UtcNow - startTime).Milliseconds} ms of execution time");
 
 				var position = new Position
 				{
@@ -181,7 +183,8 @@ namespace TradeSystem.Mt4Integration
 			}
 			catch (TradingAPI.MT4Server.TimeoutException e)
 			{
-				Logger.Error($"{_accountInfo.Description} Connector.SendMarketOrderRequest({symbol}, {side}, {lots}, {price}, {deviation}, {magicNumber}, {comment}) TIMEOUT exception", e);
+				Logger.Error($"{_accountInfo.Description} Connector.SendMarketOrderRequest({symbol}, {side}, {lots}, {price}, {deviation}, {magicNumber}, {comment})" +
+				             $" TIMEOUT exception with {(HiResDatetime.UtcNow - startTime).Milliseconds} ms of execution time", e);
 				retValue.IsUnfinished = true;
 
 				_emailService.Send("ALERT - Market order TIMEOUT",
@@ -193,7 +196,8 @@ namespace TradeSystem.Mt4Integration
 			}
 			catch (Exception e)
 			{
-				Logger.Error($"{_accountInfo.Description} Connector.SendMarketOrderRequest({symbol}, {side}, {lots}, {price}, {deviation}, {magicNumber}, {comment}) exception", e);
+				Logger.Error($"{_accountInfo.Description} Connector.SendMarketOrderRequest({symbol}, {side}, {lots}, {price}, {deviation}, {magicNumber}, {comment})" +
+				             $" exception with {(HiResDatetime.UtcNow - startTime).Milliseconds} ms of execution time", e);
 				if (maxRetryCount <= 0) return retValue;
 
 				Thread.Sleep(retryPeriodInMs);
@@ -223,6 +227,7 @@ namespace TradeSystem.Mt4Integration
 				return new PositionResponse();
 			}
 
+			var startTime = HiResDatetime.UtcNow;
 			try
 			{
 				var price = position.Side == Sides.Buy
@@ -234,13 +239,15 @@ namespace TradeSystem.Mt4Integration
 				var order = await closing;
 				UpdatePosition(order);
 				Logger.Debug(
-					$"{_accountInfo.Description} Connector.SendClosePositionRequests({position.Id}, {position.Comment}) is successful");
+					$"{_accountInfo.Description} Connector.SendClosePositionRequests({position.Id}, {position.Comment})" +
+					$" is successful with {(HiResDatetime.UtcNow - startTime).Milliseconds} ms of execution time");
 				return new PositionResponse() {Pos = UpdatePosition(order)};
 			}
 			catch (Exception e) when (e is TradingAPI.MT4Server.TimeoutException || e is System.TimeoutException)
 			{
 				Logger.Error(
-					$"{_accountInfo.Description} Connector.SendClosePositionRequests({position.Id}, {position.Comment}) exception", e);
+					$"{_accountInfo.Description} Connector.SendClosePositionRequests({position.Id}, {position.Comment})" +
+					$" exception with {(HiResDatetime.UtcNow - startTime).Milliseconds} ms of execution time", e);
 				var orders =
 					QuoteClient.DownloadOrderHistory(HiResDatetime.UtcNow.Date.AddDays(-2), HiResDatetime.UtcNow.Date.AddDays(2));
 				var order = orders?.FirstOrDefault(o => o.Ticket == (int) position.Id);
@@ -259,7 +266,8 @@ namespace TradeSystem.Mt4Integration
 			catch (Exception e)
 			{
 				Logger.Error(
-					$"{_accountInfo.Description} Connector.SendClosePositionRequests({position.Id}, {position.Comment}) exception", e);
+					$"{_accountInfo.Description} Connector.SendClosePositionRequests({position.Id}, {position.Comment})" +
+					$" exception with {(HiResDatetime.UtcNow - startTime).Milliseconds} ms of execution time", e);
 				if (maxRetryCount <= 0) return new PositionResponse() { Pos = position };
 				Thread.Sleep(retryPeriodInMs);
 				return SendClosePositionRequests(position, --maxRetryCount, retryPeriodInMs);
