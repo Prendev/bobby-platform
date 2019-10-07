@@ -415,8 +415,7 @@ namespace TradeSystem.Mt4Integration
 		private decimal M(string symbol)
 		{
 			decimal m = 1;
-			_accountInfo?.InstrumentConfigs?.TryGetValue(symbol, out m);
-			return m;
+			return _accountInfo?.InstrumentConfigs?.TryGetValue(symbol, out m) != true ? 1 : m;
 		}
 
 		public void Dispose()
