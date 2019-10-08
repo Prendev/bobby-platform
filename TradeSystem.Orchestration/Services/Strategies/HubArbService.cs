@@ -154,15 +154,15 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			if (buyQuote == null || sellQuote == null) return;
 
 			// During high risk different signal diff
-			var diffInPip = (sellQuote.GroupQuoteEntry.Bid - buyQuote.GroupQuoteEntry.Ask) / arb.PipSize;
+			var diffInPip = (sellQuote.Bid - buyQuote.Ask) / arb.PipSize;
 			var signalDiff = isHighRisk ? arb.HighRiskSignalDiffInPip.Value : arb.SignalDiffInPip;
 			if (diffInPip < signalDiff) return;
 
 			// Volume check
-			var size = Math.Min(buyQuote.GroupQuoteEntry.AskVolume ?? 0, sellQuote.GroupQuoteEntry.AskVolume ?? 0);
-			size = Math.Min(size, arb.Size);
-			size = Math.Min(size, arb.MaxSizePerAccount - buyQuote.Sum);
+			var size = Math.Min(arb.Size, arb.MaxSizePerAccount - buyQuote.Sum);
 			size = Math.Min(size, sellQuote.Sum + arb.MaxSizePerAccount);
+			if ((buyQuote.AskVolume ?? 0) > 0) size = Math.Min(size, buyQuote.AskVolume ?? 0);
+			if ((sellQuote.BidVolume ?? 0) > 0) size = Math.Min(size, sellQuote.BidVolume ?? 0);
 			if (size <= 0) return;
 
 			// Is busy?
@@ -200,24 +200,24 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				foreach (var buyQuote in buyQuotes)
 				{
 					var sellQuote = sellQuotes.Where(q => q.AggAccount != buyQuote?.AggAccount)
-						.OrderBy(q => buyQuote.GroupQuoteEntry.Ask - buyQuote.AggAccount.Avg +
-						              q.AggAccount.Avg - q.GroupQuoteEntry.Bid)
+						.OrderBy(q => buyQuote.Ask - buyQuote.AggAccount.Avg +
+						              q.AggAccount.Avg - q.Bid)
 						.FirstOrDefault();
 					if (sellQuote == null) continue;
-					var signal = buyQuote.GroupQuoteEntry.Ask - buyQuote.AggAccount.Avg +
-					             sellQuote.AggAccount.Avg - sellQuote.GroupQuoteEntry.Bid;
+					var signal = buyQuote.Ask - buyQuote.AggAccount.Avg +
+					             sellQuote.AggAccount.Avg - sellQuote.Bid;
 					if (!signal.HasValue) continue;
 					bestPairs.Add(new Tuple<Quote, Quote, decimal>(buyQuote, sellQuote, signal.Value));
 				}
 				foreach (var sellQuote in sellQuotes)
 				{
 					var buyQuote = buyQuotes.Where(q => q.AggAccount != sellQuote?.AggAccount)
-						.OrderBy(q => q.GroupQuoteEntry.Ask - q.AggAccount.Avg +
-						              sellQuote.AggAccount.Avg - sellQuote.GroupQuoteEntry.Bid)
+						.OrderBy(q => q.Ask - q.AggAccount.Avg +
+						              sellQuote.AggAccount.Avg - sellQuote.Bid)
 						.FirstOrDefault();
 					if (buyQuote == null) continue;
-					var signal = buyQuote.GroupQuoteEntry.Ask - buyQuote.AggAccount.Avg +
-					             sellQuote.AggAccount.Avg - sellQuote.GroupQuoteEntry.Bid;
+					var signal = buyQuote.Ask - buyQuote.AggAccount.Avg +
+					             sellQuote.AggAccount.Avg - sellQuote.Bid;
 					if (!signal.HasValue) continue;
 					bestPairs.Add(new Tuple<Quote, Quote, decimal>(buyQuote, sellQuote, signal.Value));
 				}
@@ -230,8 +230,8 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			{
 				var buyQuotes = quotes.Where(q => !q.AggAccount.BuyDisabled && q.Sum < arb.MaxSizePerAccount);
 				var sellQuotes = quotes.Where(q => !q.AggAccount.SellDisabled && q.Sum > -arb.MaxSizePerAccount);
-				var buyQuote = buyQuotes.OrderBy(q => q.GroupQuoteEntry.Ask).FirstOrDefault();
-				var sellQuote = sellQuotes.OrderByDescending(q => q.GroupQuoteEntry.Bid)
+				var buyQuote = buyQuotes.OrderBy(q => q.Ask).FirstOrDefault();
+				var sellQuote = sellQuotes.OrderByDescending(q => q.Bid)
 					.FirstOrDefault(q => q.AggAccount != buyQuote?.AggAccount);
 				return new Tuple<Quote, Quote>(buyQuote, sellQuote);
 			}

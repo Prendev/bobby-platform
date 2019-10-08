@@ -120,6 +120,7 @@ namespace TradeSystem.Orchestration
 						Symbol = Symbol.Parse(a.Symbol)
 					}).ToDictionary(x => x.IConnector, x => x.Symbol);
 				agg.QuoteAggregator = MarketDataManager.CreateQuoteAggregator(groups);
+				agg.SubscribeEvents();
 			}
 		}
 
@@ -132,6 +133,7 @@ namespace TradeSystem.Orchestration
 			{
 				agg.QuoteAggregator?.Dispose();
 				agg.QuoteAggregator = null;
+				agg.UnsubscribeEvents();
 			}
 
 			var accounts = _duplicatContext.Accounts.Local.ToList();

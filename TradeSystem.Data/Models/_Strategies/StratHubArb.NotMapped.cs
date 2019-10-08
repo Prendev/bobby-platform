@@ -162,6 +162,7 @@ namespace TradeSystem.Data.Models
 				arbQuote.Quotes.Add(new StratHubArbQuoteEventArgs.Quote()
 				{
 					GroupQuoteEntry = aggQuote.GroupQuoteEntry,
+					Tick = aggQuote.Tick,
 					AggAccount = aggQuote.AggAccount,
 					Sum = PositionSum(aggQuote.AggAccount.Account)
 				});

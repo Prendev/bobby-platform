@@ -12,6 +12,8 @@ namespace TradeSystem.Data.Models
 	{
 		private readonly List<Tick> _ticks = new List<Tick>();
 
+		public event EventHandler<NewTick> NewTick;
+
 		[NotMapped] [ReadOnly(true)] [DisplayPriority(2, true)] public decimal? Ask { get => Get<decimal?>(); set => Set(value); }
 		[NotMapped] [ReadOnly(true)] [DisplayPriority(1, true)] public decimal? Bid { get => Get<decimal?>(); set => Set(value); }
 		[NotMapped] [ReadOnly(true)] [DisplayPriority(0, true)] public decimal? Avg { get => Get<decimal?>(); set => Set(value); }
@@ -33,21 +35,23 @@ namespace TradeSystem.Data.Models
 			if (Aggregator.AveragingPeriodInSeconds <= 0)
 			{
 				Avg = null;
-				return;
 			}
-
-			lock (_ticks)
+			else
 			{
-				var doAvg = false;
-				while (_ticks.Any() && newTick.Tick.Time - _ticks.First().Time >
-				       TimeSpan.FromSeconds(Aggregator.AveragingPeriodInSeconds))
+				lock (_ticks)
 				{
-					_ticks.RemoveAt(0);
-					doAvg = true;
+					var doAvg = false;
+					while (_ticks.Any() && newTick.Tick.Time - _ticks.First().Time >
+					       TimeSpan.FromSeconds(Aggregator.AveragingPeriodInSeconds))
+					{
+						_ticks.RemoveAt(0);
+						doAvg = true;
+					}
+					_ticks.Add(newTick.Tick);
+					if (doAvg || Avg.HasValue) Avg = _ticks.Select(t => (t.Ask + t.Bid) / 2).Average();
 				}
-				_ticks.Add(newTick.Tick);
-				if (doAvg || Avg.HasValue) Avg = _ticks.Select(t => (t.Ask + t.Bid) / 2).Average();
 			}
+			NewTick?.Invoke(this, newTick);
 		}
 	}
 }
