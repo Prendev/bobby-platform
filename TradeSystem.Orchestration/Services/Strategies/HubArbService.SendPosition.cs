@@ -49,7 +49,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				}
 				else if (account.Connector is Mt4Integration.IConnector mt4)
 				{
-					var resp = mt4.SendMarketOrderRequest(symbol, side, (double) size, 0, null, 0, 0);
+					var resp = mt4.SendMarketOrderRequest(symbol, side, (double) size, 0, null, arb.MaxRetryCount, arb.RetryPeriodInMs);
 					if (resp?.Pos?.Lots > 0)
 					{
 						response.AveragePrice = resp.Pos.OpenPrice;
