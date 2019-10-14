@@ -204,8 +204,9 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			// Long side opened
 			else if (last.HasLong)
 			{
+				var isClosingTime = HiResDatetime.UtcNow >= last.FirstOpenTime.AddMinutes(set.ClosingTimeInMin);
 				var hedge = false;
-				var price = set.LastHedgeTick.Bid;
+				var price = isClosingTime ? set.LastFirstTick.Bid : set.LastHedgeTick.Bid;
 
 				if (last.Trailing.HasValue || price >= last.LongOpenPrice + set.TrailingSwitchInPip * set.PipSize)
 					last.Trailing = Math.Max(price - set.TrailingDistanceInPip * set.PipSize,
@@ -215,25 +216,35 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				if (price >= last.LongOpenPrice + set.TpInPip * set.PipSize) hedge = true;
 				if (price <= last.LongOpenPrice - set.SlInPip * set.PipSize) hedge = true;
 				if (!hedge) return;
-				
-				var pos = SendShortOrder(set, false);
-				if (pos == null)
+
+				if (isClosingTime)
 				{
-					Logger.Warn($"{set} News arb short hedge side open error");
-					return;
+					if (!CloseFirst(set, last)) return;
+					last.Archived = true;
+					set.State = set.Rotating ? NewsArb.NewsArbStates.Opening : NewsArb.NewsArbStates.None;
 				}
-				last.ShortTicket = pos.Ticket;
-				last.ShortPosition = pos.StratPosition;
-				last.ShortOpenPrice = pos.OpenPrice;
-				set.State = NewsArb.NewsArbStates.Closing;
-				Logger.Info($"{set} News arb short hedge side opened at {pos.OpenPrice} with {(pos.OpenPrice - last.LongOpenPrice)/set.PipSize} pips" +
-				            $"{Environment.NewLine}\tExecution time is {pos.ExecutionTime} ms with {pos.Slippage / set.PipSize:F2} pip slippage");
+				else
+				{
+					var pos = SendShortOrder(set, false);
+					if (pos == null)
+					{
+						Logger.Warn($"{set} News arb short hedge side open error");
+						return;
+					}
+					last.ShortTicket = pos.Ticket;
+					last.ShortPosition = pos.StratPosition;
+					last.ShortOpenPrice = pos.OpenPrice;
+					set.State = NewsArb.NewsArbStates.Closing;
+					Logger.Info($"{set} News arb short hedge side opened at {pos.OpenPrice} with {(pos.OpenPrice - last.LongOpenPrice) / set.PipSize} pips" +
+								$"{Environment.NewLine}\tExecution time is {pos.ExecutionTime} ms with {pos.Slippage / set.PipSize:F2} pip slippage");
+				}
 			}
 			// Short side opened
 			else if (last.HasShort)
 			{
+				var isClosingTime = HiResDatetime.UtcNow >= last.FirstOpenTime.AddMinutes(set.ClosingTimeInMin);
 				var hedge = false;
-				var price = set.LastHedgeTick.Ask;
+				var price = isClosingTime ? set.LastFirstTick.Ask : set.LastHedgeTick.Ask;
 
 				if (last.Trailing.HasValue || price <= last.ShortOpenPrice - set.TrailingSwitchInPip * set.PipSize)
 					last.Trailing = Math.Min(price + set.TrailingDistanceInPip * set.PipSize,
@@ -243,19 +254,30 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				if (price <= last.ShortOpenPrice - set.TpInPip * set.PipSize) hedge = true;
 				if (price >= last.ShortOpenPrice + set.SlInPip * set.PipSize) hedge = true;
 				if (!hedge) return;
-				
-				var pos = SendLongOrder(set, false);
-				if (pos == null)
+
+				if (isClosingTime)
 				{
-					Logger.Warn($"{set} News arb long hedge side open error");
-					return;
+					if (!CloseFirst(set, last)) return;
+					last.Archived = true;
+					set.State = set.Rotating ? NewsArb.NewsArbStates.Opening : NewsArb.NewsArbStates.None;
 				}
-				last.LongTicket = pos.Ticket;
-				last.LongPosition = pos.StratPosition;
-				last.LongOpenPrice = pos.OpenPrice;
-				set.State = NewsArb.NewsArbStates.Closing;
-				Logger.Info($"{set} News arb long hedge side opened at {pos.OpenPrice} with {(last.ShortOpenPrice - pos.OpenPrice) / set.PipSize} pips" +
-				            $"{Environment.NewLine}\tExecution time is {pos.ExecutionTime} ms with {pos.Slippage/set.PipSize:F2} pip slippage");
+				else
+				{
+					var pos = SendLongOrder(set, false);
+					if (pos == null)
+					{
+						Logger.Warn($"{set} News arb long hedge side open error");
+						return;
+					}
+
+					last.LongTicket = pos.Ticket;
+					last.LongPosition = pos.StratPosition;
+					last.LongOpenPrice = pos.OpenPrice;
+					set.State = NewsArb.NewsArbStates.Closing;
+					Logger.Info(
+						$"{set} News arb long hedge side opened at {pos.OpenPrice} with {(last.ShortOpenPrice - pos.OpenPrice) / set.PipSize} pips" +
+						$"{Environment.NewLine}\tExecution time is {pos.ExecutionTime} ms with {pos.Slippage / set.PipSize:F2} pip slippage");
+				}
 			}
 		}
 
@@ -403,59 +425,59 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			set.State = set.Rotating ? NewsArb.NewsArbStates.Opening : NewsArb.NewsArbStates.None;
 		}
 
-		private bool CloseFirst(NewsArb set, NewsArbPosition first)
+		private bool CloseFirst(NewsArb set, NewsArbPosition pos)
 		{
 			// Long close signal
-			if (first.IsLongFirst)
+			if (pos.IsLongFirst)
 			{
-				if (!first.HasLong) return true;
-				var closePos = CloseLong(set, first, true);
+				if (!pos.HasLong) return true;
+				var closePos = CloseLong(set, pos, true);
 				if (closePos == null) return false;
 
-				first.LongClosePrice = closePos.ClosePrice;
-				first.Trailing = null;
+				pos.LongClosePrice = closePos.ClosePrice;
+				pos.Trailing = null;
 				Logger.Info($"{set} News arb long first side closed at {closePos.ClosePrice}" +
 				            $"{Environment.NewLine}\tExecution time is {closePos.ExecutionTime} ms with {closePos.Slippage / set.PipSize:F2} pip slippage");
 			}
 			// Short close signal
 			else
 			{
-				if (!first.HasShort) return true;
-				var closePos = CloseShort(set, first, true);
+				if (!pos.HasShort) return true;
+				var closePos = CloseShort(set, pos, true);
 				if (closePos == null) return false;
 
-				first.ShortClosePrice = closePos.ClosePrice;
-				first.Trailing = null;
+				pos.ShortClosePrice = closePos.ClosePrice;
+				pos.Trailing = null;
 				Logger.Info($"{set} News arb short first side closed at {closePos.ClosePrice}" +
 				            $"{Environment.NewLine}\tExecution time is {closePos.ExecutionTime} ms with {closePos.Slippage / set.PipSize:F2} pip slippage");
 			}
 			return true;
 		}
 
-		private bool CloseHedge(NewsArb set, NewsArbPosition first)
+		private bool CloseHedge(NewsArb set, NewsArbPosition pos)
 		{
 			// Long side closed
-			if (first.IsLongFirst)
+			if (pos.IsLongFirst)
 			{
-				if (!first.HasShort) return true;
-				var closePos = CloseShort(set, first, false);
+				if (!pos.HasShort) return true;
+				var closePos = CloseShort(set, pos, false);
 				if (closePos == null) return false;
-				first.ShortClosePrice = closePos.ClosePrice;
-				first.Archived = true;
+				pos.ShortClosePrice = closePos.ClosePrice;
+				pos.Archived = true;
 				Logger.Info(
-					$"{set} News arb short hedge side closed at {closePos.ClosePrice} with {(first.LongClosePrice - closePos.ClosePrice) / set.PipSize} pips" +
+					$"{set} News arb short hedge side closed at {closePos.ClosePrice} with {(pos.LongClosePrice - closePos.ClosePrice) / set.PipSize} pips" +
 					$"{Environment.NewLine}\tExecution time is {closePos.ExecutionTime} ms with {closePos.Slippage / set.PipSize:F2} pip slippage");
 			}
 			// Short side closed
 			else
 			{
-				if (!first.HasLong) return true;
-				var closePos = CloseLong(set, first, false);
+				if (!pos.HasLong) return true;
+				var closePos = CloseLong(set, pos, false);
 				if (closePos == null) return false;
-				first.LongClosePrice = closePos.ClosePrice;
-				first.Archived = true;
+				pos.LongClosePrice = closePos.ClosePrice;
+				pos.Archived = true;
 				Logger.Info(
-					$"{set} News arb long hedge side closed at {closePos.ClosePrice} with {(closePos.ClosePrice - first.ShortClosePrice) / set.PipSize} pips" +
+					$"{set} News arb long hedge side closed at {closePos.ClosePrice} with {(closePos.ClosePrice - pos.ShortClosePrice) / set.PipSize} pips" +
 					$"{Environment.NewLine}\tExecution time is {closePos.ExecutionTime} ms with {closePos.Slippage / set.PipSize:F2} pip slippage");
 			}
 			return true;
