@@ -204,7 +204,8 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			// Long side opened
 			else if (last.HasLong)
 			{
-				var isClosingTime = HiResDatetime.UtcNow >= last.FirstOpenTime.AddMinutes(set.ClosingTimeInMin);
+				var isClosingTime = set.ClosingTimeInMin > 0 &&
+				                    HiResDatetime.UtcNow >= last.FirstOpenTime.AddMinutes(set.ClosingTimeInMin);
 				var hedge = false;
 				var price = isClosingTime ? set.LastFirstTick.Bid : set.LastHedgeTick.Bid;
 
@@ -242,7 +243,8 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			// Short side opened
 			else if (last.HasShort)
 			{
-				var isClosingTime = HiResDatetime.UtcNow >= last.FirstOpenTime.AddMinutes(set.ClosingTimeInMin);
+				var isClosingTime = set.ClosingTimeInMin > 0 &&
+				                    HiResDatetime.UtcNow >= last.FirstOpenTime.AddMinutes(set.ClosingTimeInMin);
 				var hedge = false;
 				var price = isClosingTime ? set.LastFirstTick.Ask : set.LastHedgeTick.Ask;
 
