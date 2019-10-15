@@ -27,6 +27,7 @@ namespace TradeSystem.Data.Models
         public Account FutureAccount { get => Get<Account>(); set => Set(value); }
 		[DisplayName("F Mode")] public FutureExecutionModes FutureExecutionMode { get; set; }
 		[DisplayName("F Sym")] [Required] public string FutureSymbol { get; set; }
+		[DisplayName("F Inv")] [Required] public bool IsFutureInverted { get; set; }
 
 		public int AlphaMasterId { get; set; }
 		public Account AlphaMaster { get => Get<Account>(); set => Set(value); }
@@ -36,7 +37,11 @@ namespace TradeSystem.Data.Models
 		public Account BetaMaster { get => Get<Account>(); set => Set(value); }
 		[DisplayName("B Sym")] [Required] public string BetaSymbol { get; set; }
 
-        public int? HedgeAccountId { get; set; }
+		public int? ScalpAccountId { get; set; }
+		public Account ScalpAccount { get => Get<Account>(); set => Set(value); }
+		[DisplayName("S Sym")] public string ScalpSymbol { get; set; }
+
+		public int? HedgeAccountId { get; set; }
 		public Account HedgeAccount { get => Get<Account>(); set => Set(value); }
 		[DisplayName("H Sym")] public string HedgeSymbol { get; set; }
 

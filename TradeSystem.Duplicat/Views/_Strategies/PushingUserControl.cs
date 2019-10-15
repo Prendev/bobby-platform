@@ -114,7 +114,8 @@ namespace TradeSystem.Duplicat.Views
             dgvPushings.AddComboBoxColumn(_viewModel.Accounts, "FutureAccount");
             dgvPushings.AddComboBoxColumn(_viewModel.Accounts, "AlphaMaster");
             dgvPushings.AddComboBoxColumn(_viewModel.Accounts, "BetaMaster");
-            dgvPushings.AddComboBoxColumn(_viewModel.Accounts, "HedgeAccount");
+	        dgvPushings.AddComboBoxColumn(_viewModel.Accounts, "ScalpAccount");
+			dgvPushings.AddComboBoxColumn(_viewModel.Accounts, "HedgeAccount");
             dgvPushings.AddComboBoxColumn(_viewModel.Accounts, "ReopenAccount");
             dgvPushings.DataSource = _viewModel.Pushings;
         }

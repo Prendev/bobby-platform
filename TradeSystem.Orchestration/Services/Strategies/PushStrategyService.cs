@@ -48,12 +48,14 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 		public void OpeningBeta(Pushing pushing)
 		{
+			CheckScalp(pushing);
 			CheckReopen(pushing);
 			InitSpoof(pushing);
 			pushing.PushingDetail.OpenedFutures = 0;
 			var betaConnector = (MtConnector)pushing.BetaMaster.Connector;
 
 			// Open first side
+			ScalpOpening(pushing, pushing.BetaOpenSide);
 			pushing.BetaPosition = betaConnector.SendMarketOrderRequest(pushing.BetaSymbol, pushing.BetaOpenSide, pushing.PushingDetail.BetaLots, 0,
 				null, pushing.PushingDetail.MaxRetryCount, pushing.PushingDetail.RetryPeriodInMs)?.Pos;
 			ClosingForReopen(pushing, pushing.BetaOpenSide);
@@ -97,6 +99,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			var contractsNeeded = pd.FullContractSize - Math.Abs(pd.MasterSignalContractLimit);
 			await FutureBuildUp(pushing, futureSide, contractsNeeded, Phases.Pushing);
 
+			ScalpClosing(pushing);
 			pushing.AlphaPosition = alphaConnector.SendMarketOrderRequest(pushing.AlphaSymbol, futureSide.Inv(), pd.AlphaLots, 0,
 				$"CROSS|{pushing.BetaPosition.Id}", pushing.PushingDetail.MaxRetryCount, pushing.PushingDetail.RetryPeriodInMs)?.Pos;
 			Reopening(pushing, futureSide);
@@ -138,6 +141,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 		public void ClosingFirst(Pushing pushing)
 		{
+			CheckScalp(pushing);
 			CheckReopen(pushing);
 			InitSpoof(pushing);
 			pushing.PushingDetail.OpenedFutures = 0;
@@ -147,6 +151,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			var firstPos = pushing.BetaOpenSide == pushing.FirstCloseSide ? pushing.BetaPosition : pushing.AlphaPosition;
 
 			// Close first side
+			ScalpOpening(pushing, pushing.FirstCloseSide.Inv());
 			firstConnector.SendClosePositionRequests(firstPos, pushing.PushingDetail.MaxRetryCount, pushing.PushingDetail.RetryPeriodInMs);
 			ClosingForReopen(pushing, pushing.FirstCloseSide.Inv());
 		}
@@ -212,6 +217,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			await FutureBuildUp(pushing, futureSide, contractsNeeded, Phases.Pushing);
 
 			// Close second side
+			ScalpClosing(pushing);
 			secondConnector.SendClosePositionRequests(secondPos, pushing.PushingDetail.MaxRetryCount, pushing.PushingDetail.RetryPeriodInMs);
 			Reopening(pushing, futureSide);
 		}
@@ -261,6 +267,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 		private async Task FutureBuildUp(Pushing pushing, Sides side, decimal contractsNeeded, Phases phase)
 		{
+			if (pushing.IsFutureInverted) side = side.Inv();
 			if (pushing.FutureExecutionMode == Pushing.FutureExecutionModes.NonConfirmed)
 				await NonConfirmed(pushing, side, contractsNeeded, phase);
 			else await Confirmed(pushing, side, contractsNeeded, phase);
@@ -354,13 +361,38 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			_threadService.Sleep(_rndService.Next(minValue, maxValue));
 		}
 
-	    private void CheckReopen(Pushing pushing)
+	    private void CheckScalp(Pushing pushing)
+	    {
+		    if (pushing.ScalpAccount?.Connector?.IsConnected != true) return;
+		    if (!(pushing.ScalpAccount.Connector is MtConnector))
+			    throw new Exception("PushStrategyService.CheckScalp is not MtConnector!!!");
+		}
+	    private void ScalpOpening(Pushing pushing, Sides side)
+		{
+			pushing.ScalpPosition = null;
+			if (pushing.PushingDetail.ScalpLots <= 0) return;
+			if (pushing.ScalpAccount?.Connector?.IsConnected != true) return;
+			if (!(pushing.ScalpAccount.Connector is MtConnector connector)) return;
+
+			pushing.ScalpPosition = connector.SendMarketOrderRequest(pushing.ScalpSymbol, side, pushing.PushingDetail.ScalpLots, 0,
+				null, pushing.PushingDetail.MaxRetryCount, pushing.PushingDetail.RetryPeriodInMs)?.Pos;
+		}
+	    private void ScalpClosing(Pushing pushing)
+	    {
+		    if (pushing.ScalpAccount?.Connector?.IsConnected != true) return;
+		    if (!(pushing.ScalpAccount.Connector is MtConnector connector)) return;
+		    if (pushing.ScalpPosition?.IsClosed != false) return;
+
+		    connector.SendClosePositionRequests(pushing.ScalpPosition, pushing.PushingDetail.MaxRetryCount, pushing.PushingDetail.RetryPeriodInMs);
+		}
+
+		private void CheckReopen(Pushing pushing)
 		{
 			if (pushing.ReopenAccount?.Connector?.IsConnected != true) return;
 			if (!pushing.ReopenTicket.HasValue) return;
-			if (!(pushing.ReopenAccount.Connector is MtConnector reopenConnector))
+			if (!(pushing.ReopenAccount.Connector is MtConnector connector))
 				throw new Exception("PushStrategyService.CheckReopen is not MtConnector!!!");
-			if (!reopenConnector.Positions.TryGetValue(pushing.ReopenTicket.Value, out var reopenPos))
+			if (!connector.Positions.TryGetValue(pushing.ReopenTicket.Value, out var reopenPos))
 				throw new Exception("PushStrategyService.CheckReopen position not found!!!");
 			if (reopenPos.IsClosed)
 				throw new Exception("PushStrategyService.CheckReopen position is already closed!!!");

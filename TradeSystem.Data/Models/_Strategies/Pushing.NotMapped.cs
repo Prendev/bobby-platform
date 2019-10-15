@@ -17,6 +17,7 @@ namespace TradeSystem.Data.Models
 		[NotMapped] [InvisibleColumn] public bool IsHedgeClose { get => Get(() => true); set => Set(value); }
 		[NotMapped] [InvisibleColumn] public Position AlphaPosition { get; set; }
 		[NotMapped] [InvisibleColumn] public Position BetaPosition { get; set; }
+		[NotMapped] [InvisibleColumn] public Position ScalpPosition { get; set; }
 		[NotMapped] [InvisibleColumn] public Position ReopenPosition { get; set; }
 		[NotMapped] [InvisibleColumn] public bool InPanic { get; set; }
 		[NotMapped] [InvisibleColumn] public bool IsConnected { get => Get<bool>(); set => Set(value); }
@@ -32,6 +33,9 @@ namespace TradeSystem.Data.Models
 				a => { if (a != null) a.ConnectionChanged -= Account_ConnectionChanged; },
 				a => { if (a != null) a.ConnectionChanged += Account_ConnectionChanged; });
 			SetAction<Account>(nameof(BetaMaster),
+				a => { if (a != null) a.ConnectionChanged -= Account_ConnectionChanged; },
+				a => { if (a != null) a.ConnectionChanged += Account_ConnectionChanged; });
+			SetAction<Account>(nameof(ScalpAccount),
 				a => { if (a != null) a.ConnectionChanged -= Account_ConnectionChanged; },
 				a => { if (a != null) a.ConnectionChanged += Account_ConnectionChanged; });
 			SetAction<Account>(nameof(HedgeAccount),
@@ -58,6 +62,7 @@ namespace TradeSystem.Data.Models
 				FutureAccount?.Connector?.IsConnected == true &&
 				AlphaMaster?.Connector?.IsConnected == true &&
 				BetaMaster?.Connector?.IsConnected == true &&
+				ScalpAccount?.Connector?.IsConnected != false &&
 				HedgeAccount?.Connector?.IsConnected != false &&
 				FeedAccount?.Connector?.IsConnected != false &&
 				SpoofAccount?.Connector?.IsConnected != false &&

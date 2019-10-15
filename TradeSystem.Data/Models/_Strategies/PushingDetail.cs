@@ -32,6 +32,7 @@ namespace TradeSystem.Data.Models
 
 		public double AlphaLots { get; set; }
 	    public double BetaLots { get; set; }
+		public double ScalpLots { get; set; }
 		public double HedgeLots { get; set; }
 
 		public int MaxRetryCount { get; set; }
