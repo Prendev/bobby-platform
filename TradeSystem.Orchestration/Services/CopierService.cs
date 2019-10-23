@@ -52,10 +52,11 @@ namespace TradeSystem.Orchestration.Services
 		        });
 
 				var slaves = master.Slaves
-			        .Where(s => s.Account.FixApiAccountId.HasValue)
 			        .Where(s => s.Account.Connector?.IsConnected == true)
 					.Where(s => s.Copiers.Any(c => c.OrderType != Copier.CopierOrderTypes.Market) ||
-			                    s.FixApiCopiers.Any(c => c.OrderType != FixApiCopier.FixApiOrderTypes.Market));
+					            s.Copiers.Any(c => c.SpreadFilterInPips > 0) ||
+								s.FixApiCopiers.Any(c => c.OrderType != FixApiCopier.FixApiOrderTypes.Market) ||
+					            s.FixApiCopiers.Any(c => c.SpreadFilterInPips > 0));
 
 		        foreach (var slave in slaves)
 		        foreach (var symbolMapping in slave.SymbolMappings)
@@ -212,20 +213,31 @@ namespace TradeSystem.Orchestration.Services
 			    .Where(c => string.IsNullOrWhiteSpace(c.Comment) || c.Comment == e.Position.Comment)
 			    .Select(copier => DelayedRun(() =>
 			    {
-				    var volume = (long) (100 * Math.Abs(e.Position.RealVolume * copier.CopyRatio));
+					var volume = (long) (100 * Math.Abs(e.Position.RealVolume * copier.CopyRatio));
 				    var side = copier.CopyRatio < 0 ? e.Position.Side.Inv() : e.Position.Side;
 				    var type = side == Sides.Buy ? ProtoTradeSide.BUY : ProtoTradeSide.SELL;
 				    var comment = $"{e.Position.Id}-{slave.Id}-{copier.Id}";
+				    if (e.Action == NewPositionActions.Open)
+					{
+						if (copier.Mode == Copier.CopierModes.CloseOnly) return Task.CompletedTask;
+						if (!SpreadCheck(slaveConnector, symbol, copier.PipSize * copier.SpreadFilterInPips))
+						{
+							Logger.Warn($"{copier} copier spread check failed");
+							return Task.CompletedTask;
+						}
 
-				    if (e.Action == NewPositionActions.Open && copier.OrderType == Copier.CopierOrderTypes.MarketRange)
-					    slaveConnector.SendMarketRangeOrderRequest(symbol, type, volume, e.Position.OpenPrice,
-						    copier.SlippageInPips, comment, copier.MaxRetryCount, copier.RetryPeriodInMs);
-				    else if (e.Action == NewPositionActions.Open && copier.OrderType == Copier.CopierOrderTypes.Market)
-					    slaveConnector.SendMarketOrderRequest(symbol, type, volume, comment,
-						    copier.MaxRetryCount, copier.RetryPeriodInMs);
+						if (copier.OrderType == Copier.CopierOrderTypes.MarketRange)
+							slaveConnector.SendMarketRangeOrderRequest(symbol, type, volume, e.Position.OpenPrice,
+								copier.SlippageInPips, comment, copier.MaxRetryCount, copier.RetryPeriodInMs);
+						else if (copier.OrderType == Copier.CopierOrderTypes.Market)
+							slaveConnector.SendMarketOrderRequest(symbol, type, volume, comment,
+								copier.MaxRetryCount, copier.RetryPeriodInMs);
+					}
 				    else if (e.Action == NewPositionActions.Close)
-					    slaveConnector.SendClosePositionRequests(comment,
-						    copier.MaxRetryCount, copier.RetryPeriodInMs);
+					{
+						if (copier.Mode == Copier.CopierModes.OpenOnly) return Task.CompletedTask;
+						slaveConnector.SendClosePositionRequests(comment, copier.MaxRetryCount, copier.RetryPeriodInMs);
+				    }
 				    return Task.CompletedTask;
 			    }, copier.DelayInMilliseconds));
 		    return Task.WhenAll(tasks);
@@ -251,7 +263,14 @@ namespace TradeSystem.Orchestration.Services
 				    if (e.Action == NewPositionActions.Open)
 				    {
 					    if (copier.Mode == Copier.CopierModes.CloseOnly) return Task.CompletedTask;
-					    if (e.Position.ReopenTicket.HasValue)
+					    if (!SpreadCheck(slaveConnector, symbol, copier.PipSize * copier.SpreadFilterInPips))
+					    {
+
+						    Logger.Warn($"{copier} copier spread check failed");
+							return Task.CompletedTask;
+					    }
+
+						if (e.Position.ReopenTicket.HasValue)
 					    {
 						    var reopenPos = copier.CopierPositions.FirstOrDefault(p => p.MasterTicket == e.Position.ReopenTicket);
 						    if (reopenPos == null) return Task.CompletedTask;
@@ -402,6 +421,15 @@ namespace TradeSystem.Orchestration.Services
 		    {
 			    Logger.Error("CopierService.DelayedRun exception", e);
 			}
+	    }
+
+	    private bool SpreadCheck(Common.Integration.IConnector connector, string symbol, decimal maxSpread)
+	    {
+		    if (maxSpread <= 0) return true;
+		    var lastTick = connector.GetLastTick(symbol);
+		    if (lastTick == null) return false;
+		    if (!lastTick.HasValue) return false;
+		    return lastTick.Ask - lastTick.Bid <= maxSpread;
 	    }
     }
 }

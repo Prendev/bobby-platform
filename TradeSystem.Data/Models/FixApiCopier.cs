@@ -33,35 +33,23 @@ namespace TradeSystem.Data.Models
 		public decimal CopyRatio { get; set; }
 		public FixApiOrderTypes OrderType { get; set; } = FixApiOrderTypes.GtcLimit;
 		public BasePriceTypes BasePriceType { get; set; }
-		[DisplayName("Delay")]
-		public int DelayInMilliseconds { get; set; }
+		[DisplayName("Delay")] public int DelayInMilliseconds { get; set; }
+		[DisplayName("Spread")] public decimal SpreadFilterInPips { get; set; }
 
-		[DisplayName("FallbackMarketOpen")]
-		public bool FallbackToMarketOrderType { get; set; }
-		[DisplayName("F Retry")]
-		public int FallbackMaxRetryCount { get; set; }
-		[DisplayName("F Period")]
-		public int FallbackRetryPeriodInMs { get; set; }
-		[DisplayName("F Window")]
-		public int FallbackTimeWindowInMs { get; set; }
+		[DisplayName("FallbackMarketOpen")] public bool FallbackToMarketOrderType { get; set; }
+		[DisplayName("F Retry")] public int FallbackMaxRetryCount { get; set; }
+		[DisplayName("F Period")] public int FallbackRetryPeriodInMs { get; set; }
+		[DisplayName("F Window")] public int FallbackTimeWindowInMs { get; set; }
 
-		[DisplayName("MarketRetry")]
-		public int MarketMaxRetryCount { get; set; } = 5;
-		[DisplayName("M Period")]
-		public int MarketRetryPeriodInMs { get; set; } = 25;
-		[DisplayName("M Window")]
-		public int MarketTimeWindowInMs { get; set; } = 5000;
+		[DisplayName("MarketRetry")] public int MarketMaxRetryCount { get; set; } = 5;
+		[DisplayName("M Period")] public int MarketRetryPeriodInMs { get; set; } = 25;
+		[DisplayName("M Window")] public int MarketTimeWindowInMs { get; set; } = 5000;
 
-		[DisplayName("LimitRetry")]
-		public int MaxRetryCount { get; set; } = 10;
-		[DisplayName("L Period")]
-		public int RetryPeriodInMs { get; set; } = 25;
-		[DisplayName("L Window")]
-		public int TimeWindowInMs { get; set; } = 1000;
-		[DisplayName("L Slippage")]
-		public decimal SlippageInPip { get; set; } = 2;
-		[DisplayName("L Diff")]
-		public decimal LimitDiffInPip { get; set; }
+		[DisplayName("LimitRetry")] public int MaxRetryCount { get; set; } = 10;
+		[DisplayName("L Period")] public int RetryPeriodInMs { get; set; } = 25;
+		[DisplayName("L Window")] public int TimeWindowInMs { get; set; } = 1000;
+		[DisplayName("L Slippage")] public decimal SlippageInPip { get; set; } = 2;
+		[DisplayName("L Diff")] public decimal LimitDiffInPip { get; set; }
 
 		public decimal PipSize { get; set; } = 1;
 		public string Comment { get; set; }

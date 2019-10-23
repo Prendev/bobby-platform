@@ -275,9 +275,29 @@ namespace TradeSystem.Mt4Integration
 		}
 
 		public override Tick GetLastTick(string symbol)
-        {
-            return _lastTicks.GetOrAdd(symbol, (Tick)null);
-        }
+		{
+			try
+			{
+				var lastQuote = _lastTicks.GetOrAdd(symbol, (Tick) null);
+				if (lastQuote != null) return lastQuote;
+
+				Subscribe(symbol);
+				var quote = QuoteClient.GetQuote(symbol);
+				if (quote == null) return null;
+				return new Tick
+				{
+					Symbol = quote.Symbol,
+					Ask = (decimal)quote.Ask,
+					Bid = (decimal)quote.Bid,
+					Time = quote.Time
+				};
+			}
+			catch (Exception e)
+			{
+				Logger.Error($"{Description} Connector.GetLastTick({symbol}) exception", e);
+				return null;
+			}
+		}
 
 		public override void Subscribe(string symbol)
 		{
@@ -289,10 +309,11 @@ namespace TradeSystem.Mt4Integration
 
 				if (QuoteClient.IsSubscribed(symbol)) return;
 				QuoteClient.Subscribe(symbol);
+				Logger.Debug($"{Description} Connector.Subscribe({symbol})");
 			}
 			catch (Exception e)
 			{
-				Logger.Error($"{_accountInfo.Description} Connector.Subscribe({symbol}) exception", e);
+				Logger.Error($"{Description} Connector.Subscribe({symbol}) exception", e);
 			}
 		}
 

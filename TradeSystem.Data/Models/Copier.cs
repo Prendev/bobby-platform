@@ -28,9 +28,11 @@ namespace TradeSystem.Data.Models
 		public decimal CopyRatio { get; set; }
 		public CopierOrderTypes OrderType { get; set; }
 		[DisplayName("Delay")] public int DelayInMilliseconds { get; set; }
+		[DisplayName("Spread")] public decimal SpreadFilterInPips { get; set; }
 		[DisplayName("Retry")] public int MaxRetryCount { get; set; } = 5;
 		[DisplayName("Period")] public int RetryPeriodInMs { get; set; } = 25;
 		[DisplayName("Slippage")] public int SlippageInPips { get; set; }
+		public decimal PipSize { get; set; } = 1;
 		public string Comment { get; set; }
 
 		public List<CopierPosition> CopierPositions { get; } = new List<CopierPosition>();

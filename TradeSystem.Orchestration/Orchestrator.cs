@@ -159,13 +159,13 @@ namespace TradeSystem.Orchestration
 			await Connect(duplicatContext);
 
 			var copiers = duplicatContext.Copiers.Local
-				.Where(c => c.Slave.Master.Account.ConnectionState == ConnectionStates.Connected)
-				.Where(c => c.Slave.Account.ConnectionState == ConnectionStates.Connected)
+				.Where(c => c.Slave?.Master?.Account?.ConnectionState == ConnectionStates.Connected)
+				.Where(c => c.Slave?.Account?.ConnectionState == ConnectionStates.Connected)
 				.Select(c => c.Slave.Master);
 
 			var fixApiCopiers = duplicatContext.FixApiCopiers.Local
-				.Where(c => c.Slave.Master.Account.ConnectionState == ConnectionStates.Connected)
-				.Where(c => c.Slave.Account.ConnectionState == ConnectionStates.Connected)
+				.Where(c => c.Slave?.Master?.Account?.ConnectionState == ConnectionStates.Connected)
+				.Where(c => c.Slave?.Account?.ConnectionState == ConnectionStates.Connected)
 				.Select(c => c.Slave.Master);
 
 			var masters = copiers.Union(fixApiCopiers).Distinct().ToList();
