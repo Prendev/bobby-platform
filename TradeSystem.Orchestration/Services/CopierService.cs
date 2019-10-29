@@ -213,9 +213,10 @@ namespace TradeSystem.Orchestration.Services
 			    .Where(c => string.IsNullOrWhiteSpace(c.Comment) || c.Comment == e.Position.Comment)
 			    .Select(copier => DelayedRun(() =>
 			    {
-					var volume = (long) (100 * Math.Abs(e.Position.RealVolume * copier.CopyRatio));
-				    var side = copier.CopyRatio < 0 ? e.Position.Side.Inv() : e.Position.Side;
-				    var type = side == Sides.Buy ? ProtoTradeSide.BUY : ProtoTradeSide.SELL;
+					// TODO
+					//var volume = (long) (100 * Math.Abs(e.Position.RealVolume * copier.CopyRatio));
+				    var volume = (long) Math.Abs(e.Position.Lots * copier.CopyRatio);
+					var side = copier.CopyRatio < 0 ? e.Position.Side.Inv() : e.Position.Side;
 				    var comment = $"{e.Position.Id}-{slave.Id}-{copier.Id}";
 				    if (e.Action == NewPositionActions.Open)
 					{
@@ -226,18 +227,31 @@ namespace TradeSystem.Orchestration.Services
 							return Task.CompletedTask;
 						}
 
+						PositionResponse newPos = null;
 						if (copier.OrderType == Copier.CopierOrderTypes.MarketRange)
-							slaveConnector.SendMarketRangeOrderRequest(symbol, type, volume, e.Position.OpenPrice,
-								copier.SlippageInPips, comment, copier.MaxRetryCount, copier.RetryPeriodInMs);
+							newPos = slaveConnector.SendMarketRangeOrderRequest(symbol, side, volume, e.Position.OpenPrice,
+								copier.SlippageInPips, copier.MaxRetryCount, copier.RetryPeriodInMs);
 						else if (copier.OrderType == Copier.CopierOrderTypes.Market)
-							slaveConnector.SendMarketOrderRequest(symbol, type, volume, comment,
-								copier.MaxRetryCount, copier.RetryPeriodInMs);
+							newPos = slaveConnector.SendMarketOrderRequest(symbol, side, volume, copier.MaxRetryCount, copier.RetryPeriodInMs);
+
+						if (newPos?.Pos?.Ids?.Any() != true) return Task.CompletedTask;
+						foreach (var id in newPos.Pos.Ids)
+						{
+							copier.CopierPositions.Add(new CopierPosition()
+							{
+								Copier = copier,
+								MasterTicket = e.Position.Id,
+								SlaveTicket = id
+							});
+						}
 					}
 				    else if (e.Action == NewPositionActions.Close)
 					{
 						if (copier.Mode == Copier.CopierModes.OpenOnly) return Task.CompletedTask;
-						slaveConnector.SendClosePositionRequests(comment, copier.MaxRetryCount, copier.RetryPeriodInMs);
-				    }
+						foreach (var copierPos in copier.CopierPositions.Where(p => p.MasterTicket == e.Position.Id).ToList())
+							slaveConnector.SendClosePositionRequest(copierPos.SlaveTicket, copier.MaxRetryCount, copier.RetryPeriodInMs);
+						copier.CopierPositions.RemoveAll(p => p.State == CopierPosition.CopierPositionStates.ToBeRemoved);
+					}
 				    return Task.CompletedTask;
 			    }, copier.DelayInMilliseconds));
 		    return Task.WhenAll(tasks);
@@ -300,7 +314,6 @@ namespace TradeSystem.Orchestration.Services
 						    if (!e.Position.CrossTicket.HasValue) return Task.CompletedTask;
 						    AddCrossPosition(copier, e.Position.CrossTicket.Value, newPos.Pos.Id);
 					    }
-
 				    }
 				    else if (e.Action == NewPositionActions.Close)
 				    {

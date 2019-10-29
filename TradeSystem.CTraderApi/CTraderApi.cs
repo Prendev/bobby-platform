@@ -368,6 +368,7 @@ namespace TradeSystem.CTraderApi
         public void Disconnect()
         {
             _cancellationTokenSource.Cancel();
+	        _sslStream?.Dispose();
 		}
 
 		public void Reconnect()

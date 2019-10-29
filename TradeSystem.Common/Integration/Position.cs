@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Linq;
 
 namespace TradeSystem.Common.Integration
@@ -6,6 +7,7 @@ namespace TradeSystem.Common.Integration
     public class Position
     {
         public long Id { get; set; }
+	    public ConcurrentBag<long> Ids { get; } = new ConcurrentBag<long>();
 
 		public string Symbol { get; set; }
         public Sides Side { get; set; }
@@ -27,8 +29,6 @@ namespace TradeSystem.Common.Integration
         public double Profit { get; set; }
         public double Swap { get; set; }
         public double Commission { get; set; }
-
-        public RetryOrder CloseOrder { get; set; }
 
         public double NetProfit => Profit + Swap + Commission;
 
