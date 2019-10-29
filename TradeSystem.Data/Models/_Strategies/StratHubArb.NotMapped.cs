@@ -143,11 +143,11 @@ namespace TradeSystem.Data.Models
 			{
 				Account = s.Account?.ToString() ?? "*",
 				Rejects = s.Rejects.ToString("0"),
-				SellTotal = s.SellTotal.ToString("0"),
-				BuyTotal = s.BuyTotal.ToString("0"),
+				SellTotal = s.SellTotal.ToString("F2"),
+				BuyTotal = s.BuyTotal.ToString("F2"),
 				SellAvg = s.SellAvg.ToString("F5"),
 				BuyAvg = s.BuyAvg.ToString("F5"),
-				Total = s.Total.ToString("0"),
+				Total = s.Total.ToString("F2"),
 				ClosedPip = s.ClosedPip.ToString("F2"),
 				Pip = s.Pip == 0 ? "" : s.Pip.ToString("F2")
 			}).ToList();
