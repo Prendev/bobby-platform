@@ -208,7 +208,7 @@ namespace TradeSystem.CTraderIntegration
 				var task = _taskCompletionManager.CreateCompletableTask<Position>(position.Id.ToString());
 
 				_cTraderClientWrapper.CTraderClient.SendClosePositionRequest(_accountInfo.AccessToken, AccountId,
-					position.Id, position.Volume);
+					position.Id, position.Volume, position.Id.ToString());
 
 				position = await task;
 				Logger.Debug(
