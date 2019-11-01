@@ -135,10 +135,10 @@ namespace TradeSystem.CTraderIntegration
 
 					if (price.HasValue)
 						_cTraderClientWrapper.CTraderClient.SendMarketRangeOrderRequest(_accountInfo.AccessToken, AccountId,
-							symbol, type, volume, (double) price, slippageInPips, clientMsgId);
+							symbol, type, volume - retValue.Pos.Volume, (double) price, slippageInPips, clientMsgId);
 					else
 						_cTraderClientWrapper.CTraderClient.SendMarketOrderRequest(_accountInfo.AccessToken, AccountId, symbol,
-							type, volume, clientMsgId);
+							type, volume - retValue.Pos.Volume, clientMsgId);
 
 					var pos = await task;
 					// Return, unexpected null
@@ -146,23 +146,38 @@ namespace TradeSystem.CTraderIntegration
 					retValue.Pos.Volume += pos.Volume;
 					if (pos.Volume > 0) retValue.Pos.Ids.Add(pos.Id);
 
-					Logger.Debug(
-						$"{_accountInfo.Description} Connector.SendMarketOrderRequest({symbol}, {type}, {volume})" +
-						$" is successful with id {pos.Id} and {(HiResDatetime.UtcNow - startTime).Milliseconds} ms of execution time");
+					if (price.HasValue)
+						Logger.Debug(
+							$"{Description} Connector.SendMarketRangeOrderRequest({symbol}, {type}, {volume}, {price}, {slippageInPips})" +
+							$" is successful with id {pos.Id} and {(HiResDatetime.UtcNow - startTime).Milliseconds} ms of execution time");
+					else
+						Logger.Debug($"{Description} Connector.SendMarketOrderRequest({symbol}, {type}, {volume})" +
+						             $" is successful with id {pos.Id} and {(HiResDatetime.UtcNow - startTime).Milliseconds} ms of execution time");
+
 					if (retValue.Pos.Volume == volume) return retValue;
 				}
 				catch (TimeoutException e)
 				{
-					Logger.Error(
-						$"{_accountInfo.Description} Connector.SendMarketOrderRequest({symbol}, {type}, {volume})" +
-						$" exception with {(HiResDatetime.UtcNow - startTime).Milliseconds} ms of execution time", e);
+					if (price.HasValue)
+						Logger.Error(
+							$"{Description} Connector.SendMarketRangeOrderRequest({symbol}, {type}, {volume}, {price}, {slippageInPips})" +
+							$" exception with {(HiResDatetime.UtcNow - startTime).Milliseconds} ms of execution time", e);
+					else
+						Logger.Error($"{Description} Connector.SendMarketOrderRequest({symbol}, {type}, {volume})" +
+						             $" exception with {(HiResDatetime.UtcNow - startTime).Milliseconds} ms of execution time", e);
+
 					retValue.IsUnfinished = true;
 					return retValue;
 				}
 				catch (Exception e)
 				{
-					Logger.Error($"{_accountInfo.Description} Connector.SendMarketOrderRequest({symbol}, {type}, {volume})" +
-					             $" exception with {(HiResDatetime.UtcNow - startTime).Milliseconds} ms of execution time", e);
+					if (price.HasValue)
+						Logger.Error(
+							$"{Description} Connector.SendMarketRangeOrderRequest({symbol}, {type}, {volume}, {price}, {slippageInPips})" +
+							$" exception with {(HiResDatetime.UtcNow - startTime).Milliseconds} ms of execution time", e);
+					else
+						Logger.Error($"{Description} Connector.SendMarketOrderRequest({symbol}, {type}, {volume})" +
+						             $" exception with {(HiResDatetime.UtcNow - startTime).Milliseconds} ms of execution time", e);
 				}
 
 				// If no more try return or sleep
