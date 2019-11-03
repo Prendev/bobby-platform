@@ -13,6 +13,12 @@ C:\Windows\System32\inetsrv\config
     </applicationPoolDefaults>
 </applicationPools>
 
+Features
+IIS/Application Development
+
+URL Rewrite
+https://www.iis.net/downloads/microsoft/url-rewrite
+
 LocalDB
 https://www.microsoft.com/en-us/download/details.aspx?id=42299
 

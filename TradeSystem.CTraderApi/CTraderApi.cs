@@ -358,7 +358,7 @@ namespace TradeSystem.CTraderApi
 			}
             catch (Exception e)
             {
-                if (Debug) Logger.Error("Establishing SSL connection error: {0}", e);
+                Logger.Error("Establishing SSL connection error: {0}", e);
                 return false;
 			}
 	        Logger.Debug($"{cd.Description} cTrader platform connected");
