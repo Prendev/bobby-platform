@@ -41,12 +41,11 @@ namespace TradeSystem.CTraderIntegration
                 {
                     try
                     {
-                        var accs = _tradingAccountsService
-                            .GetAccounts(new BaseRequest
-                            {
-                                AccessToken = accountInfo.AccessToken,
-                                BaseUrl = platformInfo.AccountsApi
-                            });
+	                    var accs = _tradingAccountsService.GetAccountsAsync(new BaseRequest
+	                    {
+		                    AccessToken = accountInfo.AccessToken,
+		                    BaseUrl = platformInfo.AccountsApi
+	                    }).Result;
                         return accs;
                     }
                     catch (Exception e)

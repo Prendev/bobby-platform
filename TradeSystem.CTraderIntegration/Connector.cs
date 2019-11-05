@@ -73,8 +73,8 @@ namespace TradeSystem.CTraderIntegration
 			lock (_symbols)
 				if (!_symbols.Contains(symbol))
 					_symbols.Add(symbol);
-
-			_cTraderClientWrapper.CTraderClient.SendSubscribeForSpotsRequest(_accountInfo.AccessToken, AccountId, symbol);
+			lock (_cTraderClientWrapper.CTraderClient)
+				_cTraderClientWrapper.CTraderClient.SendSubscribeForSpotsRequest(_accountInfo.AccessToken, AccountId, symbol);
 			Logger.Debug($"{Description} Connector.Subscribe({symbol})");
 		}
 		private async Task<Tick> SubscribeAsync(string symbol)
@@ -84,7 +84,8 @@ namespace TradeSystem.CTraderIntegration
 					_symbols.Add(symbol);
 
 			var task = _taskCompletionManager.CreateCompletableTask<Tick>(symbol);
-			_cTraderClientWrapper.CTraderClient.SendSubscribeForSpotsRequest(_accountInfo.AccessToken, AccountId, symbol);
+			lock (_cTraderClientWrapper.CTraderClient)
+				_cTraderClientWrapper.CTraderClient.SendSubscribeForSpotsRequest(_accountInfo.AccessToken, AccountId, symbol);
 			var lastTick = await task;
 			Logger.Debug($"{Description} Connector.SubscribeAsync({symbol})");
 			return lastTick;
@@ -100,8 +101,11 @@ namespace TradeSystem.CTraderIntegration
             }
             Logger.Debug($"{_accountInfo.Description} account ({_accountInfo.AccountNumber}) connected");
 
-            _cTraderClientWrapper.CTraderClient.SendUnsubscribeForTradingEventsRequest(AccountId);
-            _cTraderClientWrapper.CTraderClient.SendSubscribeForTradingEventsRequest(_accountInfo.AccessToken, AccountId);
+	        lock (_cTraderClientWrapper.CTraderClient)
+	        {
+		        _cTraderClientWrapper.CTraderClient.SendUnsubscribeForTradingEventsRequest(AccountId);
+		        _cTraderClientWrapper.CTraderClient.SendSubscribeForTradingEventsRequest(_accountInfo.AccessToken, AccountId);
+	        }
 
 	        _cTraderClientWrapper.CTraderClient.OnTick -= CTraderClient_OnTick;
 			_cTraderClientWrapper.CTraderClient.OnPosition -= CTraderClient_OnPosition;
@@ -110,12 +114,12 @@ namespace TradeSystem.CTraderIntegration
 			_cTraderClientWrapper.CTraderClient.OnPosition += CTraderClient_OnPosition;
             _cTraderClientWrapper.CTraderClient.OnError += CTraderClient_OnError;
 
-            var positions = _tradingAccountsService.GetPositions(new AccountRequest
+            var positions = _tradingAccountsService.GetPositionsAsync(new AccountRequest
             {
                 AccessToken = _accountInfo.AccessToken,
                 BaseUrl = _cTraderClientWrapper.PlatformInfo.AccountsApi,
                 AccountId = AccountId
-            });
+            }).Result;
 	        lock (_symbols)
 	        {
 		        foreach (var symbol in _symbols)
@@ -170,14 +174,17 @@ namespace TradeSystem.CTraderIntegration
 				var startTime = HiResDatetime.UtcNow;
 				try
 				{
-					var task = _taskCompletionManager.CreateCompletableTask<Position>(clientMsgId);
+				var task = _taskCompletionManager.CreateCompletableTask<Position>(clientMsgId);
 
-					if (price.HasValue)
-						_cTraderClientWrapper.CTraderClient.SendMarketRangeOrderRequest(_accountInfo.AccessToken, AccountId,
-							symbol, type, volume - retValue.Pos.Volume, (double) price, slippageInPips, clientMsgId);
-					else
-						_cTraderClientWrapper.CTraderClient.SendMarketOrderRequest(_accountInfo.AccessToken, AccountId, symbol,
-							type, volume - retValue.Pos.Volume, clientMsgId);
+					lock (_cTraderClientWrapper.CTraderClient)
+					{
+						if (price.HasValue)
+							_cTraderClientWrapper.CTraderClient.SendMarketRangeOrderRequest(_accountInfo.AccessToken, AccountId,
+								symbol, type, volume - retValue.Pos.Volume, (double)price, slippageInPips, clientMsgId);
+						else
+							_cTraderClientWrapper.CTraderClient.SendMarketOrderRequest(_accountInfo.AccessToken, AccountId, symbol,
+								type, volume - retValue.Pos.Volume, clientMsgId);
+					}
 
 					var pos = await task;
 					// Return, unexpected null
@@ -245,10 +252,9 @@ namespace TradeSystem.CTraderIntegration
 			try
 			{
 				var task = _taskCompletionManager.CreateCompletableTask<Position>(position.Id.ToString());
-
-				_cTraderClientWrapper.CTraderClient.SendClosePositionRequest(_accountInfo.AccessToken, AccountId,
-					position.Id, position.Volume, position.Id.ToString());
-
+				lock (_cTraderClientWrapper.CTraderClient)
+					_cTraderClientWrapper.CTraderClient.SendClosePositionRequest(_accountInfo.AccessToken, AccountId,
+						position.Id, position.Volume, position.Id.ToString());
 				position = await task;
 				Logger.Debug(
 					$"{_accountInfo.Description} Connector.SendClosePositionRequests({position.Id}, {position.Comment})" +
