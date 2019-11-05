@@ -229,8 +229,22 @@ namespace TradeSystem.Orchestration.Services
 
 						PositionResponse newPos = null;
 						if (copier.OrderType == Copier.CopierOrderTypes.MarketRange)
+						{
+							decimal? price = e.Position.OpenPrice;
+							if (copier.BasePriceType == Copier.BasePriceTypes.Slave && side == Sides.Buy)
+								price = slaveConnector.GetLastTick(symbol)?.Ask;
+							else if (copier.BasePriceType == Copier.BasePriceTypes.Slave && side == Sides.Buy)
+								price = slaveConnector.GetLastTick(symbol)?.Bid;
+
+							if (!price.HasValue)
+							{
+								Logger.Warn($"CopierService.CopyToCtAccount {slave} {symbol} no last tick!!!");
+								return Task.CompletedTask;
+							}
+
 							newPos = slaveConnector.SendMarketRangeOrderRequest(symbol, side, volume, e.Position.OpenPrice,
 								copier.SlippageInPips, copier.MaxRetryCount, copier.RetryPeriodInMs);
+						}
 						else if (copier.OrderType == Copier.CopierOrderTypes.Market)
 							newPos = slaveConnector.SendMarketOrderRequest(symbol, side, volume, copier.MaxRetryCount, copier.RetryPeriodInMs);
 

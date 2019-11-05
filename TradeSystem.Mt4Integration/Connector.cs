@@ -273,8 +273,8 @@ namespace TradeSystem.Mt4Integration
 		{
 			try
 			{
-				var lastQuote = _lastTicks.GetOrAdd(symbol, (Tick) null);
-				if (lastQuote != null) return lastQuote;
+				var lastTick = _lastTicks.GetOrAdd(symbol, (Tick) null);
+				if (lastTick != null) return lastTick;
 
 				Subscribe(symbol);
 				var quote = QuoteClient.GetQuote(symbol);

@@ -9,7 +9,7 @@ using TradeSystem.CTraderIntegration.Services;
 
 namespace TradeSystem.CTraderIntegration
 {
-    public class Connector : ConnectorBase, IConnector
+    public class Connector : ConnectorBase
 	{
 		private readonly TaskCompletionManager<string> _taskCompletionManager;
 		private readonly ITradingAccountsService _tradingAccountsService;
@@ -22,8 +22,11 @@ namespace TradeSystem.CTraderIntegration
         /// </summary>
         public static ConcurrentDictionary<string, Lazy<List<AccountData>>> BalanceAccounts =
             new ConcurrentDictionary<string, Lazy<List<AccountData>>>();
+		private readonly List<string> _symbols = new List<string>();
+		private readonly ConcurrentDictionary<string, Tick> _lastTicks =
+			new ConcurrentDictionary<string, Tick>();
 
-	    public override int Id => _accountInfo?.DbId ?? 0;
+		public override int Id => _accountInfo?.DbId ?? 0;
 		public override string Description => _accountInfo?.Description;
 		public override bool IsConnected => _cTraderClientWrapper?.IsConnected == true && AccountId > 0;
         public ConcurrentDictionary<long, Position> Positions { get; }
@@ -41,24 +44,53 @@ namespace TradeSystem.CTraderIntegration
         }
 
 		public override void Disconnect()
-        {
-            _cTraderClientWrapper.CTraderClient.OnPosition -= CTraderClient_OnPosition;
-            _cTraderClientWrapper.CTraderClient.OnError -= OnError;
+		{
+			_cTraderClientWrapper.CTraderClient.OnTick -= CTraderClient_OnTick;
+			_cTraderClientWrapper.CTraderClient.OnPosition -= CTraderClient_OnPosition;
+            _cTraderClientWrapper.CTraderClient.OnError -= CTraderClient_OnError;
             _cTraderClientWrapper.CTraderClient.SendUnsubscribeForTradingEventsRequest(AccountId);
 			OnConnectionChanged(ConnectionStates.Disconnected);
 		}
 
 		public override Tick GetLastTick(string symbol)
 	    {
-		    throw new NotImplementedException();
-	    }
+		    try
+			{
+				var lastTick = _lastTicks.GetOrAdd(symbol, (Tick)null);
+				if (lastTick != null) return lastTick;
+
+				return SubscribeAsync(symbol).Result;
+			}
+		    catch (Exception e)
+			{
+				Logger.Error($"{Description} Connector.GetLastTick({symbol})", e);
+				return null;
+			}
+		}
 
 		public override void Subscribe(string symbol)
-	    {
-		    throw new NotImplementedException();
-	    }
+		{
+			lock (_symbols)
+				if (!_symbols.Contains(symbol))
+					_symbols.Add(symbol);
 
-	    public void Connect()
+			_cTraderClientWrapper.CTraderClient.SendSubscribeForSpotsRequest(_accountInfo.AccessToken, AccountId, symbol);
+			Logger.Debug($"{Description} Connector.Subscribe({symbol})");
+		}
+		private async Task<Tick> SubscribeAsync(string symbol)
+		{
+			lock (_symbols)
+				if (!_symbols.Contains(symbol))
+					_symbols.Add(symbol);
+
+			var task = _taskCompletionManager.CreateCompletableTask<Tick>(symbol);
+			_cTraderClientWrapper.CTraderClient.SendSubscribeForSpotsRequest(_accountInfo.AccessToken, AccountId, symbol);
+			var lastTick = await task;
+			Logger.Debug($"{Description} Connector.SubscribeAsync({symbol})");
+			return lastTick;
+		}
+
+		public void Connect()
         {
             if (!IsConnected)
             {
@@ -71,10 +103,12 @@ namespace TradeSystem.CTraderIntegration
             _cTraderClientWrapper.CTraderClient.SendUnsubscribeForTradingEventsRequest(AccountId);
             _cTraderClientWrapper.CTraderClient.SendSubscribeForTradingEventsRequest(_accountInfo.AccessToken, AccountId);
 
-            _cTraderClientWrapper.CTraderClient.OnPosition -= CTraderClient_OnPosition;
-            _cTraderClientWrapper.CTraderClient.OnError -= OnError;
-            _cTraderClientWrapper.CTraderClient.OnPosition += CTraderClient_OnPosition;
-            _cTraderClientWrapper.CTraderClient.OnError += OnError;
+	        _cTraderClientWrapper.CTraderClient.OnTick -= CTraderClient_OnTick;
+			_cTraderClientWrapper.CTraderClient.OnPosition -= CTraderClient_OnPosition;
+            _cTraderClientWrapper.CTraderClient.OnError -= CTraderClient_OnError;
+	        _cTraderClientWrapper.CTraderClient.OnTick += CTraderClient_OnTick;
+			_cTraderClientWrapper.CTraderClient.OnPosition += CTraderClient_OnPosition;
+            _cTraderClientWrapper.CTraderClient.OnError += CTraderClient_OnError;
 
             var positions = _tradingAccountsService.GetPositions(new AccountRequest
             {
@@ -82,7 +116,12 @@ namespace TradeSystem.CTraderIntegration
                 BaseUrl = _cTraderClientWrapper.PlatformInfo.AccountsApi,
                 AccountId = AccountId
             });
-            Logger.Debug($"{_accountInfo.Description} account ({_accountInfo.AccountNumber}) positions acquired");
+	        lock (_symbols)
+	        {
+		        foreach (var symbol in _symbols)
+			        Subscribe(symbol);
+	        }
+			Logger.Debug($"{_accountInfo.Description} account ({_accountInfo.AccountNumber}) positions acquired");
 
             foreach (var p in positions)
             {
@@ -239,7 +278,21 @@ namespace TradeSystem.CTraderIntegration
 			}
 		}
 
-        private void CTraderClient_OnPosition(ProtoOAPosition p)
+		private void CTraderClient_OnTick(ProtoOASpotEvent tick)
+		{
+			var t = new Tick
+			{
+				Symbol = tick.SymbolName,
+				Ask = (decimal)tick.AskPrice,
+				Bid = (decimal)tick.BidPrice,
+				Time = HiResDatetime.UtcNow
+			};
+			_lastTicks.AddOrUpdate(t.Symbol, key => t, (key, old) => t);
+			_taskCompletionManager.SetResult(t.Symbol, t, true);
+			OnNewTick(new NewTick { Tick = t });
+		}
+
+		private void CTraderClient_OnPosition(ProtoOAPosition p)
         {
             if (p.AccountId != AccountId) return;
             if (p.PositionStatus != ProtoOAPositionStatus.OA_POSITION_STATUS_OPEN &&
@@ -284,7 +337,7 @@ namespace TradeSystem.CTraderIntegration
 			});
 		}
 
-        private void OnError(ProtoErrorRes error, string clientMsgId) => _taskCompletionManager.SetError(clientMsgId, new Exception(error.Description));
+        private void CTraderClient_OnError(ProtoErrorRes error, string clientMsgId) => _taskCompletionManager.SetError(clientMsgId, new Exception(error.Description));
 
         public static DateTime CTraderTimestampToDatetime(long timestamp)
         {
