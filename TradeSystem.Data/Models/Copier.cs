@@ -19,6 +19,11 @@ namespace TradeSystem.Data.Models
 			MarketRange,
 			Hedge
 		}
+		public enum BasePriceTypes
+		{
+			Slave,
+			Master
+		}
 
 		[InvisibleColumn] public int SlaveId { get; set; }
 		[InvisibleColumn] public Slave Slave { get; set; }
@@ -27,6 +32,7 @@ namespace TradeSystem.Data.Models
 		public CopierModes Mode { get; set; }
 		public decimal CopyRatio { get; set; }
 		public CopierOrderTypes OrderType { get; set; }
+		public BasePriceTypes BasePriceType { get; set; }
 		[DisplayName("Delay")] public int DelayInMilliseconds { get; set; }
 		[DisplayName("Spread")] public decimal SpreadFilterInPips { get; set; }
 		[DisplayName("Retry")] public int MaxRetryCount { get; set; } = 5;

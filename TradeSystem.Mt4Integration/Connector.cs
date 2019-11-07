@@ -139,11 +139,7 @@ namespace TradeSystem.Mt4Integration
                     OpenPrice = (decimal)o.OpenPrice,
                     Comment = o.Comment
                 };
-                Positions.AddOrUpdate(o.Ticket, key => pos, (key, old) =>
-                {
-                    pos.CloseOrder = old.CloseOrder;
-                    return pos;
-                });
+                Positions.AddOrUpdate(o.Ticket, key => pos, (key, old) => pos);
 			}
 		}
 
@@ -237,7 +233,6 @@ namespace TradeSystem.Mt4Integration
 				OrderClient.OrderCloseAsync(position.Symbol, (int) position.Id,
 					(double) (position.Lots * M(position.Symbol)), price, 0);
 				var order = await closing;
-				UpdatePosition(order);
 				Logger.Debug(
 					$"{_accountInfo.Description} Connector.SendClosePositionRequests({position.Id}, {position.Comment})" +
 					$" is successful with {(HiResDatetime.UtcNow - startTime).Milliseconds} ms of execution time");
@@ -261,7 +256,7 @@ namespace TradeSystem.Mt4Integration
 
 				if (maxRetryCount <= 0) return new PositionResponse() { Pos = position, IsUnfinished = true};
 				Thread.Sleep(retryPeriodInMs);
-				return SendClosePositionRequests(position, --maxRetryCount, retryPeriodInMs);
+				return await SendClosePositionRequestsAsync(position, --maxRetryCount, retryPeriodInMs);
 			}
 			catch (Exception e)
 			{
@@ -270,7 +265,7 @@ namespace TradeSystem.Mt4Integration
 					$" exception with {(HiResDatetime.UtcNow - startTime).Milliseconds} ms of execution time", e);
 				if (maxRetryCount <= 0) return new PositionResponse() { Pos = position };
 				Thread.Sleep(retryPeriodInMs);
-				return SendClosePositionRequests(position, --maxRetryCount, retryPeriodInMs);
+				return await SendClosePositionRequestsAsync(position, --maxRetryCount, retryPeriodInMs);
 			}
 		}
 
@@ -278,8 +273,8 @@ namespace TradeSystem.Mt4Integration
 		{
 			try
 			{
-				var lastQuote = _lastTicks.GetOrAdd(symbol, (Tick) null);
-				if (lastQuote != null) return lastQuote;
+				var lastTick = _lastTicks.GetOrAdd(symbol, (Tick) null);
+				if (lastTick != null) return lastTick;
 
 				Subscribe(symbol);
 				var quote = QuoteClient.GetQuote(symbol);
@@ -371,9 +366,9 @@ namespace TradeSystem.Mt4Integration
 			{
 				Id = order.Ticket,
 				Lots = (decimal)order.Lots / M(order.Symbol),
+				RealVolume = (long)(order.Lots * GetSymbolInfo(order.Symbol).ContractSize * (order.Type == Op.Buy ? 1 : -1)),
 				Symbol = order.Symbol,
 				Side = order.Type == Op.Buy ? Sides.Buy : Sides.Sell,
-				RealVolume = (long)(order.Lots * GetSymbolInfo(order.Symbol).ContractSize * (order.Type == Op.Buy ? 1 : -1)),
 				OpenTime = order.OpenTime,
 				OpenPrice = (decimal)order.OpenPrice,
 				CloseTime = order.CloseTime,

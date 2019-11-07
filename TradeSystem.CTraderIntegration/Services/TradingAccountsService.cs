@@ -1,54 +1,90 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
+using TradeSystem.Collections;
 using TradeSystem.CTraderIntegration.Dto;
 
 namespace TradeSystem.CTraderIntegration.Services
 {
     public interface ITradingAccountsService
     {
-        List<AccountData> GetAccounts(BaseRequest request);
-
-        List<PositionData> GetPositions(AccountRequest request);
+        Task<List<AccountData>> GetAccountsAsync(BaseRequest request);
         Task<List<PositionData>> GetPositionsAsync(AccountRequest request);
-
-        List<DealData> GetDeals(DealsRequest request);
     }
 
     public class TradingAccountsService : ITradingAccountsService
-    {
-        private readonly IRestService _restService;
+	{
+		private class Entry
+		{
+			public Guid Key { get; set; }
+			public BaseRequest Request { get; set; }
+			public IRestService RestService { get; set; }
+		}
 
-        public TradingAccountsService(IRestService restService)
+		private static readonly FastBlockingCollection<Entry> Queue =
+			new FastBlockingCollection<Entry>();
+		private static readonly TaskCompletionManager<Guid> TaskCompletionManager =
+			new TaskCompletionManager<Guid>(100, 60000);
+
+		private readonly IRestService _restService;
+
+		static TradingAccountsService()
+		{
+			var thread = new Thread(Loop) { Name = "CTrader", IsBackground = true, Priority = ThreadPriority.BelowNormal };
+			thread.Start();
+		}
+
+		private static void Loop()
+		{
+			while (true)
+			{
+				var entry = Queue.Take();
+				try
+				{
+					if (entry.Request is AccountRequest request)
+					{
+						var response = entry.RestService.GetAsync<ListResponse<PositionData>>(
+							$"connect/tradingaccounts/{request.AccountId}/positions", request.AccessToken, request.BaseUrl).Result;
+						TaskCompletionManager.SetResult(entry.Key, response, true);
+					}
+					else
+					{
+						var response = entry.RestService.GetAsync<ListResponse<AccountData>>(
+							"connect/tradingaccounts", entry.Request.AccessToken, entry.Request.BaseUrl).Result;
+						TaskCompletionManager.SetResult(entry.Key, response, true);
+					}
+				}
+				catch (Exception e)
+				{
+					TaskCompletionManager.SetError(entry.Key, e, true);
+				}
+				Thread.Sleep(TimeSpan.FromSeconds(3));
+			}
+		}
+
+		public TradingAccountsService(IRestService restService)
         {
             _restService = restService;
         }
 
-        public List<AccountData> GetAccounts(BaseRequest request)
+        public async Task<List<AccountData>> GetAccountsAsync(BaseRequest request)
         {
-            return _restService.Get<ListResponse<AccountData>>("connect/tradingaccounts", request.AccessToken, request.BaseUrl).data;
-        }
+	        var key = Guid.NewGuid();
+	        var task = TaskCompletionManager.CreateCompletableTask<ListResponse<AccountData>>(key);
+	        Queue.Add(new Entry {Key = key, Request = request, RestService = _restService });
+	        var response = await task;
+	        return response.data;
+		}
 
-        public List<PositionData> GetPositions(AccountRequest request)
-        {
-            return _restService.Get<ListResponse<PositionData>>(
-                $"connect/tradingaccounts/{request.AccountId}/positions", request.AccessToken, request.BaseUrl).data;
-        }
-
-        public async Task<List<PositionData>> GetPositionsAsync(AccountRequest request)
-        {
-            var response = await _restService.GetAsync<ListResponse<PositionData>>(
-                $"connect/tradingaccounts/{request.AccountId}/positions", request.AccessToken, request.BaseUrl);
-            return response.data;
-        }
-
-        public List<DealData> GetDeals(DealsRequest request)
-        {
-            return _restService.Get<ListResponse<DealData>>(
-                $"connect/tradingaccounts/{request.AccountId}/deals",
-                request.AccessToken, request.BaseUrl,
-                ConvertToUnixTimestamp(request.From), ConvertToUnixTimestamp(request.To)).data;
-        }
+		public async Task<List<PositionData>> GetPositionsAsync(AccountRequest request)
+		{
+			var key = Guid.NewGuid();
+			var task = TaskCompletionManager.CreateCompletableTask<ListResponse<PositionData>>(key);
+			Queue.Add(new Entry { Key = key, Request = request, RestService = _restService});
+			var response = await task;
+			return response.data;
+		}
 
         private long ConvertToUnixTimestamp(DateTime date)
         {

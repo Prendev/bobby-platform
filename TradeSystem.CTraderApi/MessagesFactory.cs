@@ -251,7 +251,7 @@ namespace TradeSystem.CTraderApi
             msg.SetBaseSlippagePrice(baseSlippagePrice);
             msg.SetSlippageInPips(slippageInPips);
             msg.SetComment(clientMsgId ?? "TradingApiTest.CreateMarketRangeOrderRequest");
-            return CreateMessage((uint)msg.PayloadType, msg.Build().ToByteString(), clientMsgId);
+			return CreateMessage((uint)msg.PayloadType, msg.Build().ToByteString(), clientMsgId);
         }
         public ProtoMessage CreateLimitOrderRequest(long accountId, string accessToken, string symbolName, ProtoTradeSide tradeSide, long volume, double limitPrice, string clientMsgId = null)
         {
