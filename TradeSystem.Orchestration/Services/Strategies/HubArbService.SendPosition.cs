@@ -94,7 +94,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				}
 			};
 			account.LastOrderTime = newEntity.Position.OpenTime;
-			arb.StratHubArbPositions.Add(newEntity);
+			lock (arb.StratHubArbPositions) arb.StratHubArbPositions.Add(newEntity);
 			lock (account.StratHubArbPositions) account.StratHubArbPositions.Add(newEntity);
 		}
 	}
