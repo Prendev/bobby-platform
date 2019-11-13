@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using TradeSystem.Common.Integration;
+using TradeSystem.Data;
 using TradeSystem.Data.Models;
 using static TradeSystem.Data.Models.StratHubArbQuoteEventArgs;
 using OrderTypes = TradeSystem.Data.Models.StratHubArb.StratHubArbOrderTypes;
@@ -94,8 +95,8 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				}
 			};
 			account.LastOrderTime = newEntity.Position.OpenTime;
-			lock (arb.StratHubArbPositions) arb.StratHubArbPositions.Add(newEntity);
-			lock (account.StratHubArbPositions) account.StratHubArbPositions.Add(newEntity);
+			arb.StratHubArbPositions.AddSafe(newEntity);
+			account.StratHubArbPositions.AddSafe(newEntity);
 		}
 	}
 }

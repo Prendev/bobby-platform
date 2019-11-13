@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using TradeSystem.Collections;
 using TradeSystem.Common;
 using TradeSystem.Common.Integration;
+using TradeSystem.Data;
 using TradeSystem.Data.Models;
 using TradeSystem.Mt4Integration;
 
@@ -251,7 +252,7 @@ namespace TradeSystem.Orchestration.Services
 						if (newPos?.Pos?.Ids?.Any() != true) return Task.CompletedTask;
 						foreach (var id in newPos.Pos.Ids)
 						{
-							copier.CopierPositions.Add(new CopierPosition()
+							copier.CopierPositions.AddSafe(new CopierPosition()
 							{
 								Copier = copier,
 								MasterTicket = e.Position.Id,
@@ -318,7 +319,7 @@ namespace TradeSystem.Orchestration.Services
 							    copier.Comment, copier.MaxRetryCount, copier.RetryPeriodInMs);
 
 						    if (newPos == null) return Task.CompletedTask;
-						    copier.CopierPositions.Add(new CopierPosition()
+						    copier.CopierPositions.AddSafe(new CopierPosition()
 						    {
 							    Copier = copier,
 							    MasterTicket = e.Position.Id,
@@ -421,7 +422,7 @@ namespace TradeSystem.Orchestration.Services
 			    : masterSideParent.CopierPositions.FirstOrDefault(p => p.MasterTicket == existingTicket)?.SlaveTicket;
 		    if (!otherSideTicket.HasValue) return;
 
-		    copier.CrossCopier.CopierPositions.Add(new CopierPosition()
+		    copier.CrossCopier.CopierPositions.AddSafe(new CopierPosition()
 			{
 				Copier = copier,
 				MasterTicket = isMasterSide ? newTicket : otherSideTicket.Value,

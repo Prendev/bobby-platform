@@ -6,6 +6,7 @@ using System.Threading;
 using TradeSystem.Collections;
 using TradeSystem.Common.Integration;
 using TradeSystem.Common.Services;
+using TradeSystem.Data;
 using TradeSystem.Data.Models;
 
 namespace TradeSystem.Orchestration.Services.Strategies
@@ -250,7 +251,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 						Logger.Warn($"{set} latency arb - {level}. long first side open error");
 						return;
 					}
-					set.LatencyArbPositions.Add(new LatencyArbPosition()
+					set.LatencyArbPositions.AddSafe(new LatencyArbPosition()
 					{
 						LatencyArb = set,
 						LongTicket = pos.Ticket,
@@ -276,7 +277,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 						Logger.Warn($"{set} latency arb - {level}. short first side open error");
 						return;
 					}
-					set.LatencyArbPositions.Add(new LatencyArbPosition()
+					set.LatencyArbPositions.AddSafe(new LatencyArbPosition()
 					{
 						LatencyArb = set,
 						ShortTicket = pos.Ticket,
@@ -1033,7 +1034,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 					ShortOpenPrice = match.Value.Value.OpenPrice,
 					Level = level
 				};
-				set.LatencyArbPositions.Add(arbPos);
+				set.LatencyArbPositions.AddSafe(arbPos);
 			}
 			foreach (var arbPos in set.LivePositions)
 				AddCopierPosition(set, arbPos);
@@ -1079,7 +1080,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 					},
 					Level = level
 				};
-				set.LatencyArbPositions.Add(arbPos);
+				set.LatencyArbPositions.AddSafe(arbPos);
 			}
 			foreach (var shortPos in shortPositions ?? new ConcurrentDictionary<long, Position>())
 			{
@@ -1107,7 +1108,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 					ShortOpenPrice = shortPos.Value.OpenPrice,
 					Level = level
 				};
-				set.LatencyArbPositions.Add(arbPos);
+				set.LatencyArbPositions.AddSafe(arbPos);
 			}
 			foreach (var arbPos in set.LivePositions)
 				AddCopierPosition(set, arbPos);
@@ -1135,7 +1136,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			{
 				if (set.Copier.CopierPositions.Any(cp =>
 					cp.SlaveTicket == arbPos.LongTicket || cp.MasterTicket == arbPos.ShortTicket)) return;
-				set.Copier.CopierPositions.Add(new CopierPosition()
+				set.Copier.CopierPositions.AddSafe(new CopierPosition()
 				{
 					Copier = set.Copier,
 					MasterTicket = arbPos.ShortTicket.Value,
@@ -1146,7 +1147,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			{
 				if (set.Copier.CopierPositions.Any(cp =>
 					cp.SlaveTicket == arbPos.ShortTicket || cp.MasterTicket == arbPos.LongTicket)) return;
-				set.Copier.CopierPositions.Add(new CopierPosition()
+				set.Copier.CopierPositions.AddSafe(new CopierPosition()
 				{
 					Copier = set.Copier,
 					MasterTicket = arbPos.LongTicket.Value,
@@ -1167,7 +1168,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			    arbPos.ShortTicket.HasValue && arbPos.LongPosition != null)
 			{
 				if (set.FixApiCopier.FixApiCopierPositions.Any(cp => cp.MasterPositionId == arbPos.ShortTicket)) return;
-				set.FixApiCopier.FixApiCopierPositions.Add(new FixApiCopierPosition()
+				set.FixApiCopier.FixApiCopierPositions.AddSafe(new FixApiCopierPosition()
 				{
 					FixApiCopier = set.FixApiCopier,
 					MasterPositionId = arbPos.ShortTicket.Value,
@@ -1179,7 +1180,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			         arbPos.LongTicket.HasValue && arbPos.ShortPosition != null)
 			{
 				if (set.FixApiCopier.FixApiCopierPositions.Any(cp => cp.MasterPositionId == arbPos.LongTicket)) return;
-				set.FixApiCopier.FixApiCopierPositions.Add(new FixApiCopierPosition()
+				set.FixApiCopier.FixApiCopierPositions.AddSafe(new FixApiCopierPosition()
 				{
 					FixApiCopier = set.FixApiCopier,
 					MasterPositionId = arbPos.LongTicket.Value,

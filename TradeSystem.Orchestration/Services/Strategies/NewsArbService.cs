@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using TradeSystem.Collections;
 using TradeSystem.Common.Integration;
+using TradeSystem.Data;
 using TradeSystem.Data.Models;
 
 namespace TradeSystem.Orchestration.Services.Strategies
@@ -168,7 +169,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 						Logger.Warn($"{set} News arb long first side open error");
 						return;
 					}
-					set.NewsArbPositions.Add(new NewsArbPosition()
+					set.NewsArbPositions.AddSafe(new NewsArbPosition()
 					{
 						IsLongFirst = true,
 						NewsArb = set,
@@ -189,7 +190,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 						Logger.Warn($"{set} News arb short first side open error");
 						return;
 					}
-					set.NewsArbPositions.Add(new NewsArbPosition()
+					set.NewsArbPositions.AddSafe(new NewsArbPosition()
 					{
 						IsLongFirst = false,
 						NewsArb = set,

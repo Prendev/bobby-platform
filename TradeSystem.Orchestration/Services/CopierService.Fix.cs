@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using TradeSystem.Common;
 using TradeSystem.Common.Integration;
+using TradeSystem.Data;
 using TradeSystem.Data.Models;
 
 namespace TradeSystem.Orchestration.Services
@@ -130,7 +131,7 @@ namespace TradeSystem.Orchestration.Services
 					Symbol = symbol
 				}
 			};
-			lock (copier.FixApiCopierPositions) copier.FixApiCopierPositions.Add(newEntity);
+			copier.FixApiCopierPositions.AddSafe(newEntity);
 		}
 
 		private void PersistClosePosition(FixApiCopier copier, FixApiCopierPosition pos, OrderResponse response)

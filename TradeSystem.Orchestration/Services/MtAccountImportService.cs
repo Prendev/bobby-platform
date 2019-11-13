@@ -67,7 +67,7 @@ namespace TradeSystem.Orchestration.Services
 					}
 
 					if (mtAccount.Accounts.All(a => a.Profile != profile))
-						mtAccount.Accounts.Add(new Account() {Profile = profile, Run = true});
+						mtAccount.Accounts.AddSafe(new Account() {Profile = profile, Run = true});
 				}
 
 				duplicatContext.SaveChanges();
