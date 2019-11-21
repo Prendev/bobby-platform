@@ -39,7 +39,8 @@ namespace TradeSystem.Orchestration.Services
 			_masters = masters;
 			_cancellation = new CancellationTokenSource();
 
-			var threadCount = _masters.Sum(m => m.Slaves.Sum(s => s.Copiers.Count + s.FixApiCopiers.Count));
+			var threadCount = _masters.Where(m => m.Run)
+				.Sum(m => m.Slaves.Where(s => s.Run).Sum(s => s.Copiers.Count(c => c.Run) + s.FixApiCopiers.Count(c => c.Run)));
 			_copyPool = new CustomThreadPool(threadCount, "CopyPool", _cancellation.Token);
 
 			foreach (var master in _masters)
@@ -212,7 +213,8 @@ namespace TradeSystem.Orchestration.Services
 		    var tasks = slave.Copiers
 			    .Where(c => c.Run)
 			    .Where(c => string.IsNullOrWhiteSpace(c.Comment) || c.Comment == e.Position.Comment)
-			    .Select(copier => DelayedRun(() =>
+			    .OrderBy(c => c.DelayInMilliseconds).ThenBy(c => c.Id)
+				.Select(copier => DelayedRun(() =>
 			    {
 					// TODO
 					//var volume = (long) (100 * Math.Abs(e.Position.RealVolume * copier.CopyRatio));
@@ -281,7 +283,8 @@ namespace TradeSystem.Orchestration.Services
 		    var tasks = slave.Copiers
 			    .Where(c => c.Run)
 			    .Where(c => string.IsNullOrWhiteSpace(c.Comment) || c.Comment == e.Position.Comment)
-			    .Select(copier => DelayedRun(() =>
+			    .OrderBy(c => c.DelayInMilliseconds).ThenBy(c => c.Id)
+				.Select(copier => DelayedRun(() =>
 			    {
 				    // TODO
 				    //var lots = Math.Abs(e.Position.RealVolume) / slaveConnector.GetContractSize(symbol) *

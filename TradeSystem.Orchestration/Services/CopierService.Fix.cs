@@ -20,6 +20,7 @@ namespace TradeSystem.Orchestration.Services
 			var tasks = slave.FixApiCopiers
 				.Where(c => c.Run)
 				.Where(c => string.IsNullOrWhiteSpace(c.Comment) || c.Comment == e.Position.Comment)
+				.OrderBy(c => c.DelayInMilliseconds).ThenBy(c => c.Id)
 				.Select(copier => DelayedRun(async () =>
 				{
 					var quantity = Math.Abs(e.Position.Lots * copier.CopyRatio);
