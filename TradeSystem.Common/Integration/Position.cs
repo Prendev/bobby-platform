@@ -20,13 +20,13 @@ namespace TradeSystem.Common.Integration
 		public string Comment { get; set; }
         public int MagicNumber { get; set; }
 
-        public DateTime OpenTime { get; set; }
+		public DateTime OpenTime { get; set; }
         public decimal OpenPrice { get; set; }
 
         public DateTime CloseTime { get; set; }
         public decimal ClosePrice { get; set; }
 
-        public double Profit { get; set; }
+		public double Profit { get; set; }
         public double Swap { get; set; }
         public double Commission { get; set; }
 
@@ -34,6 +34,8 @@ namespace TradeSystem.Common.Integration
 
 	    public long? ReopenTicket => GetReopenTicket();
 	    public long? CrossTicket => GetCrossTicket();
+	    public bool IsPartialClosed => IsClosed && Comment?.StartsWith("to #") == true && long.TryParse(Comment.Split('#').Last(), out _);
+	    public long? NewPartialTicket => IsPartialClosed ? long.Parse(Comment.Split('#').Last()) : (long?) null;
 
 		private long? GetReopenTicket()
 	    {

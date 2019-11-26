@@ -215,7 +215,9 @@ namespace TradeSystem.Mt4Integration
 		    if (position.IsClosed) return new PositionResponse {Pos = position};
 			return SendClosePositionRequests(position, maxRetryCount, retryPeriodInMs);
 		}
-		private async Task<PositionResponse> SendClosePositionRequestsAsync(Position position, int maxRetryCount, int retryPeriodInMs)
+
+		private async Task<PositionResponse> SendClosePositionRequestsAsync(Position position, int maxRetryCount,
+			int retryPeriodInMs)
 		{
 			if (position == null)
 			{
@@ -224,49 +226,77 @@ namespace TradeSystem.Mt4Integration
 			}
 
 			var startTime = HiResDatetime.UtcNow;
+			var pos = position;
 			try
 			{
-				var price = position.Side == Sides.Buy
-					? QuoteClient.GetQuote(position.Symbol).Bid
-					: QuoteClient.GetQuote(position.Symbol).Ask;
-				var closing = _taskCompletionManager.CreateCompletableTask<Order>((int) position.Id);
-				OrderClient.OrderCloseAsync(position.Symbol, (int) position.Id,
-					(double) (position.Lots * M(position.Symbol)), price, 0);
-				var order = await closing;
-				Logger.Debug(
-					$"{_accountInfo.Description} Connector.SendClosePositionRequests({position.Id}, {position.Comment})" +
-					$" is successful with {(HiResDatetime.UtcNow - startTime).Milliseconds} ms of execution time");
-				return new PositionResponse() {Pos = UpdatePosition(order)};
+				if (!pos.IsClosed)
+				{
+					var price = pos.Side == Sides.Buy
+						? QuoteClient.GetQuote(pos.Symbol).Bid
+						: QuoteClient.GetQuote(pos.Symbol).Ask;
+					var closing = _taskCompletionManager.CreateCompletableTask<Position>((int)pos.Id);
+					OrderClient.OrderCloseAsync(pos.Symbol, (int) pos.Id, (double) (pos.Lots * M(pos.Symbol)), price, 0);
+					pos = await closing;
+				}
+
+				if (pos.IsClosed)
+				{
+					if (!pos.NewPartialTicket.HasValue)
+					{
+						Logger.Debug(
+							$"{_accountInfo.Description} Connector.SendClosePositionRequests({pos.Id}, {pos.Comment}, {pos.Lots})" +
+							$" is successful with {(HiResDatetime.UtcNow - startTime).Milliseconds} ms of execution time");
+						return new PositionResponse { Pos = pos };
+					}
+					Logger.Warn(
+						$"{_accountInfo.Description} Connector.SendClosePositionRequests({pos.Id}, {pos.Comment}, {pos.Lots})" +
+						$" is PARTIAL with {(HiResDatetime.UtcNow - startTime).Milliseconds} ms of execution time");
+					var partial = _taskCompletionManager.CreateCompletableTask<Position>((int) pos.NewPartialTicket);
+					pos = Positions.GetOrAdd(pos.NewPartialTicket.Value, TryFindPosition(pos.NewPartialTicket.Value)) ??
+					      await partial;
+				}
 			}
 			catch (Exception e) when (e is TradingAPI.MT4Server.TimeoutException || e is System.TimeoutException)
 			{
 				Logger.Error(
 					$"{_accountInfo.Description} Connector.SendClosePositionRequests({position.Id}, {position.Comment})" +
 					$" exception with {(HiResDatetime.UtcNow - startTime).Milliseconds} ms of execution time", e);
-				var orders =
-					QuoteClient.DownloadOrderHistory(HiResDatetime.UtcNow.Date.AddDays(-2), HiResDatetime.UtcNow.Date.AddDays(2));
-				var order = orders?.FirstOrDefault(o => o.Ticket == (int) position.Id);
-				if (order != null)
-				{
-					UpdatePosition(order);
-					Logger.Debug(
-						$"{_accountInfo.Description} Connector.SendClosePositionRequests({position.Id}, {position.Comment}) is STILL successful though");
-					return new PositionResponse() {Pos = UpdatePosition(order)};
-				}
 
-				if (maxRetryCount <= 0) return new PositionResponse() { Pos = position, IsUnfinished = true};
-				Thread.Sleep(retryPeriodInMs);
-				return await SendClosePositionRequestsAsync(position, --maxRetryCount, retryPeriodInMs);
+				pos = TryFindPosition(pos.Id);
+				if (pos.IsClosed)
+				{
+					if (!pos.NewPartialTicket.HasValue)
+					{
+						Logger.Debug(
+							$"{_accountInfo.Description} Connector.SendClosePositionRequests({pos.Id}, {pos.Comment}, {pos.Lots}) is STILL successful though");
+						return new PositionResponse {Pos = pos};
+					}
+					Logger.Warn(
+						$"{_accountInfo.Description} Connector.SendClosePositionRequests({pos.Id}, {pos.Comment}, {pos.Lots}) is STILL PARTIAL though");
+					pos = TryFindPosition(pos.NewPartialTicket.Value);
+				}
 			}
 			catch (Exception e)
 			{
 				Logger.Error(
-					$"{_accountInfo.Description} Connector.SendClosePositionRequests({position.Id}, {position.Comment})" +
+					$"{_accountInfo.Description} Connector.SendClosePositionRequests({pos.Id}, {pos.Comment})" +
 					$" exception with {(HiResDatetime.UtcNow - startTime).Milliseconds} ms of execution time", e);
-				if (maxRetryCount <= 0) return new PositionResponse() { Pos = position };
-				Thread.Sleep(retryPeriodInMs);
-				return await SendClosePositionRequestsAsync(position, --maxRetryCount, retryPeriodInMs);
 			}
+
+			if (maxRetryCount <= 0) return new PositionResponse {Pos = pos};
+			Thread.Sleep(retryPeriodInMs);
+			return await SendClosePositionRequestsAsync(pos, --maxRetryCount, retryPeriodInMs);
+		}
+
+		private Position TryFindPosition(long ticket)
+		{
+			var order = QuoteClient.GetOpenedOrders()?.FirstOrDefault(o => o.Ticket == ticket);
+			if (order != null) return UpdatePosition(order);
+			var orders =
+				QuoteClient.DownloadOrderHistory(HiResDatetime.UtcNow.Date.AddDays(-2), HiResDatetime.UtcNow.Date.AddDays(2));
+			order = orders?.FirstOrDefault(o => o.Ticket == ticket);
+			if (order != null) return UpdatePosition(order);
+			return null;
 		}
 
 		public override Tick GetLastTick(string symbol)
@@ -348,10 +378,8 @@ namespace TradeSystem.Mt4Integration
 			var o = update.Order;
 			if (!new[] {UpdateAction.PositionOpen, UpdateAction.PositionClose, UpdateAction.PendingFill}.Contains(update.Action)) return;
 	        if (!new[] {Op.Buy, Op.Sell}.Contains(o.Type)) return;
-
 	        var position = UpdatePosition(o);
-			if (update.Action == UpdateAction.PositionClose)
-				_taskCompletionManager.SetResult(o.Ticket, o);
+			_taskCompletionManager.SetResult(o.Ticket, position);
 
 			OnNewPosition(new NewPosition
             {
@@ -362,6 +390,7 @@ namespace TradeSystem.Mt4Integration
 		}
 		private Position UpdatePosition(Order order)
 		{
+			if (order == null) return null;
 			var position = new Position
 			{
 				Id = order.Ticket,
@@ -388,6 +417,7 @@ namespace TradeSystem.Mt4Integration
 				old.Profit = order.Profit;
 				old.Commission = order.Commission;
 				old.Swap = order.Swap;
+				old.Comment = order.Comment;
 				return old;
 			});
 		}
