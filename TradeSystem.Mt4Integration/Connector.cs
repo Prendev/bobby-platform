@@ -252,8 +252,8 @@ namespace TradeSystem.Mt4Integration
 						$"{_accountInfo.Description} Connector.SendClosePositionRequests({pos.Id}, {pos.Comment}, {pos.Lots})" +
 						$" is PARTIAL with {(HiResDatetime.UtcNow - startTime).Milliseconds} ms of execution time");
 					var partial = _taskCompletionManager.CreateCompletableTask<Position>((int) pos.NewPartialTicket);
-					pos = Positions.GetOrAdd(pos.NewPartialTicket.Value, TryFindPosition(pos.NewPartialTicket.Value)) ??
-					      await partial;
+					pos = Positions.GetOrAdd(pos.NewPartialTicket.Value, TryFindPosition(null, pos.NewPartialTicket.Value)) ??
+					      await partial ?? pos;
 				}
 			}
 			catch (Exception e) when (e is TradingAPI.MT4Server.TimeoutException || e is System.TimeoutException)
@@ -262,8 +262,8 @@ namespace TradeSystem.Mt4Integration
 					$"{_accountInfo.Description} Connector.SendClosePositionRequests({position.Id}, {position.Comment})" +
 					$" exception with {(HiResDatetime.UtcNow - startTime).Milliseconds} ms of execution time", e);
 
-				pos = TryFindPosition(pos.Id);
-				if (pos.IsClosed)
+				pos = TryFindPosition(pos, pos.Id);
+				if (pos?.IsClosed == true)
 				{
 					if (!pos.NewPartialTicket.HasValue)
 					{
@@ -273,7 +273,7 @@ namespace TradeSystem.Mt4Integration
 					}
 					Logger.Warn(
 						$"{_accountInfo.Description} Connector.SendClosePositionRequests({pos.Id}, {pos.Comment}, {pos.Lots}) is STILL PARTIAL though");
-					pos = TryFindPosition(pos.NewPartialTicket.Value);
+					pos = TryFindPosition(pos, pos.NewPartialTicket.Value);
 				}
 			}
 			catch (Exception e)
@@ -288,15 +288,21 @@ namespace TradeSystem.Mt4Integration
 			return await SendClosePositionRequestsAsync(pos, --maxRetryCount, retryPeriodInMs);
 		}
 
-		private Position TryFindPosition(long ticket)
+		private Position TryFindPosition(Position oldPos, long ticket)
 		{
-			var order = QuoteClient.GetOpenedOrders()?.FirstOrDefault(o => o.Ticket == ticket);
-			if (order != null) return UpdatePosition(order);
-			var orders =
-				QuoteClient.DownloadOrderHistory(HiResDatetime.UtcNow.Date.AddDays(-2), HiResDatetime.UtcNow.Date.AddDays(2));
-			order = orders?.FirstOrDefault(o => o.Ticket == ticket);
-			if (order != null) return UpdatePosition(order);
-			return null;
+			try
+			{
+				var order = QuoteClient.GetOpenedOrders()?.FirstOrDefault(o => o.Ticket == ticket);
+				if (order != null) return UpdatePosition(order);
+				var orders =
+					QuoteClient.DownloadOrderHistory(HiResDatetime.UtcNow.Date.AddDays(-2), HiResDatetime.UtcNow.Date.AddDays(2));
+				order = orders?.FirstOrDefault(o => o.Ticket == ticket);
+				return order != null ? UpdatePosition(order) : oldPos;
+			}
+			catch (Exception)
+			{
+				return oldPos;
+			}
 		}
 
 		public override Tick GetLastTick(string symbol)
