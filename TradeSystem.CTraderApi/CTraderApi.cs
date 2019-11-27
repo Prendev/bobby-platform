@@ -26,9 +26,9 @@ namespace TradeSystem.CTraderApi
         private Task _inputTask;
         private Task _outputTask;
 		private CancellationTokenSource _cancellationTokenSource;
-	    private ConnectionDetails _connectionDetails;
+	    private ConnectionDetails _cd;
 
-	    public bool Debug { get; set; }
+	    public bool Debug  => _cd?.Debug ?? false;
 
 //-------------------------------------------------------------------------------------------------
 //////////////////////////////////////////// THREADS //////////////////////////////////////////////
@@ -77,7 +77,7 @@ namespace TradeSystem.CTraderApi
 					if (length <= 0) continue;
 					if (length > MaxSiz) throw new IndexOutOfRangeException();
 
-					if (Debug) Logger.Debug($"Data received: {GetHexadecimal(lengthMessage)}");
+					//if (Debug) Logger.Debug($"Data received: {GetHexadecimal(lengthMessage)}");
 
 					var dataMessage = new byte[length];
 					readBytes = 0;
@@ -87,13 +87,13 @@ namespace TradeSystem.CTraderApi
 						readBytes += _sslStream.Read(dataMessage, readBytes, dataMessage.Length - readBytes);
 					}
 
-					if (Debug) Logger.Debug($"Data received: {GetHexadecimal(dataMessage)}");
+					//if (Debug) Logger.Debug($"Data received: {GetHexadecimal(dataMessage)}");
 
 					_readQueue.Enqueue(dataMessage);
 				}
 				catch (Exception e)
 				{
-					Logger.Error("Listener throws exception: {0}", e);
+					Logger.Error($"{_cd?.Description} Listener throws exception: {0}", e);
 					Reconnect();
 				}
 			}
@@ -115,12 +115,12 @@ namespace TradeSystem.CTraderApi
                     _sslStream.Write(lengthMessage);
                     _sslStream.Write(dataMessage);
 
-	                if (Debug) Logger.Debug($"Data sent: {GetHexadecimal(lengthMessage)}");
-					if (Debug) Logger.Debug($"Data sent: {GetHexadecimal(dataMessage)}");
+	                //if (Debug) Logger.Debug($"Data sent: {GetHexadecimal(lengthMessage)}");
+					//if (Debug) Logger.Debug($"Data sent: {GetHexadecimal(dataMessage)}");
                 }
                 catch (Exception e)
                 {
-                    Logger.Error("Transmitter throws exception: {0}", e);
+                    Logger.Error($"{_cd?.Description} Transmitter throws exception: {0}", e);
 	                Reconnect();
                 }
             }
@@ -144,7 +144,7 @@ namespace TradeSystem.CTraderApi
                 }
                 catch (Exception e)
                 {
-                    Logger.Error("DataProcessor throws exception: {0}", e);
+                    Logger.Error($"{_cd?.Description} DataProcessor throws exception: {0}", e);
                 }
             }
         }
@@ -155,7 +155,7 @@ namespace TradeSystem.CTraderApi
             var msg = _inMsgFactory.GetMessage(rawData);
 
             if (Debug)
-                Logger.Debug($"ProcessIncomingDataStream() Message received:\n{MessagesPresentation.ToString(msg)}");
+                Logger.Debug($"{_cd?.Description} ProcessIncomingDataStream() Message received:\n{MessagesPresentation.ToString(msg)}");
 
             if (_cancellationTokenSource.Token.IsCancellationRequested || !msg.HasPayload)
             {
@@ -184,12 +184,12 @@ namespace TradeSystem.CTraderApi
                 case (int) ProtoPayloadType.ERROR_RES:
                     var err = ProtoErrorRes.CreateBuilder().MergeFrom(msg.Payload).Build();
 					OnError?.Invoke(err, msg.ClientMsgId);
-	                Logger.Error($"{_connectionDetails.Description} CTraderClient_OnError", new Exception(err.Description));
+	                Logger.Error($"{_cd?.Description} CTraderClient_OnError", new Exception(err.Description));
 					break;
                 case (int) ProtoOAPayloadType.OA_AUTH_RES:
                     var aut = ProtoOAAuthRes.CreateBuilder().MergeFrom(msg.Payload).Build();
 					OnLogin?.Invoke(aut);
-	                Logger.Debug($"{_connectionDetails.Description} CTraderClient_OnLogin");
+	                Logger.Debug($"{_cd?.Description} CTraderClient_OnLogin");
 					break;
             }
         }
@@ -221,7 +221,7 @@ namespace TradeSystem.CTraderApi
         {
             var msg = _outMsgFactory.CreateAuthorizationRequest(clientId, secret);
             if (Debug)
-                Logger.Debug($"SendAuthorizationRequest() Message to be send:\n{MessagesPresentation.ToString(msg)}");
+                Logger.Debug($"{_cd?.Description} SendAuthorizationRequest() Message to be send:\n{MessagesPresentation.ToString(msg)}");
             _writeQueue.Enqueue(msg.ToByteArray());
         }
 
@@ -231,7 +231,7 @@ namespace TradeSystem.CTraderApi
         {
             var msg = _outMsgFactory.CreateSubscribeForSpotsRequest(accountId, accessToken, symbol, comment);
             if (Debug)
-                Logger.Debug($"SendSubscribeForSpotsRequest() Message to be send:\n{MessagesPresentation.ToString(msg)}");
+                Logger.Debug($"{_cd?.Description} SendSubscribeForSpotsRequest() Message to be send:\n{MessagesPresentation.ToString(msg)}");
             _writeQueue.Enqueue(msg.ToByteArray());
         }
 
@@ -241,7 +241,7 @@ namespace TradeSystem.CTraderApi
             var msg = _outMsgFactory.CreateSubscribeForTradingEventsRequest(accountId, accessToken);
             if (Debug)
                 Logger.Debug(
-                    $"SendSubscribeForTradingEventsRequest() Message to be send:\n{MessagesPresentation.ToString(msg)}");
+                    $"{_cd?.Description} SendSubscribeForTradingEventsRequest() Message to be send:\n{MessagesPresentation.ToString(msg)}");
             _writeQueue.Enqueue(msg.ToByteArray());
         }
 
@@ -251,7 +251,7 @@ namespace TradeSystem.CTraderApi
             var msg = _outMsgFactory.CreateUnsubscribeForTradingEventsRequest(accountId);
             if (Debug)
                 Logger.Debug(
-                    $"SendUnsubscribeForTradingEventsRequest() Message to be send:\n{MessagesPresentation.ToString(msg)}");
+                    $"{_cd?.Description} SendUnsubscribeForTradingEventsRequest() Message to be send:\n{MessagesPresentation.ToString(msg)}");
             _writeQueue.Enqueue(msg.ToByteArray());
         }
 
@@ -261,7 +261,7 @@ namespace TradeSystem.CTraderApi
         {
             var msg = _outMsgFactory.CreateMarketOrderRequest(accountId, accessToken, symbol, type, volume, clientMsgId);
             if (Debug)
-                Logger.Debug($"SendMarketOrderRequest() Message to be send:\n{MessagesPresentation.ToString(msg)}");
+                Logger.Debug($"{_cd?.Description} SendMarketOrderRequest() Message to be send:\n{MessagesPresentation.ToString(msg)}");
             _writeQueue.Enqueue(msg.ToByteArray());
         }
 
@@ -273,7 +273,7 @@ namespace TradeSystem.CTraderApi
             var msg = _outMsgFactory.CreateMarketRangeOrderRequest(accountId, accessToken, symbol, type, volume, price,
                 range, clientMsgId);
             if (Debug)
-                Logger.Debug($"SendMarketRangeOrderRequest() Message to be send:\n{MessagesPresentation.ToString(msg)}");
+                Logger.Debug($"{_cd?.Description} SendMarketRangeOrderRequest() Message to be send:\n{MessagesPresentation.ToString(msg)}");
             _writeQueue.Enqueue(msg.ToByteArray());
         }
 
@@ -285,7 +285,7 @@ namespace TradeSystem.CTraderApi
             var msg = _outMsgFactory.CreateLimitOrderRequest(accountId, accessToken, symbol, type, volume, price,
                 clientMsgId);
             if (Debug)
-                Logger.Debug($"SendLimitOrderRequest() Message to be send:\n{MessagesPresentation.ToString(msg)}");
+                Logger.Debug($"{_cd?.Description} SendLimitOrderRequest() Message to be send:\n{MessagesPresentation.ToString(msg)}");
             _writeQueue.Enqueue(msg.ToByteArray());
         }
 
@@ -297,7 +297,7 @@ namespace TradeSystem.CTraderApi
             var msg = _outMsgFactory.CreateStopOrderRequest(accountId, accessToken, symbol, type, volume, price,
                 clientMsgId);
             if (Debug)
-                Logger.Debug($"SendStopOrderRequest() Message to be send:\n{MessagesPresentation.ToString(msg)}");
+                Logger.Debug($"{_cd?.Description} SendStopOrderRequest() Message to be send:\n{MessagesPresentation.ToString(msg)}");
             _writeQueue.Enqueue(msg.ToByteArray());
         }
 
@@ -307,7 +307,7 @@ namespace TradeSystem.CTraderApi
         {
             var msg = _outMsgFactory.CreateClosePositionRequest(accountId, accessToken, position, volume, clientMsgId);
             if (Debug)
-                Logger.Debug($"SendClosePositionRequest() Message to be send:\n{MessagesPresentation.ToString(msg)}");
+                Logger.Debug($"{_cd?.Description} SendClosePositionRequest() Message to be send:\n{MessagesPresentation.ToString(msg)}");
             _writeQueue.Enqueue(msg.ToByteArray());
         }
 
@@ -315,9 +315,9 @@ namespace TradeSystem.CTraderApi
         public void SendHearthbeatRequest(string clientMsgId = null)
         {
             var msg = _outMsgFactory.CreateHeartbeatEvent(clientMsgId);
-            if (Debug)
-                Logger.Debug($"SendHearthbeatRequest() Message to be send:\n{MessagesPresentation.ToString(msg)}");
-            _writeQueue.Enqueue(msg.ToByteArray());
+			//if (Debug)
+			//    Logger.Debug($"{_cd?.Description} SendHearthbeatRequest() Message to be send:\n{MessagesPresentation.ToString(msg)}");
+			_writeQueue.Enqueue(msg.ToByteArray());
         }
 //-------------------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------------------
@@ -326,14 +326,14 @@ namespace TradeSystem.CTraderApi
             SslPolicyErrors sslPolicyErrors)
         {
             if (sslPolicyErrors == SslPolicyErrors.None) return true;
-            if (Debug) Logger.Error($"Certificate error: {sslPolicyErrors}");
+            if (Debug) Logger.Error($"{_cd?.Description} Certificate error: {sslPolicyErrors}");
             return false;
         }
 
 //-------------------------------------------------------------------------------------------------
         public bool Connect(ConnectionDetails cd)
         {
-	        _connectionDetails = cd;
+	        _cd = cd;
 	        _cancellationTokenSource = new CancellationTokenSource();
 			_pingTask = new Task(Ping, _cancellationTokenSource.Token, _cancellationTokenSource.Token,
 				TaskCreationOptions.LongRunning);
@@ -360,7 +360,7 @@ namespace TradeSystem.CTraderApi
 			}
             catch (Exception e)
             {
-                Logger.Error("Establishing SSL connection error: {0}", e);
+                Logger.Error($"{cd.Description} Establishing SSL connection error: {0}", e);
                 return false;
 			}
 	        Logger.Debug($"{cd.Description} cTrader platform connected");
@@ -375,9 +375,9 @@ namespace TradeSystem.CTraderApi
 
 		public void Reconnect()
 		{
-			Logger.Debug($"{_connectionDetails.Description} cTrader platform reconnect...");
+			Logger.Debug($"{_cd.Description} cTrader platform reconnect...");
 			Disconnect();
-			Connect(_connectionDetails);
+			Connect(_cd);
 		}
 
 		//-------------------------------------------------------------------------------------------------

@@ -10,5 +10,6 @@ namespace TradeSystem.Data.Models
         [Required] public string Secret { get; set; }
         [Required] public string Playground { get; set; }
         [Required] public string AccessBaseUrl { get; set; }
-    }
+	    public bool Debug { get; set; }
+	}
 }

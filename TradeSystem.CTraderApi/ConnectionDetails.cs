@@ -12,5 +12,6 @@
 		public string ClientId { get; set; }
 		public string Secret { get; set; }
 		public int Port { get; set; }
+		public bool Debug { get; set; }
 	}
 }

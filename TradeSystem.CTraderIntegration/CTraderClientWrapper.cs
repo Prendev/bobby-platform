@@ -21,7 +21,8 @@ namespace TradeSystem.CTraderIntegration
 		        ClientId = platformInfo.ClientId,
 		        TradingHost = host.Host,
 		        Port = host.Port,
-		        Secret = platformInfo.Secret
+		        Secret = platformInfo.Secret,
+				Debug = platformInfo.Debug
 	        });
         }
     }

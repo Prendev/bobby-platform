@@ -80,7 +80,8 @@ namespace TradeSystem.Orchestration.Services
 						ClientId = account.CTraderAccount.CTraderPlatform.ClientId,
 						TradingHost = account.CTraderAccount.CTraderPlatform.TradingHost,
 						Secret = account.CTraderAccount.CTraderPlatform.Secret,
-						Playground = account.CTraderAccount.CTraderPlatform.Playground
+						Playground = account.CTraderAccount.CTraderPlatform.Playground,
+						Debug = account.CTraderAccount.CTraderPlatform.Debug
 					},
 					new CTraderIntegration.AccountInfo
 					{
