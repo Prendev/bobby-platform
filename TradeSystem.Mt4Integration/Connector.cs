@@ -203,8 +203,6 @@ namespace TradeSystem.Mt4Integration
 		public PositionResponse SendMarketOrderRequest(string symbol, Sides side, double lots, int magicNumber,
 			string comment, int maxRetryCount, int retryPeriodInMs) => SendMarketOrderRequest(symbol, side, lots, 0, 0,
 			magicNumber, comment, maxRetryCount, retryPeriodInMs);
-		public PositionResponse SendMarketOrderRequest(string symbol, Sides side, double lots, int magicNumber,
-			string comment) => SendMarketOrderRequest(symbol, side, lots, 0, 0, magicNumber, comment, 0, 0);
 
 		public PositionResponse SendClosePositionRequests(Position position) => SendClosePositionRequests(position, 0, 0);
 		public PositionResponse SendClosePositionRequests(Position position, int maxRetryCount, int retryPeriodInMs) =>
@@ -215,7 +213,6 @@ namespace TradeSystem.Mt4Integration
 		    if (position.IsClosed) return new PositionResponse {Pos = position};
 			return SendClosePositionRequests(position, maxRetryCount, retryPeriodInMs);
 		}
-
 		private async Task<PositionResponse> SendClosePositionRequestsAsync(Position position, int maxRetryCount,
 			int retryPeriodInMs)
 		{
@@ -231,10 +228,8 @@ namespace TradeSystem.Mt4Integration
 			{
 				if (!pos.IsClosed)
 				{
-					var price = pos.Side == Sides.Buy
-						? QuoteClient.GetQuote(pos.Symbol).Bid
-						: QuoteClient.GetQuote(pos.Symbol).Ask;
-					var closing = _taskCompletionManager.CreateCompletableTask<Position>((int)pos.Id);
+					var price = GetClosePrice(pos.Symbol, pos.Side);
+					var closing = _taskCompletionManager.CreateCompletableTask<Position>((int) pos.Id);
 					OrderClient.OrderCloseAsync(pos.Symbol, (int) pos.Id, (double) (pos.Lots * M(pos.Symbol)), price, 0);
 					pos = await closing;
 				}
@@ -286,6 +281,22 @@ namespace TradeSystem.Mt4Integration
 			if (maxRetryCount <= 0) return new PositionResponse {Pos = pos};
 			Thread.Sleep(retryPeriodInMs);
 			return await SendClosePositionRequestsAsync(pos, --maxRetryCount, retryPeriodInMs);
+		}
+
+		private double GetClosePrice(string symbol, Sides side)
+		{
+			try
+			{
+				var quote = QuoteClient.GetQuote(symbol);
+				if (quote != null) return side == Sides.Buy ? quote.Bid : quote.Ask;
+				if (_lastTicks.TryGetValue(symbol, out var lastTick))
+					return (double) (side == Sides.Buy ? lastTick.Bid : lastTick.Ask);
+				return 0;
+			}
+			catch
+			{
+				return 0;
+			}
 		}
 
 		private Position TryFindPosition(Position oldPos, long ticket)
@@ -365,27 +376,31 @@ namespace TradeSystem.Mt4Integration
         {
 			OnConnectionChanged(ConnectionStates.Error);
             Logger.Error($"{_accountInfo.Description} account ({_accountInfo.User}) disconnected", args.Exception);
-            while (!IsConnected)
+	        if (!_emailService.IsRolloverTime())
+			{
+				_emailService.Send("ALERT - account disconnected",
+					$"{_accountInfo.Description}" + Environment.NewLine +
+					$"{args.Exception}");
+			}
+			while (!IsConnected)
             {
 	            Connect(_accountInfo, _destinationSetter);
-	            if (IsConnected) return;
-	            Thread.Sleep(new TimeSpan(0, 1, 0));
+	            if (IsConnected)
+				{
+					_taskCompletionManager.RemoveAll(t => true, new System.TimeoutException());
+					return;
+	            }
+				Thread.Sleep(new TimeSpan(0, 1, 0));
 			}
-	        OnConnectionChanged(IsConnected ? ConnectionStates.Connected : ConnectionStates.Error);
-
-	        if (_emailService.IsRolloverTime()) return;
-	        _emailService.Send("ALERT - account disconnected",
-		        $"{_accountInfo.Description}" + Environment.NewLine +
-		        $"{args.Exception}");
 		}
 
         private void QuoteClient_OnOrderUpdate(object sender, OrderUpdateEventArgs update)
-		{
+        {
 			var o = update.Order;
 			if (!new[] {UpdateAction.PositionOpen, UpdateAction.PositionClose, UpdateAction.PendingFill}.Contains(update.Action)) return;
 	        if (!new[] {Op.Buy, Op.Sell}.Contains(o.Type)) return;
 	        var position = UpdatePosition(o);
-			_taskCompletionManager.SetResult(o.Ticket, position);
+	        _taskCompletionManager.SetResult(o.Ticket, position);
 
 			OnNewPosition(new NewPosition
             {
