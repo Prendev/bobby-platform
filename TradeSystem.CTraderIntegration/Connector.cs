@@ -96,11 +96,14 @@ namespace TradeSystem.CTraderIntegration
         {
             if (!IsConnected)
             {
-                Logger.Error($"{_accountInfo.Description} account ({_accountInfo.AccountNumber}) FAILED to connect");
+				if (_cTraderClientWrapper?.IsConnected != true)
+					Logger.Error($"{_accountInfo.Description} account ({_accountInfo.AccountNumber}) FAILED to connect, CTraderClient is not connected");
+	            if (AccountId <= 0)
+		            Logger.Error($"{_accountInfo.Description} account ({_accountInfo.AccountNumber}) FAILED to connect, could not acquire AccountId");
 				OnConnectionChanged(ConnectionStates.Error);
                 return;
             }
-            Logger.Debug($"{_accountInfo.Description} account ({_accountInfo.AccountNumber}) connected");
+            Logger.Debug($"{_accountInfo.Description} account ({_accountInfo.AccountNumber}) connected with AccountId: {AccountId}");
 
 	        lock (_cTraderClientWrapper.CTraderClient)
 	        {

@@ -14,6 +14,7 @@ namespace TradeSystem.CTraderApi
     {
         private const int MaxSiz = 1000000;
 
+		private readonly TaskCompletionManager<string> _taskCompletionManager = new TaskCompletionManager<string>(100, 60000);
         private readonly MessagesFactory _inMsgFactory = new MessagesFactory();
         private readonly MessagesFactory _outMsgFactory = new MessagesFactory();
 
@@ -184,10 +185,14 @@ namespace TradeSystem.CTraderApi
                 case (int) ProtoPayloadType.ERROR_RES:
                     var err = ProtoErrorRes.CreateBuilder().MergeFrom(msg.Payload).Build();
 					OnError?.Invoke(err, msg.ClientMsgId);
-	                Logger.Error($"{_cd?.Description} CTraderClient_OnError", new Exception(err.Description));
+	                if (err.Description?.StartsWith("Session is not subscribed for events") == true ||
+	                    err.Description?.Contains("is already subscribed for instrument") == true)
+		                Logger.Warn($"{_cd?.Description} CTraderClient_OnError", new Exception(err.Description));
+	                else Logger.Error($"{_cd?.Description} CTraderClient_OnError", new Exception(err.Description));
 					break;
                 case (int) ProtoOAPayloadType.OA_AUTH_RES:
-                    var aut = ProtoOAAuthRes.CreateBuilder().MergeFrom(msg.Payload).Build();
+	                _taskCompletionManager.SetCompleted("Authorization");
+					var aut = ProtoOAAuthRes.CreateBuilder().MergeFrom(msg.Payload).Build();
 					OnLogin?.Invoke(aut);
 	                Logger.Debug($"{_cd?.Description} CTraderClient_OnLogin");
 					break;
@@ -356,8 +361,10 @@ namespace TradeSystem.CTraderApi
                 _inputTask.Start();
                 _outputTask.Start();
 
-	            SendAuthorizationRequest(cd.ClientId, cd.Secret);
-			}
+	            var authTask = _taskCompletionManager.CreateCompletableTask("Authorization");
+				SendAuthorizationRequest(cd.ClientId, cd.Secret);
+	            authTask.Wait();
+            }
             catch (Exception e)
             {
                 Logger.Error($"{cd.Description} Establishing SSL connection error: {0}", e);
