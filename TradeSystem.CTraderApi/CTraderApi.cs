@@ -183,12 +183,14 @@ namespace TradeSystem.CTraderApi
                     break;
                 case (int) ProtoPayloadType.ERROR_RES:
                     var err = ProtoErrorRes.CreateBuilder().MergeFrom(msg.Payload).Build();
-                    OnError?.Invoke(err, msg.ClientMsgId);
-                    break;
+					OnError?.Invoke(err, msg.ClientMsgId);
+	                Logger.Error($"{_connectionDetails.Description} CTraderClient_OnError", new Exception(err.Description));
+					break;
                 case (int) ProtoOAPayloadType.OA_AUTH_RES:
                     var aut = ProtoOAAuthRes.CreateBuilder().MergeFrom(msg.Payload).Build();
-                    OnLogin?.Invoke(aut);
-                    break;
+					OnLogin?.Invoke(aut);
+	                Logger.Debug($"{_connectionDetails.Description} CTraderClient_OnLogin");
+					break;
             }
         }
 

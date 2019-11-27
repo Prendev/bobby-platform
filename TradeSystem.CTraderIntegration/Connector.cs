@@ -15,7 +15,6 @@ namespace TradeSystem.CTraderIntegration
 		private readonly ITradingAccountsService _tradingAccountsService;
         private readonly CTraderClientWrapper _cTraderClientWrapper;
         private readonly AccountInfo _accountInfo;
-        private long AccountId => _accountInfo?.AccountId ?? 0;
 
         /// <summary>
         /// The key is access token
@@ -26,6 +25,7 @@ namespace TradeSystem.CTraderIntegration
 		private readonly ConcurrentDictionary<string, Tick> _lastTicks =
 			new ConcurrentDictionary<string, Tick>();
 
+		public long AccountId => _accountInfo?.AccountId ?? 0;
 		public override int Id => _accountInfo?.DbId ?? 0;
 		public override string Description => _accountInfo?.Description;
 		public override bool IsConnected => _cTraderClientWrapper?.IsConnected == true && AccountId > 0;
@@ -48,7 +48,8 @@ namespace TradeSystem.CTraderIntegration
 			_cTraderClientWrapper.CTraderClient.OnTick -= CTraderClient_OnTick;
 			_cTraderClientWrapper.CTraderClient.OnPosition -= CTraderClient_OnPosition;
             _cTraderClientWrapper.CTraderClient.OnError -= CTraderClient_OnError;
-            _cTraderClientWrapper.CTraderClient.SendUnsubscribeForTradingEventsRequest(AccountId);
+			_cTraderClientWrapper.CTraderClient.OnOrder -= CTraderClient_OnOrder;
+			_cTraderClientWrapper.CTraderClient.SendUnsubscribeForTradingEventsRequest(AccountId);
 			OnConnectionChanged(ConnectionStates.Disconnected);
 		}
 
@@ -110,11 +111,13 @@ namespace TradeSystem.CTraderIntegration
 	        _cTraderClientWrapper.CTraderClient.OnTick -= CTraderClient_OnTick;
 			_cTraderClientWrapper.CTraderClient.OnPosition -= CTraderClient_OnPosition;
             _cTraderClientWrapper.CTraderClient.OnError -= CTraderClient_OnError;
-	        _cTraderClientWrapper.CTraderClient.OnTick += CTraderClient_OnTick;
+	        _cTraderClientWrapper.CTraderClient.OnOrder -= CTraderClient_OnOrder;
+			_cTraderClientWrapper.CTraderClient.OnTick += CTraderClient_OnTick;
 			_cTraderClientWrapper.CTraderClient.OnPosition += CTraderClient_OnPosition;
             _cTraderClientWrapper.CTraderClient.OnError += CTraderClient_OnError;
+			_cTraderClientWrapper.CTraderClient.OnOrder += CTraderClient_OnOrder;
 
-            var positions = _tradingAccountsService.GetPositionsAsync(new AccountRequest
+			var positions = _tradingAccountsService.GetPositionsAsync(new AccountRequest
             {
                 AccessToken = _accountInfo.AccessToken,
                 BaseUrl = _cTraderClientWrapper.PlatformInfo.AccountsApi,
@@ -174,13 +177,13 @@ namespace TradeSystem.CTraderIntegration
 				var startTime = HiResDatetime.UtcNow;
 				try
 				{
-				var task = _taskCompletionManager.CreateCompletableTask<Position>(clientMsgId);
+					var task = _taskCompletionManager.CreateCompletableTask<Position>(clientMsgId);
 
 					lock (_cTraderClientWrapper.CTraderClient)
 					{
 						if (price.HasValue)
 							_cTraderClientWrapper.CTraderClient.SendMarketRangeOrderRequest(_accountInfo.AccessToken, AccountId,
-								symbol, type, volume - retValue.Pos.Volume, (double)price, slippageInPips, clientMsgId);
+								symbol, type, volume - retValue.Pos.Volume, (double) price, slippageInPips, clientMsgId);
 						else
 							_cTraderClientWrapper.CTraderClient.SendMarketOrderRequest(_accountInfo.AccessToken, AccountId, symbol,
 								type, volume - retValue.Pos.Volume, clientMsgId);
@@ -207,10 +210,12 @@ namespace TradeSystem.CTraderIntegration
 					if (price.HasValue)
 						Logger.Error(
 							$"{Description} Connector.SendMarketRangeOrderRequest({symbol}, {type}, {volume}, {price}, {slippageInPips})" +
-							$" exception with {(HiResDatetime.UtcNow - startTime).Milliseconds} ms of execution time", e);
+							$" exception with {(HiResDatetime.UtcNow - startTime).Milliseconds} ms of execution time" +
+							$" and with clientMsgId {clientMsgId}", e);
 					else
 						Logger.Error($"{Description} Connector.SendMarketOrderRequest({symbol}, {type}, {volume})" +
-						             $" exception with {(HiResDatetime.UtcNow - startTime).Milliseconds} ms of execution time", e);
+						             $" exception with {(HiResDatetime.UtcNow - startTime).Milliseconds} ms of execution time" +
+						             $" and with clientMsgId {clientMsgId}", e);
 
 					retValue.IsUnfinished = true;
 					return retValue;
@@ -220,10 +225,12 @@ namespace TradeSystem.CTraderIntegration
 					if (price.HasValue)
 						Logger.Error(
 							$"{Description} Connector.SendMarketRangeOrderRequest({symbol}, {type}, {volume}, {price}, {slippageInPips})" +
-							$" exception with {(HiResDatetime.UtcNow - startTime).Milliseconds} ms of execution time", e);
+							$" exception with {(HiResDatetime.UtcNow - startTime).Milliseconds} ms of execution time" +
+							$" and with clientMsgId {clientMsgId}", e);
 					else
 						Logger.Error($"{Description} Connector.SendMarketOrderRequest({symbol}, {type}, {volume})" +
-						             $" exception with {(HiResDatetime.UtcNow - startTime).Milliseconds} ms of execution time", e);
+						             $" exception with {(HiResDatetime.UtcNow - startTime).Milliseconds} ms of execution time" +
+						             $" and with clientMsgId {clientMsgId}", e);
 				}
 
 				// If no more try return or sleep
@@ -299,8 +306,9 @@ namespace TradeSystem.CTraderIntegration
 		}
 
 		private void CTraderClient_OnPosition(ProtoOAPosition p)
-        {
-            if (p.AccountId != AccountId) return;
+		{
+			CtLogger.Log(this, p);
+			if (p.AccountId != AccountId) return;
             if (p.PositionStatus != ProtoOAPositionStatus.OA_POSITION_STATUS_OPEN &&
                 p.PositionStatus != ProtoOAPositionStatus.OA_POSITION_STATUS_CLOSED) return;
 
@@ -343,9 +351,16 @@ namespace TradeSystem.CTraderIntegration
 			});
 		}
 
-        private void CTraderClient_OnError(ProtoErrorRes error, string clientMsgId) => _taskCompletionManager.SetError(clientMsgId, new Exception(error.Description));
+		private void CTraderClient_OnError(ProtoErrorRes error, string clientMsgId)
+		{
+			_taskCompletionManager.SetError(clientMsgId, new Exception(error.Description));
+		}
+		private void CTraderClient_OnOrder(ProtoOAOrder order, string clientMsgId)
+		{
+			CtLogger.Log(this, order, clientMsgId);
+		}
 
-        public static DateTime CTraderTimestampToDatetime(long timestamp)
+		public static DateTime CTraderTimestampToDatetime(long timestamp)
         {
             // Java timestamp is milliseconds past epoch
             var dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);

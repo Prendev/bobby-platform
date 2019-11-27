@@ -91,6 +91,7 @@
     <Compile Include="AccountInfo.cs" />
     <Compile Include="Connector.cs" />
     <Compile Include="CtConnectorFactory.cs" />
+    <Compile Include="CtLogger.cs" />
     <Compile Include="CTraderClientWrapper.cs" />
     <Compile Include="Dto\AccountRequest.cs" />
     <Compile Include="Dto\BaseRequest.cs" />

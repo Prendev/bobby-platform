@@ -44,14 +44,18 @@ namespace TradeSystem.Duplicat
 			    {
 				    "TradeSystem.Communication",
 				    @"TradeSystem.Orchestration\Services\CopyLogger",
-				    @"TradeSystem.FixApiIntegration\FillLogger"
-			    });
+				    @"TradeSystem.FixApiIntegration\FillLogger",
+					@"TradeSystem.CTraderApi\CTraderApi",
+				    @"TradeSystem.CTraderIntegration\CtLogger"
+				});
 		    Logger.AddLogger(new LogAdapter(LogManager.GetLogger("FIX")),
 			    filePathInclude: new[] { "TradeSystem.Communication" });
 		    Logger.AddLogger(new LogAdapter(LogManager.GetLogger("FIX copy")),
 			    filePathInclude: new[] { @"TradeSystem.Orchestration\Services\CopyLogger" });
 			Logger.AddLogger(new LogAdapter(LogManager.GetLogger("FIX orders")),
 				filePathInclude: new[] { @"TradeSystem.FixApiIntegration\FillLogger" });
+		    Logger.AddLogger(new LogAdapter(LogManager.GetLogger("CT")),
+			    filePathInclude: new[] { @"TradeSystem.CTraderIntegration\CtLogger", @"TradeSystem.CTraderApi\CTraderApi" });
 		}
 
         private static void RegisterApp(ContainerBuilder builder)

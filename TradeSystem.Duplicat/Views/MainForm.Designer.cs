@@ -59,6 +59,8 @@
 			this.marketMakerUserControl1 = new TradeSystem.Duplicat.Views.MarketMakerUserControl();
 			this.tabPageLatencyArb = new System.Windows.Forms.TabPage();
 			this.latencyArbUserControl1 = new TradeSystem.Duplicat.Views.LatencyArbUserControl();
+			this.tabPageNewsArb = new System.Windows.Forms.TabPage();
+			this.newsArbUserControl1 = new TradeSystem.Duplicat.Views.NewsArbUserControl();
 			this.tabPageLiveData = new System.Windows.Forms.TabPage();
 			this.tabControl2 = new System.Windows.Forms.TabControl();
 			this.tabPageTicker = new System.Windows.Forms.TabPage();
@@ -87,8 +89,8 @@
 			this.btnDisconnect = new System.Windows.Forms.Button();
 			this.btnConnect = new System.Windows.Forms.Button();
 			this.btnSave = new System.Windows.Forms.Button();
-			this.tabPageNewsArb = new System.Windows.Forms.TabPage();
-			this.newsArbUserControl1 = new TradeSystem.Duplicat.Views.NewsArbUserControl();
+			this.tabPage6 = new System.Windows.Forms.TabPage();
+			this.rtbCTrader = new System.Windows.Forms.RichTextBox();
 			this.tabControlMain.SuspendLayout();
 			this.tabPageProfile.SuspendLayout();
 			this.tabPageAccount.SuspendLayout();
@@ -107,6 +109,7 @@
 			this.tabPageHubArb.SuspendLayout();
 			this.tabPageMarketMaker.SuspendLayout();
 			this.tabPageLatencyArb.SuspendLayout();
+			this.tabPageNewsArb.SuspendLayout();
 			this.tabPageLiveData.SuspendLayout();
 			this.tabControl2.SuspendLayout();
 			this.tabPageTicker.SuspendLayout();
@@ -121,7 +124,7 @@
 			this.tlpMain.SuspendLayout();
 			this.gbControl.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.nudAutoSave)).BeginInit();
-			this.tabPageNewsArb.SuspendLayout();
+			this.tabPage6.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// tabControlMain
@@ -439,6 +442,24 @@
 			this.latencyArbUserControl1.Size = new System.Drawing.Size(1471, 698);
 			this.latencyArbUserControl1.TabIndex = 0;
 			// 
+			// tabPageNewsArb
+			// 
+			this.tabPageNewsArb.Controls.Add(this.newsArbUserControl1);
+			this.tabPageNewsArb.Location = new System.Drawing.Point(4, 25);
+			this.tabPageNewsArb.Name = "tabPageNewsArb";
+			this.tabPageNewsArb.Size = new System.Drawing.Size(1471, 698);
+			this.tabPageNewsArb.TabIndex = 7;
+			this.tabPageNewsArb.Text = "News arb";
+			this.tabPageNewsArb.UseVisualStyleBackColor = true;
+			// 
+			// newsArbUserControl1
+			// 
+			this.newsArbUserControl1.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.newsArbUserControl1.Location = new System.Drawing.Point(0, 0);
+			this.newsArbUserControl1.Name = "newsArbUserControl1";
+			this.newsArbUserControl1.Size = new System.Drawing.Size(1471, 698);
+			this.newsArbUserControl1.TabIndex = 0;
+			// 
 			// tabPageLiveData
 			// 
 			this.tabPageLiveData.Controls.Add(this.tabControl2);
@@ -516,6 +537,7 @@
 			this.tabControl1.Controls.Add(this.tabPage2);
 			this.tabControl1.Controls.Add(this.tabPage5);
 			this.tabControl1.Controls.Add(this.tabPage4);
+			this.tabControl1.Controls.Add(this.tabPage6);
 			this.tabControl1.Controls.Add(this.tabPage3);
 			this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.tabControl1.Location = new System.Drawing.Point(4, 4);
@@ -763,23 +785,27 @@
 			this.btnSave.Text = "Save config changes";
 			this.btnSave.UseVisualStyleBackColor = true;
 			// 
-			// tabPageNewsArb
+			// tabPage6
 			// 
-			this.tabPageNewsArb.Controls.Add(this.newsArbUserControl1);
-			this.tabPageNewsArb.Location = new System.Drawing.Point(4, 25);
-			this.tabPageNewsArb.Name = "tabPageNewsArb";
-			this.tabPageNewsArb.Size = new System.Drawing.Size(1471, 698);
-			this.tabPageNewsArb.TabIndex = 7;
-			this.tabPageNewsArb.Text = "News arb";
-			this.tabPageNewsArb.UseVisualStyleBackColor = true;
+			this.tabPage6.Controls.Add(this.rtbCTrader);
+			this.tabPage6.Location = new System.Drawing.Point(4, 25);
+			this.tabPage6.Name = "tabPage6";
+			this.tabPage6.Size = new System.Drawing.Size(1469, 696);
+			this.tabPage6.TabIndex = 6;
+			this.tabPage6.Text = "CTrader";
+			this.tabPage6.UseVisualStyleBackColor = true;
 			// 
-			// newsArbUserControl1
+			// rtbCTrader
 			// 
-			this.newsArbUserControl1.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.newsArbUserControl1.Location = new System.Drawing.Point(0, 0);
-			this.newsArbUserControl1.Name = "newsArbUserControl1";
-			this.newsArbUserControl1.Size = new System.Drawing.Size(1471, 698);
-			this.newsArbUserControl1.TabIndex = 0;
+			this.rtbCTrader.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.rtbCTrader.Location = new System.Drawing.Point(0, 0);
+			this.rtbCTrader.Name = "rtbCTrader";
+			this.rtbCTrader.ReadOnly = true;
+			this.rtbCTrader.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Vertical;
+			this.rtbCTrader.Size = new System.Drawing.Size(1469, 696);
+			this.rtbCTrader.TabIndex = 3;
+			this.rtbCTrader.Text = "";
+			this.rtbCTrader.WordWrap = false;
 			// 
 			// MainForm
 			// 
@@ -808,6 +834,7 @@
 			this.tabPageHubArb.ResumeLayout(false);
 			this.tabPageMarketMaker.ResumeLayout(false);
 			this.tabPageLatencyArb.ResumeLayout(false);
+			this.tabPageNewsArb.ResumeLayout(false);
 			this.tabPageLiveData.ResumeLayout(false);
 			this.tabControl2.ResumeLayout(false);
 			this.tabPageTicker.ResumeLayout(false);
@@ -823,7 +850,7 @@
 			this.gbControl.ResumeLayout(false);
 			this.gbControl.PerformLayout();
 			((System.ComponentModel.ISupportInitialize)(this.nudAutoSave)).EndInit();
-			this.tabPageNewsArb.ResumeLayout(false);
+			this.tabPage6.ResumeLayout(false);
 			this.ResumeLayout(false);
 
         }
@@ -899,6 +926,8 @@
 		private System.Windows.Forms.NumericUpDown nudAutoSave;
 		private System.Windows.Forms.TabPage tabPageNewsArb;
 		private NewsArbUserControl newsArbUserControl1;
+		private System.Windows.Forms.TabPage tabPage6;
+		private System.Windows.Forms.RichTextBox rtbCTrader;
 	}
 }
 
