@@ -155,8 +155,8 @@ namespace TradeSystem.CTraderApi
         {
             var msg = _inMsgFactory.GetMessage(rawData);
 
-            if (Debug)
-                Logger.Debug($"{_cd?.Description} ProcessIncomingDataStream() Message received:\n{MessagesPresentation.ToString(msg)}");
+            if (Debug && msg.PayloadType != (int)ProtoOAPayloadType.OA_SPOT_EVENT)
+                Logger.Debug($"{_cd?.Description} ProcessIncomingDataStream() Message received:\n {MessagesPresentation.ToString(msg)}");
 
             if (_cancellationTokenSource.Token.IsCancellationRequested || !msg.HasPayload)
             {
