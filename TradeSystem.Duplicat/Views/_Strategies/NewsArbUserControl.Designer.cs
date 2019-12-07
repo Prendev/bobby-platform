@@ -36,6 +36,7 @@
 			this.gbNewsArb = new System.Windows.Forms.GroupBox();
 			this.groupBox1 = new System.Windows.Forms.GroupBox();
 			this.dgvStatistics = new TradeSystem.Duplicat.Views.CustomDataGridView();
+			this.label1 = new System.Windows.Forms.Label();
 			((System.ComponentModel.ISupportInitialize)(this.dgvNewsArb)).BeginInit();
 			this.gbControl.SuspendLayout();
 			this.tableLayoutPanel1.SuspendLayout();
@@ -53,11 +54,13 @@
 			this.dgvNewsArb.MultiSelect = false;
 			this.dgvNewsArb.Name = "dgvNewsArb";
 			this.dgvNewsArb.RowTemplate.Height = 24;
+			this.dgvNewsArb.ShowCellToolTips = false;
 			this.dgvNewsArb.Size = new System.Drawing.Size(859, 390);
 			this.dgvNewsArb.TabIndex = 0;
 			// 
 			// gbControl
 			// 
+			this.gbControl.Controls.Add(this.label1);
 			this.gbControl.Controls.Add(this.btnStop);
 			this.gbControl.Controls.Add(this.btnStart);
 			this.gbControl.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -139,8 +142,18 @@
 			this.dgvStatistics.Name = "dgvStatistics";
 			this.dgvStatistics.ReadOnly = true;
 			this.dgvStatistics.RowTemplate.Height = 24;
+			this.dgvStatistics.ShowCellToolTips = false;
 			this.dgvStatistics.Size = new System.Drawing.Size(859, 137);
 			this.dgvStatistics.TabIndex = 0;
+			// 
+			// label1
+			// 
+			this.label1.AutoSize = true;
+			this.label1.Location = new System.Drawing.Point(422, 28);
+			this.label1.Name = "label1";
+			this.label1.Size = new System.Drawing.Size(442, 17);
+			this.label1.TabIndex = 30;
+			this.label1.Text = "Symbol formats: Group1, Group2 or MRRMGroup_1, MRRMGroup_2";
 			// 
 			// NewsArbUserControl
 			// 
@@ -151,6 +164,7 @@
 			this.Size = new System.Drawing.Size(871, 645);
 			((System.ComponentModel.ISupportInitialize)(this.dgvNewsArb)).EndInit();
 			this.gbControl.ResumeLayout(false);
+			this.gbControl.PerformLayout();
 			this.tableLayoutPanel1.ResumeLayout(false);
 			this.gbNewsArb.ResumeLayout(false);
 			this.groupBox1.ResumeLayout(false);
@@ -169,5 +183,6 @@
 		private System.Windows.Forms.GroupBox gbNewsArb;
 		private System.Windows.Forms.GroupBox groupBox1;
 		private CustomDataGridView dgvStatistics;
+		private System.Windows.Forms.Label label1;
 	}
 }
