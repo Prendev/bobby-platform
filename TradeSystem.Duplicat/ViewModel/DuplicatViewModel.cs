@@ -18,10 +18,12 @@ namespace TradeSystem.Duplicat.ViewModel
 		public enum PushingStates
 		{
 			NotRunning,
+			LatencyOpening,
 			AfterOpeningBeta,
 			AfterOpeningPull,
 			AfterOpeningAlpha,
 			BeforeClosing,
+			LatencyClosing,
 			AfterClosingFirst,
 			AfterClosingPull,
 			AfterOpeningHedge,

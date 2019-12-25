@@ -46,8 +46,6 @@
 			this.btnRushHedge = new System.Windows.Forms.Button();
 			this.label3 = new System.Windows.Forms.Label();
 			this.btnRushOpen = new System.Windows.Forms.Button();
-			this.label2 = new System.Windows.Forms.Label();
-			this.label1 = new System.Windows.Forms.Label();
 			this.cbHedge = new System.Windows.Forms.CheckBox();
 			this.btnCloseShortBuyFutures = new System.Windows.Forms.Button();
 			this.btnCloseLongSellFutures = new System.Windows.Forms.Button();
@@ -63,6 +61,16 @@
 			this.btnBuyFutures = new System.Windows.Forms.Button();
 			this.btnStopCopiers = new System.Windows.Forms.Button();
 			this.btnStartCopiers = new System.Windows.Forms.Button();
+			this.label10 = new System.Windows.Forms.Label();
+			this.btnStartLatencyOpen = new System.Windows.Forms.Button();
+			this.btnStopLatencyOpen = new System.Windows.Forms.Button();
+			this.btnStopLatencyClose = new System.Windows.Forms.Button();
+			this.label1 = new System.Windows.Forms.Label();
+			this.btnStartLatencyClose = new System.Windows.Forms.Button();
+			this.cbBuyBeta = new System.Windows.Forms.CheckBox();
+			this.cbSellBeta = new System.Windows.Forms.CheckBox();
+			this.cbCloseLongSellFutures = new System.Windows.Forms.CheckBox();
+			this.cbCloseShortBuyFutures = new System.Windows.Forms.CheckBox();
 			this.tlpMain.SuspendLayout();
 			this.gbFlow.SuspendLayout();
 			this.groupBox2.SuspendLayout();
@@ -95,6 +103,16 @@
 			// 
 			// gbFlow
 			// 
+			this.gbFlow.Controls.Add(this.cbCloseLongSellFutures);
+			this.gbFlow.Controls.Add(this.cbCloseShortBuyFutures);
+			this.gbFlow.Controls.Add(this.cbSellBeta);
+			this.gbFlow.Controls.Add(this.cbBuyBeta);
+			this.gbFlow.Controls.Add(this.btnStopLatencyClose);
+			this.gbFlow.Controls.Add(this.label1);
+			this.gbFlow.Controls.Add(this.btnStartLatencyClose);
+			this.gbFlow.Controls.Add(this.btnStopLatencyOpen);
+			this.gbFlow.Controls.Add(this.label10);
+			this.gbFlow.Controls.Add(this.btnStartLatencyOpen);
 			this.gbFlow.Controls.Add(this.btnSubscribeFeed);
 			this.gbFlow.Controls.Add(this.label9);
 			this.gbFlow.Controls.Add(this.btnRushClosePull);
@@ -111,8 +129,6 @@
 			this.gbFlow.Controls.Add(this.btnRushHedge);
 			this.gbFlow.Controls.Add(this.label3);
 			this.gbFlow.Controls.Add(this.btnRushOpen);
-			this.gbFlow.Controls.Add(this.label2);
-			this.gbFlow.Controls.Add(this.label1);
 			this.gbFlow.Controls.Add(this.cbHedge);
 			this.gbFlow.Controls.Add(this.btnCloseShortBuyFutures);
 			this.gbFlow.Controls.Add(this.btnCloseLongSellFutures);
@@ -140,7 +156,7 @@
 			// label9
 			// 
 			this.label9.AutoSize = true;
-			this.label9.Location = new System.Drawing.Point(213, 275);
+			this.label9.Location = new System.Drawing.Point(442, 276);
 			this.label9.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.label9.Name = "label9";
 			this.label9.Size = new System.Drawing.Size(80, 17);
@@ -149,7 +165,7 @@
 			// 
 			// btnRushClosePull
 			// 
-			this.btnRushClosePull.Location = new System.Drawing.Point(216, 295);
+			this.btnRushClosePull.Location = new System.Drawing.Point(445, 296);
 			this.btnRushClosePull.Margin = new System.Windows.Forms.Padding(4);
 			this.btnRushClosePull.Name = "btnRushClosePull";
 			this.btnRushClosePull.Size = new System.Drawing.Size(200, 135);
@@ -160,7 +176,7 @@
 			// label8
 			// 
 			this.label8.AutoSize = true;
-			this.label8.Location = new System.Drawing.Point(212, 103);
+			this.label8.Location = new System.Drawing.Point(445, 104);
 			this.label8.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.label8.Name = "label8";
 			this.label8.Size = new System.Drawing.Size(88, 17);
@@ -169,7 +185,7 @@
 			// 
 			// btnRushOpenPull
 			// 
-			this.btnRushOpenPull.Location = new System.Drawing.Point(216, 122);
+			this.btnRushOpenPull.Location = new System.Drawing.Point(449, 123);
 			this.btnRushOpenPull.Margin = new System.Windows.Forms.Padding(4);
 			this.btnRushOpenPull.Name = "btnRushOpenPull";
 			this.btnRushOpenPull.Size = new System.Drawing.Size(200, 135);
@@ -179,7 +195,7 @@
 			// 
 			// btnReset
 			// 
-			this.btnReset.Location = new System.Drawing.Point(216, 23);
+			this.btnReset.Location = new System.Drawing.Point(241, 23);
 			this.btnReset.Margin = new System.Windows.Forms.Padding(4);
 			this.btnReset.Name = "btnReset";
 			this.btnReset.Size = new System.Drawing.Size(200, 64);
@@ -190,7 +206,7 @@
 			// label7
 			// 
 			this.label7.AutoSize = true;
-			this.label7.Location = new System.Drawing.Point(424, 55);
+			this.label7.Location = new System.Drawing.Point(449, 55);
 			this.label7.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.label7.Name = "label7";
 			this.label7.Size = new System.Drawing.Size(452, 17);
@@ -200,7 +216,7 @@
 			// label6
 			// 
 			this.label6.AutoSize = true;
-			this.label6.Location = new System.Drawing.Point(424, 39);
+			this.label6.Location = new System.Drawing.Point(449, 39);
 			this.label6.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.label6.Name = "label6";
 			this.label6.Size = new System.Drawing.Size(419, 17);
@@ -210,7 +226,7 @@
 			// label5
 			// 
 			this.label5.AutoSize = true;
-			this.label5.Location = new System.Drawing.Point(424, 23);
+			this.label5.Location = new System.Drawing.Point(449, 23);
 			this.label5.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.label5.Name = "label5";
 			this.label5.Size = new System.Drawing.Size(358, 17);
@@ -219,7 +235,7 @@
 			// 
 			// btnRushClose
 			// 
-			this.btnRushClose.Location = new System.Drawing.Point(632, 295);
+			this.btnRushClose.Location = new System.Drawing.Point(885, 296);
 			this.btnRushClose.Margin = new System.Windows.Forms.Padding(4);
 			this.btnRushClose.Name = "btnRushClose";
 			this.btnRushClose.Size = new System.Drawing.Size(200, 135);
@@ -229,7 +245,7 @@
 			// 
 			// btnRushCloseFinish
 			// 
-			this.btnRushCloseFinish.Location = new System.Drawing.Point(840, 295);
+			this.btnRushCloseFinish.Location = new System.Drawing.Point(1093, 296);
 			this.btnRushCloseFinish.Margin = new System.Windows.Forms.Padding(4);
 			this.btnRushCloseFinish.Name = "btnRushCloseFinish";
 			this.btnRushCloseFinish.Size = new System.Drawing.Size(200, 135);
@@ -239,7 +255,7 @@
 			// 
 			// btnRushOpenFinish
 			// 
-			this.btnRushOpenFinish.Location = new System.Drawing.Point(632, 123);
+			this.btnRushOpenFinish.Location = new System.Drawing.Point(889, 123);
 			this.btnRushOpenFinish.Margin = new System.Windows.Forms.Padding(4);
 			this.btnRushOpenFinish.Name = "btnRushOpenFinish";
 			this.btnRushOpenFinish.Size = new System.Drawing.Size(200, 135);
@@ -250,7 +266,7 @@
 			// label4
 			// 
 			this.label4.AutoSize = true;
-			this.label4.Location = new System.Drawing.Point(424, 275);
+			this.label4.Location = new System.Drawing.Point(677, 276);
 			this.label4.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.label4.Name = "label4";
 			this.label4.Size = new System.Drawing.Size(131, 17);
@@ -259,7 +275,7 @@
 			// 
 			// btnRushHedge
 			// 
-			this.btnRushHedge.Location = new System.Drawing.Point(424, 295);
+			this.btnRushHedge.Location = new System.Drawing.Point(677, 296);
 			this.btnRushHedge.Margin = new System.Windows.Forms.Padding(4);
 			this.btnRushHedge.Name = "btnRushHedge";
 			this.btnRushHedge.Size = new System.Drawing.Size(200, 135);
@@ -270,7 +286,7 @@
 			// label3
 			// 
 			this.label3.AutoSize = true;
-			this.label3.Location = new System.Drawing.Point(421, 103);
+			this.label3.Location = new System.Drawing.Point(678, 103);
 			this.label3.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.label3.Name = "label3";
 			this.label3.Size = new System.Drawing.Size(102, 17);
@@ -279,7 +295,7 @@
 			// 
 			// btnRushOpen
 			// 
-			this.btnRushOpen.Location = new System.Drawing.Point(424, 123);
+			this.btnRushOpen.Location = new System.Drawing.Point(681, 123);
 			this.btnRushOpen.Margin = new System.Windows.Forms.Padding(4);
 			this.btnRushOpen.Name = "btnRushOpen";
 			this.btnRushOpen.Size = new System.Drawing.Size(200, 135);
@@ -287,32 +303,12 @@
 			this.btnRushOpen.Text = "Rush\r\nOpen A side";
 			this.btnRushOpen.UseVisualStyleBackColor = true;
 			// 
-			// label2
-			// 
-			this.label2.AutoSize = true;
-			this.label2.Location = new System.Drawing.Point(4, 275);
-			this.label2.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-			this.label2.Name = "label2";
-			this.label2.Size = new System.Drawing.Size(108, 17);
-			this.label2.TabIndex = 34;
-			this.label2.Text = "Closing first seq";
-			// 
-			// label1
-			// 
-			this.label1.AutoSize = true;
-			this.label1.Location = new System.Drawing.Point(8, 103);
-			this.label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-			this.label1.Name = "label1";
-			this.label1.Size = new System.Drawing.Size(102, 17);
-			this.label1.TabIndex = 33;
-			this.label1.Text = "Opening B seq";
-			// 
 			// cbHedge
 			// 
 			this.cbHedge.AutoSize = true;
 			this.cbHedge.Checked = true;
 			this.cbHedge.CheckState = System.Windows.Forms.CheckState.Checked;
-			this.cbHedge.Location = new System.Drawing.Point(131, 274);
+			this.cbHedge.Location = new System.Drawing.Point(117, 275);
 			this.cbHedge.Margin = new System.Windows.Forms.Padding(4);
 			this.cbHedge.Name = "cbHedge";
 			this.cbHedge.Size = new System.Drawing.Size(72, 21);
@@ -322,7 +318,7 @@
 			// 
 			// btnCloseShortBuyFutures
 			// 
-			this.btnCloseShortBuyFutures.Location = new System.Drawing.Point(8, 295);
+			this.btnCloseShortBuyFutures.Location = new System.Drawing.Point(237, 296);
 			this.btnCloseShortBuyFutures.Margin = new System.Windows.Forms.Padding(4);
 			this.btnCloseShortBuyFutures.Name = "btnCloseShortBuyFutures";
 			this.btnCloseShortBuyFutures.Size = new System.Drawing.Size(200, 64);
@@ -332,7 +328,7 @@
 			// 
 			// btnCloseLongSellFutures
 			// 
-			this.btnCloseLongSellFutures.Location = new System.Drawing.Point(8, 366);
+			this.btnCloseLongSellFutures.Location = new System.Drawing.Point(237, 366);
 			this.btnCloseLongSellFutures.Margin = new System.Windows.Forms.Padding(4);
 			this.btnCloseLongSellFutures.Name = "btnCloseLongSellFutures";
 			this.btnCloseLongSellFutures.Size = new System.Drawing.Size(200, 64);
@@ -342,7 +338,7 @@
 			// 
 			// btnSellBeta
 			// 
-			this.btnSellBeta.Location = new System.Drawing.Point(8, 194);
+			this.btnSellBeta.Location = new System.Drawing.Point(241, 194);
 			this.btnSellBeta.Margin = new System.Windows.Forms.Padding(4);
 			this.btnSellBeta.Name = "btnSellBeta";
 			this.btnSellBeta.Size = new System.Drawing.Size(200, 64);
@@ -352,7 +348,7 @@
 			// 
 			// btnBuyBeta
 			// 
-			this.btnBuyBeta.Location = new System.Drawing.Point(8, 122);
+			this.btnBuyBeta.Location = new System.Drawing.Point(241, 123);
 			this.btnBuyBeta.Margin = new System.Windows.Forms.Padding(4);
 			this.btnBuyBeta.Name = "btnBuyBeta";
 			this.btnBuyBeta.Size = new System.Drawing.Size(200, 64);
@@ -384,6 +380,7 @@
 			this.dgvPushingDetail.Margin = new System.Windows.Forms.Padding(4);
 			this.dgvPushingDetail.MultiSelect = false;
 			this.dgvPushingDetail.Name = "dgvPushingDetail";
+			this.dgvPushingDetail.ShowCellToolTips = false;
 			this.dgvPushingDetail.Size = new System.Drawing.Size(1226, 92);
 			this.dgvPushingDetail.TabIndex = 0;
 			// 
@@ -409,6 +406,7 @@
 			this.dgvPushings.Margin = new System.Windows.Forms.Padding(4);
 			this.dgvPushings.MultiSelect = false;
 			this.dgvPushings.Name = "dgvPushings";
+			this.dgvPushings.ShowCellToolTips = false;
 			this.dgvPushings.Size = new System.Drawing.Size(1226, 92);
 			this.dgvPushings.TabIndex = 0;
 			// 
@@ -481,6 +479,110 @@
 			this.btnStartCopiers.Text = "Start copiers";
 			this.btnStartCopiers.UseVisualStyleBackColor = true;
 			// 
+			// label10
+			// 
+			this.label10.AutoSize = true;
+			this.label10.Location = new System.Drawing.Point(5, 103);
+			this.label10.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+			this.label10.Name = "label10";
+			this.label10.Size = new System.Drawing.Size(102, 17);
+			this.label10.TabIndex = 53;
+			this.label10.Text = "Opening B seq";
+			// 
+			// btnStartLatencyOpen
+			// 
+			this.btnStartLatencyOpen.Location = new System.Drawing.Point(8, 123);
+			this.btnStartLatencyOpen.Margin = new System.Windows.Forms.Padding(4);
+			this.btnStartLatencyOpen.Name = "btnStartLatencyOpen";
+			this.btnStartLatencyOpen.Size = new System.Drawing.Size(200, 64);
+			this.btnStartLatencyOpen.TabIndex = 52;
+			this.btnStartLatencyOpen.Text = "Start\r\nLatency open";
+			this.btnStartLatencyOpen.UseVisualStyleBackColor = true;
+			// 
+			// btnStopLatencyOpen
+			// 
+			this.btnStopLatencyOpen.Location = new System.Drawing.Point(8, 194);
+			this.btnStopLatencyOpen.Margin = new System.Windows.Forms.Padding(4);
+			this.btnStopLatencyOpen.Name = "btnStopLatencyOpen";
+			this.btnStopLatencyOpen.Size = new System.Drawing.Size(200, 64);
+			this.btnStopLatencyOpen.TabIndex = 54;
+			this.btnStopLatencyOpen.Text = "Stop\r\nLatency open";
+			this.btnStopLatencyOpen.UseVisualStyleBackColor = true;
+			// 
+			// btnStopLatencyClose
+			// 
+			this.btnStopLatencyClose.Location = new System.Drawing.Point(4, 366);
+			this.btnStopLatencyClose.Margin = new System.Windows.Forms.Padding(4);
+			this.btnStopLatencyClose.Name = "btnStopLatencyClose";
+			this.btnStopLatencyClose.Size = new System.Drawing.Size(200, 64);
+			this.btnStopLatencyClose.TabIndex = 57;
+			this.btnStopLatencyClose.Text = "Stop\r\nLatency close";
+			this.btnStopLatencyClose.UseVisualStyleBackColor = true;
+			// 
+			// label1
+			// 
+			this.label1.AutoSize = true;
+			this.label1.Location = new System.Drawing.Point(1, 276);
+			this.label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+			this.label1.Name = "label1";
+			this.label1.Size = new System.Drawing.Size(108, 17);
+			this.label1.TabIndex = 56;
+			this.label1.Text = "Closing first seq";
+			// 
+			// btnStartLatencyClose
+			// 
+			this.btnStartLatencyClose.Location = new System.Drawing.Point(4, 296);
+			this.btnStartLatencyClose.Margin = new System.Windows.Forms.Padding(4);
+			this.btnStartLatencyClose.Name = "btnStartLatencyClose";
+			this.btnStartLatencyClose.Size = new System.Drawing.Size(200, 64);
+			this.btnStartLatencyClose.TabIndex = 55;
+			this.btnStartLatencyClose.Text = "Start\r\nLatency close";
+			this.btnStartLatencyClose.UseVisualStyleBackColor = true;
+			// 
+			// cbBuyBeta
+			// 
+			this.cbBuyBeta.AutoSize = true;
+			this.cbBuyBeta.Checked = true;
+			this.cbBuyBeta.CheckState = System.Windows.Forms.CheckState.Checked;
+			this.cbBuyBeta.Location = new System.Drawing.Point(216, 148);
+			this.cbBuyBeta.Name = "cbBuyBeta";
+			this.cbBuyBeta.Size = new System.Drawing.Size(18, 17);
+			this.cbBuyBeta.TabIndex = 58;
+			this.cbBuyBeta.UseVisualStyleBackColor = true;
+			// 
+			// cbSellBeta
+			// 
+			this.cbSellBeta.AutoSize = true;
+			this.cbSellBeta.Checked = true;
+			this.cbSellBeta.CheckState = System.Windows.Forms.CheckState.Checked;
+			this.cbSellBeta.Location = new System.Drawing.Point(216, 219);
+			this.cbSellBeta.Name = "cbSellBeta";
+			this.cbSellBeta.Size = new System.Drawing.Size(18, 17);
+			this.cbSellBeta.TabIndex = 59;
+			this.cbSellBeta.UseVisualStyleBackColor = true;
+			// 
+			// cbCloseLongSellFutures
+			// 
+			this.cbCloseLongSellFutures.AutoSize = true;
+			this.cbCloseLongSellFutures.Checked = true;
+			this.cbCloseLongSellFutures.CheckState = System.Windows.Forms.CheckState.Checked;
+			this.cbCloseLongSellFutures.Location = new System.Drawing.Point(212, 391);
+			this.cbCloseLongSellFutures.Name = "cbCloseLongSellFutures";
+			this.cbCloseLongSellFutures.Size = new System.Drawing.Size(18, 17);
+			this.cbCloseLongSellFutures.TabIndex = 61;
+			this.cbCloseLongSellFutures.UseVisualStyleBackColor = true;
+			// 
+			// cbCloseShortBuyFutures
+			// 
+			this.cbCloseShortBuyFutures.AutoSize = true;
+			this.cbCloseShortBuyFutures.Checked = true;
+			this.cbCloseShortBuyFutures.CheckState = System.Windows.Forms.CheckState.Checked;
+			this.cbCloseShortBuyFutures.Location = new System.Drawing.Point(212, 321);
+			this.cbCloseShortBuyFutures.Name = "cbCloseShortBuyFutures";
+			this.cbCloseShortBuyFutures.Size = new System.Drawing.Size(18, 17);
+			this.cbCloseShortBuyFutures.TabIndex = 60;
+			this.cbCloseShortBuyFutures.UseVisualStyleBackColor = true;
+			// 
 			// PushingUserControl
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -514,8 +616,6 @@
         private System.Windows.Forms.Button btnRushHedge;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Button btnRushOpen;
-        private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.Label label1;
         private System.Windows.Forms.CheckBox cbHedge;
         private System.Windows.Forms.Button btnCloseShortBuyFutures;
         private System.Windows.Forms.Button btnCloseLongSellFutures;
@@ -539,5 +639,15 @@
 		private System.Windows.Forms.Label label8;
 		private System.Windows.Forms.Button btnRushOpenPull;
 		private System.Windows.Forms.Button btnSubscribeFeed;
+		private System.Windows.Forms.Button btnStopLatencyClose;
+		private System.Windows.Forms.Label label1;
+		private System.Windows.Forms.Button btnStartLatencyClose;
+		private System.Windows.Forms.Button btnStopLatencyOpen;
+		private System.Windows.Forms.Label label10;
+		private System.Windows.Forms.Button btnStartLatencyOpen;
+		private System.Windows.Forms.CheckBox cbCloseLongSellFutures;
+		private System.Windows.Forms.CheckBox cbCloseShortBuyFutures;
+		private System.Windows.Forms.CheckBox cbSellBeta;
+		private System.Windows.Forms.CheckBox cbBuyBeta;
 	}
 }

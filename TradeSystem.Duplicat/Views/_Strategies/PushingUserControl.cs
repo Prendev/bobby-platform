@@ -30,10 +30,14 @@ namespace TradeSystem.Duplicat.Views
 			gbPushings.AddBinding<Pushing, string>("Text", _viewModel, nameof(_viewModel.SelectedPushing),
 				s => $"Pushings (use double-click) - {s?.ToString() ?? "Save before load!!!"}");
 
+	        btnStartLatencyOpen.AddBinding<DuplicatViewModel.PushingStates>("Enabled", _viewModel,
+		        nameof(_viewModel.PushingState), p => p == DuplicatViewModel.PushingStates.NotRunning);
+	        btnStopLatencyOpen.AddBinding<DuplicatViewModel.PushingStates>("Enabled", _viewModel,
+		        nameof(_viewModel.PushingState), p => p == DuplicatViewModel.PushingStates.LatencyOpening);
 			btnBuyBeta.AddBinding<DuplicatViewModel.PushingStates>("Enabled", _viewModel,
-                nameof(_viewModel.PushingState), p => p == DuplicatViewModel.PushingStates.NotRunning);
+                nameof(_viewModel.PushingState), p => p == DuplicatViewModel.PushingStates.NotRunning || p == DuplicatViewModel.PushingStates.LatencyOpening);
             btnSellBeta.AddBinding<DuplicatViewModel.PushingStates>("Enabled", _viewModel,
-                nameof(_viewModel.PushingState), p => p == DuplicatViewModel.PushingStates.NotRunning);
+                nameof(_viewModel.PushingState), p => p == DuplicatViewModel.PushingStates.NotRunning || p == DuplicatViewModel.PushingStates.LatencyOpening);
 	        btnRushOpenPull.AddBinding<DuplicatViewModel.PushingStates>("Enabled", _viewModel,
 		        nameof(_viewModel.PushingState), p => p == DuplicatViewModel.PushingStates.AfterOpeningBeta);
 			btnRushOpen.AddBinding<DuplicatViewModel.PushingStates>("Enabled", _viewModel,
@@ -41,10 +45,14 @@ namespace TradeSystem.Duplicat.Views
 			btnRushOpenFinish.AddBinding<DuplicatViewModel.PushingStates>("Enabled", _viewModel,
 				nameof(_viewModel.PushingState), p => p == DuplicatViewModel.PushingStates.AfterOpeningAlpha);
 
+	        btnStartLatencyClose.AddBinding<DuplicatViewModel.PushingStates>("Enabled", _viewModel,
+		        nameof(_viewModel.PushingState), p => p == DuplicatViewModel.PushingStates.BeforeClosing);
+	        btnStopLatencyClose.AddBinding<DuplicatViewModel.PushingStates>("Enabled", _viewModel,
+		        nameof(_viewModel.PushingState), p => p == DuplicatViewModel.PushingStates.LatencyClosing);
 			btnCloseLongSellFutures.AddBinding<DuplicatViewModel.PushingStates>("Enabled", _viewModel,
-                nameof(_viewModel.PushingState), p => p == DuplicatViewModel.PushingStates.BeforeClosing);
+                nameof(_viewModel.PushingState), p => p == DuplicatViewModel.PushingStates.BeforeClosing || p == DuplicatViewModel.PushingStates.LatencyClosing);
             btnCloseShortBuyFutures.AddBinding<DuplicatViewModel.PushingStates>("Enabled", _viewModel,
-                nameof(_viewModel.PushingState), p => p == DuplicatViewModel.PushingStates.BeforeClosing);
+                nameof(_viewModel.PushingState), p => p == DuplicatViewModel.PushingStates.BeforeClosing || p == DuplicatViewModel.PushingStates.LatencyClosing);
 	        btnRushClosePull.AddBinding<DuplicatViewModel.PushingStates>("Enabled", _viewModel,
 		        nameof(_viewModel.PushingState), p => p == DuplicatViewModel.PushingStates.AfterClosingFirst);
 			btnRushHedge.AddBinding<DuplicatViewModel.PushingStates>("Enabled", _viewModel,
@@ -75,12 +83,17 @@ namespace TradeSystem.Duplicat.Views
 				_viewModel.SendOrderCommand(pushing.FutureAccount, Sides.Sell, pushing.FutureSymbol, nudFuturesContractSize.Value);
 	        };
 
+
+	        btnStartLatencyOpen.Click += (s, e) => { _viewModel.PushingLatencyOpenCommand(dgvPushings.GetSelectedItem<Pushing>()); };
+			btnStopLatencyOpen.Click += (s, e) => { _viewModel.PushingStopLatencyCommand(dgvPushings.GetSelectedItem<Pushing>()); };
 			btnBuyBeta.Click += (s, e) => { _viewModel.PushingOpenCommand(dgvPushings.GetSelectedItem<Pushing>(), Sides.Buy); };
             btnSellBeta.Click += (s, e) => { _viewModel.PushingOpenCommand(dgvPushings.GetSelectedItem<Pushing>(), Sides.Sell); };
 	        btnRushOpenPull.Click += (s, e) => { _viewModel.PushingPanicCommand(dgvPushings.GetSelectedItem<Pushing>()); };
 			btnRushOpen.Click += (s, e) => { _viewModel.PushingPanicCommand(dgvPushings.GetSelectedItem<Pushing>()); };
 			btnRushOpenFinish.Click += (s, e) => { _viewModel.PushingPanicCommand(dgvPushings.GetSelectedItem<Pushing>()); };
 
+			btnStartLatencyClose.Click += (s, e) => { _viewModel.PushingLatencyCloseCommand(dgvPushings.GetSelectedItem<Pushing>()); };
+	        btnStopLatencyClose.Click += (s, e) => { _viewModel.PushingStopLatencyCommand(dgvPushings.GetSelectedItem<Pushing>()); };
 			btnCloseLongSellFutures.Click += (s, e) => { _viewModel.PushingCloseCommand(dgvPushings.GetSelectedItem<Pushing>(), Sides.Buy); };
             btnCloseShortBuyFutures.Click += (s, e) => { _viewModel.PushingCloseCommand(dgvPushings.GetSelectedItem<Pushing>(), Sides.Sell); };
             btnRushClosePull.Click += (s, e) => { _viewModel.PushingPanicCommand(dgvPushings.GetSelectedItem<Pushing>()); };
@@ -101,6 +114,16 @@ namespace TradeSystem.Duplicat.Views
 
 			cbHedge.DataBindings.Clear();
 			cbHedge.AddBinding("Checked", pushing, nameof(pushing.IsHedgeClose));
+
+			cbBuyBeta.DataBindings.Clear();
+			cbBuyBeta.AddBinding("Checked", pushing, nameof(pushing.IsBuyBeta));
+			cbSellBeta.DataBindings.Clear();
+			cbSellBeta.AddBinding("Checked", pushing, nameof(pushing.IsSellBeta));
+
+			cbCloseShortBuyFutures.DataBindings.Clear();
+			cbCloseShortBuyFutures.AddBinding("Checked", pushing, nameof(pushing.IsCloseShortBuyFutures));
+			cbCloseLongSellFutures.DataBindings.Clear();
+			cbCloseLongSellFutures.AddBinding("Checked", pushing, nameof(pushing.IsCloseLongSellFutures));
 
 			//btnSubscribeFeed.DataBindings.Clear();
 			//btnSubscribeFeed.AddBinding<Tick, string>("Text", pushing,

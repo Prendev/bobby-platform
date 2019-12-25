@@ -26,8 +26,29 @@ namespace TradeSystem.Duplicat.ViewModel
 			pushing.FeedAccount.Connector.Subscribe(pushing.FeedSymbol);
 		}
 
+		public void PushingStopLatencyCommand(Pushing pushing) => _orchestrator.LatencyStop(pushing);
+
+		public async void PushingLatencyOpenCommand(Pushing pushing)
+		{
+			PushingState = PushingStates.LatencyOpening;
+			try
+			{
+				var side = await _orchestrator.LatencyStart(pushing);
+				if (PushingState != PushingStates.LatencyOpening) return;
+				if (side == Sides.None) PushingState = PushingStates.NotRunning;
+				else PushingOpenCommand(pushing, side);
+			}
+			catch (Exception e)
+			{
+				if (PushingState != PushingStates.LatencyOpening) return;
+				PushingState = PushingStates.NotRunning;
+				MessageBox.Show(e.Message, "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
+			}
+		}
+
 		public async void PushingOpenCommand(Pushing pushing, Sides firstBetaOpenSide)
 		{
+			PushingStopLatencyCommand(pushing);
 			PushingState = PushingStates.Busy;
 			pushing.BetaOpenSide = firstBetaOpenSide;
 
@@ -67,8 +88,26 @@ namespace TradeSystem.Duplicat.ViewModel
 			PushingState = PushingStates.BeforeClosing;
 		}
 
-        public async void PushingCloseCommand(Pushing pushing, Sides firstCloseSide)
+		public async void PushingLatencyCloseCommand(Pushing pushing)
 		{
+			PushingState = PushingStates.LatencyClosing;
+			try
+			{
+				var side = await _orchestrator.LatencyStart(pushing);
+				if (PushingState != PushingStates.LatencyClosing) return;
+				if (side == Sides.None) PushingState = PushingStates.BeforeClosing;
+				else PushingCloseCommand(pushing, side);
+			}
+			catch (Exception e)
+			{
+				if (PushingState != PushingStates.LatencyClosing) return;
+				PushingState = PushingStates.BeforeClosing;
+				MessageBox.Show(e.Message, "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
+			}
+		}
+		public async void PushingCloseCommand(Pushing pushing, Sides firstCloseSide)
+		{
+			PushingStopLatencyCommand(pushing);
 			PushingState = PushingStates.Busy;
 			pushing.FirstCloseSide = firstCloseSide;
 			await _orchestrator.ClosingFirst(pushing);

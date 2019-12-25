@@ -12,6 +12,9 @@ namespace TradeSystem.Orchestration
     {
 		void SendOrder(Account account, Sides side, string symbol, decimal contractSize);
 
+	    Task<Sides> LatencyStart(Pushing pushing);
+	    void LatencyStop(Pushing pushing);
+
 		Task OpeningBeta(Pushing pushing);
 		Task OpeningAlpha(Pushing pushing);
 	    Task OpeningPull(Pushing pushing);
@@ -49,6 +52,12 @@ namespace TradeSystem.Orchestration
 			if (!(account.Connector is IFixConnector connector)) return;
 			var response = await connector.SendMarketOrderRequest(symbol, side, contractSize);
 		}
+		
+		public Task<Sides> LatencyStart(Pushing pushing)
+		{
+			return Task.Run(() => _pushStrategyService.LatencyStart(pushing));
+		}
+		public void LatencyStop(Pushing pushing) => _pushStrategyService.LatencyStop(pushing);
 
 		public Task OpeningBeta(Pushing pushing)
 		{
@@ -76,7 +85,7 @@ namespace TradeSystem.Orchestration
 			pushing.InPanic = false;
 			return Task.Run(() => _pushStrategyService.OpeningFinish(pushing));
 		}
-
+		
 		public Task ClosingFirst(Pushing pushing)
 		{
 			pushing.PushingDetail.OpenedFutures = 0;

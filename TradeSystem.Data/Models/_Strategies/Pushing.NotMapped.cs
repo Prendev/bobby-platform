@@ -14,6 +14,10 @@ namespace TradeSystem.Data.Models
 		[NotMapped] [InvisibleColumn] public Spoof Spoof { get; set; }
 		[NotMapped] [InvisibleColumn] public IStratState StratState { get; set; }
 
+		[NotMapped] [InvisibleColumn] public bool IsBuyBeta { get => Get(() => true); set => Set(value); }
+		[NotMapped] [InvisibleColumn] public bool IsSellBeta { get => Get(() => true); set => Set(value); }
+		[NotMapped] [InvisibleColumn] public bool IsCloseShortBuyFutures { get => Get(() => true); set => Set(value); }
+		[NotMapped] [InvisibleColumn] public bool IsCloseLongSellFutures { get => Get(() => true); set => Set(value); }
 		[NotMapped] [InvisibleColumn] public Sides BetaOpenSide { get; set; }
 		[NotMapped] [InvisibleColumn] public Sides FirstCloseSide { get; set; }
 		[NotMapped] [InvisibleColumn] public bool IsHedgeClose { get => Get(() => true); set => Set(value); }

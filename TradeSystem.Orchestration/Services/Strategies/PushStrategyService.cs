@@ -11,12 +11,15 @@ namespace TradeSystem.Orchestration.Services.Strategies
 {
     public interface IPushStrategyService
     {
-        void OpeningBeta(Pushing pushing);
+	    Task<Sides> LatencyStart(Pushing pushing);
+	    void LatencyStop(Pushing pushing);
+
+		void OpeningBeta(Pushing pushing);
 	    Task OpeningPull(Pushing pushing);
 		Task OpeningAlpha(Pushing pushing);
 	    Task OpeningFinish(Pushing pushing);
-
-	    void ClosingFirst(Pushing pushing);
+		
+		void ClosingFirst(Pushing pushing);
 	    Task ClosingPull(Pushing pushing);
 		Task OpeningHedge(Pushing pushing);
 	    Task ClosingSecond(Pushing pushing);
@@ -28,6 +31,9 @@ namespace TradeSystem.Orchestration.Services.Strategies
 	    private readonly IRndService _rndService;
 	    private readonly IThreadService _threadService;
 	    private readonly ISpoofingService _spoofingService;
+
+	    private readonly TaskCompletionManager<Pushing> _taskCompletionManager =
+		    new TaskCompletionManager<Pushing>(50, (int) TimeSpan.FromDays(1).TotalMilliseconds);
 
 	    private enum Phases
 		{
@@ -45,6 +51,37 @@ namespace TradeSystem.Orchestration.Services.Strategies
 		    _threadService = threadService;
 		    _rndService = rndService;
 	    }
+
+	    public async Task<Sides> LatencyStart(Pushing pushing)
+	    {
+		    try
+		    {
+				pushing.NewTick -= Pushing_NewTick;
+				pushing.NewTick += Pushing_NewTick;
+			    var task = _taskCompletionManager.CreateCompletableTask<Sides>(pushing);
+			    return await task;
+		    }
+		    catch
+			{
+				return Sides.None;
+			}
+		}
+
+		private void Pushing_NewTick(object sender, NewTick e)
+		{
+		}
+
+		public void LatencyStop(Pushing pushing)
+	    {
+		    try
+		    {
+			    _taskCompletionManager.SetCanceled(pushing, true);
+		    }
+		    catch
+		    {
+			    return;
+		    }
+	    } 
 
 		public void OpeningBeta(Pushing pushing)
 		{
@@ -253,7 +290,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 		}
 
-	    private void InitSpoof(Pushing pushing)
+		private void InitSpoof(Pushing pushing)
 	    {
 		    pushing.Spoof = new Data.Spoof(
 			    pushing.FeedAccount, pushing.FeedSymbol,
