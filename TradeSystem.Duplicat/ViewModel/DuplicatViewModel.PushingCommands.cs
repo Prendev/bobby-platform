@@ -31,6 +31,7 @@ namespace TradeSystem.Duplicat.ViewModel
 		public async void PushingLatencyOpenCommand(Pushing pushing)
 		{
 			PushingState = PushingStates.LatencyOpening;
+			pushing.BetaOpenSide = Sides.None;
 			try
 			{
 				var side = await _orchestrator.LatencyStart(pushing);

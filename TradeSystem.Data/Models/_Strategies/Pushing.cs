@@ -25,6 +25,7 @@ namespace TradeSystem.Data.Models
 		[DisplayName("AvgPeriod")] public int AveragingPeriodInSeconds { get; set; }
 		[DisplayName("Spread")] public decimal SpreadFilterInPip { get; set; }
 		[DisplayName("Signal")] public decimal SignalDiffInPip { get; set; }
+		public decimal PipSize { get; set; }
 
 		public int? SpoofAccountId { get; set; }
 		public Account SpoofAccount { get => Get<Account>(); set => Set(value); }

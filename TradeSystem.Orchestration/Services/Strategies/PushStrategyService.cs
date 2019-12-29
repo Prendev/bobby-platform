@@ -69,6 +69,21 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 		private void Pushing_NewTick(object sender, NewTick e)
 		{
+			if (!(sender is Pushing pushing)) return;
+			if (pushing.BetaOpenSide == Sides.None)
+			{
+				if (pushing.IsBuyBeta && pushing.NormFeedAsk >= pushing.NormSlowAsk + pushing.SignalDiffInPip * pushing.PipSize)
+					_taskCompletionManager.SetResult(pushing, Sides.Buy);
+				else if (pushing.IsSellBeta && pushing.NormFeedBid <= pushing.NormSlowBid - pushing.SignalDiffInPip * pushing.PipSize)
+					_taskCompletionManager.SetResult(pushing, Sides.Sell);
+			}
+			else
+			{
+				if (pushing.IsCloseShortBuyFutures && pushing.NormFeedAsk >= pushing.NormSlowAsk + pushing.SignalDiffInPip * pushing.PipSize)
+					_taskCompletionManager.SetResult(pushing, Sides.Buy);
+				else if (pushing.IsCloseLongSellFutures && pushing.NormFeedBid <= pushing.NormSlowBid - pushing.SignalDiffInPip * pushing.PipSize)
+					_taskCompletionManager.SetResult(pushing, Sides.Sell);
+			}
 		}
 
 		public void LatencyStop(Pushing pushing)
