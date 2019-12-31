@@ -40,6 +40,7 @@
 			this.groupBox8 = new System.Windows.Forms.GroupBox();
 			this.dgvMasters = new TradeSystem.Duplicat.Views.CustomDataGridView();
 			this.gbControl = new System.Windows.Forms.GroupBox();
+			this.btnSyncNoOpen = new System.Windows.Forms.Button();
 			this.btnArchive = new System.Windows.Forms.Button();
 			this.btnClose = new System.Windows.Forms.Button();
 			this.btnSync = new System.Windows.Forms.Button();
@@ -50,7 +51,6 @@
 			this.dgvCopiers = new TradeSystem.Duplicat.Views.CustomDataGridView();
 			this.groupBox2 = new System.Windows.Forms.GroupBox();
 			this.dgvCopierPositions = new TradeSystem.Duplicat.Views.CustomDataGridView();
-			this.btnSyncNoOpen = new System.Windows.Forms.Button();
 			this.tlpMain.SuspendLayout();
 			this.groupBox1.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.dgvFixApiCopiers)).BeginInit();
@@ -110,6 +110,7 @@
 			this.dgvFixApiCopiers.Margin = new System.Windows.Forms.Padding(4);
 			this.dgvFixApiCopiers.MultiSelect = false;
 			this.dgvFixApiCopiers.Name = "dgvFixApiCopiers";
+			this.dgvFixApiCopiers.ShowCellToolTips = false;
 			this.dgvFixApiCopiers.Size = new System.Drawing.Size(1558, 162);
 			this.dgvFixApiCopiers.TabIndex = 0;
 			// 
@@ -154,6 +155,7 @@
 			this.dgvSymbolMappings.Margin = new System.Windows.Forms.Padding(4);
 			this.dgvSymbolMappings.MultiSelect = false;
 			this.dgvSymbolMappings.Name = "dgvSymbolMappings";
+			this.dgvSymbolMappings.ShowCellToolTips = false;
 			this.dgvSymbolMappings.Size = new System.Drawing.Size(504, 352);
 			this.dgvSymbolMappings.TabIndex = 0;
 			// 
@@ -179,6 +181,7 @@
 			this.dgvSlaves.Margin = new System.Windows.Forms.Padding(4);
 			this.dgvSlaves.MultiSelect = false;
 			this.dgvSlaves.Name = "dgvSlaves";
+			this.dgvSlaves.ShowCellToolTips = false;
 			this.dgvSlaves.Size = new System.Drawing.Size(519, 352);
 			this.dgvSlaves.TabIndex = 0;
 			// 
@@ -189,13 +192,13 @@
 			this.tlpTopLeft.Controls.Add(this.groupBox8, 0, 1);
 			this.tlpTopLeft.Controls.Add(this.gbControl, 0, 0);
 			this.tlpTopLeft.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.tlpTopLeft.Location = new System.Drawing.Point(4, 4);
-			this.tlpTopLeft.Margin = new System.Windows.Forms.Padding(4);
+			this.tlpTopLeft.Location = new System.Drawing.Point(0, 0);
+			this.tlpTopLeft.Margin = new System.Windows.Forms.Padding(0);
 			this.tlpTopLeft.Name = "tlpTopLeft";
 			this.tlpTopLeft.RowCount = 2;
 			this.tlpTopLeft.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 138F));
 			this.tlpTopLeft.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-			this.tlpTopLeft.Size = new System.Drawing.Size(511, 375);
+			this.tlpTopLeft.Size = new System.Drawing.Size(519, 383);
 			this.tlpTopLeft.TabIndex = 2;
 			// 
 			// groupBox8
@@ -206,7 +209,7 @@
 			this.groupBox8.Margin = new System.Windows.Forms.Padding(4);
 			this.groupBox8.Name = "groupBox8";
 			this.groupBox8.Padding = new System.Windows.Forms.Padding(4);
-			this.groupBox8.Size = new System.Drawing.Size(503, 229);
+			this.groupBox8.Size = new System.Drawing.Size(511, 237);
 			this.groupBox8.TabIndex = 0;
 			this.groupBox8.TabStop = false;
 			this.groupBox8.Text = "Masters";
@@ -220,7 +223,8 @@
 			this.dgvMasters.Margin = new System.Windows.Forms.Padding(4);
 			this.dgvMasters.MultiSelect = false;
 			this.dgvMasters.Name = "dgvMasters";
-			this.dgvMasters.Size = new System.Drawing.Size(495, 206);
+			this.dgvMasters.ShowCellToolTips = false;
+			this.dgvMasters.Size = new System.Drawing.Size(503, 214);
 			this.dgvMasters.TabIndex = 0;
 			// 
 			// gbControl
@@ -236,10 +240,20 @@
 			this.gbControl.Margin = new System.Windows.Forms.Padding(4);
 			this.gbControl.Name = "gbControl";
 			this.gbControl.Padding = new System.Windows.Forms.Padding(4);
-			this.gbControl.Size = new System.Drawing.Size(503, 130);
+			this.gbControl.Size = new System.Drawing.Size(511, 130);
 			this.gbControl.TabIndex = 1;
 			this.gbControl.TabStop = false;
 			this.gbControl.Text = "Control";
+			// 
+			// btnSyncNoOpen
+			// 
+			this.btnSyncNoOpen.Location = new System.Drawing.Point(216, 59);
+			this.btnSyncNoOpen.Margin = new System.Windows.Forms.Padding(4);
+			this.btnSyncNoOpen.Name = "btnSyncNoOpen";
+			this.btnSyncNoOpen.Size = new System.Drawing.Size(200, 28);
+			this.btnSyncNoOpen.TabIndex = 21;
+			this.btnSyncNoOpen.Text = "Sync, no open (FIX only)";
+			this.btnSyncNoOpen.UseVisualStyleBackColor = true;
 			// 
 			// btnArchive
 			// 
@@ -299,11 +313,12 @@
 			this.tlpMiddle.Controls.Add(this.groupBox10, 0, 0);
 			this.tlpMiddle.Controls.Add(this.groupBox2, 1, 0);
 			this.tlpMiddle.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.tlpMiddle.Location = new System.Drawing.Point(3, 386);
+			this.tlpMiddle.Location = new System.Drawing.Point(0, 383);
+			this.tlpMiddle.Margin = new System.Windows.Forms.Padding(0);
 			this.tlpMiddle.Name = "tlpMiddle";
 			this.tlpMiddle.RowCount = 1;
 			this.tlpMiddle.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-			this.tlpMiddle.Size = new System.Drawing.Size(1568, 185);
+			this.tlpMiddle.Size = new System.Drawing.Size(1574, 191);
 			this.tlpMiddle.TabIndex = 2;
 			// 
 			// groupBox10
@@ -314,7 +329,7 @@
 			this.groupBox10.Margin = new System.Windows.Forms.Padding(4);
 			this.groupBox10.Name = "groupBox10";
 			this.groupBox10.Padding = new System.Windows.Forms.Padding(4);
-			this.groupBox10.Size = new System.Drawing.Size(1042, 177);
+			this.groupBox10.Size = new System.Drawing.Size(1046, 183);
 			this.groupBox10.TabIndex = 0;
 			this.groupBox10.TabStop = false;
 			this.groupBox10.Text = "Copiers (use double-click, create more than one for bursting)";
@@ -328,18 +343,19 @@
 			this.dgvCopiers.Margin = new System.Windows.Forms.Padding(4);
 			this.dgvCopiers.MultiSelect = false;
 			this.dgvCopiers.Name = "dgvCopiers";
-			this.dgvCopiers.Size = new System.Drawing.Size(1034, 154);
+			this.dgvCopiers.ShowCellToolTips = false;
+			this.dgvCopiers.Size = new System.Drawing.Size(1038, 160);
 			this.dgvCopiers.TabIndex = 0;
 			// 
 			// groupBox2
 			// 
 			this.groupBox2.Controls.Add(this.dgvCopierPositions);
 			this.groupBox2.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.groupBox2.Location = new System.Drawing.Point(1054, 4);
+			this.groupBox2.Location = new System.Drawing.Point(1058, 4);
 			this.groupBox2.Margin = new System.Windows.Forms.Padding(4);
 			this.groupBox2.Name = "groupBox2";
 			this.groupBox2.Padding = new System.Windows.Forms.Padding(4);
-			this.groupBox2.Size = new System.Drawing.Size(510, 177);
+			this.groupBox2.Size = new System.Drawing.Size(512, 183);
 			this.groupBox2.TabIndex = 1;
 			this.groupBox2.TabStop = false;
 			this.groupBox2.Text = "Copier positions";
@@ -354,18 +370,9 @@
 			this.dgvCopierPositions.MultiSelect = false;
 			this.dgvCopierPositions.Name = "dgvCopierPositions";
 			this.dgvCopierPositions.RowTemplate.Height = 24;
-			this.dgvCopierPositions.Size = new System.Drawing.Size(502, 154);
+			this.dgvCopierPositions.ShowCellToolTips = false;
+			this.dgvCopierPositions.Size = new System.Drawing.Size(504, 160);
 			this.dgvCopierPositions.TabIndex = 0;
-			// 
-			// btnSyncNoOpen
-			// 
-			this.btnSyncNoOpen.Location = new System.Drawing.Point(216, 59);
-			this.btnSyncNoOpen.Margin = new System.Windows.Forms.Padding(4);
-			this.btnSyncNoOpen.Name = "btnSyncNoOpen";
-			this.btnSyncNoOpen.Size = new System.Drawing.Size(200, 28);
-			this.btnSyncNoOpen.TabIndex = 21;
-			this.btnSyncNoOpen.Text = "Sync, no open (FIX only)";
-			this.btnSyncNoOpen.UseVisualStyleBackColor = true;
 			// 
 			// CopiersUserControl
 			// 
