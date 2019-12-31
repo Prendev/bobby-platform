@@ -56,10 +56,29 @@ namespace TradeSystem.Orchestration.Services.Strategies
 	    {
 		    try
 		    {
+			    if (pushing.FeedAccount?.ConnectionState != ConnectionStates.Connected || pushing.SlowAccount?.ConnectionState != ConnectionStates.Connected)
+			    {
+				    Logger.Warn("PushStrategyService.LatencyStart FeedAccount and SlowAccount should be set and connected");
+				    return Sides.None;
+				}
+
+			    if (string.IsNullOrWhiteSpace(pushing.FeedSymbol) || string.IsNullOrWhiteSpace(pushing.SlowSymbol))
+				{
+					Logger.Warn("PushStrategyService.LatencyStart both FeedSymbol and SlowSymbol should be set");
+					return Sides.None;
+				}
 				pushing.NewTick -= Pushing_NewTick;
+			    pushing.FeedAccount.Connector.Subscribe(pushing.FeedSymbol);
+			    pushing.SlowAccount.Connector.Subscribe(pushing.SlowSymbol);
 				pushing.NewTick += Pushing_NewTick;
 			    var task = _taskCompletionManager.CreateCompletableTask<Sides>(pushing);
-			    return await task;
+			    var side = await task;
+
+			    Logger.Info(
+				    $"PushStrategyService.LatencyStart {side} signal with\n" +
+				    $" feed prices {pushing.FeedPrices} and slow prices {pushing.SlowPrices}\n" +
+				    $" and norm feed prices {pushing.NormFeedPrices} and norm slow prices {pushing.NormSlowPrices}");
+			    return side;
 		    }
 		    catch
 			{

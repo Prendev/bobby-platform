@@ -18,10 +18,10 @@ namespace TradeSystem.Data.Models
 		public int? FeedAccountId { get; set; }
 		public Account FeedAccount { get => Get<Account>(); set => Set(value); }
 		[DisplayName("Feed Sym")] public string FeedSymbol { get; set; }
-
 		public int? SlowAccountId { get; set; }
 		public Account SlowAccount { get => Get<Account>(); set => Set(value); }
 		[DisplayName("Slow Sym")] public string SlowSymbol { get; set; }
+
 		[DisplayName("AvgPeriod")] public int AveragingPeriodInSeconds { get; set; }
 		[DisplayName("Spread")] public decimal SpreadFilterInPip { get; set; }
 		[DisplayName("Signal")] public decimal SignalDiffInPip { get; set; }

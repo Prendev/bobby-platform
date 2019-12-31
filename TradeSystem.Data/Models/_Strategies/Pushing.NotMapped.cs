@@ -11,6 +11,11 @@ namespace TradeSystem.Data.Models
 	{
 		public event EventHandler<ConnectionStates> ConnectionChanged;
 
+		[NotMapped] [InvisibleColumn] public string FeedPrices { get; set; }
+		[NotMapped] [InvisibleColumn] public string SlowPrices { get; set; }
+		[NotMapped] [InvisibleColumn] public string NormFeedPrices { get; set; }
+		[NotMapped] [InvisibleColumn] public string NormSlowPrices { get; set; }
+
 		[NotMapped] [InvisibleColumn] public Spoof Spoof { get; set; }
 		[NotMapped] [InvisibleColumn] public IStratState StratState { get; set; }
 
@@ -28,8 +33,8 @@ namespace TradeSystem.Data.Models
 		[NotMapped] [InvisibleColumn] public bool InPanic { get; set; }
 		[NotMapped] [InvisibleColumn] public bool IsConnected { get => Get<bool>(); set => Set(value); }
 
-		[NotMapped] [InvisibleColumn] public Tick LastFeedTick { get => Get<Tick>(); set => Set(value); }
-		[NotMapped] [InvisibleColumn] public Tick LastSlowTick { get => Get<Tick>(); set => Set(value); }
+		[NotMapped] [InvisibleColumn] public Tick LastFeedTick { get; set; }
+		[NotMapped] [InvisibleColumn] public Tick LastSlowTick { get; set; }
 
 		[NotMapped] [InvisibleColumn] public decimal? NormFeedAsk => NormAsk(LastFeedTick, _feedAvg);
 		[NotMapped] [InvisibleColumn] public decimal? NormFeedBid => NormBid(LastFeedTick, _feedAvg);
@@ -87,6 +92,11 @@ namespace TradeSystem.Data.Models
 			if (LastSlowTick?.HasValue != true) return;
 			if (AveragingPeriodInSeconds > 0 && _feedAvg.HasValue != true) return;
 			if (AveragingPeriodInSeconds > 0 && _slowAvg.HasValue != true) return;
+
+			FeedPrices = $"{LastFeedTick?.Bid:F5} | {LastFeedTick?.Ask:F5}";
+			SlowPrices = $"{LastSlowTick?.Bid:F5} | {LastSlowTick?.Ask:F5}";
+			NormFeedPrices = $"{NormFeedBid:F5} | {NormFeedAsk:F5}";
+			NormSlowPrices = $"{NormSlowBid:F5} | {NormSlowAsk:F5}";
 
 			NewTick?.Invoke(this, newTick);
 		}
