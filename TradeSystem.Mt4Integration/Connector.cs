@@ -117,7 +117,7 @@ namespace TradeSystem.Mt4Integration
 	        {
 		        foreach (var symbol in _symbols)
 		        {
-			        if (QuoteClient.IsSubscribed(symbol)) return;
+			        if (QuoteClient.IsSubscribed(symbol)) continue;
 			        QuoteClient.Subscribe(symbol);
 		        }
 	        }
