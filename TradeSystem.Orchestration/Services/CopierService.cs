@@ -144,7 +144,7 @@ namespace TradeSystem.Orchestration.Services
 				{
 					var newPos = queue.Take(token);
 
-					Logger.Info($"Master {newPos.Action:F} {newPos.Position.Side:F} signal on " +
+					Logger.Info($"Master {master} {newPos.Action:F} {newPos.Position.Side:F} signal on " +
 					          $"{newPos.Position.Symbol} with open time: {newPos.Position.OpenTime:o}");
 
 					var slaves = master.Slaves.Where(s => s.Run && s.Account.ConnectionState == ConnectionStates.Connected);
