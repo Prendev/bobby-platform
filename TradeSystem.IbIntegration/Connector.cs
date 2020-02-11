@@ -7,9 +7,9 @@ using TradeSystem.Common.Integration;
 
 namespace TradeSystem.IbIntegration
 {
-    public partial class Connector : FixApiConnectorBase
-    {
-	    private const int TASK_TIMEOUT = 5000;
+	public partial class Connector : FixApiConnectorBase
+	{
+		private const int TASK_TIMEOUT = 5000;
 
 		private EClientSocket _clientSocket;
 		private readonly AccountInfo _accountInfo;
@@ -56,7 +56,14 @@ namespace TradeSystem.IbIntegration
 				_clientSocket.eConnect("127.0.0.1", _accountInfo.Port, _accountInfo.ClientId);
 				var reader = new EReader(_clientSocket, signal);
 				reader.Start();
-				new Thread(() => { while (_shouldConnect && _clientSocket.IsConnected()) { signal.waitForSignal(); reader.processMsgs(); } }) { Name = $"Ib_{Id}", IsBackground = true }.Start();
+				new Thread(() =>
+				{
+					while (_shouldConnect && _clientSocket.IsConnected())
+					{
+						signal.waitForSignal();
+						reader.processMsgs();
+					}
+				}) {Name = $"Ib_{Id}", IsBackground = true}.Start();
 
 				await task;
 			}
@@ -91,11 +98,11 @@ namespace TradeSystem.IbIntegration
 			}
 		}
 
-	    public override void Subscribe(string symbol)
-	    {
-		    try
-		    {
-			    int id;
+		public override void Subscribe(string symbol)
+		{
+			try
+			{
+				int id;
 				lock (_subscriptions)
 				{
 					id = _subscriptions.Count + 1;
@@ -104,33 +111,33 @@ namespace TradeSystem.IbIntegration
 
 				var contract = symbol.ToContract();
 				_clientSocket.reqTickByTickData(id, contract, "BidAsk", 0, true);
-			    Logger.Debug($"{Description} Connector.Subscribe({symbol})");
+				Logger.Debug($"{Description} Connector.Subscribe({symbol})");
 			}
-		    catch (Exception e)
-		    {
-			    Logger.Error($"{Description} account ERROR during subscribtion", e);
-		    }
+			catch (Exception e)
+			{
+				Logger.Error($"{Description} account ERROR during subscribtion", e);
+			}
 		}
 
-	    public void SubscribeLevel2(string symbol)
-	    {
-		    try
-		    {
-			    int id;
-			    lock (_subsLvl2)
-			    {
-				    id = _subsLvl2.Count + 1;
-				    _subsLvl2[id] = symbol;
-			    }
+		public void SubscribeLevel2(string symbol)
+		{
+			try
+			{
+				int id;
+				lock (_subsLvl2)
+				{
+					id = _subsLvl2.Count + 1;
+					_subsLvl2[id] = symbol;
+				}
 
-			    var contract = symbol.ToContract();
-			    _clientSocket.reqMarketDepth(id, contract, 15, false, null);
-		    }
-		    catch (Exception e)
-		    {
-			    Logger.Error($"{Description} account ERROR during level 2 subscribtion", e);
-		    }
-	    }
+				var contract = symbol.ToContract();
+				_clientSocket.reqMarketDepth(id, contract, 15, false, null);
+			}
+			catch (Exception e)
+			{
+				Logger.Error($"{Description} account ERROR during level 2 subscribtion", e);
+			}
+		}
 
 		private ConnectionStates GetStatus()
 		{
@@ -174,7 +181,7 @@ namespace TradeSystem.IbIntegration
 				{
 					Action = side.ToString().ToUpperInvariant(),
 					OrderType = "MKT",
-					TotalQuantity = (double)quantity
+					TotalQuantity = (double) quantity
 				};
 
 				var task = _taskCompletionManager.CreateCompletableTask<OrderResponse>(orderId.ToString());
@@ -189,7 +196,8 @@ namespace TradeSystem.IbIntegration
 			}
 			catch (TimeoutException)
 			{
-				Logger.Error($"{Description} Connector.SendMarketOrderRequest({symbol}, {side}, {quantity}) TIMEOUT exception ({TASK_TIMEOUT} ms)");
+				Logger.Error(
+					$"{Description} Connector.SendMarketOrderRequest({symbol}, {side}, {quantity}) TIMEOUT exception ({TASK_TIMEOUT} ms)");
 			}
 			catch (Exception e)
 			{
@@ -198,5 +206,8 @@ namespace TradeSystem.IbIntegration
 
 			return retValue;
 		}
+
+		public override Task<OrderResponse> SendMarketOrderRequest(string symbol, Sides side, decimal quantity, int timeout,
+			int retryCount, int retryPeriod) => SendMarketOrderRequest(symbol, side, quantity);
 	}
 }

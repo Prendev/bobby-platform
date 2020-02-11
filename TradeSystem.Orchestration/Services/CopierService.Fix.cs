@@ -12,7 +12,7 @@ namespace TradeSystem.Orchestration.Services
 	{
 		private Task CopyToFixAccount(NewPosition e, Slave slave)
 		{
-			if (!(slave.Account?.Connector is FixApiIntegration.Connector slaveConnector)) return Task.CompletedTask;
+			if (!(slave.Account?.Connector is IFixConnector slaveConnector)) return Task.CompletedTask;
 			if (slave.SymbolMappings?.Any(m => m.From == e.Position.Symbol) != true) return Task.CompletedTask;
 
 			var symbol = GetSlaveSymbol(e, slave);
@@ -83,7 +83,7 @@ namespace TradeSystem.Orchestration.Services
 		private void  SyncToFixAccount(NewPosition e, Slave slave)
 		{
 			if (e.Action != NewPositionActions.Open) return;
-			if (!(slave.Account?.Connector is FixApiIntegration.Connector)) return;
+			if (!(slave.Account?.Connector is IFixConnector)) return;
 			if (slave.SymbolMappings?.Any(m => m.From == e.Position.Symbol) != true) return;
 
 			var symbol = GetSlaveSymbol(e, slave);

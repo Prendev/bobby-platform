@@ -201,7 +201,8 @@ namespace TradeSystem.Orchestration.Services
 			if (slave.Account.MetaTraderAccountId.HasValue) return CopyToMtAccount(e, slave);
 			if (slave.Account.CTraderAccountId.HasValue) return CopyToCtAccount(e, slave);
 			if (slave.Account.FixApiAccountId.HasValue) return CopyToFixAccount(e, slave);
-	        return Task.FromResult(0);
+			if (slave.Account.IbAccountId.HasValue) return CopyToFixAccount(e, slave);
+			return Task.FromResult(0);
 		}
 
 	    private Task CopyToCtAccount(NewPosition e, Slave slave)
