@@ -91,7 +91,10 @@ namespace TradeSystem.Orchestration.Services
 					Action = NewPositionActions.Open,
 					Position = pos.Value
 				};
-				await CopyToFixAccount(newPos, slave);
+				var symbol = GetSlaveSymbol(newPos, slave);
+				if (string.IsNullOrWhiteSpace(symbol)) continue;
+
+				await CopyToFixAccount(newPos, slave, symbol);
 			}
 			Logger.Info("CopierService.Sync finished");
 		}
@@ -198,18 +201,18 @@ namespace TradeSystem.Orchestration.Services
 
 		private Task CopyToAccount(NewPosition e, Slave slave)
 		{
-			if (slave.Account.MetaTraderAccountId.HasValue) return CopyToMtAccount(e, slave);
-			if (slave.Account.CTraderAccountId.HasValue) return CopyToCtAccount(e, slave);
-			if (slave.Account.FixApiAccountId.HasValue) return CopyToFixAccount(e, slave);
-			if (slave.Account.IbAccountId.HasValue) return CopyToFixAccount(e, slave);
+			var symbol = GetSlaveSymbol(e, slave);
+			if (string.IsNullOrWhiteSpace(symbol)) return Task.FromResult(0);
+			if (slave.Account.MetaTraderAccountId.HasValue) return CopyToMtAccount(e, slave, symbol);
+			if (slave.Account.CTraderAccountId.HasValue) return CopyToCtAccount(e, slave, symbol);
+			if (slave.Account.FixApiAccountId.HasValue) return CopyToFixAccount(e, slave, symbol);
+			if (slave.Account.IbAccountId.HasValue) return CopyToFixAccount(e, slave, symbol);
 			return Task.FromResult(0);
 		}
 
-	    private Task CopyToCtAccount(NewPosition e, Slave slave)
+	    private Task CopyToCtAccount(NewPosition e, Slave slave, string symbol)
 	    {
 		    if (!(slave.Account?.Connector is CTraderIntegration.Connector slaveConnector)) return Task.FromResult(0);
-
-		    var symbol = GetSlaveSymbol(e, slave);
 
 		    var tasks = slave.Copiers
 			    .Where(c => c.Run)
@@ -275,11 +278,9 @@ namespace TradeSystem.Orchestration.Services
 		    return Task.WhenAll(tasks);
 	    }
 
-	    private Task CopyToMtAccount(NewPosition e, Slave slave)
+	    private Task CopyToMtAccount(NewPosition e, Slave slave, string symbol)
 	    {
 		    if (!(slave.Account?.Connector is Mt4Integration.Connector slaveConnector)) return Task.FromResult(0);
-
-		    var symbol = GetSlaveSymbol(e, slave);
 
 		    var tasks = slave.Copiers
 			    .Where(c => c.Run)

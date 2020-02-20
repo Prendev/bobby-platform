@@ -10,12 +10,10 @@ namespace TradeSystem.Orchestration.Services
 {
     public partial class CopierService
 	{
-		private Task CopyToFixAccount(NewPosition e, Slave slave)
+		private Task CopyToFixAccount(NewPosition e, Slave slave, string symbol)
 		{
 			if (!(slave.Account?.Connector is IFixConnector slaveConnector)) return Task.CompletedTask;
 			if (slave.SymbolMappings?.Any(m => m.From == e.Position.Symbol) != true) return Task.CompletedTask;
-
-			var symbol = GetSlaveSymbol(e, slave);
 
 			var tasks = slave.FixApiCopiers
 				.Where(c => c.Run)
