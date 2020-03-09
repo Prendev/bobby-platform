@@ -118,7 +118,7 @@ namespace TradeSystem.Orchestration.Services
 
 		private volatile CancellationTokenSource _cancellation;
 		private const string TickersFolderPath = "Tickers";
-		private const string ZipArchivePath = "Tickers/Tickers.zip";
+		private const string ArchiveFolderPath = "Tickers/Archive";
 		private readonly ConcurrentDictionary<string, Writer> _csvWriters =
 			new ConcurrentDictionary<string, Writer>();
 
@@ -128,8 +128,7 @@ namespace TradeSystem.Orchestration.Services
 			_cancellation = new CancellationTokenSource();
 
 			Directory.CreateDirectory(TickersFolderPath);
-	        using (new FileStream(ZipArchivePath, FileMode.OpenOrCreate)) { }
-
+			Directory.CreateDirectory(ArchiveFolderPath);
 			new Thread(() => Loop(tickers, _cancellation.Token))
 			{
 				Name = "Tickers",
@@ -235,16 +234,16 @@ namespace TradeSystem.Orchestration.Services
 				toArchive.ForEach(a => a.Value.Archived = true);
 				if (!toArchive.Any()) return;
 
-				using (var zipToOpen = new FileStream(ZipArchivePath, FileMode.OpenOrCreate))
-				using (var zipArchive = new ZipArchive(zipToOpen, ZipArchiveMode.Update))
-					foreach (var csvWriter in toArchive)
-					{
-						csvWriter.Value.Disconnect();
-						var fileInfo = new FileInfo(csvWriter.Key);
+				foreach (var csvWriter in toArchive)
+				{
+					csvWriter.Value.Disconnect();
+					var fileInfo = new FileInfo(csvWriter.Key);
+					var archive = $"{ArchiveFolderPath}/{Path.GetFileNameWithoutExtension(fileInfo.FullName)}.zip";
+					using (var zipToOpen = new FileStream(archive, FileMode.OpenOrCreate))
+					using (var zipArchive = new ZipArchive(zipToOpen, ZipArchiveMode.Update))
 						zipArchive.CreateEntryFromFile(fileInfo.FullName, fileInfo.Name);
-
-						File.Delete(csvWriter.Key);
-					}
+					File.Delete(csvWriter.Key);
+				}
 			}
 			catch (Exception e)
 			{

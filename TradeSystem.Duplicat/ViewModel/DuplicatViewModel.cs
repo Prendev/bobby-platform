@@ -10,6 +10,7 @@ using TradeSystem.Common.Services;
 using TradeSystem.Data;
 using TradeSystem.Data.Models;
 using TradeSystem.Orchestration;
+using IBindingList = System.ComponentModel.IBindingList;
 
 namespace TradeSystem.Duplicat.ViewModel
 {
@@ -58,7 +59,9 @@ namespace TradeSystem.Duplicat.ViewModel
 		private DuplicatContext _duplicatContext;
 		private readonly IOrchestrator _orchestrator;
 		private readonly IXmlService _xmlService;
-		private readonly List<PropertyChangedEventHandler> _filteredDelegates = new List<PropertyChangedEventHandler>();
+		private readonly List<PropertyChangedEventHandler> _propertyChangedDelegates = new List<PropertyChangedEventHandler>();
+		private readonly List<Tuple<IBindingList, ListChangedEventHandler>> _listChangedDelegates =
+			new List<Tuple<IBindingList, ListChangedEventHandler>>();
 		private readonly Timer _autoSaveTimer = new Timer { AutoReset = true };
 
 		public BindingList<MetaTraderPlatform> MtPlatforms { get; private set; }
@@ -204,8 +207,10 @@ namespace TradeSystem.Duplicat.ViewModel
 
 		private void LoadLocals()
 		{
-			foreach (var propertyChangedEventHandler in _filteredDelegates) PropertyChanged -= propertyChangedEventHandler;
-			_filteredDelegates.Clear();
+			foreach (var propertyChangedEventHandler in _propertyChangedDelegates) PropertyChanged -= propertyChangedEventHandler;
+			_propertyChangedDelegates.Clear();
+			foreach (var listChanged in _listChangedDelegates) listChanged.Item1.ListChanged -= listChanged.Item2;
+			_listChangedDelegates.Clear();
 
 			var p = SelectedProfile?.Id;
 			_duplicatContext.MetaTraderPlatforms.OrderBy(e => e.ToString()).Load();
@@ -297,34 +302,6 @@ namespace TradeSystem.Duplicat.ViewModel
 			LoadLocals();
 		}
 
-		private BindingList<T> ToSeparateBindingList<T>(BindingList<T> parent)
-		{
-			var bindingList = new BindingList<T>();
-			var items = new List<T>();
-			foreach (var item in parent)
-			{
-				bindingList.Add(item);
-				items.Add(item);
-			}
-
-			parent.ListChanged += (sender, args) =>
-			{
-				if (args.ListChangedType == ListChangedType.ItemAdded)
-				{
-					items.Add(parent[args.NewIndex]);
-					bindingList.Add(parent[args.NewIndex]);
-				}
-
-				if (args.ListChangedType == ListChangedType.ItemDeleted)
-				{
-					bindingList.Remove(items[args.NewIndex]);
-					items.RemoveAt(args.NewIndex);
-				}
-			};
-
-			return bindingList;
-		}
-
 		private BindingList<T> ToBindingList<T, TSelected>(
 			ICollection<T> local,
 			Expression<Func<TSelected>> selected,
@@ -334,7 +311,7 @@ namespace TradeSystem.Duplicat.ViewModel
 			var items = new List<T>();
 			var sync = true;
 
-			bindingList.ListChanged += (sender, args) =>
+			void ListChanged(object sender, ListChangedEventArgs args)
 			{
 				if (!sync) return;
 
@@ -362,7 +339,10 @@ namespace TradeSystem.Duplicat.ViewModel
 
 					items.RemoveAt(args.NewIndex);
 				}
-			};
+			}
+
+			_listChangedDelegates.Add(new Tuple<IBindingList, ListChangedEventHandler>(bindingList, ListChanged));
+			bindingList.ListChanged += ListChanged;
 
 			void PropChanged(object sender, PropertyChangedEventArgs args)
 			{
@@ -386,7 +366,7 @@ namespace TradeSystem.Duplicat.ViewModel
 				sync = true;
 			}
 
-			_filteredDelegates.Add(PropChanged);
+			_propertyChangedDelegates.Add(PropChanged);
 			PropertyChanged += PropChanged;
 			return bindingList;
 		}
@@ -400,7 +380,7 @@ namespace TradeSystem.Duplicat.ViewModel
 			var items = new List<T>();
 			var sync = true;
 
-			bindingList.ListChanged += (sender, args) =>
+			void ListChanged(object sender, ListChangedEventArgs args)
 			{
 				if (!sync) return;
 
@@ -415,7 +395,10 @@ namespace TradeSystem.Duplicat.ViewModel
 					local.Remove(items[args.NewIndex]);
 					items.RemoveAt(args.NewIndex);
 				}
-			};
+			}
+
+			_listChangedDelegates.Add(new Tuple<IBindingList, ListChangedEventHandler>(bindingList, ListChanged));
+			bindingList.ListChanged += ListChanged;
 
 			void PropChanged(object sender, PropertyChangedEventArgs args)
 			{
@@ -433,7 +416,7 @@ namespace TradeSystem.Duplicat.ViewModel
 				sync = true;
 			}
 
-			_filteredDelegates.Add(PropChanged);
+			_propertyChangedDelegates.Add(PropChanged);
 			PropertyChanged += PropChanged;
 			return bindingList;
 		}
