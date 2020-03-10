@@ -71,6 +71,9 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
+    <Reference Include="TradeSystem.Communication.Strategies">
+      <HintPath>..\..\..\git\QvaDev.Wololo\TradeSystem.Communication.Strategies\bin\Debug\TradeSystem.Communication.Strategies.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AccountInfo.cs" />
@@ -83,6 +86,10 @@
     <ProjectReference Include="..\..\..\git\QvaDev.Wololo\TradeSystem.Communication.DtcApi\TradeSystem.Communication.DtcApi.csproj">
       <Project>{eed1bd13-cc26-4ede-99e4-dd59eb4d09bb}</Project>
       <Name>TradeSystem.Communication.DtcApi</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\git\QvaDev.Wololo\TradeSystem.Communication.Extensions\TradeSystem.Communication.Extensions.csproj">
+      <Project>{A12E5A21-BB5D-4B6E-B229-9A4C625F8DCE}</Project>
+      <Name>TradeSystem.Communication.Extensions</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\git\QvaDev.Wololo\TradeSystem.Communication.FixApi.Connectors.Strategies\TradeSystem.Communication.FixApi.Connectors.Strategies.csproj">
       <Project>{D025DB83-5628-432A-832D-0BB89E807252}</Project>
