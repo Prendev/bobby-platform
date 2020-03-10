@@ -418,6 +418,10 @@
       <Project>{c38c4681-11e5-417b-9923-6e754402ec1b}</Project>
       <Name>TradeSystem.Communication.FixApi.Connectors</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\git\QvaDev.Wololo\TradeSystem.Communication.Mt5\TradeSystem.Communication.Mt5.csproj">
+      <Project>{aa3796e1-5b4c-4bdd-a102-22d6411f9b93}</Project>
+      <Name>TradeSystem.Communication.Mt5</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\git\QvaDev.Wololo\TradeSystem.Communication.SnwApi\TradeSystem.Communication.SnwApi.csproj">
       <Project>{3455f630-ea48-4c6f-8012-a9dfa9ce1428}</Project>
       <Name>TradeSystem.Communication.SnwApi</Name>
