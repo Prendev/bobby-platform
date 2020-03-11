@@ -114,6 +114,8 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			if (_cancellation.IsCancellationRequested) return;
 			var set = (LatencyArb)sender;
 			if (!set.Run) return;
+			if (set.State == LatencyArb.LatencyArbStates.Continue)
+				set.State = set.LastStateBeforeEmergencyOff;
 			if (set.State == LatencyArb.LatencyArbStates.None) return;
 
 			_queues.GetOrAdd(set.Id, new FastBlockingCollection<Action>()).Add(() => Check(set));
@@ -975,9 +977,12 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			if (set.EmergencyOff <= 0) return;
 			if (set.EmergencyCount < set.EmergencyOff) return;
 			set.EmergencyCount = 0;
+
+			set.LastStateBeforeEmergencyOff = set.State;
 			set.State = LatencyArb.LatencyArbStates.None;
-			Logger.Warn($"{set} latency arb. - emergency OFF");
-			_emailService.Send($"{set} latency arb. - emergency OFF", $"{set} latency arb. - emergency OFF");
+			Logger.Warn($"{set} latency arb. - emergency OFF from state {set.LastStateBeforeEmergencyOff}");
+			_emailService.Send($"{set} latency arb. - emergency OFF from state {set.LastStateBeforeEmergencyOff}",
+				$"{set} latency arb. - emergency OFF from state {set.LastStateBeforeEmergencyOff}");
 		}
 
 		private void Sync(LatencyArb set)
