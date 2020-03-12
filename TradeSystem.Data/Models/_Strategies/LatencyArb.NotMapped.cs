@@ -118,18 +118,28 @@ namespace TradeSystem.Data.Models
 		private void Account_NewTick(object sender, NewTick newTick)
 		{
 			if (newTick?.Tick == null) return;
-			if (sender == FastFeedAccount && newTick.Tick.Symbol != FastFeedSymbol) return;
-			if (sender == ShortAccount && newTick.Tick.Symbol != ShortSymbol) return;
-			if (sender == LongAccount && newTick.Tick.Symbol != LongSymbol) return;
 
-			if (sender == FastFeedAccount) LastFeedTick = newTick.Tick;
-			if (sender == ShortAccount) LastShortTick = newTick.Tick;
-			if (sender == LongAccount) LastLongTick = newTick.Tick;
+			var newTickFound = false;
+			if (sender == FastFeedAccount && newTick.Tick.Symbol == FastFeedSymbol)
+			{
+				newTickFound = true;
+				LastFeedTick = newTick.Tick;
+				_feedAvg = Averaging(_feedTicks, _feedAvg, LastFeedTick);
+			}
+			if (sender == ShortAccount && newTick.Tick.Symbol == ShortSymbol)
+			{
+				newTickFound = true;
+				LastShortTick = newTick.Tick;
+				_shortAvg = Averaging(_shortTicks, _shortAvg, LastShortTick);
+			}
+			if (sender == LongAccount && newTick.Tick.Symbol == LongSymbol)
+			{
+				newTickFound = true;
+				LastLongTick = newTick.Tick;
+				_longAvg = Averaging(_longTicks, _longAvg, LastLongTick);
+			}
 
-			if (sender == FastFeedAccount) _feedAvg = Averaging(_feedTicks, _feedAvg, LastFeedTick);
-			if (sender == ShortAccount) _shortAvg = Averaging(_shortTicks, _shortAvg, LastShortTick);
-			if (sender == LongAccount) _longAvg = Averaging(_longTicks, _longAvg, LastLongTick);
-
+			if (!newTickFound) return;
 			if (LastFeedTick?.HasValue != true) return;
 			if (LastShortTick?.HasValue != true) return;
 			if (LastLongTick?.HasValue != true) return;
