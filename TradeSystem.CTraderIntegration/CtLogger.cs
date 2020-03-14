@@ -1,4 +1,6 @@
-﻿namespace TradeSystem.CTraderIntegration
+﻿using RestSharp;
+
+namespace TradeSystem.CTraderIntegration
 {
 	public static class CtLogger
 	{
@@ -19,6 +21,12 @@
 				$" with PositionStatus {p.PositionStatus}" +
 				$" and PositionId {p.PositionId}" +
 				$" and Comment {p.Comment}");
+		}
+
+		public static void Log(RestRequest request, IRestResponse response)
+		{
+			var p = string.Join(" | ", request.Parameters);
+			Logger.Debug($"Request: {request.Resource} {p}\nResponse: {response.StatusCode} {response.Content}");
 		}
 	}
 }

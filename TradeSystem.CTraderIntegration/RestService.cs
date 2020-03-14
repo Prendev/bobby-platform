@@ -18,7 +18,6 @@ namespace TradeSystem.CTraderIntegration
 
         public Task<T> GetAsync<T>(string resource, string accessToken, string baseUrl) where T : new()
         {
-			Logger.Debug($"RestService {resource}");
             var request = new RestRequest
             {
                 Resource = resource
@@ -31,8 +30,9 @@ namespace TradeSystem.CTraderIntegration
         {
             var client = RestClients.GetOrAdd(baseUrl, CreateRestClient);
             var response = await client.ExecuteGetTaskAsync<T>(request);
+			CtLogger.Log(request, response);
 
-            if (response.ErrorException != null)
+			if (response.ErrorException != null)
                 throw new ApplicationException($"{response.StatusDescription} ({response.StatusCode}) {baseUrl}/{request?.Resource}.",
                     response.ErrorException);
 
