@@ -11,6 +11,7 @@ namespace TradeSystem.Data.Models
 		public enum LatencyArbStates
 		{
 			None,
+			Continue,
 			Opening,
 			ReopeningShort,
 			ReopeningLong,
@@ -18,7 +19,7 @@ namespace TradeSystem.Data.Models
 			ImmediateExit,
 			Sync,
 			Reset,
-			Error
+			Error,
 		}
 
 		public enum LatencyArbFirstSides
@@ -46,7 +47,8 @@ namespace TradeSystem.Data.Models
 		[DisplayName("ReopenDaysOld")] public int ReopenThresholdInDay { get; set; } = 5;
 		[DisplayName("R Count")] public int ReopenCount { get => Get<int>(); set => Set(value); }
 
-		public int EmergencyOff { get; set; }
+		[DisplayName("EmergencyState")] [ReadOnly(true)] public LatencyArbStates LastStateBeforeEmergencyOff { get; set; }
+		[DisplayName("E Off")] public int EmergencyOff { get; set; }
 		[DisplayName("E Open tr.")] public decimal EmergencyOpenThresholdInPip { get; set; }
 		[DisplayName("E Close tr.")] public decimal EmergencyCloseThresholdInPip { get; set; }
 		[DisplayName("E Count")] public int EmergencyCount { get => Get<int>(); set => Set(value); }
