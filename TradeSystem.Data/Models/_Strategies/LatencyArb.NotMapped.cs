@@ -19,6 +19,7 @@ namespace TradeSystem.Data.Models
 			public string Account { get; set; }
 			public decimal? Ask { get; set; }
 			public decimal? Bid { get; set; }
+			public decimal? Spread { get; set; }
 			public decimal? AvgPrice { get; set; }
 			public decimal? OpenPip { get; set; }
 			public decimal? ClosePip { get; set; }
@@ -194,7 +195,8 @@ namespace TradeSystem.Data.Models
 					Account = "Feed",
 					AvgPrice = _feedAvg,
 					Ask = LastFeedTick?.Ask,
-					Bid = LastFeedTick?.Bid
+					Bid = LastFeedTick?.Bid,
+					Spread = (LastFeedTick?.Bid - LastFeedTick?.Ask) / PipSize
 				},
 				new Statistics()
 				{
@@ -205,6 +207,7 @@ namespace TradeSystem.Data.Models
 					AvgPrice = _longAvg,
 					Ask = LastLongTick?.Ask,
 					Bid = LastLongTick?.Bid,
+					Spread = (LastLongTick?.Bid - LastLongTick?.Ask) / PipSize,
 					OpenPip = (LastFeedTick?.Ask - LastLongTick?.Ask - (_feedAvg ?? 0) + (_longAvg ?? 0)) / PipSize,
 					ClosePip = (LastLongTick?.Bid - LastFeedTick?.Bid + (_feedAvg ?? 0) - (_longAvg ?? 0)) / PipSize
 				},
@@ -217,6 +220,7 @@ namespace TradeSystem.Data.Models
 					AvgPrice = _shortAvg,
 					Ask = LastShortTick?.Ask,
 					Bid = LastShortTick?.Bid,
+					Spread = (LastShortTick?.Bid - LastShortTick?.Ask) / PipSize,
 					OpenPip = (LastShortTick?.Bid - LastFeedTick?.Bid + (_feedAvg ?? 0) - (_shortAvg ?? 0)) / PipSize,
 					ClosePip = (LastFeedTick?.Ask - LastShortTick?.Ask - (_feedAvg ?? 0) + (_shortAvg ?? 0)) / PipSize
 				}
@@ -231,6 +235,7 @@ namespace TradeSystem.Data.Models
 				Account = s.Account,
 				Ask = s.Ask?.ToString("F5"),
 				Bid = s.Bid?.ToString("F5"),
+				Spread = s.Spread?.ToString("F2"),
 				AvgPrice = s.AvgPrice?.ToString("F5"),
 				OpenDiff = s.OpenPip?.ToString("F2"),
 				CloseDiff = s.ClosePip?.ToString("F2"),
