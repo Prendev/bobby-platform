@@ -14,8 +14,9 @@ namespace TradeSystem.Data.Models
 
 		public event EventHandler<NewTick> NewTick;
 
-		[NotMapped] [ReadOnly(true)] [DisplayPriority(2, true)] public decimal? Ask { get => Get<decimal?>(); set => Set(value); }
-		[NotMapped] [ReadOnly(true)] [DisplayPriority(1, true)] public decimal? Bid { get => Get<decimal?>(); set => Set(value); }
+		[NotMapped] [ReadOnly(true)] [DisplayPriority(3, true)] public decimal? Ask { get => Get<decimal?>(); set => Set(value); }
+		[NotMapped] [ReadOnly(true)] [DisplayPriority(2, true)] public decimal? Bid { get => Get<decimal?>(); set => Set(value); }
+		[NotMapped] [ReadOnly(true)] [DisplayPriority(1, true)] public decimal? Spread { get => Get<decimal?>(); set => Set(value); }
 		[NotMapped] [ReadOnly(true)] [DisplayPriority(0, true)] public decimal? Avg { get => Get<decimal?>(); set => Set(value); }
 
 		public AggregatorAccount()
@@ -30,6 +31,7 @@ namespace TradeSystem.Data.Models
 			if (newTick?.Tick?.Symbol != Symbol) return;
 			Ask = newTick?.Tick?.Ask;
 			Bid = newTick?.Tick?.Bid;
+			Spread = newTick?.Tick?.Bid - newTick?.Tick?.Ask;
 
 			if (newTick?.Tick?.HasValue != true) return;
 			if (Aggregator.AveragingPeriodInSeconds <= 0)
