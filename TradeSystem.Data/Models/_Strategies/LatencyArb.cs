@@ -51,6 +51,7 @@ namespace TradeSystem.Data.Models
 		[DisplayName("E Off")] public int EmergencyOff { get; set; }
 		[DisplayName("E Open tr.")] public decimal EmergencyOpenThresholdInPip { get; set; }
 		[DisplayName("E Close tr.")] public decimal EmergencyCloseThresholdInPip { get; set; }
+		[DisplayName("E Avg Closed tr.")] public decimal? EmergencyAvgClosedThresholdInPip { get; set; }
 		[DisplayName("E Count")] public int EmergencyCount { get => Get<int>(); set => Set(value); }
 		[DisplayName("E Short exit")] public decimal EmergencyShortExitInPip { get; set; }
 		[DisplayName("E Long exit")] public decimal EmergencyLongExitInPip { get; set; }

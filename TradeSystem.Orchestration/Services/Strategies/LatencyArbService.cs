@@ -721,10 +721,11 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				first.ShortClosePrice = closePos.ClosePrice;
 				first.Archived = true;
 				var pip = (first.LongClosePrice - closePos.ClosePrice) / set.PipSize;
-				if (pip < set.EmergencyOpenThresholdInPip && set.EmergencyOff > 0) set.EmergencyCount++;
+				if (pip < set.EmergencyCloseThresholdInPip && set.EmergencyOff > 0) set.EmergencyCount++;
 				else set.EmergencyCount = 0;
 				Logger.Info($"{set} latency arb - {first.Level}. short hedge side closed at {closePos.ClosePrice} with {pip} pips" +
 				            $"{Environment.NewLine}\tExecution time is {closePos.ExecutionTime} ms with {closePos.Slippage / set.PipSize:F2} pip slippage");
+				EmergencyAvgClosedPip(set);
 				// Switch state if rotating
 				if (set.Rotating && set.State == LatencyArb.LatencyArbStates.Closing &&
 				    set.LivePositions.Count == 0)
@@ -751,10 +752,11 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				first.LongClosePrice = closePos.ClosePrice;
 				first.Archived = true;
 				var pip = (closePos.ClosePrice - first.ShortClosePrice) / set.PipSize;
-				if (pip < set.EmergencyOpenThresholdInPip && set.EmergencyOff > 0) set.EmergencyCount++;
+				if (pip < set.EmergencyCloseThresholdInPip && set.EmergencyOff > 0) set.EmergencyCount++;
 				else set.EmergencyCount = 0;
 				Logger.Info($"{set} latency arb - {first.Level}. long hedge side closed at {closePos.ClosePrice} with {pip} pips" +
 				            $"{Environment.NewLine}\tExecution time is {closePos.ExecutionTime} ms with {closePos.Slippage / set.PipSize:F2} pip slippage");
+				EmergencyAvgClosedPip(set);
 				// Switch state if rotating
 				if (set.Rotating && set.State == LatencyArb.LatencyArbStates.Closing &&
 				    set.LivePositions.Count == 0)
@@ -982,6 +984,18 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			set.State = LatencyArb.LatencyArbStates.None;
 			Logger.Warn($"{set} latency arb. - emergency OFF from state {set.LastStateBeforeEmergencyOff}");
 			_emailService.Send($"{set} latency arb. - emergency OFF from state {set.LastStateBeforeEmergencyOff}",
+				$"{set} latency arb. - emergency OFF from state {set.LastStateBeforeEmergencyOff}");
+		}
+		private void EmergencyAvgClosedPip(LatencyArb set)
+		{
+			if (!set.EmergencyAvgClosedThresholdInPip.HasValue) return;
+			if (set.GetAvgClosedPip() >= set.EmergencyAvgClosedThresholdInPip) return;
+
+			set.EmergencyCount = 0;
+			set.LastStateBeforeEmergencyOff = set.State;
+			set.State = LatencyArb.LatencyArbStates.None;
+			Logger.Warn($"{set} latency arb. - emergency avg closed pip OFF from state {set.LastStateBeforeEmergencyOff}");
+			_emailService.Send($"{set} latency arb. - emergency avg closed pip OFF from state {set.LastStateBeforeEmergencyOff}",
 				$"{set} latency arb. - emergency OFF from state {set.LastStateBeforeEmergencyOff}");
 		}
 

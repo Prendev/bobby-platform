@@ -25,6 +25,7 @@ namespace TradeSystem.Duplicat.Views
 			ShowCellToolTips = showCellToolTips;
 			MultiSelect = false;
 			AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
+			ColumnHeadersDefaultCellStyle.WrapMode = DataGridViewTriState.False;
 			DataSourceChanged += CustomDataGridView_DataSourceChanged;
 			RowPrePaint += CustomDataGridView_RowPrePaint;
 			DataError += DataGridView_DataError;

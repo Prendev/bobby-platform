@@ -178,6 +178,13 @@ namespace TradeSystem.Data.Models
 			ConnectionChanged?.Invoke(this, IsConnected ? ConnectionStates.Connected : ConnectionStates.Disconnected);
 		}
 
+		public decimal GetAvgClosedPip()
+		{
+			var closedPositions = LatencyArbPositions.Where(p => p.IsFull).ToList();
+			var avgClosed = closedPositions.Sum(p => p.Result) / Math.Max(1, closedPositions.Count) / PipSize;
+			return avgClosed ?? 0;
+		}
+
 		public IList CalculateStatistics()
 		{
 			var closedPositions = LatencyArbPositions.Where(p => p.IsFull).ToList();
