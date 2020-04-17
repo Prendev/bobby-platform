@@ -75,6 +75,7 @@ namespace TradeSystem.Duplicat.ViewModel
 
 			var p = SelectedProfile?.Id;
 			_duplicatContext.Profiles.OrderBy(e => e.ToString()).Load();
+			Profiles = _duplicatContext.Profiles.Local.ToBindingList();
 
 			_duplicatContext.Profiles.Local.CollectionChanged -= Profiles_CollectionChanged;
 			_duplicatContext.Profiles.Local.CollectionChanged += Profiles_CollectionChanged;
