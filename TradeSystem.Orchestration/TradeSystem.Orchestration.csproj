@@ -186,101 +186,28 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CustomWorkbook.cs" />
-    <Compile Include="Orchestrator.Strategies.cs" />
     <Compile Include="Orchestrator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Services\ConnectorFactory.cs" />
-    <Compile Include="Services\CopierService.Fix.cs" />
-    <Compile Include="Services\CopyLogger.cs" />
-    <Compile Include="Services\MtAccountImportService.cs" />
-    <Compile Include="Services\ProxyService.cs" />
-    <Compile Include="Services\PushingService.cs" />
-    <Compile Include="Services\Strategies\AntiMarketMakerService.cs" />
-    <Compile Include="Services\StopOrderService.cs" />
-    <Compile Include="Services\Strategies\NewsArbService.cs" />
-    <Compile Include="Services\Strategies\LatencyArbService.cs" />
-    <Compile Include="Services\TwoWaySpoofingService.cs" />
-    <Compile Include="Services\Strategies\HubArbService.SendPosition.cs" />
-    <Compile Include="Services\Strategies\HubArbService.Opening.cs" />
-    <Compile Include="Services\Strategies\HubArbService.cs" />
-    <Compile Include="Services\SpoofingService.cs" />
-    <Compile Include="Services\Strategies\MarketMakerService.cs" />
-    <Compile Include="Services\Strategies\SpoofStrategyService.cs" />
-    <Compile Include="Services\TickerService.cs" />
-    <Compile Include="Services\CopierService.cs" />
-    <Compile Include="Services\Strategies\PushStrategyService.cs" />
-    <Compile Include="Services\ReportService.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\git\QvaDev.Wololo\TradeSystem.Communication.FixApi\TradeSystem.Communication.FixApi.csproj">
-      <Project>{5a7c14e4-c1f0-4a9e-8284-d01f0082b483}</Project>
-      <Name>TradeSystem.Communication.FixApi</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\git\QvaDev.Wololo\TradeSystem.Communication\TradeSystem.Communication.csproj">
-      <Project>{9B577BD6-AEA9-4F64-9F1D-6EC760103295}</Project>
-      <Name>TradeSystem.Communication</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\git\QvaDev.Wololo\TradeSystem\TradeSystem.csproj">
-      <Project>{FDFCE270-50AC-4930-8680-A760F6F7C637}</Project>
-      <Name>TradeSystem</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\InteractiveBrokersApi\InteractiveBrokersApi.csproj">
-      <Project>{8ede0744-96c2-40b0-a8dc-37df79370203}</Project>
-      <Name>InteractiveBrokersApi</Name>
-    </ProjectReference>
     <ProjectReference Include="..\TradeSystem.Common\TradeSystem.Common.csproj">
       <Project>{10A3EF89-12BB-4D00-9950-36BFED281B91}</Project>
       <Name>TradeSystem.Common</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\TradeSystem.CqgClientApiIntegration\TradeSystem.CqgClientApiIntegration.csproj">
-      <Project>{8acfc7d6-2c62-4f4c-9fa5-86066cfb62b9}</Project>
-      <Name>TradeSystem.CqgClientApiIntegration</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\TradeSystem.CTraderApi\TradeSystem.CTraderApi.csproj">
-      <Project>{866039f3-42ff-4d42-a85e-f91cef04f3df}</Project>
-      <Name>TradeSystem.CTraderApi</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\TradeSystem.CTraderIntegration\TradeSystem.CTraderIntegration.csproj">
-      <Project>{5b92788f-af48-4709-a539-bba2822a06b7}</Project>
-      <Name>TradeSystem.CTraderIntegration</Name>
     </ProjectReference>
     <ProjectReference Include="..\TradeSystem.Data\TradeSystem.Data.csproj">
       <Project>{D7DA9DD6-1BA9-45B9-9581-1D095631DF0D}</Project>
       <Name>TradeSystem.Data</Name>
     </ProjectReference>
-    <ProjectReference Include="..\TradeSystem.FixApiIntegration\TradeSystem.FixApiIntegration.csproj">
-      <Project>{7f7f4b22-f0bd-4375-baf4-ffafe9b3a853}</Project>
-      <Name>TradeSystem.FixApiIntegration</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\TradeSystem.IbIntegration\TradeSystem.IbIntegration.csproj">
-      <Project>{62ce29d7-e16c-4b48-b017-586c4b22edc9}</Project>
-      <Name>TradeSystem.IbIntegration</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\TradeSystem.IlyaFastFeedIntegration\TradeSystem.IlyaFastFeedIntegration.csproj">
-      <Project>{4c1ea1a8-5c20-48ab-a662-72969d880b21}</Project>
-      <Name>TradeSystem.IlyaFastFeedIntegration</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\TradeSystem.Mt4Integration\TradeSystem.Mt4Integration.csproj">
-      <Project>{73a2679e-f17e-4484-8874-461d3fc895dd}</Project>
-      <Name>TradeSystem.Mt4Integration</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
-    <None Include="Templates\BalanceProfitReport.xlsx">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Templates\SwapReport.xlsx">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Include="Templates\OrderHistory.xlsx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Templates\BalanceReport.xlsx">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Services\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

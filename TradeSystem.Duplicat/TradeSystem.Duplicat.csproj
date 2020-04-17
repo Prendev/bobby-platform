@@ -167,7 +167,6 @@
     <Reference Include="System.ComponentModel.Annotations, Version=4.2.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.ComponentModel.Annotations.4.5.0\lib\net461\System.ComponentModel.Annotations.dll</HintPath>
     </Reference>
-    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Diagnostics.DiagnosticSource, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
@@ -179,101 +178,19 @@
     <Reference Include="System.Memory, Version=4.0.1.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Memory.4.5.1\lib\netstandard2.0\System.Memory.dll</HintPath>
     </Reference>
-    <Reference Include="System.Numerics" />
     <Reference Include="System.Numerics.Vectors, Version=4.1.3.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Numerics.Vectors.4.4.0\lib\net46\System.Numerics.Vectors.dll</HintPath>
     </Reference>
     <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.4.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.4.5.1\lib\netstandard2.0\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
     </Reference>
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Deployment" />
     <Reference Include="System.Drawing" />
-    <Reference Include="System.Net.Http" />
     <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="NullEntity.cs" />
-    <Compile Include="ViewModel\DuplicatViewModel.SpoofingCommands.cs" />
-    <Compile Include="ViewModel\DuplicatViewModel.PushingCommands.cs" />
     <Compile Include="ViewModel\DuplicatViewModel.Commands.cs" />
-    <Compile Include="Views\AggregatorUserControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Views\AggregatorUserControl.Designer.cs">
-      <DependentUpon>AggregatorUserControl.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Views\CopiersUserControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Views\CopiersUserControl.Designer.cs">
-      <DependentUpon>CopiersUserControl.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Views\ExportUserControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Views\ExportUserControl.Designer.cs">
-      <DependentUpon>ExportUserControl.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Views\_Strategies\HubArbUserControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Views\_Strategies\HubArbUserControl.Designer.cs">
-      <DependentUpon>HubArbUserControl.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Views\_Strategies\LatencyArbUserControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Views\_Strategies\LatencyArbUserControl.Designer.cs">
-      <DependentUpon>LatencyArbUserControl.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Views\_Strategies\MarketMakerUserControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Views\_Strategies\MarketMakerUserControl.Designer.cs">
-      <DependentUpon>MarketMakerUserControl.cs</DependentUpon>
-    </Compile>
     <Compile Include="Views\PropertyComparer.cs" />
-    <Compile Include="Views\ProxyUserControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Views\ProxyUserControl.Designer.cs">
-      <DependentUpon>ProxyUserControl.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Views\_Accounts\ClientAccountsUserControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Views\_Accounts\ClientAccountsUserControl.Designer.cs">
-      <DependentUpon>ClientAccountsUserControl.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Views\_Accounts\CtAccountsUserControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Views\_Accounts\CtAccountsUserControl.Designer.cs">
-      <DependentUpon>CtAccountsUserControl.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Views\_Accounts\IffAccountsUserControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Views\_Accounts\IffAccountsUserControl.Designer.cs">
-      <DependentUpon>IffAccountsUserControl.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Views\_Strategies\NewsArbUserControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Views\_Strategies\NewsArbUserControl.Designer.cs">
-      <DependentUpon>NewsArbUserControl.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Views\_Strategies\PushingUserControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Views\_Strategies\PushingUserControl.Designer.cs">
-      <DependentUpon>PushingUserControl.cs</DependentUpon>
-    </Compile>
     <Compile Include="Views\IMvvmUserControl.cs" />
     <Compile Include="TextBoxAppender.cs" />
     <Compile Include="UrlHelper.cs" />
@@ -295,72 +212,12 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="ViewModel\DuplicatViewModel.cs" />
-    <Compile Include="Views\_Accounts\FtAccountsUserControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Views\_Accounts\FtAccountsUserControl.Designer.cs">
-      <DependentUpon>FtAccountsUserControl.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Views\_Accounts\MtAccountsUserControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Views\_Accounts\MtAccountsUserControl.Designer.cs">
-      <DependentUpon>MtAccountsUserControl.cs</DependentUpon>
-    </Compile>
     <Compile Include="Views\ProfilesUserControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="Views\ProfilesUserControl.Designer.cs">
       <DependentUpon>ProfilesUserControl.cs</DependentUpon>
     </Compile>
-    <Compile Include="Views\TickersUserControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Views\TickersUserControl.Designer.cs">
-      <DependentUpon>TickersUserControl.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Views\_Strategies\SpoofingUserControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Views\_Strategies\SpoofingUserControl.Designer.cs">
-      <DependentUpon>SpoofingUserControl.cs</DependentUpon>
-    </Compile>
-    <EmbeddedResource Include="Views\AggregatorUserControl.resx">
-      <DependentUpon>AggregatorUserControl.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Views\CopiersUserControl.resx">
-      <DependentUpon>CopiersUserControl.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Views\ExportUserControl.resx">
-      <DependentUpon>ExportUserControl.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Views\_Strategies\HubArbUserControl.resx">
-      <DependentUpon>HubArbUserControl.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Views\_Strategies\LatencyArbUserControl.resx">
-      <DependentUpon>LatencyArbUserControl.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Views\_Strategies\MarketMakerUserControl.resx">
-      <DependentUpon>MarketMakerUserControl.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Views\ProxyUserControl.resx">
-      <DependentUpon>ProxyUserControl.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Views\_Accounts\ClientAccountsUserControl.resx">
-      <DependentUpon>ClientAccountsUserControl.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Views\_Accounts\CtAccountsUserControl.resx">
-      <DependentUpon>CtAccountsUserControl.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Views\_Accounts\IffAccountsUserControl.resx">
-      <DependentUpon>IffAccountsUserControl.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Views\_Strategies\NewsArbUserControl.resx">
-      <DependentUpon>NewsArbUserControl.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Views\_Strategies\PushingUserControl.resx">
-      <DependentUpon>PushingUserControl.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Views\MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -374,20 +231,8 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
-    <EmbeddedResource Include="Views\_Accounts\FtAccountsUserControl.resx">
-      <DependentUpon>FtAccountsUserControl.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Views\_Accounts\MtAccountsUserControl.resx">
-      <DependentUpon>MtAccountsUserControl.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Views\ProfilesUserControl.resx">
       <DependentUpon>ProfilesUserControl.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Views\TickersUserControl.resx">
-      <DependentUpon>TickersUserControl.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Views\_Strategies\SpoofingUserControl.resx">
-      <DependentUpon>SpoofingUserControl.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="log4net.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -410,41 +255,21 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\git\QvaDev.Wololo\TradeSystem.Communication.DtcApi\TradeSystem.Communication.DtcApi.csproj">
-      <Project>{eed1bd13-cc26-4ede-99e4-dd59eb4d09bb}</Project>
-      <Name>TradeSystem.Communication.DtcApi</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\git\QvaDev.Wololo\TradeSystem.Communication.FixApi.Connectors\TradeSystem.Communication.FixApi.Connectors.csproj">
-      <Project>{c38c4681-11e5-417b-9923-6e754402ec1b}</Project>
-      <Name>TradeSystem.Communication.FixApi.Connectors</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\git\QvaDev.Wololo\TradeSystem.Communication.SnwApi\TradeSystem.Communication.SnwApi.csproj">
-      <Project>{3455f630-ea48-4c6f-8012-a9dfa9ce1428}</Project>
-      <Name>TradeSystem.Communication.SnwApi</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\git\QvaDev.Wololo\TradeSystem\TradeSystem.csproj">
-      <Project>{FDFCE270-50AC-4930-8680-A760F6F7C637}</Project>
-      <Name>TradeSystem</Name>
-    </ProjectReference>
     <ProjectReference Include="..\TradeSystem.Common\TradeSystem.Common.csproj">
       <Project>{10A3EF89-12BB-4D00-9950-36BFED281B91}</Project>
       <Name>TradeSystem.Common</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\TradeSystem.CTraderIntegration\TradeSystem.CTraderIntegration.csproj">
-      <Project>{5b92788f-af48-4709-a539-bba2822a06b7}</Project>
-      <Name>TradeSystem.CTraderIntegration</Name>
     </ProjectReference>
     <ProjectReference Include="..\TradeSystem.Data\TradeSystem.Data.csproj">
       <Project>{D7DA9DD6-1BA9-45B9-9581-1D095631DF0D}</Project>
       <Name>TradeSystem.Data</Name>
     </ProjectReference>
-    <ProjectReference Include="..\TradeSystem.FixApiIntegration\TradeSystem.FixApiIntegration.csproj">
-      <Project>{7f7f4b22-f0bd-4375-baf4-ffafe9b3a853}</Project>
-      <Name>TradeSystem.FixApiIntegration</Name>
-    </ProjectReference>
     <ProjectReference Include="..\TradeSystem.Orchestration\TradeSystem.Orchestration.csproj">
       <Project>{7FCD6735-2115-4096-B5C9-E5CD7B4A3C1C}</Project>
       <Name>TradeSystem.Orchestration</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TradeSystem\TradeSystem.csproj">
+      <Project>{fdfce270-50ac-4930-8680-a760f6f7c637}</Project>
+      <Name>TradeSystem</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
