@@ -8,6 +8,7 @@ namespace TradeSystem.Duplicat.Views
 	public abstract partial class CustomUserControl<T> : UserControl, IMvvmUserControl where T : BaseEntity
 	{
 		protected DuplicatViewModel ViewModel;
+		protected CustomDataGridView DataGridView => dataGridView;
 
 		protected CustomUserControl()
 		{
@@ -24,7 +25,13 @@ namespace TradeSystem.Duplicat.Views
 			dataGridView.RowDoubleClick += (s, e) => ViewModel.Select(dataGridView.GetSelectedItem<T>());
 		}
 
-		public void AttachDataSources() => dataGridView.DataSource = GetDataSource();
+		public void AttachDataSources()
+		{
+			AddComboBoxColumns();
+			dataGridView.DataSource = GetDataSource();
+		}
+
+		protected virtual void AddComboBoxColumns() { }
 
 		protected abstract string GetSelectedPropertyName();
 		protected abstract object GetDataSource();
