@@ -36,7 +36,6 @@ namespace TradeSystem.Duplicat.ViewModel
 		public event DataContextChangedEventHandler DataContextChanged;
 
 		public int AutoSavePeriodInMin { get => Get<int>(); set => Set(value); }
-		public bool IsConfigReadonly { get => Get<bool>(); set => Set(value); }
 		public bool IsLoading { get => Get<bool>(); set => Set(value); }
 		public bool IsConnected { get => Get<bool>(); set => Set(value); }
 		public SaveStates SaveState { get => Get<SaveStates>(); set => Set(value); }
