@@ -1,10 +1,11 @@
 ﻿using System.Windows.Forms;
+using TradeSystem.Data.Models;
 using TradeSystem.Duplicat.ViewModel;
 
 namespace TradeSystem.Duplicat.Views
 {
 
-	public abstract partial class CustomUserControl<T> : UserControl, IMvvmUserControl where T : class
+	public abstract partial class CustomUserControl<T> : UserControl, IMvvmUserControl where T : BaseEntity
 	{
 		protected DuplicatViewModel ViewModel;
 
@@ -20,13 +21,12 @@ namespace TradeSystem.Duplicat.Views
 			gbProperties.AddBinding("Enabled", ViewModel, nameof(ViewModel.IsLoading), true);
 			properties.AddBinding("SelectedObject", ViewModel, GetSelectedPropertyName());
 
-			dataGridView.RowDoubleClick += (s, e) => SelectItem(dataGridView.GetSelectedItem<T>());
+			dataGridView.RowDoubleClick += (s, e) => ViewModel.Select(dataGridView.GetSelectedItem<T>());
 		}
 
 		public void AttachDataSources() => dataGridView.DataSource = GetDataSource();
 
 		protected abstract string GetSelectedPropertyName();
 		protected abstract object GetDataSource();
-		protected abstract void SelectItem(T item);
 	}
 }

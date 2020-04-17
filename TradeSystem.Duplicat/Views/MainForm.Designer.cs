@@ -30,6 +30,7 @@
         {
 			this.tabControlMain = new System.Windows.Forms.TabControl();
 			this.tabPageProfile = new System.Windows.Forms.TabPage();
+			this.profileUserControl = new TradeSystem.Duplicat.Views.ProfileUserControl();
 			this.tabPageLog = new System.Windows.Forms.TabPage();
 			this.tabControl1 = new System.Windows.Forms.TabControl();
 			this.tabPage3 = new System.Windows.Forms.TabPage();
@@ -39,7 +40,6 @@
 			this.lbAutoSave = new System.Windows.Forms.Label();
 			this.nudAutoSave = new System.Windows.Forms.NumericUpDown();
 			this.btnSave = new System.Windows.Forms.Button();
-			this.profilesUserControl = new TradeSystem.Duplicat.Views.ProfilesUserControl();
 			this.tabControlMain.SuspendLayout();
 			this.tabPageProfile.SuspendLayout();
 			this.tabPageLog.SuspendLayout();
@@ -63,7 +63,7 @@
 			// 
 			// tabPageProfile
 			// 
-			this.tabPageProfile.Controls.Add(this.profilesUserControl);
+			this.tabPageProfile.Controls.Add(this.profileUserControl);
 			this.tabPageProfile.Location = new System.Drawing.Point(4, 22);
 			this.tabPageProfile.Name = "tabPageProfile";
 			this.tabPageProfile.Padding = new System.Windows.Forms.Padding(3);
@@ -71,6 +71,15 @@
 			this.tabPageProfile.TabIndex = 3;
 			this.tabPageProfile.Text = "Profilok";
 			this.tabPageProfile.UseVisualStyleBackColor = true;
+			// 
+			// profileUserControl
+			// 
+			this.profileUserControl.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.profileUserControl.Location = new System.Drawing.Point(3, 3);
+			this.profileUserControl.Margin = new System.Windows.Forms.Padding(4);
+			this.profileUserControl.Name = "profileUserControl";
+			this.profileUserControl.Size = new System.Drawing.Size(1106, 588);
+			this.profileUserControl.TabIndex = 0;
 			// 
 			// tabPageLog
 			// 
@@ -182,15 +191,6 @@
 			this.btnSave.Text = "Konfiguracio mentes";
 			this.btnSave.UseVisualStyleBackColor = true;
 			// 
-			// profilesUserControl
-			// 
-			this.profilesUserControl.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.profilesUserControl.Location = new System.Drawing.Point(3, 3);
-			this.profilesUserControl.Margin = new System.Windows.Forms.Padding(4);
-			this.profilesUserControl.Name = "profilesUserControl";
-			this.profilesUserControl.Size = new System.Drawing.Size(1106, 588);
-			this.profilesUserControl.TabIndex = 0;
-			// 
 			// MainForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -233,7 +233,7 @@
 		private System.Windows.Forms.RichTextBox rtbAll;
 		private System.Windows.Forms.Label lbAutoSave;
 		private System.Windows.Forms.NumericUpDown nudAutoSave;
-		private ProfilesUserControl profilesUserControl;
+		private ProfileUserControl profileUserControl;
 	}
 }
 

@@ -25,11 +25,19 @@ namespace TradeSystem.Duplicat.ViewModel
 			timer.Start();
 		}
 
-        public void LoadProfileCommand(Profile profile)
-        {
-	        if (IsLoading) return;
+	    public void Select(BaseEntity entity)
+	    {
+		    if (IsLoading) return;
 
-			SelectedProfile = profile;
-		}
-    }
+		    switch (entity)
+		    {
+			    case Profile profile:
+				    SelectedProfile = profile;
+				    break;
+			    case Quotation quotation:
+				    SelectedQuotation = quotation;
+				    break;
+		    }
+	    }
+	}
 }
