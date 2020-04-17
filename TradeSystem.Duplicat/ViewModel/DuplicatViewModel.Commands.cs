@@ -11,12 +11,12 @@ namespace TradeSystem.Duplicat.ViewModel
             try
             {
                 _duplicatContext.SaveChanges();
-	            if (log) Logger.Debug($"Database is saved");
+	            if (log) Logger.Debug("Adatbazis mentve");
 				SaveState = SaveStates.Success;
 			}
             catch (Exception e)
             {
-	            Logger.Error("Database save ERROR!!!", e);
+	            Logger.Error("Adatbazis mentes HIBA!!!", e);
 				SaveState = SaveStates.Error;
 			}
 
@@ -28,8 +28,9 @@ namespace TradeSystem.Duplicat.ViewModel
 	    public void Select(BaseEntity entity)
 	    {
 		    if (IsLoading) return;
+		    SaveCommand();
 
-		    switch (entity)
+			switch (entity)
 		    {
 			    case Profile profile:
 				    SelectedProfile = profile;

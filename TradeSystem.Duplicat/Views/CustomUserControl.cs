@@ -15,7 +15,7 @@ namespace TradeSystem.Duplicat.Views
 			InitializeComponent();
 		}
 
-		public void InitView(DuplicatViewModel viewModel)
+		public virtual void InitView(DuplicatViewModel viewModel)
 		{
 			ViewModel = viewModel;
 
@@ -23,6 +23,7 @@ namespace TradeSystem.Duplicat.Views
 			properties.AddBinding("SelectedObject", ViewModel, GetSelectedPropertyName());
 
 			dataGridView.RowDoubleClick += (s, e) => ViewModel.Select(dataGridView.GetSelectedItem<T>());
+			AddDefaults();
 		}
 
 		public void AttachDataSources()
@@ -31,6 +32,7 @@ namespace TradeSystem.Duplicat.Views
 			dataGridView.DataSource = GetDataSource();
 		}
 
+		protected virtual void AddDefaults() { }
 		protected virtual void AddComboBoxColumns() { }
 
 		protected abstract string GetSelectedPropertyName();

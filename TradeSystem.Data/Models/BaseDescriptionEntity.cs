@@ -8,7 +8,8 @@ namespace TradeSystem.Data.Models
     {
         [Required]
         [DisplayPriority(0)]
-        [Category("Base")]
+        [Category("Altalanos")]
+        [DisplayName("Megnevezes")]
 		public string Description { get; set; }
 
         public override string ToString()

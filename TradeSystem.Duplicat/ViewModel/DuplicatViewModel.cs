@@ -67,7 +67,7 @@ namespace TradeSystem.Duplicat.ViewModel
 			Profiles = _duplicatContext.Profiles.Local.ToBindingList();
 
 			_duplicatContext.Quotations.OrderByDescending(e => e.Id).Load();
-			Quotations = _duplicatContext.Quotations.Local.ToBindingList();
+			Quotations = ToFilteredBindingList(_duplicatContext.Quotations.Local, e => e.Profile, () => SelectedProfile);
 		}
 
 		private BindingList<T> ToBindingList<T, TSelected>(

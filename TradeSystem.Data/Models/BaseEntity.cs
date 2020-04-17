@@ -13,16 +13,19 @@ namespace TradeSystem.Data.Models
         [Dapper.Contrib.Extensions.Key]
         [InvisibleColumn]
         [ReadOnly(true)]
-		[Category("Base")]
+		[Category("Altalanos")]
+        [DisplayName("ID")]
 		public int Id { get; set; }
 
 		[NotMapped]
 		[InvisibleColumn]
-		[Category("Base")]
+		[Category("Altalanos")]
+		[DisplayName("Megjelenitesi nev")]
 		public string DisplayMember => ToString();
 
 		[ReadOnly(true)]
-		[Category("Base")]
+		[Category("Altalanos")]
+		[DisplayName("Letrehozva")]
 		public DateTime TimeCreated { get; set; } = HiResDatetime.UtcNow;
 
         public override string ToString()
