@@ -33,13 +33,15 @@ namespace TradeSystem.Duplicat.ViewModel
 
 		public BindingList<Profile> Profiles { get; private set; }
 		public BindingList<Quotation> Quotations { get; private set; }
-		
+		public BindingList<Item> Items { get; private set; }
+
 		public bool IsLoading { get => Get<bool>(); set => Set(value); }
 		public bool IsConnected { get => Get<bool>(); set => Set(value); }
 		public SaveStates SaveState { get => Get<SaveStates>(); set => Set(value); }
 
 		public Profile SelectedProfile { get => Get<Profile>(); set => Set(value); }
 		public Quotation SelectedQuotation { get => Get<Quotation>(); set => Set(value); }
+		public Item SelectedItem { get => Get<Item>(); set => Set(value); }
 
 		public DuplicatViewModel(IOrchestrator orchestrator)
 		{
@@ -68,6 +70,9 @@ namespace TradeSystem.Duplicat.ViewModel
 
 			_duplicatContext.Quotations.OrderByDescending(e => e.Id).Load();
 			Quotations = ToFilteredBindingList(_duplicatContext.Quotations.Local, e => e.Profile, () => SelectedProfile);
+
+			_duplicatContext.Items.OrderByDescending(e => e.Id).Load();
+			Items = ToFilteredBindingList(_duplicatContext.Items.Local, e => e.Quotation, () => SelectedQuotation);
 		}
 
 		private BindingList<T> ToBindingList<T, TSelected>(

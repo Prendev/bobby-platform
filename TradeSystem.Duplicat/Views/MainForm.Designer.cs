@@ -40,7 +40,7 @@
 			this.tabPageQuotation = new System.Windows.Forms.TabPage();
 			this.quotationUserControl = new TradeSystem.Duplicat.Views.QuotationUserControl();
 			this.comboBox1 = new System.Windows.Forms.ComboBox();
-			this.tabPage1 = new System.Windows.Forms.TabPage();
+			this.tabPageItem = new System.Windows.Forms.TabPage();
 			this.tabPage2 = new System.Windows.Forms.TabPage();
 			this.tabPage4 = new System.Windows.Forms.TabPage();
 			this.cbProfile = new System.Windows.Forms.ComboBox();
@@ -48,7 +48,8 @@
 			this.rtbAll = new System.Windows.Forms.RichTextBox();
 			this.panel1 = new System.Windows.Forms.Panel();
 			this.cbQuotation = new System.Windows.Forms.ComboBox();
-			this.comboBox3 = new System.Windows.Forms.ComboBox();
+			this.cbItem = new System.Windows.Forms.ComboBox();
+			this.itemUserControl1 = new TradeSystem.Duplicat.Views.ItemUserControl();
 			this.tabControlMain.SuspendLayout();
 			this.tabPageProfile.SuspendLayout();
 			this.tabPageLog.SuspendLayout();
@@ -56,6 +57,7 @@
 			this.gbControl.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.nudAutoSave)).BeginInit();
 			this.tabPageQuotation.SuspendLayout();
+			this.tabPageItem.SuspendLayout();
 			this.gbComboBoxes.SuspendLayout();
 			this.panel1.SuspendLayout();
 			this.SuspendLayout();
@@ -64,8 +66,8 @@
 			// 
 			this.tabControlMain.Controls.Add(this.tabPageProfile);
 			this.tabControlMain.Controls.Add(this.tabPageQuotation);
+			this.tabControlMain.Controls.Add(this.tabPageItem);
 			this.tabControlMain.Controls.Add(this.tabPageLog);
-			this.tabControlMain.Controls.Add(this.tabPage1);
 			this.tabControlMain.Controls.Add(this.tabPage2);
 			this.tabControlMain.Controls.Add(this.tabPage4);
 			this.tabControlMain.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -202,15 +204,16 @@
 			this.comboBox1.Size = new System.Drawing.Size(121, 21);
 			this.comboBox1.TabIndex = 28;
 			// 
-			// tabPage1
+			// tabPageItem
 			// 
-			this.tabPage1.Location = new System.Drawing.Point(4, 22);
-			this.tabPage1.Name = "tabPage1";
-			this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-			this.tabPage1.Size = new System.Drawing.Size(1112, 542);
-			this.tabPage1.TabIndex = 6;
-			this.tabPage1.Text = "tabPage1";
-			this.tabPage1.UseVisualStyleBackColor = true;
+			this.tabPageItem.Controls.Add(this.itemUserControl1);
+			this.tabPageItem.Location = new System.Drawing.Point(4, 22);
+			this.tabPageItem.Name = "tabPageItem";
+			this.tabPageItem.Padding = new System.Windows.Forms.Padding(3);
+			this.tabPageItem.Size = new System.Drawing.Size(1112, 542);
+			this.tabPageItem.TabIndex = 6;
+			this.tabPageItem.Text = "Arucikk";
+			this.tabPageItem.UseVisualStyleBackColor = true;
 			// 
 			// tabPage2
 			// 
@@ -244,7 +247,7 @@
 			// 
 			// gbComboBoxes
 			// 
-			this.gbComboBoxes.Controls.Add(this.comboBox3);
+			this.gbComboBoxes.Controls.Add(this.cbItem);
 			this.gbComboBoxes.Controls.Add(this.cbQuotation);
 			this.gbComboBoxes.Controls.Add(this.cbProfile);
 			this.gbComboBoxes.Dock = System.Windows.Forms.DockStyle.Top;
@@ -286,15 +289,23 @@
 			this.cbQuotation.Size = new System.Drawing.Size(121, 21);
 			this.cbQuotation.TabIndex = 1;
 			// 
-			// comboBox3
+			// cbItem
 			// 
-			this.comboBox3.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-			this.comboBox3.FormattingEnabled = true;
-			this.comboBox3.Location = new System.Drawing.Point(254, 19);
-			this.comboBox3.Margin = new System.Windows.Forms.Padding(1, 3, 3, 3);
-			this.comboBox3.Name = "comboBox3";
-			this.comboBox3.Size = new System.Drawing.Size(121, 21);
-			this.comboBox3.TabIndex = 2;
+			this.cbItem.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+			this.cbItem.FormattingEnabled = true;
+			this.cbItem.Location = new System.Drawing.Point(254, 19);
+			this.cbItem.Margin = new System.Windows.Forms.Padding(1, 3, 3, 3);
+			this.cbItem.Name = "cbItem";
+			this.cbItem.Size = new System.Drawing.Size(121, 21);
+			this.cbItem.TabIndex = 2;
+			// 
+			// itemUserControl1
+			// 
+			this.itemUserControl1.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.itemUserControl1.Location = new System.Drawing.Point(3, 3);
+			this.itemUserControl1.Name = "itemUserControl1";
+			this.itemUserControl1.Size = new System.Drawing.Size(1106, 536);
+			this.itemUserControl1.TabIndex = 0;
 			// 
 			// MainForm
 			// 
@@ -312,6 +323,7 @@
 			this.gbControl.PerformLayout();
 			((System.ComponentModel.ISupportInitialize)(this.nudAutoSave)).EndInit();
 			this.tabPageQuotation.ResumeLayout(false);
+			this.tabPageItem.ResumeLayout(false);
 			this.gbComboBoxes.ResumeLayout(false);
 			this.panel1.ResumeLayout(false);
 			this.ResumeLayout(false);
@@ -340,15 +352,16 @@
 		private System.Windows.Forms.TabPage tabPageQuotation;
 		private QuotationUserControl quotationUserControl;
 		private System.Windows.Forms.ComboBox comboBox1;
-		private System.Windows.Forms.TabPage tabPage1;
+		private System.Windows.Forms.TabPage tabPageItem;
 		private System.Windows.Forms.TabPage tabPage2;
 		private System.Windows.Forms.TabPage tabPage4;
 		private System.Windows.Forms.Panel panel1;
 		private System.Windows.Forms.RichTextBox rtbAll;
 		private System.Windows.Forms.GroupBox gbComboBoxes;
 		private System.Windows.Forms.ComboBox cbProfile;
-		private System.Windows.Forms.ComboBox comboBox3;
+		private System.Windows.Forms.ComboBox cbItem;
 		private System.Windows.Forms.ComboBox cbQuotation;
+		private ItemUserControl itemUserControl1;
 	}
 }
 
