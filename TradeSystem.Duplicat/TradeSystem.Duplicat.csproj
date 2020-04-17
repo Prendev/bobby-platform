@@ -169,6 +169,7 @@
     </Reference>
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
     <Reference Include="System.Diagnostics.DiagnosticSource, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Diagnostics.DiagnosticSource.4.5.0\lib\net46\System.Diagnostics.DiagnosticSource.dll</HintPath>
     </Reference>
@@ -186,10 +187,20 @@
     </Reference>
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="NullEntity.cs" />
     <Compile Include="ViewModel\DuplicatViewModel.Commands.cs" />
+    <Compile Include="Views\CustomUserControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Views\CustomUserControl.Designer.cs">
+      <DependentUpon>CustomUserControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ProfilesUserControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="Views\PropertyComparer.cs" />
     <Compile Include="Views\IMvvmUserControl.cs" />
     <Compile Include="TextBoxAppender.cs" />
@@ -212,12 +223,9 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="ViewModel\DuplicatViewModel.cs" />
-    <Compile Include="Views\ProfilesUserControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Views\ProfilesUserControl.Designer.cs">
-      <DependentUpon>ProfilesUserControl.cs</DependentUpon>
-    </Compile>
+    <EmbeddedResource Include="Views\CustomUserControl.resx">
+      <DependentUpon>CustomUserControl.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Views\MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -231,9 +239,6 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
-    <EmbeddedResource Include="Views\ProfilesUserControl.resx">
-      <DependentUpon>ProfilesUserControl.cs</DependentUpon>
-    </EmbeddedResource>
     <None Include="log4net.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <SubType>Designer</SubType>

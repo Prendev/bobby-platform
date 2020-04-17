@@ -228,12 +228,12 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn playgroundDataGridViewTextBoxColumn;
         private System.Windows.Forms.TabPage tabPageProfile;
         private System.Windows.Forms.TabPage tabPageLog;
-        private ProfilesUserControl profilesUserControl;
 		private System.Windows.Forms.TabControl tabControl1;
 		private System.Windows.Forms.TabPage tabPage3;
 		private System.Windows.Forms.RichTextBox rtbAll;
 		private System.Windows.Forms.Label lbAutoSave;
 		private System.Windows.Forms.NumericUpDown nudAutoSave;
+		private ProfilesUserControl profilesUserControl;
 	}
 }
 
