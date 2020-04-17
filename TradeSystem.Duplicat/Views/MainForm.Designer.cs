@@ -38,8 +38,6 @@
 			this.gbControl = new System.Windows.Forms.GroupBox();
 			this.lbAutoSave = new System.Windows.Forms.Label();
 			this.nudAutoSave = new System.Windows.Forms.NumericUpDown();
-			this.labelProfile = new System.Windows.Forms.Label();
-			this.lbSelectedProfile = new System.Windows.Forms.Label();
 			this.btnSave = new System.Windows.Forms.Button();
 			this.profilesUserControl = new TradeSystem.Duplicat.Views.ProfilesUserControl();
 			this.tabControlMain.SuspendLayout();
@@ -140,8 +138,6 @@
 			// 
 			this.gbControl.Controls.Add(this.lbAutoSave);
 			this.gbControl.Controls.Add(this.nudAutoSave);
-			this.gbControl.Controls.Add(this.labelProfile);
-			this.gbControl.Controls.Add(this.lbSelectedProfile);
 			this.gbControl.Controls.Add(this.btnSave);
 			this.gbControl.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.gbControl.Location = new System.Drawing.Point(3, 3);
@@ -155,7 +151,7 @@
 			// 
 			this.lbAutoSave.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
 			this.lbAutoSave.AutoSize = true;
-			this.lbAutoSave.Location = new System.Drawing.Point(782, 21);
+			this.lbAutoSave.Location = new System.Drawing.Point(161, 24);
 			this.lbAutoSave.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
 			this.lbAutoSave.Name = "lbAutoSave";
 			this.lbAutoSave.Size = new System.Drawing.Size(135, 13);
@@ -165,7 +161,7 @@
 			// nudAutoSave
 			// 
 			this.nudAutoSave.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.nudAutoSave.Location = new System.Drawing.Point(921, 19);
+			this.nudAutoSave.Location = new System.Drawing.Point(300, 19);
 			this.nudAutoSave.Margin = new System.Windows.Forms.Padding(2);
 			this.nudAutoSave.Name = "nudAutoSave";
 			this.nudAutoSave.Size = new System.Drawing.Size(38, 20);
@@ -176,29 +172,10 @@
             0,
             0});
 			// 
-			// labelProfile
-			// 
-			this.labelProfile.AutoSize = true;
-			this.labelProfile.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.labelProfile.Location = new System.Drawing.Point(98, 21);
-			this.labelProfile.Name = "labelProfile";
-			this.labelProfile.Size = new System.Drawing.Size(11, 13);
-			this.labelProfile.TabIndex = 23;
-			this.labelProfile.Text = "-";
-			// 
-			// lbSelectedProfile
-			// 
-			this.lbSelectedProfile.AutoSize = true;
-			this.lbSelectedProfile.Location = new System.Drawing.Point(9, 21);
-			this.lbSelectedProfile.Name = "lbSelectedProfile";
-			this.lbSelectedProfile.Size = new System.Drawing.Size(89, 13);
-			this.lbSelectedProfile.TabIndex = 22;
-			this.lbSelectedProfile.Text = "Kivalasztott profil:";
-			// 
 			// btnSave
 			// 
 			this.btnSave.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.btnSave.Location = new System.Drawing.Point(964, 19);
+			this.btnSave.Location = new System.Drawing.Point(6, 19);
 			this.btnSave.Name = "btnSave";
 			this.btnSave.Size = new System.Drawing.Size(150, 23);
 			this.btnSave.TabIndex = 7;
@@ -252,8 +229,6 @@
         private System.Windows.Forms.TabPage tabPageProfile;
         private System.Windows.Forms.TabPage tabPageLog;
         private ProfilesUserControl profilesUserControl;
-        private System.Windows.Forms.Label labelProfile;
-        private System.Windows.Forms.Label lbSelectedProfile;
 		private System.Windows.Forms.TabControl tabControl1;
 		private System.Windows.Forms.TabPage tabPage3;
 		private System.Windows.Forms.RichTextBox rtbAll;

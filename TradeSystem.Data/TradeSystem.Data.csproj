@@ -162,6 +162,7 @@
     <Compile Include="Models\BaseEntity.cs" />
     <Compile Include="Models\BaseDescriptionEntity.cs" />
     <Compile Include="Models\Profile.cs" />
+    <Compile Include="Models\Quotation.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -180,6 +181,10 @@
     <ProjectReference Include="..\TradeSystem.FileContextCore\TradeSystem.FileContextCore.csproj">
       <Project>{b0df0796-17ed-470a-858d-a7cabb3f36f8}</Project>
       <Name>TradeSystem.FileContextCore</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TradeSystem\TradeSystem.csproj">
+      <Project>{fdfce270-50ac-4930-8680-a760f6f7c637}</Project>
+      <Name>TradeSystem</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -7,8 +7,7 @@ namespace TradeSystem.Orchestration
 {
 	public interface IOrchestrator
 	{
-		Task Connect(DuplicatContext duplicatContext);
-		Task Disconnect();
+		void Init(DuplicatContext duplicatContext);
 	}
 
 	public class Orchestrator : IOrchestrator
@@ -23,15 +22,10 @@ namespace TradeSystem.Orchestration
 			_synchronizationContextFactory = synchronizationContextFactory;
 		}
 
-		public async Task Connect(DuplicatContext duplicatContext)
+		public void Init(DuplicatContext duplicatContext)
 		{
 			_duplicatContext = duplicatContext;
 			_synchronizationContext = _synchronizationContext ?? _synchronizationContextFactory.Invoke();
-		}
-
-		public async Task Disconnect()
-		{
-			_duplicatContext.SaveChanges();
 		}
 	}
 }

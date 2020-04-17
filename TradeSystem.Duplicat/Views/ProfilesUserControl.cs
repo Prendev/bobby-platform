@@ -18,8 +18,8 @@ namespace TradeSystem.Duplicat.Views
             _viewModel = viewModel;
 
 	        gbControl.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsLoading), true);
-	        gbProfile.AddBinding<Profile, string>("Text", _viewModel, nameof(_viewModel.SelectedProfile),
-		        p => $"Profiles (use double-click) - {p}");
+			properties.AddBinding("SelectedObject", _viewModel, nameof(_viewModel.SelectedProfile));
+
 			dgvProfiles.RowDoubleClick += (s, e) => _viewModel.LoadProfileCommand(dgvProfiles.GetSelectedItem<Profile>());
 		}
 

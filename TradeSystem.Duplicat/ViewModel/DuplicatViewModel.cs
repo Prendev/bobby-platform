@@ -29,13 +29,12 @@ namespace TradeSystem.Duplicat.ViewModel
 		private readonly List<PropertyChangedEventHandler> _propertyChangedDelegates = new List<PropertyChangedEventHandler>();
 		private readonly List<Tuple<IBindingList, ListChangedEventHandler>> _listChangedDelegates =
 			new List<Tuple<IBindingList, ListChangedEventHandler>>();
-		private readonly Timer _autoSaveTimer = new Timer { AutoReset = true };
-
-		public BindingList<Profile> Profiles { get; private set; }
 
 		public event DataContextChangedEventHandler DataContextChanged;
 
-		public int AutoSavePeriodInMin { get => Get<int>(); set => Set(value); }
+		public BindingList<Profile> Profiles { get; private set; }
+		public BindingList<Quotation> Quotations { get; private set; }
+		
 		public bool IsLoading { get => Get<bool>(); set => Set(value); }
 		public bool IsConnected { get => Get<bool>(); set => Set(value); }
 		public SaveStates SaveState { get => Get<SaveStates>(); set => Set(value); }
@@ -44,17 +43,6 @@ namespace TradeSystem.Duplicat.ViewModel
 
 		public DuplicatViewModel(IOrchestrator orchestrator)
 		{
-			AutoSavePeriodInMin = 1;
-			_autoSaveTimer.Elapsed += (sender, args) =>
-			{
-				if (AutoSavePeriodInMin <= 0)
-				{
-					_autoSaveTimer.Interval = 1000 * 60;
-					return;
-				}
-				_autoSaveTimer.Interval = 1000 * 60 * AutoSavePeriodInMin;
-				SaveCommand(false);
-			};
 			_orchestrator = orchestrator;
 			InitDataContext();
 		}
@@ -64,6 +52,8 @@ namespace TradeSystem.Duplicat.ViewModel
 			_duplicatContext?.Dispose();
 			_duplicatContext = new DuplicatContext();
 			LoadLocals();
+			_orchestrator.Init(_duplicatContext);
+			DataContextChanged?.Invoke();
 		}
 
 		private void LoadLocals()
@@ -73,18 +63,11 @@ namespace TradeSystem.Duplicat.ViewModel
 			foreach (var listChanged in _listChangedDelegates) listChanged.Item1.ListChanged -= listChanged.Item2;
 			_listChangedDelegates.Clear();
 
-			var p = SelectedProfile?.Id;
 			_duplicatContext.Profiles.OrderBy(e => e.ToString()).Load();
 			Profiles = _duplicatContext.Profiles.Local.ToBindingList();
 
-			_duplicatContext.Profiles.Local.CollectionChanged -= Profiles_CollectionChanged;
-			_duplicatContext.Profiles.Local.CollectionChanged += Profiles_CollectionChanged;
-		}
-
-		private void Profiles_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
-		{
-			if (SelectedProfile != null && _duplicatContext.Profiles.Local.Any(l => l.Id == SelectedProfile.Id)) return;
-			LoadLocals();
+			_duplicatContext.Quotations.OrderByDescending(e => e.Id).Load();
+			Quotations = _duplicatContext.Quotations.Local.ToBindingList();
 		}
 
 		private BindingList<T> ToBindingList<T, TSelected>(
