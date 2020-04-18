@@ -42,7 +42,6 @@ namespace TradeSystem.Duplicat.Views
 			_viewModel.DataContextChanged += () => AttachDataSources(this);
 
 	        InitViews(this);
-			InitComboBoxes();
 			AttachDataSources(this);
         }
 
@@ -57,20 +56,9 @@ namespace TradeSystem.Duplicat.Views
 			}
 		}
 
-	    private void InitComboBoxes()
-		{
-			cbProfile.AddBinding("SelectedItem", _viewModel, nameof(_viewModel.SelectedProfile));
-			cbQuotation.AddBinding("SelectedItem", _viewModel, nameof(_viewModel.SelectedQuotation));
-			cbItem.AddBinding("SelectedItem", _viewModel, nameof(_viewModel.SelectedItem));
-		}
-
 	    private void AttachDataSources(Control parent)
 	    {
 		    if (parent == null) return;
-
-			cbProfile.DataSource = _viewModel.Profiles;
-		    cbQuotation.DataSource = _viewModel.Quotations;
-		    cbItem.DataSource = _viewModel.Items;
 
 			foreach (Control c in parent.Controls)
 		    {

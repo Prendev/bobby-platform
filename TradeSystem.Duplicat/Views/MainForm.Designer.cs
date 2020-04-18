@@ -30,36 +30,32 @@
         {
 			this.tabControlMain = new System.Windows.Forms.TabControl();
 			this.tabPageProfile = new System.Windows.Forms.TabPage();
-			this.profileUserControl = new TradeSystem.Duplicat.Views.ProfileUserControl();
+			this.tabPageQuotation = new System.Windows.Forms.TabPage();
+			this.tabPageItem = new System.Windows.Forms.TabPage();
 			this.tabPageLog = new System.Windows.Forms.TabPage();
+			this.panel1 = new System.Windows.Forms.Panel();
+			this.rtbAll = new System.Windows.Forms.RichTextBox();
+			this.tabPage2 = new System.Windows.Forms.TabPage();
+			this.tabPage4 = new System.Windows.Forms.TabPage();
 			this.tlpMain = new System.Windows.Forms.TableLayoutPanel();
 			this.gbControl = new System.Windows.Forms.GroupBox();
+			this.comboBox1 = new System.Windows.Forms.ComboBox();
 			this.lbAutoSave = new System.Windows.Forms.Label();
 			this.nudAutoSave = new System.Windows.Forms.NumericUpDown();
 			this.btnSave = new System.Windows.Forms.Button();
-			this.tabPageQuotation = new System.Windows.Forms.TabPage();
+			this.profileUserControl = new TradeSystem.Duplicat.Views.ProfileUserControl();
 			this.quotationUserControl = new TradeSystem.Duplicat.Views.QuotationUserControl();
-			this.comboBox1 = new System.Windows.Forms.ComboBox();
-			this.tabPageItem = new System.Windows.Forms.TabPage();
-			this.tabPage2 = new System.Windows.Forms.TabPage();
-			this.tabPage4 = new System.Windows.Forms.TabPage();
-			this.cbProfile = new System.Windows.Forms.ComboBox();
-			this.gbComboBoxes = new System.Windows.Forms.GroupBox();
-			this.rtbAll = new System.Windows.Forms.RichTextBox();
-			this.panel1 = new System.Windows.Forms.Panel();
-			this.cbQuotation = new System.Windows.Forms.ComboBox();
-			this.cbItem = new System.Windows.Forms.ComboBox();
 			this.itemUserControl1 = new TradeSystem.Duplicat.Views.ItemUserControl();
+			this.gbComboBoxes = new System.Windows.Forms.GroupBox();
 			this.tabControlMain.SuspendLayout();
 			this.tabPageProfile.SuspendLayout();
+			this.tabPageQuotation.SuspendLayout();
+			this.tabPageItem.SuspendLayout();
 			this.tabPageLog.SuspendLayout();
+			this.panel1.SuspendLayout();
 			this.tlpMain.SuspendLayout();
 			this.gbControl.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.nudAutoSave)).BeginInit();
-			this.tabPageQuotation.SuspendLayout();
-			this.tabPageItem.SuspendLayout();
-			this.gbComboBoxes.SuspendLayout();
-			this.panel1.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// tabControlMain
@@ -90,14 +86,27 @@
 			this.tabPageProfile.Text = "Profilok";
 			this.tabPageProfile.UseVisualStyleBackColor = true;
 			// 
-			// profileUserControl
+			// tabPageQuotation
 			// 
-			this.profileUserControl.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.profileUserControl.Location = new System.Drawing.Point(3, 3);
-			this.profileUserControl.Margin = new System.Windows.Forms.Padding(4);
-			this.profileUserControl.Name = "profileUserControl";
-			this.profileUserControl.Size = new System.Drawing.Size(1106, 536);
-			this.profileUserControl.TabIndex = 0;
+			this.tabPageQuotation.Controls.Add(this.quotationUserControl);
+			this.tabPageQuotation.Location = new System.Drawing.Point(4, 22);
+			this.tabPageQuotation.Name = "tabPageQuotation";
+			this.tabPageQuotation.Padding = new System.Windows.Forms.Padding(3);
+			this.tabPageQuotation.Size = new System.Drawing.Size(1112, 542);
+			this.tabPageQuotation.TabIndex = 5;
+			this.tabPageQuotation.Text = "Arajanlatok";
+			this.tabPageQuotation.UseVisualStyleBackColor = true;
+			// 
+			// tabPageItem
+			// 
+			this.tabPageItem.Controls.Add(this.itemUserControl1);
+			this.tabPageItem.Location = new System.Drawing.Point(4, 22);
+			this.tabPageItem.Name = "tabPageItem";
+			this.tabPageItem.Padding = new System.Windows.Forms.Padding(3);
+			this.tabPageItem.Size = new System.Drawing.Size(1112, 542);
+			this.tabPageItem.TabIndex = 6;
+			this.tabPageItem.Text = "Arucikk";
+			this.tabPageItem.UseVisualStyleBackColor = true;
 			// 
 			// tabPageLog
 			// 
@@ -109,6 +118,48 @@
 			this.tabPageLog.TabIndex = 4;
 			this.tabPageLog.Text = "Naplo";
 			this.tabPageLog.UseVisualStyleBackColor = true;
+			// 
+			// panel1
+			// 
+			this.panel1.Controls.Add(this.rtbAll);
+			this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.panel1.Location = new System.Drawing.Point(3, 3);
+			this.panel1.Name = "panel1";
+			this.panel1.Size = new System.Drawing.Size(1106, 536);
+			this.panel1.TabIndex = 2;
+			// 
+			// rtbAll
+			// 
+			this.rtbAll.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.rtbAll.Location = new System.Drawing.Point(0, 0);
+			this.rtbAll.Margin = new System.Windows.Forms.Padding(2);
+			this.rtbAll.Name = "rtbAll";
+			this.rtbAll.ReadOnly = true;
+			this.rtbAll.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Vertical;
+			this.rtbAll.Size = new System.Drawing.Size(1106, 536);
+			this.rtbAll.TabIndex = 2;
+			this.rtbAll.Text = "";
+			this.rtbAll.WordWrap = false;
+			// 
+			// tabPage2
+			// 
+			this.tabPage2.Location = new System.Drawing.Point(4, 22);
+			this.tabPage2.Name = "tabPage2";
+			this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
+			this.tabPage2.Size = new System.Drawing.Size(1112, 542);
+			this.tabPage2.TabIndex = 7;
+			this.tabPage2.Text = "tabPage2";
+			this.tabPage2.UseVisualStyleBackColor = true;
+			// 
+			// tabPage4
+			// 
+			this.tabPage4.Location = new System.Drawing.Point(4, 22);
+			this.tabPage4.Name = "tabPage4";
+			this.tabPage4.Padding = new System.Windows.Forms.Padding(3);
+			this.tabPage4.Size = new System.Drawing.Size(1112, 542);
+			this.tabPage4.TabIndex = 8;
+			this.tabPage4.Text = "tabPage4";
+			this.tabPage4.UseVisualStyleBackColor = true;
 			// 
 			// tlpMain
 			// 
@@ -141,6 +192,14 @@
 			this.gbControl.TabIndex = 1;
 			this.gbControl.TabStop = false;
 			this.gbControl.Text = "Verzio";
+			// 
+			// comboBox1
+			// 
+			this.comboBox1.FormattingEnabled = true;
+			this.comboBox1.Location = new System.Drawing.Point(343, 19);
+			this.comboBox1.Name = "comboBox1";
+			this.comboBox1.Size = new System.Drawing.Size(121, 21);
+			this.comboBox1.TabIndex = 28;
 			// 
 			// lbAutoSave
 			// 
@@ -177,16 +236,14 @@
 			this.btnSave.Text = "Konfiguracio mentes";
 			this.btnSave.UseVisualStyleBackColor = true;
 			// 
-			// tabPageQuotation
+			// profileUserControl
 			// 
-			this.tabPageQuotation.Controls.Add(this.quotationUserControl);
-			this.tabPageQuotation.Location = new System.Drawing.Point(4, 22);
-			this.tabPageQuotation.Name = "tabPageQuotation";
-			this.tabPageQuotation.Padding = new System.Windows.Forms.Padding(3);
-			this.tabPageQuotation.Size = new System.Drawing.Size(1112, 542);
-			this.tabPageQuotation.TabIndex = 5;
-			this.tabPageQuotation.Text = "Arajanlatok";
-			this.tabPageQuotation.UseVisualStyleBackColor = true;
+			this.profileUserControl.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.profileUserControl.Location = new System.Drawing.Point(3, 3);
+			this.profileUserControl.Margin = new System.Windows.Forms.Padding(4);
+			this.profileUserControl.Name = "profileUserControl";
+			this.profileUserControl.Size = new System.Drawing.Size(1106, 536);
+			this.profileUserControl.TabIndex = 0;
 			// 
 			// quotationUserControl
 			// 
@@ -196,109 +253,6 @@
 			this.quotationUserControl.Size = new System.Drawing.Size(1106, 536);
 			this.quotationUserControl.TabIndex = 0;
 			// 
-			// comboBox1
-			// 
-			this.comboBox1.FormattingEnabled = true;
-			this.comboBox1.Location = new System.Drawing.Point(343, 19);
-			this.comboBox1.Name = "comboBox1";
-			this.comboBox1.Size = new System.Drawing.Size(121, 21);
-			this.comboBox1.TabIndex = 28;
-			// 
-			// tabPageItem
-			// 
-			this.tabPageItem.Controls.Add(this.itemUserControl1);
-			this.tabPageItem.Location = new System.Drawing.Point(4, 22);
-			this.tabPageItem.Name = "tabPageItem";
-			this.tabPageItem.Padding = new System.Windows.Forms.Padding(3);
-			this.tabPageItem.Size = new System.Drawing.Size(1112, 542);
-			this.tabPageItem.TabIndex = 6;
-			this.tabPageItem.Text = "Arucikk";
-			this.tabPageItem.UseVisualStyleBackColor = true;
-			// 
-			// tabPage2
-			// 
-			this.tabPage2.Location = new System.Drawing.Point(4, 22);
-			this.tabPage2.Name = "tabPage2";
-			this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-			this.tabPage2.Size = new System.Drawing.Size(1112, 542);
-			this.tabPage2.TabIndex = 7;
-			this.tabPage2.Text = "tabPage2";
-			this.tabPage2.UseVisualStyleBackColor = true;
-			// 
-			// tabPage4
-			// 
-			this.tabPage4.Location = new System.Drawing.Point(4, 22);
-			this.tabPage4.Name = "tabPage4";
-			this.tabPage4.Padding = new System.Windows.Forms.Padding(3);
-			this.tabPage4.Size = new System.Drawing.Size(1112, 542);
-			this.tabPage4.TabIndex = 8;
-			this.tabPage4.Text = "tabPage4";
-			this.tabPage4.UseVisualStyleBackColor = true;
-			// 
-			// cbProfile
-			// 
-			this.cbProfile.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-			this.cbProfile.FormattingEnabled = true;
-			this.cbProfile.Location = new System.Drawing.Point(4, 19);
-			this.cbProfile.Margin = new System.Windows.Forms.Padding(1, 3, 3, 3);
-			this.cbProfile.Name = "cbProfile";
-			this.cbProfile.Size = new System.Drawing.Size(121, 21);
-			this.cbProfile.TabIndex = 0;
-			// 
-			// gbComboBoxes
-			// 
-			this.gbComboBoxes.Controls.Add(this.cbItem);
-			this.gbComboBoxes.Controls.Add(this.cbQuotation);
-			this.gbComboBoxes.Controls.Add(this.cbProfile);
-			this.gbComboBoxes.Dock = System.Windows.Forms.DockStyle.Top;
-			this.gbComboBoxes.Location = new System.Drawing.Point(3, 55);
-			this.gbComboBoxes.Name = "gbComboBoxes";
-			this.gbComboBoxes.Size = new System.Drawing.Size(1120, 46);
-			this.gbComboBoxes.TabIndex = 2;
-			this.gbComboBoxes.TabStop = false;
-			// 
-			// rtbAll
-			// 
-			this.rtbAll.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.rtbAll.Location = new System.Drawing.Point(0, 0);
-			this.rtbAll.Margin = new System.Windows.Forms.Padding(2);
-			this.rtbAll.Name = "rtbAll";
-			this.rtbAll.ReadOnly = true;
-			this.rtbAll.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Vertical;
-			this.rtbAll.Size = new System.Drawing.Size(1106, 536);
-			this.rtbAll.TabIndex = 2;
-			this.rtbAll.Text = "";
-			this.rtbAll.WordWrap = false;
-			// 
-			// panel1
-			// 
-			this.panel1.Controls.Add(this.rtbAll);
-			this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.panel1.Location = new System.Drawing.Point(3, 3);
-			this.panel1.Name = "panel1";
-			this.panel1.Size = new System.Drawing.Size(1106, 536);
-			this.panel1.TabIndex = 2;
-			// 
-			// cbQuotation
-			// 
-			this.cbQuotation.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-			this.cbQuotation.FormattingEnabled = true;
-			this.cbQuotation.Location = new System.Drawing.Point(129, 19);
-			this.cbQuotation.Margin = new System.Windows.Forms.Padding(1, 3, 3, 3);
-			this.cbQuotation.Name = "cbQuotation";
-			this.cbQuotation.Size = new System.Drawing.Size(121, 21);
-			this.cbQuotation.TabIndex = 1;
-			// 
-			// cbItem
-			// 
-			this.cbItem.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-			this.cbItem.FormattingEnabled = true;
-			this.cbItem.Location = new System.Drawing.Point(254, 19);
-			this.cbItem.Margin = new System.Windows.Forms.Padding(1, 3, 3, 3);
-			this.cbItem.Name = "cbItem";
-			this.cbItem.Size = new System.Drawing.Size(121, 21);
-			this.cbItem.TabIndex = 2;
-			// 
 			// itemUserControl1
 			// 
 			this.itemUserControl1.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -306,6 +260,15 @@
 			this.itemUserControl1.Name = "itemUserControl1";
 			this.itemUserControl1.Size = new System.Drawing.Size(1106, 536);
 			this.itemUserControl1.TabIndex = 0;
+			// 
+			// gbComboBoxes
+			// 
+			this.gbComboBoxes.Dock = System.Windows.Forms.DockStyle.Top;
+			this.gbComboBoxes.Location = new System.Drawing.Point(3, 55);
+			this.gbComboBoxes.Name = "gbComboBoxes";
+			this.gbComboBoxes.Size = new System.Drawing.Size(1120, 46);
+			this.gbComboBoxes.TabIndex = 2;
+			this.gbComboBoxes.TabStop = false;
 			// 
 			// MainForm
 			// 
@@ -317,15 +280,14 @@
 			this.Text = "Szabó Árnyékolástechnika";
 			this.tabControlMain.ResumeLayout(false);
 			this.tabPageProfile.ResumeLayout(false);
+			this.tabPageQuotation.ResumeLayout(false);
+			this.tabPageItem.ResumeLayout(false);
 			this.tabPageLog.ResumeLayout(false);
+			this.panel1.ResumeLayout(false);
 			this.tlpMain.ResumeLayout(false);
 			this.gbControl.ResumeLayout(false);
 			this.gbControl.PerformLayout();
 			((System.ComponentModel.ISupportInitialize)(this.nudAutoSave)).EndInit();
-			this.tabPageQuotation.ResumeLayout(false);
-			this.tabPageItem.ResumeLayout(false);
-			this.gbComboBoxes.ResumeLayout(false);
-			this.panel1.ResumeLayout(false);
 			this.ResumeLayout(false);
 
         }
@@ -357,11 +319,8 @@
 		private System.Windows.Forms.TabPage tabPage4;
 		private System.Windows.Forms.Panel panel1;
 		private System.Windows.Forms.RichTextBox rtbAll;
-		private System.Windows.Forms.GroupBox gbComboBoxes;
-		private System.Windows.Forms.ComboBox cbProfile;
-		private System.Windows.Forms.ComboBox cbItem;
-		private System.Windows.Forms.ComboBox cbQuotation;
 		private ItemUserControl itemUserControl1;
+		private System.Windows.Forms.GroupBox gbComboBoxes;
 	}
 }
 

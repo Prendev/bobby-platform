@@ -33,12 +33,9 @@ namespace TradeSystem.Duplicat.ViewModel
 			switch (entity)
 		    {
 			    case Profile profile:
-				    SelectedItem = null;
-				    SelectedQuotation = null;
 					SelectedProfile = profile;
 				    break;
 			    case Quotation quotation:
-				    SelectedItem = null;
 				    SelectedQuotation = quotation;
 				    break;
 			    case Item item:
