@@ -28,7 +28,6 @@ namespace TradeSystem.Duplicat.ViewModel
 	    public void Select(BaseEntity entity)
 	    {
 		    if (IsLoading) return;
-		    SaveCommand();
 
 			switch (entity)
 		    {

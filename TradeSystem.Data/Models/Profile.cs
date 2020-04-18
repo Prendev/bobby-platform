@@ -7,8 +7,9 @@ namespace TradeSystem.Data.Models
     {
 	    private const string MakerCategory = "1 - Keszito";
 	    private const string ParametersCategory = "2 - Parameterek";
-	    private const string MotorParametersCategory = "3 - Motor parameterek";
-	    private const string LegParametersCategory = "4 - Lab parameterek";
+	    private const string MotorParametersCategory = "3 - Parameterek - motor";
+	    private const string LegParametersCategory = "4 - Parameterek - labak";
+	    private const string LathParametersCategory = "5 - Parameterek - léc";
 
 		[InvisibleColumn]
 		[Category(MakerCategory)]
@@ -62,5 +63,21 @@ namespace TradeSystem.Data.Models
 	    [Category(LegParametersCategory)]
 	    [DisplayName("Keskeny lab kivonas (cm)")]
 	    public decimal KeskenyDeduction { get; set; } = -1.25m;
+
+
+	    [InvisibleColumn]
+	    [Category(LathParametersCategory)]
+	    [DisplayName("Záró kivonas (cm)")]
+	    public decimal CloseDeduction { get; set; } = -1.5m;
+
+	    [InvisibleColumn]
+	    [Category(LathParametersCategory)]
+	    [DisplayName("Szál oszto")]
+	    public decimal RodDivider { get; set; } = 3.9m;
+
+	    [InvisibleColumn]
+	    [Category(LathParametersCategory)]
+	    [DisplayName("Szál hozzáadás")]
+	    public decimal RodAddition { get; set; } = 3m;
 	}
 }
