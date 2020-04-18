@@ -9,22 +9,24 @@ namespace TradeSystem.Data.Models
 {
     public abstract class BaseEntity : BaseNotifyPropertyChange
 	{
-        [Key]
+		private const string BaseCategory = "0 - Altalanos";
+
+		[Key]
         [Dapper.Contrib.Extensions.Key]
         [InvisibleColumn]
         [ReadOnly(true)]
-		[Category("Altalanos")]
+		[Category(BaseCategory)]
         [DisplayName("ID")]
 		public int Id { get; set; }
 
 		[NotMapped]
 		[InvisibleColumn]
-		[Category("Altalanos")]
+		[Category(BaseCategory)]
 		[DisplayName("Megjelenitesi nev")]
 		public string DisplayMember => ToString();
 
 		[ReadOnly(true)]
-		[Category("Altalanos")]
+		[Category(BaseCategory)]
 		[DisplayName("Letrehozva")]
 		public DateTime TimeCreated { get; set; } = HiResDatetime.UtcNow;
 
