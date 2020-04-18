@@ -19,5 +19,10 @@ namespace TradeSystem.Data.Models
 		[Category("Keszito")]
 		[DisplayName("E-mail cim")]
 		public string Email { get; set; }
+
+		[InvisibleColumn]
+		[Category("Parameterek")]
+		[DisplayName("Redony suly (kg/nm)")]
+		public decimal ShutterWeight { get; set; } = 3.7m;
 	}
 }
