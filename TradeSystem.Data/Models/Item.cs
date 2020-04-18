@@ -40,10 +40,13 @@ namespace TradeSystem.Data.Models
 
 		[InvisibleColumn]
 		[Category(MotorCategory)]
-		[DisplayName("Teljesitmeny (Nm)")]
-		public int? Torque => ShutterArea > Quotation?.Profile?.SmallMotorLimit
-			? Quotation?.Profile?.BigMotorTorque
-			: Quotation?.Profile?.SmallMotorTorque;
+		[DisplayName("Eros motor (Nm)?")]
+		public bool? Torque => ShutterArea > Quotation?.Profile?.SmallMotorLimitTorque;
+
+		[InvisibleColumn]
+		[Category(MotorCategory)]
+		[DisplayName("Szeles motor (cm)?")]
+		public bool? MotorWidth => ShutterWidth > Quotation?.Profile?.SmallMotorLimitWidth;
 
 
 		[InvisibleColumn]

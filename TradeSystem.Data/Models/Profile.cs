@@ -30,17 +30,12 @@ namespace TradeSystem.Data.Models
 
 		[InvisibleColumn]
 		[Category(ParametersCategory)]
-		[DisplayName("Kis motor limit (nm) ")]
-		public decimal SmallMotorLimit { get; set; } = 1m;
+		[DisplayName("Kis motor limit - terulet (nm)")]
+		public decimal SmallMotorLimitTorque { get; set; } = 1m;
 
-		[InvisibleColumn]
-		[Category(ParametersCategory)]
-		[DisplayName("Kis motor forgatónyomaték (Nm)")]
-		public int SmallMotorTorque { get; set; } = 10;
-
-		[InvisibleColumn]
-		[Category(ParametersCategory)]
-		[DisplayName("Nagy motor forgatónyomaték (Nm)")]
-		public int BigMotorTorque { get; set; } = 13;
+	    [InvisibleColumn]
+	    [Category(ParametersCategory)]
+	    [DisplayName("Kis motor limit - szelesseg (cm)")]
+	    public int SmallMotorLimitWidth { get; set; } = 80;
 	}
 }
