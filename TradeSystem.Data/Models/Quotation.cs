@@ -8,6 +8,18 @@ namespace TradeSystem.Data.Models
 		private const string RelationsCategory = "* - Relaciok";
 		private const string CustomerCategory = "1 - Megrendelo";
 
+
+		[InvisibleColumn]
+		[Category(RelationsCategory)]
+		[DisplayName("Profil ID")]
+		public int ProfileId { get; set; }
+
+		[InvisibleColumn]
+		[Category(RelationsCategory)]
+		[DisplayName("Profil")]
+		public Profile Profile { get; set; }
+
+
 		[InvisibleColumn]
 		[Category(CustomerCategory)]
 		[DisplayName("Nev")]
@@ -27,16 +39,5 @@ namespace TradeSystem.Data.Models
 		[Category(CustomerCategory)]
 		[DisplayName("E-mail cim")]
 		public string Email { get; set; }
-
-
-		[InvisibleColumn]
-		[Category(RelationsCategory)]
-		[DisplayName("Profil ID")]
-		public int ProfileId { get; set; }
-
-		[InvisibleColumn]
-		[Category(RelationsCategory)]
-		[DisplayName("Profil")]
-		public Profile Profile { get; set; }
 	}
 }
