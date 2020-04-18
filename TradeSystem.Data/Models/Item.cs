@@ -6,9 +6,33 @@ namespace TradeSystem.Data.Models
 {
 	public class Item : BaseDescriptionEntity
 	{
+		public enum ControlTypes
+		{
+			Nincs,
+			Radios
+		}
+
+		public enum SensorTypes
+		{
+			Sima,
+			Nyomatekos
+		}
+
 		private const string ShutterCategory = "1 - Habkitöltött alumínium redőny";
 		private const string MotorCategory = "2 - 220 V csőmotor";
 		private const string RelationsCategory = "* - Relaciok";
+
+
+		[InvisibleColumn]
+		[Category(RelationsCategory)]
+		[DisplayName("Arajanlat ID")]
+		public int QuotationId { get; set; }
+
+		[InvisibleColumn]
+		[Category(RelationsCategory)]
+		[DisplayName("Arajanlat")]
+		public Quotation Quotation { get; set; }
+
 
 		[InvisibleColumn]
 		[Category(ShutterCategory)]
@@ -48,15 +72,14 @@ namespace TradeSystem.Data.Models
 		[DisplayName("Szeles motor (cm)?")]
 		public bool? MotorWidth => ShutterWidth > Quotation?.Profile?.SmallMotorLimitWidth;
 
+		[InvisibleColumn]
+		[Category(MotorCategory)]
+		[DisplayName("Vezérlés")]
+		public ControlTypes ControlType { get; set; }
 
 		[InvisibleColumn]
-		[Category(RelationsCategory)]
-		[DisplayName("Arajanlat ID")]
-		public int QuotationId { get; set; }
-
-		[InvisibleColumn]
-		[Category(RelationsCategory)]
-		[DisplayName("Arajanlat")]
-		public Quotation Quotation { get; set; }
+		[Category(MotorCategory)]
+		[DisplayName("Erzekelo")]
+		public SensorTypes SensorType { get; set; }
 	}
 }
