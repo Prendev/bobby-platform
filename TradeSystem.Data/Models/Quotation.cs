@@ -5,8 +5,8 @@ namespace TradeSystem.Data.Models
 {
 	public class Quotation : BaseDescriptionEntity
 	{
-		private const string CustomerCategory = "1 - Megrendelo";
 		private const string RelationsCategory = "* - Relaciok";
+		private const string CustomerCategory = "1 - Megrendelo";
 
 		[InvisibleColumn]
 		[Category(CustomerCategory)]
