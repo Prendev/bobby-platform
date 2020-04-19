@@ -11,7 +11,7 @@ namespace TradeSystem.Data.Models
 		[Required]
         [DisplayPriority(0)]
         [Category(BaseCategory)]
-        [DisplayName("Megnevezes")]
+        [DisplayName("Leiras")]
 		public string Description { get; set; }
 
         public override string ToString()

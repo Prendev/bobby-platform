@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Windows.Forms;
 using TradeSystem.Common;
+using TradeSystem.Data.Models;
 using TradeSystem.Duplicat.ViewModel;
 
 namespace TradeSystem.Duplicat.Views
@@ -33,7 +34,7 @@ namespace TradeSystem.Duplicat.Views
 				s => s == DuplicatViewModel.SaveStates.Error ? "Hiba" :
 					s == DuplicatViewModel.SaveStates.Success ? "Sikeres" : "Konfiguracio mentese");
 
-            var titleBinding = new Binding("Text", _viewModel, "IsLoading");
+			var titleBinding = new Binding("Text", _viewModel, "IsLoading");
             titleBinding.Format += (s, e) => e.Value = (bool) e.Value ? "Szabó Árnyékolástechnika - Toltes..." : "Szabó Árnyékolástechnika";
             DataBindings.Add(titleBinding);
 
@@ -43,6 +44,20 @@ namespace TradeSystem.Duplicat.Views
 
 	        InitViews(this);
 			AttachDataSources(this);
+
+			foreach (TabPage tabPage in tabControlMain.TabPages)
+			{
+				tabPage.Visible = true;
+				tabPage.CreateControl();
+				tabPage.Visible = false;
+			}
+			tabControlMain.Selecting += (sender, args) =>
+			{
+				if (args.TabPage.Enabled) return;
+				args.Cancel = true;
+			};
+			tabPageQuotation.AddBinding<Profile>("Enabled", _viewModel, nameof(_viewModel.SelectedProfile), e => e != null);
+			tabPageItem.AddBinding<Quotation>("Enabled", _viewModel, nameof(_viewModel.SelectedQuotation), e => e != null);
         }
 
 	    private void InitViews(Control parent)
