@@ -75,7 +75,7 @@
 			this.tabPageProfile.Size = new System.Drawing.Size(1112, 594);
 			this.tabPageProfile.TabIndex = 3;
 			this.tabPageProfile.Text = "Profilok";
-			this.tabPageProfile.UseVisualStyleBackColor = true;
+	        this.tabPageProfile.UseVisualStyleBackColor = true;
 			// 
 			// tabPageQuotation
 			// 
@@ -96,7 +96,7 @@
 			this.tabPageItem.Padding = new System.Windows.Forms.Padding(3);
 			this.tabPageItem.Size = new System.Drawing.Size(1112, 594);
 			this.tabPageItem.TabIndex = 6;
-			this.tabPageItem.Text = "Arucikk";
+			this.tabPageItem.Text = "Arucikkek";
 			this.tabPageItem.UseVisualStyleBackColor = true;
 			// 
 			// tabPageLog
