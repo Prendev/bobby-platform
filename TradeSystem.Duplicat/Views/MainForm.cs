@@ -28,37 +28,36 @@ namespace TradeSystem.Duplicat.Views
 			gbControl.Text = "Vezio 0.1";
 			gbControl.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsLoading), true);
 			btnSave.AddBinding<DuplicatViewModel.SaveStates, Color>("ForeColor", _viewModel,
-				nameof(_viewModel.SaveState), s => s == DuplicatViewModel.SaveStates.Error ? Color.DarkRed : s == DuplicatViewModel.SaveStates.Success ? Color.DarkGreen : Color.Black);
+				nameof(_viewModel.SaveState), s => s == DuplicatViewModel.SaveStates.Error ? Color.DarkRed : Color.Black);
 			btnSave.AddBinding<DuplicatViewModel.SaveStates, string>("Text", _viewModel,
 				nameof(_viewModel.SaveState),
-				s => s == DuplicatViewModel.SaveStates.Error ? "Hiba" :
-					s == DuplicatViewModel.SaveStates.Success ? "Sikeres" : "Konfiguracio mentese");
+				s => s == DuplicatViewModel.SaveStates.Error ? "Hiba" : "Konfiguracio mentese");
 
-			var titleBinding = new Binding("Text", _viewModel, "IsLoading");
-            titleBinding.Format += (s, e) => e.Value = (bool) e.Value ? "Szabó Árnyékolástechnika - Toltes..." : "Szabó Árnyékolástechnika";
-            DataBindings.Add(titleBinding);
-
-            btnSave.Click += (s, e) => { _viewModel.SaveCommand(); };
-
+			btnSave.Click += (_, __) => { _viewModel.SaveCommand(); };
 			_viewModel.DataContextChanged += () => AttachDataSources(this);
 
-	        InitViews(this);
+			InitTabPages();
+			InitViews(this);
 			AttachDataSources(this);
+        }
 
+	    private void InitTabPages()
+		{
 			foreach (TabPage tabPage in tabControlMain.TabPages)
 			{
 				tabPage.Visible = true;
 				tabPage.CreateControl();
 				tabPage.Visible = false;
 			}
-			tabControlMain.Selecting += (sender, args) =>
+			tabControlMain.Selecting += (_, args) =>
 			{
 				if (args.TabPage.Enabled) return;
 				args.Cancel = true;
 			};
 			tabPageQuotation.AddBinding<Profile>("Enabled", _viewModel, nameof(_viewModel.SelectedProfile), e => e != null);
 			tabPageItem.AddBinding<Quotation>("Enabled", _viewModel, nameof(_viewModel.SelectedQuotation), e => e != null);
-        }
+			tabControlMain.TabIndexChanged += (_, __) => _viewModel.SaveCommand();
+		}
 
 	    private void InitViews(Control parent)
 		{
