@@ -202,9 +202,7 @@
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
-    <None Include="Templates\OrderHistory.xlsx">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    <None Include="Templates\Vagasi_meretek.xlsx" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Services\" />
