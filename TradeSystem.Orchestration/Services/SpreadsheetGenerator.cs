@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Linq;
 using System.Reflection;
 using TradeSystem.Data.Models;
 
@@ -20,37 +21,25 @@ namespace TradeSystem.Orchestration.Services
 			using (var stream = new FileStream(reportPath, FileMode.OpenOrCreate, FileAccess.ReadWrite))
             {
                 var wb = new CustomWorkbook(templatePath);
-                //var sheet = wb.GetSheetAt(0);
+                var sheet = wb.GetSheetAt(0);
 
-                //{
-                //    var row = sheet.GetRow(1) ?? sheet.CreateRow(1);
-                //    wb.CreateCell(row, 2, sideAlphaSum);
-                //    wb.CreateTextCellWithThichRigthBorder(row, 3, "USD");
-                //    wb.CreateCell(row, 6, sideBetaSum);
-                //    wb.CreateTextCellWithThichRigthBorder(row, 7, "USD");
-                //}
+				for (var i = 0; i < quotation.Items.Count; i++)
+				{
+					var item = quotation.Items.ElementAt(i);
+					var row = sheet.GetRow(i + 4) ?? sheet.CreateRow(i + 4);
 
-                //for (var i = 0; i < sideA.Count(); i++)
-                //{
-                //    var b = sideA.ElementAt(i);
-                //    var row = sheet.GetRow(i + 3) ?? sheet.CreateRow(i + 3);
-                //    wb.CreateTextCell(row, 0, b.Account.ToString());
-                //    wb.CreateCell(row, 1, b.Balance);
-                //    wb.CreateCell(row, 2, b.Pnl);
-                //    wb.CreateTextCellWithThichRigthBorder(row, 3, b.Currency);
-                //}
+					wb.CreateCell(row, 1, item.ShutterWidth);
+					wb.CreateCell(row, 3, item.ShutterHeight);
 
-                //for (var i = 0; i < sideB.Count(); i++)
-                //{
-                //    var b = sideB.ElementAt(i);
-                //    var row = sheet.GetRow(i + 3) ?? sheet.CreateRow(i + 3);
-                //    wb.CreateTextCell(row, 4, b.Account.ToString());
-                //    wb.CreateCell(row, 5, b.Balance);
-                //    wb.CreateCell(row, 6, b.Pnl);
-                //    wb.CreateTextCellWithThichRigthBorder(row, 7, b.Currency);
-                //}
+					wb.CreateCell(row, 4, item.Lid);
+					wb.CreateCell(row, 5, item.Axle);
 
-                wb.Write(stream);
+					wb.CreateCell(row, 6, item.LathWidth);
+					wb.CreateCell(row, 7, item.Rod);
+					wb.CreateCell(row, 8, item.LathCloseWidth);
+				}
+
+				wb.Write(stream);
             }
         }
     }
