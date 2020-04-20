@@ -52,5 +52,7 @@ namespace TradeSystem.Duplicat.ViewModel
 			Select(entity, true);
 			SaveCommand();
 		}
+
+		public void CuttingTemplate() => _orchestrator.CuttingTemplate(SelectedQuotation);
 	}
 }

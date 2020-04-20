@@ -6,6 +6,7 @@ using TradeSystem.Duplicat.Views;
 using TradeSystem.Orchestration;
 using System;
 using System.Threading;
+using TradeSystem.Orchestration.Services;
 
 namespace TradeSystem.Duplicat
 {
@@ -44,6 +45,7 @@ namespace TradeSystem.Duplicat
         private static void RegisterOrchestration(ContainerBuilder builder)
         {
             builder.RegisterType<Orchestrator>().As<IOrchestrator>();
+	        builder.RegisterType<SpreadsheetGenerator>().As<ISpreadsheetGenerator>();
 		}
     }
 }

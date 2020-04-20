@@ -15,7 +15,7 @@ namespace TradeSystem.Orchestration.Services
         {
 	        Directory.CreateDirectory(@"Templates\Generated");
 			var templatePath = $@"{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}\Templates\Vagasi_meretek.xlsx";
-	        var reportPath = $@"{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}\Templates\Vagasi_meretek_{quotation.Id}_{HiResDatetime.UtcNow:yyyyMMdd_mmss}.xlsx";
+	        var reportPath = $@"{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}\Templates\Generated\Vagasi_meretek_{quotation.Id}_{HiResDatetime.UtcNow:yyyyMMdd_mmss}.xlsx";
 
 			using (var stream = new FileStream(reportPath, FileMode.OpenOrCreate, FileAccess.ReadWrite))
             {
