@@ -188,6 +188,7 @@
     <Compile Include="CustomWorkbook.cs" />
     <Compile Include="Orchestrator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Services\SpreadsheetGenerator.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\TradeSystem.Common\TradeSystem.Common.csproj">
@@ -198,14 +199,16 @@
       <Project>{D7DA9DD6-1BA9-45B9-9581-1D095631DF0D}</Project>
       <Name>TradeSystem.Data</Name>
     </ProjectReference>
+    <ProjectReference Include="..\TradeSystem\TradeSystem.csproj">
+      <Project>{fdfce270-50ac-4930-8680-a760f6f7c637}</Project>
+      <Name>TradeSystem</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
     <None Include="Templates\Vagasi_meretek.xlsx" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Services\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
