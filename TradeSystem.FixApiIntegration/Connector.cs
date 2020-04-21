@@ -14,11 +14,8 @@ using TradeSystem.Common.Integration;
 using TradeSystem.Common.Services;
 using TradeSystem.Communication;
 using TradeSystem.Communication.ConnectionManagementRules;
-using TradeSystem.Communication.FixApi;
-using TradeSystem.Communication.FixApi.Connectors.Strategies;
-using TradeSystem.Communication.FixApi.Connectors.Strategies.AggressiveOrder;
-using TradeSystem.Communication.FixApi.Connectors.Strategies.AggressiveOrder.Delayed;
-using TradeSystem.Communication.FixApi.Connectors.Strategies.MarketOrder;
+using TradeSystem.Communication.Extensions;
+using TradeSystem.Communication.Strategies;
 using IConnector = TradeSystem.Communication.Interfaces.IConnector;
 using OrderResponse = TradeSystem.Common.Integration.OrderResponse;
 using TimeInForce = TradeSystem.Communication.TimeInForce;
@@ -27,7 +24,6 @@ namespace TradeSystem.FixApiIntegration
 {
 	public class Connector : FixApiConnectorBase
 	{
-		private readonly FixConnectorBase _fixConnector;
 		private readonly AccountInfo _accountInfo;
 		private readonly IEmailService _emailService;
 		private readonly SubscribeMarketData _subscribeMarketData = new SubscribeMarketData();
@@ -63,8 +59,7 @@ namespace TradeSystem.FixApiIntegration
 
 			GeneralConnector = (IConnector)Activator.CreateInstance(connType, conf);
 			GeneralConnector.OrderUpdate += Connector_OrderUpdate;
-			_fixConnector = GeneralConnector as FixConnectorBase;
-
+			
 			ConnectionManager = new ConnectionManager(GeneralConnector,
 				new RulesCollection {new ReconnectAfterDelay() {Delay = 30}, _subscribeMarketData});
 			ConnectionManager.Connected += ConnectionManager_Connected;
@@ -117,7 +112,7 @@ namespace TradeSystem.FixApiIntegration
 			try
 			{
 				quantity = Math.Abs(quantity);
-				var response = await _fixConnector.MarketOrderAsync(new OrderRequest()
+				var response = await GeneralConnector.MarketOrderAsync(new OrderRequest()
 				{
 					IsLong = side == Sides.Buy,
 					Symbol = Symbol.Parse(symbol),
@@ -172,7 +167,7 @@ namespace TradeSystem.FixApiIntegration
 			string symbol, Sides side, decimal quantity, decimal limitPrice, decimal deviation, decimal priceDiff,
 			int timeout, int retryCount, int retryPeriod)
 		{
-			if (!_fixConnector.IsAggressiveOrderSupported())
+			if (!GeneralConnector.IsAggressiveOrderSupported())
 				return await SendMarketOrderRequest(symbol, side, quantity);
 
 			var retValue = new OrderResponse()
@@ -190,7 +185,7 @@ namespace TradeSystem.FixApiIntegration
 					$"{limitPrice}, {deviation}, {timeout}, {retryCount}, {retryPeriod}) ");
 
 				quantity = Math.Abs(quantity);
-				var response = await _fixConnector.AggressiveOrderAsync(new AggressiveOrderRequest()
+				var response = await GeneralConnector.AggressiveOrderAsync(new AggressiveOrderRequest()
 				{
 					IsLong = side == Sides.Buy,
 					Symbol = Symbol.Parse(symbol),
@@ -241,7 +236,7 @@ namespace TradeSystem.FixApiIntegration
 			decimal limitPrice, decimal deviation, decimal priceDiff, decimal correction,
 			int timeout, int retryCount, int retryPeriod)
 		{
-			if (!_fixConnector.IsAggressiveOrderSupported())
+			if (!GeneralConnector.IsAggressiveOrderSupported())
 				return await SendMarketOrderRequest(symbol, side, quantity);
 
 			var retValue = new OrderResponse()
@@ -259,7 +254,7 @@ namespace TradeSystem.FixApiIntegration
 					$"{limitPrice}, {deviation}, {correction}, {timeout}, {retryCount}, {retryPeriod}) ");
 
 				quantity = Math.Abs(quantity);
-				var response = await _fixConnector.DelayedAggressiveOrderAsync(new DelayedAggressiveOrderRequest()
+				var response = await GeneralConnector.DelayedAggressiveOrderAsync(new DelayedAggressiveOrderRequest()
 				{
 					IsLong = side == Sides.Buy,
 					Symbol = Symbol.Parse(symbol),
@@ -326,7 +321,7 @@ namespace TradeSystem.FixApiIntegration
 					$"{limitPrice}, {deviation}, {timeout}, {retryCount}, {retryPeriod}) ");
 
 				quantity = Math.Abs(quantity);
-				var response = await _fixConnector.GtcLimitOrderAsync(new AggressiveOrderRequest()
+				var response = await GeneralConnector.GtcLimitOrderAsync(new AggressiveOrderRequest()
 				{
 					IsLong = side == Sides.Buy,
 					Symbol = Symbol.Parse(symbol),
