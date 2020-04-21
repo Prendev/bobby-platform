@@ -83,6 +83,10 @@ namespace TradeSystem.Data.Models
 		[DisplayName("SL")] public decimal SlInPip { get; set; }
 		[DisplayName("TP")] public decimal TpInPip { get; set; }
 
+		[DisplayName("Offset Factor")] public decimal SpreadOffsetFactor { get; set; }
+		[DisplayName("O Min")] public decimal MinOffsetInPip { get; set; }
+		[DisplayName("O Max")] public decimal MaxOffsetInPip { get; set; }
+
 		[DisplayName("Earliest")] public TimeSpan? EarliestTradeTime { get; set; }
 		[DisplayName("Latest")] public TimeSpan? LatestTradeTime { get; set; }
 

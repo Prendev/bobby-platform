@@ -112,7 +112,7 @@ namespace TradeSystem.FixApiIntegration
 			try
 			{
 				quantity = Math.Abs(quantity);
-				var response = await GeneralConnector.MarketOrderAsync(new OrderRequest()
+				var response = await GeneralConnector.ConnectorMarketOrderAsync(new OrderRequest()
 				{
 					IsLong = side == Sides.Buy,
 					Symbol = Symbol.Parse(symbol),
@@ -167,7 +167,7 @@ namespace TradeSystem.FixApiIntegration
 			string symbol, Sides side, decimal quantity, decimal limitPrice, decimal deviation, decimal priceDiff,
 			int timeout, int retryCount, int retryPeriod)
 		{
-			if (!GeneralConnector.IsAggressiveOrderSupported())
+			if (!GeneralConnector.ConnectorIsAggressiveOrderSupported())
 				return await SendMarketOrderRequest(symbol, side, quantity);
 
 			var retValue = new OrderResponse()
@@ -185,7 +185,7 @@ namespace TradeSystem.FixApiIntegration
 					$"{limitPrice}, {deviation}, {timeout}, {retryCount}, {retryPeriod}) ");
 
 				quantity = Math.Abs(quantity);
-				var response = await GeneralConnector.AggressiveOrderAsync(new AggressiveOrderRequest()
+				var response = await GeneralConnector.ConnectorAggressiveOrderAsync(new AggressiveOrderRequest()
 				{
 					IsLong = side == Sides.Buy,
 					Symbol = Symbol.Parse(symbol),
@@ -236,7 +236,7 @@ namespace TradeSystem.FixApiIntegration
 			decimal limitPrice, decimal deviation, decimal priceDiff, decimal correction,
 			int timeout, int retryCount, int retryPeriod)
 		{
-			if (!GeneralConnector.IsAggressiveOrderSupported())
+			if (!GeneralConnector.ConnectorIsAggressiveOrderSupported())
 				return await SendMarketOrderRequest(symbol, side, quantity);
 
 			var retValue = new OrderResponse()
@@ -254,7 +254,7 @@ namespace TradeSystem.FixApiIntegration
 					$"{limitPrice}, {deviation}, {correction}, {timeout}, {retryCount}, {retryPeriod}) ");
 
 				quantity = Math.Abs(quantity);
-				var response = await GeneralConnector.DelayedAggressiveOrderAsync(new DelayedAggressiveOrderRequest()
+				var response = await GeneralConnector.ConnectorDelayedAggressiveOrderAsync(new DelayedAggressiveOrderRequest()
 				{
 					IsLong = side == Sides.Buy,
 					Symbol = Symbol.Parse(symbol),
@@ -321,7 +321,7 @@ namespace TradeSystem.FixApiIntegration
 					$"{limitPrice}, {deviation}, {timeout}, {retryCount}, {retryPeriod}) ");
 
 				quantity = Math.Abs(quantity);
-				var response = await GeneralConnector.GtcLimitOrderAsync(new AggressiveOrderRequest()
+				var response = await GeneralConnector.ConnectorGtcLimitOrderAsync(new AggressiveOrderRequest()
 				{
 					IsLong = side == Sides.Buy,
 					Symbol = Symbol.Parse(symbol),

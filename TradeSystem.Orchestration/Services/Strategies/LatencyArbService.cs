@@ -303,8 +303,11 @@ namespace TradeSystem.Orchestration.Services.Strategies
 						last.Trailing ?? price - set.TrailingDistanceInPip * set.PipSize);
 				if (last.Trailing.HasValue && price <= last.Trailing) hedge = true;
 
-				if (price >= last.LongOpenPrice + set.TpInPip * set.PipSize) hedge = true;
-				if (price <= last.LongOpenPrice - set.SlInPip * set.PipSize) hedge = true;
+				var offset = (set.FeedSpread - set.ShortSpread) * set.SpreadOffsetFactor ?? 0;
+				offset = Math.Max(offset, set.MinOffsetInPip);
+				offset = Math.Min(offset, set.MaxOffsetInPip);
+				if (price >= last.LongOpenPrice + (set.TpInPip + offset) * set.PipSize) hedge = true;
+				if (price <= last.LongOpenPrice - (set.SlInPip + offset) * set.PipSize) hedge = true;
 				if (!hedge) return;
 
 				if (set.Copier != null) set.Copier.Run = false;
@@ -344,8 +347,11 @@ namespace TradeSystem.Orchestration.Services.Strategies
 						last.Trailing ?? price + set.TrailingDistanceInPip * set.PipSize);
 				if (last.Trailing.HasValue && price >= last.Trailing) hedge = true;
 
-				if (price <= last.ShortOpenPrice - set.TpInPip * set.PipSize) hedge = true;
-				if (price >= last.ShortOpenPrice + set.SlInPip * set.PipSize) hedge = true;
+				var offset = (set.FeedSpread - set.LongSpread) * set.SpreadOffsetFactor ?? 0;
+				offset = Math.Max(offset, set.MinOffsetInPip);
+				offset = Math.Min(offset, set.MaxOffsetInPip);
+				if (price <= last.ShortOpenPrice - (set.TpInPip + offset) * set.PipSize) hedge = true;
+				if (price >= last.ShortOpenPrice + (set.SlInPip + offset) * set.PipSize) hedge = true;
 				if (!hedge) return;
 
 				if (set.Copier != null) set.Copier.Run = false;
@@ -712,8 +718,11 @@ namespace TradeSystem.Orchestration.Services.Strategies
 						first.Trailing ?? price + set.TrailingDistanceInPip * set.PipSize);
 				if (first.Trailing.HasValue && price >= first.Trailing) hedge = true;
 
-				if (price <= first.LongClosePrice - set.TpInPip * set.PipSize) hedge = true;
-				if (price >= first.LongClosePrice + set.SlInPip * set.PipSize) hedge = true;
+				var offset = (set.FeedSpread - set.ShortSpread) * set.SpreadOffsetFactor ?? 0;
+				offset = Math.Max(offset, set.MinOffsetInPip);
+				offset = Math.Min(offset, set.MaxOffsetInPip);
+				if (price <= first.LongClosePrice - (set.TpInPip + offset) * set.PipSize) hedge = true;
+				if (price >= first.LongClosePrice + (set.SlInPip + offset) * set.PipSize) hedge = true;
 				if (set.State != LatencyArb.LatencyArbStates.ImmediateExit && !hedge) return;
 
 				var closePos = CloseShort(set, first, false);
@@ -743,8 +752,11 @@ namespace TradeSystem.Orchestration.Services.Strategies
 						first.Trailing ?? price - set.TrailingDistanceInPip * set.PipSize);
 				if (first.Trailing.HasValue && price <= first.Trailing) hedge = true;
 
-				if (price >= first.ShortClosePrice + set.TpInPip * set.PipSize) hedge = true;
-				if (price <= first.ShortClosePrice - set.SlInPip * set.PipSize) hedge = true;
+				var offset = (set.FeedSpread - set.LongSpread) * set.SpreadOffsetFactor ?? 0;
+				offset = Math.Max(offset, set.MinOffsetInPip);
+				offset = Math.Min(offset, set.MaxOffsetInPip);
+				if (price >= first.ShortClosePrice + (set.TpInPip + offset) * set.PipSize) hedge = true;
+				if (price <= first.ShortClosePrice - (set.SlInPip + offset) * set.PipSize) hedge = true;
 				if (set.State != LatencyArb.LatencyArbStates.ImmediateExit && !hedge) return;
 
 				var closePos = CloseLong(set, first, false);
