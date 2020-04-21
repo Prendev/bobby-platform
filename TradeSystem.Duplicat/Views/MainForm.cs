@@ -55,11 +55,7 @@ namespace TradeSystem.Duplicat.Views
 				args.Cancel = true;
 			};
 			tabPageQuotation.AddBinding<Profile>("Enabled", _viewModel, nameof(_viewModel.SelectedProfile), e => e != null);
-			tabPageQuotation.AddBinding<Profile, string>("Text", _viewModel, nameof(_viewModel.SelectedProfile),
-				e => e != null ? "Arajanlatok" : "");
 			tabPageItem.AddBinding<Quotation>("Enabled", _viewModel, nameof(_viewModel.SelectedQuotation), e => e != null);
-			tabPageItem.AddBinding<Quotation, string>("Text", _viewModel, nameof(_viewModel.SelectedQuotation),
-				e => e != null ? "Arucikkek" : "");
 			tabControlMain.TabIndexChanged += (_, __) => _viewModel.SaveCommand();
 		}
 
