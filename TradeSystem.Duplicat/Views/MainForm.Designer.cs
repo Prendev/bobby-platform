@@ -44,11 +44,14 @@
 			this.tabPage2 = new System.Windows.Forms.TabPage();
 			this.tabPage4 = new System.Windows.Forms.TabPage();
 			this.cbProfile = new System.Windows.Forms.ComboBox();
+			this.comboBox2 = new System.Windows.Forms.ComboBox();
+			this.comboBox3 = new System.Windows.Forms.ComboBox();
+			this.comboBox4 = new System.Windows.Forms.ComboBox();
+			this.comboBox5 = new System.Windows.Forms.ComboBox();
+			this.comboBox6 = new System.Windows.Forms.ComboBox();
 			this.gbComboBoxes = new System.Windows.Forms.GroupBox();
 			this.rtbAll = new System.Windows.Forms.RichTextBox();
 			this.panel1 = new System.Windows.Forms.Panel();
-			this.cbQuotation = new System.Windows.Forms.ComboBox();
-			this.comboBox3 = new System.Windows.Forms.ComboBox();
 			this.tabControlMain.SuspendLayout();
 			this.tabPageProfile.SuspendLayout();
 			this.tabPageLog.SuspendLayout();
@@ -234,7 +237,6 @@
 			// 
 			// cbProfile
 			// 
-			this.cbProfile.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
 			this.cbProfile.FormattingEnabled = true;
 			this.cbProfile.Location = new System.Drawing.Point(4, 19);
 			this.cbProfile.Margin = new System.Windows.Forms.Padding(1, 3, 3, 3);
@@ -242,10 +244,58 @@
 			this.cbProfile.Size = new System.Drawing.Size(121, 21);
 			this.cbProfile.TabIndex = 0;
 			// 
+			// comboBox2
+			// 
+			this.comboBox2.FormattingEnabled = true;
+			this.comboBox2.Location = new System.Drawing.Point(129, 19);
+			this.comboBox2.Margin = new System.Windows.Forms.Padding(1, 3, 3, 3);
+			this.comboBox2.Name = "comboBox2";
+			this.comboBox2.Size = new System.Drawing.Size(121, 21);
+			this.comboBox2.TabIndex = 1;
+			// 
+			// comboBox3
+			// 
+			this.comboBox3.FormattingEnabled = true;
+			this.comboBox3.Location = new System.Drawing.Point(254, 19);
+			this.comboBox3.Margin = new System.Windows.Forms.Padding(1, 3, 3, 3);
+			this.comboBox3.Name = "comboBox3";
+			this.comboBox3.Size = new System.Drawing.Size(121, 21);
+			this.comboBox3.TabIndex = 2;
+			// 
+			// comboBox4
+			// 
+			this.comboBox4.FormattingEnabled = true;
+			this.comboBox4.Location = new System.Drawing.Point(379, 19);
+			this.comboBox4.Margin = new System.Windows.Forms.Padding(1, 3, 3, 3);
+			this.comboBox4.Name = "comboBox4";
+			this.comboBox4.Size = new System.Drawing.Size(121, 21);
+			this.comboBox4.TabIndex = 3;
+			// 
+			// comboBox5
+			// 
+			this.comboBox5.FormattingEnabled = true;
+			this.comboBox5.Location = new System.Drawing.Point(504, 19);
+			this.comboBox5.Margin = new System.Windows.Forms.Padding(1, 3, 3, 3);
+			this.comboBox5.Name = "comboBox5";
+			this.comboBox5.Size = new System.Drawing.Size(121, 21);
+			this.comboBox5.TabIndex = 4;
+			// 
+			// comboBox6
+			// 
+			this.comboBox6.FormattingEnabled = true;
+			this.comboBox6.Location = new System.Drawing.Point(629, 19);
+			this.comboBox6.Margin = new System.Windows.Forms.Padding(1, 3, 3, 3);
+			this.comboBox6.Name = "comboBox6";
+			this.comboBox6.Size = new System.Drawing.Size(121, 21);
+			this.comboBox6.TabIndex = 5;
+			// 
 			// gbComboBoxes
 			// 
+			this.gbComboBoxes.Controls.Add(this.comboBox6);
+			this.gbComboBoxes.Controls.Add(this.comboBox5);
+			this.gbComboBoxes.Controls.Add(this.comboBox4);
 			this.gbComboBoxes.Controls.Add(this.comboBox3);
-			this.gbComboBoxes.Controls.Add(this.cbQuotation);
+			this.gbComboBoxes.Controls.Add(this.comboBox2);
 			this.gbComboBoxes.Controls.Add(this.cbProfile);
 			this.gbComboBoxes.Dock = System.Windows.Forms.DockStyle.Top;
 			this.gbComboBoxes.Location = new System.Drawing.Point(3, 55);
@@ -275,26 +325,6 @@
 			this.panel1.Name = "panel1";
 			this.panel1.Size = new System.Drawing.Size(1106, 536);
 			this.panel1.TabIndex = 2;
-			// 
-			// cbQuotation
-			// 
-			this.cbQuotation.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-			this.cbQuotation.FormattingEnabled = true;
-			this.cbQuotation.Location = new System.Drawing.Point(129, 19);
-			this.cbQuotation.Margin = new System.Windows.Forms.Padding(1, 3, 3, 3);
-			this.cbQuotation.Name = "cbQuotation";
-			this.cbQuotation.Size = new System.Drawing.Size(121, 21);
-			this.cbQuotation.TabIndex = 1;
-			// 
-			// comboBox3
-			// 
-			this.comboBox3.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-			this.comboBox3.FormattingEnabled = true;
-			this.comboBox3.Location = new System.Drawing.Point(254, 19);
-			this.comboBox3.Margin = new System.Windows.Forms.Padding(1, 3, 3, 3);
-			this.comboBox3.Name = "comboBox3";
-			this.comboBox3.Size = new System.Drawing.Size(121, 21);
-			this.comboBox3.TabIndex = 2;
 			// 
 			// MainForm
 			// 
@@ -346,9 +376,12 @@
 		private System.Windows.Forms.Panel panel1;
 		private System.Windows.Forms.RichTextBox rtbAll;
 		private System.Windows.Forms.GroupBox gbComboBoxes;
-		private System.Windows.Forms.ComboBox cbProfile;
+		private System.Windows.Forms.ComboBox comboBox6;
+		private System.Windows.Forms.ComboBox comboBox5;
+		private System.Windows.Forms.ComboBox comboBox4;
 		private System.Windows.Forms.ComboBox comboBox3;
-		private System.Windows.Forms.ComboBox cbQuotation;
+		private System.Windows.Forms.ComboBox comboBox2;
+		private System.Windows.Forms.ComboBox cbProfile;
 	}
 }
 
