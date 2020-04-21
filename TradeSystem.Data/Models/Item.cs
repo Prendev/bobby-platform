@@ -19,14 +19,6 @@ namespace TradeSystem.Data.Models
 			Nyomatekos
 		}
 
-		public enum NetTypes
-		{
-			Nincs,
-			Vizszintes,
-			Fuggoleges,
-			Plisze
-		}
-
 		public enum LegTypes
 		{
 			Szeles,
@@ -38,10 +30,9 @@ namespace TradeSystem.Data.Models
 		private const string RelationsCategory = "* - Relaciok";
 		private const string ShutterCategory = "1 - Habkitöltött alumínium redőny";
 		private const string MotorCategory = "2 - 220 V csőmotor";
-		private const string NetCategory = "4 - Szúnyogháló";
-		private const string LegsCategory = "5 - Labak";
-		private const string CuttingCategory = "6 - Vágási méretek";
-		private const string LathCuttingCategory = "7 - Vágási méretek - léc";
+		private const string LegsCategory = "3 - Labak";
+		private const string CuttingCategory = "4 - Vágási méretek";
+		private const string LathCuttingCategory = "5 - Vágási méretek - léc";
 
 
 		[InvisibleColumn]
@@ -102,12 +93,6 @@ namespace TradeSystem.Data.Models
 		[Category(MotorCategory)]
 		[DisplayName("Erzekelo")]
 		public SensorTypes SensorType { get; set; }
-
-
-		[InvisibleColumn]
-		[Category(NetCategory)]
-		[DisplayName("Tipus")]
-		public NetTypes NetType { get; set; }
 
 
 		[InvisibleColumn]

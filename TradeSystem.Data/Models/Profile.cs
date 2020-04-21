@@ -9,8 +9,7 @@ namespace TradeSystem.Data.Models
 	    private const string ParametersCategory = "2 - Parameterek";
 	    private const string MotorParametersCategory = "3 - Parameterek - motor";
 	    private const string LegParametersCategory = "4 - Parameterek - labak";
-	    private const string NetParametersCategory = "5 - Parameterek - szúnyogháló";
-		private const string LathParametersCategory = "6 - Parameterek - léc";
+	    private const string LathParametersCategory = "5 - Parameterek - léc";
 
 		[InvisibleColumn]
 		[Category(MakerCategory)]
@@ -46,17 +45,6 @@ namespace TradeSystem.Data.Models
 
 
 	    [InvisibleColumn]
-	    [Category(NetParametersCategory)]
-	    [DisplayName("Szelesseg rahagyas (cm)")]
-	    public decimal NetWidthAddition { get; set; } = 1m;
-
-	    [InvisibleColumn]
-	    [Category(NetParametersCategory)]
-	    [DisplayName("Halóakasztó kivonas (cm)")]
-	    public decimal NetHangerDeduction { get; set; } = -4m;
-
-
-		[InvisibleColumn]
 	    [Category(LegParametersCategory)]
 	    [DisplayName("Szeles lab kivonas (cm)")]
 	    public decimal SzelesDeduction { get; set; } = -3.75m;
