@@ -40,8 +40,6 @@
 			this.lbAutoSave = new System.Windows.Forms.Label();
 			this.nudAutoSave = new System.Windows.Forms.NumericUpDown();
 			this.btnSave = new System.Windows.Forms.Button();
-			this.tabPageQuotation = new System.Windows.Forms.TabPage();
-			this.quotationUserControl = new TradeSystem.Duplicat.Views.QuotationUserControl();
 			this.tabControlMain.SuspendLayout();
 			this.tabPageProfile.SuspendLayout();
 			this.tabPageLog.SuspendLayout();
@@ -50,13 +48,11 @@
 			this.tlpMain.SuspendLayout();
 			this.gbControl.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.nudAutoSave)).BeginInit();
-			this.tabPageQuotation.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// tabControlMain
 			// 
 			this.tabControlMain.Controls.Add(this.tabPageProfile);
-			this.tabControlMain.Controls.Add(this.tabPageQuotation);
 			this.tabControlMain.Controls.Add(this.tabPageLog);
 			this.tabControlMain.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.tabControlMain.Location = new System.Drawing.Point(3, 55);
@@ -93,7 +89,7 @@
 			this.tabPageLog.Padding = new System.Windows.Forms.Padding(3);
 			this.tabPageLog.Size = new System.Drawing.Size(1112, 594);
 			this.tabPageLog.TabIndex = 4;
-			this.tabPageLog.Text = "Naplo";
+			this.tabPageLog.Text = "Log";
 			this.tabPageLog.UseVisualStyleBackColor = true;
 			// 
 			// tabControl1
@@ -195,25 +191,6 @@
 			this.btnSave.Text = "Konfiguracio mentes";
 			this.btnSave.UseVisualStyleBackColor = true;
 			// 
-			// tabPageQuotation
-			// 
-			this.tabPageQuotation.Controls.Add(this.quotationUserControl);
-			this.tabPageQuotation.Location = new System.Drawing.Point(4, 22);
-			this.tabPageQuotation.Name = "tabPageQuotation";
-			this.tabPageQuotation.Padding = new System.Windows.Forms.Padding(3);
-			this.tabPageQuotation.Size = new System.Drawing.Size(1112, 594);
-			this.tabPageQuotation.TabIndex = 5;
-			this.tabPageQuotation.Text = "Arajanlatok";
-			this.tabPageQuotation.UseVisualStyleBackColor = true;
-			// 
-			// quotationUserControl
-			// 
-			this.quotationUserControl.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.quotationUserControl.Location = new System.Drawing.Point(3, 3);
-			this.quotationUserControl.Name = "quotationUserControl";
-			this.quotationUserControl.Size = new System.Drawing.Size(1106, 588);
-			this.quotationUserControl.TabIndex = 0;
-			// 
 			// MainForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -231,7 +208,6 @@
 			this.gbControl.ResumeLayout(false);
 			this.gbControl.PerformLayout();
 			((System.ComponentModel.ISupportInitialize)(this.nudAutoSave)).EndInit();
-			this.tabPageQuotation.ResumeLayout(false);
 			this.ResumeLayout(false);
 
         }
@@ -258,8 +234,6 @@
 		private System.Windows.Forms.Label lbAutoSave;
 		private System.Windows.Forms.NumericUpDown nudAutoSave;
 		private ProfileUserControl profileUserControl;
-		private System.Windows.Forms.TabPage tabPageQuotation;
-		private QuotationUserControl quotationUserControl;
 	}
 }
 
