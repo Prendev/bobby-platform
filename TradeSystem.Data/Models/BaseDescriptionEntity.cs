@@ -5,12 +5,10 @@ using TradeSystem.Common.Attributes;
 namespace TradeSystem.Data.Models
 {
     public abstract class BaseDescriptionEntity : BaseEntity
-	{
-		private const string BaseCategory = "0 - Altalanos";
-
-		[Required]
+    {
+        [Required]
         [DisplayPriority(0)]
-        [Category(BaseCategory)]
+        [Category("Altalanos")]
         [DisplayName("Megnevezes")]
 		public string Description { get; set; }
 
