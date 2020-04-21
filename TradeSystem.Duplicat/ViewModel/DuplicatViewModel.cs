@@ -186,6 +186,11 @@ namespace TradeSystem.Duplicat.ViewModel
 					items.Add(e);
 					bindingList.Add(e);
 				}
+
+				if (!bindingList.Any())
+				{
+					bindingList.Add(null);
+				}
 				sync = true;
 			}
 
