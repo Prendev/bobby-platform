@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using TradeSystem.Common.Attributes;
 
 namespace TradeSystem.Data.Models
@@ -40,7 +39,5 @@ namespace TradeSystem.Data.Models
 		[Category(CustomerCategory)]
 		[DisplayName("E-mail cim")]
 		public string Email { get; set; }
-
-		public List<Item> Items { get; } = new List<Item>();
 	}
 }

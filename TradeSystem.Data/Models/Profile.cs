@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using TradeSystem.Common.Attributes;
 
 namespace TradeSystem.Data.Models
@@ -92,7 +91,5 @@ namespace TradeSystem.Data.Models
 	    [Category(LathParametersCategory)]
 	    [DisplayName("Szál hozzáadás (cm)")]
 	    public decimal RodAddition { get; set; } = 3m;
-
-	    public List<Quotation> Quotations { get; } = new List<Quotation>();
 	}
 }
