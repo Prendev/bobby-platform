@@ -77,7 +77,7 @@ namespace TradeSystem.Data.Models
 
 	    [InvisibleColumn]
 	    [Category(LathParametersCategory)]
-	    [DisplayName("Szál hozzáadás (cm)")]
+	    [DisplayName("Szál hozzáadás")]
 	    public decimal RodAddition { get; set; } = 3m;
 	}
 }
