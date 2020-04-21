@@ -49,7 +49,6 @@
 			this.properties.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.properties.Location = new System.Drawing.Point(2, 15);
 			this.properties.Name = "properties";
-			this.properties.PropertySort = System.Windows.Forms.PropertySort.Categorized;
 			this.properties.Size = new System.Drawing.Size(360, 463);
 			this.properties.TabIndex = 0;
 			// 
@@ -113,7 +112,7 @@
 			this.tlpProperties.Margin = new System.Windows.Forms.Padding(2);
 			this.tlpProperties.Name = "tlpProperties";
 			this.tlpProperties.RowCount = 1;
-			this.tlpProperties.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 484F));
+			this.tlpProperties.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 52F));
 			this.tlpProperties.Size = new System.Drawing.Size(368, 484);
 			this.tlpProperties.TabIndex = 1;
 			// 

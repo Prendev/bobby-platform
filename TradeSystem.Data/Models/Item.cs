@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel;
-using System.ComponentModel.DataAnnotations.Schema;
 using TradeSystem.Common.Attributes;
 
 namespace TradeSystem.Data.Models
@@ -15,18 +14,6 @@ namespace TradeSystem.Data.Models
 		[Category("Habkitöltött alumínium redőny")]
 		[DisplayName("Magassag (cm)")]
 		public int ShutterHeight { get; set; }
-
-		[InvisibleColumn]
-		[NotMapped]
-		[Category("Habkitöltött alumínium redőny")]
-		[DisplayName("Terulet (nm)")]
-		public decimal ShutterArea => ShutterWidth * ShutterHeight / 10000m;
-
-		[InvisibleColumn]
-		[NotMapped]
-		[Category("Habkitöltött alumínium redőny")]
-		[DisplayName("Suly (kg)")]
-		public decimal? ShutterWeight => ShutterArea * Quotation?.Profile?.ShutterWeight;
 
 		[InvisibleColumn]
 		[Category("Relaciok")]
