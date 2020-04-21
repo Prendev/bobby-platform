@@ -200,9 +200,6 @@
     <Compile Include="Views\CustomUserControl.Designer.cs">
       <DependentUpon>CustomUserControl.cs</DependentUpon>
     </Compile>
-    <Compile Include="Views\_TableUserControls\ItemUserControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
     <Compile Include="Views\_TableUserControls\ProfileUserControl.cs">
       <SubType>UserControl</SubType>
     </Compile>

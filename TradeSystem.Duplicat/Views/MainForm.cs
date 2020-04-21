@@ -61,7 +61,6 @@ namespace TradeSystem.Duplicat.Views
 		{
 			cbProfile.AddBinding("SelectedItem", _viewModel, nameof(_viewModel.SelectedProfile));
 			cbQuotation.AddBinding("SelectedItem", _viewModel, nameof(_viewModel.SelectedQuotation));
-			cbItem.AddBinding("SelectedItem", _viewModel, nameof(_viewModel.SelectedItem));
 		}
 
 	    private void AttachDataSources(Control parent)
@@ -70,7 +69,6 @@ namespace TradeSystem.Duplicat.Views
 
 			cbProfile.DataSource = _viewModel.Profiles;
 		    cbQuotation.DataSource = _viewModel.Quotations;
-		    cbItem.DataSource = _viewModel.Items;
 
 			foreach (Control c in parent.Controls)
 		    {

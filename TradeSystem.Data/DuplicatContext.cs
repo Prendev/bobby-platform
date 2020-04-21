@@ -38,7 +38,6 @@ namespace TradeSystem.Data
 
 		public DbSet<Profile> Profiles { get; set; }
 		public DbSet<Quotation> Quotations { get; set; }
-	    public DbSet<Item> Items { get; set; }
 
 		public void Init()
 		{
