@@ -18,18 +18,9 @@ namespace TradeSystem.Data.Models
 			Nyomatekos
 		}
 
-		public enum LegTypes
-		{
-			Szeles,
-			Keskeny,
-			Rolos,
-			Oszto
-		}
-
-		private const string RelationsCategory = "* - Relaciok";
 		private const string ShutterCategory = "1 - Habkitöltött alumínium redőny";
 		private const string MotorCategory = "2 - 220 V csőmotor";
-		private const string LegsCategory = "3 - Labak";
+		private const string RelationsCategory = "* - Relaciok";
 
 
 		[InvisibleColumn]
@@ -90,16 +81,5 @@ namespace TradeSystem.Data.Models
 		[Category(MotorCategory)]
 		[DisplayName("Erzekelo")]
 		public SensorTypes SensorType { get; set; }
-
-
-		[InvisibleColumn]
-		[Category(LegsCategory)]
-		[DisplayName("Bal lab")]
-		public LegTypes LeftLegType { get; set; }
-
-		[InvisibleColumn]
-		[Category(LegsCategory)]
-		[DisplayName("Jobb lab")]
-		public LegTypes RightLegType { get; set; }
 	}
 }
