@@ -19,7 +19,7 @@ namespace TradeSystem.Duplicat.Views
 		{
 			ViewModel = viewModel;
 
-			properties.AddBinding("Enabled", ViewModel, nameof(ViewModel.IsLoading), true);
+			gbProperties.AddBinding("Enabled", ViewModel, nameof(ViewModel.IsLoading), true);
 			properties.AddBinding("SelectedObject", ViewModel, GetSelectedPropertyName());
 
 			dataGridView.RowDoubleClick += (s, e) => ViewModel.Select(dataGridView.GetSelectedItem<T>());

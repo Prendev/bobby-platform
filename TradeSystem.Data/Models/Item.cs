@@ -31,8 +31,6 @@ namespace TradeSystem.Data.Models
 		private const string ShutterCategory = "1 - Habkitöltött alumínium redőny";
 		private const string MotorCategory = "2 - 220 V csőmotor";
 		private const string LegsCategory = "3 - Labak";
-		private const string CuttingCategory = "4 - Vágási méretek";
-		private const string LathCuttingCategory = "5 - Vágási méretek - léc";
 
 
 		[InvisibleColumn]
@@ -141,40 +139,5 @@ namespace TradeSystem.Data.Models
 				return left + right;
 			}
 		}
-
-
-		[InvisibleColumn]
-		[Category(CuttingCategory)]
-		[DisplayName("Tokfedél")]
-		public decimal Lid => ShutterWidth;
-
-		[InvisibleColumn]
-		[Category(CuttingCategory)]
-		[DisplayName("Tengely")]
-		public decimal Axle => ShutterWidth;
-
-		[InvisibleColumn]
-		[Category(LathCuttingCategory)]
-		[DisplayName("Szélesség")]
-		public decimal? LathWidth => ShutterWidth + WidthDeduction;
-
-		[InvisibleColumn]
-		[Category(LathCuttingCategory)]
-		[DisplayName("Szál")]
-		public decimal? Rod
-		{
-			get
-			{
-				if (Quotation?.Profile?.RodDivider == 0) return null;
-				var rods = ShutterHeight / Quotation?.Profile?.RodDivider + Quotation?.Profile?.RodAddition;
-				if (!rods.HasValue) return null;
-				return Math.Round(rods.Value, 1);
-			}
-		}
-
-		[InvisibleColumn]
-		[Category(LathCuttingCategory)]
-		[DisplayName("Záró")]
-		public decimal? LathCloseWidth => ShutterWidth - Quotation?.Profile?.CloseDeduction;
 	}
 }
