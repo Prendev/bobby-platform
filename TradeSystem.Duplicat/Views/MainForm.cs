@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Windows.Forms;
 using TradeSystem.Common;
+using TradeSystem.Common.Services;
 using TradeSystem.Data.Models;
 using TradeSystem.Duplicat.ViewModel;
 
@@ -11,7 +12,10 @@ namespace TradeSystem.Duplicat.Views
     {
         private readonly DuplicatViewModel _viewModel;
 
-	    public MainForm(DuplicatViewModel viewModel)
+	    public MainForm(
+            DuplicatViewModel viewModel,
+            INewsCalendarService newsCalendarService
+		)
 		{
 			_viewModel = viewModel;
 			DependecyManager.SynchronizationContext = SynchronizationContext.Current;
@@ -19,11 +23,21 @@ namespace TradeSystem.Duplicat.Views
             Load += (sender, args) => InitView();
 			Closing += (sender, args) => _viewModel.SaveCommand();
 			InitializeComponent();
-            TextBoxAppender.ConfigureTextBoxAppender(rtbAll, "General", 1000);
+            TextBoxAppender.ConfigureTextBoxAppender(rtbGeneral, "General", 1000);
+            TextBoxAppender.ConfigureTextBoxAppender(rtbFix, "FIX", 1000);
+            TextBoxAppender.ConfigureTextBoxAppender(rtbFixCopy, "FIX copy", 1000);
+            TextBoxAppender.ConfigureTextBoxAppender(rtbFixOrders, "FIX orders", 1000);
+			TextBoxAppender.ConfigureTextBoxAppender(rtbCTrader, "CT", 1000);
+			TextBoxAppender.ConfigureTextBoxAppender(rtbAll, "General|FIX|CT", 1000);
+
+	        ThreadPool.GetMinThreads(out var wokerThreads, out var completionPortThreads);
+			Logger.Debug($"ThreadPool.GetMinThreads(out {wokerThreads}, out {completionPortThreads})");
+			newsCalendarService.Start();
 		}
 
 		private void InitView()
         {
+			//btnRestore.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsConfigReadonly), true);
 	        nudAutoSave.AddBinding("Value", _viewModel, nameof(_viewModel.AutoSavePeriodInMin));
 			gbControl.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsLoading), true);
             btnConnect.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsConnected), true);
@@ -33,8 +47,13 @@ namespace TradeSystem.Duplicat.Views
 			btnSave.AddBinding<DuplicatViewModel.SaveStates, string>("Text", _viewModel,
 				nameof(_viewModel.SaveState), s => s == DuplicatViewModel.SaveStates.Error ? "ERROR" : s == DuplicatViewModel.SaveStates.Success ? "SUCCESS" : "Save config changes");
 
+			tabPageAggregator.AddBinding<Profile>("Enabled", _viewModel, nameof(_viewModel.SelectedProfile), p => p != null);
+			tabPageCopier.AddBinding<Profile>("Enabled", _viewModel, nameof(_viewModel.SelectedProfile), p => p != null);
+			tabPageLiveData.AddBinding<Profile>("Enabled", _viewModel, nameof(_viewModel.SelectedProfile), p => p != null);
+			tabPageStrategy.AddBinding<Profile>("Enabled", _viewModel, nameof(_viewModel.SelectedProfile), p => p != null);
 			labelProfile.AddBinding<Profile, string>("Text", _viewModel, nameof(_viewModel.SelectedProfile), p => p?.Description ?? "");
 
+			btnQuickStart.Click += (s, e) => { _viewModel.QuickStartCommand(); };
 			btnConnect.Click += (s, e) => { _viewModel.ConnectCommand(); };
             btnDisconnect.Click += (s, e) => { _viewModel.DisconnectCommand(); };
 

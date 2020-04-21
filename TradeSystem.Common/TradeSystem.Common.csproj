@@ -67,6 +67,9 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="AegisImplicitMail, Version=1.0.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\AIM.1.0.3\lib\AegisImplicitMail.dll</HintPath>
+    </Reference>
     <Reference Include="Common.Logging, Version=3.4.1.0, Culture=neutral, PublicKeyToken=af08829b84f0328e, processorArchitecture=MSIL">
       <HintPath>..\packages\Common.Logging.3.4.1\lib\net40\Common.Logging.dll</HintPath>
     </Reference>
@@ -77,27 +80,74 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\log4net.2.0.8\lib\net40-full\log4net.dll</HintPath>
     </Reference>
+    <Reference Include="RestSharp, Version=106.3.1.0, Culture=neutral, PublicKeyToken=598062e77f915f75, processorArchitecture=MSIL">
+      <HintPath>..\packages\RestSharp.106.3.1\lib\net452\RestSharp.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Threading.Tasks.Dataflow, Version=4.5.24.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Attributes\DisplayPriorityAttribute.cs" />
     <Compile Include="Attributes\ReadOnlyColumnAttribute.cs" />
     <Compile Include="Attributes\InvisibleColumnAttribute.cs" />
     <Compile Include="BaseNotifyPropertyChange.cs" />
+    <Compile Include="CustomThreadPool.cs" />
     <Compile Include="DependecyManager.cs" />
     <Compile Include="Extensions.cs" />
+    <Compile Include="Integration\AccountTypes.cs" />
+    <Compile Include="Integration\ConnectionStates.cs" />
+    <Compile Include="Integration\FixApiConnectorBase.cs" />
+    <Compile Include="Integration\ConnectorBase.cs" />
+    <Compile Include="Integration\IFixConnector.cs" />
+    <Compile Include="Integration\LimitFill.cs" />
+    <Compile Include="Integration\LimitResponse.cs" />
+    <Compile Include="Integration\OrderResponse.cs" />
+    <Compile Include="Integration\PositionResponse.cs" />
+    <Compile Include="Integration\StopResponse.cs" />
+    <Compile Include="Integration\Tick.cs" />
+    <Compile Include="Integration\Bar.cs" />
+    <Compile Include="Integration\BaseAccountInfo.cs" />
+    <Compile Include="Integration\IConnector.cs" />
+    <Compile Include="Integration\MarketOrder.cs" />
+    <Compile Include="Integration\NewPosition.cs" />
+    <Compile Include="Integration\Position.cs" />
+    <Compile Include="Integration\RetryOrder.cs" />
+    <Compile Include="Integration\Sides.cs" />
+    <Compile Include="Integration\NewTick.cs" />
     <Compile Include="Logging\AsyncQueueLoggerBase.cs" />
     <Compile Include="Logging\LogAdapter.cs" />
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Services\EmailService.cs" />
+    <Compile Include="Services\ExchangeRatesService.cs" />
+    <Compile Include="Services\NewsCalendarService.cs" />
+    <Compile Include="Services\RndService.cs" />
+    <Compile Include="Services\ThreadService.cs" />
+    <Compile Include="Services\NewsEvent.cs" />
+    <Compile Include="Services\XmlService.cs" />
+    <Compile Include="UnexpectedStatusCodeException.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\TradeSystem\TradeSystem.csproj">
-      <Project>{fdfce270-50ac-4930-8680-a760f6f7c637}</Project>
+    <ProjectReference Include="..\..\..\git\QvaDev.Wololo\TradeSystem.Communication\TradeSystem.Communication.csproj">
+      <Project>{9B577BD6-AEA9-4F64-9F1D-6EC760103295}</Project>
+      <Name>TradeSystem.Communication</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\git\QvaDev.Wololo\TradeSystem\TradeSystem.csproj">
+      <Project>{FDFCE270-50AC-4930-8680-A760F6F7C637}</Project>
       <Name>TradeSystem</Name>
     </ProjectReference>
   </ItemGroup>

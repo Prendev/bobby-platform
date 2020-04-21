@@ -106,9 +106,17 @@
     <Compile Include="Services\TradingAccountsService.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\git\QvaDev.Wololo\TradeSystem\TradeSystem.csproj">
+      <Project>{FDFCE270-50AC-4930-8680-A760F6F7C637}</Project>
+      <Name>TradeSystem</Name>
+    </ProjectReference>
     <ProjectReference Include="..\TradeSystem.Common\TradeSystem.Common.csproj">
       <Project>{10a3ef89-12bb-4d00-9950-36bfed281b91}</Project>
       <Name>TradeSystem.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TradeSystem.CTraderApi\TradeSystem.CTraderApi.csproj">
+      <Project>{866039F3-42FF-4D42-A85E-F91CEF04F3DF}</Project>
+      <Name>TradeSystem.CTraderApi</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

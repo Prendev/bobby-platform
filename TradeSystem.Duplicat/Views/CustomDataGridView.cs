@@ -8,6 +8,7 @@ using System.Linq;
 using System.Windows.Forms;
 using Microsoft.EntityFrameworkCore;
 using TradeSystem.Common.Attributes;
+using TradeSystem.Common.Integration;
 using TradeSystem.Data.Models;
 
 namespace TradeSystem.Duplicat.Views
@@ -129,13 +130,13 @@ namespace TradeSystem.Duplicat.Views
 		{
 			if (!(DataSource is IBindingList bindingList)) return;
 			if (bindingList.Count <= e.RowIndex) return;
-			//if (!(bindingList[e.RowIndex] is Account account)) return;
+			if (!(bindingList[e.RowIndex] is Account account)) return;
 
-			//if (account.ConnectionState == ConnectionStates.Connected)
-			//	Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.LightGreen;
-			//else if (account.ConnectionState == ConnectionStates.Error)
-			//	Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.PaleVioletRed;
-			//else Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.White;
+			if (account.ConnectionState == ConnectionStates.Connected)
+				Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.LightGreen;
+			else if (account.ConnectionState == ConnectionStates.Error)
+				Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.PaleVioletRed;
+			else Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.White;
 		}
 
 		private void CustomDataGridView_DataSourceChanged(object sender, EventArgs e)
