@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Timers;
 using Microsoft.EntityFrameworkCore;
 using TradeSystem.Common;
 using TradeSystem.Data;
@@ -39,7 +40,6 @@ namespace TradeSystem.Duplicat.ViewModel
 		public SaveStates SaveState { get => Get<SaveStates>(); set => Set(value); }
 
 		public Profile SelectedProfile { get => Get<Profile>(); set => Set(value); }
-		public Quotation SelectedQuotation { get => Get<Quotation>(); set => Set(value); }
 
 		public DuplicatViewModel(IOrchestrator orchestrator)
 		{

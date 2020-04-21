@@ -26,7 +26,6 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
-    <LangVersion>7.1</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -36,7 +35,6 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <LangVersion>7.1</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <DebugSymbols>true</DebugSymbols>
@@ -200,7 +198,7 @@
     <Compile Include="Views\CustomUserControl.Designer.cs">
       <DependentUpon>CustomUserControl.cs</DependentUpon>
     </Compile>
-    <Compile Include="Views\_TableUserControls\ProfileUserControl.cs">
+    <Compile Include="Views\ProfilesUserControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="Views\PropertyComparer.cs" />
@@ -225,9 +223,6 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="ViewModel\DuplicatViewModel.cs" />
-    <Compile Include="Views\_TableUserControls\QuotationUserControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
     <EmbeddedResource Include="Views\CustomUserControl.resx">
       <DependentUpon>CustomUserControl.cs</DependentUpon>
     </EmbeddedResource>
