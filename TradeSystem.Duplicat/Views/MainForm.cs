@@ -33,9 +33,6 @@ namespace TradeSystem.Duplicat.Views
 				nameof(_viewModel.SaveState),
 				s => s == DuplicatViewModel.SaveStates.Error ? "Hiba" : "Konfiguracio mentese");
 
-			btnCuttingTemplate.AddBinding<Quotation>("Enabled", _viewModel, nameof(_viewModel.SelectedQuotation), e => e != null);
-			btnCuttingTemplate.Click += (_, __) => { _viewModel.CuttingTemplate(); };
-
 			btnSave.Click += (_, __) => { _viewModel.SaveCommand(); };
 			_viewModel.DataContextChanged += () => AttachDataSources(this);
 

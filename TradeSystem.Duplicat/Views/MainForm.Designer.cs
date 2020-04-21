@@ -30,18 +30,17 @@
         {
 			this.tabControlMain = new System.Windows.Forms.TabControl();
 			this.tabPageProfile = new System.Windows.Forms.TabPage();
-			this.profileUserControl = new TradeSystem.Duplicat.Views.ProfileUserControl();
 			this.tabPageQuotation = new System.Windows.Forms.TabPage();
-			this.quotationUserControl = new TradeSystem.Duplicat.Views.QuotationUserControl();
 			this.tabPageItem = new System.Windows.Forms.TabPage();
-			this.itemUserControl1 = new TradeSystem.Duplicat.Views.ItemUserControl();
 			this.tabPageLog = new System.Windows.Forms.TabPage();
 			this.panel1 = new System.Windows.Forms.Panel();
 			this.rtbAll = new System.Windows.Forms.RichTextBox();
 			this.tlpMain = new System.Windows.Forms.TableLayoutPanel();
 			this.gbControl = new System.Windows.Forms.GroupBox();
 			this.btnSave = new System.Windows.Forms.Button();
-			this.btnCuttingTemplate = new System.Windows.Forms.Button();
+			this.profileUserControl = new TradeSystem.Duplicat.Views.ProfileUserControl();
+			this.quotationUserControl = new TradeSystem.Duplicat.Views.QuotationUserControl();
+			this.itemUserControl1 = new TradeSystem.Duplicat.Views.ItemUserControl();
 			this.tabControlMain.SuspendLayout();
 			this.tabPageProfile.SuspendLayout();
 			this.tabPageQuotation.SuspendLayout();
@@ -76,16 +75,7 @@
 			this.tabPageProfile.Size = new System.Drawing.Size(1112, 594);
 			this.tabPageProfile.TabIndex = 3;
 			this.tabPageProfile.Text = "Profilok";
-			this.tabPageProfile.UseVisualStyleBackColor = true;
-			// 
-			// profileUserControl
-			// 
-			this.profileUserControl.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.profileUserControl.Location = new System.Drawing.Point(3, 3);
-			this.profileUserControl.Margin = new System.Windows.Forms.Padding(4);
-			this.profileUserControl.Name = "profileUserControl";
-			this.profileUserControl.Size = new System.Drawing.Size(1106, 588);
-			this.profileUserControl.TabIndex = 0;
+	        this.tabPageProfile.UseVisualStyleBackColor = true;
 			// 
 			// tabPageQuotation
 			// 
@@ -98,14 +88,6 @@
 			this.tabPageQuotation.Text = "Arajanlatok";
 			this.tabPageQuotation.UseVisualStyleBackColor = true;
 			// 
-			// quotationUserControl
-			// 
-			this.quotationUserControl.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.quotationUserControl.Location = new System.Drawing.Point(3, 3);
-			this.quotationUserControl.Name = "quotationUserControl";
-			this.quotationUserControl.Size = new System.Drawing.Size(1106, 588);
-			this.quotationUserControl.TabIndex = 0;
-			// 
 			// tabPageItem
 			// 
 			this.tabPageItem.Controls.Add(this.itemUserControl1);
@@ -116,14 +98,6 @@
 			this.tabPageItem.TabIndex = 6;
 			this.tabPageItem.Text = "Arucikkek";
 			this.tabPageItem.UseVisualStyleBackColor = true;
-			// 
-			// itemUserControl1
-			// 
-			this.itemUserControl1.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.itemUserControl1.Location = new System.Drawing.Point(3, 3);
-			this.itemUserControl1.Name = "itemUserControl1";
-			this.itemUserControl1.Size = new System.Drawing.Size(1106, 588);
-			this.itemUserControl1.TabIndex = 0;
 			// 
 			// tabPageLog
 			// 
@@ -176,7 +150,6 @@
 			// 
 			// gbControl
 			// 
-			this.gbControl.Controls.Add(this.btnCuttingTemplate);
 			this.gbControl.Controls.Add(this.btnSave);
 			this.gbControl.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.gbControl.Location = new System.Drawing.Point(3, 3);
@@ -196,15 +169,30 @@
 			this.btnSave.Text = "Konfiguracio mentes";
 			this.btnSave.UseVisualStyleBackColor = true;
 			// 
-			// btnCuttingTemplate
+			// profileUserControl
 			// 
-			this.btnCuttingTemplate.Dock = System.Windows.Forms.DockStyle.Left;
-			this.btnCuttingTemplate.Location = new System.Drawing.Point(153, 16);
-			this.btnCuttingTemplate.Name = "btnCuttingTemplate";
-			this.btnCuttingTemplate.Size = new System.Drawing.Size(150, 27);
-			this.btnCuttingTemplate.TabIndex = 8;
-			this.btnCuttingTemplate.Text = "Vágási méretek";
-			this.btnCuttingTemplate.UseVisualStyleBackColor = true;
+			this.profileUserControl.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.profileUserControl.Location = new System.Drawing.Point(3, 3);
+			this.profileUserControl.Margin = new System.Windows.Forms.Padding(4);
+			this.profileUserControl.Name = "profileUserControl";
+			this.profileUserControl.Size = new System.Drawing.Size(1106, 588);
+			this.profileUserControl.TabIndex = 0;
+			// 
+			// quotationUserControl
+			// 
+			this.quotationUserControl.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.quotationUserControl.Location = new System.Drawing.Point(3, 3);
+			this.quotationUserControl.Name = "quotationUserControl";
+			this.quotationUserControl.Size = new System.Drawing.Size(1106, 588);
+			this.quotationUserControl.TabIndex = 0;
+			// 
+			// itemUserControl1
+			// 
+			this.itemUserControl1.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.itemUserControl1.Location = new System.Drawing.Point(3, 3);
+			this.itemUserControl1.Name = "itemUserControl1";
+			this.itemUserControl1.Size = new System.Drawing.Size(1106, 588);
+			this.itemUserControl1.TabIndex = 0;
 			// 
 			// MainForm
 			// 
@@ -249,7 +237,6 @@
 		private ItemUserControl itemUserControl1;
 		private System.Windows.Forms.TabPage tabPageProfile;
 		private ProfileUserControl profileUserControl;
-		private System.Windows.Forms.Button btnCuttingTemplate;
 	}
 }
 
