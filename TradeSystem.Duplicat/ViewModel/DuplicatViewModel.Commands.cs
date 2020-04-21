@@ -25,14 +25,38 @@ namespace TradeSystem.Duplicat.ViewModel
 			timer.Start();
 		}
 
+	    public async void QuickStartCommand()
+		{
+			try
+			{
+				IsLoading = true;
+				IsConfigReadonly = true;
+
+				await _orchestrator.Connect(_duplicatContext);
+
+				IsLoading = false;
+				IsConfigReadonly = true;
+				IsConnected = true;
+
+				_autoSaveTimer.Interval = 1000 * 60 * Math.Max(AutoSavePeriodInMin, 1);
+				_autoSaveTimer.Start();
+			}
+			catch (Exception e)
+			{
+				Logger.Error("DuplicatViewModel.QuickStartCommand exception", e);
+				DisconnectCommand();
+			}
+		}
 		public async void ConnectCommand()
         {
 	        try
 	        {
 		        IsLoading = true;
+		        IsConfigReadonly = true;
 		        await _orchestrator.Connect(_duplicatContext);
 
 		        IsLoading = false;
+		        IsConfigReadonly = true;
 		        IsConnected = true;
 
 		        _autoSaveTimer.Interval = 1000 * 60 * Math.Max(AutoSavePeriodInMin, 1);
@@ -49,15 +73,18 @@ namespace TradeSystem.Duplicat.ViewModel
 	        try
 	        {
 		        IsLoading = true;
+		        IsConfigReadonly = true;
 		        await _orchestrator.Disconnect();
 
 		        IsLoading = false;
+		        IsConfigReadonly = false;
 		        IsConnected = false;
 	        }
 	        catch (Exception e)
 	        {
 		        Logger.Error("DuplicatViewModel.DisconnectCommand exception", e);
 		        IsLoading = false;
+		        IsConfigReadonly = false;
 		        IsConnected = false;
 	        }
 	        finally
@@ -68,15 +95,13 @@ namespace TradeSystem.Duplicat.ViewModel
 
         public void LoadProfileCommand(Profile profile)
         {
+	        if (IsConfigReadonly) return;
 	        if (IsLoading) return;
 
 			SelectedProfile = profile;
 
             InitDataContext();
-	        DataContextChanged?.Invoke();
-
-			DisconnectCommand();
-	        ConnectCommand();
+            DataContextChanged?.Invoke();
 		}
     }
 }
