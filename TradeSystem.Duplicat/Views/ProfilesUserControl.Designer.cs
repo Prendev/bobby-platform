@@ -35,11 +35,9 @@
 			this.gbControl = new System.Windows.Forms.GroupBox();
 			this.gbProfile = new System.Windows.Forms.GroupBox();
 			this.dgvProfiles = new TradeSystem.Duplicat.Views.CustomDataGridView();
-			this.properties = new System.Windows.Forms.PropertyGrid();
 			this.tlpMain.SuspendLayout();
 			this.tableLayoutPanel1.SuspendLayout();
 			this.tableLayoutPanel2.SuspendLayout();
-			this.gbControl.SuspendLayout();
 			this.gbProfile.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.dgvProfiles)).BeginInit();
 			this.SuspendLayout();
@@ -54,7 +52,7 @@
 			this.tlpMain.Name = "tlpMain";
 			this.tlpMain.RowCount = 1;
 			this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-			this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 605F));
+			this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 16F));
 			this.tlpMain.Size = new System.Drawing.Size(938, 605);
 			this.tlpMain.TabIndex = 1;
 			// 
@@ -67,7 +65,7 @@
 			this.tableLayoutPanel1.Controls.Add(this.gbProfile, 0, 0);
 			this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.tableLayoutPanel1.Location = new System.Drawing.Point(2, 2);
-			this.tableLayoutPanel1.Margin = new System.Windows.Forms.Padding(2);
+			this.tableLayoutPanel1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
 			this.tableLayoutPanel1.Name = "tableLayoutPanel1";
 			this.tableLayoutPanel1.RowCount = 1;
 			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
@@ -81,24 +79,25 @@
 			this.tableLayoutPanel2.Controls.Add(this.gbControl, 0, 0);
 			this.tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.tableLayoutPanel2.Location = new System.Drawing.Point(469, 2);
-			this.tableLayoutPanel2.Margin = new System.Windows.Forms.Padding(2);
+			this.tableLayoutPanel2.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
 			this.tableLayoutPanel2.Name = "tableLayoutPanel2";
-			this.tableLayoutPanel2.RowCount = 1;
+			this.tableLayoutPanel2.RowCount = 2;
 			this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 52F));
+			this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
 			this.tableLayoutPanel2.Size = new System.Drawing.Size(463, 597);
 			this.tableLayoutPanel2.TabIndex = 1;
 			// 
 			// gbControl
 			// 
-			this.gbControl.Controls.Add(this.properties);
-			this.gbControl.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.gbControl.Dock = System.Windows.Forms.DockStyle.Top;
 			this.gbControl.Location = new System.Drawing.Point(2, 2);
-			this.gbControl.Margin = new System.Windows.Forms.Padding(2);
+			this.gbControl.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
 			this.gbControl.Name = "gbControl";
-			this.gbControl.Padding = new System.Windows.Forms.Padding(2);
-			this.gbControl.Size = new System.Drawing.Size(459, 593);
+			this.gbControl.Padding = new System.Windows.Forms.Padding(2, 2, 2, 2);
+			this.gbControl.Size = new System.Drawing.Size(459, 47);
 			this.gbControl.TabIndex = 2;
 			this.gbControl.TabStop = false;
+			this.gbControl.Text = "Control";
 			// 
 			// gbProfile
 			// 
@@ -109,6 +108,7 @@
 			this.gbProfile.Size = new System.Drawing.Size(461, 595);
 			this.gbProfile.TabIndex = 0;
 			this.gbProfile.TabStop = false;
+			this.gbProfile.Text = "Profiles (use double-click)";
 			// 
 			// dgvProfiles
 			// 
@@ -130,14 +130,6 @@
 			this.dgvProfiles.Size = new System.Drawing.Size(455, 576);
 			this.dgvProfiles.TabIndex = 0;
 			// 
-			// properties
-			// 
-			this.properties.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.properties.Location = new System.Drawing.Point(2, 15);
-			this.properties.Name = "properties";
-			this.properties.Size = new System.Drawing.Size(455, 576);
-			this.properties.TabIndex = 0;
-			// 
 			// ProfilesUserControl
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -148,7 +140,6 @@
 			this.tlpMain.ResumeLayout(false);
 			this.tableLayoutPanel1.ResumeLayout(false);
 			this.tableLayoutPanel2.ResumeLayout(false);
-			this.gbControl.ResumeLayout(false);
 			this.gbProfile.ResumeLayout(false);
 			((System.ComponentModel.ISupportInitialize)(this.dgvProfiles)).EndInit();
 			this.ResumeLayout(false);
@@ -163,6 +154,5 @@
 		private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
 		private System.Windows.Forms.TableLayoutPanel tableLayoutPanel2;
 		private System.Windows.Forms.GroupBox gbControl;
-		private System.Windows.Forms.PropertyGrid properties;
 	}
 }

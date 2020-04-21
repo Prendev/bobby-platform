@@ -1,5 +1,4 @@
-﻿using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using TradeSystem.Common.Attributes;
 
 namespace TradeSystem.Data.Models
@@ -8,8 +7,7 @@ namespace TradeSystem.Data.Models
     {
         [Required]
         [DisplayPriority(0)]
-        [Category("Base")]
-		public string Description { get; set; }
+        public string Description { get; set; }
 
         public override string ToString()
         {

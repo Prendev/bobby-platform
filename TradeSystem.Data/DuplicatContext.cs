@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Configuration;
+using System.IO;
+using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TradeSystem.Data.Models;
@@ -10,6 +12,7 @@ namespace TradeSystem.Data
     public class DuplicatContext : DbContext
     {
 	    private readonly string _connectionString;
+	    private readonly string _providerName;
 	    private readonly string _baseDirectory;
 
 	    public DuplicatContext()
@@ -22,11 +25,13 @@ namespace TradeSystem.Data
 			if (!string.IsNullOrWhiteSpace(dd) && _connectionString.Contains("|DataDirectory|"))
 				_connectionString = _connectionString.Replace("|DataDirectory|", dd);
 
+			_providerName = connectionString.ProviderName.ToLowerInvariant();
 			_baseDirectory = AppContext.BaseDirectory;
 		}
 
 		public DuplicatContext(string connectionString, string providerName, string baseDirectory)
 	    {
+		    _providerName = providerName;
 		    _connectionString = connectionString;
 		    _baseDirectory = baseDirectory;
 	    }
@@ -37,7 +42,6 @@ namespace TradeSystem.Data
 		}
 
 		public DbSet<Profile> Profiles { get; set; }
-		public DbSet<Quotation> Quotations { get; set; }
 
 		public void Init()
 		{

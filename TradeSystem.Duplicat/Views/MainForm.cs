@@ -25,6 +25,7 @@ namespace TradeSystem.Duplicat.Views
 		private void InitView()
 		{
 			gbControl.Text = "Vezio 0.1";
+			nudAutoSave.AddBinding("Value", _viewModel, nameof(_viewModel.AutoSavePeriodInMin));
 			gbControl.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsLoading), true);
 			btnSave.AddBinding<DuplicatViewModel.SaveStates, Color>("ForeColor", _viewModel,
 				nameof(_viewModel.SaveState), s => s == DuplicatViewModel.SaveStates.Error ? Color.DarkRed : s == DuplicatViewModel.SaveStates.Success ? Color.DarkGreen : Color.Black);
@@ -32,6 +33,8 @@ namespace TradeSystem.Duplicat.Views
 				nameof(_viewModel.SaveState),
 				s => s == DuplicatViewModel.SaveStates.Error ? "Hiba" :
 					s == DuplicatViewModel.SaveStates.Success ? "Sikeres" : "Konfiguracio mentese");
+
+			labelProfile.AddBinding<Profile, string>("Text", _viewModel, nameof(_viewModel.SelectedProfile), p => p?.Description ?? "");
 
             var titleBinding = new Binding("Text", _viewModel, "IsLoading");
             titleBinding.Format += (s, e) => e.Value = (bool) e.Value ? "Szabó Árnyékolástechnika - Toltes..." : "Szabó Árnyékolástechnika";

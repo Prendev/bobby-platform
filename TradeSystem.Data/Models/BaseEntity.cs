@@ -1,6 +1,4 @@
-﻿using System;
-using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using TradeSystem.Common;
 using TradeSystem.Common.Attributes;
@@ -12,18 +10,11 @@ namespace TradeSystem.Data.Models
         [Key]
         [Dapper.Contrib.Extensions.Key]
         [InvisibleColumn]
-        [ReadOnly(true)]
-		[Category("Base")]
 		public int Id { get; set; }
 
-		[NotMapped]
-		[InvisibleColumn]
-		[Category("Base")]
-		public string DisplayMember => ToString();
-
-		[ReadOnly(true)]
-		[Category("Base")]
-		public DateTime TimeCreated { get; set; } = HiResDatetime.UtcNow;
+        [NotMapped]
+        [InvisibleColumn]
+        public string DisplayMember => ToString();
 
         public override string ToString()
         {
