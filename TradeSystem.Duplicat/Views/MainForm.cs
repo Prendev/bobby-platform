@@ -30,14 +30,12 @@ namespace TradeSystem.Duplicat.Views
 			btnSave.AddBinding<DuplicatViewModel.SaveStates, Color>("ForeColor", _viewModel,
 				nameof(_viewModel.SaveState), s => s == DuplicatViewModel.SaveStates.Error ? Color.DarkRed : s == DuplicatViewModel.SaveStates.Success ? Color.DarkGreen : Color.Black);
 			btnSave.AddBinding<DuplicatViewModel.SaveStates, string>("Text", _viewModel,
-				nameof(_viewModel.SaveState),
-				s => s == DuplicatViewModel.SaveStates.Error ? "Hiba" :
-					s == DuplicatViewModel.SaveStates.Success ? "Sikeres" : "Konfiguracio mentese");
+				nameof(_viewModel.SaveState), s => s == DuplicatViewModel.SaveStates.Error ? "ERROR" : s == DuplicatViewModel.SaveStates.Success ? "SUCCESS" : "Save config changes");
 
 			labelProfile.AddBinding<Profile, string>("Text", _viewModel, nameof(_viewModel.SelectedProfile), p => p?.Description ?? "");
 
             var titleBinding = new Binding("Text", _viewModel, "IsLoading");
-            titleBinding.Format += (s, e) => e.Value = (bool) e.Value ? "Szabó Árnyékolástechnika - Toltes..." : "Szabó Árnyékolástechnika";
+            titleBinding.Format += (s, e) => e.Value = (bool) e.Value ? "TradeSystem.Duplicat - Loading..." : "TradeSystem.Duplicat";
             DataBindings.Add(titleBinding);
 
             btnSave.Click += (s, e) => { _viewModel.SaveCommand(); };
