@@ -23,8 +23,6 @@ namespace TradeSystem.Duplicat.Views
 			properties.AddBinding("SelectedObject", ViewModel, GetSelectedPropertyName());
 
 			dataGridView.RowDoubleClick += (s, e) => ViewModel.Select(dataGridView.GetSelectedItem<T>());
-			dataGridView.UserDeletingRow += (_, e) => ViewModel.Unselect(e.Row.DataBoundItem as BaseEntity);
-			dataGridView.UserAddedRow += (_, __) => ViewModel.SaveCommand();
 			AddDefaults();
 		}
 

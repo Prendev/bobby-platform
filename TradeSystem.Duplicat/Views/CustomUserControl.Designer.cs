@@ -28,75 +28,83 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
-			System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+			System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
 			this.properties = new System.Windows.Forms.PropertyGrid();
 			this.dataGridView = new TradeSystem.Duplicat.Views.CustomDataGridView();
-			this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+			this.tlpFull = new System.Windows.Forms.TableLayoutPanel();
+			this.gbDataGridView = new System.Windows.Forms.GroupBox();
 			((System.ComponentModel.ISupportInitialize)(this.dataGridView)).BeginInit();
-			((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
-			this.splitContainer1.Panel1.SuspendLayout();
-			this.splitContainer1.Panel2.SuspendLayout();
-			this.splitContainer1.SuspendLayout();
+			this.tlpFull.SuspendLayout();
+			this.gbDataGridView.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// properties
 			// 
 			this.properties.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.properties.Location = new System.Drawing.Point(0, 0);
+			this.properties.Location = new System.Drawing.Point(376, 3);
 			this.properties.Name = "properties";
 			this.properties.PropertySort = System.Windows.Forms.PropertySort.Categorized;
-			this.properties.Size = new System.Drawing.Size(494, 492);
+			this.properties.Size = new System.Drawing.Size(368, 486);
 			this.properties.TabIndex = 0;
 			// 
 			// dataGridView
 			// 
 			this.dataGridView.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
-			dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-			dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Control;
-			dataGridViewCellStyle2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.WindowText;
-			dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-			dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-			dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
-			this.dataGridView.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle2;
+			dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+			dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Control;
+			dataGridViewCellStyle1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.WindowText;
+			dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+			dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+			dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+			this.dataGridView.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
 			this.dataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
 			this.dataGridView.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.dataGridView.Location = new System.Drawing.Point(0, 0);
+			this.dataGridView.Location = new System.Drawing.Point(0, 13);
 			this.dataGridView.MultiSelect = false;
 			this.dataGridView.Name = "dataGridView";
 			this.dataGridView.ShowCellToolTips = false;
-			this.dataGridView.Size = new System.Drawing.Size(249, 492);
+			this.dataGridView.Size = new System.Drawing.Size(373, 479);
 			this.dataGridView.TabIndex = 0;
 			// 
-			// splitContainer1
+			// tlpFull
 			// 
-			this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.splitContainer1.Location = new System.Drawing.Point(0, 0);
-			this.splitContainer1.Name = "splitContainer1";
+			this.tlpFull.ColumnCount = 2;
+			this.tlpFull.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+			this.tlpFull.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+			this.tlpFull.Controls.Add(this.properties, 1, 0);
+			this.tlpFull.Controls.Add(this.gbDataGridView, 0, 0);
+			this.tlpFull.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.tlpFull.Location = new System.Drawing.Point(0, 0);
+			this.tlpFull.Margin = new System.Windows.Forms.Padding(2);
+			this.tlpFull.Name = "tlpFull";
+			this.tlpFull.RowCount = 1;
+			this.tlpFull.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+			this.tlpFull.Size = new System.Drawing.Size(747, 492);
+			this.tlpFull.TabIndex = 2;
 			// 
-			// splitContainer1.Panel1
+			// gbDataGridView
 			// 
-			this.splitContainer1.Panel1.Controls.Add(this.dataGridView);
-			// 
-			// splitContainer1.Panel2
-			// 
-			this.splitContainer1.Panel2.Controls.Add(this.properties);
-			this.splitContainer1.Size = new System.Drawing.Size(747, 492);
-			this.splitContainer1.SplitterDistance = 249;
-			this.splitContainer1.TabIndex = 1;
+			this.gbDataGridView.Controls.Add(this.dataGridView);
+			this.gbDataGridView.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.gbDataGridView.Location = new System.Drawing.Point(0, 0);
+			this.gbDataGridView.Margin = new System.Windows.Forms.Padding(0);
+			this.gbDataGridView.Name = "gbDataGridView";
+			this.gbDataGridView.Padding = new System.Windows.Forms.Padding(0);
+			this.gbDataGridView.Size = new System.Drawing.Size(373, 492);
+			this.gbDataGridView.TabIndex = 0;
+			this.gbDataGridView.TabStop = false;
 			// 
 			// CustomUserControl
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.Controls.Add(this.splitContainer1);
+			this.Controls.Add(this.tlpFull);
 			this.Name = "CustomUserControl";
 			this.Size = new System.Drawing.Size(747, 492);
 			((System.ComponentModel.ISupportInitialize)(this.dataGridView)).EndInit();
-			this.splitContainer1.Panel1.ResumeLayout(false);
-			this.splitContainer1.Panel2.ResumeLayout(false);
-			((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
-			this.splitContainer1.ResumeLayout(false);
+			this.tlpFull.ResumeLayout(false);
+			this.gbDataGridView.ResumeLayout(false);
 			this.ResumeLayout(false);
 
 		}
@@ -105,6 +113,7 @@
 
 		private System.Windows.Forms.PropertyGrid properties;
 		private CustomDataGridView dataGridView;
-		private System.Windows.Forms.SplitContainer splitContainer1;
+		private System.Windows.Forms.TableLayoutPanel tlpFull;
+		private System.Windows.Forms.GroupBox gbDataGridView;
 	}
 }
