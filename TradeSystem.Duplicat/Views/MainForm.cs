@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Windows.Forms;
 using TradeSystem.Common;
+using TradeSystem.Data.Models;
 using TradeSystem.Duplicat.ViewModel;
 
 namespace TradeSystem.Duplicat.Views
@@ -17,9 +18,8 @@ namespace TradeSystem.Duplicat.Views
 
             Load += (sender, args) => InitView();
 			Closing += (sender, args) => _viewModel.SaveCommand();
-
 			InitializeComponent();
-			TextBoxAppender.ConfigureTextBoxAppender(rtbAll, "General", 1000);
+            TextBoxAppender.ConfigureTextBoxAppender(rtbAll, "General", 1000);
 		}
 
 		private void InitView()
