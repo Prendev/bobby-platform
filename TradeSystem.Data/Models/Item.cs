@@ -1,5 +1,4 @@
-﻿using System;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
 using TradeSystem.Common.Attributes;
 
@@ -102,42 +101,5 @@ namespace TradeSystem.Data.Models
 		[Category(LegsCategory)]
 		[DisplayName("Jobb lab")]
 		public LegTypes RightLegType { get; set; }
-
-		[InvisibleColumn]
-		[Category(LegsCategory)]
-		[DisplayName("Szelesseg kivonas")]
-		public decimal? WidthDeduction
-		{
-			get
-			{
-				decimal? left = 0m;
-				switch (LeftLegType)
-				{
-					case LegTypes.Szeles:
-						left = Quotation?.Profile?.SzelesDeduction; break;
-					case LegTypes.Keskeny:
-						left = Quotation?.Profile?.KeskenyDeduction; break;
-					case LegTypes.Rolos:
-						left = Quotation?.Profile?.RolosDeduction; break;
-					case LegTypes.Oszto:
-						left = Quotation?.Profile?.OsztoDeduction; break;
-				}
-
-				decimal? right = 0m;
-				switch (RightLegType)
-				{
-					case LegTypes.Szeles:
-						right = Quotation?.Profile?.SzelesDeduction; break;
-					case LegTypes.Keskeny:
-						right = Quotation?.Profile?.KeskenyDeduction; break;
-					case LegTypes.Rolos:
-						right = Quotation?.Profile?.RolosDeduction; break;
-					case LegTypes.Oszto:
-						right = Quotation?.Profile?.OsztoDeduction; break;
-				}
-
-				return left + right;
-			}
-		}
 	}
 }
