@@ -271,7 +271,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 						LongOpenPrice = pos.OpenPrice,
 						Level = level
 					});
-					Logger.Info($"{set} latency arb - {level}. long first side opened at {pos.OpenPrice}" +
+					Logger.Info($"{set} latency arb - {level}. long first side opened at {pos.OpenPrice} and offset {longOffset}" +
 					            $"{Environment.NewLine}\tExecution time is {pos.ExecutionTime} ms with {pos.Slippage / set.PipSize:F2} pip slippage");
 				}
 
@@ -300,7 +300,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 						ShortOpenPrice = pos.OpenPrice,
 						Level = level
 					});
-					Logger.Info($"{set} latency arb - {level}. short first side opened at {pos.OpenPrice}" +
+					Logger.Info($"{set} latency arb - {level}. short first side opened at {pos.OpenPrice} and offset {shortOffset}" +
 					            $"{Environment.NewLine}\tExecution time is {pos.ExecutionTime} ms with {pos.Slippage / set.PipSize:F2} pip slippage");
 				}
 			}
@@ -696,7 +696,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 					first.LongClosePrice = closePos.ClosePrice;
 					first.Trailing = null;
-					Logger.Info($"{set} latency arb - {first.Level}. long first side closed at {closePos.ClosePrice}" +
+					Logger.Info($"{set} latency arb - {first.Level}. long first side closed at {closePos.ClosePrice} and offset {longOffset}" +
 					            $"{Environment.NewLine}\tExecution time is {closePos.ExecutionTime} ms with {closePos.Slippage / set.PipSize:F2} pip slippage");
 				}
 
@@ -716,7 +716,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 					first.ShortClosePrice = closePos.ClosePrice;
 					first.Trailing = null;
-					Logger.Info($"{set} latency arb - {first.Level}. short first side closed at {closePos.ClosePrice}" +
+					Logger.Info($"{set} latency arb - {first.Level}. short first side closed at {closePos.ClosePrice} and offset {shortOffset}" +
 					            $"{Environment.NewLine}\tExecution time is {closePos.ExecutionTime} ms with {closePos.Slippage / set.PipSize:F2} pip slippage");
 				}
 			}
