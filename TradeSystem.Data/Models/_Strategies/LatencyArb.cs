@@ -42,19 +42,6 @@ namespace TradeSystem.Data.Models
 
 		public LatencyArbStates State { get => Get<LatencyArbStates>(); set => Set(value); }
 		public bool Rotating { get; set; }
-		[DisplayName("AvgPeriod")] public int AveragingPeriodInSeconds { get; set; }
-		[DisplayName("RestPeriod")] public int RestingPeriodInSec { get; set; }
-		[DisplayName("ReopenDaysOld")] public int ReopenThresholdInDay { get; set; } = 5;
-		[DisplayName("R Count")] public int ReopenCount { get => Get<int>(); set => Set(value); }
-
-		[DisplayName("EmergencyState")] [ReadOnly(true)] public LatencyArbStates LastStateBeforeEmergencyOff { get; set; }
-		[DisplayName("E Off")] public int EmergencyOff { get; set; }
-		[DisplayName("E Open tr.")] public decimal EmergencyOpenThresholdInPip { get; set; }
-		[DisplayName("E Close tr.")] public decimal EmergencyCloseThresholdInPip { get; set; }
-		[DisplayName("E Avg Closed tr.")] public decimal? EmergencyAvgClosedThresholdInPip { get; set; }
-		[DisplayName("E Count")] public int EmergencyCount { get => Get<int>(); set => Set(value); }
-		[DisplayName("E Short exit")] public decimal EmergencyShortExitInPip { get; set; }
-		[DisplayName("E Long exit")] public decimal EmergencyLongExitInPip { get; set; }
 
 		public int FastFeedAccountId { get; set; }
 		public Account FastFeedAccount { get => Get<Account>(); set => Set(value); }
@@ -89,6 +76,20 @@ namespace TradeSystem.Data.Models
 
 		[DisplayName("Earliest")] public TimeSpan? EarliestTradeTime { get; set; }
 		[DisplayName("Latest")] public TimeSpan? LatestTradeTime { get; set; }
+
+		[DisplayName("AvgPeriod")] public int AveragingPeriodInSeconds { get; set; }
+		[DisplayName("RestPeriod")] public int RestingPeriodInSec { get; set; }
+		[DisplayName("ReopenDaysOld")] public int ReopenThresholdInDay { get; set; } = 5;
+		[DisplayName("R Count")] public int ReopenCount { get => Get<int>(); set => Set(value); }
+
+		[DisplayName("EmergencyState")] [ReadOnly(true)] public LatencyArbStates LastStateBeforeEmergencyOff { get; set; }
+		[DisplayName("E Off")] public int EmergencyOff { get; set; }
+		[DisplayName("E Open tr.")] public decimal EmergencyOpenThresholdInPip { get; set; }
+		[DisplayName("E Close tr.")] public decimal EmergencyCloseThresholdInPip { get; set; }
+		[DisplayName("E Avg Closed tr.")] public decimal? EmergencyAvgClosedThresholdInPip { get; set; }
+		[DisplayName("E Count")] public int EmergencyCount { get => Get<int>(); set => Set(value); }
+		[DisplayName("E Short exit")] public decimal EmergencyShortExitInPip { get; set; }
+		[DisplayName("E Long exit")] public decimal EmergencyLongExitInPip { get; set; }
 
 		public LatencyArbOrderTypes FirstOrderType { get; set; }
 		public LatencyArbOrderTypes HedgeOrderType { get; set; }
