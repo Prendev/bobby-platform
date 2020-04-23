@@ -331,7 +331,7 @@ namespace TradeSystem.Mt4Integration
 					Symbol = quote.Symbol,
 					Ask = (decimal)quote.Ask,
 					Bid = (decimal)quote.Bid,
-					Time = quote.Time
+					Time = HiResDatetime.UtcNow,
 				};
 			}
 			catch (Exception e)
@@ -366,7 +366,7 @@ namespace TradeSystem.Mt4Integration
                 Symbol = args.Symbol,
                 Ask = (decimal)args.Ask,
                 Bid = (decimal)args.Bid,
-                Time = args.Time
+                Time = HiResDatetime.UtcNow,
             };
             _lastTicks.AddOrUpdate(args.Symbol, key => tick, (key, old) => tick);
             OnNewTick(new NewTick {Tick = tick});
