@@ -35,12 +35,8 @@
 			this.tabControlAccounts = new System.Windows.Forms.TabControl();
 			this.tabPageMt = new System.Windows.Forms.TabPage();
 			this.mtAccountsUserControl = new TradeSystem.Duplicat.Views.MtAccountsUserControl();
-			this.tabPageCt = new System.Windows.Forms.TabPage();
-			this.ctAccountsUserControl = new TradeSystem.Duplicat.Views.CtAccountsUserControl();
 			this.tabPageFix = new System.Windows.Forms.TabPage();
 			this.ftAccountsUserControl = new TradeSystem.Duplicat.Views.FtAccountsUserControl();
-			this.tabPageClientApi = new System.Windows.Forms.TabPage();
-			this._clientAccountsUserControl = new TradeSystem.Duplicat.Views.ClientAccountsUserControl();
 			this.tabPageAggregator = new System.Windows.Forms.TabPage();
 			this.aggregatorUserControl = new TradeSystem.Duplicat.Views.AggregatorUserControl();
 			this.tabPageProxy = new System.Windows.Forms.TabPage();
@@ -96,9 +92,7 @@
 			this.tabPageAccount.SuspendLayout();
 			this.tabControlAccounts.SuspendLayout();
 			this.tabPageMt.SuspendLayout();
-			this.tabPageCt.SuspendLayout();
 			this.tabPageFix.SuspendLayout();
-			this.tabPageClientApi.SuspendLayout();
 			this.tabPageAggregator.SuspendLayout();
 			this.tabPageProxy.SuspendLayout();
 			this.tabPageCopier.SuspendLayout();
@@ -179,9 +173,7 @@
 			// tabControlAccounts
 			// 
 			this.tabControlAccounts.Controls.Add(this.tabPageMt);
-			this.tabControlAccounts.Controls.Add(this.tabPageCt);
 			this.tabControlAccounts.Controls.Add(this.tabPageFix);
-			this.tabControlAccounts.Controls.Add(this.tabPageClientApi);
 			this.tabControlAccounts.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.tabControlAccounts.Location = new System.Drawing.Point(2, 2);
 			this.tabControlAccounts.Margin = new System.Windows.Forms.Padding(2);
@@ -211,27 +203,6 @@
 			this.mtAccountsUserControl.Size = new System.Drawing.Size(1096, 560);
 			this.mtAccountsUserControl.TabIndex = 1;
 			// 
-			// tabPageCt
-			// 
-			this.tabPageCt.Controls.Add(this.ctAccountsUserControl);
-			this.tabPageCt.Location = new System.Drawing.Point(4, 22);
-			this.tabPageCt.Margin = new System.Windows.Forms.Padding(2);
-			this.tabPageCt.Name = "tabPageCt";
-			this.tabPageCt.Padding = new System.Windows.Forms.Padding(2);
-			this.tabPageCt.Size = new System.Drawing.Size(1100, 564);
-			this.tabPageCt.TabIndex = 1;
-			this.tabPageCt.Text = "cTrader";
-			this.tabPageCt.UseVisualStyleBackColor = true;
-			// 
-			// ctAccountsUserControl
-			// 
-			this.ctAccountsUserControl.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.ctAccountsUserControl.Location = new System.Drawing.Point(2, 2);
-			this.ctAccountsUserControl.Margin = new System.Windows.Forms.Padding(4);
-			this.ctAccountsUserControl.Name = "ctAccountsUserControl";
-			this.ctAccountsUserControl.Size = new System.Drawing.Size(1096, 560);
-			this.ctAccountsUserControl.TabIndex = 1;
-			// 
 			// tabPageFix
 			// 
 			this.tabPageFix.Controls.Add(this.ftAccountsUserControl);
@@ -251,26 +222,6 @@
 			this.ftAccountsUserControl.Name = "ftAccountsUserControl";
 			this.ftAccountsUserControl.Size = new System.Drawing.Size(1100, 564);
 			this.ftAccountsUserControl.TabIndex = 1;
-			// 
-			// tabPageClientApi
-			// 
-			this.tabPageClientApi.Controls.Add(this._clientAccountsUserControl);
-			this.tabPageClientApi.Location = new System.Drawing.Point(4, 22);
-			this.tabPageClientApi.Margin = new System.Windows.Forms.Padding(2);
-			this.tabPageClientApi.Name = "tabPageClientApi";
-			this.tabPageClientApi.Size = new System.Drawing.Size(1100, 564);
-			this.tabPageClientApi.TabIndex = 4;
-			this.tabPageClientApi.Text = "CQG and IB";
-			this.tabPageClientApi.UseVisualStyleBackColor = true;
-			// 
-			// _clientAccountsUserControl
-			// 
-			this._clientAccountsUserControl.Dock = System.Windows.Forms.DockStyle.Fill;
-			this._clientAccountsUserControl.Location = new System.Drawing.Point(0, 0);
-			this._clientAccountsUserControl.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
-			this._clientAccountsUserControl.Name = "_clientAccountsUserControl";
-			this._clientAccountsUserControl.Size = new System.Drawing.Size(1100, 564);
-			this._clientAccountsUserControl.TabIndex = 0;
 			// 
 			// tabPageAggregator
 			// 
@@ -753,7 +704,7 @@
 			this.gbControl.Size = new System.Drawing.Size(1120, 46);
 			this.gbControl.TabIndex = 1;
 			this.gbControl.TabStop = false;
-			this.gbControl.Text = "Main control panel - 075427b2 4/22/2020 7:31:51 PM";
+			this.gbControl.Text = "Main control panel - b25f82fe 4/23/2020 5:22:41 PM";
 			// 
 			// label2
 			// 
@@ -852,9 +803,7 @@
 			this.tabPageAccount.ResumeLayout(false);
 			this.tabControlAccounts.ResumeLayout(false);
 			this.tabPageMt.ResumeLayout(false);
-			this.tabPageCt.ResumeLayout(false);
 			this.tabPageFix.ResumeLayout(false);
-			this.tabPageClientApi.ResumeLayout(false);
 			this.tabPageAggregator.ResumeLayout(false);
 			this.tabPageProxy.ResumeLayout(false);
 			this.tabPageCopier.ResumeLayout(false);
@@ -916,9 +865,7 @@
 		private System.Windows.Forms.TabPage tabPageAccount;
 		private System.Windows.Forms.TabControl tabControlAccounts;
 		private System.Windows.Forms.TabPage tabPageMt;
-		private System.Windows.Forms.TabPage tabPageCt;
 		private MtAccountsUserControl mtAccountsUserControl;
-		private CtAccountsUserControl ctAccountsUserControl;
 		private System.Windows.Forms.TabPage tabPageFix;
 		private FtAccountsUserControl ftAccountsUserControl;
 		private System.Windows.Forms.TabControl tabControl1;
@@ -927,8 +874,6 @@
 		private System.Windows.Forms.TabPage tabPage2;
 		private System.Windows.Forms.TabPage tabPage3;
 		private System.Windows.Forms.RichTextBox rtbAll;
-		private System.Windows.Forms.TabPage tabPageClientApi;
-		private ClientAccountsUserControl _clientAccountsUserControl;
 		private System.Windows.Forms.TabPage tabPageAggregator;
 		private AggregatorUserControl aggregatorUserControl;
 		private System.Windows.Forms.TabControl tabControlStrategies;

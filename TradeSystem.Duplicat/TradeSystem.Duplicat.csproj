@@ -414,6 +414,10 @@
       <Project>{eed1bd13-cc26-4ede-99e4-dd59eb4d09bb}</Project>
       <Name>TradeSystem.Communication.DtcApi</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\git\QvaDev.Wololo\TradeSystem.Communication.FastFeed\TradeSystem.Communication.FastFeed.csproj">
+      <Project>{5f9d1672-8038-4d3d-a7c0-df0a8d6b6f99}</Project>
+      <Name>TradeSystem.Communication.FastFeed</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\git\QvaDev.Wololo\TradeSystem.Communication.FixApi.Connectors\TradeSystem.Communication.FixApi.Connectors.csproj">
       <Project>{c38c4681-11e5-417b-9923-6e754402ec1b}</Project>
       <Name>TradeSystem.Communication.FixApi.Connectors</Name>
