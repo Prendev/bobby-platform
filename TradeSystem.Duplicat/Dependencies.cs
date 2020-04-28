@@ -43,12 +43,15 @@ namespace TradeSystem.Duplicat
 			    filePathExclude: new[]
 			    {
 				    "TradeSystem.Communication",
-				    @"TradeSystem.Orchestration\Services\CopyLogger",
+					@"TradeSystem.Mt4Integration\Mt4Logger",
+					@"TradeSystem.Orchestration\Services\CopyLogger",
 				    @"TradeSystem.FixApiIntegration\FillLogger",
 					@"TradeSystem.CTraderApi\CTraderApi",
 				    @"TradeSystem.CTraderIntegration\CtLogger"
 				});
-		    Logger.AddLogger(new LogAdapter(LogManager.GetLogger("FIX")),
+			Logger.AddLogger(new LogAdapter(LogManager.GetLogger("MT4")),
+				filePathInclude: new[] { @"TradeSystem.Mt4Integration\Mt4Logger" });
+			Logger.AddLogger(new LogAdapter(LogManager.GetLogger("FIX")),
 			    filePathInclude: new[] { "TradeSystem.Communication" });
 		    Logger.AddLogger(new LogAdapter(LogManager.GetLogger("FIX copy")),
 			    filePathInclude: new[] { @"TradeSystem.Orchestration\Services\CopyLogger" });

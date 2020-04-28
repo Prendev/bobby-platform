@@ -373,7 +373,8 @@ namespace TradeSystem.Mt4Integration
         }
 
         private void QuoteClient_OnDisconnect(object sender, DisconnectEventArgs args)
-        {
+		{
+			Mt4Logger.Log(this, args);
 			OnConnectionChanged(ConnectionStates.Error);
             Logger.Error($"{_accountInfo.Description} account ({_accountInfo.User}) disconnected", args.Exception);
 	        if (!_emailService.IsRolloverTime())
@@ -395,7 +396,8 @@ namespace TradeSystem.Mt4Integration
 		}
 
         private void QuoteClient_OnOrderUpdate(object sender, OrderUpdateEventArgs update)
-        {
+		{
+			Mt4Logger.Log(this, update);
 			var o = update.Order;
 			if (!new[] {UpdateAction.PositionOpen, UpdateAction.PositionClose, UpdateAction.PendingFill}.Contains(update.Action)) return;
 	        if (!new[] {Op.Buy, Op.Sell}.Contains(o.Type)) return;
