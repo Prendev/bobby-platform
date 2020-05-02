@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Configuration;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
@@ -16,13 +15,13 @@ namespace TradeSystem.Duplicat.Views
 	public class CustomDataGridView : DataGridView
 	{
 		private readonly List<string> _invisibleColumns = new List<string>();
+		private ToolTip _tooltip = null;
 
 		public EventHandler RowDoubleClick;
 
 		public CustomDataGridView()
 		{
-			bool.TryParse(ConfigurationManager.AppSettings["ShowCellToolTips"], out bool showCellToolTips);
-			ShowCellToolTips = showCellToolTips;
+			ShowCellToolTips = false;
 			MultiSelect = false;
 			AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
 			ColumnHeadersDefaultCellStyle.WrapMode = DataGridViewTriState.False;
@@ -38,6 +37,27 @@ namespace TradeSystem.Duplicat.Views
 			};
 			CellClick += CustomDataGridView_CellClick;
 			CellValidating += CustomDataGridView_CellValidating;
+			CellMouseEnter += CustomDataGridView_CellMouseEnter;
+			CellMouseLeave += CustomDataGridView_CellMouseLeave;
+		}
+
+		private void CustomDataGridView_CellMouseEnter(object sender, DataGridViewCellEventArgs e)
+		{
+			if (e.ColumnIndex < 0) return;
+			if (e.RowIndex != -1) return;
+			if (_tooltip != null) return;
+
+			var column = Columns[e.ColumnIndex];
+			if (column.HeaderText == column.DataPropertyName) return;
+			if (column.HeaderText.Contains('*')) return;
+			_tooltip = new ToolTip();
+			_tooltip.SetToolTip(this, Columns[e.ColumnIndex].DataPropertyName);
+		}
+
+		private void CustomDataGridView_CellMouseLeave(object sender, DataGridViewCellEventArgs e)
+		{
+			_tooltip?.Dispose();
+			_tooltip = null;
 		}
 
 		// Non-selectable unsaved entities
@@ -87,7 +107,7 @@ namespace TradeSystem.Duplicat.Views
 			}
 			else if (Columns[$"{name}*"] is DataGridViewComboBoxColumn)
 			{
-				var column = (DataGridViewComboBoxColumn) Columns[$"{name}*"];
+				var column = (DataGridViewComboBoxColumn)Columns[$"{name}*"];
 				column.DataSource = list.ToBindingList();
 				column.DisplayIndex = Columns[name]?.DisplayIndex ?? 0;
 			}
@@ -172,11 +192,6 @@ namespace TradeSystem.Duplicat.Views
 				if (Columns.Contains(p.Name)) Columns[p.Name].DisplayIndex = i;
 				if (Columns.Contains($"{p.Name}*")) Columns[$"{p.Name}*"].DisplayIndex = i;
 			}
-
-			// Set ToolTips for short named columns
-			foreach (DataGridViewColumn column in Columns)
-				if (column.HeaderText != column.DataPropertyName && !column.HeaderText.Contains('*'))
-					column.ToolTipText = column.DataPropertyName;
 		}
 
 		private void DataGridView_DataError(object sender, DataGridViewDataErrorEventArgs e)
@@ -203,7 +218,7 @@ namespace TradeSystem.Duplicat.Views
 						Name = x.Name,
 						DataSource = Enum.GetValues(x.ValueType).Cast<object>().Select(v => new
 						{
-							Value = (int) v,
+							Value = (int)v,
 							Name = Enum.GetName(x.ValueType, v)
 						}).OrderBy(v => v.Value).ToList(),
 					};
