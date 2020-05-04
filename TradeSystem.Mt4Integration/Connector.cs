@@ -13,6 +13,8 @@ namespace TradeSystem.Mt4Integration
 {
 	public interface IConnector : Common.Integration.IConnector
 	{
+		PositionResponse SendMarketOrderRequest(string symbol, Sides side, double lots);
+
 		PositionResponse SendMarketOrderRequest(string symbol, Sides side, double lots, int magicNumber,
 			string comment, int maxRetryCount, int retryPeriodInMs);
 
@@ -203,6 +205,8 @@ namespace TradeSystem.Mt4Integration
 		public PositionResponse SendMarketOrderRequest(string symbol, Sides side, double lots, int magicNumber,
 			string comment, int maxRetryCount, int retryPeriodInMs) => SendMarketOrderRequest(symbol, side, lots, 0, 0,
 			magicNumber, comment, maxRetryCount, retryPeriodInMs);
+		public PositionResponse SendMarketOrderRequest(string symbol, Sides side, double lots) => SendMarketOrderRequest(symbol, side, lots, 0, 0,
+			0, null, 0, 0);
 
 		public PositionResponse SendClosePositionRequests(Position position) => SendClosePositionRequests(position, 0, 0);
 		public PositionResponse SendClosePositionRequests(Position position, int maxRetryCount, int retryPeriodInMs) =>

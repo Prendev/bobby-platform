@@ -184,7 +184,6 @@ namespace TradeSystem.Orchestration.Services.Strategies
 		public async Task OpeningFinish(Pushing pushing)
 		{
 			var pd = pushing.PushingDetail;
-			var futureConnector = (IFixConnector)pushing.FutureAccount.Connector;
 			var futureSide = pushing.BetaOpenSide;
 
 			// Build a little more futures
@@ -205,8 +204,11 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			percentage = Math.Max(percentage, 0);
 			closeSize = closeSize * percentage / 100;
 			if (closeSize <= 0) return;
-			
-			await futureConnector.SendMarketOrderRequest(pushing.FutureSymbol, futureSide.Inv(), closeSize);
+
+			if (pushing.FutureAccount.Connector is IFixConnector fixFutureConnector)
+				await fixFutureConnector.SendMarketOrderRequest(pushing.FutureSymbol, futureSide.Inv(), closeSize);
+			else if (pushing.FutureAccount.Connector is MtConnector mt4FutureConnector)
+				mt4FutureConnector.SendMarketOrderRequest(pushing.FutureSymbol, futureSide.Inv(), (double)closeSize);
 			pushing.PushingDetail.OpenedFutures -= closeSize;
 		}
 
@@ -296,7 +298,6 @@ namespace TradeSystem.Orchestration.Services.Strategies
 		public async Task ClosingFinish(Pushing pushing)
 		{
 			var pd = pushing.PushingDetail;
-			var futureConnector = (IFixConnector)pushing.FutureAccount.Connector;
 			var futureSide = pushing.FirstCloseSide.Inv();
 
 			// Build a little more
@@ -319,9 +320,11 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 			if (closeSize <= 0) return;
 
-			await futureConnector.SendMarketOrderRequest(pushing.FutureSymbol, futureSide.Inv(), closeSize);
+			if (pushing.FutureAccount.Connector is IFixConnector fixFutureConnector)
+				await fixFutureConnector.SendMarketOrderRequest(pushing.FutureSymbol, futureSide.Inv(), closeSize);
+			else if (pushing.FutureAccount.Connector is MtConnector mt4FutureConnector)
+				mt4FutureConnector.SendMarketOrderRequest(pushing.FutureSymbol, futureSide.Inv(), (double)closeSize);
 			pushing.PushingDetail.OpenedFutures -= closeSize;
-
 		}
 
 		private void InitSpoof(Pushing pushing)
@@ -339,25 +342,38 @@ namespace TradeSystem.Orchestration.Services.Strategies
 		private async Task FutureBuildUp(Pushing pushing, Sides side, decimal contractsNeeded, Phases phase)
 		{
 			if (pushing.IsFutureInverted) side = side.Inv();
-			if (pushing.FutureExecutionMode == Pushing.FutureExecutionModes.NonConfirmed)
+			if (pushing.FutureExecutionMode == Pushing.FutureExecutionModes.NonConfirmed && pushing.FutureAccount.Connector is IFixConnector)
 				await NonConfirmed(pushing, side, contractsNeeded, phase);
-			else await Confirmed(pushing, side, contractsNeeded, phase);
+			else if (pushing.FutureAccount.Connector is MtConnector) await Confirmed(pushing, side, contractsNeeded, phase);
 		}
 
 		private async Task Confirmed(Pushing pushing, Sides side, decimal contractsNeeded, Phases phase)
 		{
 			var pd = pushing.PushingDetail;
-			var futureConnector = (IFixConnector)pushing.FutureAccount.Connector;
+			var fixFutureConnector = pushing.FutureAccount.Connector as IFixConnector;
+			var mt4FutureConnector = pushing.FutureAccount.Connector as MtConnector;
 			var contractsOpened = 0m;
 
 			while (contractsOpened < contractsNeeded)
 			{
 				var contractSize = (decimal)(_rndService.Next(0, 100) > pd.BigPercentage ? pd.SmallContractSize : pd.BigContractSize);
 				contractSize = Math.Min(contractSize, contractsNeeded - contractsOpened);
-				var orderResponse = await futureConnector.SendMarketOrderRequest(pushing.FutureSymbol, side, contractSize);
-				if (phase == Phases.Pulling) pushing.PushingDetail.OpenedFutures -= orderResponse.FilledQuantity;
-				else pushing.PushingDetail.OpenedFutures += orderResponse.FilledQuantity;
-				contractsOpened += orderResponse.FilledQuantity;
+
+				if (fixFutureConnector != null)
+				{
+					var response = await fixFutureConnector.SendMarketOrderRequest(pushing.FutureSymbol, side, contractSize);
+					if (phase == Phases.Pulling) pushing.PushingDetail.OpenedFutures -= response.FilledQuantity;
+					else pushing.PushingDetail.OpenedFutures += response.FilledQuantity;
+					contractsOpened += response.FilledQuantity;
+				}
+				else if (mt4FutureConnector != null)
+				{
+					var response = mt4FutureConnector.SendMarketOrderRequest(pushing.FutureSymbol, side, (double)contractSize);
+					var filledQuantity = response?.Pos?.Lots ?? 0;
+					if (phase == Phases.Pulling) pushing.PushingDetail.OpenedFutures -= filledQuantity;
+					else pushing.PushingDetail.OpenedFutures += filledQuantity;
+					contractsOpened += filledQuantity;
+				}
 
 				FutureInterval(pd, phase);
 				// Rush
@@ -406,7 +422,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
             var pd = pushing.PushingDetail;
             if (!pd.PriceLimit.HasValue) return false;
 
-            var futureConnector = (IFixConnector)pushing.FeedAccount.Connector;
+            var futureConnector = pushing.FeedAccount.Connector;
             var lastTick = futureConnector.GetLastTick(pushing.FeedSymbol);
 
             if (lastTick.Ask > 0 && side == Sides.Buy && lastTick.Ask >= pd.PriceLimit.Value) return true;
