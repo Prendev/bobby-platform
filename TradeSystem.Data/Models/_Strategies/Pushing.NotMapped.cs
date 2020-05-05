@@ -25,6 +25,7 @@ namespace TradeSystem.Data.Models
 		[NotMapped] [InvisibleColumn] public bool IsCloseLongSellFutures { get => Get(() => true); set => Set(value); }
 		[NotMapped] [InvisibleColumn] public Sides BetaOpenSide { get; set; }
 		[NotMapped] [InvisibleColumn] public Sides FirstCloseSide { get; set; }
+		[NotMapped] [InvisibleColumn] public bool IsHedgeOpen { get => Get(() => true); set => Set(value); }
 		[NotMapped] [InvisibleColumn] public bool IsHedgeClose { get => Get(() => true); set => Set(value); }
 		[NotMapped] [InvisibleColumn] public Position AlphaPosition { get; set; }
 		[NotMapped] [InvisibleColumn] public Position BetaPosition { get; set; }

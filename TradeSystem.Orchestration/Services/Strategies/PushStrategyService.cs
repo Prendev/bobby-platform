@@ -16,12 +16,13 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 		void OpeningBeta(Pushing pushing);
 	    Task OpeningPull(Pushing pushing);
+	    Task OpeningHedge(Pushing pushing);
 		Task OpeningAlpha(Pushing pushing);
 	    Task OpeningFinish(Pushing pushing);
 		
 		void ClosingFirst(Pushing pushing);
 	    Task ClosingPull(Pushing pushing);
-		Task OpeningHedge(Pushing pushing);
+		Task ClosingHedge(Pushing pushing);
 	    Task ClosingSecond(Pushing pushing);
 	    Task ClosingFinish(Pushing pushing);
 	}
@@ -160,7 +161,29 @@ namespace TradeSystem.Orchestration.Services.Strategies
 		    pushing.StratState = _spoofingService.Spoofing(pushing.Spoof, futureSide.Inv());
 	    }
 
-	    public async Task OpeningAlpha(Pushing pushing)
+	    public async Task OpeningHedge(Pushing pushing)
+	    {
+		    if (!pushing.IsHedgeOpen) return;
+
+		    var pd = pushing.PushingDetail;
+		    var futureSide = pushing.BetaOpenSide;
+
+			// Build up futures for hedge
+			var contractsNeeded = pd.FullContractSize - Math.Abs(pd.MasterSignalContractLimit) - Math.Abs(pd.HedgeSignalContractLimit);
+		    await FutureBuildUp(pushing, futureSide, contractsNeeded, Phases.Pushing);
+
+		    // Double check for hedge
+		    if (pushing.HedgeAccount?.Connector?.IsConnected != true) return;
+		    if (string.IsNullOrWhiteSpace(pushing.HedgeSymbol)) return;
+		    if (pd.HedgeLots <= 0) return;
+
+		    // Open hedge
+		    var hedgeConnector = (MtConnector)pushing.HedgeAccount.Connector;
+		    hedgeConnector.SendMarketOrderRequest(pushing.HedgeSymbol, futureSide.Inv(), pd.HedgeLots, 0,
+			    null, pushing.PushingDetail.MaxRetryCount, pushing.PushingDetail.RetryPeriodInMs);
+	    }
+
+		public async Task OpeningAlpha(Pushing pushing)
 		{
 			var pd = pushing.PushingDetail;
 			var alphaConnector = (MtConnector)pushing.AlphaMaster.Connector;
@@ -212,6 +235,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			pushing.PushingDetail.OpenedFutures -= closeSize;
 		}
 
+
 		public void ClosingFirst(Pushing pushing)
 		{
 			CheckScalp(pushing);
@@ -252,7 +276,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 		    pushing.StratState = _spoofingService.Spoofing(pushing.Spoof, futureSide.Inv());
 		}
 
-		public async Task OpeningHedge(Pushing pushing)
+		public async Task ClosingHedge(Pushing pushing)
 		{
 			if (!pushing.IsHedgeClose) return;
 
@@ -270,7 +294,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 			// Open hedge
 			var hedgeConnector = (MtConnector)pushing.HedgeAccount.Connector;
-			hedgeConnector.SendMarketOrderRequest(pushing.HedgeSymbol, pushing.FirstCloseSide, pd.HedgeLots, 0,
+			hedgeConnector.SendMarketOrderRequest(pushing.HedgeSymbol, futureSide.Inv(), pd.HedgeLots, 0,
 				null, pushing.PushingDetail.MaxRetryCount, pushing.PushingDetail.RetryPeriodInMs);
 		}
 
@@ -317,7 +341,6 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			var percentage = Math.Min(pushing.PushingDetail.PartialClosePercentage, 100);
 			percentage = Math.Max(percentage, 0);
 			closeSize = closeSize * percentage / 100;
-
 			if (closeSize <= 0) return;
 
 			if (pushing.FutureAccount.Connector is IFixConnector fixFutureConnector)

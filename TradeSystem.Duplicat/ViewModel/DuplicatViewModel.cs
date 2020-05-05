@@ -22,12 +22,14 @@ namespace TradeSystem.Duplicat.ViewModel
 			LatencyOpening,
 			AfterOpeningBeta,
 			AfterOpeningPull,
+			AfterOpeningHedge,
 			AfterOpeningAlpha,
+
 			BeforeClosing,
 			LatencyClosing,
 			AfterClosingFirst,
 			AfterClosingPull,
-			AfterOpeningHedge,
+			AfterClosingHedge,
 			AfterClosingSecond,
 			Busy
 		}

@@ -70,6 +70,19 @@ namespace TradeSystem.Duplicat.ViewModel
 
 			try
 			{
+				await _orchestrator.OpeningHedge(pushing);
+			}
+			catch (Exception e)
+			{
+				Logger.Error($"Pushing {pushing} OpeningHedge ERROR!!!", e);
+			}
+			finally
+			{
+				PushingState = PushingStates.AfterOpeningHedge;
+			}
+
+			try
+			{
 				await _orchestrator.OpeningAlpha(pushing);
 			}
 			catch (Exception e)
@@ -115,8 +128,8 @@ namespace TradeSystem.Duplicat.ViewModel
 			PushingState = PushingStates.AfterClosingFirst;
 			await _orchestrator.ClosingPull(pushing);
 			PushingState = PushingStates.AfterClosingPull;
-			await _orchestrator.OpeningHedge(pushing);
-			PushingState = PushingStates.AfterOpeningHedge;
+			await _orchestrator.ClosingHedge(pushing);
+			PushingState = PushingStates.AfterClosingHedge;
 			await _orchestrator.ClosingSecond(pushing);
 			PushingState = PushingStates.AfterClosingSecond;
 			await _orchestrator.ClosingFinish(pushing);

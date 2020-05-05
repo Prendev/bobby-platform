@@ -16,13 +16,14 @@ namespace TradeSystem.Orchestration
 	    void LatencyStop(Pushing pushing);
 
 		Task OpeningBeta(Pushing pushing);
-		Task OpeningAlpha(Pushing pushing);
 	    Task OpeningPull(Pushing pushing);
+	    Task OpeningHedge(Pushing pushing);
+	    Task OpeningAlpha(Pushing pushing);
 		Task OpeningFinish(Pushing pushing);
 
 		Task ClosingFirst(Pushing pushing);
 	    Task ClosingPull(Pushing pushing);
-		Task OpeningHedge(Pushing pushing);
+		Task ClosingHedge(Pushing pushing);
 		Task ClosingSecond(Pushing pushing);
 		Task ClosingFinish(Pushing pushing);
 
@@ -73,6 +74,12 @@ namespace TradeSystem.Orchestration
 			return Task.Run(() => _pushStrategyService.OpeningPull(pushing));
 		}
 
+		public Task OpeningHedge(Pushing pushing)
+		{
+			pushing.InPanic = false;
+			return Task.Run(() => _pushStrategyService.OpeningHedge(pushing));
+		}
+
 		public Task OpeningAlpha(Pushing pushing)
 		{
 			pushing.InPanic = false;
@@ -99,10 +106,10 @@ namespace TradeSystem.Orchestration
 			return Task.Run(() => _pushStrategyService.ClosingPull(pushing));
 		}
 
-		public Task OpeningHedge(Pushing pushing)
+		public Task ClosingHedge(Pushing pushing)
 		{
 			pushing.InPanic = false;
-			return Task.Run(() => _pushStrategyService.OpeningHedge(pushing));
+			return Task.Run(() => _pushStrategyService.ClosingHedge(pushing));
 		}
 
 		public Task ClosingSecond(Pushing pushing)
