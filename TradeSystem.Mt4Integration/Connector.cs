@@ -307,17 +307,24 @@ namespace TradeSystem.Mt4Integration
 		{
 			try
 			{
-				var order = QuoteClient.GetOpenedOrders()?.FirstOrDefault(o => o.Ticket == ticket);
+				var order = QuoteClient.GetOpenedOrder((int)ticket);
 				if (order != null) return UpdatePosition(order);
-				var orders =
-					QuoteClient.DownloadOrderHistory(HiResDatetime.UtcNow.Date.AddDays(-2), HiResDatetime.UtcNow.Date.AddDays(2));
-				order = orders?.FirstOrDefault(o => o.Ticket == ticket);
+				order = GetHistoryOrder(ticket);
 				return order != null ? UpdatePosition(order) : oldPos;
 			}
 			catch (Exception)
 			{
 				return oldPos;
 			}
+		}
+
+		private Order GetHistoryOrder(long ticket)
+		{
+			var closedOrder = QuoteClient.ClosedOrders?.FirstOrDefault(o => o.Ticket == ticket);
+			if (closedOrder != null) return closedOrder;
+			var orders = QuoteClient
+				.DownloadOrderHistory(HiResDatetime.UtcNow.Date.AddDays(-1), HiResDatetime.UtcNow.Date.AddDays(1));
+			return orders?.FirstOrDefault(o => o.Ticket == ticket);
 		}
 
 		public override Tick GetLastTick(string symbol)
@@ -405,6 +412,7 @@ namespace TradeSystem.Mt4Integration
 			var o = update.Order;
 			if (!new[] {UpdateAction.PositionOpen, UpdateAction.PositionClose, UpdateAction.PendingFill}.Contains(update.Action)) return;
 	        if (!new[] {Op.Buy, Op.Sell}.Contains(o.Type)) return;
+			if (update.Action == UpdateAction.PositionClose) o = GetHistoryOrder(o.Ticket) ?? o;
 	        var position = UpdatePosition(o);
 	        _taskCompletionManager.SetResult(o.Ticket, position);
 
