@@ -342,9 +342,10 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				last.ShortOpenPrice = pos.OpenPrice;
 				AddCopierPosition(set, last);
 				var pip = (pos.OpenPrice - last.LongOpenPrice) / set.PipSize;
+				var normPip = ((pos.OpenPrice - (set.ShortAvg ?? 0)) - (last.LongOpenPrice - (set.LongAvg ?? 0))) / set.PipSize;
 				if (pip < set.EmergencyOpenThresholdInPip && set.EmergencyOff > 0) set.EmergencyCount++;
 				else set.EmergencyCount = 0;
-				Logger.Info($"{set} latency arb - {last.Level}. short hedge side opened at {pos.OpenPrice} with {pip} pips and offset {shortOffset}" +
+				Logger.Info($"{set} latency arb - {last.Level}. short hedge side opened at {pos.OpenPrice} with {pip} pips, {normPip:F2} norm pips and offset {shortOffset}" +
 				            $"{Environment.NewLine}\tExecution time is {pos.ExecutionTime} ms with {pos.Slippage / set.PipSize:F2} pip slippage");
 				// Switch state if rotating
 				if (set.Rotating && set.State == LatencyArb.LatencyArbStates.Opening &&
@@ -383,9 +384,10 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				last.LongOpenPrice = pos.OpenPrice;
 				AddCopierPosition(set, last);
 				var pip = (last.ShortOpenPrice - pos.OpenPrice) / set.PipSize;
+				var normPip = ((last.ShortOpenPrice - (set.ShortAvg ?? 0)) - (pos.OpenPrice - (set.LongAvg ?? 0))) / set.PipSize;
 				if (pip < set.EmergencyOpenThresholdInPip && set.EmergencyOff > 0) set.EmergencyCount++;
 				else set.EmergencyCount = 0;
-				Logger.Info($"{set} latency arb - {last.Level}. long hedge side opened at {pos.OpenPrice} with {pip} pips and offset {longOffset}" +
+				Logger.Info($"{set} latency arb - {last.Level}. long hedge side opened at {pos.OpenPrice} with {pip} pips, {normPip:F2} norm pips and offset {longOffset}" +
 				            $"{Environment.NewLine}\tExecution time is {pos.ExecutionTime} ms with {pos.Slippage/set.PipSize:F2} pip slippage");
 				// Switch state if rotating
 				if (set.Rotating && set.State == LatencyArb.LatencyArbStates.Opening &&
@@ -749,9 +751,10 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				first.ShortClosePrice = closePos.ClosePrice;
 				first.Archived = true;
 				var pip = (first.LongClosePrice - closePos.ClosePrice) / set.PipSize;
+				var normPip = ((first.LongClosePrice - (set.LongAvg ?? 0)) - (closePos.ClosePrice - (set.ShortAvg ?? 0))) / set.PipSize;
 				if (pip < set.EmergencyCloseThresholdInPip && set.EmergencyOff > 0) set.EmergencyCount++;
 				else set.EmergencyCount = 0;
-				Logger.Info($"{set} latency arb - {first.Level}. short hedge side closed at {closePos.ClosePrice} with {pip} pips and offset {shortOffset}" +
+				Logger.Info($"{set} latency arb - {first.Level}. short hedge side closed at {closePos.ClosePrice} with {pip} pips, {normPip:F2} norm pips and offset {shortOffset}" +
 				            $"{Environment.NewLine}\tExecution time is {closePos.ExecutionTime} ms with {closePos.Slippage / set.PipSize:F2} pip slippage");
 				EmergencyAvgClosedPip(set);
 				// Switch state if rotating
@@ -780,9 +783,10 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				first.LongClosePrice = closePos.ClosePrice;
 				first.Archived = true;
 				var pip = (closePos.ClosePrice - first.ShortClosePrice) / set.PipSize;
+				var normPip = ((closePos.ClosePrice - (set.LongAvg ?? 0)) - (first.ShortClosePrice - (set.ShortAvg ?? 0))) / set.PipSize;
 				if (pip < set.EmergencyCloseThresholdInPip && set.EmergencyOff > 0) set.EmergencyCount++;
 				else set.EmergencyCount = 0;
-				Logger.Info($"{set} latency arb - {first.Level}. long hedge side closed at {closePos.ClosePrice} with {pip} pips and offset {longOffset}" +
+				Logger.Info($"{set} latency arb - {first.Level}. long hedge side closed at {closePos.ClosePrice} with {pip} pips, {normPip:F2} norm pips and offset {longOffset}" +
 				            $"{Environment.NewLine}\tExecution time is {closePos.ExecutionTime} ms with {closePos.Slippage / set.PipSize:F2} pip slippage");
 				EmergencyAvgClosedPip(set);
 				// Switch state if rotating

@@ -20,6 +20,8 @@ namespace TradeSystem.Data.Models
 			public string Account { get; set; }
 			public decimal? Ask { get; set; }
 			public decimal? Bid { get; set; }
+			public decimal? NormAsk { get; set; }
+			public decimal? NormBid { get; set; }
 			public decimal? Spread { get; set; }
 			public decimal? AvgPrice { get; set; }
 			public decimal? OpenPip { get; set; }
@@ -217,6 +219,8 @@ namespace TradeSystem.Data.Models
 					AvgPrice = FeedAvg,
 					Ask = LastFeedTick?.Ask,
 					Bid = LastFeedTick?.Bid,
+					NormAsk = NormFeedAsk,
+					NormBid = NormFeedBid,
 					Spread = (LastFeedTick?.Bid - LastFeedTick?.Ask) / PipSize
 				},
 				new Statistics()
@@ -229,6 +233,8 @@ namespace TradeSystem.Data.Models
 					AvgPrice = LongAvg,
 					Ask = LastLongTick?.Ask,
 					Bid = LastLongTick?.Bid,
+					NormAsk = NormLongAsk,
+					NormBid = NormLongBid,
 					Spread = (LastLongTick?.Bid - LastLongTick?.Ask) / PipSize,
 					OpenPip = (LastFeedTick?.Ask - LastLongTick?.Ask - (FeedAvg ?? 0) + (LongAvg ?? 0)) / PipSize,
 					ClosePip = (LastLongTick?.Bid - LastFeedTick?.Bid + (FeedAvg ?? 0) - (LongAvg ?? 0)) / PipSize
@@ -242,6 +248,8 @@ namespace TradeSystem.Data.Models
 					AvgPrice = ShortAvg,
 					Ask = LastShortTick?.Ask,
 					Bid = LastShortTick?.Bid,
+					NormAsk = NormShortAsk,
+					NormBid = NormShortBid,
 					Spread = (LastShortTick?.Bid - LastShortTick?.Ask) / PipSize,
 					OpenPip = (LastShortTick?.Bid - LastFeedTick?.Bid + (FeedAvg ?? 0) - (ShortAvg ?? 0)) / PipSize,
 					ClosePip = (LastFeedTick?.Ask - LastShortTick?.Ask - (FeedAvg ?? 0) + (ShortAvg ?? 0)) / PipSize
@@ -257,6 +265,8 @@ namespace TradeSystem.Data.Models
 				Account = s.Account,
 				Ask = s.Ask?.ToString("F5"),
 				Bid = s.Bid?.ToString("F5"),
+				NormAsk = s.NormAsk?.ToString("F5"),
+				NormBid = s.NormBid?.ToString("F5"),
 				Spread = s.Spread?.ToString("F2"),
 				AvgPrice = s.AvgPrice?.ToString("F5"),
 				OpenDiff = s.OpenPip?.ToString("F2"),
