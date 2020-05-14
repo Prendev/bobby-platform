@@ -193,6 +193,12 @@ namespace TradeSystem.Data.Models
 
 		public IList CalculateStatistics()
 		{
+			if (PipSize == 0)
+			{
+				Logger.Error($"{this} latency arb - {nameof(PipSize)} cannot be 0");
+				return null;
+			}
+
 			var closedPositions = LatencyArbPositions.Where(p => p.IsFull).ToList();
 			var avgClosed = closedPositions.Sum(p => p.Result) / Math.Max(1, closedPositions.Count) / PipSize;
 

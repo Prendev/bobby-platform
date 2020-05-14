@@ -74,6 +74,11 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 		private void SetLoop(LatencyArb set, CancellationToken token)
 		{
+			if (set.PipSize == 0)
+			{
+				Logger.Error($"{this} latency arb - {nameof(set.PipSize)} cannot be 0");
+			}
+
 			var queue = _queues.GetOrAdd(set.Id, new FastBlockingCollection<Action>());
 
 			set.NewTick -= Set_NewTick;
@@ -114,6 +119,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			if (_cancellation.IsCancellationRequested) return;
 			var set = (LatencyArb)sender;
 			if (!set.Run) return;
+			if (set.PipSize == 0) return;
 			if (set.State == LatencyArb.LatencyArbStates.Continue)
 				set.State = set.LastStateBeforeEmergencyOff;
 			if (set.State == LatencyArb.LatencyArbStates.None) return;
