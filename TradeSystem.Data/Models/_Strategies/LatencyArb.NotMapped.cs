@@ -35,9 +35,6 @@ namespace TradeSystem.Data.Models
 		private readonly List<Tick> _feedTicks = new List<Tick>();
 		private readonly List<Tick> _shortTicks = new List<Tick>();
 		private readonly List<Tick> _longTicks = new List<Tick>();
-		private decimal? _feedAvg = null;
-		private decimal? _shortAvg = null;
-		private decimal? _longAvg = null;
 
 		public event EventHandler<NewTick> NewTick;
 		public event EventHandler<ConnectionStates> ConnectionChanged;
@@ -62,12 +59,16 @@ namespace TradeSystem.Data.Models
 		[NotMapped] [InvisibleColumn] public bool ShortSpreadCheck => SpreadCheck(LastShortTick, ShortSpreadFilterInPip);
 		[NotMapped] [InvisibleColumn] public bool LongSpreadCheck => SpreadCheck(LastLongTick, LongSpreadFilterInPip);
 
-		[NotMapped] [InvisibleColumn] public decimal? NormFeedAsk => NormAsk(LastFeedTick, _feedAvg);
-		[NotMapped] [InvisibleColumn] public decimal? NormFeedBid => NormBid(LastFeedTick, _feedAvg);
-		[NotMapped] [InvisibleColumn] public decimal? NormShortAsk => NormAsk(LastShortTick, _shortAvg);
-		[NotMapped] [InvisibleColumn] public decimal? NormShortBid => NormBid(LastShortTick, _shortAvg);
-		[NotMapped] [InvisibleColumn] public decimal? NormLongAsk => NormAsk(LastLongTick, _longAvg);
-		[NotMapped] [InvisibleColumn] public decimal? NormLongBid => NormBid(LastLongTick, _longAvg);
+		[NotMapped] [InvisibleColumn] public decimal? FeedAvg { get; set; }
+		[NotMapped] [InvisibleColumn] public decimal? ShortAvg { get; set; }
+		[NotMapped] [InvisibleColumn] public decimal? LongAvg { get; set; }
+
+		[NotMapped] [InvisibleColumn] public decimal? NormFeedAsk => NormAsk(LastFeedTick, FeedAvg);
+		[NotMapped] [InvisibleColumn] public decimal? NormFeedBid => NormBid(LastFeedTick, FeedAvg);
+		[NotMapped] [InvisibleColumn] public decimal? NormShortAsk => NormAsk(LastShortTick, ShortAvg);
+		[NotMapped] [InvisibleColumn] public decimal? NormShortBid => NormBid(LastShortTick, ShortAvg);
+		[NotMapped] [InvisibleColumn] public decimal? NormLongAsk => NormAsk(LastLongTick, LongAvg);
+		[NotMapped] [InvisibleColumn] public decimal? NormLongBid => NormBid(LastLongTick, LongAvg);
 		[NotMapped] [InvisibleColumn] public bool HasPrices => NormFeedAsk.HasValue && NormFeedBid.HasValue &&
 		                                                       NormShortAsk.HasValue && NormShortBid.HasValue &&
 		                                                       NormLongAsk.HasValue && NormLongBid.HasValue;
@@ -130,19 +131,19 @@ namespace TradeSystem.Data.Models
 			{
 				newTickFound = true;
 				LastFeedTick = newTick.Tick;
-				_feedAvg = Averaging(_feedTicks, _feedAvg, LastFeedTick);
+				FeedAvg = Averaging(_feedTicks, FeedAvg, LastFeedTick);
 			}
 			if (sender == ShortAccount && newTick.Tick.Symbol == ShortSymbol)
 			{
 				newTickFound = true;
 				LastShortTick = newTick.Tick;
-				_shortAvg = Averaging(_shortTicks, _shortAvg, LastShortTick);
+				ShortAvg = Averaging(_shortTicks, ShortAvg, LastShortTick);
 			}
 			if (sender == LongAccount && newTick.Tick.Symbol == LongSymbol)
 			{
 				newTickFound = true;
 				LastLongTick = newTick.Tick;
-				_longAvg = Averaging(_longTicks, _longAvg, LastLongTick);
+				LongAvg = Averaging(_longTicks, LongAvg, LastLongTick);
 			}
 
 			if (!newTickFound) return;
@@ -205,7 +206,7 @@ namespace TradeSystem.Data.Models
 					Group = "All",
 					Total = LatencyArbPositions.Count,
 					Account = "Feed",
-					AvgPrice = _feedAvg,
+					AvgPrice = FeedAvg,
 					Ask = LastFeedTick?.Ask,
 					Bid = LastFeedTick?.Bid,
 					Spread = (LastFeedTick?.Bid - LastFeedTick?.Ask) / PipSize
@@ -216,12 +217,12 @@ namespace TradeSystem.Data.Models
 					Total = LivePositions.Count,
 					AvgPip = avgLive,
 					Account = "Long",
-					AvgPrice = _longAvg,
+					AvgPrice = LongAvg,
 					Ask = LastLongTick?.Ask,
 					Bid = LastLongTick?.Bid,
 					Spread = (LastLongTick?.Bid - LastLongTick?.Ask) / PipSize,
-					OpenPip = (LastFeedTick?.Ask - LastLongTick?.Ask - (_feedAvg ?? 0) + (_longAvg ?? 0)) / PipSize,
-					ClosePip = (LastLongTick?.Bid - LastFeedTick?.Bid + (_feedAvg ?? 0) - (_longAvg ?? 0)) / PipSize
+					OpenPip = (LastFeedTick?.Ask - LastLongTick?.Ask - (FeedAvg ?? 0) + (LongAvg ?? 0)) / PipSize,
+					ClosePip = (LastLongTick?.Bid - LastFeedTick?.Bid + (FeedAvg ?? 0) - (LongAvg ?? 0)) / PipSize
 				},
 				new Statistics()
 				{
@@ -229,12 +230,12 @@ namespace TradeSystem.Data.Models
 					Total = closedPositions.Count,
 					AvgPip = avgClosed,
 					Account = "Short",
-					AvgPrice = _shortAvg,
+					AvgPrice = ShortAvg,
 					Ask = LastShortTick?.Ask,
 					Bid = LastShortTick?.Bid,
 					Spread = (LastShortTick?.Bid - LastShortTick?.Ask) / PipSize,
-					OpenPip = (LastShortTick?.Bid - LastFeedTick?.Bid + (_feedAvg ?? 0) - (_shortAvg ?? 0)) / PipSize,
-					ClosePip = (LastFeedTick?.Ask - LastShortTick?.Ask - (_feedAvg ?? 0) + (_shortAvg ?? 0)) / PipSize
+					OpenPip = (LastShortTick?.Bid - LastFeedTick?.Bid + (FeedAvg ?? 0) - (ShortAvg ?? 0)) / PipSize,
+					ClosePip = (LastFeedTick?.Ask - LastShortTick?.Ask - (FeedAvg ?? 0) + (ShortAvg ?? 0)) / PipSize
 				}
 			};
 

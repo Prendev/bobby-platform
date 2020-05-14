@@ -309,14 +309,15 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			{
 				if (set.ShortAccount.ConnectionState != ConnectionStates.Connected) return;
 				var hedge = false;
-				var price = set.LastShortTick.Bid;
+				var firstPrice = last.LongOpenPrice - (set.LongAvg ?? 0) + (set.ShortAvg ?? 0);
+				var hedgePrice = set.LastShortTick.Bid;
 
-				if (last.Trailing.HasValue || price >= last.LongOpenPrice + set.TrailingSwitchInPip * set.PipSize)
-					last.Trailing = Math.Max(price - set.TrailingDistanceInPip * set.PipSize,
-						last.Trailing ?? price - set.TrailingDistanceInPip * set.PipSize);
-				if (last.Trailing.HasValue && price <= last.Trailing) hedge = true;
-				if (price >= last.LongOpenPrice + (set.TpInPip + shortOffset) * set.PipSize) hedge = true;
-				if (price <= last.LongOpenPrice - (set.SlInPip + shortOffset) * set.PipSize) hedge = true;
+				if (last.Trailing.HasValue || hedgePrice >= firstPrice + set.TrailingSwitchInPip * set.PipSize)
+					last.Trailing = Math.Max(hedgePrice - set.TrailingDistanceInPip * set.PipSize,
+						last.Trailing ?? hedgePrice - set.TrailingDistanceInPip * set.PipSize);
+				if (last.Trailing.HasValue && hedgePrice <= last.Trailing) hedge = true;
+				if (hedgePrice >= firstPrice + (set.TpInPip + shortOffset) * set.PipSize) hedge = true;
+				if (hedgePrice <= firstPrice - (set.SlInPip + shortOffset) * set.PipSize) hedge = true;
 				if (!hedge) return;
 
 				if (set.Copier != null) set.Copier.Run = false;
@@ -349,14 +350,15 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			{
 				if (set.LongAccount.ConnectionState != ConnectionStates.Connected) return;
 				var hedge = false;
-				var price = set.LastLongTick.Ask;
+				var firstPrice = last.ShortOpenPrice - (set.ShortAvg ?? 0) + (set.LongAvg ?? 0);
+				var hedgePrice = set.LastLongTick.Ask;
 
-				if (last.Trailing.HasValue || price <= last.ShortOpenPrice - set.TrailingSwitchInPip * set.PipSize)
-					last.Trailing = Math.Min(price + set.TrailingDistanceInPip * set.PipSize,
-						last.Trailing ?? price + set.TrailingDistanceInPip * set.PipSize);
-				if (last.Trailing.HasValue && price >= last.Trailing) hedge = true;
-				if (price <= last.ShortOpenPrice - (set.TpInPip + longOffset) * set.PipSize) hedge = true;
-				if (price >= last.ShortOpenPrice + (set.SlInPip + longOffset) * set.PipSize) hedge = true;
+				if (last.Trailing.HasValue || hedgePrice <= firstPrice - set.TrailingSwitchInPip * set.PipSize)
+					last.Trailing = Math.Min(hedgePrice + set.TrailingDistanceInPip * set.PipSize,
+						last.Trailing ?? hedgePrice + set.TrailingDistanceInPip * set.PipSize);
+				if (last.Trailing.HasValue && hedgePrice >= last.Trailing) hedge = true;
+				if (hedgePrice <= firstPrice - (set.TpInPip + longOffset) * set.PipSize) hedge = true;
+				if (hedgePrice >= firstPrice + (set.SlInPip + longOffset) * set.PipSize) hedge = true;
 				if (!hedge) return;
 
 				if (set.Copier != null) set.Copier.Run = false;
@@ -725,14 +727,15 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			{
 				if (set.ShortAccount.ConnectionState != ConnectionStates.Connected) return;
 				var hedge = false;
-				var price = set.LastShortTick.Ask;
+				var firstPrice = first.LongClosePrice - (set.LongAvg ?? 0) + (set.ShortAvg ?? 0);
+				var hedgePrice = set.LastShortTick.Ask;
 
-				if (first.Trailing.HasValue || price <= first.LongClosePrice - set.TrailingSwitchInPip * set.PipSize)
-					first.Trailing = Math.Min(price + set.TrailingDistanceInPip * set.PipSize,
-						first.Trailing ?? price + set.TrailingDistanceInPip * set.PipSize);
-				if (first.Trailing.HasValue && price >= first.Trailing) hedge = true;
-				if (price <= first.LongClosePrice - (set.TpInPip + shortOffset) * set.PipSize) hedge = true;
-				if (price >= first.LongClosePrice + (set.SlInPip + shortOffset) * set.PipSize) hedge = true;
+				if (first.Trailing.HasValue || hedgePrice <= firstPrice - set.TrailingSwitchInPip * set.PipSize)
+					first.Trailing = Math.Min(hedgePrice + set.TrailingDistanceInPip * set.PipSize,
+						first.Trailing ?? hedgePrice + set.TrailingDistanceInPip * set.PipSize);
+				if (first.Trailing.HasValue && hedgePrice >= first.Trailing) hedge = true;
+				if (hedgePrice <= firstPrice - (set.TpInPip + shortOffset) * set.PipSize) hedge = true;
+				if (hedgePrice >= firstPrice + (set.SlInPip + shortOffset) * set.PipSize) hedge = true;
 				if (set.State != LatencyArb.LatencyArbStates.ImmediateExit && !hedge) return;
 
 				var closePos = CloseShort(set, first, false);
@@ -755,14 +758,15 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			{
 				if (set.LongAccount.ConnectionState != ConnectionStates.Connected) return;
 				var hedge = false;
-				var price = set.LastLongTick.Bid;
+				var firstPrice = first.ShortClosePrice - (set.ShortAvg ?? 0) + (set.LongAvg ?? 0);
+				var hedgePrice = set.LastLongTick.Bid;
 
-				if (first.Trailing.HasValue || price >= first.ShortClosePrice + set.TrailingSwitchInPip * set.PipSize)
-					first.Trailing = Math.Max(price - set.TrailingDistanceInPip * set.PipSize,
-						first.Trailing ?? price - set.TrailingDistanceInPip * set.PipSize);
-				if (first.Trailing.HasValue && price <= first.Trailing) hedge = true;
-				if (price >= first.ShortClosePrice + (set.TpInPip + longOffset) * set.PipSize) hedge = true;
-				if (price <= first.ShortClosePrice - (set.SlInPip + longOffset) * set.PipSize) hedge = true;
+				if (first.Trailing.HasValue || hedgePrice >= firstPrice + set.TrailingSwitchInPip * set.PipSize)
+					first.Trailing = Math.Max(hedgePrice - set.TrailingDistanceInPip * set.PipSize,
+						first.Trailing ?? hedgePrice - set.TrailingDistanceInPip * set.PipSize);
+				if (first.Trailing.HasValue && hedgePrice <= first.Trailing) hedge = true;
+				if (hedgePrice >= firstPrice + (set.TpInPip + longOffset) * set.PipSize) hedge = true;
+				if (hedgePrice <= firstPrice - (set.SlInPip + longOffset) * set.PipSize) hedge = true;
 				if (set.State != LatencyArb.LatencyArbStates.ImmediateExit && !hedge) return;
 
 				var closePos = CloseLong(set, first, false);
