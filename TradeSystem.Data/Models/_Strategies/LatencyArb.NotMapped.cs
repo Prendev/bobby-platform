@@ -16,6 +16,7 @@ namespace TradeSystem.Data.Models
 			public string Group { get; set; }
 			public int Total { get; set; }
 			public decimal? AvgPip { get; set; }
+			public decimal? NormAvgPip { get; set; }
 			public string Account { get; set; }
 			public decimal? Ask { get; set; }
 			public decimal? Bid { get; set; }
@@ -204,6 +205,7 @@ namespace TradeSystem.Data.Models
 
 			var livePositions = LivePositions.Where(p => p.HasBothSides).ToList();
 			var avgLive = livePositions.Sum(p => p.OpenResult) / Math.Max(1, livePositions.Count) / PipSize;
+			var normAvgLive = livePositions.Sum(p => p.NormOpenResult(ShortAvg, LongAvg)) / Math.Max(1, livePositions.Count) / PipSize;
 
 			var statistics = new List<Statistics>()
 			{
@@ -222,6 +224,7 @@ namespace TradeSystem.Data.Models
 					Group = "Live",
 					Total = LivePositions.Count,
 					AvgPip = avgLive,
+					NormAvgPip = normAvgLive,
 					Account = "Long",
 					AvgPrice = LongAvg,
 					Ask = LastLongTick?.Ask,
@@ -250,7 +253,7 @@ namespace TradeSystem.Data.Models
 				Group = s.Group,
 				Total = s.Total.ToString("0"),
 				AvgPip = s.AvgPip?.ToString("F2"),
-				III = "",
+				III = s.NormAvgPip?.ToString("F2"),
 				Account = s.Account,
 				Ask = s.Ask?.ToString("F5"),
 				Bid = s.Bid?.ToString("F5"),
