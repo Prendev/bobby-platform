@@ -339,8 +339,16 @@ namespace TradeSystem.Orchestration.Services
 
 				var w = writer.CsvWriter;
 				w.WriteField(HiResDatetime.UtcNow.ToString(ticker.GetDateTimeFormat()));
+				var first = true;
 				foreach (var qe in quoteSet.Entries.Take(take))
 				{
+					if (first)
+					{
+						first = false;
+						w.WriteField(qe.Trade);
+						w.WriteField(qe.TradeVolume);
+						w.WriteField(qe.EntryDateTime);
+					}
 					w.WriteField(qe.Ask);
 					w.WriteField(qe.Bid);
 					w.WriteField(qe.AskVolume);
