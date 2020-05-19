@@ -649,15 +649,14 @@ namespace TradeSystem.FixApiIntegration
 			var symbol = quoteSet.Symbol.ToString();
 
 			if (!ask.HasValue || !bid.HasValue) return;
-			if (!askVol.HasValue || !bidVol.HasValue) return;
 
 			var tick = new Tick
 			{
 				Symbol = symbol,
-				Ask = (decimal)ask,
-				Bid = (decimal)bid,
-				AskVolume = (decimal)askVol,
-				BidVolume = (decimal)bidVol,
+				Ask = (decimal) ask,
+				Bid = (decimal) bid,
+				AskVolume = (askVol ?? 0),
+				BidVolume = (bidVol ?? 0),
 				Time = HiResDatetime.UtcNow
 			};
 			LastTicks.AddOrUpdate(symbol, key => tick, (key, old) => tick);
