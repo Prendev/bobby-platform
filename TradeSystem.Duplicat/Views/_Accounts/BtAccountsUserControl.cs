@@ -24,6 +24,59 @@ namespace TradeSystem.Duplicat.Views
 				a => $"Instrument configs - {a}");
 
 			dgvInstrumentConfigs.DefaultValuesNeeded += (s, e) => e.Row.Cells["BacktesterAccountId"].Value = _viewModel.SelectedBacktesterAccount.Id;
+
+
+			dgvAccounts.Columns.Add(new DataGridViewButtonColumn
+			{
+				Name = "Select",
+				HeaderText = "Select",
+				Text = "Select",
+				UseColumnTextForButtonValue = true
+			});
+			dgvAccounts.Columns.Add(new DataGridViewButtonColumn
+			{
+				Name = "Start",
+				HeaderText = "Start",
+				Text = "Start",
+				UseColumnTextForButtonValue = true
+			});
+			dgvAccounts.Columns.Add(new DataGridViewButtonColumn
+			{
+				Name = "Pause",
+				HeaderText = "Pause",
+				Text = "Pause",
+				UseColumnTextForButtonValue = true
+			});
+			dgvAccounts.Columns.Add(new DataGridViewButtonColumn
+			{
+				Name = "Restart",
+				HeaderText = "Restart",
+				Text = "Restart",
+				UseColumnTextForButtonValue = true
+			});
+			dgvAccounts.CellContentClick += DgvAccounts_CellContentClick; ;
+		}
+
+		private void DgvAccounts_CellContentClick(object sender, DataGridViewCellEventArgs e)
+		{
+			if (e.RowIndex < 0) return;
+			var column = dgvAccounts.Columns[e.ColumnIndex];
+			if (!(column is DataGridViewButtonColumn)) return;
+			if (!(dgvAccounts.Rows[e.RowIndex].DataBoundItem is BacktesterAccount account)) return;
+
+			if (column.Name == "Select")
+			{
+				_viewModel.SelectedBacktesterAccount = dgvAccounts.GetSelectedItem<BacktesterAccount>();
+			}
+			else if (column.Name == "Start")
+			{
+			}
+			else if (column.Name == "Pause")
+			{
+			}
+			else if (column.Name == "Restart")
+			{
+			}
 		}
 
 		public void AttachDataSources()
