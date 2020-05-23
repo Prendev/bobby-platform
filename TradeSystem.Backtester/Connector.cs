@@ -33,10 +33,12 @@ namespace TradeSystem.Backtester
 		}
 
 		private const string FolderPath = "Backtester";
-		private readonly ConcurrentDictionary<BacktesterInstrumentConfig, Reader> _csvReaders =
-			new ConcurrentDictionary<BacktesterInstrumentConfig, Reader>();
 		private readonly EventWaitHandle _waitHandle = new AutoResetEvent(false);
 		private readonly EventWaitHandle _pauseHandle = new ManualResetEvent(true);
+		private readonly SortedDictionary<DateTime, List<Tick>> _ticks = new SortedDictionary<DateTime, List<Tick>>();
+		private volatile CancellationTokenSource _cancellation;
+		private bool _isConnected;
+		private bool _isStarted;
 
 		private readonly BacktesterAccount _account;
 
@@ -44,8 +46,6 @@ namespace TradeSystem.Backtester
 		public override string Description => _account?.Description;
 		public override bool IsConnected => _isConnected;
 
-		private bool _isConnected;
-		private bool _isStarted;
 
 		public Connector(BacktesterAccount account)
 		{
@@ -61,20 +61,52 @@ namespace TradeSystem.Backtester
 				_isConnected = true;
 			}
 
+			_ticks.Clear();
+
+			var csvReaders = new ConcurrentDictionary<BacktesterInstrumentConfig, Reader>();
 			foreach (var ic in _account.InstrumentConfigs)
 			{
 				var file = $"{FolderPath}/{ic.FileName}";
-				_csvReaders.GetOrAdd(ic, key => new Reader(file, ic.GetDelimeter()));
+				csvReaders.GetOrAdd(ic, key => new Reader(file, ic.GetDelimeter()));
 			}
+
+			foreach (var reader in csvReaders)
+			{
+				var csvReader = reader.Value.CsvReader;
+				var config = reader.Key;
+				while (csvReader.Read())
+				{
+					var dt = csvReader.GetField<string>(config.DateTimeColumn);
+					var a = csvReader.GetField<string>(config.AskColumn);
+					var b = csvReader.GetField<string>(config.BidColumn);
+
+					var dateTime = DateTime.ParseExact(dt, config.DateTimeFormat, CultureInfo.InvariantCulture);
+					DateTime.SpecifyKind(dateTime, DateTimeKind.Utc);
+					var ask = decimal.Parse(a);
+					var bid = decimal.Parse(b);
+
+					var tick = new Tick()
+					{
+						Time = dateTime,
+						Symbol = config.Symbol,
+						Ask = ask,
+						Bid = bid,
+						AskVolume = 1,
+						BidVolume = 1
+					};
+					if (_ticks.ContainsKey(tick.Time)) _ticks[tick.Time].Add(tick);
+					else _ticks[tick.Time] = new List<Tick> { tick };
+				}
+			}
+			foreach (var reader in csvReaders) reader.Value.Disconnect();
 
 			OnConnectionChanged(ConnectionStates.Connected);
 		}
 		public override void Disconnect()
 		{
+			_isStarted = false;
+			_cancellation?.Cancel(false);
 			_cancellation?.Dispose();
-			foreach (var reader in _csvReaders)
-				reader.Value.Disconnect();
-			_csvReaders.Clear();
 			_isConnected = false;
 			OnConnectionChanged(ConnectionStates.Disconnected);
 		} 
@@ -107,8 +139,6 @@ namespace TradeSystem.Backtester
 			decimal deviation, decimal priceDiff, int timeout, int retryCount, int retryPeriod) =>
 			SendMarketOrderRequest(symbol, side, quantity);
 
-		private volatile CancellationTokenSource _cancellation;
-
 		public void Start()
 		{
 			_pauseHandle.Set();
@@ -118,41 +148,9 @@ namespace TradeSystem.Backtester
 				_isStarted = true;
 			}
 
-			if (!IsConnected) return;
-
 			_cancellation?.Dispose();
 			_cancellation = new CancellationTokenSource();
-			var dic = new SortedDictionary<DateTime, List<Tick>>();
-			foreach (var reader in _csvReaders)
-			{
-				var csvReader = reader.Value.CsvReader;
-				var config = reader.Key;
-				while (csvReader.Read())
-				{
-					var dt = csvReader.GetField<string>(config.DateTimeColumn);
-					var a = csvReader.GetField<string>(config.AskColumn);
-					var b = csvReader.GetField<string>(config.BidColumn);
-
-					var dateTime = DateTime.ParseExact(dt, config.DateTimeFormat, CultureInfo.InvariantCulture);
-					DateTime.SpecifyKind(dateTime, DateTimeKind.Utc);
-					var ask = decimal.Parse(a);
-					var bid = decimal.Parse(b);
-
-					var tick = new Tick()
-					{
-						Time = dateTime,
-						Symbol = config.Symbol,
-						Ask = ask,
-						Bid = bid,
-						AskVolume = 1,
-						BidVolume = 1
-					};
-					if (dic.ContainsKey(tick.Time)) dic[tick.Time].Add(tick);
-					else dic[tick.Time] = new List<Tick> {tick};
-				}
-			}
-
-			new Thread(() => Loop(dic, _cancellation.Token))
+			new Thread(() => Loop(_cancellation.Token))
 			{
 				Name = "Tickers",
 				IsBackground = true,
@@ -160,9 +158,9 @@ namespace TradeSystem.Backtester
 			}.Start();
 		}
 
-		private void Loop(SortedDictionary<DateTime, List<Tick>> ticks, CancellationToken token)
+		private void Loop(CancellationToken token)
 		{
-			foreach (var ticks2 in ticks)
+			foreach (var ticks2 in _ticks)
 			{
 				foreach (var tick in ticks2.Value)
 				{
@@ -174,6 +172,8 @@ namespace TradeSystem.Backtester
 
 						LastTicks.AddOrUpdate(tick.Symbol, key => tick, (key, old) => tick);
 						OnNewTick(new NewTick { Tick = tick });
+						//Logger.Debug("Probbaaa");
+						//Thread.Sleep(1000);
 					}
 
 					if (token.IsCancellationRequested) break;
@@ -181,15 +181,20 @@ namespace TradeSystem.Backtester
 
 				if (token.IsCancellationRequested) break;
 			}
-
 			_isStarted = false;
 		}
 
 		public void Pause() => _pauseHandle.Reset();
 
-		public void Stop() => Disconnect();
-
 		public void Continue() => _waitHandle.Set();
+
+		public void Stop()
+		{
+			_cancellation?.Cancel(false);
+			_cancellation?.Dispose();
+			_waitHandle.Set();
+			_pauseHandle.Set();
+		}
 
 		private void LogOrderResponse(string symbol, OrderResponse response)
 		{

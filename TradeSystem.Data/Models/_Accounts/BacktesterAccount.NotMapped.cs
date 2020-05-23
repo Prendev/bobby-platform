@@ -6,6 +6,6 @@ namespace TradeSystem.Data.Models
 {
 	public partial class BacktesterAccount
 	{
-		[NotMapped] [ReadOnly(true)] public DateTime? UtcNow { get; set; }
+		[NotMapped] [ReadOnly(true)] public DateTime? UtcNow { get => Get<DateTime?>(); set => Set(value); }
 	}
 }

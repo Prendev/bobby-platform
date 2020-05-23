@@ -50,7 +50,11 @@ namespace TradeSystem.Data.Models
 
 		public Tick GetLastTick(string symbol) => Connector?.GetLastTick(symbol);
 
-		private void Connector_NewTick(object sender, NewTick e) => NewTick?.Invoke(this, e);
+		private void Connector_NewTick(object sender, NewTick e)
+		{
+			if (BacktesterAccount != null) BacktesterAccount.UtcNow = e.Tick.Time;
+			NewTick?.Invoke(this, e);
+		}
 
 		private void Connector_ConnectionChanged(object sender, ConnectionStates e)
 		{
