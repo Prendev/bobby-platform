@@ -1,35 +1,79 @@
-﻿using System;
+﻿using System.Collections.Concurrent;
+using System.Globalization;
+using System.IO;
 using System.Threading.Tasks;
 using TradeSystem.Common;
 using TradeSystem.Common.Integration;
-using TradeSystem.Communication;
 using TradeSystem.Data.Models;
 
 namespace TradeSystem.Backtester
 {
-	public class Connector : ConnectorBase, IFixConnector
+	public class Connector : FixApiConnectorBase
 	{
+		public class Reader
+		{
+			public TextReader TextReader { get; set; }
+			public CsvHelper.CsvReader CsvReader { get; set; }
+			public object LastRecord { get; set; }
+
+			public Reader(string file, string delimeter)
+			{
+				TextReader = new StreamReader(file, true);
+				CsvReader = new CsvHelper.CsvReader(TextReader);
+				CsvReader.Configuration.Delimiter = delimeter;
+			}
+
+			public void Disconnect()
+			{
+				CsvReader.Dispose();
+			}
+		}
+
+		private const string FolderPath = "Backtester";
+		private readonly ConcurrentDictionary<BacktesterInstrumentConfig, Reader> _csvReaders =
+			new ConcurrentDictionary<BacktesterInstrumentConfig, Reader>();
+
 		private readonly BacktesterAccount _account;
 
 		public override int Id => _account?.Id ?? 0;
 		public override string Description => _account?.Description;
-		public override bool IsConnected => true;
+		private bool _isConnected = false;
+		public override bool IsConnected => _isConnected;
 
 		public Connector(BacktesterAccount account)
 		{
 			_account = account;
+			Directory.CreateDirectory(FolderPath);
 		}
 
-		public void Connect() => OnConnectionChanged(ConnectionStates.Connected);
-		public override void Disconnect() => OnConnectionChanged(ConnectionStates.Disconnected);
+		public void Connect()
+		{
+			lock (this)
+			{
+				if (_isConnected) return;
+				_isConnected = true;
+			}
+
+			foreach (var ic in _account.InstrumentConfigs)
+			{
+				var file = $"{FolderPath}/{ic.FileName}";
+				_csvReaders.GetOrAdd(ic, key => new Reader(file, ic.GetDelimeter()));
+			}
+
+			OnConnectionChanged(ConnectionStates.Connected);
+		}
+		public override void Disconnect()
+		{
+			foreach (var reader in _csvReaders)
+				reader.Value.Disconnect();
+			_csvReaders.Clear();
+			_isConnected = false;
+			OnConnectionChanged(ConnectionStates.Disconnected);
+		} 
+
 		public override void Subscribe(string symbol) => Logger.Debug($"{Description} Connector.Subscribe({symbol})");
 
-		public override Tick GetLastTick(string symbol)
-		{
-			throw new NotImplementedException();
-		}
-
-		public Task<OrderResponse> SendMarketOrderRequest(string symbol, Sides side, decimal quantity)
+		public override Task<OrderResponse> SendMarketOrderRequest(string symbol, Sides side, decimal quantity)
 		{
 			var price = GetLastTick(symbol).GetPrice(side);
 			var response = new OrderResponse()
@@ -43,30 +87,26 @@ namespace TradeSystem.Backtester
 			LogOrderResponse(symbol, response);
 			return Task.FromResult(response);
 		}
-		public Task<OrderResponse> SendMarketOrderRequest(string symbol, Sides side, decimal quantity, int timeout,
+		public override Task<OrderResponse> SendMarketOrderRequest(string symbol, Sides side, decimal quantity, int timeout,
 			int retryCount, int retryPeriod) => SendMarketOrderRequest(symbol, side, quantity);
-		public Task<OrderResponse> SendAggressiveOrderRequest(string symbol, Sides side, decimal quantity, decimal limitPrice,
+		public override Task<OrderResponse> SendAggressiveOrderRequest(string symbol, Sides side, decimal quantity, decimal limitPrice,
 			decimal deviation, decimal priceDiff, int timeout, int retryCount, int retryPeriod) =>
 			SendMarketOrderRequest(symbol, side, quantity);
-		public Task<OrderResponse> SendDelayedAggressiveOrderRequest(string symbol, Sides side, decimal quantity,
+		public override Task<OrderResponse> SendDelayedAggressiveOrderRequest(string symbol, Sides side, decimal quantity,
 			decimal limitPrice, decimal deviation, decimal priceDiff, decimal correction, int timeout, int retryCount,
 			int retryPeriod) => SendMarketOrderRequest(symbol, side, quantity);
-		public Task<OrderResponse> SendGtcLimitOrderRequest(string symbol, Sides side, decimal quantity, decimal limitPrice,
+		public override Task<OrderResponse> SendGtcLimitOrderRequest(string symbol, Sides side, decimal quantity, decimal limitPrice,
 			decimal deviation, decimal priceDiff, int timeout, int retryCount, int retryPeriod) =>
 			SendMarketOrderRequest(symbol, side, quantity);
-
-		public Task<LimitResponse> PutNewOrderRequest(string symbol, Sides side, decimal quantity, decimal limitPrice) =>
-			throw new NotImplementedException();
-		public OrderStatusReport GetOrderStatusReport(LimitResponse response) => throw new NotImplementedException();
-		public Task<bool> ChangeLimitPrice(LimitResponse response, decimal limitPrice) => throw new NotImplementedException();
-		public Task<bool> CancelLimit(LimitResponse response) => throw new NotImplementedException();
 
 		public void Start()
 		{
 		}
+
 		public void Pause()
 		{
 		}
+
 		public void Stop()
 		{
 		}
