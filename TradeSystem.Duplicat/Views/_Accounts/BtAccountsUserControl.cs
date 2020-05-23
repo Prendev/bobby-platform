@@ -49,9 +49,9 @@ namespace TradeSystem.Duplicat.Views
 			});
 			dgvAccounts.Columns.Add(new DataGridViewButtonColumn
 			{
-				Name = "Restart",
-				HeaderText = "Restart",
-				Text = "Restart",
+				Name = "Stop",
+				HeaderText = "Stop",
+				Text = "Stop",
 				UseColumnTextForButtonValue = true
 			});
 			dgvAccounts.CellContentClick += DgvAccounts_CellContentClick; ;
@@ -68,15 +68,9 @@ namespace TradeSystem.Duplicat.Views
 			{
 				_viewModel.SelectedBacktesterAccount = dgvAccounts.GetSelectedItem<BacktesterAccount>();
 			}
-			else if (column.Name == "Start")
-			{
-			}
-			else if (column.Name == "Pause")
-			{
-			}
-			else if (column.Name == "Restart")
-			{
-			}
+			else if (column.Name == "Start") _viewModel.Start(account);
+			else if (column.Name == "Pause") _viewModel.Pause(account);
+			else if (column.Name == "Stop") _viewModel.Stop(account);
 		}
 
 		public void AttachDataSources()

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Timers;
 using Microsoft.EntityFrameworkCore;
+using TradeSystem.Backtester;
 using TradeSystem.Common;
 using TradeSystem.Common.Services;
 using TradeSystem.Data;
@@ -60,6 +61,7 @@ namespace TradeSystem.Duplicat.ViewModel
 
 		private DuplicatContext _duplicatContext;
 		private readonly IOrchestrator _orchestrator;
+		private readonly IBacktesterService _backtesterService;
 		private readonly IXmlService _xmlService;
 		private readonly List<PropertyChangedEventHandler> _propertyChangedDelegates = new List<PropertyChangedEventHandler>();
 		private readonly List<Tuple<IBindingList, ListChangedEventHandler>> _listChangedDelegates =
@@ -132,6 +134,7 @@ namespace TradeSystem.Duplicat.ViewModel
 		public Spoofing SelectedSpoofing { get => Get<Spoofing>(); set => Set(value); }
 
 		public DuplicatViewModel(
+			IBacktesterService backtesterService,
 			IOrchestrator orchestrator,
 			IXmlService xmlService)
 		{
@@ -146,6 +149,7 @@ namespace TradeSystem.Duplicat.ViewModel
 				_autoSaveTimer.Interval = 1000 * 60 * AutoSavePeriodInMin;
 				SaveCommand(false);
 			};
+			_backtesterService = backtesterService;
 			_xmlService = xmlService;
 			_orchestrator = orchestrator;
 			InitDataContext();
