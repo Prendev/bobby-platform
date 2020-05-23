@@ -37,7 +37,7 @@ namespace TradeSystem.Duplicat.Views
 	        dgvAccounts.AddComboBoxColumn(_viewModel.IlyaFastFeedAccounts);
 	        dgvAccounts.AddComboBoxColumn(_viewModel.CqgClientApiAccounts);
 	        dgvAccounts.AddComboBoxColumn(_viewModel.IbAccounts);
-	        dgvAccounts.AddComboBoxColumn(_viewModel.ProfileProxies);
+	        dgvAccounts.AddComboBoxColumn(_viewModel.BacktesterAccounts);
 
 			dgvProfiles.DataSource = _viewModel.Profiles;
 			dgvAccounts.DataSource = _viewModel.Accounts;

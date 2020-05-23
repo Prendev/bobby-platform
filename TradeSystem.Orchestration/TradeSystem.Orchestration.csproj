@@ -193,7 +193,6 @@
     <Compile Include="Services\CopierService.Fix.cs" />
     <Compile Include="Services\CopyLogger.cs" />
     <Compile Include="Services\MtAccountImportService.cs" />
-    <Compile Include="Services\ProxyService.cs" />
     <Compile Include="Services\PushingService.cs" />
     <Compile Include="Services\Strategies\AntiMarketMakerService.cs" />
     <Compile Include="Services\StopOrderService.cs" />

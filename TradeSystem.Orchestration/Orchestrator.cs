@@ -46,7 +46,6 @@ namespace TradeSystem.Orchestration
 		private readonly IConnectorFactory _connectorFactory;
 		private readonly IReportService _reportService;
 		private readonly IMtAccountImportService _mtAccountImportService;
-		private readonly IProxyService _proxyService;
 		private readonly IMarketMakerService _marketMakerService;
 		private readonly IAntiMarketMakerService _antiMarketMakerService;
 		private readonly ILatencyArbService _latencyArbService;
@@ -65,15 +64,13 @@ namespace TradeSystem.Orchestration
 			INewsArbService newsArbService,
 			IAntiMarketMakerService antiMarketMakerService,
 			IReportService reportService,
-			IMtAccountImportService mtAccountImportService,
-			IProxyService proxyService)
+			IMtAccountImportService mtAccountImportService)
 		{
 			_newsArbService = newsArbService;
 			_latencyArbService = latencyArbService;
 			_antiMarketMakerService = antiMarketMakerService;
 			_marketMakerService = marketMakerService;
 			_spoofStrategyService = spoofStrategyService;
-			_proxyService = proxyService;
 			_mtAccountImportService = mtAccountImportService;
 			_reportService = reportService;
 			_connectorFactory = connectorFactory;
@@ -93,8 +90,6 @@ namespace TradeSystem.Orchestration
 				.Where(pa => pa.Run).ToList()
 				.Where(pa => pa.ConnectionState != ConnectionStates.Connected)
 				.ToList();
-
-			_proxyService.Start(duplicatContext.ProfileProxies.Local.Where(a => a.Run).ToList(), accounts);
 
 			var tasks = accounts.Select(account => Task.Run(() => _connectorFactory.Create(account))).ToList();
 
@@ -128,7 +123,6 @@ namespace TradeSystem.Orchestration
 		{
 			_duplicatContext.SaveChanges();
 
-			_proxyService.Stop();
 			foreach (var agg in _duplicatContext.Aggregators.Local)
 			{
 				agg.QuoteAggregator?.Dispose();

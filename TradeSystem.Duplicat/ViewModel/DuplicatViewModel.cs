@@ -75,6 +75,10 @@ namespace TradeSystem.Duplicat.ViewModel
 		public BindingList<IlyaFastFeedAccount> IlyaFastFeedAccounts { get; private set; }
 		public BindingList<CqgClientApiAccount> CqgClientApiAccounts { get; private set; }
 		public BindingList<IbAccount> IbAccounts { get; private set; }
+		public BindingList<BacktesterAccount> BacktesterAccounts { get; private set; }
+		public BindingList<BacktesterInstrumentConfig> BacktesterInstrumentConfigs { get; private set; }
+
+
 		public BindingList<Profile> Profiles { get; private set; }
 		public BindingList<Account> Accounts { get; private set; }
 		public BindingList<Aggregator> Aggregators { get; private set; }
@@ -120,6 +124,7 @@ namespace TradeSystem.Duplicat.ViewModel
 
 		public Profile SelectedProfile { get => Get<Profile>(); set => Set(value); }
 		public MetaTraderAccount SelectedMt4Account { get => Get<MetaTraderAccount>(); set => Set(value); }
+		public BacktesterAccount SelectedBacktesterAccount { get => Get<BacktesterAccount>(); set => Set(value); }
 		public Aggregator SelectedAggregator { get => Get<Aggregator>(); set => Set(value); }
 		public Slave SelectedSlave { get => Get<Slave>(); set => Set(value); }
 		public Copier SelectedCopier { get => Get<Copier>(); set => Set(value); }
@@ -224,6 +229,9 @@ namespace TradeSystem.Duplicat.ViewModel
 			_duplicatContext.IlyaFastFeedAccounts.OrderBy(e => e.ToString()).Load();
 			_duplicatContext.CqgClientApiAccounts.OrderBy(e => e.ToString()).Load();
 			_duplicatContext.IbAccounts.OrderBy(e => e.ToString()).Load();
+			_duplicatContext.BacktesterAccounts.Include(e => e.InstrumentConfigs).OrderBy(e => e.ToString()).Load();
+			_duplicatContext.BacktesterInstrumentConfigs.OrderBy(e => e.ToString()).Load();
+
 			_duplicatContext.Profiles.OrderBy(e => e.ToString()).Load();
 			_duplicatContext.Proxies.OrderBy(e => e.ToString()).Load();
 			_duplicatContext.ProfileProxies.Where(e => e.ProfileId == p).OrderBy(e => e.ToString()).Load();
@@ -268,6 +276,11 @@ namespace TradeSystem.Duplicat.ViewModel
 			IlyaFastFeedAccounts = _duplicatContext.IlyaFastFeedAccounts.Local.ToBindingList();
 			CqgClientApiAccounts = _duplicatContext.CqgClientApiAccounts.Local.ToBindingList();
 			IbAccounts = _duplicatContext.IbAccounts.Local.ToBindingList();
+			BacktesterAccounts = _duplicatContext.BacktesterAccounts.Local.ToBindingList();
+			BacktesterInstrumentConfigs = ToFilteredBindingList(_duplicatContext.BacktesterInstrumentConfigs.Local,
+				e => e.BacktesterAccount, () => SelectedBacktesterAccount);
+
+
 			Profiles = _duplicatContext.Profiles.Local.ToBindingList();
 			Accounts = _duplicatContext.Accounts.Local.ToBindingList();
 			Aggregators = _duplicatContext.Aggregators.Local.ToBindingList();

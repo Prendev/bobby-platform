@@ -106,7 +106,6 @@ namespace TradeSystem.Duplicat
 			builder.RegisterType<StopOrderService>().As<IStopOrderService>();
 			builder.RegisterType<AntiMarketMakerService>().As<IAntiMarketMakerService>();
 			builder.RegisterType<MtAccountImportService>().As<IMtAccountImportService>();
-			builder.RegisterType<ProxyService>().As<IProxyService>();
 		}
     }
 }

@@ -26,7 +26,6 @@ namespace TradeSystem.Orchestration.Services
 				if (account.MetaTraderAccountId.HasValue) ConnectMtAccount(account);
 				else if (account.CTraderAccountId.HasValue) ConenctCtAccount(account);
 				else if (account.FixApiAccountId.HasValue) await ConnectFixAccount(account);
-				else if (account.IlyaFastFeedAccountId.HasValue) await ConnectIlyaFastFeedAccount(account);
 				else if (account.CqgClientApiAccountId.HasValue) await ConnectCqgClientApiAccount(account);
 				else if (account.IbAccountId.HasValue) await ConnectIbAccount(account);
 			}
@@ -58,7 +57,6 @@ namespace TradeSystem.Orchestration.Services
 					User = account.MetaTraderAccount.User,
 					Password = account.MetaTraderAccount.Password,
 					Srv = account.MetaTraderAccount.MetaTraderPlatform.SrvFilePath,
-					LocalPortForProxy = account.ProfileProxyId.HasValue ? account.ProfileProxy.LocalPort : (int?) null,
 					InstrumentConfigs = account.MetaTraderAccount.InstrumentConfigs?
 						.ToDictionary(ic => ic.Symbol, ic => ic.Multiplier ?? 1)
 				}, DestinationSetter);
@@ -109,25 +107,6 @@ namespace TradeSystem.Orchestration.Services
 				}, _emailService);
 
 			await ((FixApiIntegration.Connector) account.Connector).Connect();
-		}
-
-		private async Task ConnectIlyaFastFeedAccount(Account account)
-		{
-			if (!(account.Connector is IlyaFastFeedIntegration.Connector) ||
-			    account.Connector.Id != account.IlyaFastFeedAccountId)
-				account.Connector = null;
-
-			if (account.Connector == null)
-				account.Connector = new IlyaFastFeedIntegration.Connector();
-
-			await ((IlyaFastFeedIntegration.Connector)account.Connector).Connect(new IlyaFastFeedIntegration.AccountInfo()
-			{
-				DbId = account.IlyaFastFeedAccount.Id,
-				Description = account.IlyaFastFeedAccount.Description,
-				IpAddress = account.IlyaFastFeedAccount.IpAddress,
-				Port = account.IlyaFastFeedAccount.Port,
-				UserName = account.IlyaFastFeedAccount.UserName
-			});
 		}
 
 		private async Task ConnectCqgClientApiAccount(Account account)

@@ -217,6 +217,8 @@
     <Compile Include="Models\Export.cs" />
     <Compile Include="Models\FixApiCopierPosition.cs" />
     <Compile Include="Models\Slave.NotMapped.cs" />
+    <Compile Include="Models\_Accounts\BacktesterAccount.cs" />
+    <Compile Include="Models\_Accounts\BacktesterInstrumentConfig.cs" />
     <Compile Include="Models\_Accounts\MetaTraderInstrumentConfig.cs" />
     <Compile Include="Models\_Strategies\NewsArb.cs" />
     <Compile Include="Models\_Strategies\NewsArb.NotMapped.cs" />
