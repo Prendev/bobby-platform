@@ -1,6 +1,6 @@
 ﻿using TradeSystem.Data.Models;
 
-namespace TradeSystem.Backtester
+namespace TradeSystem.Orchestration.Services
 {
 	public interface IBacktesterService
 	{
@@ -14,9 +14,11 @@ namespace TradeSystem.Backtester
 		public void Start(BacktesterAccount account)
 		{
 		}
+
 		public void Pause(BacktesterAccount account)
 		{
 		}
+
 		public void Stop(BacktesterAccount account)
 		{
 		}

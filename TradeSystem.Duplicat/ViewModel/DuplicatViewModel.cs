@@ -11,6 +11,7 @@ using TradeSystem.Common.Services;
 using TradeSystem.Data;
 using TradeSystem.Data.Models;
 using TradeSystem.Orchestration;
+using TradeSystem.Orchestration.Services;
 using IBindingList = System.ComponentModel.IBindingList;
 
 namespace TradeSystem.Duplicat.ViewModel

@@ -28,6 +28,7 @@ namespace TradeSystem.Orchestration.Services
 				else if (account.FixApiAccountId.HasValue) await ConnectFixAccount(account);
 				else if (account.CqgClientApiAccountId.HasValue) await ConnectCqgClientApiAccount(account);
 				else if (account.IbAccountId.HasValue) await ConnectIbAccount(account);
+				else if (account.BacktesterAccountId.HasValue) ConnectBtAccount(account);
 			}
 			catch (Exception e)
 			{
@@ -142,6 +143,17 @@ namespace TradeSystem.Orchestration.Services
 				});
 
 			await ((IbIntegration.Connector)account.Connector).Connect();
+		}
+
+		private void ConnectBtAccount(Account account)
+		{
+			if (!(account.Connector is Backtester.Connector) ||
+			    account.Connector.Id != account.BacktesterAccountId)
+				account.Connector = null;
+
+			if (account.Connector == null)
+				account.Connector = new Backtester.Connector(account.BacktesterAccount);
+			((Backtester.Connector)account.Connector).Connect();
 		}
 	}
 }
