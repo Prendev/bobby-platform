@@ -14,6 +14,9 @@ namespace TradeSystem.Data.Models
 
 		public string DateTimeFormat { get; set; }
 		public string Delimeter { get; set; }
+		public int DateTimeColumn { get; set; } = 0;
+		public int AskColumn { get; set; } = 1;
+		public int BidColumn { get; set; } = 2;
 
 		public string GetDateTimeFormat() =>
 			String.IsNullOrWhiteSpace(DateTimeFormat) ? "yyyy/MM/dd HH:mm:ss.fff" : DateTimeFormat;

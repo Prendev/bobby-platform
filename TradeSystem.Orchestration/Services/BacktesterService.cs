@@ -1,4 +1,5 @@
-﻿using TradeSystem.Data.Models;
+﻿using System.Linq;
+using TradeSystem.Data.Models;
 
 namespace TradeSystem.Orchestration.Services
 {
@@ -11,16 +12,13 @@ namespace TradeSystem.Orchestration.Services
 
 	public class BacktesterService : IBacktesterService
 	{
-		public void Start(BacktesterAccount account)
-		{
-		}
+		public void Start(BacktesterAccount account) =>
+			(account.Accounts.FirstOrDefault()?.Connector as Backtester.Connector)?.Start();
 
-		public void Pause(BacktesterAccount account)
-		{
-		}
+		public void Pause(BacktesterAccount account) =>
+			(account.Accounts.FirstOrDefault()?.Connector as Backtester.Connector)?.Pause();
 
-		public void Stop(BacktesterAccount account)
-		{
-		}
+		public void Stop(BacktesterAccount account) =>
+			(account.Accounts.FirstOrDefault()?.Connector as Backtester.Connector)?.Stop();
 	}
 }
