@@ -164,18 +164,13 @@ namespace TradeSystem.Backtester
 			{
 				foreach (var tick in ticks2.Value)
 				{
-					while (!token.IsCancellationRequested)
-					{
-						_pauseHandle.WaitOne();
-						_waitHandle.WaitOne();
-						if (token.IsCancellationRequested) break;
+					_pauseHandle.WaitOne();
+					_waitHandle.WaitOne();
+					if (token.IsCancellationRequested) break;
 
-						LastTicks.AddOrUpdate(tick.Symbol, key => tick, (key, old) => tick);
-						OnNewTick(new NewTick { Tick = tick });
-						//Logger.Debug("Probbaaa");
-						//Thread.Sleep(1000);
-					}
-
+					LastTicks.AddOrUpdate(tick.Symbol, key => tick, (key, old) => tick);
+					OnNewTick(new NewTick { Tick = tick });
+					if (_account.SleepInMs > 0) Thread.Sleep(_account.SleepInMs);
 					if (token.IsCancellationRequested) break;
 				}
 
@@ -202,7 +197,8 @@ namespace TradeSystem.Backtester
 			             $"\t{_account.UtcNow:yyyy-MM-dd HH:mm:ss.ffff}" +
 						 $"\t{symbol}" +
 			             $"\t{response.Side}" +
-			             $"\t{response.FilledQuantity}");
+			             $"\t{response.FilledQuantity}" +
+						 $"\t{response.AveragePrice}");
 		}
 	}
 }
