@@ -97,9 +97,10 @@ namespace TradeSystem.Orchestration.Services.Strategies
 						continue;
 					}
 
-					if (set.IsBacktest) ((Backtester.Connector) set.FastFeedAccount.Connector).Continue();
-					var action = queue.Take(token);
-					action();
+					if (set.IsBacktest) ((Backtester.Connector)set.FastFeedAccount.Connector).Continue();
+					queue.Take(token).Invoke();
+					// set.TickProcessed?.Invoke();
+
 				}
 				catch (OperationCanceledException)
 				{
@@ -154,9 +155,6 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			CheckOpening(set);
 			CheckReopening(set);
 			CheckClosing(set);
-
-			if (!set.IsBacktest) return;
-			((Backtester.Connector) set.FastFeedAccount.Connector).Continue();
 		}
 
 		private void CheckPositions(LatencyArb set)
