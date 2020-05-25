@@ -36,10 +36,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 		}
 
 		private volatile CancellationTokenSource _cancellation;
-
 		private List<LatencyArb> _sets;
-		private readonly ConcurrentDictionary<int, FastBlockingCollection<Action>> _queues =
-			new ConcurrentDictionary<int, FastBlockingCollection<Action>>();
 
 		private readonly IEmailService _emailService;
 
@@ -79,8 +76,6 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				Logger.Error($"{this} latency arb - {nameof(set.PipSize)} cannot be 0");
 			}
 
-			var queue = _queues.GetOrAdd(set.Id, new FastBlockingCollection<Action>());
-
 			set.NewTick -= Set_NewTick;
 			set.FastFeedAccount.Connector.Subscribe(set.FastFeedSymbol);
 			set.LongAccount.Connector.Subscribe(set.LongSymbol);
@@ -97,8 +92,9 @@ namespace TradeSystem.Orchestration.Services.Strategies
 						continue;
 					}
 
+					set.WaitHandle.WaitOne();
+					PreCheck(set);
 					set.OnTickProcessed();
-					queue.Take(token).Invoke();
 
 				}
 				catch (OperationCanceledException)
@@ -110,20 +106,20 @@ namespace TradeSystem.Orchestration.Services.Strategies
 					Logger.Error("LatencyArbService.Loop exception", e);
 				}
 			}
-
-			//set.State = LatencyArb.LatencyArbStates.None;
-			_queues.TryRemove(set.Id, out queue);
 		}
 
 		private void Set_NewTick(object sender, NewTick e)
 		{
 			if (_cancellation.IsCancellationRequested) return;
 			var set = (LatencyArb)sender;
-			if (set.LastFeedTick?.HasValue != true || set.LastShortTick?.HasValue != true || set.LastLongTick?.HasValue != true)
-			{
-				set.OnTickProcessed();
-				return;
-			}
+			set.WaitHandle.Set();
+		}
+
+		private void PreCheck(LatencyArb set)
+		{
+			if (set.LastFeedTick?.HasValue != true) return;
+			if (set.LastShortTick?.HasValue != true) return;
+			if (set.LastLongTick?.HasValue != true) return;
 
 			if (!set.Run) return;
 			if (set.PipSize == 0) return;
@@ -131,8 +127,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			if (set.State == LatencyArb.LatencyArbStates.Continue)
 				set.State = set.LastStateBeforeEmergencyOff;
 			if (set.State == LatencyArb.LatencyArbStates.None) return;
-
-			_queues.GetOrAdd(set.Id, new FastBlockingCollection<Action>()).Add(() => Check(set));
+			Check(set);
 		}
 
 		private void Check(LatencyArb set)
@@ -972,6 +967,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				p.Archived = true;
 				RemoveCopierPosition(set, p);
 			});
+			set.Reset();
 			set.State = LatencyArb.LatencyArbStates.None;
 		}
 		private void EmergencyImmediateExit(LatencyArb set)

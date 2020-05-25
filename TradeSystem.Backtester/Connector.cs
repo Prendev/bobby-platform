@@ -144,6 +144,7 @@ namespace TradeSystem.Backtester
 		public void Start()
 		{
 			_pauseHandle.Set();
+			_waitHandle.Set();
 			lock (this)
 			{
 				if (_isStarted) return;
@@ -189,6 +190,7 @@ namespace TradeSystem.Backtester
 			_cancellation?.Dispose();
 			_waitHandle.Set();
 			_pauseHandle.Set();
+			LastTicks.Clear();
 		}
 
 		private void LogOrderResponse(string symbol, OrderResponse response)

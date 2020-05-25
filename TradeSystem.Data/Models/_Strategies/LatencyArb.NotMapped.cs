@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using TradeSystem.Common.Attributes;
 using TradeSystem.Common.Integration;
 
@@ -84,6 +85,7 @@ namespace TradeSystem.Data.Models
 
 		[NotMapped] [InvisibleColumn] public DateTime UtcNow =>
 			FastFeedAccount.BacktesterAccount?.UtcNow ?? HiResDatetime.UtcNow;
+		[NotMapped] [InvisibleColumn] public AutoResetEvent WaitHandle { get; } = new AutoResetEvent(false);
 
 		public LatencyArb()
 		{
@@ -130,6 +132,20 @@ namespace TradeSystem.Data.Models
 
 		public void OnTickProcessed() => FastFeedAccount.Connector.OnTickProcessed();
 
+		public void Reset()
+		{
+			LastActionTime = null;
+			LastFeedTick = null;
+			LastLongTick = null;
+			LastShortTick = null;
+			FeedAvg = null;
+			LongAvg = null;
+			ShortAvg = null;
+			_feedTicks.Clear();
+			_longTicks.Clear();
+			_shortTicks.Clear();
+		}
+
 		private void Account_NewTick(object sender, NewTick newTick)
 		{
 			if (newTick?.Tick == null) return;
@@ -162,6 +178,7 @@ namespace TradeSystem.Data.Models
 		{
 			var avg = oldAvg;
 			if (AveragingPeriodInSeconds <= 0) return null;
+			if (State == LatencyArbStates.Reset) return null;
 
 			lock (ticks)
 			{
