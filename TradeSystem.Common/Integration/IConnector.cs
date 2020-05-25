@@ -15,5 +15,6 @@ namespace TradeSystem.Common.Integration
 	    Tick GetLastTick(string symbol);
 	    void Subscribe(string symbol);
 		bool Is(object o);
+		void OnTickProcessed();
 	}
 }

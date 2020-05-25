@@ -139,6 +139,8 @@ namespace TradeSystem.Backtester
 			decimal deviation, decimal priceDiff, int timeout, int retryCount, int retryPeriod) =>
 			SendMarketOrderRequest(symbol, side, quantity);
 
+		public override void OnTickProcessed() => _waitHandle.Set();
+
 		public void Start()
 		{
 			_pauseHandle.Set();
@@ -180,8 +182,6 @@ namespace TradeSystem.Backtester
 		}
 
 		public void Pause() => _pauseHandle.Reset();
-
-		public void Continue() => _waitHandle.Set();
 
 		public void Stop()
 		{

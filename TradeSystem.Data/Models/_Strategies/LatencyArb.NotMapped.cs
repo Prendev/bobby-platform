@@ -82,12 +82,8 @@ namespace TradeSystem.Data.Models
 
 		[NotMapped] [InvisibleColumn] public Stopwatch Stopwatch { get; } = new Stopwatch();
 
-		[NotMapped]
-		[InvisibleColumn]
-		public bool IsBacktest => FastFeedAccount.BacktesterAccount != null;
-		[NotMapped]
-		[InvisibleColumn]
-		public DateTime UtcNow => IsBacktest ? FastFeedAccount.BacktesterAccount.UtcNow : HiResDatetime.UtcNow;
+		[NotMapped] [InvisibleColumn] public DateTime UtcNow =>
+			FastFeedAccount.BacktesterAccount?.UtcNow ?? HiResDatetime.UtcNow;
 
 		public LatencyArb()
 		{
@@ -131,6 +127,8 @@ namespace TradeSystem.Data.Models
 					a.NewTick += Account_NewTick;
 				});
 		}
+
+		public void OnTickProcessed() => FastFeedAccount.Connector.OnTickProcessed();
 
 		private void Account_NewTick(object sender, NewTick newTick)
 		{

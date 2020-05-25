@@ -49,5 +49,6 @@ namespace TradeSystem.Common.Integration
 		protected void OnLimitFill(LimitFill e) => LimitFill?.Invoke(this, e);
 		protected void OnNewTick(NewTick e) => NewTick?.Invoke(this, e);
 		protected void OnConnectionChanged(ConnectionStates e) => ConnectionChanged?.Invoke(this, e);
+		public virtual void OnTickProcessed() { }
 	}
 }
