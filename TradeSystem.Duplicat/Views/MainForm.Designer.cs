@@ -609,7 +609,7 @@
 			this.gbControl.Size = new System.Drawing.Size(1120, 46);
 			this.gbControl.TabIndex = 1;
 			this.gbControl.TabStop = false;
-			this.gbControl.Text = "Main control panel - de2fbaad 5/14/2020 7:32:57 PM";
+			this.gbControl.Text = "Main control panel - 8672a512 5/19/2020 8:54:46 PM";
 			// 
 			// label2
 			// 

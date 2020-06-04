@@ -383,9 +383,8 @@ namespace TradeSystem.Mt4Integration
             OnNewTick(new NewTick {Tick = tick});
         }
 
-        private void QuoteClient_OnDisconnect(object sender, DisconnectEventArgs args)
+		private void QuoteClient_OnDisconnect(object sender, DisconnectEventArgs args)
 		{
-			Mt4Logger.Log(this, args);
 			OnConnectionChanged(ConnectionStates.Error);
             Logger.Error($"{_accountInfo.Description} account ({_accountInfo.User}) disconnected", args.Exception);
 	        if (!_emailService.IsRolloverTime())

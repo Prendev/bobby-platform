@@ -4,12 +4,6 @@ namespace TradeSystem.Mt4Integration
 {
 	public static class Mt4Logger
 	{
-		public static void Log(Connector connector, DisconnectEventArgs e)
-		{
-			Logger.Debug($"\t{connector?.Description}" +
-						 $"\t{e.Exception?.Message}");
-		}
-
 		public static void Log(Connector connector, OrderUpdateEventArgs e)
 		{
 			Logger.Debug($"\t{connector?.Description}" +
