@@ -10,7 +10,7 @@ namespace TradeSystem.Data.Models
 		[InvisibleColumn] public BacktesterAccount BacktesterAccount { get; set; }
 
 		[Required] public string Symbol { get; set; }
-		[Required] public string FileName { get; set; }
+		[Required] public string Folder { get; set; }
 
 		public string DateTimeFormat { get; set; }
 		public string Delimeter { get; set; }
