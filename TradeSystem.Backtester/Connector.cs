@@ -33,6 +33,8 @@ namespace TradeSystem.Backtester
 			}
 		}
 
+		public BacktesterAccount Account { get; }
+
 		private const string FolderPath = "Backtester";
 		private readonly EventWaitHandle _waitHandle = new AutoResetEvent(false);
 		private readonly EventWaitHandle _pauseHandle = new ManualResetEvent(true);
@@ -42,16 +44,14 @@ namespace TradeSystem.Backtester
 		private int _index;
 		private volatile int _instanceCount;
 
-		private readonly BacktesterAccount _account;
-
-		public override int Id => _account?.Id ?? 0;
-		public override string Description => _account?.Description;
+		public override int Id => Account?.Id ?? 0;
+		public override string Description => Account?.Description;
 		public override bool IsConnected => _isConnected;
 
 
 		public Connector(BacktesterAccount account)
 		{
-			_account = account;
+			Account = account;
 			Directory.CreateDirectory(FolderPath);
 		}
 
@@ -82,7 +82,7 @@ namespace TradeSystem.Backtester
 				AveragePrice = price,
 				FilledQuantity = quantity
 			};
-			LogOrderResponse(symbol, response);
+			BacktesterLogger.Log(this, symbol, response);
 			return Task.FromResult(response);
 		}
 		public override Task<OrderResponse> SendMarketOrderRequest(string symbol, Sides side, decimal quantity, int timeout,
@@ -102,7 +102,7 @@ namespace TradeSystem.Backtester
 			lock (this)
 			{
 				_instanceCount++;
-				if (_instanceCount < _account.Instances) return;
+				if (_instanceCount < Account.Instances) return;
 				_instanceCount = 0;
 				_waitHandle.Set();
 			}
@@ -133,7 +133,7 @@ namespace TradeSystem.Backtester
 			{
 				var ticks = new SortedDictionary<DateTime, List<Tick>>();
 				var csvReaders = new ConcurrentDictionary<BacktesterInstrumentConfig, Reader>();
-				foreach (var ic in _account.InstrumentConfigs)
+				foreach (var ic in Account.InstrumentConfigs)
 				{
 					var folder = $"{FolderPath}/{ic.Folder}";
 					var files = Directory.GetFiles(folder).OrderBy(f => f).ToList();
@@ -201,7 +201,7 @@ namespace TradeSystem.Backtester
 
 						LastTicks.AddOrUpdate(tick.Symbol, key => tick, (key, old) => tick);
 						OnNewTick(new NewTick { Tick = tick });
-						if (_account.SleepInMs > 0) Thread.Sleep(_account.SleepInMs);
+						if (Account.SleepInMs > 0) Thread.Sleep(Account.SleepInMs);
 						if (token.IsCancellationRequested) break;
 					}
 
@@ -221,16 +221,6 @@ namespace TradeSystem.Backtester
 			_waitHandle.Set();
 			_pauseHandle.Set();
 			LastTicks.Clear();
-		}
-
-		private void LogOrderResponse(string symbol, OrderResponse response)
-		{
-			Logger.Debug($"\t{Description}" +
-			             $"\t{_account.UtcNow:yyyy-MM-dd HH:mm:ss.ffff}" +
-						 $"\t{symbol}" +
-			             $"\t{response.Side}" +
-			             $"\t{response.FilledQuantity}" +
-						 $"\t{response.AveragePrice}");
 		}
 	}
 }
