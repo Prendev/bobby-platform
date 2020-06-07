@@ -155,7 +155,7 @@ namespace TradeSystem.Backtester
 			_cancellation = new CancellationTokenSource();
 			new Thread(() => Loop(_cancellation.Token))
 			{
-				Name = "Tickers",
+				Name = "Backtester",
 				IsBackground = true,
 				Priority = ThreadPriority.BelowNormal
 			}.Start();

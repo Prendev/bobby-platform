@@ -148,40 +148,44 @@ namespace TradeSystem.Data.Models
 
 		private void Account_NewTick(object sender, NewTick newTick)
 		{
-			if (newTick?.Tick == null) return;
+			var tick = newTick?.Tick;
+			if (tick == null) return;
 
 			var newTickFound = false;
-			if (sender == FastFeedAccount && newTick.Tick.Symbol == FastFeedSymbol)
+			if (sender == FastFeedAccount && tick.Symbol == FastFeedSymbol && LastFeedTick != tick)
 			{
 				newTickFound = true;
-				LastFeedTick = newTick.Tick;
+				LastFeedTick = tick;
 				FeedAvg = Averaging(_feedTicks, FeedAvg, LastFeedTick);
 			}
-			if (sender == ShortAccount && newTick.Tick.Symbol == ShortSymbol)
+			if (sender == ShortAccount && tick.Symbol == ShortSymbol && LastShortTick != tick)
 			{
 				newTickFound = true;
-				LastShortTick = newTick.Tick;
+				LastShortTick = tick;
 				ShortAvg = Averaging(_shortTicks, ShortAvg, LastShortTick);
 			}
-			if (sender == LongAccount && newTick.Tick.Symbol == LongSymbol)
+			if (sender == LongAccount && tick.Symbol == LongSymbol && LastLongTick != tick)
 			{
 				newTickFound = true;
-				LastLongTick = newTick.Tick;
+				LastLongTick = tick;
 				LongAvg = Averaging(_longTicks, LongAvg, LastLongTick);
 			}
 
 			if (!newTickFound) return;
+
 			NewTick?.Invoke(this, newTick);
 		}
 
 		private decimal? Averaging(List<Tick> ticks, decimal? oldAvg, Tick lastTick)
 		{
-			var avg = oldAvg;
 			if (AveragingPeriodInSeconds <= 0) return null;
 			if (State == LatencyArbStates.Reset) return null;
 
 			lock (ticks)
 			{
+				ticks.Add(lastTick);
+				var avg = oldAvg;
+
 				var doAvg = false;
 				while (ticks.Any() && lastTick.Time - ticks.First().Time >
 				       TimeSpan.FromSeconds(AveragingPeriodInSeconds))
@@ -189,11 +193,11 @@ namespace TradeSystem.Data.Models
 					ticks.RemoveAt(0);
 					doAvg = true;
 				}
-				ticks.Add(lastTick);
-				if (doAvg || oldAvg.HasValue) avg = ticks.Select(t => (t.Ask + t.Bid) / 2).Average();
-			}
 
-			return avg;
+				if (doAvg || oldAvg.HasValue) avg = ticks.Select(t => t.Ask + t.Bid).Average() / 2;
+
+				return avg;
+			}
 		}
 
 		private void Account_ConnectionChanged(object sender, ConnectionStates connectionStates)
