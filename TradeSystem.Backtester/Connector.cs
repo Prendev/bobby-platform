@@ -40,6 +40,7 @@ namespace TradeSystem.Backtester
 		private bool _isConnected;
 		private bool _isStarted;
 		private int _index;
+		private volatile int _instanceCount;
 
 		private readonly BacktesterAccount _account;
 
@@ -96,7 +97,16 @@ namespace TradeSystem.Backtester
 			decimal deviation, decimal priceDiff, int timeout, int retryCount, int retryPeriod) =>
 			SendMarketOrderRequest(symbol, side, quantity);
 
-		public override void OnTickProcessed() => _waitHandle.Set();
+		public override void OnTickProcessed()
+		{
+			lock (this)
+			{
+				_instanceCount++;
+				if (_instanceCount < _account.Instances) return;
+				_instanceCount = 0;
+				_waitHandle.Set();
+			}
+		}
 
 		public void Start()
 		{

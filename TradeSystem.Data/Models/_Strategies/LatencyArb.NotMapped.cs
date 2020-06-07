@@ -180,6 +180,7 @@ namespace TradeSystem.Data.Models
 		{
 			if (AveragingPeriodInSeconds <= 0) return null;
 			if (State == LatencyArbStates.Reset) return null;
+			if (State == LatencyArbStates.ResetOpening) return null;
 
 			lock (ticks)
 			{

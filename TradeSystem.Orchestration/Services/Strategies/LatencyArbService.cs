@@ -961,14 +961,16 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 		private void Reset(LatencyArb set)
 		{
-			if (set.State != LatencyArb.LatencyArbStates.Reset) return;
+			if (set.State != LatencyArb.LatencyArbStates.Reset && set.State != LatencyArb.LatencyArbStates.ResetOpening) return;
 			set.LivePositions.ForEach(p =>
 			{
 				p.Archived = true;
 				RemoveCopierPosition(set, p);
 			});
 			set.Reset();
-			set.State = LatencyArb.LatencyArbStates.None;
+			set.State = set.State == LatencyArb.LatencyArbStates.ResetOpening
+				? LatencyArb.LatencyArbStates.Opening
+				: LatencyArb.LatencyArbStates.None;
 		}
 		private void EmergencyImmediateExit(LatencyArb set)
 		{
@@ -976,6 +978,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			if (set.State == LatencyArb.LatencyArbStates.ImmediateExit) return;
 			if (set.State == LatencyArb.LatencyArbStates.Sync) return;
 			if (set.State == LatencyArb.LatencyArbStates.Reset) return;
+			if (set.State == LatencyArb.LatencyArbStates.ResetOpening) return;
 			if (set.State == LatencyArb.LatencyArbStates.Error) return;
 			if (!set.LivePositions.Any()) return;
 			if (set.EmergencyShortExitInPip <= 0 && set.EmergencyLongExitInPip <= 0) return;
@@ -1011,6 +1014,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			if (set.State == LatencyArb.LatencyArbStates.ImmediateExit) return;
 			if (set.State == LatencyArb.LatencyArbStates.Sync) return;
 			if (set.State == LatencyArb.LatencyArbStates.Reset) return;
+			if (set.State == LatencyArb.LatencyArbStates.ResetOpening) return;
 			if (set.State == LatencyArb.LatencyArbStates.Error) return;
 			if (set.EmergencyOff <= 0) return;
 			if (set.EmergencyCount < set.EmergencyOff) return;
