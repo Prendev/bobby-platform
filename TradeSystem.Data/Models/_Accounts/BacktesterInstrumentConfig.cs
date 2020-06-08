@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using TradeSystem.Common.Attributes;
 
@@ -10,8 +11,11 @@ namespace TradeSystem.Data.Models
 		[InvisibleColumn] public BacktesterAccount BacktesterAccount { get; set; }
 
 		[Required] public string Symbol { get; set; }
-		[Required] public string Folder { get; set; }
+		[DisplayName("Reject %")] public int RejectPercentage { get; set; }
+		[DisplayName("MinSlippage")] public int MinSlippageInMs { get; set; }
+		[DisplayName("MaxSlippage")] public int MaxSlippageInMs { get; set; }
 
+		[Required] public string Folder { get; set; }
 		public string DateTimeFormat { get; set; }
 		public string Delimeter { get; set; }
 		public int DateTimeColumn { get; set; } = 0;

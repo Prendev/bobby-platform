@@ -36,13 +36,16 @@ namespace TradeSystem.Backtester
 		public BacktesterAccount Account { get; }
 
 		private const string FolderPath = "Backtester";
+		private readonly Random _rnd = new Random();
 		private readonly EventWaitHandle _waitHandle = new AutoResetEvent(false);
+		private readonly EventWaitHandle _slippageHandle = new AutoResetEvent(false);
 		private readonly EventWaitHandle _pauseHandle = new ManualResetEvent(true);
 		private volatile CancellationTokenSource _cancellation;
 		private bool _isConnected;
 		private bool _isStarted;
 		private int _index;
 		private volatile int _instanceCount;
+		private volatile bool _slippage;
 
 		public override int Id => Account?.Id ?? 0;
 		public override string Description => Account?.Description;
@@ -71,20 +74,6 @@ namespace TradeSystem.Backtester
 
 		public override void Subscribe(string symbol) => Logger.Debug($"{Description} Connector.Subscribe({symbol})");
 
-		public override Task<OrderResponse> SendMarketOrderRequest(string symbol, Sides side, decimal quantity)
-		{
-			var price = GetLastTick(symbol).GetPrice(side);
-			var response = new OrderResponse()
-			{
-				Side = side,
-				OrderPrice = price,
-				OrderedQuantity = quantity,
-				AveragePrice = price,
-				FilledQuantity = quantity
-			};
-			BacktesterLogger.Log(this, symbol, response);
-			return Task.FromResult(response);
-		}
 		public override Task<OrderResponse> SendMarketOrderRequest(string symbol, Sides side, decimal quantity, int timeout,
 			int retryCount, int retryPeriod) => SendMarketOrderRequest(symbol, side, quantity);
 		public override Task<OrderResponse> SendAggressiveOrderRequest(string symbol, Sides side, decimal quantity, decimal limitPrice,
@@ -96,6 +85,45 @@ namespace TradeSystem.Backtester
 		public override Task<OrderResponse> SendGtcLimitOrderRequest(string symbol, Sides side, decimal quantity, decimal limitPrice,
 			decimal deviation, decimal priceDiff, int timeout, int retryCount, int retryPeriod) =>
 			SendMarketOrderRequest(symbol, side, quantity);
+		public override Task<OrderResponse> SendMarketOrderRequest(string symbol, Sides side, decimal quantity)
+		{
+			var instrumentConfig = Account.InstrumentConfigs.First(ic => ic.Symbol == symbol);
+			var orderPrice = GetLastTick(symbol).GetPrice(side);
+			Slippage(instrumentConfig);
+			var fillPrice = GetLastTick(symbol).GetPrice(side);
+
+			var response = new OrderResponse()
+			{
+				Side = side,
+				OrderPrice = orderPrice,
+				OrderedQuantity = quantity,
+				AveragePrice = fillPrice,
+				FilledQuantity = quantity
+			};
+			BacktesterLogger.Log(this, symbol, response);
+			return Task.FromResult(response);
+		}
+
+		private void Slippage(BacktesterInstrumentConfig instrumentConfig)
+		{
+			if (Account.Instances > 1) return;
+			if (!LastTicks.TryGetValue(instrumentConfig.Symbol, out var tick)) return;
+
+			var min = instrumentConfig.MinSlippageInMs;
+			var max = Math.Max(min, instrumentConfig.MaxSlippageInMs);
+			var slippage = min < 0 || max <= 0 ? 0 : _rnd.Next(min, max);
+			if (slippage <= 0) return;
+
+			_slippage = true;
+			var slippageTime = tick.Time.AddMilliseconds(slippage);
+			while (_slippage && _isStarted && LastTicks.Max(t => t.Value.Time) < slippageTime)
+			{
+				OnTickProcessed();
+				_slippageHandle.WaitOne();
+			}
+
+			_slippage = false;
+		}
 
 		public override void OnTickProcessed()
 		{
@@ -200,8 +228,11 @@ namespace TradeSystem.Backtester
 						if (token.IsCancellationRequested) break;
 
 						LastTicks.AddOrUpdate(tick.Symbol, key => tick, (key, old) => tick);
-						OnNewTick(new NewTick { Tick = tick });
-						if (Account.SleepInMs > 0) Thread.Sleep(Account.SleepInMs);
+						if (Account.TickSleepInMs > 0) Thread.Sleep(Account.TickSleepInMs);
+
+						if (_slippage) _slippageHandle.Set();
+						else OnNewTick(new NewTick { Tick = tick });
+
 						if (token.IsCancellationRequested) break;
 					}
 
@@ -216,8 +247,10 @@ namespace TradeSystem.Backtester
 		public void Stop()
 		{
 			_index = 0;
+			_slippage = false;
 			_cancellation?.Cancel(false);
 			_cancellation?.Dispose();
+			_slippageHandle.Set();
 			_waitHandle.Set();
 			_pauseHandle.Set();
 			LastTicks.Clear();

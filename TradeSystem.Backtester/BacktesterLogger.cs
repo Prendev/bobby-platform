@@ -11,7 +11,15 @@ namespace TradeSystem.Backtester
 			             $"\t{symbol}" +
 			             $"\t{response.Side}" +
 			             $"\t{response.FilledQuantity}" +
-			             $"\t{response.AveragePrice}");
+			             $"\t{response.AveragePrice}" +
+			             $"\t{response.Slippage()}");
+		}
+
+		private static decimal? Slippage(this OrderResponse response)
+		{
+			if (response.Side == Sides.Sell) return response.AveragePrice - response.OrderPrice;
+			if (response.Side == Sides.Buy) return response.OrderPrice - response.AveragePrice;
+			return null;
 		}
 	}
 }
