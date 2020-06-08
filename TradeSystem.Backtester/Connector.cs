@@ -97,9 +97,13 @@ namespace TradeSystem.Backtester
 				Side = side,
 				OrderPrice = orderPrice,
 				OrderedQuantity = quantity,
-				AveragePrice = fillPrice,
-				FilledQuantity = quantity
 			};
+			if (!Reject(instrumentConfig))
+			{
+				response.AveragePrice = fillPrice;
+				response.FilledQuantity = quantity;
+			}
+
 			BacktesterLogger.Log(this, symbol, response);
 			return Task.FromResult(response);
 		}
@@ -123,6 +127,15 @@ namespace TradeSystem.Backtester
 			}
 
 			_slippage = false;
+		}
+
+		private bool Reject(BacktesterInstrumentConfig instrumentConfig)
+		{
+			var reject = instrumentConfig.RejectPercentage;
+			reject = Math.Max(0, reject);
+			reject = Math.Min(100, reject);
+			if (reject <= 0) return false;
+			return _rnd.Next(0, 100) <= reject;
 		}
 
 		public override void OnTickProcessed()
