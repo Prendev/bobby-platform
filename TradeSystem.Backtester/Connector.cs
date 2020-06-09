@@ -38,14 +38,14 @@ namespace TradeSystem.Backtester
 		private const string FolderPath = "Backtester";
 		private readonly Random _rnd = new Random();
 		private readonly EventWaitHandle _waitHandle = new AutoResetEvent(false);
-		private readonly EventWaitHandle _slippageHandle = new AutoResetEvent(false);
 		private readonly EventWaitHandle _pauseHandle = new ManualResetEvent(true);
+		private readonly EventWaitHandle _slippageHandle = new AutoResetEvent(false);
 		private volatile CancellationTokenSource _cancellation;
 		private bool _isConnected;
 		private bool _isStarted;
 		private int _index;
-		private volatile int _instanceCount;
-		private volatile bool _slippage;
+		private int _instanceCount;
+		private int _slippageCount;
 
 		public override int Id => Account?.Id ?? 0;
 		public override string Description => Account?.Description;
@@ -110,7 +110,6 @@ namespace TradeSystem.Backtester
 
 		private void Slippage(BacktesterInstrumentConfig instrumentConfig)
 		{
-			if (Account.Instances > 1) return;
 			if (!LastTicks.TryGetValue(instrumentConfig.Symbol, out var tick)) return;
 
 			var min = instrumentConfig.MinSlippageInMs;
@@ -118,15 +117,14 @@ namespace TradeSystem.Backtester
 			var slippage = min < 0 || max <= 0 ? 0 : _rnd.Next(min, max);
 			if (slippage <= 0) return;
 
-			_slippage = true;
+			Interlocked.Increment(ref _slippageCount);
 			var slippageTime = tick.Time.AddMilliseconds(slippage);
-			while (_slippage && _isStarted && LastTicks.Max(t => t.Value.Time) < slippageTime)
+			while (_isStarted && LastTicks.Max(t => t.Value.Time) < slippageTime)
 			{
 				OnTickProcessed();
 				_slippageHandle.WaitOne();
 			}
-
-			_slippage = false;
+			Interlocked.Decrement(ref _slippageCount);
 		}
 
 		private bool Reject(BacktesterInstrumentConfig instrumentConfig)
@@ -142,7 +140,7 @@ namespace TradeSystem.Backtester
 		{
 			lock (this)
 			{
-				_instanceCount++;
+				Interlocked.Increment(ref _instanceCount);
 				if (_instanceCount < Account.Instances) return;
 				_instanceCount = 0;
 				_waitHandle.Set();
@@ -243,9 +241,8 @@ namespace TradeSystem.Backtester
 						LastTicks.AddOrUpdate(tick.Symbol, key => tick, (key, old) => tick);
 						if (Account.TickSleepInMs > 0) Thread.Sleep(Account.TickSleepInMs);
 
-						if (_slippage) _slippageHandle.Set();
-						else OnNewTick(new NewTick { Tick = tick });
-
+						OnNewTick(new NewTick { Tick = tick });
+						Enumerable.Range(0, _slippageCount).ToList().ForEach(i => _slippageHandle.Set());
 						if (token.IsCancellationRequested) break;
 					}
 
@@ -260,12 +257,12 @@ namespace TradeSystem.Backtester
 		public void Stop()
 		{
 			_index = 0;
-			_slippage = false;
+			_slippageCount = 0;
 			_cancellation?.Cancel(false);
 			_cancellation?.Dispose();
-			_slippageHandle.Set();
 			_waitHandle.Set();
 			_pauseHandle.Set();
+			_slippageHandle.Reset();
 			LastTicks.Clear();
 		}
 	}
