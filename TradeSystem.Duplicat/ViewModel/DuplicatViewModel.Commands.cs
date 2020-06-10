@@ -319,6 +319,22 @@ namespace TradeSystem.Duplicat.ViewModel
 		{
 			if (arb?.StratHubArbPositions?.Any() != true) return;
 			arb.StratHubArbPositions.RemoveAll(p => p.Archived);
-	    }
-    }
+		}
+
+	    public void Start(BacktesterAccount account)
+		{
+			Logger.Debug($"{account} backtester starting...");
+			_backtesterService.Start(account);
+		}
+	    public void Pause(BacktesterAccount account)
+		{
+			Logger.Debug($"{account} backtester pausing...");
+			_backtesterService.Pause(account);
+		}
+	    public void Stop(BacktesterAccount account)
+		{
+			Logger.Debug($"{account} backtester stoping...");
+			_backtesterService.Stop(account);
+		}
+	}
 }

@@ -19,6 +19,7 @@ namespace TradeSystem.Data.Models
 			ImmediateExit,
 			Sync,
 			Reset,
+			ResetOpening,
 			Error,
 		}
 

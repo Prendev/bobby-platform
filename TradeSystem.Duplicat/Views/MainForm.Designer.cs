@@ -39,6 +39,8 @@
 			this.ftAccountsUserControl = new TradeSystem.Duplicat.Views.FtAccountsUserControl();
 			this.tabPageCt = new System.Windows.Forms.TabPage();
 			this.ctAccountsUserControl = new TradeSystem.Duplicat.Views.CtAccountsUserControl();
+			this.tabPageBt = new System.Windows.Forms.TabPage();
+			this.btAccountsUserControl = new TradeSystem.Duplicat.Views.BtAccountsUserControl();
 			this.tabPageAggregator = new System.Windows.Forms.TabPage();
 			this.aggregatorUserControl = new TradeSystem.Duplicat.Views.AggregatorUserControl();
 			this.tabPageCopier = new System.Windows.Forms.TabPage();
@@ -89,6 +91,8 @@
 			this.btnDisconnect = new System.Windows.Forms.Button();
 			this.btnConnect = new System.Windows.Forms.Button();
 			this.btnSave = new System.Windows.Forms.Button();
+			this.tabPage8 = new System.Windows.Forms.TabPage();
+			this.rtbBacktester = new System.Windows.Forms.RichTextBox();
 			this.tabControlMain.SuspendLayout();
 			this.tabPageProfile.SuspendLayout();
 			this.tabPageAccount.SuspendLayout();
@@ -96,6 +100,7 @@
 			this.tabPageMt.SuspendLayout();
 			this.tabPageFix.SuspendLayout();
 			this.tabPageCt.SuspendLayout();
+			this.tabPageBt.SuspendLayout();
 			this.tabPageAggregator.SuspendLayout();
 			this.tabPageCopier.SuspendLayout();
 			this.tabPageStrategy.SuspendLayout();
@@ -122,6 +127,7 @@
 			this.tlpMain.SuspendLayout();
 			this.gbControl.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.nudAutoSave)).BeginInit();
+			this.tabPage8.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// tabControlMain
@@ -177,6 +183,7 @@
 			this.tabControlAccounts.Controls.Add(this.tabPageMt);
 			this.tabControlAccounts.Controls.Add(this.tabPageFix);
 			this.tabControlAccounts.Controls.Add(this.tabPageCt);
+			this.tabControlAccounts.Controls.Add(this.tabPageBt);
 			this.tabControlAccounts.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.tabControlAccounts.Location = new System.Drawing.Point(2, 2);
 			this.tabControlAccounts.Margin = new System.Windows.Forms.Padding(2);
@@ -243,6 +250,24 @@
 			this.ctAccountsUserControl.Name = "ctAccountsUserControl";
 			this.ctAccountsUserControl.Size = new System.Drawing.Size(1100, 564);
 			this.ctAccountsUserControl.TabIndex = 0;
+			// 
+			// tabPageBt
+			// 
+			this.tabPageBt.Controls.Add(this.btAccountsUserControl);
+			this.tabPageBt.Location = new System.Drawing.Point(4, 22);
+			this.tabPageBt.Name = "tabPageBt";
+			this.tabPageBt.Size = new System.Drawing.Size(1100, 564);
+			this.tabPageBt.TabIndex = 4;
+			this.tabPageBt.Text = "Backtester";
+			this.tabPageBt.UseVisualStyleBackColor = true;
+			// 
+			// btAccountsUserControl
+			// 
+			this.btAccountsUserControl.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.btAccountsUserControl.Location = new System.Drawing.Point(0, 0);
+			this.btAccountsUserControl.Name = "btAccountsUserControl";
+			this.btAccountsUserControl.Size = new System.Drawing.Size(1100, 564);
+			this.btAccountsUserControl.TabIndex = 0;
 			// 
 			// tabPageAggregator
 			// 
@@ -517,6 +542,7 @@
 			this.tabControl1.Controls.Add(this.tabPage5);
 			this.tabControl1.Controls.Add(this.tabPage4);
 			this.tabControl1.Controls.Add(this.tabPage6);
+			this.tabControl1.Controls.Add(this.tabPage8);
 			this.tabControl1.Controls.Add(this.tabPage3);
 			this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.tabControl1.Location = new System.Drawing.Point(3, 3);
@@ -816,6 +842,29 @@
 			this.btnSave.Text = "Save config changes";
 			this.btnSave.UseVisualStyleBackColor = true;
 			// 
+			// tabPage8
+			// 
+			this.tabPage8.Controls.Add(this.rtbBacktester);
+			this.tabPage8.Location = new System.Drawing.Point(4, 22);
+			this.tabPage8.Name = "tabPage8";
+			this.tabPage8.Size = new System.Drawing.Size(1098, 562);
+			this.tabPage8.TabIndex = 8;
+			this.tabPage8.Text = "Backtester";
+			this.tabPage8.UseVisualStyleBackColor = true;
+			// 
+			// rtbBacktester
+			// 
+			this.rtbBacktester.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.rtbBacktester.Location = new System.Drawing.Point(0, 0);
+			this.rtbBacktester.Margin = new System.Windows.Forms.Padding(2);
+			this.rtbBacktester.Name = "rtbBacktester";
+			this.rtbBacktester.ReadOnly = true;
+			this.rtbBacktester.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Vertical;
+			this.rtbBacktester.Size = new System.Drawing.Size(1098, 562);
+			this.rtbBacktester.TabIndex = 4;
+			this.rtbBacktester.Text = "";
+			this.rtbBacktester.WordWrap = false;
+			// 
 			// MainForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -831,6 +880,7 @@
 			this.tabPageMt.ResumeLayout(false);
 			this.tabPageFix.ResumeLayout(false);
 			this.tabPageCt.ResumeLayout(false);
+			this.tabPageBt.ResumeLayout(false);
 			this.tabPageAggregator.ResumeLayout(false);
 			this.tabPageCopier.ResumeLayout(false);
 			this.tabPageStrategy.ResumeLayout(false);
@@ -858,6 +908,7 @@
 			this.gbControl.ResumeLayout(false);
 			this.gbControl.PerformLayout();
 			((System.ComponentModel.ISupportInitialize)(this.nudAutoSave)).EndInit();
+			this.tabPage8.ResumeLayout(false);
 			this.ResumeLayout(false);
 
         }
@@ -933,6 +984,10 @@
 		private System.Windows.Forms.RichTextBox rtbMt4;
 		private System.Windows.Forms.TabPage tabPageCt;
 		private CtAccountsUserControl ctAccountsUserControl;
+		private System.Windows.Forms.TabPage tabPageBt;
+		private BtAccountsUserControl btAccountsUserControl;
+		private System.Windows.Forms.TabPage tabPage8;
+		private System.Windows.Forms.RichTextBox rtbBacktester;
 	}
 }
 

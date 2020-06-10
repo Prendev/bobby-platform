@@ -50,7 +50,11 @@ namespace TradeSystem.Data.Models
 
 		public Tick GetLastTick(string symbol) => Connector?.GetLastTick(symbol);
 
-		private void Connector_NewTick(object sender, NewTick e) => NewTick?.Invoke(this, e);
+		private void Connector_NewTick(object sender, NewTick e)
+		{
+			if (BacktesterAccount != null) BacktesterAccount.UtcNow = e.Tick.Time;
+			NewTick?.Invoke(this, e);
+		}
 
 		private void Connector_ConnectionChanged(object sender, ConnectionStates e)
 		{
@@ -66,9 +70,9 @@ namespace TradeSystem.Data.Models
 			if (MetaTraderAccount != null) return $"{(Id == 0 ? "UNSAVED - " : "")}MT4 | {MetaTraderAccount.Description}";
 			if (CTraderAccount != null) return $"{(Id == 0 ? "UNSAVED - " : "")}CT | {CTraderAccount.Description}";
 			if (FixApiAccount != null) return $"{(Id == 0 ? "UNSAVED - " : "")}FIX | {FixApiAccount.Description}";
-			if (IlyaFastFeedAccount != null) return $"{(Id == 0 ? "UNSAVED - " : "")}ILYA | {IlyaFastFeedAccount.Description}";
 			if (CqgClientApiAccount != null) return $"{(Id == 0 ? "UNSAVED - " : "")}CQG | {CqgClientApiAccount.Description}";
 			if (IbAccount != null) return $"{(Id == 0 ? "UNSAVED - " : "")}IB | {IbAccount.Description}";
+			if (BacktesterAccount != null) return $"{(Id == 0 ? "UNSAVED - " : "")}BT | {BacktesterAccount.Description}";
 			return "";
 		}
 	}

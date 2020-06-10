@@ -32,6 +32,19 @@ namespace TradeSystem.Duplicat.Views
 				_viewModel.RemoveArchiveCommand(selected);
 				dgvStatistics.DataSource = _viewModel.GetArbStatistics(selected);
 			};
+			btnRemoveAllArchive.Click += (s, e) =>
+			{
+				foreach (var latencyArb in _viewModel.LatencyArbs)
+					_viewModel.RemoveArchiveCommand(latencyArb);
+				var selected = dgvLatencyArb.GetSelectedItem<LatencyArb>();
+				if (selected == null) return;
+				dgvStatistics.DataSource = _viewModel.GetArbStatistics(selected);
+			};
+			btnResetOpeningStates.Click += (s, e) =>
+			{
+				foreach (var latencyArb in _viewModel.LatencyArbs)
+					latencyArb.State = LatencyArb.LatencyArbStates.ResetOpening;
+			};
 
 			dgvLatencyArb.RowDoubleClick += (s, e) =>
 				dgvStatistics.DataSource = _viewModel.GetArbStatistics(dgvLatencyArb.GetSelectedItem<LatencyArb>());

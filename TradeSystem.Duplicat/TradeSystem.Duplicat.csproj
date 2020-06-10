@@ -219,6 +219,12 @@
     <Compile Include="Views\ExportUserControl.Designer.cs">
       <DependentUpon>ExportUserControl.cs</DependentUpon>
     </Compile>
+    <Compile Include="Views\_Accounts\BtAccountsUserControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Views\_Accounts\BtAccountsUserControl.Designer.cs">
+      <DependentUpon>BtAccountsUserControl.cs</DependentUpon>
+    </Compile>
     <Compile Include="Views\_Strategies\HubArbUserControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -334,6 +340,9 @@
     <EmbeddedResource Include="Views\ExportUserControl.resx">
       <DependentUpon>ExportUserControl.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Views\_Accounts\BtAccountsUserControl.resx">
+      <DependentUpon>BtAccountsUserControl.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Views\_Strategies\HubArbUserControl.resx">
       <DependentUpon>HubArbUserControl.cs</DependentUpon>
     </EmbeddedResource>
@@ -433,6 +442,10 @@
     <ProjectReference Include="..\..\..\git\QvaDev.Wololo\TradeSystem\TradeSystem.csproj">
       <Project>{FDFCE270-50AC-4930-8680-A760F6F7C637}</Project>
       <Name>TradeSystem</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TradeSystem.Backtester\TradeSystem.Backtester.csproj">
+      <Project>{8221E41C-E688-4417-8577-8E697643C848}</Project>
+      <Name>TradeSystem.Backtester</Name>
     </ProjectReference>
     <ProjectReference Include="..\TradeSystem.Common\TradeSystem.Common.csproj">
       <Project>{10A3EF89-12BB-4D00-9950-36BFED281B91}</Project>

@@ -56,6 +56,8 @@ namespace TradeSystem.Data
 		public DbSet<IlyaFastFeedAccount> IlyaFastFeedAccounts { get; set; }
 		public DbSet<CqgClientApiAccount> CqgClientApiAccounts { get; set; }
 		public DbSet<IbAccount> IbAccounts { get; set; }
+	    public DbSet<BacktesterAccount> BacktesterAccounts { get; set; }
+	    public DbSet<BacktesterInstrumentConfig> BacktesterInstrumentConfigs { get; set; }
 
 		public DbSet<Profile> Profiles { get; set; }
 		public DbSet<Account> Accounts { get; set; }

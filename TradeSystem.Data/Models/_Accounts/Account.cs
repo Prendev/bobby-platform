@@ -17,20 +17,17 @@ namespace TradeSystem.Data.Models
 		public int? FixApiAccountId { get; set; }
 		public FixApiAccount FixApiAccount { get; set; }
 
+		public int? CTraderAccountId { get; set; }
+		public CTraderAccount CTraderAccount { get; set; }
+
 		public int? CqgClientApiAccountId { get; set; }
 		public CqgClientApiAccount CqgClientApiAccount { get; set; }
 
 		public int? IbAccountId { get; set; }
 		public IbAccount IbAccount { get; set; }
 
-		public int? CTraderAccountId { get; set; }
-		public CTraderAccount CTraderAccount { get; set; }
-
-		[InvisibleColumn] public int? IlyaFastFeedAccountId { get; set; }
-		[InvisibleColumn] public IlyaFastFeedAccount IlyaFastFeedAccount { get; set; }
-
-		public int? ProfileProxyId { get; set; }
-		public ProfileProxy ProfileProxy { get; set; }
+		public int? BacktesterAccountId { get; set; }
+		public BacktesterAccount BacktesterAccount { get; set; }
 
 		[InvisibleColumn] public DateTime? LastOrderTime { get; set; }
 		public List<AggregatorAccount> Aggregators { get; } = new List<AggregatorAccount>();

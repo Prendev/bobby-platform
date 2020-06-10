@@ -29,6 +29,7 @@ namespace TradeSystem.Duplicat.Views
             TextBoxAppender.ConfigureTextBoxAppender(rtbFixCopy, "FIX copy", 1000);
             TextBoxAppender.ConfigureTextBoxAppender(rtbFixOrders, "FIX orders", 1000);
 			TextBoxAppender.ConfigureTextBoxAppender(rtbCTrader, "CT", 1000);
+			TextBoxAppender.ConfigureTextBoxAppender(rtbBacktester, "BT", 1000);
 			TextBoxAppender.ConfigureTextBoxAppender(rtbAll, "General|MT4|FIX|CT", 1000);
 
 	        ThreadPool.GetMinThreads(out var wokerThreads, out var completionPortThreads);

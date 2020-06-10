@@ -38,8 +38,7 @@ namespace TradeSystem.Duplicat.Views
             if (!(column is DataGridViewButtonColumn)) return;
             if (column.Name != "AccessNewCTrader") return;
 
-            var ctPlatform = dgvCtPlatforms.Rows[e.RowIndex].DataBoundItem as CTraderPlatform;
-            if (ctPlatform == null) return;
+	        if (!(dgvCtPlatforms.Rows[e.RowIndex].DataBoundItem is CTraderPlatform ctPlatform)) return;
             _viewModel.AccessNewCTraderCommand(ctPlatform);
         }
 

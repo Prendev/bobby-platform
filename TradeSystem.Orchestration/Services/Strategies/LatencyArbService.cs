@@ -36,10 +36,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 		}
 
 		private volatile CancellationTokenSource _cancellation;
-
 		private List<LatencyArb> _sets;
-		private readonly ConcurrentDictionary<int, FastBlockingCollection<Action>> _queues =
-			new ConcurrentDictionary<int, FastBlockingCollection<Action>>();
 
 		private readonly IEmailService _emailService;
 
@@ -59,7 +56,11 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			{
 				if (!set.Run) continue;
 				if (!set.IsConnected) continue;
-				new Thread(() => SetLoop(set, _cancellation.Token)) { Name = $"LatencyArb_{set.Id}", IsBackground = true }
+				new Thread(() => SetLoop(set, _cancellation.Token))
+					{
+						Name = $"LatencyArb_{set.Id}_{set.Description}",
+						IsBackground = true
+					}
 					.Start();
 			}
 
@@ -79,8 +80,6 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				Logger.Error($"{this} latency arb - {nameof(set.PipSize)} cannot be 0");
 			}
 
-			var queue = _queues.GetOrAdd(set.Id, new FastBlockingCollection<Action>());
-
 			set.NewTick -= Set_NewTick;
 			set.FastFeedAccount.Connector.Subscribe(set.FastFeedSymbol);
 			set.LongAccount.Connector.Subscribe(set.LongSymbol);
@@ -97,8 +96,10 @@ namespace TradeSystem.Orchestration.Services.Strategies
 						continue;
 					}
 
-					var action = queue.Take(token);
-					action();
+					set.WaitHandle.WaitOne();
+					PreCheck(set);
+					set.OnTickProcessed();
+
 				}
 				catch (OperationCanceledException)
 				{
@@ -109,22 +110,28 @@ namespace TradeSystem.Orchestration.Services.Strategies
 					Logger.Error("LatencyArbService.Loop exception", e);
 				}
 			}
-
-			//set.State = LatencyArb.LatencyArbStates.None;
-			_queues.TryRemove(set.Id, out queue);
 		}
 
 		private void Set_NewTick(object sender, NewTick e)
 		{
 			if (_cancellation.IsCancellationRequested) return;
 			var set = (LatencyArb)sender;
+			set.WaitHandle.Set();
+		}
+
+		private void PreCheck(LatencyArb set)
+		{
+			if (set.LastFeedTick?.HasValue != true) return;
+			if (set.LastShortTick?.HasValue != true) return;
+			if (set.LastLongTick?.HasValue != true) return;
+
 			if (!set.Run) return;
 			if (set.PipSize == 0) return;
+
 			if (set.State == LatencyArb.LatencyArbStates.Continue)
 				set.State = set.LastStateBeforeEmergencyOff;
 			if (set.State == LatencyArb.LatencyArbStates.None) return;
-
-			_queues.GetOrAdd(set.Id, new FastBlockingCollection<Action>()).Add(() => Check(set));
+			Check(set);
 		}
 
 		private void Check(LatencyArb set)
@@ -136,10 +143,10 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			if (set.State == LatencyArb.LatencyArbStates.None) return;
 
 			if (!set.HasPrices) return;
-			if (set.HasTiming && IsTime(HiResDatetime.UtcNow.TimeOfDay, set.LatestTradeTime, set.EarliestTradeTime)) return;
-			if (HiResDatetime.UtcNow - set.LastFeedTick.Time > TimeSpan.FromSeconds(Math.Max(60, set.AveragingPeriodInSeconds))) return;
-			if (HiResDatetime.UtcNow - set.LastLongTick.Time > TimeSpan.FromSeconds(Math.Max(60, set.AveragingPeriodInSeconds))) return;
-			if (HiResDatetime.UtcNow - set.LastShortTick.Time > TimeSpan.FromSeconds(Math.Max(60, set.AveragingPeriodInSeconds))) return;
+			if (set.HasTiming && IsTime(set.UtcNow.TimeOfDay, set.LatestTradeTime, set.EarliestTradeTime)) return;
+			if (set.UtcNow - set.LastFeedTick.Time > TimeSpan.FromSeconds(Math.Max(60, set.AveragingPeriodInSeconds))) return;
+			if (set.UtcNow - set.LastLongTick.Time > TimeSpan.FromSeconds(Math.Max(60, set.AveragingPeriodInSeconds))) return;
+			if (set.UtcNow - set.LastShortTick.Time > TimeSpan.FromSeconds(Math.Max(60, set.AveragingPeriodInSeconds))) return;
 
 			CheckPositions(set);
 			CheckOpening(set);
@@ -250,7 +257,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				if (!set.ShortSpreadCheck) return;
 				if (!set.LongSpreadCheck) return;
 				if (set.LastActionTime.HasValue &&
-				    (HiResDatetime.UtcNow - set.LastActionTime.Value).TotalSeconds < set.RestingPeriodInSec) return;
+				    (set.UtcNow - set.LastActionTime.Value).TotalSeconds < set.RestingPeriodInSec) return;
 
 				// Long signal
 				if (set.FirstSide != LatencyArb.LatencyArbFirstSides.Short &&
@@ -259,7 +266,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 					var level = set.LivePositions.Count + 1;
 					if (set.Copier != null) set.Copier.Run = false;
 					if (set.FixApiCopier != null) set.FixApiCopier.Run = false;
-					set.LastActionTime = HiResDatetime.UtcNow;
+					set.LastActionTime = set.UtcNow;
 					var pos = SendLongOrder(set, set.LongSize, true);
 					if (set.Copier != null) set.Copier.Run = true;
 					if (set.FixApiCopier != null) set.FixApiCopier.Run = true;
@@ -288,7 +295,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 					var level = set.LivePositions.Count + 1;
 					if (set.Copier != null) set.Copier.Run = false;
 					if (set.FixApiCopier != null) set.FixApiCopier.Run = false;
-					set.LastActionTime = HiResDatetime.UtcNow;
+					set.LastActionTime = set.UtcNow;
 					var pos = SendShortOrder(set, set.ShortSize, true);
 					if (set.Copier != null) set.Copier.Run = true;
 					if (set.FixApiCopier != null) set.FixApiCopier.Run = true;
@@ -416,7 +423,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 					};
 				}
 
-				if (set.LongAccount.Connector is FixApiIntegration.Connector fixConnector)
+				if (set.LongAccount.Connector is FixApiConnectorBase fixConnector)
 				{
 					OrderResponse result = null;
 					if (isFirst && set.FirstOrderType == LatencyArb.LatencyArbOrderTypes.Market ||
@@ -455,7 +462,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 						{
 							Account = set.LongAccount,
 							AvgPrice = result.AveragePrice.Value,
-							OpenTime = HiResDatetime.UtcNow,
+							OpenTime = set.UtcNow,
 							Side = result.Side == Sides.Buy ? StratPosition.Sides.Buy : StratPosition.Sides.Sell,
 							Symbol = set.LongSymbol,
 							Size = result.FilledQuantity
@@ -491,7 +498,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 					};
 				}
 
-				if (set.ShortAccount.Connector is FixApiIntegration.Connector fixConnector)
+				if (set.ShortAccount.Connector is FixApiConnectorBase fixConnector)
 				{
 					OrderResponse result = null;
 					if (isFirst && set.FirstOrderType == LatencyArb.LatencyArbOrderTypes.Market ||
@@ -530,7 +537,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 						{
 							Account = set.ShortAccount,
 							AvgPrice = result.AveragePrice.Value,
-							OpenTime = HiResDatetime.UtcNow,
+							OpenTime = set.UtcNow,
 							Side = result.Side == Sides.Buy ? StratPosition.Sides.Buy : StratPosition.Sides.Sell,
 							Symbol = set.ShortSymbol,
 							Size = result.FilledQuantity
@@ -551,7 +558,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			if (set.ReopenCount <= 0) return;
 			if (set.LivePositions.Any(p => !p.HasShort || !p.HasLong)) return;
 			if (set.LastActionTime.HasValue &&
-			    (HiResDatetime.UtcNow - set.LastActionTime.Value).TotalSeconds < set.RestingPeriodInSec) return;
+			    (set.UtcNow - set.LastActionTime.Value).TotalSeconds < set.RestingPeriodInSec) return;
 			if (set.FastFeedAccount.ConnectionState != ConnectionStates.Connected) return;
 
 			CheckReopeningShort(set);
@@ -571,7 +578,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				var openTime = GetShortOpenTime(set, position);
 				if (!openTime.HasValue) continue;
 				// TODO end of year
-				if (HiResDatetime.UtcNow.DayOfYear - openTime.Value.DayOfYear < set.ReopenThresholdInDay) continue;
+				if (set.UtcNow.DayOfYear - openTime.Value.DayOfYear < set.ReopenThresholdInDay) continue;
 				first = position;
 				break;
 			}
@@ -581,7 +588,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 			if (set.Copier != null) set.Copier.Run = false;
 			if (set.FixApiCopier != null) set.FixApiCopier.Run = false;
-			set.LastActionTime = HiResDatetime.UtcNow;
+			set.LastActionTime = set.UtcNow;
 			var closePos = CloseShort(set, first, true);
 			if (closePos != null) RemoveCopierPosition(set, first);
 			if (set.Copier != null) set.Copier.Run = true;
@@ -611,7 +618,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				var openTime = GetLongOpenTime(set, position);
 				if (!openTime.HasValue) continue;
 				// TODO end of year
-				if (HiResDatetime.UtcNow.DayOfYear - openTime.Value.DayOfYear < set.ReopenThresholdInDay) continue;
+				if (set.UtcNow.DayOfYear - openTime.Value.DayOfYear < set.ReopenThresholdInDay) continue;
 				first = position;
 				break;
 			}
@@ -621,7 +628,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 			if (set.Copier != null) set.Copier.Run = false;
 			if (set.FixApiCopier != null) set.FixApiCopier.Run = false;
-			set.LastActionTime = HiResDatetime.UtcNow;
+			set.LastActionTime = set.UtcNow;
 			var closePos = CloseLong(set, first, true);
 			if (closePos != null) RemoveCopierPosition(set, first);
 			if (set.Copier != null) set.Copier.Run = true;
@@ -688,7 +695,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				if (set.State != LatencyArb.LatencyArbStates.ImmediateExit && !set.ShortSpreadCheck) return;
 				if (set.State != LatencyArb.LatencyArbStates.ImmediateExit && !set.LongSpreadCheck) return;
 				if (set.LastActionTime.HasValue &&
-				    (HiResDatetime.UtcNow - set.LastActionTime.Value).TotalSeconds < set.RestingPeriodInSec) return;
+				    (set.UtcNow - set.LastActionTime.Value).TotalSeconds < set.RestingPeriodInSec) return;
 
 				// Long close signal
 				if (set.FirstSide != LatencyArb.LatencyArbFirstSides.Short &&
@@ -697,7 +704,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				{
 					if (set.Copier != null) set.Copier.Run = false;
 					if (set.FixApiCopier != null) set.FixApiCopier.Run = false;
-					set.LastActionTime = HiResDatetime.UtcNow;
+					set.LastActionTime = set.UtcNow;
 					var closePos = CloseLong(set, first, true);
 					if (closePos != null) RemoveCopierPosition(set, first);
 					if (set.Copier != null) set.Copier.Run = true;
@@ -717,7 +724,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				{
 					if (set.Copier != null) set.Copier.Run = false;
 					if (set.FixApiCopier != null) set.FixApiCopier.Run = false;
-					set.LastActionTime = HiResDatetime.UtcNow;
+					set.LastActionTime = set.UtcNow;
 					var closePos = CloseShort(set, first, true);
 					if (closePos != null) RemoveCopierPosition(set, first);
 					if (set.Copier != null) set.Copier.Run = true;
@@ -830,7 +837,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 					};
 				}
 
-				if (set.LongAccount.Connector is FixApiIntegration.Connector fixConnector && arbPos.LongPosition != null)
+				if (set.LongAccount.Connector is FixApiConnectorBase fixConnector && arbPos.LongPosition != null)
 				{
 					OrderResponse result = null;
 					if (isFirst && set.FirstOrderType == LatencyArb.LatencyArbOrderTypes.Market ||
@@ -910,7 +917,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 					};
 				}
 
-				if (set.ShortAccount.Connector is FixApiIntegration.Connector fixConnector && arbPos.ShortPosition != null)
+				if (set.ShortAccount.Connector is FixApiConnectorBase fixConnector && arbPos.ShortPosition != null)
 				{
 					OrderResponse result = null;
 					if (isFirst && set.FirstOrderType == LatencyArb.LatencyArbOrderTypes.Market ||
@@ -958,13 +965,16 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 		private void Reset(LatencyArb set)
 		{
-			if (set.State != LatencyArb.LatencyArbStates.Reset) return;
+			if (set.State != LatencyArb.LatencyArbStates.Reset && set.State != LatencyArb.LatencyArbStates.ResetOpening) return;
 			set.LivePositions.ForEach(p =>
 			{
 				p.Archived = true;
 				RemoveCopierPosition(set, p);
 			});
-			set.State = LatencyArb.LatencyArbStates.None;
+			set.Reset();
+			set.State = set.State == LatencyArb.LatencyArbStates.ResetOpening
+				? LatencyArb.LatencyArbStates.Opening
+				: LatencyArb.LatencyArbStates.None;
 		}
 		private void EmergencyImmediateExit(LatencyArb set)
 		{
@@ -972,6 +982,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			if (set.State == LatencyArb.LatencyArbStates.ImmediateExit) return;
 			if (set.State == LatencyArb.LatencyArbStates.Sync) return;
 			if (set.State == LatencyArb.LatencyArbStates.Reset) return;
+			if (set.State == LatencyArb.LatencyArbStates.ResetOpening) return;
 			if (set.State == LatencyArb.LatencyArbStates.Error) return;
 			if (!set.LivePositions.Any()) return;
 			if (set.EmergencyShortExitInPip <= 0 && set.EmergencyLongExitInPip <= 0) return;
@@ -1007,6 +1018,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			if (set.State == LatencyArb.LatencyArbStates.ImmediateExit) return;
 			if (set.State == LatencyArb.LatencyArbStates.Sync) return;
 			if (set.State == LatencyArb.LatencyArbStates.Reset) return;
+			if (set.State == LatencyArb.LatencyArbStates.ResetOpening) return;
 			if (set.State == LatencyArb.LatencyArbStates.Error) return;
 			if (set.EmergencyOff <= 0) return;
 			if (set.EmergencyCount < set.EmergencyOff) return;

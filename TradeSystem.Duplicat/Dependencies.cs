@@ -13,6 +13,7 @@ using TradeSystem.Orchestration.Services;
 using TradeSystem.Orchestration.Services.Strategies;
 using System;
 using System.Threading;
+using TradeSystem.Backtester;
 using ConnectorFactory = TradeSystem.Orchestration.Services.ConnectorFactory;
 using ExchangeRatesService = TradeSystem.Common.Services.ExchangeRatesService;
 using IExchangeRatesService = TradeSystem.Common.Services.IExchangeRatesService;
@@ -47,7 +48,8 @@ namespace TradeSystem.Duplicat
 					@"TradeSystem.Orchestration\Services\CopyLogger",
 				    @"TradeSystem.FixApiIntegration\FillLogger",
 					@"TradeSystem.CTraderApi\CTraderApi",
-				    @"TradeSystem.CTraderIntegration\CtLogger"
+					@"TradeSystem.CTraderIntegration\CtLogger",
+					@"TradeSystem.Backtester\BacktesterLogger"
 				});
 			Logger.AddLogger(new LogAdapter(LogManager.GetLogger("MT4")),
 				filePathInclude: new[] { @"TradeSystem.Mt4Integration\Mt4Logger" });
@@ -59,6 +61,8 @@ namespace TradeSystem.Duplicat
 				filePathInclude: new[] { @"TradeSystem.FixApiIntegration\FillLogger" });
 		    Logger.AddLogger(new LogAdapter(LogManager.GetLogger("CT")),
 			    filePathInclude: new[] { @"TradeSystem.CTraderIntegration\CtLogger", @"TradeSystem.CTraderApi\CTraderApi" });
+		    Logger.AddLogger(new LogAdapter(LogManager.GetLogger("BT")),
+			    filePathInclude: new[] { @"TradeSystem.Backtester\BacktesterLogger" });
 		}
 
         private static void RegisterApp(ContainerBuilder builder)
@@ -106,7 +110,7 @@ namespace TradeSystem.Duplicat
 			builder.RegisterType<StopOrderService>().As<IStopOrderService>();
 			builder.RegisterType<AntiMarketMakerService>().As<IAntiMarketMakerService>();
 			builder.RegisterType<MtAccountImportService>().As<IMtAccountImportService>();
-			builder.RegisterType<ProxyService>().As<IProxyService>();
+	        builder.RegisterType<BacktesterService>().As<IBacktesterService>();
 		}
     }
 }
