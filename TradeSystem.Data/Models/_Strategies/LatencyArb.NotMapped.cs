@@ -17,7 +17,7 @@ namespace TradeSystem.Data.Models
 			public string Group { get; set; }
 			public int Total { get; set; }
 			public decimal? AvgPip { get; set; }
-			public decimal? NormAvgPip { get; set; }
+			public decimal? AvgPnl { get; set; }
 			public string Account { get; set; }
 			public decimal? Ask { get; set; }
 			public decimal? Bid { get; set; }
@@ -227,17 +227,23 @@ namespace TradeSystem.Data.Models
 
 			var closedPositions = LatencyArbPositions.Where(p => p.IsFull).ToList();
 			var avgClosed = closedPositions.Sum(p => p.Result) / Math.Max(1, closedPositions.Count) / PipSize;
+			var avgClosedPnl = (avgClosed - ShortCommissionInPip - LongCommissionInPip) * PipValue * closedPositions.Count * 2;
 
 			var livePositions = LivePositions.Where(p => p.HasBothSides).ToList();
 			var avgLive = livePositions.Sum(p => p.OpenResult) / Math.Max(1, livePositions.Count) / PipSize;
+			var avgLivePnl = (avgLive - ShortCommissionInPip - LongCommissionInPip) * PipValue * livePositions.Count;
+
 			var normAvgLive = livePositions.Sum(p => p.NormOpenResult(ShortAvg, LongAvg)) / Math.Max(1, livePositions.Count) / PipSize;
+			var normAvgLivePnl = (normAvgLive - ShortCommissionInPip - LongCommissionInPip) * PipValue * livePositions.Count;
 
 			var statistics = new List<Statistics>()
 			{
 				new Statistics()
 				{
-					Group = "All",
+					Group = "All | NormLive",
 					Total = LatencyArbPositions.Count,
+					AvgPip = normAvgLive,
+					AvgPnl = normAvgLivePnl,
 					Account = "Feed",
 					AvgPrice = FeedAvg,
 					Ask = LastFeedTick?.Ask,
@@ -251,7 +257,7 @@ namespace TradeSystem.Data.Models
 					Group = "Live",
 					Total = LivePositions.Count,
 					AvgPip = avgLive,
-					NormAvgPip = normAvgLive,
+					AvgPnl = avgLivePnl,
 					Account = "Long",
 					AvgPrice = LongAvg,
 					Ask = LastLongTick?.Ask,
@@ -267,6 +273,7 @@ namespace TradeSystem.Data.Models
 					Group = "Closed",
 					Total = closedPositions.Count,
 					AvgPip = avgClosed,
+					AvgPnl = avgClosedPnl,
 					Account = "Short",
 					AvgPrice = ShortAvg,
 					Ask = LastShortTick?.Ask,
@@ -284,7 +291,7 @@ namespace TradeSystem.Data.Models
 				Group = s.Group,
 				Total = s.Total.ToString("0"),
 				AvgPip = s.AvgPip?.ToString("F2"),
-				III = s.NormAvgPip?.ToString("F2"),
+				AvgPnl = s.AvgPnl?.ToString("F2"),
 				Account = s.Account,
 				Ask = s.Ask?.ToString("F5"),
 				Bid = s.Bid?.ToString("F5"),

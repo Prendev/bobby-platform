@@ -55,6 +55,7 @@ namespace TradeSystem.Data.Models
 		[DisplayName("S Spread")] public decimal ShortSpreadFilterInPip { get; set; }
 		[DisplayName("S Signal")] public decimal ShortSignalDiffInPip { get; set; }
 		[DisplayName("S Close Sig.")] public decimal ShortCloseSignalDiffInPip { get; set; }
+		[DisplayName("S Comm")] public decimal ShortCommissionInPip { get; set; }
 
 		public int LongAccountId { get; set; }
 		public Account LongAccount { get => Get<Account>(); set => Set(value); }
@@ -63,6 +64,7 @@ namespace TradeSystem.Data.Models
 		[DisplayName("L Spread")] public decimal LongSpreadFilterInPip { get; set; }
 		[DisplayName("L Signal")] public decimal LongSignalDiffInPip { get; set; }
 		[DisplayName("L Close Sig.")] public decimal LongCloseSignalDiffInPip { get; set; }
+		[DisplayName("L Comm")] public decimal LongCommissionInPip { get; set; }
 
 		public LatencyArbFirstSides FirstSide { get => Get<LatencyArbFirstSides>(); set => Set(value); }
 		public int MaxCount { get; set; } = 5;
@@ -108,6 +110,7 @@ namespace TradeSystem.Data.Models
 		public int MarketTimeWindowInMs { get; set; }
 
 		public decimal PipSize { get; set; }
+		public decimal PipValue { get; set; }
 		public string Comment { get; set; }
 
 		public int? CopierId { get; set; }
