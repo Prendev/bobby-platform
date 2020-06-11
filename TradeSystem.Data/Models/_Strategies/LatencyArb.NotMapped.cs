@@ -14,15 +14,17 @@ namespace TradeSystem.Data.Models
 	{
 		public class Statistics
 		{
-			public string Group { get; set; }
+			public string Groups { get; set; }
 			public int Total { get; set; }
 			public decimal? AvgPip { get; set; }
-			public decimal? AvgPnl { get; set; }
 
-			public string Account { get; set; }
+			public string Accounts { get; set; }
+			public decimal? LivePip { get; set; }
+			public decimal? LivePnl { get; set; }
 			public decimal? ClosedPip { get; set; }
 			public decimal? ClosedPnl { get; set; }
 
+			public string Prices { get; set; }
 			public decimal? Ask { get; set; }
 			public decimal? Bid { get; set; }
 			public decimal? NormAsk { get; set; }
@@ -231,74 +233,85 @@ namespace TradeSystem.Data.Models
 
 			var closedPositions = LatencyArbPositions.Where(p => p.IsFull).ToList();
 			var avgClosed = closedPositions.Sum(p => p.Result) / Math.Max(1, closedPositions.Count) / PipSize;
-			var avgClosedPnl = (2 * avgClosed - ShortCommissionInPip - LongCommissionInPip) * PipValue * closedPositions.Count;
 			var avgClosedLong = closedPositions.Sum(p => p.LongResult) / Math.Max(1, closedPositions.Count) / PipSize;
-			var avgClosedLongPnl = (avgClosedLong - LongCommissionInPip) * PipValue * closedPositions.Count;
+			var avgClosedLongPnl = (avgClosedLong - LongCommissionInPip) * LongSize * PipValue * closedPositions.Count;
 			var avgClosedShort = closedPositions.Sum(p => p.ShortResult) / Math.Max(1, closedPositions.Count) / PipSize;
-			var avgClosedShortPnl = (avgClosedShort - ShortCommissionInPip) * PipValue * closedPositions.Count;
+			var avgClosedShortPnl = (avgClosedShort - ShortCommissionInPip) * ShortSize * PipValue * closedPositions.Count;
+			var avgClosedPnl = avgClosedLongPnl + avgClosedShortPnl;
 
 			var livePositions = LivePositions.Where(p => p.HasBothSides).ToList();
-			var avgLive = livePositions.Sum(p => p.OpenResult) / Math.Max(1, livePositions.Count) / PipSize;
-			var avgLivePnl = (avgLive - ShortCommissionInPip - LongCommissionInPip) * PipValue * livePositions.Count;
+			var avgHedge = livePositions.Sum(p => p.OpenResult) / Math.Max(1, livePositions.Count) / PipSize;
+			var normAvgHedge = livePositions.Sum(p => p.NormOpenResult(ShortAvg, LongAvg)) / Math.Max(1, livePositions.Count) / PipSize;
 
-			var normAvgLive = livePositions.Sum(p => p.NormOpenResult(ShortAvg, LongAvg)) / Math.Max(1, livePositions.Count) / PipSize;
-			var normAvgLivePnl = (normAvgLive - ShortCommissionInPip - LongCommissionInPip) * PipValue * livePositions.Count;
-
+			var avgLiveLong = (LastLongTick.Bid - livePositions.Average(p => p.LongOpenPrice)) / PipSize;
+			var avgLiveLongPnl = (avgLiveLong - LongCommissionInPip) * LongSize * PipValue * livePositions.Count;
+			var avgLiveShort = (livePositions.Average(p => p.ShortOpenPrice) - LastShortTick.Ask) / PipSize;
+			var avgLiveShortPnl = (avgLiveShort - ShortCommissionInPip) * ShortSize * PipValue * livePositions.Count;
+			var avgLivePnl = avgLiveLongPnl + avgLiveShortPnl;
+			
 			var statistics = new List<Statistics>()
 			{
 				new Statistics()
 				{
-					Group = "All | NormLive",
+					Groups = "--Norm--",
 					Total = LatencyArbPositions.Count,
-					AvgPip = normAvgLive,
-					AvgPnl = normAvgLivePnl,
+					AvgPip = normAvgHedge,
 
-					Account = "Feed",
+					Accounts = "--All--",
+					LivePip = avgLiveLong + avgLiveShort,
+					LivePnl = avgLivePnl,
+					ClosedPip = avgClosed,
+					ClosedPnl = avgClosedPnl,
 
-					AvgPrice = FeedAvg,
+					Prices = "--Feed--",
 					Ask = LastFeedTick?.Ask,
 					Bid = LastFeedTick?.Bid,
 					NormAsk = NormFeedAsk,
 					NormBid = NormFeedBid,
-					Spread = (LastFeedTick?.Bid - LastFeedTick?.Ask) / PipSize
+					Spread = (LastFeedTick?.Bid - LastFeedTick?.Ask) / PipSize,
+					AvgPrice = FeedAvg
 				},
 				new Statistics()
 				{
-					Group = "Live",
+					Groups = "--Hedged--",
 					Total = LivePositions.Count,
-					AvgPip = avgLive,
-					AvgPnl = avgLivePnl,
+					AvgPip = avgHedge,
 
-					Account = "Long",
+					Accounts = "--Long--",
+					LivePip = avgLiveLong,
+					LivePnl = avgLiveLongPnl,
 					ClosedPip = avgClosedLong,
 					ClosedPnl = avgClosedLongPnl,
 
-					AvgPrice = LongAvg,
+					Prices = "--Long--",
 					Ask = LastLongTick?.Ask,
 					Bid = LastLongTick?.Bid,
 					NormAsk = NormLongAsk,
 					NormBid = NormLongBid,
 					Spread = (LastLongTick?.Bid - LastLongTick?.Ask) / PipSize,
+					AvgPrice = LongAvg,
 					OpenDiffPip = (LastFeedTick?.Ask - LastLongTick?.Ask - (FeedAvg ?? 0) + (LongAvg ?? 0)) / PipSize,
 					CloseDiffPip = (LastLongTick?.Bid - LastFeedTick?.Bid + (FeedAvg ?? 0) - (LongAvg ?? 0)) / PipSize
 				},
 				new Statistics()
 				{
-					Group = "Closed",
+					Groups = "--Closed--",
 					Total = closedPositions.Count,
 					AvgPip = avgClosed,
-					AvgPnl = avgClosedPnl,
 
-					Account = "Short",
+					Accounts = "--Short--",
+					LivePip = avgLiveShort,
+					LivePnl = avgLiveShortPnl,
 					ClosedPip = avgClosedShort,
 					ClosedPnl = avgClosedShortPnl,
 
-					AvgPrice = ShortAvg,
+					Prices = "--Short--",
 					Ask = LastShortTick?.Ask,
 					Bid = LastShortTick?.Bid,
 					NormAsk = NormShortAsk,
 					NormBid = NormShortBid,
 					Spread = (LastShortTick?.Bid - LastShortTick?.Ask) / PipSize,
+					AvgPrice = ShortAvg,
 					OpenDiffPip = (LastShortTick?.Bid - LastFeedTick?.Bid + (FeedAvg ?? 0) - (ShortAvg ?? 0)) / PipSize,
 					CloseDiffPip = (LastFeedTick?.Ask - LastShortTick?.Ask - (FeedAvg ?? 0) + (ShortAvg ?? 0)) / PipSize
 				}
@@ -306,15 +319,17 @@ namespace TradeSystem.Data.Models
 
 			return statistics.Select(s => new
 			{
-				s.Group,
+				s.Groups,
 				Total = s.Total.ToString("0"),
 				AvgPip = s.AvgPip?.ToString("F2"),
-				AvgPnl = s.AvgPnl?.ToString("F2"),
 
-				s.Account,
+				s.Accounts,
+				LivePip = s.LivePip?.ToString("F2"),
+				LivePnl = s.LivePnl?.ToString("F2"),
 				ClosedPip = s.ClosedPip?.ToString("F2"),
 				ClosedPnl = s.ClosedPnl?.ToString("F2"),
 
+				s.Prices,
 				Ask = s.Ask?.ToString("F5"),
 				Bid = s.Bid?.ToString("F5"),
 				NormAsk = s.NormAsk?.ToString("F5"),
