@@ -18,15 +18,19 @@ namespace TradeSystem.Data.Models
 			public int Total { get; set; }
 			public decimal? AvgPip { get; set; }
 			public decimal? AvgPnl { get; set; }
+
 			public string Account { get; set; }
+			public decimal? ClosedPip { get; set; }
+			public decimal? ClosedPnl { get; set; }
+
 			public decimal? Ask { get; set; }
 			public decimal? Bid { get; set; }
 			public decimal? NormAsk { get; set; }
 			public decimal? NormBid { get; set; }
 			public decimal? Spread { get; set; }
 			public decimal? AvgPrice { get; set; }
-			public decimal? OpenPip { get; set; }
-			public decimal? ClosePip { get; set; }
+			public decimal? OpenDiffPip { get; set; }
+			public decimal? CloseDiffPip { get; set; }
 		}
 
 		public class LatencyArbPos
@@ -227,7 +231,11 @@ namespace TradeSystem.Data.Models
 
 			var closedPositions = LatencyArbPositions.Where(p => p.IsFull).ToList();
 			var avgClosed = closedPositions.Sum(p => p.Result) / Math.Max(1, closedPositions.Count) / PipSize;
-			var avgClosedPnl = (avgClosed - ShortCommissionInPip - LongCommissionInPip) * PipValue * closedPositions.Count * 2;
+			var avgClosedPnl = (2 * avgClosed - ShortCommissionInPip - LongCommissionInPip) * PipValue * closedPositions.Count;
+			var avgClosedLong = closedPositions.Sum(p => p.LongResult) / Math.Max(1, closedPositions.Count) / PipSize;
+			var avgClosedLongPnl = (avgClosedLong - LongCommissionInPip) * PipValue * closedPositions.Count;
+			var avgClosedShort = closedPositions.Sum(p => p.ShortResult) / Math.Max(1, closedPositions.Count) / PipSize;
+			var avgClosedShortPnl = (avgClosedShort - ShortCommissionInPip) * PipValue * closedPositions.Count;
 
 			var livePositions = LivePositions.Where(p => p.HasBothSides).ToList();
 			var avgLive = livePositions.Sum(p => p.OpenResult) / Math.Max(1, livePositions.Count) / PipSize;
@@ -244,7 +252,9 @@ namespace TradeSystem.Data.Models
 					Total = LatencyArbPositions.Count,
 					AvgPip = normAvgLive,
 					AvgPnl = normAvgLivePnl,
+
 					Account = "Feed",
+
 					AvgPrice = FeedAvg,
 					Ask = LastFeedTick?.Ask,
 					Bid = LastFeedTick?.Bid,
@@ -258,15 +268,19 @@ namespace TradeSystem.Data.Models
 					Total = LivePositions.Count,
 					AvgPip = avgLive,
 					AvgPnl = avgLivePnl,
+
 					Account = "Long",
+					ClosedPip = avgClosedLong,
+					ClosedPnl = avgClosedLongPnl,
+
 					AvgPrice = LongAvg,
 					Ask = LastLongTick?.Ask,
 					Bid = LastLongTick?.Bid,
 					NormAsk = NormLongAsk,
 					NormBid = NormLongBid,
 					Spread = (LastLongTick?.Bid - LastLongTick?.Ask) / PipSize,
-					OpenPip = (LastFeedTick?.Ask - LastLongTick?.Ask - (FeedAvg ?? 0) + (LongAvg ?? 0)) / PipSize,
-					ClosePip = (LastLongTick?.Bid - LastFeedTick?.Bid + (FeedAvg ?? 0) - (LongAvg ?? 0)) / PipSize
+					OpenDiffPip = (LastFeedTick?.Ask - LastLongTick?.Ask - (FeedAvg ?? 0) + (LongAvg ?? 0)) / PipSize,
+					CloseDiffPip = (LastLongTick?.Bid - LastFeedTick?.Bid + (FeedAvg ?? 0) - (LongAvg ?? 0)) / PipSize
 				},
 				new Statistics()
 				{
@@ -274,33 +288,41 @@ namespace TradeSystem.Data.Models
 					Total = closedPositions.Count,
 					AvgPip = avgClosed,
 					AvgPnl = avgClosedPnl,
+
 					Account = "Short",
+					ClosedPip = avgClosedShort,
+					ClosedPnl = avgClosedShortPnl,
+
 					AvgPrice = ShortAvg,
 					Ask = LastShortTick?.Ask,
 					Bid = LastShortTick?.Bid,
 					NormAsk = NormShortAsk,
 					NormBid = NormShortBid,
 					Spread = (LastShortTick?.Bid - LastShortTick?.Ask) / PipSize,
-					OpenPip = (LastShortTick?.Bid - LastFeedTick?.Bid + (FeedAvg ?? 0) - (ShortAvg ?? 0)) / PipSize,
-					ClosePip = (LastFeedTick?.Ask - LastShortTick?.Ask - (FeedAvg ?? 0) + (ShortAvg ?? 0)) / PipSize
+					OpenDiffPip = (LastShortTick?.Bid - LastFeedTick?.Bid + (FeedAvg ?? 0) - (ShortAvg ?? 0)) / PipSize,
+					CloseDiffPip = (LastFeedTick?.Ask - LastShortTick?.Ask - (FeedAvg ?? 0) + (ShortAvg ?? 0)) / PipSize
 				}
 			};
 
 			return statistics.Select(s => new
 			{
-				Group = s.Group,
+				s.Group,
 				Total = s.Total.ToString("0"),
 				AvgPip = s.AvgPip?.ToString("F2"),
 				AvgPnl = s.AvgPnl?.ToString("F2"),
-				Account = s.Account,
+
+				s.Account,
+				ClosedPip = s.ClosedPip?.ToString("F2"),
+				ClosedPnl = s.ClosedPnl?.ToString("F2"),
+
 				Ask = s.Ask?.ToString("F5"),
 				Bid = s.Bid?.ToString("F5"),
 				NormAsk = s.NormAsk?.ToString("F5"),
 				NormBid = s.NormBid?.ToString("F5"),
 				Spread = s.Spread?.ToString("F2"),
 				AvgPrice = s.AvgPrice?.ToString("F5"),
-				OpenDiff = s.OpenPip?.ToString("F2"),
-				CloseDiff = s.ClosePip?.ToString("F2"),
+				OpenDiff = s.OpenDiffPip?.ToString("F2"),
+				CloseDiff = s.CloseDiffPip?.ToString("F2"),
 			}).ToList();
 		}
 

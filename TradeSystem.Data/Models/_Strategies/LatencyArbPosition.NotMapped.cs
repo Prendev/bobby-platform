@@ -17,6 +17,10 @@ namespace TradeSystem.Data.Models
 			HasBothSides ? ShortOpenPrice - LongOpenPrice : null;
 		[NotMapped] [InvisibleColumn] public decimal? Result =>
 			IsFull ? (LongClosePrice - LongOpenPrice + ShortOpenPrice - ShortClosePrice) / 2 : null;
+		[NotMapped] [InvisibleColumn] public decimal? LongResult =>
+			IsFull ? LongClosePrice - LongOpenPrice : null;
+		[NotMapped] [InvisibleColumn] public decimal? ShortResult =>
+			IsFull ? ShortOpenPrice - ShortClosePrice : null;
 
 		public decimal? NormOpenResult(decimal? shortAvg, decimal? longAvg)
 		{
