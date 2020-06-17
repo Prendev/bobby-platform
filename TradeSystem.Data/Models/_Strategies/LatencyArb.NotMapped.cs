@@ -243,12 +243,20 @@ namespace TradeSystem.Data.Models
 			var avgHedge = livePositions.Sum(p => p.OpenResult) / Math.Max(1, livePositions.Count) / PipSize;
 			var normAvgHedge = livePositions.Sum(p => p.NormOpenResult(ShortAvg, LongAvg)) / Math.Max(1, livePositions.Count) / PipSize;
 
-			var avgLiveLong = (LastLongTick.Bid - livePositions.Average(p => p.LongOpenPrice)) / PipSize;
-			var avgLiveLongPnl = (avgLiveLong - LongCommissionInPip) * LongSize * PipValue * livePositions.Count;
-			var avgLiveShort = (livePositions.Average(p => p.ShortOpenPrice) - LastShortTick.Ask) / PipSize;
-			var avgLiveShortPnl = (avgLiveShort - ShortCommissionInPip) * ShortSize * PipValue * livePositions.Count;
-			var avgLivePnl = avgLiveLongPnl + avgLiveShortPnl;
-			
+			decimal? avgLiveLong = null;
+			decimal? avgLiveLongPnl = null;
+			decimal? avgLiveShort = null;
+			decimal? avgLiveShortPnl = null;
+			decimal? avgLivePnl = null;
+			if (LastLongTick?.HasValue == true && LastShortTick?.HasValue == true)
+			{
+				avgLiveLong = (LastLongTick.Bid - livePositions.Average(p => p.LongOpenPrice)) / PipSize;
+				avgLiveLongPnl = (avgLiveLong - LongCommissionInPip) * LongSize * PipValue * livePositions.Count;
+				avgLiveShort = (livePositions.Average(p => p.ShortOpenPrice) - LastShortTick.Ask) / PipSize;
+				avgLiveShortPnl = (avgLiveShort - ShortCommissionInPip) * ShortSize * PipValue * livePositions.Count;
+				avgLivePnl = avgLiveLongPnl + avgLiveShortPnl;
+			}
+
 			var statistics = new List<Statistics>()
 			{
 				new Statistics()
