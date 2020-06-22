@@ -3,7 +3,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using TradeSystem.Collections;
 using TradeSystem.Common.Integration;
 using TradeSystem.Common.Services;
 using TradeSystem.Data;
@@ -24,6 +23,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			public long? Ticket { get; set; }
 			public StratPosition StratPosition { get; set; }
 			public decimal OpenPrice { get; set; }
+			public decimal Size { get; set; }
 			public decimal Slippage { get; set; }
 			public long ExecutionTime { get; set; }
 		}
@@ -279,6 +279,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 					set.LatencyArbPositions.AddSafe(new LatencyArbPosition()
 					{
 						LatencyArb = set,
+						LongSize = pos.Size,
 						LongTicket = pos.Ticket,
 						LongPosition = pos.StratPosition,
 						LongOpenPrice = pos.OpenPrice,
@@ -308,6 +309,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 					set.LatencyArbPositions.AddSafe(new LatencyArbPosition()
 					{
 						LatencyArb = set,
+						ShortSize = pos.Size,
 						ShortTicket = pos.Ticket,
 						ShortPosition = pos.StratPosition,
 						ShortOpenPrice = pos.OpenPrice,
@@ -344,6 +346,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 					Logger.Warn($"{set} latency arb - {last.Level}. short hedge side open error");
 					return;
 				}
+				last.ShortSize = pos.Size;
 				last.ShortTicket = pos.Ticket;
 				last.ShortPosition = pos.StratPosition;
 				last.ShortOpenPrice = pos.OpenPrice;
@@ -386,6 +389,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 					Logger.Warn($"{set} latency arb - {last.Level}. long hedge side open error");
 					return;
 				}
+				last.LongSize = pos.Size;
 				last.LongTicket = pos.Ticket;
 				last.LongPosition = pos.StratPosition;
 				last.LongOpenPrice = pos.OpenPrice;
@@ -416,6 +420,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 					if (pos?.Pos == null) return null;
 					return new OpenResult
 					{
+						Size = pos.Pos.Lots,
 						Slippage = signalPrice - pos.Pos.OpenPrice,
 						ExecutionTime = set.Stopwatch.ElapsedMilliseconds,
 						Ticket = pos.Pos.Id,
@@ -455,6 +460,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 					if (result?.IsFilled != true) return null;
 					return new OpenResult
 					{
+						Size = result.FilledQuantity,
 						Slippage = signalPrice - result.AveragePrice.Value,
 						ExecutionTime = set.Stopwatch.ElapsedMilliseconds,
 						OpenPrice = result.AveragePrice.Value,
@@ -491,6 +497,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 					if (pos?.Pos == null) return null;
 					return new OpenResult
 					{
+						Size = pos.Pos.Lots,
 						Slippage = pos.Pos.OpenPrice - signalPrice,
 						ExecutionTime = set.Stopwatch.ElapsedMilliseconds,
 						Ticket = pos.Pos.Id,
@@ -530,6 +537,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 					if (result?.IsFilled != true) return null;
 					return new OpenResult
 					{
+						Size = result.FilledQuantity,
 						Slippage = result.AveragePrice.Value - signalPrice,
 						ExecutionTime = set.Stopwatch.ElapsedMilliseconds,
 						OpenPrice = result.AveragePrice.Value,

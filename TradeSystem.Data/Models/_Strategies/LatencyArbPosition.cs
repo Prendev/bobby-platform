@@ -10,6 +10,8 @@
 		public long? ShortTicket { get => Get<long?>(); set => Set(value); }
 		public long? LongTicket { get => Get<long?>(); set => Set(value); }
 
+		public decimal? ShortSize { get => Get<decimal?>(); set => Set(value); }
+		public decimal? LongSize { get => Get<decimal?>(); set => Set(value); }
 		public decimal? ShortOpenPrice { get => Get<decimal?>(); set => Set(value); }
 		public decimal? LongOpenPrice { get => Get<decimal?>(); set => Set(value); }
 		public decimal? ShortClosePrice { get => Get<decimal?>(); set => Set(value); }
