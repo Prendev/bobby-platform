@@ -17,6 +17,7 @@ namespace TradeSystem.Data.Models
 			ReopeningLong,
 			Closing,
 			ImmediateExit,
+			ImmediateExitReopen,
 			Sync,
 			Reset,
 			ResetOpening,
@@ -93,6 +94,7 @@ namespace TradeSystem.Data.Models
 		[DisplayName("E Count")] public int EmergencyCount { get => Get<int>(); set => Set(value); }
 		[DisplayName("E Short exit")] public decimal EmergencyShortExitInPip { get; set; }
 		[DisplayName("E Long exit")] public decimal EmergencyLongExitInPip { get; set; }
+		[DisplayName("E exit reopen")] public bool EmergencyPipExitReopen { get; set; }
 
 		public LatencyArbOrderTypes FirstOrderType { get; set; }
 		public LatencyArbOrderTypes HedgeOrderType { get; set; }
