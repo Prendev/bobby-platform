@@ -22,6 +22,46 @@ namespace TradeSystem.Data.Models
 		[NotMapped] [InvisibleColumn] public decimal? ShortResult =>
 			IsFull ? ShortOpenPrice - ShortClosePrice : null;
 
+		public decimal? LongPnl(LatencyArb set)
+		{
+			if (set.PipSize == 0) return null;
+			if (set.PipValue == 0) return null;
+			if (LongOpenPrice == null) return null;
+			var size = LongSize ?? LongPosition?.Size ?? set.LongSize;
+
+			if (LongClosePrice.HasValue)
+			{
+				return size * ((LongClosePrice - LongOpenPrice) / set.PipSize - set.LongCommissionInPip) * set.PipValue;
+			}
+
+			if (set.LastLongTick?.HasValue == true)
+			{
+				return size * ((set.LastLongTick.Bid - LongOpenPrice) / set.PipSize - set.LongCommissionInPip) * set.PipValue;
+			}
+
+			return null;
+		}
+
+		public decimal? ShortPnl(LatencyArb set)
+		{
+			if (set.PipSize == 0) return null;
+			if (set.PipValue == 0) return null;
+			if (ShortOpenPrice == null) return null;
+			var size = ShortSize ?? ShortPosition?.Size ?? set.ShortSize;
+
+			if (ShortClosePrice.HasValue)
+			{
+				return size * ((ShortOpenPrice - ShortClosePrice) / set.PipSize - set.ShortCommissionInPip) * set.PipValue;
+			}
+
+			if (set.LastShortTick?.HasValue == true)
+			{
+				return size * ((ShortOpenPrice - set.LastShortTick.Ask) / set.PipSize - set.ShortCommissionInPip) * set.PipValue;
+			}
+
+			return null;
+		}
+
 		public decimal? NormOpenResult(decimal? shortAvg, decimal? longAvg)
 		{
 			if (!HasBothSides) return null;

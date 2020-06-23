@@ -234,9 +234,9 @@ namespace TradeSystem.Data.Models
 			var closedPositions = LatencyArbPositions.Where(p => p.IsFull).ToList();
 			var avgClosed = closedPositions.Sum(p => p.Result) / Math.Max(1, closedPositions.Count) / PipSize;
 			var avgClosedLong = closedPositions.Sum(p => p.LongResult) / Math.Max(1, closedPositions.Count) / PipSize;
-			var avgClosedLongPnl = (avgClosedLong - LongCommissionInPip) * LongSize * PipValue * closedPositions.Count;
+			var avgClosedLongPnl = closedPositions.Sum(p => p.LongPnl(this));
 			var avgClosedShort = closedPositions.Sum(p => p.ShortResult) / Math.Max(1, closedPositions.Count) / PipSize;
-			var avgClosedShortPnl = (avgClosedShort - ShortCommissionInPip) * ShortSize * PipValue * closedPositions.Count;
+			var avgClosedShortPnl = closedPositions.Sum(p => p.ShortPnl(this));
 			var avgClosedPnl = avgClosedLongPnl + avgClosedShortPnl;
 
 			var livePositions = LivePositions.Where(p => p.HasBothSides).ToList();
@@ -251,9 +251,9 @@ namespace TradeSystem.Data.Models
 			if (LastLongTick?.HasValue == true && LastShortTick?.HasValue == true)
 			{
 				avgLiveLong = (LastLongTick.Bid - livePositions.Average(p => p.LongOpenPrice)) / PipSize;
-				avgLiveLongPnl = (avgLiveLong - LongCommissionInPip) * LongSize * PipValue * livePositions.Count;
+				avgLiveLongPnl = livePositions.Sum(p => p.LongPnl(this));
 				avgLiveShort = (livePositions.Average(p => p.ShortOpenPrice) - LastShortTick.Ask) / PipSize;
-				avgLiveShortPnl = (avgLiveShort - ShortCommissionInPip) * ShortSize * PipValue * livePositions.Count;
+				avgLiveShortPnl = livePositions.Sum(p => p.ShortPnl(this));
 				avgLivePnl = avgLiveLongPnl + avgLiveShortPnl;
 			}
 
