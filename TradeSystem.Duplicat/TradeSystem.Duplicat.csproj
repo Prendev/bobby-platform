@@ -419,6 +419,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\git\QvaDev.Wololo\TradeSystem.Communication.Bitmex\TradeSystem.Communication.Bitmex.csproj">
+      <Project>{a96eaae3-c983-4f54-a434-a6928f847fa5}</Project>
+      <Name>TradeSystem.Communication.Bitmex</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\git\QvaDev.Wololo\TradeSystem.Communication.DtcApi\TradeSystem.Communication.DtcApi.csproj">
       <Project>{eed1bd13-cc26-4ede-99e4-dd59eb4d09bb}</Project>
       <Name>TradeSystem.Communication.DtcApi</Name>
