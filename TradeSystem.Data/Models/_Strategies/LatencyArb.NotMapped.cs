@@ -232,7 +232,7 @@ namespace TradeSystem.Data.Models
 			}
 
 			var closedPositions = LatencyArbPositions.Where(p => p.IsFull).ToList();
-			var avgClosed = closedPositions.Sum(p => p.Result) / Math.Max(1, closedPositions.Count) / PipSize;
+			var avgClosed = 2 * closedPositions.Sum(p => p.Result) / Math.Max(1, closedPositions.Count) / PipSize;
 			var avgClosedLong = closedPositions.Sum(p => p.LongResult) / Math.Max(1, closedPositions.Count) / PipSize;
 			var avgClosedLongPnl = closedPositions.Sum(p => p.LongPnl(this));
 			var avgClosedShort = closedPositions.Sum(p => p.ShortResult) / Math.Max(1, closedPositions.Count) / PipSize;
