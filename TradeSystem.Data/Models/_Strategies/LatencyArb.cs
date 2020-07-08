@@ -53,6 +53,7 @@ namespace TradeSystem.Data.Models
 		public Account ShortAccount { get => Get<Account>(); set => Set(value); }
 		[DisplayName("S Sym")] [Required] public string ShortSymbol { get; set; }
 		[DisplayName("S Size")] public decimal ShortSize { get; set; } = 1;
+		[DisplayName("S Size Step")] public decimal ShortSizeStep { get; set; } = 0;
 		[DisplayName("S Spread")] public decimal ShortSpreadFilterInPip { get; set; }
 		[DisplayName("S Signal")] public decimal ShortSignalDiffInPip { get; set; }
 		[DisplayName("S Close Sig.")] public decimal ShortCloseSignalDiffInPip { get; set; }
@@ -62,6 +63,7 @@ namespace TradeSystem.Data.Models
 		public Account LongAccount { get => Get<Account>(); set => Set(value); }
 		[DisplayName("L Sym")] [Required] public string LongSymbol { get; set; }
 		[DisplayName("L Size")] public decimal LongSize { get; set; } = 1;
+		[DisplayName("L Size Step")] public decimal LongSizeStep { get; set; } = 0;
 		[DisplayName("L Spread")] public decimal LongSpreadFilterInPip { get; set; }
 		[DisplayName("L Signal")] public decimal LongSignalDiffInPip { get; set; }
 		[DisplayName("L Close Sig.")] public decimal LongCloseSignalDiffInPip { get; set; }

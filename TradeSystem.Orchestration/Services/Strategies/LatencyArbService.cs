@@ -340,7 +340,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 				if (set.Copier != null) set.Copier.Run = false;
 				if (set.FixApiCopier != null) set.FixApiCopier.Run = false;
-				var quantity = (last.LongPosition?.Size ?? set.LongSize) / set.LongSize * set.ShortSize;
+				var quantity = ShortRound(set, (last.LongPosition?.Size ?? set.LongSize) * set.ShortSize / set.LongSize);
 				var pos = SendShortOrder(set, quantity, false);
 				if (set.Copier != null) set.Copier.Run = true;
 				if (set.FixApiCopier != null) set.FixApiCopier.Run = true;
@@ -383,7 +383,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 				if (set.Copier != null) set.Copier.Run = false;
 				if (set.FixApiCopier != null) set.FixApiCopier.Run = false;
-				var quantity = (last.ShortPosition?.Size ?? set.ShortSize) / set.ShortSize * set.LongSize;
+				var quantity = LongRound(set, (last.ShortPosition?.Size ?? set.ShortSize) * set.LongSize / set.ShortSize);
 				var pos = SendLongOrder(set, quantity, false);
 				if (set.Copier != null) set.Copier.Run = true;
 				if (set.FixApiCopier != null) set.FixApiCopier.Run = true;
@@ -1348,6 +1348,20 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			set.State = LatencyArb.LatencyArbStates.Error;
 			Logger.Warn($"{set} latency arb. - unfinished ERROR");
 			_emailService.Send($"{set} latency arb. - unfinished ERROR", $"{set} latency arb. - unfinished ERROR");
+		}
+
+		private decimal LongRound(LatencyArb set, decimal size)
+		{
+			return set.LongSizeStep <= 0
+				? decimal.Round(size, 2)
+				: decimal.Round(size / set.LongSizeStep, 0) * set.LongSizeStep;
+		}
+
+		private decimal ShortRound(LatencyArb set, decimal size)
+		{
+			return set.ShortSizeStep <= 0
+				? decimal.Round(size, 2)
+				: decimal.Round(size / set.ShortSizeStep, 0) * set.ShortSizeStep;
 		}
 	}
 }
