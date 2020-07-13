@@ -419,6 +419,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\git\QvaDev.Wololo\Bitmex.NET\Bitmex.NET.csproj">
+      <Project>{35a78f17-924a-4c87-9a76-01f879050f7c}</Project>
+      <Name>Bitmex.NET</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\git\QvaDev.Wololo\TradeSystem.Communication.Bitmex\TradeSystem.Communication.Bitmex.csproj">
       <Project>{a96eaae3-c983-4f54-a434-a6928f847fa5}</Project>
       <Name>TradeSystem.Communication.Bitmex</Name>
