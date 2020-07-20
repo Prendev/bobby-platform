@@ -25,6 +25,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 		Task ClosingHedge(Pushing pushing);
 	    Task ClosingSecond(Pushing pushing);
 	    Task ClosingFinish(Pushing pushing);
+	    void FlipFinish(Pushing pushing);
 	}
 
     public class PushStrategyService : IPushStrategyService
@@ -190,7 +191,9 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			var futureSide = pushing.BetaOpenSide;
 
 			// Build up futures for second side
-			var contractsNeeded = pd.FullContractSize - Math.Abs(pd.MasterSignalContractLimit);
+			decimal contractsNeeded;
+			if (pushing.IsHedgeOpen) contractsNeeded = Math.Abs(pd.HedgeSignalContractLimit);
+			else contractsNeeded = pd.FullContractSize - Math.Abs(pd.MasterSignalContractLimit);
 			await FutureBuildUp(pushing, futureSide, contractsNeeded, Phases.Pushing);
 
 			ScalpClosing(pushing);
@@ -251,6 +254,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			ScalpOpening(pushing, pushing.FirstCloseSide.Inv());
 			firstConnector.SendClosePositionRequests(firstPos, pushing.PushingDetail.MaxRetryCount, pushing.PushingDetail.RetryPeriodInMs);
 			ClosingForReopen(pushing, pushing.FirstCloseSide.Inv());
+			Flip(pushing, firstPos, true);
 		}
 
 	    public async Task ClosingPull(Pushing pushing)
@@ -317,6 +321,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			ScalpClosing(pushing);
 			secondConnector.SendClosePositionRequests(secondPos, pushing.PushingDetail.MaxRetryCount, pushing.PushingDetail.RetryPeriodInMs);
 			Reopening(pushing, futureSide);
+			Flip(pushing, secondPos, false);
 		}
 
 		public async Task ClosingFinish(Pushing pushing)
@@ -546,5 +551,30 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			if (open != null) Logger.Info("PushStrategyService.ClosingForReopen reopened");
 			else Logger.Error("PushStrategyService.ClosingForReopen opening issue!!!");
 		}
-	}
+
+	    private void Flip(Pushing pushing, Position position, bool isFirst)
+	    {
+		    if (!pushing.IsFlipClose) return;
+
+		    if (position == pushing.AlphaPosition)
+			{
+				var alphaConnector = (MtConnector)pushing.AlphaMaster.Connector;
+				var comment = isFirst ? null : $"CROSS|{pushing.BetaPosition.Id}";
+				pushing.AlphaPosition = alphaConnector.SendMarketOrderRequest(pushing.AlphaSymbol, position.Side.Inv(), pushing.PushingDetail.AlphaLots, 0,
+					comment, pushing.PushingDetail.MaxRetryCount, pushing.PushingDetail.RetryPeriodInMs)?.Pos;
+			}
+			else if (position == pushing.BetaPosition)
+			{
+				var betaConnector = (MtConnector)pushing.BetaMaster.Connector;
+				var comment = isFirst ? null : $"CROSS|{pushing.AlphaPosition.Id}";
+				pushing.BetaPosition = betaConnector.SendMarketOrderRequest(pushing.BetaSymbol, position.Side.Inv(), pushing.PushingDetail.BetaLots, 0,
+					comment, pushing.PushingDetail.MaxRetryCount, pushing.PushingDetail.RetryPeriodInMs)?.Pos;
+			}
+	    }
+		public void FlipFinish(Pushing pushing)
+		{
+			if (!pushing.IsFlipClose) return;
+			pushing.BetaOpenSide = pushing.BetaOpenSide.Inv();
+		}
+    }
 }

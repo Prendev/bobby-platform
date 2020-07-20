@@ -26,8 +26,9 @@ namespace TradeSystem.Orchestration
 		Task ClosingHedge(Pushing pushing);
 		Task ClosingSecond(Pushing pushing);
 		Task ClosingFinish(Pushing pushing);
+	    void FlipFinish(Pushing pushing);
 
-        void Panic(Pushing pushing);
+		void Panic(Pushing pushing);
 
 	    Task StartStrategies(DuplicatContext duplicatContext);
 	    void StopStrategies();
@@ -124,6 +125,8 @@ namespace TradeSystem.Orchestration
 			pushing.InPanic = false;
 			return Task.Run(() => _pushStrategyService.ClosingFinish(pushing));
 		}
+
+		public void FlipFinish(Pushing pushing) => _pushStrategyService.FlipFinish(pushing);
 
 		public void Panic(Pushing pushing)
 		{

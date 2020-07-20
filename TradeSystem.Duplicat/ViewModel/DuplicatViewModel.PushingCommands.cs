@@ -133,7 +133,12 @@ namespace TradeSystem.Duplicat.ViewModel
 			await _orchestrator.ClosingSecond(pushing);
 			PushingState = PushingStates.AfterClosingSecond;
 			await _orchestrator.ClosingFinish(pushing);
-			PushingState = PushingStates.NotRunning;
+			if (pushing.IsFlipClose)
+			{
+				_orchestrator.FlipFinish(pushing);
+				PushingState = PushingStates.BeforeClosing;
+			}
+			else PushingState = PushingStates.NotRunning;
         }
 
         public void PushingPanicCommand(Pushing pushing)
