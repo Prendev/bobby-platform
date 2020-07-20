@@ -28,12 +28,15 @@ namespace TradeSystem.Data.Models
 		/// </summary>
 		[NotMapped] [InvisibleColumn] public CancellationTokenSource PanicSource { get; set; }
 		[NotMapped] [InvisibleColumn] public bool IsConnected { get => Get<bool>(); set => Set(value); }
+		[NotMapped] [InvisibleColumn] public bool IsFlipClose { get => Get(() => true); set => Set(value); }
 
 		[NotMapped] [InvisibleColumn] public Tick LastFeedTick { get; set; }
 
 
 		public Spoofing()
 		{
+			IsFlipClose = false;
+
 			SetAction<Account>(nameof(FeedAccount),
 				a => { if (a != null) a.ConnectionChanged -= Account_ConnectionChanged; },
 				a => { if (a != null) a.ConnectionChanged += Account_ConnectionChanged; });

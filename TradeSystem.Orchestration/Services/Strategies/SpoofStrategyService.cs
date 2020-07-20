@@ -20,6 +20,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 		Task ClosingFirstEnd(Spoofing spoofing, CancellationToken panic);
 		Task ClosingSecond(Spoofing spoofing, CancellationToken panic);
 		Task ClosingSecondEnd(Spoofing spoofing, CancellationToken panic);
+		void FlipFinish(Spoofing spoofing);
 	}
 
 	public class SpoofStrategyService : ISpoofStrategyService
@@ -107,6 +108,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			// Close first side
 			var close = firstConnector.SendClosePositionRequests(firstPos, spoofing.MaxRetryCount, spoofing.RetryPeriodInMs);
 			if (close?.Pos?.IsClosed == false) throw new Exception("SpoofStrategyService.ClosingFirst failed!!!");
+			Flip(spoofing, firstPos, true);
 		}
 
 		public async Task ClosingFirstEnd(Spoofing spoofing, CancellationToken panic) => await Ending(spoofing, panic);
@@ -131,12 +133,13 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			// Close second side
 			var close = secondConnector.SendClosePositionRequests(secondPos, spoofing.MaxRetryCount, spoofing.RetryPeriodInMs);
 			if (close?.Pos?.IsClosed != true) throw new Exception("SpoofStrategyService.ClosingSecond failed!!!");
+			Flip(spoofing, secondPos, false);
 
 			Hedge(spoofing, prevHedges);
 		}
 
 		public async Task ClosingSecondEnd(Spoofing spoofing, CancellationToken panic) => await Ending(spoofing, panic);
-
+		
 		private void InitPush(Spoofing spoofing)
 		{
 			spoofing.PrevFilledQuantity = spoofing.SpoofState?.FilledQuantity ?? 0;
@@ -255,6 +258,31 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			{
 				// ignored
 			}
+		}
+
+		private void Flip(Spoofing spoofing, Position position, bool isFirst)
+		{
+			if (!spoofing.IsFlipClose) return;
+
+			if (position == spoofing.AlphaPosition)
+			{
+				var alphaConnector = (IConnector) spoofing.AlphaMaster.Connector;
+				var comment = isFirst ? null : $"CROSS|{spoofing.BetaPosition.Id}";
+				spoofing.AlphaPosition = alphaConnector.SendMarketOrderRequest(spoofing.AlphaSymbol, position.Side.Inv(), spoofing.AlphaLots, 0,
+					comment, spoofing.MaxRetryCount, spoofing.RetryPeriodInMs)?.Pos;
+			}
+			else if (position == spoofing.BetaPosition)
+			{
+				var betaConnector = (IConnector) spoofing.BetaMaster.Connector;
+				var comment = isFirst ? null : $"CROSS|{spoofing.AlphaPosition.Id}";
+				spoofing.BetaPosition = betaConnector.SendMarketOrderRequest(spoofing.BetaSymbol, position.Side.Inv(), spoofing.BetaLots, 0,
+					comment, spoofing.MaxRetryCount, spoofing.RetryPeriodInMs)?.Pos;
+			}
+		}
+		public void FlipFinish(Spoofing spoofing)
+		{
+			if (!spoofing.IsFlipClose) return;
+			spoofing.BetaOpenSide = spoofing.BetaOpenSide.Inv();
 		}
 	}
 }

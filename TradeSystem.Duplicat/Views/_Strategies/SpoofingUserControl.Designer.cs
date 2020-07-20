@@ -28,6 +28,7 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
+			System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
 			this.gbSpoofings = new System.Windows.Forms.GroupBox();
 			this.dgvSpoofings = new TradeSystem.Duplicat.Views.CustomDataGridView();
 			this.btnSubscribeFeed = new System.Windows.Forms.Button();
@@ -59,6 +60,7 @@
 			this.btnOpenBetaRushMore = new System.Windows.Forms.Button();
 			this.btnOpenSpoofUp = new System.Windows.Forms.Button();
 			this.tlpMain = new System.Windows.Forms.TableLayoutPanel();
+			this.cbFlip = new System.Windows.Forms.CheckBox();
 			this.gbSpoofings.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.dgvSpoofings)).BeginInit();
 			this.gbControl.SuspendLayout();
@@ -83,12 +85,21 @@
 			// dgvSpoofings
 			// 
 			this.dgvSpoofings.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
+			dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+			dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Control;
+			dataGridViewCellStyle1.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.WindowText;
+			dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+			dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+			dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+			this.dgvSpoofings.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
 			this.dgvSpoofings.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
 			this.dgvSpoofings.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.dgvSpoofings.Location = new System.Drawing.Point(4, 19);
 			this.dgvSpoofings.Margin = new System.Windows.Forms.Padding(4);
 			this.dgvSpoofings.MultiSelect = false;
 			this.dgvSpoofings.Name = "dgvSpoofings";
+			this.dgvSpoofings.ShowCellToolTips = false;
 			this.dgvSpoofings.Size = new System.Drawing.Size(1079, 92);
 			this.dgvSpoofings.TabIndex = 0;
 			// 
@@ -323,6 +334,7 @@
 			// 
 			// gbFlow
 			// 
+			this.gbFlow.Controls.Add(this.cbFlip);
 			this.gbFlow.Controls.Add(this.btnCloseSecondRushMore);
 			this.gbFlow.Controls.Add(this.btnOpenAlphaRushMore);
 			this.gbFlow.Controls.Add(this.btnCloseFirstRushMore);
@@ -422,6 +434,19 @@
 			this.tlpMain.Size = new System.Drawing.Size(1095, 711);
 			this.tlpMain.TabIndex = 1;
 			// 
+			// cbFlip
+			// 
+			this.cbFlip.AutoSize = true;
+			this.cbFlip.Checked = true;
+			this.cbFlip.CheckState = System.Windows.Forms.CheckState.Checked;
+			this.cbFlip.Location = new System.Drawing.Point(116, 274);
+			this.cbFlip.Margin = new System.Windows.Forms.Padding(4);
+			this.cbFlip.Name = "cbFlip";
+			this.cbFlip.Size = new System.Drawing.Size(52, 21);
+			this.cbFlip.TabIndex = 65;
+			this.cbFlip.Text = "Flip";
+			this.cbFlip.UseVisualStyleBackColor = true;
+			// 
 			// SpoofingUserControl
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -473,5 +498,6 @@
 		private System.Windows.Forms.Button btnOpenBetaRushMore;
 		private System.Windows.Forms.Button btnCloseSecondRushMore;
 		private System.Windows.Forms.Button btnOpenAlphaRushMore;
+		private System.Windows.Forms.CheckBox cbFlip;
 	}
 }

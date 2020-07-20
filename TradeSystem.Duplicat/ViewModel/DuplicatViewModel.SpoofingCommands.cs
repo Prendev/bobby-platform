@@ -57,7 +57,12 @@ namespace TradeSystem.Duplicat.ViewModel
 				await _orchestrator.ClosingSecond(spoofing);
 				SpoofingState = SpoofingStates.AfterClosingSecond;
 				await _orchestrator.ClosingSecondEnd(spoofing);
-				SpoofingState = SpoofingStates.NotRunning;
+				if (spoofing.IsFlipClose)
+				{
+					_orchestrator.FlipFinish(spoofing);
+					SpoofingState = SpoofingStates.BeforeClosing;
+				}
+				else SpoofingState = SpoofingStates.NotRunning;
 			}
 			catch (Exception e)
 			{

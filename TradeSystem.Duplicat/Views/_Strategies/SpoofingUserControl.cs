@@ -93,7 +93,11 @@ namespace TradeSystem.Duplicat.Views
 		private void Load_Click(object sender, EventArgs e)
 		{
 			if (_viewModel.IsLoading) return;
+			var spoofing = dgvSpoofings.GetSelectedItem<Spoofing>();
 			_viewModel.ShowSpoofingCommand(dgvSpoofings.GetSelectedItem<Spoofing>());
+
+			cbFlip.DataBindings.Clear();
+			cbFlip.AddBinding("Checked", spoofing, nameof(spoofing.IsFlipClose));
 		}
 
 		public void AttachDataSources()

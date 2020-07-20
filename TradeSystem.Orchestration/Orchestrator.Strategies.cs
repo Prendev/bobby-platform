@@ -44,6 +44,7 @@ namespace TradeSystem.Orchestration
 	    Task ClosingFirstEnd(Spoofing spoofing);
 		Task ClosingSecond(Spoofing spoofing);
 	    Task ClosingSecondEnd(Spoofing spoofing);
+	    void FlipFinish(Spoofing spoofing);
 		void Panic(Spoofing spoofing);
 	}
 
@@ -220,6 +221,8 @@ namespace TradeSystem.Orchestration
 			spoofing.PanicSource = new CancellationTokenSource();
 			await Task.Run(() => _spoofStrategyService.ClosingSecondEnd(spoofing, spoofing.PanicSource.Token));
 		}
+
+		public void FlipFinish(Spoofing spoofing) => _spoofStrategyService.FlipFinish(spoofing);
 
 		public void Panic(Spoofing spoofing)
 		{
