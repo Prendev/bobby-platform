@@ -1,4 +1,6 @@
 ﻿using System.Drawing;
+using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Windows.Forms;
 using TradeSystem.Common;
@@ -23,7 +25,8 @@ namespace TradeSystem.Duplicat.Views
             Load += (sender, args) => InitView();
 			Closing += (sender, args) => _viewModel.SaveCommand();
 			InitializeComponent();
-            TextBoxAppender.ConfigureTextBoxAppender(rtbGeneral, "General", 1000);
+			gbControl.Text = $"Version {GetProductVersion()}";
+			TextBoxAppender.ConfigureTextBoxAppender(rtbGeneral, "General", 1000);
 			TextBoxAppender.ConfigureTextBoxAppender(rtbMt4, "MT4", 1000);
 			TextBoxAppender.ConfigureTextBoxAppender(rtbFix, "FIX", 1000);
             TextBoxAppender.ConfigureTextBoxAppender(rtbFixCopy, "FIX copy", 1000);
@@ -38,9 +41,9 @@ namespace TradeSystem.Duplicat.Views
 		}
 
 		private void InitView()
-        {
+		{
 			//btnRestore.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsConfigReadonly), true);
-	        nudAutoSave.AddBinding("Value", _viewModel, nameof(_viewModel.AutoSavePeriodInMin));
+			nudAutoSave.AddBinding("Value", _viewModel, nameof(_viewModel.AutoSavePeriodInMin));
 			gbControl.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsLoading), true);
             btnConnect.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsConnected), true);
             btnDisconnect.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsConnected));
@@ -92,5 +95,11 @@ namespace TradeSystem.Duplicat.Views
 			    else mvvm.InitView(_viewModel);
 		    }
 		}
+
+	    public string GetProductVersion()
+	    {
+		    var assembly = Assembly.GetExecutingAssembly();
+		    return AssemblyName.GetAssemblyName(assembly.Location).Version.ToString();
+	    }
 	}
 }
