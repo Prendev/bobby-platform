@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Configuration;
 using System.Diagnostics;
 using System.IO;
-using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Windows.Forms;
@@ -35,10 +32,6 @@ namespace TradeSystem.Duplicat
 				Directory.CreateDirectory("FixApiConfigFiles");
 				Directory.CreateDirectory("Tickers");
 
-				if (bool.TryParse(ConfigurationManager.AppSettings["PrepareAssemblies"], out bool prepareAssemblies) &&
-				    prepareAssemblies)
-					PrepareAssemblies();
-
 				Debug.WriteLine($"Generate ThreadPool threads start at {HiResDatetime.UtcNow:O}");
 				int.TryParse(ConfigurationManager.AppSettings["ThreadPool.MinThreads"], out var minThreads);
 				ThreadPool.GetMinThreads(out var wokerThreads, out var completionPortThreads);
@@ -67,65 +60,5 @@ namespace TradeSystem.Duplicat
 		{
 			Logger.Error("Unhandled exception", e.Exception);
 		}
-
-	    private static void PrepareAssemblies()
-	    {
-		    try
-			{
-				var loadedAssmblies = new HashSet<Assembly>();
-				ForceLoadAll(Assembly.GetExecutingAssembly(), loadedAssmblies);
-				foreach (var assembly in loadedAssmblies) PreJit(assembly);
-			}
-		    catch (Exception e)
-		    {
-		    }
-	    }
-
-	    private static void ForceLoadAll(Assembly assembly, ISet<Assembly> loadedAssmblies)
-	    {
-		    if (!loadedAssmblies.Add(assembly)) return;
-
-		    foreach (var assemblyName in assembly.GetReferencedAssemblies())
-		    {
-			    try
-				{
-					if (assemblyName.Name == "TradeSystem.CTraderApi") continue;
-					if (assemblyName.Name == "TradeSystem.CTraderIntegration") continue;
-					if (assemblyName.Name.Contains("NPOI")) continue;
-					if (assemblyName.Name.Contains("log4net")) continue;
-
-					var nextAssembly = Assembly.Load(assemblyName);
-					if (nextAssembly.GlobalAssemblyCache) continue;
-
-					ForceLoadAll(nextAssembly, loadedAssmblies);
-				}
-			    catch (Exception e)
-			    {
-			    }
-		    }
-	    }
-
-		private static void PreJit(Assembly assembly)
-	    {
-		    foreach (var type in assembly.GetTypes())
-		    {
-			    var methods = type.GetMethods(
-				    BindingFlags.DeclaredOnly |
-				    BindingFlags.NonPublic |
-				    BindingFlags.Public |
-				    BindingFlags.Instance |
-				    BindingFlags.Static);
-
-			    foreach (var method in methods)
-			    {
-				    if (method.ContainsGenericParameters) continue;
-				    if (method.IsAbstract) continue;
-				    RuntimeHelpers.PrepareMethod(method.MethodHandle);
-				}
-
-			    if (type.IsGenericTypeDefinition || type.IsInterface) continue;
-			    RuntimeHelpers.RunClassConstructor(type.TypeHandle);
-			}
-	    }
 	}
 }
