@@ -484,6 +484,10 @@
       <Project>{7FCD6735-2115-4096-B5C9-E5CD7B4A3C1C}</Project>
       <Name>TradeSystem.Orchestration</Name>
     </ProjectReference>
+    <ProjectReference Include="..\TradeSystem.Strategies.MarketMaker\TradeSystem.Strategies.MarketMaker.csproj">
+      <Project>{734BFDE5-325E-4EF9-924C-1401562E6626}</Project>
+      <Name>TradeSystem.Strategies.MarketMaker</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Content Include="icon.ico">

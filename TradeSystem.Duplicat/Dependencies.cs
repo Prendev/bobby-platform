@@ -17,6 +17,7 @@ using TradeSystem.Backtester;
 using ConnectorFactory = TradeSystem.Orchestration.Services.ConnectorFactory;
 using ExchangeRatesService = TradeSystem.Common.Services.ExchangeRatesService;
 using IExchangeRatesService = TradeSystem.Common.Services.IExchangeRatesService;
+using TradeSystem.Strategies.MarketMaker;
 
 namespace TradeSystem.Duplicat
 {
@@ -111,6 +112,8 @@ namespace TradeSystem.Duplicat
 			builder.RegisterType<AntiMarketMakerService>().As<IAntiMarketMakerService>();
 			builder.RegisterType<MtAccountImportService>().As<IMtAccountImportService>();
 	        builder.RegisterType<BacktesterService>().As<IBacktesterService>();
+
+	        builder.RegisterType<MMStrategyService>().As<IMMStrategyService>();
 		}
     }
 }
