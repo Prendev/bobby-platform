@@ -83,6 +83,7 @@ namespace TradeSystem.Data
 		public DbSet<StratHubArb> StratHubArbs { get; set; }
 		public DbSet<StratHubArbPosition> StratHubArbPositions { get; set; }
 
+	    public DbSet<MM> MMs { get; set; }
 	    public DbSet<MarketMaker> MarketMakers { get; set; }
 	    public DbSet<LatencyArb> LatencyArbs { get; set; }
 	    public DbSet<LatencyArbPosition> LatencyArbPositions { get; set; }

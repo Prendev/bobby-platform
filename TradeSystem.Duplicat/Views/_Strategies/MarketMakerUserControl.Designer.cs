@@ -28,12 +28,13 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
+			System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
 			this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
 			this.gbControl = new System.Windows.Forms.GroupBox();
-			this.gbMarketMaker = new System.Windows.Forms.GroupBox();
-			this.dgvMarketMaker = new TradeSystem.Duplicat.Views.CustomDataGridView();
 			this.btnStop = new System.Windows.Forms.Button();
 			this.btnStart = new System.Windows.Forms.Button();
+			this.gbMarketMaker = new System.Windows.Forms.GroupBox();
+			this.dgvMarketMaker = new TradeSystem.Duplicat.Views.CustomDataGridView();
 			this.tableLayoutPanel1.SuspendLayout();
 			this.gbControl.SuspendLayout();
 			this.gbMarketMaker.SuspendLayout();
@@ -67,29 +68,6 @@
 			this.gbControl.TabStop = false;
 			this.gbControl.Text = "Control";
 			// 
-			// gbMarketMaker
-			// 
-			this.gbMarketMaker.Controls.Add(this.dgvMarketMaker);
-			this.gbMarketMaker.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.gbMarketMaker.Location = new System.Drawing.Point(3, 67);
-			this.gbMarketMaker.Name = "gbMarketMaker";
-			this.gbMarketMaker.Size = new System.Drawing.Size(1087, 559);
-			this.gbMarketMaker.TabIndex = 1;
-			this.gbMarketMaker.TabStop = false;
-			this.gbMarketMaker.Text = "Market makers";
-			// 
-			// dgvMarketMaker
-			// 
-			this.dgvMarketMaker.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
-			this.dgvMarketMaker.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-			this.dgvMarketMaker.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.dgvMarketMaker.Location = new System.Drawing.Point(3, 18);
-			this.dgvMarketMaker.MultiSelect = false;
-			this.dgvMarketMaker.Name = "dgvMarketMaker";
-			this.dgvMarketMaker.RowTemplate.Height = 24;
-			this.dgvMarketMaker.Size = new System.Drawing.Size(1081, 538);
-			this.dgvMarketMaker.TabIndex = 0;
-			// 
 			// btnStop
 			// 
 			this.btnStop.Location = new System.Drawing.Point(215, 22);
@@ -109,6 +87,38 @@
 			this.btnStart.TabIndex = 28;
 			this.btnStart.Text = "Start";
 			this.btnStart.UseVisualStyleBackColor = true;
+			// 
+			// gbMarketMaker
+			// 
+			this.gbMarketMaker.Controls.Add(this.dgvMarketMaker);
+			this.gbMarketMaker.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.gbMarketMaker.Location = new System.Drawing.Point(3, 67);
+			this.gbMarketMaker.Name = "gbMarketMaker";
+			this.gbMarketMaker.Size = new System.Drawing.Size(1087, 559);
+			this.gbMarketMaker.TabIndex = 1;
+			this.gbMarketMaker.TabStop = false;
+			this.gbMarketMaker.Text = "Market makers (grider)";
+			// 
+			// dgvMarketMaker
+			// 
+			this.dgvMarketMaker.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
+			dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+			dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Control;
+			dataGridViewCellStyle2.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.WindowText;
+			dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+			dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+			dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+			this.dgvMarketMaker.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle2;
+			this.dgvMarketMaker.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+			this.dgvMarketMaker.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.dgvMarketMaker.Location = new System.Drawing.Point(3, 18);
+			this.dgvMarketMaker.MultiSelect = false;
+			this.dgvMarketMaker.Name = "dgvMarketMaker";
+			this.dgvMarketMaker.RowTemplate.Height = 24;
+			this.dgvMarketMaker.ShowCellToolTips = false;
+			this.dgvMarketMaker.Size = new System.Drawing.Size(1081, 538);
+			this.dgvMarketMaker.TabIndex = 0;
 			// 
 			// MarketMakerUserControl
 			// 

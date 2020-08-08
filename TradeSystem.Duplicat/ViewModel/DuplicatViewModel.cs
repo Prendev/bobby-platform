@@ -105,6 +105,7 @@ namespace TradeSystem.Duplicat.ViewModel
 		public BindingList<MarketMaker> MarketMakers { get; private set; }
 		public BindingList<LatencyArb> LatencyArbs { get; private set; }
 		public BindingList<NewsArb> NewsArbs { get; private set; }
+		public BindingList<MM> MMs { get; private set; }
 
 		public event DataContextChangedEventHandler DataContextChanged;
 
@@ -270,6 +271,7 @@ namespace TradeSystem.Duplicat.ViewModel
 			_duplicatContext.NewsArbs.Where(e => e.ProfileId == p).OrderBy(e => e.ToString())
 				.Include(e => e.NewsArbPositions).ThenInclude(e => e.LongPosition)
 				.Include(e => e.NewsArbPositions).ThenInclude(e => e.ShortPosition).Load();
+			_duplicatContext.MMs.Where(e => e.ProfileId == p).OrderBy(e => e.ToString()).Load();
 
 			MtPlatforms = _duplicatContext.MetaTraderPlatforms.Local.ToBindingList();
 			CtPlatforms = _duplicatContext.CTraderPlatforms.Local.ToBindingList();
@@ -301,6 +303,7 @@ namespace TradeSystem.Duplicat.ViewModel
 			CopierPositions = ToBindingList(_duplicatContext.CopierPositions.Local, () => SelectedCopier, e => e.CopierPositions);
 			FixApiCopiers = ToFilteredBindingList(_duplicatContext.FixApiCopiers.Local, e => e.Slave, () => SelectedSlave);
 			FixApiCopiersAll = _duplicatContext.FixApiCopiers.Local.ToBindingList();
+
 			Pushings = _duplicatContext.Pushings.Local.ToBindingList();
 			Spoofings = _duplicatContext.Spoofings.Local.ToBindingList();
 			Tickers = _duplicatContext.Tickers.Local.ToBindingList();
@@ -309,6 +312,7 @@ namespace TradeSystem.Duplicat.ViewModel
 			MarketMakers = _duplicatContext.MarketMakers.Local.ToBindingList();
 			LatencyArbs = _duplicatContext.LatencyArbs.Local.ToBindingList();
 			NewsArbs = _duplicatContext.NewsArbs.Local.ToBindingList();
+			MMs = _duplicatContext.MMs.Local.ToBindingList();
 
 			_duplicatContext.Profiles.Local.CollectionChanged -= Profiles_CollectionChanged;
 			_duplicatContext.Profiles.Local.CollectionChanged += Profiles_CollectionChanged;
