@@ -37,40 +37,11 @@ namespace TradeSystem.Data.Models
 			MakerAccount.BacktesterAccount?.UtcNow ?? HiResDatetime.UtcNow;
 		[NotMapped] [InvisibleColumn] public AutoResetEvent WaitHandle { get; } = new AutoResetEvent(false);
 
-		public MM()
+		/// <summary>
+		/// Const`
+		/// </summary>
+		public MM() : base(e => ((MM)e).MakerAccount, e => ((MM)e).TakerAccount)
 		{
-			SetAction<Account>(nameof(MakerAccount),
-				a =>
-				{
-					if (a == null) return;
-					a.NewTick -= Account_NewTick;
-					a.LimitFill -= Account_LimitFill;
-					a.ConnectionChanged -= Account_ConnectionChanged;
-				},
-				a =>
-				{
-					if (a == null) return;
-					a.NewTick += Account_NewTick;
-					a.LimitFill += Account_LimitFill;
-					a.ConnectionChanged += Account_ConnectionChanged;
-
-				});
-			SetAction<Account>(nameof(TakerAccount),
-				a =>
-				{
-					if (a == null) return;
-					a.NewTick -= Account_NewTick;
-					a.LimitFill -= Account_LimitFill;
-					a.ConnectionChanged -= Account_ConnectionChanged;
-				},
-				a =>
-				{
-					if (a == null) return;
-					a.NewTick += Account_NewTick;
-					a.LimitFill += Account_LimitFill;
-					a.ConnectionChanged += Account_ConnectionChanged;
-
-				});
 		}
 
 		public void OnTickProcessed() => MakerAccount.Connector.OnTickProcessed();
@@ -82,26 +53,25 @@ namespace TradeSystem.Data.Models
 			LastTakerTick = null;
 		}
 
-		private void Account_NewTick(object sender, NewTick newTick)
+		/// <inheritdoc/>
+		protected override bool AccountNewTickCore(Account account, NewTick newTick)
 		{
 			var tick = newTick?.Tick;
-			if (tick == null) return;
+			if (tick == null) return false;
 
 			var newTickFound = false;
-			if (sender == MakerAccount && tick.Symbol == MakerSymbol && LastMakerTick != tick)
+			if (account == MakerAccount && tick.Symbol == MakerSymbol && LastMakerTick != tick)
 			{
 				newTickFound = true;
 				LastMakerTick = tick;
 			}
-			if (sender == TakerAccount && tick.Symbol == TakerSymbol && LastTakerTick != tick)
+			if (account == TakerAccount && tick.Symbol == TakerSymbol && LastTakerTick != tick)
 			{
 				newTickFound = true;
 				LastTakerTick = tick;
 			}
 
-			if (!newTickFound) return;
-
-			NewTick?.Invoke(this, newTick);
+			return newTickFound;
 		}
 
 		private void Account_LimitFill(object sender, LimitFill limitFill) => LimitFill?.Invoke(this, limitFill);

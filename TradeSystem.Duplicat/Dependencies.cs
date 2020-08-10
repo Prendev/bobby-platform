@@ -13,11 +13,10 @@ using TradeSystem.Orchestration.Services;
 using TradeSystem.Orchestration.Services.Strategies;
 using System;
 using System.Threading;
-using TradeSystem.Backtester;
+using TradeSystem.Strategies.MarketMaker;
 using ConnectorFactory = TradeSystem.Orchestration.Services.ConnectorFactory;
 using ExchangeRatesService = TradeSystem.Common.Services.ExchangeRatesService;
 using IExchangeRatesService = TradeSystem.Common.Services.IExchangeRatesService;
-using TradeSystem.Strategies.MarketMaker;
 
 namespace TradeSystem.Duplicat
 {

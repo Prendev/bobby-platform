@@ -217,6 +217,7 @@
     <Compile Include="Models\Export.cs" />
     <Compile Include="Models\FixApiCopierPosition.cs" />
     <Compile Include="Models\Slave.NotMapped.cs" />
+    <Compile Include="Models\StrategyEntityBase.cs" />
     <Compile Include="Models\_Accounts\BacktesterAccount.NotMapped.cs" />
     <Compile Include="Models\_Accounts\BacktesterAccount.cs" />
     <Compile Include="Models\_Accounts\BacktesterInstrumentConfig.cs" />

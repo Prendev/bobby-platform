@@ -65,6 +65,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bitmex.NET", "..\..\git\Qva
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TradeSystem.Strategies.MarketMaker", "TradeSystem.Strategies.MarketMaker\TradeSystem.Strategies.MarketMaker.csproj", "{734BFDE5-325E-4EF9-924C-1401562E6626}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradeSystem.Strategies", "TradeSystem.Strategies\TradeSystem.Strategies.csproj", "{86CB137F-C15C-4680-A87D-193D8893243E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -187,6 +189,10 @@ Global
 		{734BFDE5-325E-4EF9-924C-1401562E6626}.Debug|x86.Build.0 = Debug|x86
 		{734BFDE5-325E-4EF9-924C-1401562E6626}.Release|x86.ActiveCfg = Release|Any CPU
 		{734BFDE5-325E-4EF9-924C-1401562E6626}.Release|x86.Build.0 = Release|Any CPU
+		{86CB137F-C15C-4680-A87D-193D8893243E}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{86CB137F-C15C-4680-A87D-193D8893243E}.Debug|x86.Build.0 = Debug|Any CPU
+		{86CB137F-C15C-4680-A87D-193D8893243E}.Release|x86.ActiveCfg = Release|Any CPU
+		{86CB137F-C15C-4680-A87D-193D8893243E}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

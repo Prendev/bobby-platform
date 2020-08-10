@@ -1,17 +1,9 @@
-﻿using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using TradeSystem.Common.Attributes;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace TradeSystem.Data.Models
 {
-	public partial class MM : BaseDescriptionEntity
+	public partial class MM : StrategyEntityBase
 	{
-		[DisplayPriority(-1)] public bool Run { get; set; }
-
-		[InvisibleColumn] public int ProfileId { get; set; }
-		[InvisibleColumn] public Profile Profile { get; set; }
-
 		public int MakerAccountId { get; set; }
 		/// <summary>
 		/// The exchange where the bot will place maker orders (limits).
