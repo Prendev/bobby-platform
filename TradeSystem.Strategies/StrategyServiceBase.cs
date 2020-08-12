@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using TradeSystem.Data.Models;
@@ -50,6 +49,7 @@ namespace TradeSystem.Strategies
 			if (!_sources.TryGetValue(strategy, out var cts)) return;
 			cts?.Cancel(true);
 			strategy.WaitHandle.Set();
+			while (strategy.LimitFills.TryDequeue(out var _)) ;
 		}
 
 		/// <inheritdoc/>
@@ -59,11 +59,12 @@ namespace TradeSystem.Strategies
 		/// Thread runner function
 		/// </summary>
 		/// <param name="strategy">Set of a trading strategy</param>
-		/// <param name="token"> Cancellation token</param>
+		/// <param name="token">Cancellation token</param>
 		private void RunnerLoop(T strategy, CancellationToken token)
 		{
 			var subscribed = false;
 			strategy.NewTick -= Strategy_NewTick;
+			strategy.LimitFill -= Strategy_LimitFill;
 
 			while (!token.IsCancellationRequested)
 			{
@@ -78,6 +79,7 @@ namespace TradeSystem.Strategies
 					if (!subscribed)
 					{
 						strategy.NewTick += Strategy_NewTick;
+						strategy.LimitFill += Strategy_LimitFill;
 						subscribed = true;
 						strategy.Subscribe();
 					}
@@ -101,6 +103,7 @@ namespace TradeSystem.Strategies
 			}
 
 			strategy.NewTick -= Strategy_NewTick;
+			strategy.LimitFill -= Strategy_LimitFill;
 			strategy.Running = false;
 			Logger.Info($"{strategy} strategy set is stopped");
 		}
@@ -116,6 +119,21 @@ namespace TradeSystem.Strategies
 			if (!_sources.TryGetValue(strategy, out var token) || token.IsCancellationRequested)
 				return;
 
+			strategy.WaitHandle.Set();
+		}
+
+		/// <summary>
+		/// Strategy limit fill event handler
+		/// </summary>
+		/// <param name="sender">Set of a trading strategy</param>
+		/// <param name="e">Limit fill event</param>
+		private void Strategy_LimitFill(object sender, (Account Account, Common.Integration.LimitFill LimitFill) e)
+		{
+			var strategy = (T) sender;
+			if (!_sources.TryGetValue(strategy, out var token) || token.IsCancellationRequested)
+				return;
+
+			strategy.LimitFills.Enqueue(e);
 			strategy.WaitHandle.Set();
 		}
 

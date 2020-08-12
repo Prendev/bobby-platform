@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq.Expressions;
@@ -22,7 +23,7 @@ namespace TradeSystem.Data.Models
 		/// <summary>
 		/// Event handler for limit fill
 		/// </summary>
-		public event EventHandler<LimitFill> LimitFill;
+		public event EventHandler<(Account Account, LimitFill LimitFill)> LimitFill;
 		/// <summary>
 		/// Event handler for connection change
 		/// </summary>
@@ -68,6 +69,15 @@ namespace TradeSystem.Data.Models
 		[NotMapped]
 		[InvisibleColumn]
 		public AutoResetEvent WaitHandle { get; } = new AutoResetEvent(false);
+
+		/// <summary>
+		/// Limit fill queue
+		/// </summary>
+		[Browsable(false)]
+		[NotMapped]
+		[InvisibleColumn]
+		public ConcurrentQueue<(Account Account, LimitFill LimitFill)> LimitFills { get; } =
+			new ConcurrentQueue<(Account Account, LimitFill LimitFill)>();
 
 		/// <summary>
 		/// Strategy base class constructor
@@ -117,7 +127,8 @@ namespace TradeSystem.Data.Models
 				NewTick?.Invoke(this, newTick);
 		}
 
-		private void AccountLimitFill(object sender, LimitFill limitFill) => LimitFill?.Invoke(this, limitFill);
+		private void AccountLimitFill(object sender, LimitFill limitFill) =>
+			LimitFill?.Invoke(this, ((Account) sender, limitFill));
 
 		/// <summary>
 		/// Subscribe to account(s)
