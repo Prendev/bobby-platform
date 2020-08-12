@@ -8,6 +8,7 @@ using TradeSystem.Data;
 using TradeSystem.Data.Models;
 using TradeSystem.Orchestration.Services;
 using TradeSystem.Orchestration.Services.Strategies;
+using TradeSystem.Strategies.MarketMaker;
 
 namespace TradeSystem.Orchestration
 {
@@ -46,6 +47,7 @@ namespace TradeSystem.Orchestration
 		private readonly IConnectorFactory _connectorFactory;
 		private readonly IReportService _reportService;
 		private readonly IMtAccountImportService _mtAccountImportService;
+		private readonly IMMStrategyService _mmStrategyService;
 		private readonly IMarketMakerService _marketMakerService;
 		private readonly IAntiMarketMakerService _antiMarketMakerService;
 		private readonly ILatencyArbService _latencyArbService;
@@ -64,7 +66,8 @@ namespace TradeSystem.Orchestration
 			INewsArbService newsArbService,
 			IAntiMarketMakerService antiMarketMakerService,
 			IReportService reportService,
-			IMtAccountImportService mtAccountImportService)
+			IMtAccountImportService mtAccountImportService,
+			IMMStrategyService mmStrategyService)
 		{
 			_newsArbService = newsArbService;
 			_latencyArbService = latencyArbService;
@@ -72,6 +75,7 @@ namespace TradeSystem.Orchestration
 			_marketMakerService = marketMakerService;
 			_spoofStrategyService = spoofStrategyService;
 			_mtAccountImportService = mtAccountImportService;
+			_mmStrategyService = mmStrategyService;
 			_reportService = reportService;
 			_connectorFactory = connectorFactory;
 			_hubArbService = hubArbService;

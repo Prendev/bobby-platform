@@ -151,6 +151,9 @@ namespace TradeSystem.Orchestration
 
 			var newsArbs = duplicatContext.NewsArbs.Local.ToList();
 			_newsArbService.Start(newsArbs);
+
+			var mms = duplicatContext.MMs.Local.ToList();
+			mms.ForEach(mm => _mmStrategyService.Start(mm));
 		}
 
 		public void StopStrategies()
@@ -160,6 +163,7 @@ namespace TradeSystem.Orchestration
 			_antiMarketMakerService.Stop();
 			_latencyArbService.Stop();
 			_newsArbService.Stop();
+			_mmStrategyService.SuspendAll();
 		}
 
 		public async Task HubArbsGoFlat(DuplicatContext duplicatContext)

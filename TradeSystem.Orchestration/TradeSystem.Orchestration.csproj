@@ -268,6 +268,14 @@
       <Project>{73a2679e-f17e-4484-8874-461d3fc895dd}</Project>
       <Name>TradeSystem.Mt4Integration</Name>
     </ProjectReference>
+    <ProjectReference Include="..\TradeSystem.Strategies.MarketMaker\TradeSystem.Strategies.MarketMaker.csproj">
+      <Project>{734bfde5-325e-4ef9-924c-1401562e6626}</Project>
+      <Name>TradeSystem.Strategies.MarketMaker</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TradeSystem.Strategies\TradeSystem.Strategies.csproj">
+      <Project>{86CB137F-C15C-4680-A87D-193D8893243E}</Project>
+      <Name>TradeSystem.Strategies</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">

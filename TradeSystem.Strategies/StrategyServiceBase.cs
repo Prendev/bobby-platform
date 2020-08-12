@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using TradeSystem.Data.Models;
 
@@ -49,6 +51,9 @@ namespace TradeSystem.Strategies
 			cts?.Cancel(true);
 			strategy.WaitHandle.Set();
 		}
+
+		/// <inheritdoc/>
+		public void SuspendAll() => _sources.ToList().ForEach(s => Suspend(s.Key));
 
 		/// <summary>
 		/// Thread runner function

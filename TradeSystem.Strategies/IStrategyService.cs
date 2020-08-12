@@ -19,5 +19,10 @@ namespace TradeSystem.Strategies
 		/// </summary>
 		/// <param name="strategy">Set of a trading strategy</param>
 		void Suspend(T strategy);
+
+		/// <summary>
+		/// Suspend all trading
+		/// </summary>
+		void SuspendAll();
 	}
 }
