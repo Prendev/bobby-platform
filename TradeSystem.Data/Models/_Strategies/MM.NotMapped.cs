@@ -33,6 +33,13 @@ namespace TradeSystem.Data.Models
 			set => Set(value);
 		}
 
+		[NotMapped] [InvisibleColumn] public decimal MinProfitability => MinProfitabilityInTick * TickSize;
+		[NotMapped] [InvisibleColumn] public IFixConnector MakerConnector => (IFixConnector) MakerAccount.Connector;
+		[NotMapped] [InvisibleColumn] public IFixConnector TakerConnector => (IFixConnector) TakerAccount.Connector;
+		[NotMapped] [InvisibleColumn] public LimitResponse MakerSellLimit { get; set; }
+		[NotMapped] [InvisibleColumn] public LimitResponse MakerBuyLimit { get; set; }
+
+
 		[NotMapped] [InvisibleColumn] public DateTime UtcNow =>
 			MakerAccount.BacktesterAccount?.UtcNow ?? HiResDatetime.UtcNow;
 		[NotMapped] [InvisibleColumn] public AutoResetEvent WaitHandle { get; } = new AutoResetEvent(false);

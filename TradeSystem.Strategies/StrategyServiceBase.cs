@@ -140,16 +140,16 @@ namespace TradeSystem.Strategies
 		/// <summary>
 		/// Check for trading action
 		/// </summary>
-		/// <param name="strategy">Set of a trading strategy</param>
+		/// <param name="set">Set of a trading strategy</param>
 		/// <param name="token"> Cancellation token</param>
-		protected abstract void Check(T strategy, CancellationToken token);
+		protected abstract void Check(T set, CancellationToken token);
 
 		/// <summary>
 		/// Is backtester
 		/// </summary>
-		/// <param name="strategy">Set of a trading strategy</param>
+		/// <param name="set">Set of a trading strategy</param>
 		/// <returns>True or false</returns>
-		protected abstract bool IsBackTester(T strategy);
+		protected abstract bool IsBackTester(T set);
 
 		/// <summary>
 		/// Tick processed event handler
