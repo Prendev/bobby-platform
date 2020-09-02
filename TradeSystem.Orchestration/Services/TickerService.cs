@@ -363,7 +363,7 @@ namespace TradeSystem.Orchestration.Services
 		}
 
 	    private List<decimal?> ToLastRecord(QuoteSet quoteSet, int take)
-	    {
+	    { 
 		    var list = new List<decimal?>();
 
 		    foreach (var qe in quoteSet.Entries.Take(take))
