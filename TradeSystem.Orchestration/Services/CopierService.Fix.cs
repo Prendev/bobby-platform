@@ -22,7 +22,6 @@ namespace TradeSystem.Orchestration.Services
 				.Select(copier => DelayedRun(async () =>
 				{
 					var quantity = Math.Abs(e.Position.Lots * copier.CopyRatio);
-					quantity = Math.Floor(quantity);
 					if (quantity == 0)
 					{
 						Logger.Warn($"CopierService.CopyToFixAccount {slave} {symbol} quantity is zero!!!");
