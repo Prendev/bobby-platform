@@ -16,6 +16,9 @@ namespace TradeSystem.Strategies.MarketMaker
 			while (set.LimitFills.TryDequeue(out var e))
 				OnLimitFill(set, e.Account, e.LimitFill);
 
+			if (set.LastTakerTick == null) return;
+			if (set.LastMakerTick == null) return;
+
 			if (set.LastTakerTick.Bid - set.LastMakerTick.Bid >= set.MinProfitability)
 			{
 				if (set.MakerBuyLimit == null)

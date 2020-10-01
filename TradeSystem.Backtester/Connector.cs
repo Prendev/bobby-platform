@@ -47,6 +47,8 @@ namespace TradeSystem.Backtester
 		private int _instanceCount;
 		private int _slippageCount;
 
+		private readonly List<LimitResponse> _limits = new List<LimitResponse>();
+
 		public override int Id => Account?.Id ?? 0;
 		public override string Description => Account?.Description;
 		public override bool IsConnected => _isConnected;
@@ -106,6 +108,71 @@ namespace TradeSystem.Backtester
 
 			BacktesterLogger.Log(this, symbol, response);
 			return Task.FromResult(response);
+		}
+
+		public override Task<LimitResponse> PutNewOrderRequest(string symbol, Sides side, decimal quantity, decimal limitPrice)
+		{
+			var limit = new LimitResponse()
+			{
+				Symbol = symbol,
+				Side = side,
+				OrderedQuantity = quantity,
+				OrderPrice = limitPrice,
+			};
+
+			lock (_limits)
+			{
+				_limits.Add(limit);
+				CheckLimit(limit);
+			}
+			return Task.FromResult(limit);
+		}
+
+		public override Task<bool> ChangeLimitPrice(LimitResponse response, decimal limitPrice)
+		{
+			lock (_limits)
+			{
+				response.OrderPrice = limitPrice;
+				return Task.FromResult(true);
+			}
+		}
+
+		public override Task<bool> CancelLimit(LimitResponse response)
+		{
+			lock (_limits)
+			{
+				_limits.Remove(response);
+				return Task.FromResult(true);
+			}
+		}
+
+		private void CheckLimit(LimitResponse limit)
+		{
+			if (!LastTicks.TryGetValue(limit.Symbol, out var tick)) return;
+
+			if (limit.Side == Sides.Buy && tick.Ask >= limit.OrderPrice)
+			{
+				limit.FilledQuantity = limit.OrderedQuantity;
+				_limits.Remove(limit);
+				OnLimitFill(new LimitFill()
+				{
+					LimitResponse = limit,
+					Price = tick.Ask,
+					Quantity = limit.FilledQuantity
+				});
+			}
+
+			else if (limit.Side == Sides.Sell && tick.Bid <= limit.OrderPrice)
+			{
+				limit.FilledQuantity = limit.OrderedQuantity;
+				_limits.Remove(limit);
+				OnLimitFill(new LimitFill()
+				{
+					LimitResponse = limit,
+					Price = tick.Bid,
+					Quantity = limit.FilledQuantity
+				});
+			}
 		}
 
 		private void Slippage(BacktesterInstrumentConfig instrumentConfig)
@@ -192,7 +259,7 @@ namespace TradeSystem.Backtester
 						var a = csvReader.GetField<string>(config.AskColumn);
 						var b = csvReader.GetField<string>(config.BidColumn);
 
-						var dateTime = DateTime.ParseExact(dt, config.DateTimeFormat, CultureInfo.InvariantCulture);
+						var dateTime = DateTime.ParseExact(dt, config.GetDateTimeFormat(), CultureInfo.InvariantCulture);
 						DateTime.SpecifyKind(dateTime, DateTimeKind.Utc);
 						var ask = decimal.Parse(a);
 						var bid = decimal.Parse(b);
@@ -240,6 +307,12 @@ namespace TradeSystem.Backtester
 
 						LastTicks.AddOrUpdate(tick.Symbol, key => tick, (key, old) => tick);
 						if (Account.TickSleepInMs > 0) Thread.Sleep(Account.TickSleepInMs);
+
+						lock (_limits)
+						{
+							for (var l = _limits.Count - 1; l >= 0; l--)
+								CheckLimit(_limits[l]);
+						}
 
 						OnNewTick(new NewTick { Tick = tick });
 						Enumerable.Range(0, _slippageCount).ToList().ForEach(i => _slippageHandle.Set());
