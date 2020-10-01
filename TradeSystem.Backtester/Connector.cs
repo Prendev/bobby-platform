@@ -47,7 +47,8 @@ namespace TradeSystem.Backtester
 		private int _instanceCount;
 		private int _slippageCount;
 
-		private readonly List<LimitResponse> _limits = new List<LimitResponse>();
+		private readonly ConcurrentDictionary<LimitResponse, object> _limits =
+			new ConcurrentDictionary<LimitResponse, object>();
 
 		public override int Id => Account?.Id ?? 0;
 		public override string Description => Account?.Description;
@@ -120,9 +121,9 @@ namespace TradeSystem.Backtester
 				OrderPrice = limitPrice,
 			};
 
-			lock (_limits)
+			lock (this)
 			{
-				_limits.Add(limit);
+				_limits.AddOrUpdate(limit, _ => null, (_, __) => null);
 				CheckLimit(limit);
 			}
 			return Task.FromResult(limit);
@@ -130,47 +131,41 @@ namespace TradeSystem.Backtester
 
 		public override Task<bool> ChangeLimitPrice(LimitResponse response, decimal limitPrice)
 		{
-			lock (_limits)
-			{
-				response.OrderPrice = limitPrice;
-				return Task.FromResult(true);
-			}
+			response.OrderPrice = limitPrice;
+			return Task.FromResult(true);
 		}
 
 		public override Task<bool> CancelLimit(LimitResponse response)
 		{
-			lock (_limits)
-			{
-				_limits.Remove(response);
-				return Task.FromResult(true);
-			}
+			_limits.TryRemove(response, out var _);
+			return Task.FromResult(true);
 		}
 
-		private void CheckLimit(LimitResponse limit)
+		private void CheckLimit(LimitResponse response)
 		{
-			if (!LastTicks.TryGetValue(limit.Symbol, out var tick)) return;
+			if (!LastTicks.TryGetValue(response.Symbol, out var tick)) return;
 
-			if (limit.Side == Sides.Buy && tick.Ask >= limit.OrderPrice)
+			if (response.Side == Sides.Buy && tick.Ask >= response.OrderPrice)
 			{
-				limit.FilledQuantity = limit.OrderedQuantity;
-				_limits.Remove(limit);
+				response.FilledQuantity = response.OrderedQuantity;
+				_limits.TryRemove(response, out var _);
 				OnLimitFill(new LimitFill()
 				{
-					LimitResponse = limit,
+					LimitResponse = response,
 					Price = tick.Ask,
-					Quantity = limit.FilledQuantity
+					Quantity = response.FilledQuantity
 				});
 			}
 
-			else if (limit.Side == Sides.Sell && tick.Bid <= limit.OrderPrice)
+			else if (response.Side == Sides.Sell && tick.Bid <= response.OrderPrice)
 			{
-				limit.FilledQuantity = limit.OrderedQuantity;
-				_limits.Remove(limit);
+				response.FilledQuantity = response.OrderedQuantity;
+				_limits.TryRemove(response, out var _);
 				OnLimitFill(new LimitFill()
 				{
-					LimitResponse = limit,
+					LimitResponse = response,
 					Price = tick.Bid,
-					Quantity = limit.FilledQuantity
+					Quantity = response.FilledQuantity
 				});
 			}
 		}
@@ -308,11 +303,8 @@ namespace TradeSystem.Backtester
 						LastTicks.AddOrUpdate(tick.Symbol, key => tick, (key, old) => tick);
 						if (Account.TickSleepInMs > 0) Thread.Sleep(Account.TickSleepInMs);
 
-						lock (_limits)
-						{
-							for (var l = _limits.Count - 1; l >= 0; l--)
-								CheckLimit(_limits[l]);
-						}
+						foreach (var response in _limits.Keys.ToList())
+							CheckLimit(response);
 
 						OnNewTick(new NewTick { Tick = tick });
 						Enumerable.Range(0, _slippageCount).ToList().ForEach(i => _slippageHandle.Set());
