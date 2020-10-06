@@ -17,6 +17,12 @@ namespace TradeSystem.Data.Models
 		private readonly Expression<Func<StrategyEntityBase, Account>>[] _accounts;
 
 		/// <summary>
+		/// Store limit fills by account to avoid duplicate events
+		/// </summary>
+		private readonly ConcurrentDictionary<(Account Account, LimitFill LimitFill), bool> _limitFills =
+			new ConcurrentDictionary<(Account Account, LimitFill LimitFill), bool>();
+
+		/// <summary>
 		/// Event handler for new tick
 		/// </summary>
 		public event EventHandler<NewTick> NewTick;
@@ -127,8 +133,11 @@ namespace TradeSystem.Data.Models
 				NewTick?.Invoke(this, newTick);
 		}
 
-		private void AccountLimitFill(object sender, LimitFill limitFill) =>
+		private void AccountLimitFill(object sender, LimitFill limitFill)
+		{
+			if (!_limitFills.TryAdd(((Account) sender, limitFill), true)) return;
 			LimitFill?.Invoke(this, ((Account) sender, limitFill));
+		}
 
 		/// <summary>
 		/// Subscribe to account(s)

@@ -69,7 +69,8 @@ namespace TradeSystem.Backtester
 		public override void Disconnect()
 		{
 			_isStarted = false;
-			_cancellation?.Cancel(false);
+			if (_cancellation?.IsCancellationRequested == false)
+				_cancellation?.Cancel(false);
 			_cancellation?.Dispose();
 			_isConnected = false;
 			OnConnectionChanged(ConnectionStates.Disconnected);
@@ -155,6 +156,7 @@ namespace TradeSystem.Backtester
 					Price = tick.Ask,
 					Quantity = response.FilledQuantity
 				});
+				BacktesterLogger.Log(this, response);
 			}
 
 			else if (response.Side == Sides.Sell && tick.Bid <= response.OrderPrice)
@@ -167,6 +169,7 @@ namespace TradeSystem.Backtester
 					Price = tick.Bid,
 					Quantity = response.FilledQuantity
 				});
+				BacktesterLogger.Log(this, response);
 			}
 		}
 
@@ -323,7 +326,8 @@ namespace TradeSystem.Backtester
 		{
 			_index = 0;
 			_slippageCount = 0;
-			_cancellation?.Cancel(false);
+			if (_cancellation?.IsCancellationRequested == false)
+				_cancellation?.Cancel(false);
 			_cancellation?.Dispose();
 			_waitHandle.Set();
 			_pauseHandle.Set();

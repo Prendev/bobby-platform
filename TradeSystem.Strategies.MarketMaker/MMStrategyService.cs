@@ -85,6 +85,8 @@ namespace TradeSystem.Strategies.MarketMaker
 		private void OnLimitFill(MM set, Account account, LimitFill limitFill)
 		{
 			if (account != set.MakerAccount) return;
+			Logger.Debug(
+				$"MMStrategyService {set} Maker account {limitFill.LimitResponse.Side} limit fill of {limitFill.Quantity} on price {limitFill.Price}");
 			set.TakerConnector.SendMarketOrderRequest(set.TakerSymbol, limitFill.LimitResponse.Side.Inv(), set.OrderSize);
 		}
 	}

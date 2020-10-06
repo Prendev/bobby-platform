@@ -15,6 +15,17 @@ namespace TradeSystem.Backtester
 			             $"\t{response.Slippage()}");
 		}
 
+		public static void Log(Connector connector, LimitResponse response)
+		{
+			Logger.Debug($"\t{connector.Description}" +
+			             $"\t{connector.Account.UtcNow:yyyy-MM-dd HH:mm:ss.ffff}" +
+			             $"\t{response.Symbol}" +
+			             $"\t{response.Side}" +
+			             $"\t{response.FilledQuantity}" +
+			             $"\t{response.OrderPrice}" +
+			             $"\t{0}");
+		}
+
 		private static decimal? Slippage(this OrderResponse response)
 		{
 			if (response.Side == Sides.Sell) return response.AveragePrice - response.OrderPrice;
