@@ -24,6 +24,13 @@ namespace TradeSystem.Data.Models
 		public decimal MinProfitabilityInTick { get; set; } = 1;
 
 		/// <summary>
+		/// If enabled, the strategy will place the order on top of the top bid and ask if it is more profitable to place it there.
+		/// If disabled, the strategy will ignore the top of the maker order book for price calculations and only place the order based on taker price and MinProfitabilityInTick.
+		/// Refer to Adjusting orders and maker price calculations section above. Default value: True
+		/// </summary>
+		public bool AdjustOrderEnabled { get; set; } = true;
+
+		/// <summary>
 		/// Use mimimum size
 		/// </summary>
 		public decimal OrderSize { get; set; } = 1;

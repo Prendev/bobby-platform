@@ -53,12 +53,16 @@ namespace TradeSystem.Common.Logging
 
 		private static void LoggingLoop()
 		{
+			var counter = 0;
 			while (true)
 			{
 				var entry = LogQueue.Take();
 				var lazyMessage = new LazyMessage(() =>
 					$"{entry.TimeStamp:yyyy-MM-dd HH:mm:ss.ffff} [{entry.Thread.Name ?? entry.Thread.ManagedThreadId.ToString()}] {entry.Message}");
 				entry.Logger.Log(entry.Level, lazyMessage, entry.Exception);
+				if (counter++ < 10) continue;
+				counter = 0;
+				Thread.Sleep(0);
 			}
 		}
 
