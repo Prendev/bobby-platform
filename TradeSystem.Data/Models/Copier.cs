@@ -39,7 +39,8 @@ namespace TradeSystem.Data.Models
 		[DisplayName("Period")] public int RetryPeriodInMs { get; set; } = 25;
 		[DisplayName("Slippage")] public int SlippageInPips { get; set; }
 		public decimal PipSize { get; set; } = 1;
-		public string Comment { get; set; }
+		[DisplayName("FilterComment")] public string Comment { get; set; }
+		public string TradeComment { get; set; }
 
 		public List<CopierPosition> CopierPositions { get; } = new List<CopierPosition>();
 

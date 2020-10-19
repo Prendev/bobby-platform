@@ -311,7 +311,7 @@ namespace TradeSystem.Orchestration.Services
 
 						    reopenPos.MasterTicket = e.Position.Id;
 						    var newPos = slaveConnector.SendMarketOrderRequest(symbol, side, lots, e.Position.MagicNumber,
-							    copier.Comment, copier.MaxRetryCount, copier.RetryPeriodInMs);
+							    copier.TradeComment, copier.MaxRetryCount, copier.RetryPeriodInMs);
 						    if (newPos?.Pos == null) return Task.CompletedTask;
 
 						    UpdateCrossPosition(copier, reopenPos.SlaveTicket, newPos.Pos.Id);
@@ -321,7 +321,7 @@ namespace TradeSystem.Orchestration.Services
 					    else
 					    {
 						    var newPos = slaveConnector.SendMarketOrderRequest(symbol, side, lots, e.Position.MagicNumber,
-							    copier.Comment, copier.MaxRetryCount, copier.RetryPeriodInMs);
+							    copier.TradeComment, copier.MaxRetryCount, copier.RetryPeriodInMs);
 
 						    if (newPos == null) return Task.CompletedTask;
 						    copier.CopierPositions.AddSafe(new CopierPosition()
