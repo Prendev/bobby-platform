@@ -69,5 +69,22 @@ namespace TradeSystem.Data.Models
 			longAvg = longAvg ?? 0;
 			return (ShortOpenPrice - shortAvg) - (LongOpenPrice - longAvg);
 		}
+
+		public bool CheckMinOpenPeriod(LatencyArb set)
+		{
+			if (!HasBothSides) return false;
+			if (set.MinOpenPeriodInSec <= 0) return true;
+			if ((set.UtcNow - LongPosition.OpenTime).TotalSeconds < set.MinOpenPeriodInSec) return false;
+			if ((set.UtcNow - ShortPosition.OpenTime).TotalSeconds < set.MinOpenPeriodInSec) return false;
+			return true;
+		}
+
+		public bool CheckMaxOpenPeriod(LatencyArb set)
+		{
+			if (set.MaxOpenPeriodInSec <= 0) return true;
+			if (HasLong && (set.UtcNow - LongPosition.OpenTime).TotalSeconds > set.MaxOpenPeriodInSec) return false;
+			if (HasShort && (set.UtcNow - ShortPosition.OpenTime).TotalSeconds > set.MaxOpenPeriodInSec) return false;
+			return true;
+		}
 	}
 }

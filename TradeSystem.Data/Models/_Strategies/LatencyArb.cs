@@ -85,6 +85,8 @@ namespace TradeSystem.Data.Models
 
 		[DisplayName("AvgPeriod")] public int AveragingPeriodInSeconds { get; set; }
 		[DisplayName("RestPeriod")] public int RestingPeriodInSec { get; set; }
+		[DisplayName("MinOpenPeriod")] public int MinOpenPeriodInSec { get; set; }
+		[DisplayName("MaxOpenPeriod")] public int MaxOpenPeriodInSec { get; set; }
 		[DisplayName("ReopenDaysOld")] public int ReopenThresholdInDay { get; set; } = 5;
 		[DisplayName("R Count")] public int ReopenCount { get => Get<int>(); set => Set(value); }
 

@@ -688,8 +688,10 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			    set.State != LatencyArb.LatencyArbStates.ImmediateExit &&
 			    set.State != LatencyArb.LatencyArbStates.ImmediateExitReopen) return;
 
-			var first = set.LivePositions.OrderBy(p => p.Level)
-				.FirstOrDefault(p => p.HasBothSides ||
+			var first = set.LivePositions
+				.OrderBy(p => p.Level)
+				.FirstOrDefault(p => (p.HasBothSides && p.CheckMinOpenPeriod(set)) ||
+									 !p.CheckMaxOpenPeriod(set) ||
 				                     set.State == LatencyArb.LatencyArbStates.ImmediateExit ||
 				                     set.State == LatencyArb.LatencyArbStates.ImmediateExitReopen);
 			if (first == null) return;
@@ -708,9 +710,11 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				if (!set.IsConnected) return;
 				if (set.State != LatencyArb.LatencyArbStates.ImmediateExit &&
 				    set.State != LatencyArb.LatencyArbStates.ImmediateExitReopen &&
-				    !set.ShortSpreadCheck) return;
+				    first.CheckMaxOpenPeriod(set) &&
+					!set.ShortSpreadCheck) return;
 				if (set.State != LatencyArb.LatencyArbStates.ImmediateExit &&
 				    set.State != LatencyArb.LatencyArbStates.ImmediateExitReopen &&
+				    first.CheckMaxOpenPeriod(set) &&
 					!set.LongSpreadCheck) return;
 				if (set.LastActionTime.HasValue &&
 				    (set.UtcNow - set.LastActionTime.Value).TotalSeconds < set.RestingPeriodInSec) return;
@@ -719,6 +723,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				if (set.FirstSide != LatencyArb.LatencyArbFirstSides.Short &&
 				    (set.State == LatencyArb.LatencyArbStates.ImmediateExit ||
 				     set.State == LatencyArb.LatencyArbStates.ImmediateExitReopen ||
+				     !first.CheckMaxOpenPeriod(set) ||
 					 set.NormFeedBid <= set.NormLongBid - (set.LongCloseSignalDiffInPip + longOffset) * set.PipSize))
 				{
 					if (set.Copier != null) set.Copier.Run = false;
@@ -732,14 +737,17 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 					first.LongClosePrice = closePos.ClosePrice;
 					first.Trailing = null;
+					var maxOpenPeriodText = !first.CheckMaxOpenPeriod(set) ? " because max open period is reached" : "";
 					Logger.Info($"{set} latency arb - {first.Level}. long first side closed at {closePos.ClosePrice} and offset {longOffset}" +
-					            $"{Environment.NewLine}\tExecution time is {closePos.ExecutionTime} ms with {closePos.Slippage / set.PipSize:F2} pip slippage");
+					            $"{Environment.NewLine}\tExecution time is {closePos.ExecutionTime} ms with {closePos.Slippage / set.PipSize:F2} pip slippage" +
+					            $"{maxOpenPeriodText}");
 				}
 
 				// Short close signal
 				else if (set.FirstSide != LatencyArb.LatencyArbFirstSides.Long &&
 				         (set.State == LatencyArb.LatencyArbStates.ImmediateExit ||
 				          set.State == LatencyArb.LatencyArbStates.ImmediateExitReopen ||
+				          !first.CheckMaxOpenPeriod(set) ||
 						  set.NormFeedAsk >= set.NormShortAsk + (set.ShortCloseSignalDiffInPip + shortOffset) * set.PipSize))
 				{
 					if (set.Copier != null) set.Copier.Run = false;
@@ -753,8 +761,10 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 					first.ShortClosePrice = closePos.ClosePrice;
 					first.Trailing = null;
+					var maxOpenPeriodText = !first.CheckMaxOpenPeriod(set) ? " because max open period is reached" : "";
 					Logger.Info($"{set} latency arb - {first.Level}. short first side closed at {closePos.ClosePrice} and offset {shortOffset}" +
-					            $"{Environment.NewLine}\tExecution time is {closePos.ExecutionTime} ms with {closePos.Slippage / set.PipSize:F2} pip slippage");
+					            $"{Environment.NewLine}\tExecution time is {closePos.ExecutionTime} ms with {closePos.Slippage / set.PipSize:F2} pip slippage" +
+					            $"{maxOpenPeriodText}");
 				}
 			}
 			// Long side closed
@@ -773,7 +783,8 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				if (hedgePrice >= firstPrice + (set.SlInPip + shortOffset) * set.PipSize) hedge = true;
 				if (set.State != LatencyArb.LatencyArbStates.ImmediateExit &&
 				    set.State != LatencyArb.LatencyArbStates.ImmediateExitReopen &&
-				    !hedge) return;
+					first.CheckMaxOpenPeriod(set) &&
+					!hedge) return;
 
 				var closePos = CloseShort(set, first, false);
 				if (closePos == null) return;
@@ -783,8 +794,10 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				var normPip = ((first.LongClosePrice - (set.LongAvg ?? 0)) - (closePos.ClosePrice - (set.ShortAvg ?? 0))) / set.PipSize;
 				if (pip < set.EmergencyCloseThresholdInPip && set.EmergencyOff > 0) set.EmergencyCount++;
 				else set.EmergencyCount = 0;
+				var maxOpenPeriodText = !first.CheckMaxOpenPeriod(set) ? " because max open period is reached" : "";
 				Logger.Info($"{set} latency arb - {first.Level}. short hedge side closed at {closePos.ClosePrice} with {pip} pips, {normPip:F2} norm pips and offset {shortOffset}" +
-				            $"{Environment.NewLine}\tExecution time is {closePos.ExecutionTime} ms with {closePos.Slippage / set.PipSize:F2} pip slippage");
+				            $"{Environment.NewLine}\tExecution time is {closePos.ExecutionTime} ms with {closePos.Slippage / set.PipSize:F2} pip slippage" +
+				            $"{maxOpenPeriodText}");
 				EmergencyAvgClosedPip(set);
 				// Switch state if rotating
 				if (set.Rotating && set.State == LatencyArb.LatencyArbStates.Closing &&
@@ -807,6 +820,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				if (hedgePrice <= firstPrice - (set.SlInPip + longOffset) * set.PipSize) hedge = true;
 				if (set.State != LatencyArb.LatencyArbStates.ImmediateExit &&
 				    set.State != LatencyArb.LatencyArbStates.ImmediateExitReopen &&
+				    first.CheckMaxOpenPeriod(set) &&
 					!hedge) return;
 
 				var closePos = CloseLong(set, first, false);
@@ -817,8 +831,10 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				var normPip = ((closePos.ClosePrice - (set.LongAvg ?? 0)) - (first.ShortClosePrice - (set.ShortAvg ?? 0))) / set.PipSize;
 				if (pip < set.EmergencyCloseThresholdInPip && set.EmergencyOff > 0) set.EmergencyCount++;
 				else set.EmergencyCount = 0;
+				var maxOpenPeriodText = !first.CheckMaxOpenPeriod(set) ? " because max open period is reached" : "";
 				Logger.Info($"{set} latency arb - {first.Level}. long hedge side closed at {closePos.ClosePrice} with {pip} pips, {normPip:F2} norm pips and offset {longOffset}" +
-				            $"{Environment.NewLine}\tExecution time is {closePos.ExecutionTime} ms with {closePos.Slippage / set.PipSize:F2} pip slippage");
+				            $"{Environment.NewLine}\tExecution time is {closePos.ExecutionTime} ms with {closePos.Slippage / set.PipSize:F2} pip slippage" +
+				            $"{maxOpenPeriodText}");
 				EmergencyAvgClosedPip(set);
 				// Switch state if rotating
 				if (set.Rotating && set.State == LatencyArb.LatencyArbStates.Closing &&
