@@ -119,6 +119,8 @@ namespace TradeSystem.Duplicat.Views
 			cbOpeningHedge.AddBinding("Checked", pushing, nameof(pushing.IsHedgeOpen));
 			cbClosingHedge.DataBindings.Clear();
 			cbClosingHedge.AddBinding("Checked", pushing, nameof(pushing.IsHedgeClose));
+			cbAutoLatencyClose.DataBindings.Clear();
+			cbAutoLatencyClose.AddBinding("Checked", pushing, nameof(pushing.IsAutoLatencyClose));
 			cbFlip.DataBindings.Clear();
 			cbFlip.AddBinding("Checked", pushing, nameof(pushing.IsFlipClose));
 

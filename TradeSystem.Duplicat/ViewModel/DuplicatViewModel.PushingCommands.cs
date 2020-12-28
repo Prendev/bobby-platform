@@ -99,7 +99,9 @@ namespace TradeSystem.Duplicat.ViewModel
 
 			PushingState = PushingStates.AfterOpeningAlpha;
 			await _orchestrator.OpeningFinish(pushing);
-			PushingState = PushingStates.BeforeClosing;
+
+			if (pushing.IsAutoLatencyClose) PushingLatencyCloseCommand(pushing);
+			else PushingState = PushingStates.BeforeClosing;
 		}
 
 		public async void PushingLatencyCloseCommand(Pushing pushing)

@@ -27,6 +27,7 @@ namespace TradeSystem.Data.Models
 		[NotMapped] [InvisibleColumn] public Sides FirstCloseSide { get; set; }
 		[NotMapped] [InvisibleColumn] public bool IsHedgeOpen { get => Get(() => true); set => Set(value); }
 		[NotMapped] [InvisibleColumn] public bool IsHedgeClose { get => Get(() => true); set => Set(value); }
+		[NotMapped] [InvisibleColumn] public bool IsAutoLatencyClose { get => Get(() => true); set => Set(value); }
 		[NotMapped] [InvisibleColumn] public bool IsFlipClose { get => Get(() => true); set => Set(value); }
 		[NotMapped] [InvisibleColumn] public Position AlphaPosition { get; set; }
 		[NotMapped] [InvisibleColumn] public Position BetaPosition { get; set; }
@@ -54,6 +55,7 @@ namespace TradeSystem.Data.Models
 		{
 			IsHedgeOpen = true;
 			IsHedgeClose = true;
+			IsAutoLatencyClose = false;
 			IsFlipClose = false;
 
 			SetAction<Account>(nameof(FutureAccount),
