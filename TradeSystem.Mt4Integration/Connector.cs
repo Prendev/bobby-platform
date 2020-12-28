@@ -468,7 +468,7 @@ namespace TradeSystem.Mt4Integration
 		        accountInfo.LocalPortForProxy.HasValue ? "localhost" : host, accountInfo.LocalPortForProxy ?? port);
 
 	        if (!string.IsNullOrWhiteSpace(Mt4ApiLoginIdWebServerUrl))
-		        client.LoginIdWebServerUrl = Mt4ApiLoginIdWebServerUrl;
+		        client.LoginIdPath = Mt4ApiLoginIdWebServerUrl;
 
 			return client;
         }
