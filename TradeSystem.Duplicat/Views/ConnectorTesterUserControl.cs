@@ -1,4 +1,6 @@
-﻿using System.Windows.Forms;
+﻿using System.Linq;
+using System.Windows.Forms;
+using TradeSystem.Communication.ConnectorTester.Controls;
 using TradeSystem.Data.Models;
 using TradeSystem.Duplicat.ViewModel;
 using TradeSystem.FixApiIntegration;
@@ -13,6 +15,8 @@ namespace TradeSystem.Duplicat.Views
 		public ConnectorTesterUserControl()
 		{
 			InitializeComponent();
+			ConfigurationHelper.LoadConnectorAssemblies();
+			ExtensionsHelper.LoadExtensions();
 		}
 
 		public void InitView(DuplicatViewModel viewModel)
@@ -20,11 +24,12 @@ namespace TradeSystem.Duplicat.Views
 			_viewModel = viewModel;
 
 			btnLoad.Click += (s, e) => LoadConnector();
+			btnRefresh.Click += (s, e) => AttachDataSources();
 		}
 
 		public void AttachDataSources()
 		{
-			accountComboBox.DataSource = _viewModel.Accounts;
+			accountComboBox.DataSource = _viewModel.Accounts.Where(a => a.FixApiAccountId.HasValue).ToList();
 		}
 
 		private void LoadConnector()

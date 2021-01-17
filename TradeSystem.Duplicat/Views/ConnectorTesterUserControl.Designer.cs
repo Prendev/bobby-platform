@@ -34,6 +34,7 @@
 			this.btnLoad = new System.Windows.Forms.Button();
 			this.gbTester = new System.Windows.Forms.GroupBox();
 			this.connectorControl = new TradeSystem.Communication.ConnectorTester.Controls.UserControls.ConnectorControl();
+			this.btnRefresh = new System.Windows.Forms.Button();
 			this.tableLayoutPanel1.SuspendLayout();
 			this.gbControl.SuspendLayout();
 			this.gbTester.SuspendLayout();
@@ -57,6 +58,7 @@
 			// 
 			// gbControl
 			// 
+			this.gbControl.Controls.Add(this.btnRefresh);
 			this.gbControl.Controls.Add(this.accountComboBox);
 			this.gbControl.Controls.Add(this.btnLoad);
 			this.gbControl.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -72,14 +74,14 @@
 			// accountComboBox
 			// 
 			this.accountComboBox.FormattingEnabled = true;
-			this.accountComboBox.Location = new System.Drawing.Point(6, 20);
+			this.accountComboBox.Location = new System.Drawing.Point(214, 24);
 			this.accountComboBox.Name = "accountComboBox";
 			this.accountComboBox.Size = new System.Drawing.Size(200, 24);
 			this.accountComboBox.TabIndex = 0;
 			// 
 			// btnLoad
 			// 
-			this.btnLoad.Location = new System.Drawing.Point(213, 17);
+			this.btnLoad.Location = new System.Drawing.Point(421, 21);
 			this.btnLoad.Margin = new System.Windows.Forms.Padding(4);
 			this.btnLoad.Name = "btnLoad";
 			this.btnLoad.Size = new System.Drawing.Size(200, 28);
@@ -109,6 +111,16 @@
 			this.connectorControl.Size = new System.Drawing.Size(1063, 607);
 			this.connectorControl.TabIndex = 0;
 			// 
+			// btnRefresh
+			// 
+			this.btnRefresh.Location = new System.Drawing.Point(7, 21);
+			this.btnRefresh.Margin = new System.Windows.Forms.Padding(4);
+			this.btnRefresh.Name = "btnRefresh";
+			this.btnRefresh.Size = new System.Drawing.Size(200, 28);
+			this.btnRefresh.TabIndex = 18;
+			this.btnRefresh.Text = "Refresh list";
+			this.btnRefresh.UseVisualStyleBackColor = true;
+			// 
 			// ConnectorTesterUserControl
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -131,5 +143,6 @@
 		private System.Windows.Forms.ComboBox accountComboBox;
 		private System.Windows.Forms.Button btnLoad;
 		private Communication.ConnectorTester.Controls.UserControls.ConnectorControl connectorControl;
+		private System.Windows.Forms.Button btnRefresh;
 	}
 }

@@ -455,6 +455,18 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\git\QvaDev.Wololo\Applications\Testers\IConnector\TradeSystem.Communication.ConnectorTester.DtcExtensions\TradeSystem.Communication.ConnectorTester.DtcExtensions.csproj">
+      <Project>{354d7eef-7828-46da-8e72-aafe0f0cf284}</Project>
+      <Name>TradeSystem.Communication.ConnectorTester.DtcExtensions</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\git\QvaDev.Wololo\Applications\Testers\IConnector\TradeSystem.Communication.ConnectorTester.FixExtensions\TradeSystem.Communication.ConnectorTester.FixExtensions.csproj">
+      <Project>{1df2f201-1d2d-4303-bba0-553a5d1ff62a}</Project>
+      <Name>TradeSystem.Communication.ConnectorTester.FixExtensions</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\git\QvaDev.Wololo\Applications\Testers\IConnector\TradeSystem.Communication.ConnectorTester.Mt5Extensions\TradeSystem.Communication.ConnectorTester.Mt5Extensions.csproj">
+      <Project>{e683a44e-e066-4cf7-9977-b7b3c7f3c852}</Project>
+      <Name>TradeSystem.Communication.ConnectorTester.Mt5Extensions</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\git\QvaDev.Wololo\Bitmex.NET\Bitmex.NET.csproj">
       <Project>{35a78f17-924a-4c87-9a76-01f879050f7c}</Project>
       <Name>Bitmex.NET</Name>
@@ -466,6 +478,10 @@
     <ProjectReference Include="..\..\..\git\QvaDev.Wololo\TradeSystem.Communication.ConnectorTester.Interfaces\TradeSystem.Communication.ConnectorTester.Interfaces.csproj">
       <Project>{e7913c17-8be4-4951-b68d-0697a9d59e48}</Project>
       <Name>TradeSystem.Communication.ConnectorTester.Interfaces</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\git\QvaDev.Wololo\TradeSystem.Communication.ConnectorTester.SnwExtensions\TradeSystem.Communication.ConnectorTester.SnwExtensions.csproj">
+      <Project>{3eaf2a7c-eb13-4188-8435-93047b780b7e}</Project>
+      <Name>TradeSystem.Communication.ConnectorTester.SnwExtensions</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\git\QvaDev.Wololo\TradeSystem.Communication.DtcApi\TradeSystem.Communication.DtcApi.csproj">
       <Project>{eed1bd13-cc26-4ede-99e4-dd59eb4d09bb}</Project>

@@ -5,7 +5,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Timers;
 using Microsoft.EntityFrameworkCore;
-using TradeSystem.Backtester;
 using TradeSystem.Common;
 using TradeSystem.Common.Services;
 using TradeSystem.Data;
