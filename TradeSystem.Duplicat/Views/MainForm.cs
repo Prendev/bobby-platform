@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System.Configuration;
+using System.Drawing;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -26,16 +27,20 @@ namespace TradeSystem.Duplicat.Views
 			Closing += (sender, args) => _viewModel.SaveCommand();
 			InitializeComponent();
 			gbControl.Text = $"Version {GetProductVersion()}";
-			TextBoxAppender.ConfigureTextBoxAppender(rtbGeneral, "General", 1000);
-			TextBoxAppender.ConfigureTextBoxAppender(rtbMt4, "MT4", 1000);
-			TextBoxAppender.ConfigureTextBoxAppender(rtbFix, "FIX", 1000);
-            TextBoxAppender.ConfigureTextBoxAppender(rtbFixCopy, "FIX copy", 1000);
-            TextBoxAppender.ConfigureTextBoxAppender(rtbFixOrders, "FIX orders", 1000);
-			TextBoxAppender.ConfigureTextBoxAppender(rtbCTrader, "CT", 1000);
-			TextBoxAppender.ConfigureTextBoxAppender(rtbBacktester, "BT", 1000);
-			TextBoxAppender.ConfigureTextBoxAppender(rtbAll, "General|MT4|FIX|CT", 1000);
 
-	        ThreadPool.GetMinThreads(out var wokerThreads, out var completionPortThreads);
+			if (!bool.TryParse(ConfigurationManager.AppSettings["DisableGuiLogger"], out var disableLogger) || !disableLogger)
+			{
+				TextBoxAppender.ConfigureTextBoxAppender(rtbGeneral, "General", 1000);
+				TextBoxAppender.ConfigureTextBoxAppender(rtbMt4, "MT4", 1000);
+				TextBoxAppender.ConfigureTextBoxAppender(rtbFix, "FIX", 1000);
+				TextBoxAppender.ConfigureTextBoxAppender(rtbFixCopy, "FIX copy", 1000);
+				TextBoxAppender.ConfigureTextBoxAppender(rtbFixOrders, "FIX orders", 1000);
+				TextBoxAppender.ConfigureTextBoxAppender(rtbCTrader, "CT", 1000);
+				TextBoxAppender.ConfigureTextBoxAppender(rtbBacktester, "BT", 1000);
+				TextBoxAppender.ConfigureTextBoxAppender(rtbAll, "General|MT4|FIX|CT", 1000);
+			}
+
+			ThreadPool.GetMinThreads(out var wokerThreads, out var completionPortThreads);
 			Logger.Debug($"ThreadPool.GetMinThreads(out {wokerThreads}, out {completionPortThreads})");
 			newsCalendarService.Start();
 		}
