@@ -113,6 +113,9 @@
     <Reference Include="Microsoft.Extensions.Primitives, Version=2.1.1.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Extensions.Primitives.2.1.1\lib\netstandard2.0\Microsoft.Extensions.Primitives.dll</HintPath>
     </Reference>
+    <Reference Include="mt5api">
+      <HintPath>..\..\..\git\QvaDev.Wololo\ExternalReferences\MT5Api\mt5api.dll</HintPath>
+    </Reference>
     <Reference Include="NPOI, Version=2.3.0.0, Culture=neutral, PublicKeyToken=0df73ec7942b34e1, processorArchitecture=MSIL">
       <HintPath>..\packages\NPOI.2.3.0\lib\net40\NPOI.dll</HintPath>
     </Reference>
@@ -215,6 +218,10 @@
     <ProjectReference Include="..\..\..\git\QvaDev.Wololo\TradeSystem.Communication.FixApi\TradeSystem.Communication.FixApi.csproj">
       <Project>{5a7c14e4-c1f0-4a9e-8284-d01f0082b483}</Project>
       <Name>TradeSystem.Communication.FixApi</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\git\QvaDev.Wololo\TradeSystem.Communication.Mt5\TradeSystem.Communication.Mt5.csproj">
+      <Project>{AA3796E1-5B4C-4BDD-A102-22D6411F9B93}</Project>
+      <Name>TradeSystem.Communication.Mt5</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\git\QvaDev.Wololo\TradeSystem.Communication\TradeSystem.Communication.csproj">
       <Project>{9B577BD6-AEA9-4F64-9F1D-6EC760103295}</Project>

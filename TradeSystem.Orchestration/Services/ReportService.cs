@@ -5,9 +5,12 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using TradeSystem.Communication.Mt5;
 using TradeSystem.Data.Models;
 using TradeSystem.Mt4Integration;
 using TradingAPI.MT4Server;
+using MarginMode = TradingAPI.MT4Server.MarginMode;
+using SymbolInfo = TradingAPI.MT4Server.SymbolInfo;
 
 namespace TradeSystem.Orchestration.Services
 {
@@ -142,50 +145,97 @@ namespace TradeSystem.Orchestration.Services
 			    var r = 0;
 			    foreach (var export in exports)
 				{
-					var qc = ((Connector)export.Account.Connector).QuoteClient;
-					var symbols = export.Symbol.Contains('*')
-						? qc.Symbols.Where(s => s.Contains(export.Symbol.Replace("*", ""))).ToList()
-						: qc.Symbols.Where(s => s == export.Symbol).ToList();
-					qc.Subscribe(symbols.ToArray());
+					if (export.Account.Connector is Connector mt4Connector)
+					{
+						var qc = mt4Connector.QuoteClient;
+						var symbols = export.Symbol.Contains('*')
+							? qc.Symbols.Where(s => s.Contains(export.Symbol.Replace("*", ""))).ToList()
+							: qc.Symbols.Where(s => s == export.Symbol).ToList();
+						qc.Subscribe(symbols.ToArray());
+					}
+					else if (export.Account.Connector is FixApiIntegration.Connector fixConnector &&
+					         fixConnector.GeneralConnector is Mt5Connector mt5Connector)
+					{
+						var api = mt5Connector.Mt5Api;
+						api.Subscribe(export.Symbol);
+					}
 				}
 			    Thread.Sleep(TimeSpan.FromSeconds(5));
 
 				foreach (var export in exports)
-			    {
-				    var qc = ((Connector)export.Account.Connector).QuoteClient;
+				{
+					if (export.Account.Connector is Connector mt4Connector)
+					{
+						var qc = mt4Connector.QuoteClient;
 
-				    var symbols = export.Symbol.Contains('*')
-					    ? qc.Symbols.Where(s => s.Contains(export.Symbol.Replace("*", "")))
-						: qc.Symbols.Where(s => s == export.Symbol);
+						var symbols = export.Symbol.Contains('*')
+							? qc.Symbols.Where(s => s.Contains(export.Symbol.Replace("*", "")))
+							: qc.Symbols.Where(s => s == export.Symbol);
 
-				    foreach (var symbol in symbols)
-				    {
-					    var quote = qc.GetQuote(symbol);
-						var symbolInfo = qc.GetSymbolInfo(symbol);
+						foreach (var symbol in symbols)
+						{
+							var quote = qc.GetQuote(symbol);
+							var symbolInfo = qc.GetSymbolInfo(symbol);
+							var c = 0;
+							var row = sheet.GetRow(++r) ?? sheet.CreateRow(r);
+
+							wb.CreateTextCell(row, c++, export.Group ?? "");
+							wb.CreateTextCell(row, c++, qc.Account.company);
+							wb.CreateTextCell(row, c++, export.Account.Connector.Description);
+							wb.CreateCell(row, c++, qc.User);
+							wb.CreateCell(row, c++, qc.AccountLeverage);
+							wb.CreateTextCell(row, c++, symbol);
+							wb.CreateTextCell(row, c++, TradeMode(symbolInfo.Ex.trade));
+							if (symbolInfo.Ex.trade == 0) continue;
+							wb.CreateTextCell(row, c++, symbolInfo.MarginMode.ToString());
+							wb.CreateCell(row, c++, symbolInfo.MarginDivider);
+							wb.CreateTextCell(row, c++, symbolInfo.MarginCurrency);
+							wb.CreateCell(row, c++, SymbolLeverage(qc.AccountLeverage, symbolInfo));
+							wb.CreateCell(row, c++, symbolInfo.Digits);
+							wb.CreateCell(row, c++, quote?.Ask);
+							wb.CreateCell(row, c++, quote?.Bid);
+							wb.CreateTextCell(row, c++, symbolInfo.Ex.swap_enable == 0 ? "False" : "True");
+							if (symbolInfo.Ex.swap_enable == 0) continue;
+							wb.CreateTextCell(row, c++, SwapType(symbolInfo.Ex.swap_type));
+							wb.CreateCell(row, c++, symbolInfo.Ex.swap_long);
+							wb.CreateCell(row, c++, symbolInfo.Ex.swap_short);
+							wb.CreateTextCell(row, c++, ThreeDays(symbolInfo.Ex.swap_rollover3days));
+						}
+					}
+					else if (export.Account.Connector is FixApiIntegration.Connector fixConnector &&
+					         fixConnector.GeneralConnector is Mt5Connector mt5Connector)
+					{
+						var api = mt5Connector.Mt5Api;
+						var symbol = export.Symbol;
+
+						var quote = api.GetQuote(symbol);
+						var symbolInfo = api.Symbols.GetInfo(symbol);
+						var groupInfo = api.Symbols.GetGroup(symbol);
 						var c = 0;
 						var row = sheet.GetRow(++r) ?? sheet.CreateRow(r);
 
 						wb.CreateTextCell(row, c++, export.Group ?? "");
-						wb.CreateTextCell(row, c++, qc.Account.company);
+						wb.CreateTextCell(row, c++, api.Server);
 						wb.CreateTextCell(row, c++, export.Account.Connector.Description);
-						wb.CreateCell(row, c++, qc.User);
-						wb.CreateCell(row, c++, qc.AccountLeverage);
+						wb.CreateCell(row, c++, (double) api.User);
+						wb.CreateCell(row, c++, api.Account.Leverage);
 						wb.CreateTextCell(row, c++, symbol);
-						wb.CreateTextCell(row, c++, TradeMode(symbolInfo.Ex.trade));
-						if (symbolInfo.Ex.trade == 0) continue;
-						wb.CreateTextCell(row, c++, symbolInfo.MarginMode.ToString());
-						wb.CreateCell(row, c++, symbolInfo.MarginDivider);
+						wb.CreateTextCell(row, c++, groupInfo.TradeMode.ToString());
+						if (groupInfo.TradeMode == mtapi.mt5.TradeMode.Disabled) continue;
+						wb.CreateTextCell(row, c++, symbolInfo.CalcMode.ToString());
+						wb.CreateCell(row, c++, 0); // Margin divider, unknown
 						wb.CreateTextCell(row, c++, symbolInfo.MarginCurrency);
-						wb.CreateCell(row, c++, SymbolLeverage(qc.AccountLeverage, symbolInfo));
-					    wb.CreateCell(row, c++, symbolInfo.Digits);
-					    wb.CreateCell(row, c++, quote?.Ask);
-					    wb.CreateCell(row, c++, quote?.Bid);
-						wb.CreateTextCell(row, c++, symbolInfo.Ex.swap_enable == 0 ? "False" : "True");
-						if (symbolInfo.Ex.swap_enable == 0) continue;
-						wb.CreateTextCell(row, c++, SwapType(symbolInfo.Ex.swap_type));
-						wb.CreateCell(row, c++, symbolInfo.Ex.swap_long);
-						wb.CreateCell(row, c++, symbolInfo.Ex.swap_short);
-						wb.CreateTextCell(row, c++, ThreeDays(symbolInfo.Ex.swap_rollover3days));
+						wb.CreateCell(row, c++, groupInfo.InitialMargin);
+						wb.CreateCell(row, c++, symbolInfo.Digits);
+						wb.CreateCell(row, c++, quote?.Ask);
+						wb.CreateCell(row, c++, quote?.Bid);
+						wb.CreateTextCell(row, c++, groupInfo.SwapType == mtapi.mt5.SwapType.SwapNone ? "False" : "True");
+						if (groupInfo.SwapType == mtapi.mt5.SwapType.SwapNone) continue;
+
+						wb.CreateTextCell(row, c++, groupInfo.SwapType.ToString());
+						wb.CreateCell(row, c++, groupInfo.SwapLong);
+						wb.CreateCell(row, c++, groupInfo.SwapShort);
+						wb.CreateTextCell(row, c++, groupInfo.ThreeDaysSwap.ToString());
 					}
 				}
 
@@ -239,8 +289,7 @@ namespace TradeSystem.Orchestration.Services
 				    return 1.0 / symbolInfo.MarginDivider;
 				default: return null;
 		    }
-	    }
-
+		}
 
 		public async Task BalanceProfitExport(List<Export> exports, DateTime from, DateTime to)
 	    {
