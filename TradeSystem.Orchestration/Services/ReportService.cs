@@ -157,7 +157,12 @@ namespace TradeSystem.Orchestration.Services
 					         fixConnector.GeneralConnector is Mt5Connector mt5Connector)
 					{
 						var api = mt5Connector.Mt5Api;
-						api.Subscribe(export.Symbol);
+						var symbols = export.Symbol.Contains('*')
+							? api.Symbols.Infos.Select(s => s.Currency)
+								.Where(s => s.Contains(export.Symbol.Replace("*", ""))).ToList()
+							: api.Symbols.Infos.Select(s => s.Currency)
+								.Where(s => s == export.Symbol).ToList();
+						symbols.ForEach(s => api.Subscribe(s));
 					}
 				}
 			    Thread.Sleep(TimeSpan.FromSeconds(5));
@@ -167,7 +172,6 @@ namespace TradeSystem.Orchestration.Services
 					if (export.Account.Connector is Connector mt4Connector)
 					{
 						var qc = mt4Connector.QuoteClient;
-
 						var symbols = export.Symbol.Contains('*')
 							? qc.Symbols.Where(s => s.Contains(export.Symbol.Replace("*", "")))
 							: qc.Symbols.Where(s => s == export.Symbol);
@@ -206,36 +210,42 @@ namespace TradeSystem.Orchestration.Services
 					         fixConnector.GeneralConnector is Mt5Connector mt5Connector)
 					{
 						var api = mt5Connector.Mt5Api;
-						var symbol = export.Symbol;
+						var symbols = export.Symbol.Contains('*')
+							? api.Symbols.Infos.Where(s => s.Currency.Contains(export.Symbol.Replace("*", ""))).ToList()
+							: api.Symbols.Infos.Where(s => s.Currency == export.Symbol).ToList();
 
-						var quote = api.GetQuote(symbol);
-						var symbolInfo = api.Symbols.GetInfo(symbol);
-						var groupInfo = api.Symbols.GetGroup(symbol);
-						var c = 0;
-						var row = sheet.GetRow(++r) ?? sheet.CreateRow(r);
+						foreach (var symbolInfo in symbols)
+						{
+							var symbol = symbolInfo.Currency;
+							var quote = api.GetQuote(symbol);
+							var groupInfo = api.Symbols.GetGroup(symbol);
+							var c = 0;
+							var row = sheet.GetRow(++r) ?? sheet.CreateRow(r);
 
-						wb.CreateTextCell(row, c++, export.Group ?? "");
-						wb.CreateTextCell(row, c++, api.Server);
-						wb.CreateTextCell(row, c++, export.Account.Connector.Description);
-						wb.CreateCell(row, c++, (double) api.User);
-						wb.CreateCell(row, c++, api.Account.Leverage);
-						wb.CreateTextCell(row, c++, symbol);
-						wb.CreateTextCell(row, c++, groupInfo.TradeMode.ToString());
-						if (groupInfo.TradeMode == mtapi.mt5.TradeMode.Disabled) continue;
-						wb.CreateTextCell(row, c++, symbolInfo.CalcMode.ToString());
-						wb.CreateCell(row, c++, 0); // Margin divider, unknown
-						wb.CreateTextCell(row, c++, symbolInfo.MarginCurrency);
-						wb.CreateCell(row, c++, groupInfo.InitialMargin);
-						wb.CreateCell(row, c++, symbolInfo.Digits);
-						wb.CreateCell(row, c++, quote?.Ask);
-						wb.CreateCell(row, c++, quote?.Bid);
-						wb.CreateTextCell(row, c++, groupInfo.SwapType == mtapi.mt5.SwapType.SwapNone ? "False" : "True");
-						if (groupInfo.SwapType == mtapi.mt5.SwapType.SwapNone) continue;
+							wb.CreateTextCell(row, c++, export.Group ?? "");
+							wb.CreateTextCell(row, c++, api.Server);
+							wb.CreateTextCell(row, c++, export.Account.Connector.Description);
+							wb.CreateCell(row, c++, (double) api.User);
+							wb.CreateCell(row, c++, api.Account.Leverage);
+							wb.CreateTextCell(row, c++, symbol);
+							wb.CreateTextCell(row, c++, groupInfo.TradeMode.ToString());
+							if (groupInfo.TradeMode == mtapi.mt5.TradeMode.Disabled) continue;
+							wb.CreateTextCell(row, c++, symbolInfo.CalcMode.ToString());
+							wb.CreateCell(row, c++, 0); // Margin divider, unknown
+							wb.CreateTextCell(row, c++, symbolInfo.MarginCurrency);
+							wb.CreateCell(row, c++, groupInfo.InitialMargin);
+							wb.CreateCell(row, c++, symbolInfo.Digits);
+							wb.CreateCell(row, c++, quote?.Ask);
+							wb.CreateCell(row, c++, quote?.Bid);
+							wb.CreateTextCell(row, c++,
+								groupInfo.SwapType == mtapi.mt5.SwapType.SwapNone ? "False" : "True");
+							if (groupInfo.SwapType == mtapi.mt5.SwapType.SwapNone) continue;
 
-						wb.CreateTextCell(row, c++, groupInfo.SwapType.ToString());
-						wb.CreateCell(row, c++, groupInfo.SwapLong);
-						wb.CreateCell(row, c++, groupInfo.SwapShort);
-						wb.CreateTextCell(row, c++, groupInfo.ThreeDaysSwap.ToString());
+							wb.CreateTextCell(row, c++, groupInfo.SwapType.ToString());
+							wb.CreateCell(row, c++, groupInfo.SwapLong);
+							wb.CreateCell(row, c++, groupInfo.SwapShort);
+							wb.CreateTextCell(row, c++, groupInfo.ThreeDaysSwap.ToString());
+						}
 					}
 				}
 
