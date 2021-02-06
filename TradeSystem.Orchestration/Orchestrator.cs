@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using TradeSystem.Common.Integration;
 using TradeSystem.Communication;
+using TradeSystem.Communication.Mt5;
 using TradeSystem.Data;
 using TradeSystem.Data.Models;
 using TradeSystem.Orchestration.Services;
@@ -204,10 +205,13 @@ namespace TradeSystem.Orchestration
 			_mtAccountImportService.SaveTheWeekend(duplicatContext, from, to);
 
 		public async Task SwapExport(DuplicatContext duplicatContext)
-		{
-			var exports = duplicatContext.Exports.Local
-				.Where(a => a.Account.ConnectionState == ConnectionStates.Connected && a.Account.MetaTraderAccountId.HasValue)
-				.ToList();
+        {
+            var exports = duplicatContext.Exports.Local
+                .Where(a => a.Account.ConnectionState == ConnectionStates.Connected)
+                .Where(a => a.Account.MetaTraderAccountId.HasValue ||
+                            a.Account.FixApiAccountId.HasValue &&
+                            ((FixApiIntegration.Connector) a.Account.Connector).GeneralConnector is Mt5Connector)
+                .ToList();
 
 			await _reportService.SwapExport(exports);
 		}
