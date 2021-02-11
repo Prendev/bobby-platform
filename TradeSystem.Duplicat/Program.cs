@@ -7,6 +7,7 @@ using System.Threading;
 using System.Windows.Forms;
 using Autofac;
 using TradeSystem.Common.Services;
+using TradeSystem.Communication;
 using TradeSystem.Data;
 using TradeSystem.Duplicat.Views;
 
@@ -24,6 +25,8 @@ namespace TradeSystem.Duplicat
 			IEmailService emailService = null;
 			try
 			{
+				SetMarketDataManagerAsynchronousInvocation();
+
 				Application.EnableVisualStyles();
 				Application.SetCompatibleTextRenderingDefault(false);
 
@@ -56,7 +59,22 @@ namespace TradeSystem.Duplicat
 			}
         }
 
-		private static void Application_ThreadException(ThreadExceptionEventArgs e)
+        private static void SetMarketDataManagerAsynchronousInvocation()
+        {
+	        try
+	        {
+		        if (!bool.TryParse(ConfigurationManager.AppSettings["MarketDataManager.AsynchronousInvocation"],
+			        out var value)) return;
+
+		        MarketDataManager.AsynchronousInvocation = value;
+	        }
+	        catch
+	        {
+		        MarketDataManager.AsynchronousInvocation = true;
+	        }
+        }
+
+        private static void Application_ThreadException(ThreadExceptionEventArgs e)
 		{
 			Logger.Error("Unhandled exception", e.Exception);
 		}
