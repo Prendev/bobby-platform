@@ -158,9 +158,9 @@ namespace TradeSystem.Orchestration.Services
 					{
 						var api = mt5Connector.Mt5Api;
 						var symbols = export.Symbol.Contains('*')
-							? api.Symbols.Infos.Select(s => s.Currency)
+							? api.Symbols.Infos.Select(s => s.Value.Currency)
 								.Where(s => s.Contains(export.Symbol.Replace("*", ""))).ToList()
-							: api.Symbols.Infos.Select(s => s.Currency)
+							: api.Symbols.Infos.Select(s => s.Value.Currency)
 								.Where(s => s == export.Symbol).ToList();
 						symbols.ForEach(s => api.Subscribe(s));
 					}
@@ -211,12 +211,12 @@ namespace TradeSystem.Orchestration.Services
 					{
 						var api = mt5Connector.Mt5Api;
 						var symbols = export.Symbol.Contains('*')
-							? api.Symbols.Infos.Where(s => s.Currency.Contains(export.Symbol.Replace("*", ""))).ToList()
-							: api.Symbols.Infos.Where(s => s.Currency == export.Symbol).ToList();
+							? api.Symbols.Infos.Where(s => s.Value.Currency.Contains(export.Symbol.Replace("*", ""))).ToList()
+							: api.Symbols.Infos.Where(s => s.Value.Currency == export.Symbol).ToList();
 
 						foreach (var symbolInfo in symbols)
 						{
-							var symbol = symbolInfo.Currency;
+							var symbol = symbolInfo.Value.Currency;
 							var quote = api.GetQuote(symbol);
 							var groupInfo = api.Symbols.GetGroup(symbol);
 							var c = 0;
@@ -230,11 +230,11 @@ namespace TradeSystem.Orchestration.Services
 							wb.CreateTextCell(row, c++, symbol);
 							wb.CreateTextCell(row, c++, groupInfo.TradeMode.ToString());
 							if (groupInfo.TradeMode == mtapi.mt5.TradeMode.Disabled) continue;
-							wb.CreateTextCell(row, c++, symbolInfo.CalcMode.ToString());
+							wb.CreateTextCell(row, c++, symbolInfo.Value.CalcMode.ToString());
 							wb.CreateCell(row, c++, 0); // Margin divider, unknown
-							wb.CreateTextCell(row, c++, symbolInfo.MarginCurrency);
+							wb.CreateTextCell(row, c++, symbolInfo.Value.MarginCurrency);
 							wb.CreateCell(row, c++, groupInfo.InitialMargin);
-							wb.CreateCell(row, c++, symbolInfo.Digits);
+							wb.CreateCell(row, c++, symbolInfo.Value.Digits);
 							wb.CreateCell(row, c++, quote?.Ask);
 							wb.CreateCell(row, c++, quote?.Bid);
 							wb.CreateTextCell(row, c++,
