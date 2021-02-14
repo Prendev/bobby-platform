@@ -467,6 +467,10 @@
       <Project>{35a78f17-924a-4c87-9a76-01f879050f7c}</Project>
       <Name>Bitmex.NET</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\git\QvaDev.Wololo\TradeSystem.Communication.Binance\TradeSystem.Communication.Binance.csproj">
+      <Project>{ac155e47-e9a3-4689-ab13-6d308a47cc42}</Project>
+      <Name>TradeSystem.Communication.Binance</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\git\QvaDev.Wololo\TradeSystem.Communication.Bitmex\TradeSystem.Communication.Bitmex.csproj">
       <Project>{a96eaae3-c983-4f54-a434-a6928f847fa5}</Project>
       <Name>TradeSystem.Communication.Bitmex</Name>

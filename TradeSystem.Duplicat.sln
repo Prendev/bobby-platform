@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27130.2036
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30907.101
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradeSystem.CTraderApi", "TradeSystem.CTraderApi\TradeSystem.CTraderApi.csproj", "{866039F3-42FF-4D42-A85E-F91CEF04F3DF}"
 EndProject
@@ -80,6 +80,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradeSystem.WinForms", "..\..\git\QvaDev.Wololo\TradeSystem.WinForms\TradeSystem.WinForms.csproj", "{A62B3B57-B00A-4992-9281-A882EA7F7F9F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradeSystem.Communication.ConnectorTester.Controls", "..\..\git\QvaDev.Wololo\Applications\Testers\TradeSystem.Communication.ConnectorTester.Controls\TradeSystem.Communication.ConnectorTester.Controls.csproj", "{B17D2F81-62D0-48A5-9CA6-553463D4935B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradeSystem.Communication.Binance", "..\..\git\QvaDev.Wololo\TradeSystem.Communication.Binance\TradeSystem.Communication.Binance.csproj", "{AC155E47-E9A3-4689-AB13-6D308A47CC42}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -385,6 +387,14 @@ Global
 		{B17D2F81-62D0-48A5-9CA6-553463D4935B}.Release|Any CPU.Build.0 = Release|Any CPU
 		{B17D2F81-62D0-48A5-9CA6-553463D4935B}.Release|x86.ActiveCfg = Release|Any CPU
 		{B17D2F81-62D0-48A5-9CA6-553463D4935B}.Release|x86.Build.0 = Release|Any CPU
+		{AC155E47-E9A3-4689-AB13-6D308A47CC42}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AC155E47-E9A3-4689-AB13-6D308A47CC42}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AC155E47-E9A3-4689-AB13-6D308A47CC42}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{AC155E47-E9A3-4689-AB13-6D308A47CC42}.Debug|x86.Build.0 = Debug|Any CPU
+		{AC155E47-E9A3-4689-AB13-6D308A47CC42}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AC155E47-E9A3-4689-AB13-6D308A47CC42}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AC155E47-E9A3-4689-AB13-6D308A47CC42}.Release|x86.ActiveCfg = Release|Any CPU
+		{AC155E47-E9A3-4689-AB13-6D308A47CC42}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -410,6 +420,7 @@ Global
 		{E7913C17-8BE4-4951-B68D-0697A9D59E48} = {A173DFEF-C355-4721-BEE1-D8BB147FF8BA}
 		{A62B3B57-B00A-4992-9281-A882EA7F7F9F} = {A173DFEF-C355-4721-BEE1-D8BB147FF8BA}
 		{B17D2F81-62D0-48A5-9CA6-553463D4935B} = {A173DFEF-C355-4721-BEE1-D8BB147FF8BA}
+		{AC155E47-E9A3-4689-AB13-6D308A47CC42} = {A173DFEF-C355-4721-BEE1-D8BB147FF8BA}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C1C28357-86B5-47FD-924D-863DA2531C4D}
