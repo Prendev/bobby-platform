@@ -86,6 +86,9 @@ namespace TradeSystem.Data.Models
 		[NotMapped] [InvisibleColumn] public bool HasTiming => EarliestTradeTime.HasValue && LatestTradeTime.HasValue;
 		[NotMapped] [InvisibleColumn] public decimal Deviation => SlippageInPip * PipSize;
 		[NotMapped] public List<LatencyArbPosition> LivePositions => LatencyArbPositions.Where(p => !p.Archived).ToList();
+		[NotMapped] [InvisibleColumn] public DateTime LastPnlTime { get; set; }
+		[NotMapped] [InvisibleColumn] public decimal? LivePnl { get; set; }
+		[NotMapped] [InvisibleColumn] public decimal? ClosedPnl { get; set; }
 
 		[NotMapped] [InvisibleColumn] public Stopwatch Stopwatch { get; } = new Stopwatch();
 
@@ -164,12 +167,14 @@ namespace TradeSystem.Data.Models
 				LastFeedTick = tick;
 				FeedAvg = Averaging(_feedTicks, FeedAvg, LastFeedTick);
 			}
+
 			if (sender == ShortAccount && tick.Symbol == ShortSymbol && LastShortTick != tick)
 			{
 				newTickFound = true;
 				LastShortTick = tick;
 				ShortAvg = Averaging(_shortTicks, ShortAvg, LastShortTick);
 			}
+
 			if (sender == LongAccount && tick.Symbol == LongSymbol && LastLongTick != tick)
 			{
 				newTickFound = true;
@@ -178,6 +183,9 @@ namespace TradeSystem.Data.Models
 			}
 
 			if (!newTickFound) return;
+
+			if (EmergencyPnlPeriodInSec > 0 && UtcNow > LastPnlTime.AddSeconds(EmergencyPnlPeriodInSec))
+				CalculateStatistics();
 
 			NewTick?.Invoke(this, newTick);
 		}
@@ -223,6 +231,8 @@ namespace TradeSystem.Data.Models
 			return avgClosed ?? 0;
 		}
 
+
+
 		public IList CalculateStatistics()
 		{
 			if (PipSize == 0)
@@ -237,7 +247,7 @@ namespace TradeSystem.Data.Models
 			var avgClosedLongPnl = closedPositions.Sum(p => p.LongPnl(this));
 			var avgClosedShort = closedPositions.Sum(p => p.ShortResult) / Math.Max(1, closedPositions.Count) / PipSize;
 			var avgClosedShortPnl = closedPositions.Sum(p => p.ShortPnl(this));
-			var avgClosedPnl = avgClosedLongPnl + avgClosedShortPnl;
+			ClosedPnl = avgClosedLongPnl + avgClosedShortPnl;
 
 			var livePositions = LivePositions.Where(p => p.HasBothSides).ToList();
 			var avgHedge = livePositions.Sum(p => p.OpenResult) / Math.Max(1, livePositions.Count) / PipSize;
@@ -247,14 +257,15 @@ namespace TradeSystem.Data.Models
 			decimal? avgLiveLongPnl = null;
 			decimal? avgLiveShort = null;
 			decimal? avgLiveShortPnl = null;
-			decimal? avgLivePnl = null;
+			LivePnl = null;
+
 			if (LastLongTick?.HasValue == true && LastShortTick?.HasValue == true)
 			{
 				avgLiveLong = (LastLongTick.Bid - livePositions.Average(p => p.LongOpenPrice)) / PipSize;
 				avgLiveLongPnl = livePositions.Sum(p => p.LongPnl(this));
 				avgLiveShort = (livePositions.Average(p => p.ShortOpenPrice) - LastShortTick.Ask) / PipSize;
 				avgLiveShortPnl = livePositions.Sum(p => p.ShortPnl(this));
-				avgLivePnl = avgLiveLongPnl + avgLiveShortPnl;
+				LivePnl = avgLiveLongPnl + avgLiveShortPnl;
 			}
 
 			var statistics = new List<Statistics>()
@@ -267,9 +278,9 @@ namespace TradeSystem.Data.Models
 
 					Accounts = "--All--",
 					LivePip = avgLiveLong + avgLiveShort,
-					LivePnl = avgLivePnl,
+					LivePnl = LivePnl,
 					ClosedPip = avgClosed,
-					ClosedPnl = avgClosedPnl,
+					ClosedPnl = ClosedPnl,
 
 					Prices = "--Feed--",
 					Ask = LastFeedTick?.Ask,
@@ -324,6 +335,8 @@ namespace TradeSystem.Data.Models
 					CloseDiffPip = (LastFeedTick?.Ask - LastShortTick?.Ask - (FeedAvg ?? 0) + (ShortAvg ?? 0)) / PipSize
 				}
 			};
+
+			LastPnlTime = UtcNow;
 
 			return statistics.Select(s => new
 			{

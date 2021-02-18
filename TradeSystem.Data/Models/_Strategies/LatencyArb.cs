@@ -98,6 +98,9 @@ namespace TradeSystem.Data.Models
 		[DisplayName("E Count")] public int EmergencyCount { get => Get<int>(); set => Set(value); }
 		[DisplayName("E Short exit")] public decimal EmergencyShortExitInPip { get; set; }
 		[DisplayName("E Long exit")] public decimal EmergencyLongExitInPip { get; set; }
+		[DisplayName("E PNL period")] public int EmergencyPnlPeriodInSec { get; set; }
+		[DisplayName("E live PNL")] public decimal? EmergencyLivePnl { get; set; }
+		[DisplayName("E closed PNL")] public decimal? EmergencyClosedPnl { get; set; }
 		[DisplayName("E exit reopen")] public bool EmergencyPipExitReopen { get; set; }
 
 		public LatencyArbOrderTypes FirstOrderType { get; set; }
