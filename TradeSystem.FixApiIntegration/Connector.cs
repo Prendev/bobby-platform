@@ -521,7 +521,7 @@ namespace TradeSystem.FixApiIntegration
 			}
 		}
 
-		public override async void Subscribe(string symbol)
+		public override void Subscribe(string symbol)
 		{
 			try
 			{
@@ -536,11 +536,11 @@ namespace TradeSystem.FixApiIntegration
 						Symbol = Symbol.Parse(symbol),
 						MarketDepth = _marketDepth
 					});
-				}
 
-				if (!IsConnected) return;
-				await GeneralConnector.SubscribeMarketDataAsync(Symbol.Parse(symbol), _marketDepth);
-				Logger.Debug($"{Description} Connector.Subscribe({symbol})");
+					if (!IsConnected) return;
+					GeneralConnector.SubscribeMarketDataAsync(Symbol.Parse(symbol), _marketDepth).Wait();
+					Logger.Debug($"{Description} Connector.Subscribe({symbol})");
+				}
 			}
 			catch (Exception e)
 			{
