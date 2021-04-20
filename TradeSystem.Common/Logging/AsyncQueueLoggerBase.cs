@@ -39,7 +39,14 @@ namespace TradeSystem.Common.Logging
 
 			public override string ToString()
 			{
-				return _message();
+				try
+				{
+					return _message();
+				}
+				catch (Exception ex)
+				{
+					return ex.ToString();
+				}
 			}
 		}
 		private static readonly FastBlockingCollection<LogEntry> LogQueue =
