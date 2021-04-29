@@ -528,19 +528,22 @@ namespace TradeSystem.FixApiIntegration
 				GeneralConnector.UnsubscribeBookChange(Symbol.Parse(symbol), OnBookChange);
 				GeneralConnector.SubscribeBookChange(Symbol.Parse(symbol), OnBookChange);
 
-				lock (_subscribeMarketData)
+				Task.Run(() =>
 				{
-					if (_subscribeMarketData.Subscriptions.Any(s => s.Symbol == Symbol.Parse(symbol))) return;
-					_subscribeMarketData.Subscriptions.Add(new MarketDataSubscription
+					lock (_subscribeMarketData)
 					{
-						Symbol = Symbol.Parse(symbol),
-						MarketDepth = _marketDepth
-					});
+						if (_subscribeMarketData.Subscriptions.Any(s => s.Symbol == Symbol.Parse(symbol))) return;
+						_subscribeMarketData.Subscriptions.Add(new MarketDataSubscription
+						{
+							Symbol = Symbol.Parse(symbol),
+							MarketDepth = _marketDepth
+						});
 
-					if (!IsConnected) return;
-					GeneralConnector.SubscribeMarketDataAsync(Symbol.Parse(symbol), _marketDepth).Wait();
-					Logger.Debug($"{Description} Connector.Subscribe({symbol})");
-				}
+						if (!IsConnected) return;
+						GeneralConnector.SubscribeMarketDataAsync(Symbol.Parse(symbol), _marketDepth).Wait();
+						Logger.Debug($"{Description} Connector.Subscribe({symbol})");
+					}
+				});
 			}
 			catch (Exception e)
 			{
