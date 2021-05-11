@@ -3,9 +3,12 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using TradeSystem.Common.Integration;
+using TradeSystem.Communication;
+using TradeSystem.Communication.Mt5;
 using TradeSystem.Data;
 using TradeSystem.Data.Models;
 using TradingAPI.MT4Server;
+using OrderType = mtapi.mt5.OrderType;
 
 namespace TradeSystem.Orchestration.Services
 {
@@ -79,7 +82,7 @@ namespace TradeSystem.Orchestration.Services
 			public string Holder { get; set; }
 			public string Broker { get; set; }
 			public int Account { get; set; }
-			public int ID { get; set; }
+			public long ID { get; set; }
 			public DateTime OpenTime { get; set; }
 			public string Type { get; set; }
 			public double Size { get; set; }
@@ -104,47 +107,104 @@ namespace TradeSystem.Orchestration.Services
 					csvWriter.Configuration.CultureInfo = CultureInfo.InvariantCulture;
 					var profile = duplicatContext.Profiles.FirstOrDefault(p => p.Description == "*Import-Export") ??
 					              duplicatContext.Profiles.Add(new Profile() {Description = "*Import-Export"}).Entity;
-					var accounts = profile.Accounts
-						.Where(a => a.Run && a.MetaTraderAccountId.HasValue &&
-						            a.ConnectionState == ConnectionStates.Connected);
 
 					var symbols = File.ReadLines("symbols.csv").ToList();
 
 					csvWriter.WriteHeader<SaveTheWeekendRecord>();
 					csvWriter.NextRecord();
-					foreach (var account in accounts)
+
+					var mt4Accounts = profile.Accounts
+						.Where(a => a.Run && a.MetaTraderAccountId.HasValue &&
+						            a.ConnectionState == ConnectionStates.Connected);
+					foreach (var account in mt4Accounts)
 					{
-						var conn = (Mt4Integration.Connector) account.Connector;
-						var orders = conn.QuoteClient.DownloadOrderHistory(from, to);
-						if (orders?.Length == 0) continue;
-						var us = orders.Where(o => symbols.Contains(o.Symbol));
-						us = us.Where(o => o.Type == Op.Buy || o.Type == Op.Sell);
-
-						foreach (var order in us)
+						try
 						{
-							var record = new SaveTheWeekendRecord()
-							{
-								Holder = conn.QuoteClient.AccountName,
-								Broker = conn.QuoteClient.Account.company,
-								Account = account.MetaTraderAccount.User,
-								ID = order.Ticket,
-								OpenTime = order.OpenTime,
-								Type = order.Type == Op.Buy ? "buy" : "sell",
-								Size = order.Lots,
-								Symbol = order.Symbol,
-								OpenPrice = order.OpenPrice,
-								Sl = order.StopLoss,
-								Tp = order.TakeProfit,
-								CloseTime = order.CloseTime,
-								Price = order.ClosePrice,
-								Commission = order.Commission,
-								Swap = order.Swap,
-								Profit = order.Profit
-							};
-							csvWriter.WriteRecord(record);
-							csvWriter.NextRecord();
-						}
+							var conn = (Mt4Integration.Connector) account.Connector;
+							var orders = conn.QuoteClient.DownloadOrderHistory(from, to);
+							if ((orders?.Length ?? 0) == 0) continue;
+							var us = orders.Where(o => symbols.Contains(o.Symbol));
+							us = us.Where(o => o.Type == Op.Buy || o.Type == Op.Sell);
 
+							foreach (var order in us)
+							{
+								var record = new SaveTheWeekendRecord()
+								{
+									Holder = conn.QuoteClient.AccountName,
+									Broker = conn.QuoteClient.Account.company,
+									Account = account.MetaTraderAccount.User,
+									ID = order.Ticket,
+									OpenTime = order.OpenTime,
+									Type = order.Type == Op.Buy ? "buy" : "sell",
+									Size = order.Lots,
+									Symbol = order.Symbol,
+									OpenPrice = order.OpenPrice,
+									Sl = order.StopLoss,
+									Tp = order.TakeProfit,
+									CloseTime = order.CloseTime,
+									Price = order.ClosePrice,
+									Commission = order.Commission,
+									Swap = order.Swap,
+									Profit = order.Profit
+								};
+								csvWriter.WriteRecord(record);
+								csvWriter.NextRecord();
+							}
+						}
+						catch (Exception ex)
+						{
+							Logger.Error("MtAccountImportService.SaveTheWeekend error", ex);
+						}
+					}
+
+					var mt5Accounts = profile.Accounts
+						.Where(a => a.Run && a.FixApiAccountId.HasValue &&
+						            a.ConnectionState == ConnectionStates.Connected &&
+						            a.Connector is FixApiIntegration.Connector fixConnector &&
+						            fixConnector.GeneralConnector is Mt5Connector);
+					foreach (var account in mt5Accounts)
+					{
+						try
+						{
+
+							var conn = (Mt5Connector) ((FixApiIntegration.Connector) account.Connector)
+								.GeneralConnector;
+							var api = conn.Mt5Api;
+							var orders = api.DownloadOrderHistory(from, to)?.Orders;
+							if ((orders?.Capacity ?? 0) == 0) continue;
+							var us = orders.Where(o => symbols.Contains(o.Symbol));
+							us = us.Where(o => o.OrderType == OrderType.Buy || o.OrderType == OrderType.Sell);
+
+							foreach (var order in us)
+							{
+								var record = new SaveTheWeekendRecord()
+								{
+									Holder = api.Account.UserName,
+									Broker = api.Server,
+									Account = account.MetaTraderAccount.User,
+									ID = order.Ticket,
+									OpenTime = order.OpenTime,
+									Type = order.OrderType == OrderType.Buy ? "buy" : "sell",
+									Size = order.Lots,
+									Symbol = order.Symbol,
+									OpenPrice = order.OpenPrice,
+									Sl = order.StopLoss,
+									Tp = order.TakeProfit,
+									CloseTime = order.CloseTime,
+									Price = order.ClosePrice,
+									Commission = order.Commission,
+									Swap = order.Swap,
+									Profit = order.Profit
+								};
+								csvWriter.WriteRecord(record);
+								csvWriter.NextRecord();
+
+							}
+						}
+						catch (Exception ex)
+						{
+							Logger.Error("MtAccountImportService.SaveTheWeekend error", ex);
+						}
 					}
 				}
 			}
