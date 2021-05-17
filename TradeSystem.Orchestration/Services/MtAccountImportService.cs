@@ -81,7 +81,7 @@ namespace TradeSystem.Orchestration.Services
 		{
 			public string Holder { get; set; }
 			public string Broker { get; set; }
-			public int Account { get; set; }
+			public long Account { get; set; }
 			public long ID { get; set; }
 			public DateTime OpenTime { get; set; }
 			public string Type { get; set; }
@@ -180,8 +180,8 @@ namespace TradeSystem.Orchestration.Services
 								var record = new SaveTheWeekendRecord()
 								{
 									Holder = api.Account.UserName,
-									Broker = api.Server,
-									Account = account.MetaTraderAccount.User,
+									Broker = api.AccountCompanyName,
+									Account = (long) api.Account.Login,
 									ID = order.Ticket,
 									OpenTime = order.OpenTime,
 									Type = order.OrderType == OrderType.Buy ? "buy" : "sell",
@@ -198,7 +198,6 @@ namespace TradeSystem.Orchestration.Services
 								};
 								csvWriter.WriteRecord(record);
 								csvWriter.NextRecord();
-
 							}
 						}
 						catch (Exception ex)
