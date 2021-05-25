@@ -108,7 +108,8 @@ namespace TradeSystem.Orchestration.Services
 					var profile = duplicatContext.Profiles.FirstOrDefault(p => p.Description == "*Import-Export") ??
 					              duplicatContext.Profiles.Add(new Profile() {Description = "*Import-Export"}).Entity;
 
-					var symbols = File.ReadLines("symbols.csv").ToList();
+					var symbols = File.ReadLines("symbols.csv")
+						.Select(s => s.ToLowerInvariant()).ToList();
 
 					csvWriter.WriteHeader<SaveTheWeekendRecord>();
 					csvWriter.NextRecord();
@@ -123,7 +124,7 @@ namespace TradeSystem.Orchestration.Services
 							var conn = (Mt4Integration.Connector) account.Connector;
 							var orders = conn.QuoteClient.DownloadOrderHistory(from, to);
 							if ((orders?.Length ?? 0) == 0) continue;
-							var us = orders.Where(o => symbols.Contains(o.Symbol));
+							var us = orders.Where(o => symbols.Contains(o.Symbol.ToLowerInvariant()));
 							us = us.Where(o => o.Type == Op.Buy || o.Type == Op.Sell);
 
 							foreach (var order in us)
@@ -172,7 +173,7 @@ namespace TradeSystem.Orchestration.Services
 							var api = conn.Mt5Api;
 							var orders = api.DownloadOrderHistory(from, to)?.Orders;
 							if ((orders?.Capacity ?? 0) == 0) continue;
-							var us = orders.Where(o => symbols.Contains(o.Symbol));
+							var us = orders.Where(o => symbols.Contains(o.Symbol.ToLowerInvariant()));
 							us = us.Where(o => o.OrderType == OrderType.Buy || o.OrderType == OrderType.Sell);
 
 							foreach (var order in us)
