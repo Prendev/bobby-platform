@@ -193,7 +193,7 @@ namespace TradeSystem.Orchestration
 		public async Task OrderHistoryExport(DuplicatContext duplicatContext)
 		{
 			var accounts = duplicatContext.Accounts.Local
-				.Where(a => a.Run && a.Connector?.IsConnected == true && a.MetaTraderAccountId.HasValue)
+				.Where(a => a.Run && a.Connector?.IsConnected == true)
 				.ToList();
 
 			await _reportService.OrderHistoryExport(accounts);

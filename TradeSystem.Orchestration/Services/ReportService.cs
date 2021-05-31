@@ -5,11 +5,13 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using TradeSystem.Communication;
 using TradeSystem.Communication.Mt5;
 using TradeSystem.Data.Models;
 using TradeSystem.Mt4Integration;
 using TradingAPI.MT4Server;
 using MarginMode = TradingAPI.MT4Server.MarginMode;
+using OrderType = mtapi.mt5.OrderType;
 using SymbolInfo = TradingAPI.MT4Server.SymbolInfo;
 
 namespace TradeSystem.Orchestration.Services
@@ -31,16 +33,27 @@ namespace TradeSystem.Orchestration.Services
 
         public async Task OrderHistoryExport(List<Account> accounts)
         {
-	        var mtAccounts = accounts
-		        .Where(a => a.Run && a.Connector?.IsConnected == true && a.MetaTraderAccountId.HasValue);
-            var tasks = mtAccounts.Select(account => Task.Run(() => InnerOrderHistoryExport(account)));
-
+	        var tasks = accounts.Select(account => Task.Run(() => InnerOrderHistoryExport(account)));
 	        await Task.WhenAll(tasks);
 	        Logger.Debug("Order history export is READY!");
 		}
-		private void InnerOrderHistoryExport(Account account)
+
+        private void InnerOrderHistoryExport(Account account)
+        {
+	        switch (account.Connector)
+	        {
+		        case Connector _:
+			        InnerOrderHistoryExportMt4(account);
+			        break;
+		        case FixApiIntegration.Connector fixConnector when fixConnector.GeneralConnector is Mt5Connector:
+			        InnerOrderHistoryExportMt5(account);
+			        break;
+	        }
+        }
+		private void InnerOrderHistoryExportMt4(Account account)
 		{
-			var connector = (Connector)account.Connector;
+			if (!(account.Connector is Connector connector)) return;
+
 			var templatePath = $@"{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}\Templates\OrderHistory.xlsx";
 			var filePath = $@"{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}\Reports\OrderHistories\{account.MetaTraderAccount.User}.xlsx";
 			new FileInfo(filePath).Directory?.Create();
@@ -64,6 +77,49 @@ namespace TradeSystem.Orchestration.Services
 					wb.CreateCell(row, c++, order.Ticket);
 					wb.CreateCell(row, c++, order.OpenTime);
 					wb.CreateTextCell(row, c++, order.Type.ToString("F").ToLower());
+					wb.CreateCell(row, c++, order.Lots);
+					wb.CreateTextCell(row, c++, order.Symbol);
+					wb.CreateCell(row, c++, order.OpenPrice);
+					wb.CreateCell(row, c++, order.StopLoss);
+					wb.CreateCell(row, c++, order.TakeProfit);
+					wb.CreateCell(row, c++, order.CloseTime);
+					wb.CreateCell(row, c++, order.ClosePrice);
+					wb.CreateCell(row, c++, order.Commission);
+					wb.CreateCell(row, c++, order.Swap);
+					wb.CreateCell(row, c++, order.Profit);
+				}
+
+				wb.Write(stream);
+			}
+		}
+		private void InnerOrderHistoryExportMt5(Account account)
+		{
+			if (!(account.Connector is FixApiIntegration.Connector fixConnector &&
+			      fixConnector.GeneralConnector is Mt5Connector connector)) return;
+
+			var templatePath = $@"{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}\Templates\OrderHistory.xlsx";
+			var filePath = $@"{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}\Reports\OrderHistories\{account.FixApiAccount.Description}.xlsx";
+			new FileInfo(filePath).Directory?.Create();
+			using (var stream = new FileStream(filePath, FileMode.OpenOrCreate, FileAccess.ReadWrite))
+			{
+				var wb = new CustomWorkbook(templatePath);
+				var sheet = wb.GetSheetAt(0);
+
+				var orders = connector.Mt5Api.DownloadOrderHistory(DateTime.Now.AddYears(-5), DateTime.Now.AddDays(1)).Orders;
+				var r = 0;
+				foreach (var order in orders)
+				{
+					if (order.OrderType != OrderType.Buy &&
+					    order.OrderType != OrderType.Sell) continue;
+
+					var c = 0;
+					var row = sheet.GetRow(++r) ?? sheet.CreateRow(r);
+
+					wb.CreateDateCell(row, c++, order.CloseTime.Date);
+					wb.CreateCell(row, c++, order.Commission + order.Swap + order.Profit);
+					wb.CreateCell(row, c++, order.Ticket);
+					wb.CreateCell(row, c++, order.OpenTime);
+					wb.CreateTextCell(row, c++, order.OrderType.ToString("F").ToLower());
 					wb.CreateCell(row, c++, order.Lots);
 					wb.CreateTextCell(row, c++, order.Symbol);
 					wb.CreateCell(row, c++, order.OpenPrice);
