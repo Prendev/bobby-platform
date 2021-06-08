@@ -105,16 +105,13 @@ namespace TradeSystem.Orchestration.Services
 				using (var csvWriter = new CsvHelper.CsvWriter(streamWriter))
 				{
 					csvWriter.Configuration.CultureInfo = CultureInfo.InvariantCulture;
-					var profile = duplicatContext.Profiles.FirstOrDefault(p => p.Description == "*Import-Export") ??
-					              duplicatContext.Profiles.Add(new Profile() {Description = "*Import-Export"}).Entity;
-
 					var symbols = File.ReadLines("symbols.csv")
 						.Select(s => s.ToLowerInvariant()).ToList();
 
 					csvWriter.WriteHeader<SaveTheWeekendRecord>();
 					csvWriter.NextRecord();
 
-					var mt4Accounts = profile.Accounts
+					var mt4Accounts = duplicatContext.Accounts
 						.Where(a => a.Run && a.MetaTraderAccountId.HasValue &&
 						            a.ConnectionState == ConnectionStates.Connected);
 					foreach (var account in mt4Accounts)
@@ -158,7 +155,7 @@ namespace TradeSystem.Orchestration.Services
 						}
 					}
 
-					var mt5Accounts = profile.Accounts
+					var mt5Accounts = duplicatContext.Accounts.Local.ToList()
 						.Where(a => a.Run && a.FixApiAccountId.HasValue &&
 						            a.ConnectionState == ConnectionStates.Connected &&
 						            a.Connector is FixApiIntegration.Connector fixConnector &&
