@@ -111,7 +111,7 @@ namespace TradeSystem.Orchestration.Services
 					csvWriter.WriteHeader<SaveTheWeekendRecord>();
 					csvWriter.NextRecord();
 
-					var mt4Accounts = duplicatContext.Accounts
+					var mt4Accounts = duplicatContext.Accounts.Local
 						.Where(a => a.Run && a.MetaTraderAccountId.HasValue &&
 						            a.ConnectionState == ConnectionStates.Connected);
 					foreach (var account in mt4Accounts)
