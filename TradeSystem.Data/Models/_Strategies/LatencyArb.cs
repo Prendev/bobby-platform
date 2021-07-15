@@ -111,8 +111,6 @@ namespace TradeSystem.Data.Models
 		public int RetryPeriodInMs { get; set; }
 		[DisplayName("Slippage")]
 		public decimal SlippageInPip { get; set; }
-		[DisplayName("Correction")]
-		public decimal CorrectionInPip { get; set; }
 		[DisplayName("TimeWindow")]
 		public int TimeWindowInMs { get; set; }
 		[DisplayName("MarketTimeWindow")]
