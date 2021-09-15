@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -29,7 +28,6 @@ namespace TradeSystem.Mt4Integration
 	public class Connector : ConnectorBase, IConnector
 	{
 		private readonly TaskCompletionManager<int> _taskCompletionManager;
-		private static readonly string Mt4ApiLoginIdWebServerUrl;
 		//private readonly HashSet<int> _finishedOrderIds = new HashSet<int>();
 		private readonly List<string> _symbols = new List<string>();
 		private readonly ConcurrentDictionary<string, SymbolInfo> _symbolInfos =
@@ -48,11 +46,6 @@ namespace TradeSystem.Mt4Integration
 		public QuoteClient QuoteClient;
         public OrderClient OrderClient;
 		private Action<string, int> _destinationSetter;
-
-		static Connector()
-		{
-			Mt4ApiLoginIdWebServerUrl = ConfigurationManager.AppSettings["Mt4ApiLoginIdWebServerUrl"];
-		}
 
 		public Connector(IEmailService emailService)
 		{
@@ -93,6 +86,7 @@ namespace TradeSystem.Mt4Integration
 					var srv = QuoteClient.LoadSrv(_accountInfo.Srv, out slaves);
 					QuoteClient = CreateQuoteClient(_accountInfo, srv.Host, srv.Port);
 				}
+				
 				QuoteClient.Connect();
 			}
 			catch (Exception e)
@@ -465,12 +459,9 @@ namespace TradeSystem.Mt4Integration
         {
 	        _destinationSetter?.Invoke(host, port);
 	        var client = new QuoteClient(accountInfo.User, accountInfo.Password,
-		        accountInfo.LocalPortForProxy.HasValue ? "localhost" : host, accountInfo.LocalPortForProxy ?? port);
-
-	        if (!string.IsNullOrWhiteSpace(Mt4ApiLoginIdWebServerUrl))
-		        client.LoginIdPath = Mt4ApiLoginIdWebServerUrl;
-
-			return client;
+		        accountInfo.LocalPortForProxy.HasValue ? "localhost" : host,
+		        accountInfo.LocalPortForProxy ?? port);
+	        return client;
         }
 
         private void ConnectSlaves(Server[] slaves, AccountInfo accountInfo)
