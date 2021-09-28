@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -18,7 +19,7 @@ namespace TradeSystem.Common.Services
 
 	public class NewsCalendarService : INewsCalendarService
 	{
-		private const string ForexFactoryUrl = "http://cdn-nfs.faireconomy.media/ff_calendar_thisweek.xml";
+		private string _forexFactoryUrl;
 		private const double TimerInterval = 1000 * 60 * 60; //1 hour
 
 		private DateTime _lastDownload = HiResDatetime.UtcNow;
@@ -31,6 +32,9 @@ namespace TradeSystem.Common.Services
 
 		public void Start()
 		{
+			_forexFactoryUrl = ConfigurationManager.AppSettings["ForexFactoryUrl"];
+			if (string.IsNullOrWhiteSpace(_forexFactoryUrl)) return;
+
 			var timer = new Timer(TimerInterval) {AutoReset = true};
 			timer.Elapsed += (sender, args) => Do();
 			timer.Start();
@@ -72,7 +76,7 @@ namespace TradeSystem.Common.Services
 
 				string xml;
 				using (var webClient = new WebClient())
-					xml = webClient.DownloadString(ForexFactoryUrl);
+					xml = webClient.DownloadString(_forexFactoryUrl);
 
 				using (var reader = new StringReader(xml))
 					_weeklyEvents = (WeeklyEvents)new XmlSerializer(typeof(WeeklyEvents)).Deserialize(reader);
