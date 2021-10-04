@@ -8,6 +8,8 @@ namespace TradeSystem.Data.Models
 		[InvisibleColumn] public int ProfileId { get; set; }
 		[InvisibleColumn] public Profile Profile { get; set; }
 
+		[DisplayPriority(-1)] public bool Run { get; set; }
+
 		public int MainAccountId { get; set; }
 		public Account MainAccount { get; set; }
 		public string MainSymbol { get; set; }

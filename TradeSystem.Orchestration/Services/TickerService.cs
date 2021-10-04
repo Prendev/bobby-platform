@@ -205,10 +205,14 @@ namespace TradeSystem.Orchestration.Services
 			try
 			{
 				if (newTickOrQuote.Sender == null) return;
+
+				var activeTickers = tickers.Where(t => t.Run).ToList();
+
 				if (newTickOrQuote.QuoteSet != null)
-					Fix_NewQuote(newTickOrQuote.Sender, newTickOrQuote.QuoteSet, tickers);
+					Fix_NewQuote(newTickOrQuote.Sender, newTickOrQuote.QuoteSet, activeTickers);
+
 				if (newTickOrQuote.NewTick != null)
-					Account_NewTick(newTickOrQuote.Sender, newTickOrQuote.NewTick, tickers);
+					Account_NewTick(newTickOrQuote.Sender, newTickOrQuote.NewTick, activeTickers);
 			}
 			catch (Exception e)
 			{
