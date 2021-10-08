@@ -22,7 +22,12 @@ namespace TradeSystem.Data.Models
 		public event EventHandler<NewPosition> NewPosition;
 		public event EventHandler<LimitFill> LimitFill;
 
-		[DisplayPriority(0, true)] [NotMapped] [ReadOnly(true)] public ConnectionStates ConnectionState { get => Get<ConnectionStates>(); set => Set(value); }
+		[DisplayPriority(2, true)] [NotMapped] [ReadOnly(true)] public ConnectionStates ConnectionState { get => Get<ConnectionStates>(); set => Set(value); }
+		[DisplayPriority(1, true)] [NotMapped] [ReadOnly(true)] public double Margin { get => Get<double>(); set => Set(value); }
+		[DisplayName("Free %")] [DisplayPriority(0, true)] [NotMapped] [ReadOnly(true)]
+		public double FreeMargin { get => Get<double>(); set => Set(value); }
+
+
 		[NotMapped] [InvisibleColumn] public IConnector Connector { get => Get<IConnector>(); set => Set(value); }
 		[NotMapped] [InvisibleColumn] public string DestinationHost { get => Get<string>(); set => Set(value); }
 		[NotMapped] [InvisibleColumn] public int DestinationPort { get => Get<int>(); set => Set(value); }
@@ -37,6 +42,7 @@ namespace TradeSystem.Data.Models
 					x.ConnectionChanged -= Connector_ConnectionChanged;
 					x.NewPosition -= Connector_NewPosition;
 					x.LimitFill -= Connector_LimitFill;
+					x.MarginChanged -= Connector_MarginChanged;
 				},
 				x =>
 				{
@@ -45,6 +51,7 @@ namespace TradeSystem.Data.Models
 					x.ConnectionChanged += Connector_ConnectionChanged;
 					x.NewPosition += Connector_NewPosition;
 					x.LimitFill += Connector_LimitFill;
+					x.MarginChanged += Connector_MarginChanged;
 				});
 		}
 
@@ -64,6 +71,12 @@ namespace TradeSystem.Data.Models
 
 		private void Connector_NewPosition(object sender, NewPosition e) => NewPosition?.Invoke(this, e);
 		private void Connector_LimitFill(object sender, LimitFill e) => LimitFill?.Invoke(this, e);
+
+		private void Connector_MarginChanged(object sender, EventArgs e)
+		{
+			Margin = Connector.Margin;
+			FreeMargin = Connector.FreeMargin;
+		}
 
 		public override string ToString()
 		{

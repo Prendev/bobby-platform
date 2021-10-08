@@ -9,6 +9,8 @@ namespace TradeSystem.Common.Integration
 		public abstract int Id { get; }
 		public abstract string Description { get; }
 		public abstract bool IsConnected { get; }
+		public double Margin { get; protected set; }
+		public double FreeMargin { get; protected set; }
 
 		/// <summary>
 		/// Do NOT use it, only from Account
@@ -26,6 +28,10 @@ namespace TradeSystem.Common.Integration
 		/// Do NOT use it, only from Account
 		/// </summary>
 		public event EventHandler<ConnectionStates> ConnectionChanged;
+		/// <summary>
+		/// Do NOT use it, only from Account
+		/// </summary>
+		public event EventHandler MarginChanged;
 
 		protected ConnectorBase()
 		{
@@ -49,6 +55,7 @@ namespace TradeSystem.Common.Integration
 		protected void OnLimitFill(LimitFill e) => LimitFill?.Invoke(this, e);
 		protected void OnNewTick(NewTick e) => NewTick?.Invoke(this, e);
 		protected void OnConnectionChanged(ConnectionStates e) => ConnectionChanged?.Invoke(this, e);
+		protected void OnMarginChanged() => MarginChanged?.Invoke(this, null);
 		public virtual void OnTickProcessed() { }
 	}
 }

@@ -31,12 +31,12 @@ namespace TradeSystem.Duplicat.Views
 
         public void AttachDataSources()
         {
-			dgvAccounts.AddComboBoxColumn(_viewModel.MtAccounts);
-			dgvAccounts.AddComboBoxColumn(_viewModel.CtAccounts);
-	        dgvAccounts.AddComboBoxColumn(_viewModel.FixAccounts);
-	        dgvAccounts.AddComboBoxColumn(_viewModel.CqgClientApiAccounts);
-	        dgvAccounts.AddComboBoxColumn(_viewModel.IbAccounts);
-	        dgvAccounts.AddComboBoxColumn(_viewModel.BacktesterAccounts);
+	        dgvAccounts.AddComboBoxColumn(_viewModel.MtAccounts, header: "MT4");
+			dgvAccounts.AddComboBoxColumn(_viewModel.CtAccounts, header: "CT");
+	        dgvAccounts.AddComboBoxColumn(_viewModel.FixAccounts, header: "FIX");
+	        dgvAccounts.AddComboBoxColumn(_viewModel.CqgClientApiAccounts, header: "CQG");
+	        dgvAccounts.AddComboBoxColumn(_viewModel.IbAccounts, header: "IB");
+	        dgvAccounts.AddComboBoxColumn(_viewModel.BacktesterAccounts, header: "Backtester");
 
 			dgvProfiles.DataSource = _viewModel.Profiles;
 			dgvAccounts.DataSource = _viewModel.Accounts;

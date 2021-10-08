@@ -83,36 +83,8 @@ namespace TradeSystem.Duplicat.Views
 			if ((ModifierKeys & Keys.Alt) == 0 || (ModifierKeys & Keys.Control) == 0) return;
 			Rows[e.RowIndex].Cells[e.ColumnIndex].Value = null;
 		}
-
-		public void AddComboBoxColumn<T>(ObservableCollection<T> list, string name = null) where T : BaseEntity
-		{
-			name = name ?? typeof(T).Name;
-			if (!_invisibleColumns.Contains(name))
-				_invisibleColumns.Add(name);
-
-			if (!Columns.Contains($"{name}*"))
-			{
-				var index = Columns[name]?.DisplayIndex ?? 0;
-				var column = new DataGridViewComboBoxColumn()
-				{
-					DataSource = list.ToBindingList(),
-					Name = $"{name}*",
-					DataPropertyName = $"{name}Id",
-					DisplayMember = "DisplayMember",
-					ValueMember = "Id",
-					HeaderText = $"{name}*",
-					DisplayIndex = index
-				};
-				Columns.Add(column);
-			}
-			else if (Columns[$"{name}*"] is DataGridViewComboBoxColumn)
-			{
-				var column = (DataGridViewComboBoxColumn)Columns[$"{name}*"];
-				column.DataSource = list.ToBindingList();
-				column.DisplayIndex = Columns[name]?.DisplayIndex ?? 0;
-			}
-		}
-		public void AddComboBoxColumn<T>(BindingList<T> list, string name = null) where T : BaseEntity
+		
+		public void AddComboBoxColumn<T>(BindingList<T> list, string name = null, string header = null) where T : BaseEntity
 		{
 			name = name ?? typeof(T).Name;
 			if (!_invisibleColumns.Contains(name))
@@ -128,7 +100,7 @@ namespace TradeSystem.Duplicat.Views
 					DataPropertyName = $"{name}Id",
 					DisplayMember = "DisplayMember",
 					ValueMember = "Id",
-					HeaderText = $"{name}*",
+					HeaderText = $"{header ?? name}*",
 					DisplayIndex = index
 				};
 				Columns.Add(column);

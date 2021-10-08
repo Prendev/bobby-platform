@@ -46,15 +46,21 @@ namespace TradeSystem.Mt4Integration
 		public QuoteClient QuoteClient;
         public OrderClient OrderClient;
 		private Action<string, int> _destinationSetter;
+		private readonly System.Timers.Timer _timer;
 
 		public Connector(IEmailService emailService)
 		{
 			_emailService = emailService;
 			_taskCompletionManager = new TaskCompletionManager<int>(100, 30000);
+
+			_timer = new System.Timers.Timer(1000) { AutoReset = true };
+			_timer.Elapsed += (sender, args) => CheckMargin();
 		}
 
 		public override void Disconnect()
-        {
+		{
+			_timer.Stop();
+
 			QuoteClient.OnDisconnect -= QuoteClient_OnDisconnect;
             QuoteClient.OnOrderUpdate -= QuoteClient_OnOrderUpdate;
 	        QuoteClient.OnQuote -= QuoteClient_OnQuote;
@@ -101,6 +107,8 @@ namespace TradeSystem.Mt4Integration
 	        OrderClient = new OrderClient(QuoteClient);
 			OnConnectionChanged(IsConnected ? ConnectionStates.Connected : ConnectionStates.Error);
 			if (!IsConnected) return;
+
+			_timer.Start();
 
             QuoteClient.OnOrderUpdate -= QuoteClient_OnOrderUpdate;
             QuoteClient.OnOrderUpdate += QuoteClient_OnOrderUpdate;
@@ -500,7 +508,19 @@ namespace TradeSystem.Mt4Integration
             QuoteClient?.Disconnect();;
         }
 
-        ~Connector()
+        private void CheckMargin()
+		{
+			try
+			{
+				if (!IsConnected) return;
+				Margin = QuoteClient?.AccountMargin ?? 0;
+				FreeMargin = Math.Round(Margin != 0 ? (QuoteClient?.AccountEquity / Margin ?? 0) * 100 : 0, 2);
+				OnMarginChanged();
+			}
+			catch { }
+		}
+
+		~Connector()
         {
             Dispose(false);
         }

@@ -7,10 +7,14 @@ namespace TradeSystem.Common.Integration
 		int Id { get; }
 		string Description { get; }
         bool IsConnected { get; }
-        event EventHandler<NewPosition> NewPosition;
+        double Margin { get; }
+        double FreeMargin { get; }
+
+		event EventHandler<NewPosition> NewPosition;
 		event EventHandler<LimitFill> LimitFill;
 		event EventHandler<NewTick> NewTick;
 		event EventHandler<ConnectionStates> ConnectionChanged;
+		event EventHandler MarginChanged;
 		void Disconnect();
 	    Tick GetLastTick(string symbol);
 	    void Subscribe(string symbol);
