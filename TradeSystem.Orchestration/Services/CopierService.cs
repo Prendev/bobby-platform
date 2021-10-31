@@ -228,11 +228,8 @@ namespace TradeSystem.Orchestration.Services
 				    if (e.Action == NewPositionActions.Open)
 					{
 						if (copier.Mode == Copier.CopierModes.CloseOnly) return Task.CompletedTask;
-						if (!SpreadCheck(slaveConnector, symbol, copier.PipSize * copier.SpreadFilterInPips))
-						{
-							Logger.Warn($"{copier} copier spread check failed");
+						if (!SpreadCheck(copier.ToString(), slaveConnector, symbol, copier.PipSize * copier.SpreadFilterInPips))
 							return Task.CompletedTask;
-						}
 
 						PositionResponse newPos = null;
 						if (copier.OrderType == Copier.CopierOrderTypes.MarketRange)
@@ -297,14 +294,10 @@ namespace TradeSystem.Orchestration.Services
 				    if (e.Action == NewPositionActions.Open)
 				    {
 					    if (copier.Mode == Copier.CopierModes.CloseOnly) return Task.CompletedTask;
-					    if (!SpreadCheck(slaveConnector, symbol, copier.PipSize * copier.SpreadFilterInPips))
-					    {
+					    if (!SpreadCheck(copier.ToString(), slaveConnector, symbol, copier.PipSize * copier.SpreadFilterInPips))
+						    return Task.CompletedTask;
 
-						    Logger.Warn($"{copier} copier spread check failed");
-							return Task.CompletedTask;
-					    }
-
-						if (e.Position.ReopenTicket.HasValue)
+					    if (e.Position.ReopenTicket.HasValue)
 					    {
 						    var reopenPos = copier.CopierPositions.FirstOrDefault(p => p.MasterTicket == e.Position.ReopenTicket);
 						    if (reopenPos == null) return Task.CompletedTask;
@@ -456,13 +449,33 @@ namespace TradeSystem.Orchestration.Services
 			}
 	    }
 
-	    private bool SpreadCheck(Common.Integration.IConnector connector, string symbol, decimal maxSpread)
+	    private bool SpreadCheck(string copier, Common.Integration.IConnector connector,
+		    string symbol, decimal maxSpread)
 	    {
 		    if (maxSpread <= 0) return true;
 		    var lastTick = connector.GetLastTick(symbol);
-		    if (lastTick == null) return false;
-		    if (!lastTick.HasValue) return false;
-		    return lastTick.Ask - lastTick.Bid <= maxSpread;
+
+		    if (lastTick == null)
+			{
+				Logger.Warn($"{copier} copier spread check failed for symbol {symbol}, tick not found.");
+				return false;
+		    }
+
+		    if (!lastTick.HasValue)
+		    {
+			    Logger.Warn($"{copier} copier spread check failed for symbol {symbol}, " +
+			                $"tick is invalid: ask {lastTick.Ask}, bid {lastTick.Bid}");
+				return false;
+		    }
+
+		    if (lastTick.Ask - lastTick.Bid > maxSpread)
+			{
+				Logger.Warn($"{copier} copier spread check failed for symbol {symbol}, " +
+				            $"spread is too big: ask {lastTick.Ask}, bid {lastTick.Bid}");
+				return false;
+		    }
+
+		    return true;
 	    }
     }
 }

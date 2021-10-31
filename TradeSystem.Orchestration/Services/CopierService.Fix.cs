@@ -48,11 +48,9 @@ namespace TradeSystem.Orchestration.Services
 					if (e.Action == NewPositionActions.Open)
 					{
 						if (copier.Mode == FixApiCopier.FixApiCopierModes.CloseOnly) return;
-						if (!SpreadCheck(slaveConnector, symbol, copier.PipSize * copier.SpreadFilterInPips))
-						{
-							Logger.Warn($"{copier} copier spread check failed");
+						if (!SpreadCheck(copier.ToString(), slaveConnector, symbol, copier.PipSize * copier.SpreadFilterInPips))
 							return;
-						}
+
 						// Check if there is an open position
 						if (copier.FixApiCopierPositions.Any(p =>
 							!p.Archived && p.MasterPositionId == e.Position.Id && p.ClosePosition == null)) return;
