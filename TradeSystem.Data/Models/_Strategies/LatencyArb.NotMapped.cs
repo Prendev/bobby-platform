@@ -85,6 +85,7 @@ namespace TradeSystem.Data.Models
 
 		[NotMapped] [InvisibleColumn] public bool HasTiming => EarliestTradeTime.HasValue && LatestTradeTime.HasValue;
 		[NotMapped] [InvisibleColumn] public decimal Deviation => SlippageInPip * PipSize;
+		[NotMapped] [InvisibleColumn] public decimal Diff => PriceDiffInPip * PipSize;
 		[NotMapped] public List<LatencyArbPosition> LivePositions => LatencyArbPositions.Where(p => !p.Archived).ToList();
 		[NotMapped] [InvisibleColumn] public DateTime LastPnlTime { get; set; }
 		[NotMapped] [InvisibleColumn] public decimal? LivePnl { get; set; }

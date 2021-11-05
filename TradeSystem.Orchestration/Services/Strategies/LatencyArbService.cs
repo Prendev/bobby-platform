@@ -442,7 +442,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 					         !isFirst && set.HedgeOrderType == LatencyArb.LatencyArbOrderTypes.Aggressive)
 					{
 						result = fixConnector.SendAggressiveOrderRequest(set.LongSymbol, Sides.Buy, quantity,
-							set.LastLongTick.Ask, set.Deviation, 0, set.TimeWindowInMs, set.MaxRetryCount, set.RetryPeriodInMs).Result;
+							set.LastLongTick.Ask, set.Deviation, set.Diff, set.TimeWindowInMs, set.MaxRetryCount, set.RetryPeriodInMs).Result;
 						CheckUnfinished(set, result);
 						if (!isFirst && result?.FilledQuantity != quantity)
 						{
@@ -519,7 +519,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 					         !isFirst && set.HedgeOrderType == LatencyArb.LatencyArbOrderTypes.Aggressive)
 					{
 						result = fixConnector.SendAggressiveOrderRequest(set.ShortSymbol, Sides.Sell, quantity,
-							set.LastShortTick.Bid, set.Deviation, 0, set.TimeWindowInMs, set.MaxRetryCount, set.RetryPeriodInMs).Result;
+							set.LastShortTick.Bid, set.Deviation, set.Diff, set.TimeWindowInMs, set.MaxRetryCount, set.RetryPeriodInMs).Result;
 						CheckUnfinished(set, result);
 						if (!isFirst && result?.FilledQuantity != quantity)
 						{
@@ -888,7 +888,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 					         !isFirst && set.HedgeOrderType == LatencyArb.LatencyArbOrderTypes.Aggressive)
 					{
 						result = fixConnector.SendAggressiveOrderRequest(set.LongSymbol, Sides.Sell, arbPos.LongPosition.Size,
-							set.LastLongTick.Bid, set.Deviation, 0, set.TimeWindowInMs, set.MaxRetryCount, set.RetryPeriodInMs).Result;
+							set.LastLongTick.Bid, set.Deviation, set.Diff, set.TimeWindowInMs, set.MaxRetryCount, set.RetryPeriodInMs).Result;
 						CheckUnfinished(set, result);
 						if (result?.FilledQuantity != arbPos.LongPosition.Size)
 						{
@@ -968,7 +968,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 					         !isFirst && set.HedgeOrderType == LatencyArb.LatencyArbOrderTypes.Aggressive)
 					{
 						result = fixConnector.SendAggressiveOrderRequest(set.ShortSymbol, Sides.Buy, arbPos.ShortPosition.Size,
-							set.LastShortTick.Ask, set.Deviation, 0, set.TimeWindowInMs, set.MaxRetryCount, set.RetryPeriodInMs).Result;
+							set.LastShortTick.Ask, set.Deviation, set.Diff, set.TimeWindowInMs, set.MaxRetryCount, set.RetryPeriodInMs).Result;
 						CheckUnfinished(set, result);
 						if (result?.FilledQuantity != arbPos.ShortPosition.Size)
 						{
