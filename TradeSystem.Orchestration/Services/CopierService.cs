@@ -132,7 +132,7 @@ namespace TradeSystem.Orchestration.Services
 				var response = await FixAccountClosing(pos.FixApiCopier, connector, open.Symbol, side, open.Size, null);
 				if (response == null) continue;
 				PersistClosePosition(pos.FixApiCopier, pos, response);
-				CopyLogger.LogClose(slave, open.Symbol, pos.OpenPosition, response);
+				FixCopyLogger.LogClose(slave, open.Symbol, pos.OpenPosition, response);
 			}
 			Logger.Info("CopierService.Close finished");
 		}
@@ -294,8 +294,12 @@ namespace TradeSystem.Orchestration.Services
 				    if (e.Action == NewPositionActions.Open)
 				    {
 					    if (copier.Mode == Copier.CopierModes.CloseOnly) return Task.CompletedTask;
-					    if (!SpreadCheck(copier.ToString(), slaveConnector, symbol, copier.PipSize * copier.SpreadFilterInPips))
+					    if (!SpreadCheck(copier.ToString(), slaveConnector, symbol,
+						    copier.PipSize * copier.SpreadFilterInPips))
+					    {
+						    CopyLogger.Log(slave, symbol, side, e.Action, (decimal) lots, 0, "spread check failed");
 						    return Task.CompletedTask;
+					    }
 
 					    if (e.Position.ReopenTicket.HasValue)
 					    {
@@ -316,7 +320,11 @@ namespace TradeSystem.Orchestration.Services
 						    var newPos = slaveConnector.SendMarketOrderRequest(symbol, side, lots, e.Position.MagicNumber,
 							    copier.TradeComment, copier.MaxRetryCount, copier.RetryPeriodInMs);
 
-						    if (newPos == null) return Task.CompletedTask;
+						    if (newPos == null)
+							{
+								CopyLogger.Log(slave, symbol, side, e.Action, (decimal)lots, 0, "no position");
+								return Task.CompletedTask;
+						    }
 						    copier.CopierPositions.AddSafe(new CopierPosition()
 						    {
 							    Copier = copier,
@@ -324,6 +332,8 @@ namespace TradeSystem.Orchestration.Services
 							    SlaveTicket = newPos.Pos.Id
 						    });
 
+						    if ((decimal) lots != newPos.Pos.Lots)
+							    CopyLogger.Log(slave, symbol, side, e.Action, (decimal) lots, newPos.Pos.Lots);
 						    if (!e.Position.CrossTicket.HasValue) return Task.CompletedTask;
 						    AddCrossPosition(copier, e.Position.CrossTicket.Value, newPos.Pos.Id);
 					    }
@@ -367,7 +377,12 @@ namespace TradeSystem.Orchestration.Services
 			    if (pos.IsClosed) return;
 			    var hedge = connector.SendMarketOrderRequest(pos.Symbol, pos.Side.Inv(),
 				    (double) pos.Lots, pos.MagicNumber, null, copier.MaxRetryCount, copier.RetryPeriodInMs);
-			    if (hedge == null) return;
+			    if (hedge == null)
+				{
+					CopyLogger.Log(copier.Slave, pos.Symbol, pos.Side, NewPositionActions.Close,
+						pos.Lots, 0, "hedge, no position");
+					return;
+			    }
 			    copierPos.State = copier.CrossCopier != null
 				    ? CopierPosition.CopierPositionStates.Inactive
 				    : CopierPosition.CopierPositionStates.ToBeRemoved;
@@ -376,7 +391,15 @@ namespace TradeSystem.Orchestration.Services
 		    {
 			    var close = connector.SendClosePositionRequests(ticket, copier.MaxRetryCount,
 				    copier.RetryPeriodInMs);
-			    if (close?.Pos?.IsClosed == false) return;
+			    if (close?.Pos == null)
+				    CopyLogger.Log(copier.Slave, pos.Symbol, pos.Side, NewPositionActions.Close,
+					    pos.Lots, 0, "no position");
+			    if (close?.Pos?.IsClosed == false)
+			    {
+				    CopyLogger.Log(copier.Slave, pos.Symbol, pos.Side, NewPositionActions.Close,
+					    pos.Lots, close.Pos.Lots);
+					return;
+			    }
 			    copierPos.State = copier.CrossCopier != null
 				    ? CopierPosition.CopierPositionStates.Inactive
 				    : CopierPosition.CopierPositionStates.ToBeRemoved;

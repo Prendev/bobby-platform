@@ -1,6 +1,5 @@
 ﻿using System.Configuration;
 using System.Drawing;
-using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Windows.Forms;
@@ -31,6 +30,7 @@ namespace TradeSystem.Duplicat.Views
 			if (!bool.TryParse(ConfigurationManager.AppSettings["DisableGuiLogger"], out var disableLogger) || !disableLogger)
 			{
 				TextBoxAppender.ConfigureTextBoxAppender(rtbGeneral, "General", 1000);
+				TextBoxAppender.ConfigureTextBoxAppender(rtbCopy, "Copy", 1000);
 				TextBoxAppender.ConfigureTextBoxAppender(rtbMt4, "MT4", 1000);
 				TextBoxAppender.ConfigureTextBoxAppender(rtbFix, "FIX", 1000);
 				TextBoxAppender.ConfigureTextBoxAppender(rtbFixCopy, "FIX copy", 1000);

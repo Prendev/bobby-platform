@@ -37,8 +37,8 @@ namespace TradeSystem.Duplicat
 
 				Debug.WriteLine($"Generate ThreadPool threads start at {HiResDatetime.UtcNow:O}");
 				int.TryParse(ConfigurationManager.AppSettings["ThreadPool.MinThreads"], out var minThreads);
-				ThreadPool.GetMinThreads(out var wokerThreads, out var completionPortThreads);
-				var newMinThreads = Math.Max(minThreads, wokerThreads);
+				ThreadPool.GetMinThreads(out var workerThreads, out var completionPortThreads);
+				var newMinThreads = Math.Max(minThreads, workerThreads);
 				ThreadPool.SetMinThreads(newMinThreads, completionPortThreads);
 				Debug.WriteLine($"Generate ThreadPool threads finish at {HiResDatetime.UtcNow:O}");
 

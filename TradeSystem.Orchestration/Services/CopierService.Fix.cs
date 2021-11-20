@@ -21,14 +21,16 @@ namespace TradeSystem.Orchestration.Services
 				.OrderBy(c => c.DelayInMilliseconds).ThenBy(c => c.Id)
 				.Select(copier => DelayedRun(async () =>
 				{
+					var positionSide = copier.CopyRatio < 0 ? e.Position.Side.Inv() : e.Position.Side;
 					var quantity = Math.Abs(e.Position.Lots * copier.CopyRatio);
 					if (quantity == 0)
 					{
 						Logger.Warn($"CopierService.CopyToFixAccount {slave} {symbol} quantity is zero!!!");
+						CopyLogger.Log(slave, symbol, positionSide, e.Action, quantity, 0, "quantity is zero");
 						return;
 					}
 
-					var side = copier.CopyRatio < 0 ? e.Position.Side.Inv() : e.Position.Side;
+					var side = positionSide;
 					if (e.Action == NewPositionActions.Close) side = side.Inv();
 
 					decimal? limitPrice = null;
@@ -38,7 +40,11 @@ namespace TradeSystem.Orchestration.Services
 						if (lastTick == null)
 						{
 							Logger.Warn($"CopierService.CopyToFixAccount {slave} {symbol} no last tick!!!");
-							if (!copier.FallbackToMarketOrderType) return;
+							if (!copier.FallbackToMarketOrderType)
+							{
+								CopyLogger.Log(slave, symbol, positionSide, e.Action, quantity, 0, "no last tick");
+								return;
+							}
 						}
 						else
 							limitPrice = copier.BasePriceType == FixApiCopier.BasePriceTypes.Master ? e.Position.OpenPrice :
@@ -48,16 +54,26 @@ namespace TradeSystem.Orchestration.Services
 					if (e.Action == NewPositionActions.Open)
 					{
 						if (copier.Mode == FixApiCopier.FixApiCopierModes.CloseOnly) return;
-						if (!SpreadCheck(copier.ToString(), slaveConnector, symbol, copier.PipSize * copier.SpreadFilterInPips))
+						if (!SpreadCheck(copier.ToString(), slaveConnector, symbol,
+							copier.PipSize * copier.SpreadFilterInPips))
+						{
+							CopyLogger.Log(slave, symbol, positionSide, e.Action, quantity, 0, "spread check failed");
 							return;
+						}
 
 						// Check if there is an open position
 						if (copier.FixApiCopierPositions.Any(p =>
 							!p.Archived && p.MasterPositionId == e.Position.Id && p.ClosePosition == null)) return;
 						var response = await FixAccountOpening(copier, slaveConnector, symbol, side, quantity, limitPrice);
-						if (response == null) return;
+						if (response == null)
+						{
+							CopyLogger.Log(slave, symbol, positionSide, e.Action, quantity, 0, "no position");
+							return;
+						}
 						PersistOpenPosition(copier, symbol, e.Position.Id, response);
-						CopyLogger.LogOpen(slave, symbol, response);
+						FixCopyLogger.LogOpen(slave, symbol, response);
+						if (quantity != response.FilledQuantity)
+							CopyLogger.Log(slave, symbol, positionSide, e.Action, quantity, response.FilledQuantity);
 					}
 					else if (e.Action == NewPositionActions.Close)
 					{
@@ -66,9 +82,15 @@ namespace TradeSystem.Orchestration.Services
 							.FirstOrDefault(p => !p.Archived && p.MasterPositionId == e.Position.Id && p.ClosePosition == null);
 						if (pos == null) return;
 						var response = await FixAccountClosing(copier, slaveConnector, symbol, side, pos.OpenPosition.Size, limitPrice);
-						if (response == null) return;
+						if (response == null)
+						{
+							CopyLogger.Log(slave, symbol, positionSide, e.Action, quantity, 0, "no position");
+							return;
+						}
 						PersistClosePosition(copier, pos, response);
-						CopyLogger.LogClose(slave, symbol, pos.OpenPosition, response);
+						FixCopyLogger.LogClose(slave, symbol, pos.OpenPosition, response);
+						if (quantity != response.FilledQuantity)
+							CopyLogger.Log(slave, symbol, positionSide, e.Action, quantity, response.FilledQuantity);
 					}
 
 				}, copier.DelayInMilliseconds));
