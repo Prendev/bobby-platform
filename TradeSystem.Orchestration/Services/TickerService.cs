@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -30,8 +31,8 @@ namespace TradeSystem.Orchestration.Services
 		public class CsvRow : IEquatable<CsvRow>
 		{
 			public string Time { get; set; }
-			public decimal Ask { get; set; }
-			public decimal Bid { get; set; }
+			public string Ask { get; set; }
+			public string Bid { get; set; }
 
 			public bool Equals(CsvRow other)
 			{
@@ -60,10 +61,10 @@ namespace TradeSystem.Orchestration.Services
 		public class CsvRowPair : IEquatable<CsvRowPair>
 		{
 			public string Time { get; set; }
-			public decimal Ask { get; set; }
-			public decimal Bid { get; set; }
-			public decimal PairAsk { get; set; }
-			public decimal PairBid { get; set; }
+			public string Ask { get; set; }
+			public string Bid { get; set; }
+			public string PairAsk { get; set; }
+			public string PairBid { get; set; }
 
 			public bool Equals(CsvRowPair other)
 			{
@@ -264,7 +265,11 @@ namespace TradeSystem.Orchestration.Services
 		    {
 			    if (ticker.PairAccount != null) continue;
 			    if (ticker.MainAccount?.Connector != connector) continue;
-			    if (!string.IsNullOrWhiteSpace(ticker.MainSymbol) && ticker.MainSymbol != quoteSet.Symbol.ToString()) continue;
+				if (!string.IsNullOrWhiteSpace(ticker.MainSymbol) && ticker.MainSymbol != quoteSet.Symbol.ToString())
+				{
+					Logger.Error($"TickerService.Fix_NewQuote symbol mismatch {ticker.MainSymbol} {quoteSet.Symbol}");
+					continue;
+				}
 			    WriteQuoteCsv(ticker, GetCsvFile(ticker, connector.Description, quoteSet.Symbol.ToString()), quoteSet, ticker.MarketDepth);
 		    }
 		}
@@ -280,7 +285,12 @@ namespace TradeSystem.Orchestration.Services
 
 				if (!ticker.PairAccountId.HasValue && (ticker.MainSymbol ?? e.Tick.Symbol) == e.Tick.Symbol)
 					WriteCsv(ticker, GetCsvFile(ticker, connector.Description, e.Tick.Symbol),
-						new CsvRow {Time = e.Tick.Time.ToString(ticker.GetDateTimeFormat()), Ask = e.Tick.Ask, Bid = e.Tick.Bid});
+						new CsvRow
+						{
+							Time = e.Tick.Time.ToString(ticker.GetDateTimeFormat()),
+							Ask = e.Tick.Ask.ToString(CultureInfo.InvariantCulture),
+							Bid = e.Tick.Bid.ToString(CultureInfo.InvariantCulture)
+						});
 
 				if (ticker.MainSymbol != e.Tick.Symbol) continue;
 					
@@ -296,10 +306,10 @@ namespace TradeSystem.Orchestration.Services
 				WriteCsv(ticker, GetCsvFile(ticker, $"{connector.Description}_{pair}", e.Tick.Symbol), new CsvRowPair
 				{
 					Time = e.Tick.Time.ToString(ticker.GetDateTimeFormat()),
-					Ask = e.Tick.Ask,
-					Bid = e.Tick.Bid,
-					PairAsk = lastTick?.Ask ?? 0,
-					PairBid = lastTick?.Bid ?? 0
+					Ask = e.Tick.Ask.ToString(CultureInfo.InvariantCulture),
+					Bid = e.Tick.Bid.ToString(CultureInfo.InvariantCulture),
+					PairAsk = (lastTick?.Ask ?? 0).ToString(CultureInfo.InvariantCulture),
+					PairBid = (lastTick?.Bid ?? 0).ToString(CultureInfo.InvariantCulture)
 				});
 			}
 		}
@@ -338,7 +348,7 @@ namespace TradeSystem.Orchestration.Services
 
 			lock (writer)
 			{
-				if (AreQuoteSetEqual(writer.LastRecord, forLastRecord)) return;
+				//if (AreQuoteSetEqual(writer.LastRecord, forLastRecord)) return;
 				writer.LastRecord = forLastRecord;
 
 				var w = writer.CsvWriter;
@@ -349,14 +359,14 @@ namespace TradeSystem.Orchestration.Services
 					if (first)
 					{
 						first = false;
-						w.WriteField(qe.Trade);
-						w.WriteField(qe.TradeVolume);
+						w.WriteField(qe.Trade?.ToString(CultureInfo.InvariantCulture));
+						w.WriteField(qe.TradeVolume?.ToString(CultureInfo.InvariantCulture));
 						w.WriteField(qe.EntryDateTime);
 					}
-					w.WriteField(qe.Ask);
-					w.WriteField(qe.Bid);
-					w.WriteField(qe.AskVolume);
-					w.WriteField(qe.BidVolume);
+					w.WriteField(qe.Ask?.ToString(CultureInfo.InvariantCulture));
+					w.WriteField(qe.Bid?.ToString(CultureInfo.InvariantCulture));
+					w.WriteField(qe.AskVolume?.ToString(CultureInfo.InvariantCulture));
+					w.WriteField(qe.BidVolume?.ToString(CultureInfo.InvariantCulture));
 				}
 				w.NextRecord();
 
@@ -384,7 +394,7 @@ namespace TradeSystem.Orchestration.Services
 		    var nr = newRecord;
 		    if (lr.Count != nr.Count) return false;
 
-		    return !lr.Where((t, i) => t != nr[i]).Any();
+			return lr.Where((t, i) => t != nr[i]).Count() == 0;
 	    }
     }
 }
