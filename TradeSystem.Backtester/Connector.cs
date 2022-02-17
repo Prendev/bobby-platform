@@ -250,29 +250,12 @@ namespace TradeSystem.Backtester
 				foreach (var reader in csvReaders)
 				{
 					var csvReader = reader.Value.CsvReader;
-					var config = reader.Key;
 					while (csvReader.Read())
 					{
-						var dt = csvReader.GetField<string>(config.DateTimeColumn);
-						var a = csvReader.GetField<string>(config.AskColumn);
-						var b = csvReader.GetField<string>(config.BidColumn);
-
-						var dateTime = DateTime.ParseExact(dt, config.GetDateTimeFormat(), CultureInfo.InvariantCulture);
-						DateTime.SpecifyKind(dateTime, DateTimeKind.Utc);
-						var ask = decimal.Parse(a);
-						var bid = decimal.Parse(b);
-
-						var tick = new Tick()
-						{
-							Time = dateTime,
-							Symbol = config.Symbol,
-							Ask = ask,
-							Bid = bid,
-							AskVolume = 1,
-							BidVolume = 1
-						};
+						var tick = ReadTick(reader.Key, csvReader);
+						if (tick == null) continue;
 						if (ticks.ContainsKey(tick.Time)) ticks[tick.Time].Add(tick);
-						else ticks[tick.Time] = new List<Tick> {tick};
+						else ticks[tick.Time] = new List<Tick> { tick };
 					}
 
 					reader.Value.Disconnect();
@@ -284,6 +267,37 @@ namespace TradeSystem.Backtester
 			{
 				Logger.Error($"{Description} Connector.ReadTicks error", e);
 				return new SortedDictionary<DateTime, List<Tick>>();
+			}
+		}
+		private Tick ReadTick(
+			BacktesterInstrumentConfig config,
+			CsvHelper.CsvReader csvReader)
+		{
+			try
+			{
+				var dt = csvReader.GetField<string>(config.DateTimeColumn);
+				var a = csvReader.GetField<string>(config.AskColumn);
+				var b = csvReader.GetField<string>(config.BidColumn);
+
+				var dateTime = DateTime.ParseExact(dt, config.GetDateTimeFormat(), CultureInfo.InvariantCulture);
+				DateTime.SpecifyKind(dateTime, DateTimeKind.Utc);
+				var ask = decimal.Parse(a);
+				var bid = decimal.Parse(b);
+
+				var tick = new Tick()
+				{
+					Time = dateTime,
+					Symbol = config.Symbol,
+					Ask = ask,
+					Bid = bid,
+					AskVolume = 1,
+					BidVolume = 1
+				};
+				return tick;
+			}
+			catch
+			{
+				return null;
 			}
 		}
 

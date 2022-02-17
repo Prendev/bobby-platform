@@ -489,6 +489,10 @@
       <Project>{7cc1ee8b-90a2-4cf7-af5e-30104bda14d8}</Project>
       <Name>TradeSystem.Communication.Ftx</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\git\QvaDev.Wololo\TradeSystem.Communication.Houbi\TradeSystem.Communication.Houbi.csproj">
+      <Project>{cca841f3-b4bc-4027-a961-418c02881de2}</Project>
+      <Name>TradeSystem.Communication.Houbi</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\git\QvaDev.Wololo\TradeSystem.Communication.Mt5\TradeSystem.Communication.Mt5.csproj">
       <Project>{aa3796e1-5b4c-4bdd-a102-22d6411f9b93}</Project>
       <Name>TradeSystem.Communication.Mt5</Name>

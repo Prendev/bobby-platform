@@ -263,8 +263,9 @@ namespace TradeSystem.Orchestration.Services
 
 		    foreach (var ticker in tickers)
 		    {
-			    if (ticker.PairAccount != null) continue;
-			    if (ticker.MainAccount?.Connector != connector) continue;
+				if (ticker.MainAccount?.Connector != connector) continue;
+				if (ticker.PairAccount != null) continue;
+				if (!(ticker.MainAccount.Connector is FixApiIntegration.Connector)) continue;
 				if (!string.IsNullOrWhiteSpace(ticker.MainSymbol) && ticker.MainSymbol != quoteSet.Symbol.ToString())
 				{
 					Logger.Error($"TickerService.Fix_NewQuote symbol mismatch {ticker.MainSymbol} {quoteSet.Symbol}");
@@ -282,6 +283,8 @@ namespace TradeSystem.Orchestration.Services
 			foreach (var ticker in tickers)
 			{
 				if (ticker.MainAccount?.Connector != connector) continue;
+				if (ticker.PairAccount == null && ticker.MainAccount.Connector is FixApiIntegration.Connector)
+					continue;
 
 				if (!ticker.PairAccountId.HasValue && (ticker.MainSymbol ?? e.Tick.Symbol) == e.Tick.Symbol)
 					WriteCsv(ticker, GetCsvFile(ticker, connector.Description, e.Tick.Symbol),
@@ -293,9 +296,9 @@ namespace TradeSystem.Orchestration.Services
 						});
 
 				if (ticker.MainSymbol != e.Tick.Symbol) continue;
-					
-				Tick lastTick = null;
-				string pair = "";
+
+				Tick lastTick;
+				string pair;
 				if (ticker.PairAccount?.Connector?.IsConnected == true)
 				{
 					lastTick = ticker.PairAccount.Connector.GetLastTick(ticker.PairSymbol);
@@ -348,7 +351,7 @@ namespace TradeSystem.Orchestration.Services
 
 			lock (writer)
 			{
-				//if (AreQuoteSetEqual(writer.LastRecord, forLastRecord)) return;
+				if (AreQuoteSetEqual(writer.LastRecord, forLastRecord)) return;
 				writer.LastRecord = forLastRecord;
 
 				var w = writer.CsvWriter;
