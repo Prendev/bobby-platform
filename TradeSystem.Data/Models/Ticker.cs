@@ -20,7 +20,9 @@ namespace TradeSystem.Data.Models
 
 		public int MarketDepth { get; set; }
 
+
 		public string DateTimeFormat { get; set; }
+		public bool PriceOnly { get; set; }
 		public string Delimeter { get; set; }
 		public string Extension { get; set; }
 

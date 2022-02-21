@@ -347,7 +347,7 @@ namespace TradeSystem.Orchestration.Services
 			new FileInfo(file).Directory.Create();
 			var writer = _csvWriters.GetOrAdd(file, key => new Writer(file, ticker.GetDelimeter()) { LastFlush = HiResDatetime.UtcNow });
 			var take = marketDepth <= 0 ? quoteSet.Entries.Count : marketDepth;
-			var forLastRecord = ToLastRecord(quoteSet, take);
+			var forLastRecord = ToLastRecord(ticker, quoteSet);
 
 			lock (writer)
 			{
@@ -359,15 +359,20 @@ namespace TradeSystem.Orchestration.Services
 				var first = true;
 				foreach (var qe in quoteSet.Entries.Take(take))
 				{
-					if (first)
+					if (first && !ticker.PriceOnly)
 					{
 						first = false;
 						w.WriteField(qe.Trade?.ToString(CultureInfo.InvariantCulture));
 						w.WriteField(qe.TradeVolume?.ToString(CultureInfo.InvariantCulture));
-						w.WriteField(qe.EntryDateTime);
+						if (qe.EntryDateTime == "undefined")
+							w.WriteField(null);
+						else w.WriteField(qe.EntryDateTime);
 					}
+
 					w.WriteField(qe.Ask?.ToString(CultureInfo.InvariantCulture));
 					w.WriteField(qe.Bid?.ToString(CultureInfo.InvariantCulture));
+					if (ticker.PriceOnly) continue;
+
 					w.WriteField(qe.AskVolume?.ToString(CultureInfo.InvariantCulture));
 					w.WriteField(qe.BidVolume?.ToString(CultureInfo.InvariantCulture));
 				}
@@ -379,12 +384,18 @@ namespace TradeSystem.Orchestration.Services
 			}
 		}
 
-	    private List<decimal?> ToLastRecord(QuoteSet quoteSet, int take)
+	    private List<decimal?> ToLastRecord(Ticker ticker, QuoteSet quoteSet)
 	    { 
 		    var list = new List<decimal?>();
+			var take = ticker.MarketDepth <= 0 ? quoteSet.Entries.Count : ticker.MarketDepth;
 
-		    foreach (var qe in quoteSet.Entries.Take(take))
-			    list.AddRange(new List<decimal?> { qe.Ask, qe.Bid, qe.AskVolume, qe.BidVolume });
+			foreach (var qe in quoteSet.Entries.Take(take))
+			{
+				if (ticker.PriceOnly)
+					list.AddRange(new List<decimal?> { qe.Ask, qe.Bid });
+				else
+					list.AddRange(new List<decimal?> { qe.Ask, qe.Bid, qe.AskVolume, qe.BidVolume });
+			}
 
 		    return list;
 	    }
