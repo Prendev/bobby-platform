@@ -267,10 +267,7 @@ namespace TradeSystem.Orchestration.Services
 				if (ticker.PairAccount != null) continue;
 				if (!(ticker.MainAccount.Connector is FixApiIntegration.Connector)) continue;
 				if (!string.IsNullOrWhiteSpace(ticker.MainSymbol) && ticker.MainSymbol != quoteSet.Symbol.ToString())
-				{
-					Logger.Error($"TickerService.Fix_NewQuote symbol mismatch {ticker.MainSymbol} {quoteSet.Symbol}");
 					continue;
-				}
 			    WriteQuoteCsv(ticker, GetCsvFile(ticker, connector.Description, quoteSet.Symbol.ToString()), quoteSet, ticker.MarketDepth);
 		    }
 		}
