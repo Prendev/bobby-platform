@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using TradeSystem.Common;
@@ -16,20 +17,23 @@ namespace TradeSystem.Backtester
 	{
 		public class Reader
 		{
-			public TextReader TextReader { get; set; }
-			public CsvHelper.CsvReader CsvReader { get; set; }
-			public object LastRecord { get; set; }
+			public FileStream FileStream { get; set; }
+			public StreamReader StreamReader { get; set; }
 
-			public Reader(string file, string delimeter)
+			public Reader(string file)
 			{
-				TextReader = new StreamReader(file, true);
-				CsvReader = new CsvHelper.CsvReader(TextReader);
-				CsvReader.Configuration.Delimiter = delimeter;
+				FileStream = File.OpenRead(file);
+				StreamReader = new StreamReader(FileStream, Encoding.UTF8, true, 128);
 			}
 
 			public void Disconnect()
 			{
-				CsvReader.Dispose();
+				try
+				{
+					StreamReader.Dispose();
+					FileStream.Dispose();
+				}
+				catch { }
 			}
 		}
 
@@ -236,30 +240,35 @@ namespace TradeSystem.Backtester
 			try
 			{
 				var ticks = new SortedDictionary<DateTime, List<Tick>>();
-				var csvReaders = new ConcurrentDictionary<BacktesterInstrumentConfig, Reader>();
+				var readers = new ConcurrentDictionary<BacktesterInstrumentConfig, Reader>();
 				foreach (var ic in Account.InstrumentConfigs)
 				{
 					var folder = $"{FolderPath}/{ic.Folder}";
 					var files = Directory.GetFiles(folder).OrderBy(f => f).ToList();
 					if (files.Count <= _index) continue;
-					csvReaders.GetOrAdd(ic, key => new Reader(files.ElementAt(_index), ic.GetDelimeter()));
+					readers.GetOrAdd(ic, key => new Reader(files.ElementAt(_index)));
 				}
 
 				_index++;
 
-				foreach (var reader in csvReaders)
+				foreach (var reader in readers)
 				{
-					var csvReader = reader.Value.CsvReader;
-					while (csvReader.Read())
+					string line;
+					while ((line = reader.Value.StreamReader.ReadLine()) != null)
 					{
-						var tick = ReadTick(reader.Key, csvReader);
+						var tick = ReadTick(reader.Key, line);
 						if (tick == null) continue;
 						if (ticks.ContainsKey(tick.Time)) ticks[tick.Time].Add(tick);
 						else ticks[tick.Time] = new List<Tick> { tick };
+
+						if (ticks.Count % 10000 == 0)
+							Logger.Debug($"{Description} backtester read count: {ticks.Count}");
 					}
 
 					reader.Value.Disconnect();
 				}
+
+				Logger.Debug($"{Description} backtester read DONE at {ticks.Count}");
 
 				return ticks;
 			}
@@ -271,13 +280,14 @@ namespace TradeSystem.Backtester
 		}
 		private Tick ReadTick(
 			BacktesterInstrumentConfig config,
-			CsvHelper.CsvReader csvReader)
+			string line)
 		{
 			try
 			{
-				var dt = csvReader.GetField<string>(config.DateTimeColumn);
-				var a = csvReader.GetField<string>(config.AskColumn);
-				var b = csvReader.GetField<string>(config.BidColumn);
+				var columns = line.Split(new[] { config.GetDelimeter() }, StringSplitOptions.None);
+				var dt = columns[config.DateTimeColumn];
+				var a = columns[config.AskColumn];
+				var b = columns[config.BidColumn];
 
 				var dateTime = DateTime.ParseExact(dt, config.GetDateTimeFormat(), CultureInfo.InvariantCulture);
 				DateTime.SpecifyKind(dateTime, DateTimeKind.Utc);

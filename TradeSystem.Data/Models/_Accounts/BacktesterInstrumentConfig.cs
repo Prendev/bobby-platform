@@ -23,7 +23,7 @@ namespace TradeSystem.Data.Models
 		public int BidColumn { get; set; } = 2;
 
 		public string GetDateTimeFormat() =>
-			String.IsNullOrWhiteSpace(DateTimeFormat) ? "yyyy/MM/dd HH:mm:ss.fff" : DateTimeFormat;
+			String.IsNullOrWhiteSpace(DateTimeFormat) ? "yyyy.MM.dd HH:mm:ss.fff" : DateTimeFormat;
 		public string GetDelimeter() =>
 			String.IsNullOrWhiteSpace(Delimeter) ? ", " : Delimeter;
 	}
