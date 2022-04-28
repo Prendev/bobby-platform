@@ -251,6 +251,7 @@ namespace TradeSystem.Backtester
 
 				_index++;
 
+				var lastCount = 0;
 				foreach (var reader in readers)
 				{
 					string line;
@@ -261,8 +262,11 @@ namespace TradeSystem.Backtester
 						if (ticks.ContainsKey(tick.Time)) ticks[tick.Time].Add(tick);
 						else ticks[tick.Time] = new List<Tick> { tick };
 
-						if (ticks.Count % 10000 == 0)
+						if (ticks.Count % 10000 == 0 && ticks.Count != lastCount)
+						{
+							lastCount = ticks.Count;
 							Logger.Debug($"{Description} backtester read count: {ticks.Count}");
+						}
 					}
 
 					reader.Value.Disconnect();
@@ -317,6 +321,7 @@ namespace TradeSystem.Backtester
 			LastTicks.Clear();
 			while (true)
 			{
+				if (token.IsCancellationRequested) break;
 				var ticks = ReadTicks();
 				if (!ticks.Any()) break;
 				foreach (var subTicks in ticks)
