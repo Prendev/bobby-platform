@@ -257,6 +257,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				if (!set.IsConnected) return;
 				if (set.State != LatencyArb.LatencyArbStates.Opening) return;
 				if (set.LivePositions.Count >= set.MaxCount) return;
+				if (!set.FastFeedSpreadCheck) return;
 				if (!set.ShortSpreadCheck) return;
 				if (!set.LongSpreadCheck) return;
 				if (set.LastActionTime.HasValue &&
@@ -578,6 +579,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 		private void CheckReopeningShort(LatencyArb set)
 		{
 			if (set.State != LatencyArb.LatencyArbStates.ReopeningShort) return;
+			if (!set.FastFeedSpreadCheck) return;
 			if (!set.ShortSpreadCheck) return;
 			if (set.ShortAccount.ConnectionState != ConnectionStates.Connected) return;
 
@@ -618,6 +620,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 		private void CheckReopeningLong(LatencyArb set)
 		{
 			if (set.State != LatencyArb.LatencyArbStates.ReopeningLong) return;
+			if (!set.FastFeedSpreadCheck) return;
 			if (!set.LongSpreadCheck) return;
 			if (set.LongAccount.ConnectionState != ConnectionStates.Connected) return;
 
@@ -711,11 +714,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				if (set.State != LatencyArb.LatencyArbStates.ImmediateExit &&
 				    set.State != LatencyArb.LatencyArbStates.ImmediateExitReopen &&
 				    first.CheckMaxOpenPeriod(set) &&
-					!set.ShortSpreadCheck) return;
-				if (set.State != LatencyArb.LatencyArbStates.ImmediateExit &&
-				    set.State != LatencyArb.LatencyArbStates.ImmediateExitReopen &&
-				    first.CheckMaxOpenPeriod(set) &&
-					!set.LongSpreadCheck) return;
+					(!set.FastFeedSpreadCheck || !set.ShortSpreadCheck || !set.LongSpreadCheck)) return;
 				if (set.LastActionTime.HasValue &&
 				    (set.UtcNow - set.LastActionTime.Value).TotalSeconds < set.RestingPeriodInSec) return;
 

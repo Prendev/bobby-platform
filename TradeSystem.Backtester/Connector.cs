@@ -247,8 +247,11 @@ namespace TradeSystem.Backtester
 					var files = Directory.GetFiles(folder).OrderBy(f => f).ToList();
 					if (files.Count <= _index) continue;
 					readers.GetOrAdd(ic, key => new Reader(files.ElementAt(_index)));
+					if (_index != 0) continue;
+					Logger.Debug($"{Description} backtester read {ic.Symbol} from files: {files.Count}");
 				}
 
+				if(!readers.Any()) return ticks;
 				_index++;
 
 				var lastCount = 0;
@@ -258,6 +261,7 @@ namespace TradeSystem.Backtester
 					while ((line = reader.Value.StreamReader.ReadLine()) != null)
 					{
 						var tick = ReadTick(reader.Key, line);
+						if (!tick.HasValue) continue;
 						if (tick == null) continue;
 						if (ticks.ContainsKey(tick.Time)) ticks[tick.Time].Add(tick);
 						else ticks[tick.Time] = new List<Tick> { tick };
@@ -265,14 +269,14 @@ namespace TradeSystem.Backtester
 						if (ticks.Count % 10000 == 0 && ticks.Count != lastCount)
 						{
 							lastCount = ticks.Count;
-							Logger.Debug($"{Description} backtester read count: {ticks.Count}");
+							Logger.Debug($"{Description} backtester read {_index}. files with count: {ticks.Count}");
 						}
 					}
 
 					reader.Value.Disconnect();
 				}
 
-				Logger.Debug($"{Description} backtester read DONE at {ticks.Count}");
+				Logger.Debug($"{Description} backtester read {_index}. files DONE with count: {ticks.Count}");
 
 				return ticks;
 			}

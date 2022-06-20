@@ -48,6 +48,7 @@ namespace TradeSystem.Data.Models
 		public int FastFeedAccountId { get; set; }
 		public Account FastFeedAccount { get => Get<Account>(); set => Set(value); }
 		[DisplayName("FF Sym")] [Required] public string FastFeedSymbol { get; set; }
+		[DisplayName("FF Spread")] public decimal FastFeedSpreadFilterInPip { get; set; }
 
 		public int ShortAccountId { get; set; }
 		public Account ShortAccount { get => Get<Account>(); set => Set(value); }

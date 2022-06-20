@@ -66,6 +66,7 @@ namespace TradeSystem.Data.Models
 		[NotMapped] [InvisibleColumn] public decimal? ShortSpread => (LastShortTick?.Ask - LastShortTick?.Bid) / PipSize;
 		[NotMapped] [InvisibleColumn] public decimal? LongSpread => (LastLongTick?.Ask - LastLongTick?.Bid) / PipSize;
 
+		[NotMapped][InvisibleColumn] public bool FastFeedSpreadCheck => SpreadCheck(LastFeedTick, FastFeedSpreadFilterInPip);
 		[NotMapped] [InvisibleColumn] public bool ShortSpreadCheck => SpreadCheck(LastShortTick, ShortSpreadFilterInPip);
 		[NotMapped] [InvisibleColumn] public bool LongSpreadCheck => SpreadCheck(LastLongTick, LongSpreadFilterInPip);
 
