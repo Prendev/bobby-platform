@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using Newtonsoft.Json;
 
 namespace TradeSystem.FileContextCore.Serializer
 {
@@ -8,12 +9,12 @@ namespace TradeSystem.FileContextCore.Serializer
     {
         public static object Deserialize(this string input, Type type)
         {
-            if (String.IsNullOrEmpty(input))
+            if (string.IsNullOrWhiteSpace(input))
             {
                 return type.GetDefaultValue();
 			}
 
-			if (type != typeof(string) && type.IsNullableType())
+			if (type != typeof(string) && type.IsNullableType() && !type.IsArray)
 			{
 				type = Nullable.GetUnderlyingType(type);
 			}
@@ -32,6 +33,11 @@ namespace TradeSystem.FileContextCore.Serializer
 		        return Enum.Parse(type, input);
 	        }
 
+	        if (type == typeof(string[]))
+	        {
+		        return JsonConvert.DeserializeObject<string[]>(input);
+	        }
+
 			if (type?.IsArray == true)
             {
                 Type arrType = type.GetElementType();
@@ -45,14 +51,19 @@ namespace TradeSystem.FileContextCore.Serializer
                 return arr.ToArray();
             }
 
-	        // ReSharper disable once AssignNullToNotNullAttribute
-            return Convert.ChangeType(input, type, CultureInfo.InvariantCulture);
+			// ReSharper disable once AssignNullToNotNullAttribute
+			return Convert.ChangeType(input, type, CultureInfo.InvariantCulture);
         }
 
         public static string Serialize(this object input)
         {
             if (input != null)
             {
+	            if (input.GetType() == typeof(string[]))
+	            {
+		            return JsonConvert.SerializeObject(input);
+	            }
+
                 if (input.GetType().IsArray)
                 {
                     string result = "";

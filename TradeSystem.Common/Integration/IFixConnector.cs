@@ -10,6 +10,9 @@ namespace TradeSystem.Common.Integration
 		Task<OrderResponse> SendMarketOrderRequest(string symbol, Sides side, decimal quantity,
 			int timeout, int retryCount, int retryPeriod);
 
+		Task<OrderResponse> CloseOrderRequest(string symbol, Sides side, decimal quantity,
+			int timeout, int retryCount, int retryPeriod, string[] orderIds);
+
 		Task<OrderResponse> SendAggressiveOrderRequest(
 			string symbol, Sides side, decimal quantity,
 			decimal limitPrice, decimal deviation, decimal priceDiff,

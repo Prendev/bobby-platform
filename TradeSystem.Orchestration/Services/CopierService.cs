@@ -129,7 +129,7 @@ namespace TradeSystem.Orchestration.Services
 			{
 				var open = pos.OpenPosition;
 				var side = open.Side == StratPosition.Sides.Buy ? Sides.Sell : Sides.Buy;
-				var response = await FixAccountClosing(pos.FixApiCopier, connector, open.Symbol, side, open.Size, null);
+				var response = await FixAccountClosing(pos.FixApiCopier, connector, open.Symbol, side, open.Size, null, pos.OpenOrderIds);
 				if (response == null) continue;
 				PersistClosePosition(pos.FixApiCopier, pos, response);
 				FixCopyLogger.LogClose(slave, open.Symbol, pos.OpenPosition, response);

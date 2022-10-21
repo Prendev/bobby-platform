@@ -9,6 +9,7 @@
 
 		public int OpenPositionId { get; set; }
 		public StratPosition OpenPosition { get; set; }
+		public string[] OpenOrderIds { get; set; }
 
 		public int? ClosePositionId { get; set; }
 		public StratPosition ClosePosition { get; set; }

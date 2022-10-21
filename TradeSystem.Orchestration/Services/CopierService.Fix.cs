@@ -81,7 +81,7 @@ namespace TradeSystem.Orchestration.Services
 						var pos = copier.FixApiCopierPositions
 							.FirstOrDefault(p => !p.Archived && p.MasterPositionId == e.Position.Id && p.ClosePosition == null);
 						if (pos == null) return;
-						var response = await FixAccountClosing(copier, slaveConnector, symbol, side, pos.OpenPosition.Size, limitPrice);
+						var response = await FixAccountClosing(copier, slaveConnector, symbol, side, pos.OpenPosition.Size, limitPrice, pos.OpenOrderIds);
 						if (response == null)
 						{
 							CopyLogger.Log(slave, symbol, positionSide, e.Action, quantity, 0, "no position");
@@ -147,7 +147,8 @@ namespace TradeSystem.Orchestration.Services
 					Side = side,
 					Size = response.FilledQuantity,
 					Symbol = symbol
-				}
+				},
+				OpenOrderIds = response.OrderIds?.ToArray() ?? new string[] {}
 			};
 			copier.FixApiCopierPositions.AddSafe(newEntity);
 		}
@@ -176,7 +177,7 @@ namespace TradeSystem.Orchestration.Services
 		    if (copier.OrderType == FixApiCopier.FixApiOrderTypes.Market)
 				return await connector.SendMarketOrderRequest(symbol, side, quantity,
 				    copier.MarketTimeWindowInMs, copier.MarketMaxRetryCount, copier.MarketRetryPeriodInMs);
-			if(copier.FallbackToMarketOrderType && !limitPrice.HasValue)
+			if (copier.FallbackToMarketOrderType && !limitPrice.HasValue)
 			    return await connector.SendMarketOrderRequest(symbol, side, quantity,
 				    copier.FallbackTimeWindowInMs, copier.FallbackMaxRetryCount, copier.FallbackRetryPeriodInMs);
 		    if (!limitPrice.HasValue) return null;
@@ -209,12 +210,12 @@ namespace TradeSystem.Orchestration.Services
 		}
 
 	    private async Task<OrderResponse> FixAccountClosing(FixApiCopier copier, IFixConnector connector, string symbol, Sides side,
-		    decimal quantity, decimal? limitPrice)
+		    decimal quantity, decimal? limitPrice, string[] orderIds)
 		{
 			OrderResponse response;
 			if (copier.OrderType == FixApiCopier.FixApiOrderTypes.Market || !limitPrice.HasValue)
-				return await connector.SendMarketOrderRequest(symbol, side, quantity,
-					copier.MarketTimeWindowInMs, copier.MarketMaxRetryCount, copier.MarketRetryPeriodInMs);
+				return await connector.CloseOrderRequest(symbol, side, quantity,
+					copier.MarketTimeWindowInMs, copier.MarketMaxRetryCount, copier.MarketRetryPeriodInMs, orderIds);
 			else if (copier.OrderType == FixApiCopier.FixApiOrderTypes.GtcLimit)
 			    response = await connector.SendGtcLimitOrderRequest(
 					symbol, side, quantity, limitPrice.Value, copier.Deviation, copier.LimitDiff,

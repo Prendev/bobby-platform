@@ -4,8 +4,10 @@ using System.IO;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Newtonsoft.Json;
 using TradeSystem.Data.Models;
 using TradeSystem.FileContextCore.Extensions;
+using TradeSystem.FileContextCore.Serializer;
 
 namespace TradeSystem.Data
 {
@@ -161,11 +163,19 @@ namespace TradeSystem.Data
 			var timeSpanConverter = new ValueConverter<TimeSpan, long>(v => v.Ticks, v => new TimeSpan(v));
 			var nullTimeSpanConverter = new ValueConverter<TimeSpan?, long?>(v => v != null ? v.Value.Ticks : (long?) null,
 				v => v != null ? new TimeSpan(v.Value) : (TimeSpan?) null);
+			var arrayConverter = new ValueConverter<string[], string>(
+				x => JsonConvert.SerializeObject(x),
+				x => JsonConvert.DeserializeObject<string[]>(x));
+
+			modelBuilder
+				.Entity<FixApiCopierPosition>()
+				.Property(e => e.OpenOrderIds)
+				.HasConversion(arrayConverter);
 
 			foreach (var entityType in modelBuilder.Model.GetEntityTypes())
 			foreach (var property in entityType.GetProperties())
 			{
-				if (property.ClrType == typeof(TimeSpan) || property.ClrType == typeof(TimeSpan?))
+				if (property.ClrType == typeof(TimeSpan))
 					property.SetValueConverter(timeSpanConverter);
 				else if (property.ClrType == typeof(TimeSpan?))
 					property.SetValueConverter(nullTimeSpanConverter);

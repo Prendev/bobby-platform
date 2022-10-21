@@ -21,6 +21,9 @@ namespace TradeSystem.Common.Integration
 		public virtual Task<OrderResponse> SendMarketOrderRequest(string symbol, Sides side, decimal quantity,
 			int timeout, int retryCount, int retryPeriod) => NotImplementedTask<OrderResponse>();
 
+		public virtual Task<OrderResponse> CloseOrderRequest(string symbol, Sides side, decimal quantity,
+			int timeout, int retryCount, int retryPeriod, string[] orderIds) => NotImplementedTask<OrderResponse>();
+
 		public virtual Task<OrderResponse> SendAggressiveOrderRequest(
 			string symbol, Sides side, decimal quantity,
 			decimal limitPrice, decimal deviation, decimal priceDiff,

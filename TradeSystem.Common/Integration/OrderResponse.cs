@@ -1,4 +1,6 @@
-﻿namespace TradeSystem.Common.Integration
+﻿using System.Collections.Generic;
+
+namespace TradeSystem.Common.Integration
 {
 	public class OrderResponse
 	{
@@ -13,5 +15,7 @@
 
 		public Sides Side { get; set; }
 		public decimal SignedSize => FilledQuantity * (Side == Sides.Buy ? 1 : -1);
+
+		public List<string> OrderIds { get; set; }
 	}
 }

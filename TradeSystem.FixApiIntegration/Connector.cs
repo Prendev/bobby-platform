@@ -94,12 +94,43 @@ namespace TradeSystem.FixApiIntegration
 			OnConnectionChanged(ConnectionStates.Disconnected);
 		}
 
+		public override async Task<OrderResponse> CloseOrderRequest(string symbol, Sides side, decimal quantity, int timeout, int retryCount, int retryPeriod, string[] orderIds)
+		{
+			if (orderIds?.Any() == true
+			    && GeneralConnector.EnabledFeatures.Supports(StandardFeatures.CloseOrder)
+			    && GeneralConnector.EnabledFeatures.Supports(StandardFeatures.GetOrderStatus))
+			{
+				var fullResponse = new OrderResponse()
+				{
+					Side = side,
+					OrderedQuantity = quantity,
+				};
+				foreach (var orderId in orderIds)
+				{
+					var order = await GeneralConnector.GetOrderStatusAsync(orderId);
+					var q = order.FulfilledQuantity ?? 0;
+					if (q == 0) continue;
+					
+					var response = await SendMarketOrderRequest(symbol, side, q, timeout, retryCount, retryPeriod, false, orderId);
+					fullResponse.FilledQuantity += response.FilledQuantity;
+					if (response.AveragePrice.HasValue)
+						fullResponse.AveragePrice = (fullResponse.AveragePrice ?? 0) + response.AveragePrice;
+				}
+
+				if (fullResponse.FilledQuantity > 0)
+					fullResponse.AveragePrice /= fullResponse.FilledQuantity;
+
+				return fullResponse;
+			}
+			else return await SendMarketOrderRequest(symbol, side, quantity, timeout, retryCount, retryPeriod);
+		}
+
 		public override Task<OrderResponse> SendMarketOrderRequest(string symbol, Sides side, decimal quantity, int timeout, int retryCount, int retryPeriod)
 		{
 			return SendMarketOrderRequest(symbol, side, quantity, timeout, retryCount, retryPeriod, false);
 		}
 		private async Task<OrderResponse> SendMarketOrderRequest(string symbol, Sides side, decimal quantity,
-			int timeout, int retryCount, int retryPeriod, bool isUnfinished)
+			int timeout, int retryCount, int retryPeriod, bool isUnfinished, string orderId = null)
 		{
 			var retValue = new OrderResponse()
 			{
@@ -119,10 +150,13 @@ namespace TradeSystem.FixApiIntegration
 					Quantity = quantity,
 					Timeout = timeout,
 					RetryCount = retryCount,
-					RetryDelay = retryPeriod
+					RetryDelay = retryPeriod,
+					OpenOrCloseHint = string.IsNullOrWhiteSpace(orderId) ? (OpenClose?)null : OpenClose.Close,
+					OrderId = orderId
 				});
 				retValue.AveragePrice = response.AveragePrice;
 				retValue.FilledQuantity = response.FilledQuantity;
+				retValue.OrderIds = new List<string>(response.OrderIds);
 
 				if (!string.IsNullOrWhiteSpace(response.UnfinishedOrderId))
 				{
@@ -157,7 +191,7 @@ namespace TradeSystem.FixApiIntegration
 				_emailService.Send("ALERT - Market order failed",
 					$"{Description}" + Environment.NewLine +
 					$"{symbol}" + Environment.NewLine +
-					$"{side.ToString()}" + Environment.NewLine +
+					$"{side}" + Environment.NewLine +
 					$"{quantity:0}");
 
 			return retValue;
