@@ -30,7 +30,8 @@ namespace TradeSystem.Data.Models
 
 		[DisplayPriority(-1)] public bool Run { get; set; }
 		public CopierModes Mode { get; set; }
-		public decimal CopyRatio { get; set; }
+		public bool ValueCopy { get; set; }
+		[DisplayName("Ratio/Value")] public decimal CopyRatio { get; set; }
 		public CopierOrderTypes OrderType { get; set; }
 		public BasePriceTypes BasePriceType { get; set; }
 		[DisplayName("Delay")] public int DelayInMilliseconds { get; set; }

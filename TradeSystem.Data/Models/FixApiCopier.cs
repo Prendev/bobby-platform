@@ -30,7 +30,8 @@ namespace TradeSystem.Data.Models
 
 		[DisplayPriority(-1)] public bool Run { get; set; }
 		public FixApiCopierModes Mode { get; set; }
-		public decimal CopyRatio { get; set; }
+		public bool ValueCopy { get; set; }
+		[DisplayName("Ratio/Value")] public decimal CopyRatio { get; set; }
 		public FixApiOrderTypes OrderType { get; set; } = FixApiOrderTypes.GtcLimit;
 		public BasePriceTypes BasePriceType { get; set; }
 		[DisplayName("Delay")] public int DelayInMilliseconds { get; set; }

@@ -222,7 +222,7 @@ namespace TradeSystem.Orchestration.Services
 			    {
 					// TODO
 					//var volume = (long) (100 * Math.Abs(e.Position.RealVolume * copier.CopyRatio));
-				    var volume = (long) Math.Abs(e.Position.Lots * copier.CopyRatio);
+					var volume = (long)Math.Abs((copier.ValueCopy ? 1.0m : e.Position.Lots) * copier.CopyRatio);
 					var side = copier.CopyRatio < 0 ? e.Position.Side.Inv() : e.Position.Side;
 				    var comment = $"{e.Position.Id}-{slave.Id}-{copier.Id}";
 				    if (e.Action == NewPositionActions.Open)
@@ -288,7 +288,7 @@ namespace TradeSystem.Orchestration.Services
 				    // TODO
 				    //var lots = Math.Abs(e.Position.RealVolume) / slaveConnector.GetContractSize(symbol) *
 				    //           (double) copier.CopyRatio;
-				    var lots = Math.Abs((double) e.Position.Lots * (double) copier.CopyRatio);
+				    var lots = Math.Abs((double)(copier.ValueCopy ? 1.0m : e.Position.Lots) * (double)copier.CopyRatio);
 				    var side = copier.CopyRatio < 0 ? e.Position.Side.Inv() : e.Position.Side;
 
 				    if (e.Action == NewPositionActions.Open)

@@ -22,7 +22,7 @@ namespace TradeSystem.Orchestration.Services
 				.Select(copier => DelayedRun(async () =>
 				{
 					var positionSide = copier.CopyRatio < 0 ? e.Position.Side.Inv() : e.Position.Side;
-					var quantity = Math.Abs(e.Position.Lots * copier.CopyRatio);
+					var quantity = Math.Abs((copier.ValueCopy ? 1.0m : e.Position.Lots) * copier.CopyRatio);
 					if (quantity == 0)
 					{
 						Logger.Warn($"CopierService.CopyToFixAccount {slave} {symbol} quantity is zero!!!");
@@ -109,7 +109,7 @@ namespace TradeSystem.Orchestration.Services
 			{
 				if (copier.FixApiCopierPositions.Any(p => !p.Archived && p.MasterPositionId == e.Position.Id && p.ClosePosition == null)) continue;
 
-				var quantity = Math.Floor(Math.Abs(e.Position.Lots * copier.CopyRatio));
+				var quantity = Math.Floor(Math.Abs((copier.ValueCopy ? 1.0m : e.Position.Lots) * copier.CopyRatio));
 				if (quantity == 0)
 				{
 					Logger.Warn($"CopierService.CopyToFixAccount {slave} {symbol} quantity is zero!!!");
