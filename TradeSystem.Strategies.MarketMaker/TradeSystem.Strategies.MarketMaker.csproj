@@ -14,6 +14,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\QvaDev.Wololo\TradeSystem\TradeSystem.csproj" />
     <ProjectReference Include="..\TradeSystem.Backtester\TradeSystem.Backtester.csproj" />
     <ProjectReference Include="..\TradeSystem.Data\TradeSystem.Data.csproj" />
     <ProjectReference Include="..\TradeSystem.Strategies\TradeSystem.Strategies.csproj" />

@@ -72,7 +72,9 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Common.Logging.Core, Version=3.4.1.0, Culture=neutral, PublicKeyToken=af08829b84f0328e" />
+    <Reference Include="Common.Logging.Core, Version=3.4.1.0, Culture=neutral, PublicKeyToken=af08829b84f0328e, processorArchitecture=MSIL">
+      <HintPath>..\packages\Common.Logging.Core.3.4.1\lib\net40\Common.Logging.Core.dll</HintPath>
+    </Reference>
     <Reference Include="Google.ProtocolBuffers, Version=2.4.1.555, Culture=neutral, PublicKeyToken=55f7125234beb589, processorArchitecture=MSIL">
       <HintPath>..\packages\Google.ProtocolBuffers.2.4.1.555\lib\net40\Google.ProtocolBuffers.dll</HintPath>
     </Reference>
@@ -103,8 +105,8 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\git\QvaDev.Wololo\TradeSystem\TradeSystem.csproj">
-      <Project>{FDFCE270-50AC-4930-8680-A760F6F7C637}</Project>
+    <ProjectReference Include="..\..\QvaDev.Wololo\TradeSystem\TradeSystem.csproj">
+      <Project>{fdfce270-50ac-4930-8680-a760f6f7c637}</Project>
       <Name>TradeSystem</Name>
     </ProjectReference>
     <ProjectReference Include="..\TradeSystem.Common\TradeSystem.Common.csproj">

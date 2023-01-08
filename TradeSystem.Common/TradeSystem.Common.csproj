@@ -87,7 +87,9 @@
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Threading.Tasks.Dataflow, Version=4.5.24.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
+    <Reference Include="System.Threading.Tasks.Dataflow, Version=7.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Threading.Tasks.Dataflow.7.0.0\lib\net462\System.Threading.Tasks.Dataflow.dll</HintPath>
+    </Reference>
     <Reference Include="System.Web" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
@@ -142,15 +144,14 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\git\QvaDev.Wololo\TradeSystem.Communication\TradeSystem.Communication.csproj">
-      <Project>{9B577BD6-AEA9-4F64-9F1D-6EC760103295}</Project>
+    <ProjectReference Include="..\..\QvaDev.Wololo\TradeSystem.Communication\TradeSystem.Communication.csproj">
+      <Project>{9b577bd6-aea9-4f64-9f1d-6ec760103295}</Project>
       <Name>TradeSystem.Communication</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\git\QvaDev.Wololo\TradeSystem\TradeSystem.csproj">
-      <Project>{FDFCE270-50AC-4930-8680-A760F6F7C637}</Project>
+    <ProjectReference Include="..\..\QvaDev.Wololo\TradeSystem\TradeSystem.csproj">
+      <Project>{fdfce270-50ac-4930-8680-a760f6f7c637}</Project>
       <Name>TradeSystem</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

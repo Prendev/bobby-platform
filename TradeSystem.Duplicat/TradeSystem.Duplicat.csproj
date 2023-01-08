@@ -196,9 +196,6 @@
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
-    <Reference Include="TradeSystem.Communication.ConnectorTester.Controls">
-      <HintPath>..\..\..\git\QvaDev.Wololo\Applications\Testers\TradeSystem.Communication.ConnectorTester.Controls\obj\Debug\TradeSystem.Communication.ConnectorTester.Controls.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="NullEntity.cs" />
@@ -441,80 +438,84 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\git\QvaDev.Wololo\Applications\Testers\IConnector\TradeSystem.Communication.ConnectorTester.DtcExtensions\TradeSystem.Communication.ConnectorTester.DtcExtensions.csproj">
-      <Project>{354d7eef-7828-46da-8e72-aafe0f0cf284}</Project>
-      <Name>TradeSystem.Communication.ConnectorTester.DtcExtensions</Name>
+    <ProjectReference Include="..\..\QvaDev.Wololo\Applications\Testers\TradeSystem.Communication.ConnectorTester.Controls\TradeSystem.Communication.ConnectorTester.Controls.csproj">
+      <Project>{b17d2f81-62d0-48a5-9ca6-553463d4935b}</Project>
+      <Name>TradeSystem.Communication.ConnectorTester.Controls</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\git\QvaDev.Wololo\Applications\Testers\IConnector\TradeSystem.Communication.ConnectorTester.FixExtensions\TradeSystem.Communication.ConnectorTester.FixExtensions.csproj">
-      <Project>{1df2f201-1d2d-4303-bba0-553a5d1ff62a}</Project>
-      <Name>TradeSystem.Communication.ConnectorTester.FixExtensions</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\git\QvaDev.Wololo\Applications\Testers\IConnector\TradeSystem.Communication.ConnectorTester.Mt5Extensions\TradeSystem.Communication.ConnectorTester.Mt5Extensions.csproj">
-      <Project>{e683a44e-e066-4cf7-9977-b7b3c7f3c852}</Project>
-      <Name>TradeSystem.Communication.ConnectorTester.Mt5Extensions</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\git\QvaDev.Wololo\Bitmex.NET\Bitmex.NET.csproj">
-      <Project>{35a78f17-924a-4c87-9a76-01f879050f7c}</Project>
-      <Name>Bitmex.NET</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\git\QvaDev.Wololo\TradeSystem.Communication.Binance\TradeSystem.Communication.Binance.csproj">
-      <Project>{ac155e47-e9a3-4689-ab13-6d308a47cc42}</Project>
-      <Name>TradeSystem.Communication.Binance</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\git\QvaDev.Wololo\TradeSystem.Communication.Bitmex\TradeSystem.Communication.Bitmex.csproj">
-      <Project>{a96eaae3-c983-4f54-a434-a6928f847fa5}</Project>
-      <Name>TradeSystem.Communication.Bitmex</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\git\QvaDev.Wololo\TradeSystem.Communication.ConnectorTester.Interfaces\TradeSystem.Communication.ConnectorTester.Interfaces.csproj">
-      <Project>{e7913c17-8be4-4951-b68d-0697a9d59e48}</Project>
-      <Name>TradeSystem.Communication.ConnectorTester.Interfaces</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\git\QvaDev.Wololo\TradeSystem.Communication.ConnectorTester.SnwExtensions\TradeSystem.Communication.ConnectorTester.SnwExtensions.csproj">
-      <Project>{3eaf2a7c-eb13-4188-8435-93047b780b7e}</Project>
-      <Name>TradeSystem.Communication.ConnectorTester.SnwExtensions</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\git\QvaDev.Wololo\TradeSystem.Communication.DtcApi\TradeSystem.Communication.DtcApi.csproj">
-      <Project>{eed1bd13-cc26-4ede-99e4-dd59eb4d09bb}</Project>
-      <Name>TradeSystem.Communication.DtcApi</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\git\QvaDev.Wololo\TradeSystem.Communication.FastFeed\TradeSystem.Communication.FastFeed.csproj">
-      <Project>{5f9d1672-8038-4d3d-a7c0-df0a8d6b6f99}</Project>
-      <Name>TradeSystem.Communication.FastFeed</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\git\QvaDev.Wololo\TradeSystem.Communication.FixApi.Connectors\TradeSystem.Communication.FixApi.Connectors.csproj">
-      <Project>{c38c4681-11e5-417b-9923-6e754402ec1b}</Project>
-      <Name>TradeSystem.Communication.FixApi.Connectors</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\git\QvaDev.Wololo\TradeSystem.Communication.Ftx\TradeSystem.Communication.Ftx.csproj">
-      <Project>{7cc1ee8b-90a2-4cf7-af5e-30104bda14d8}</Project>
-      <Name>TradeSystem.Communication.Ftx</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\git\QvaDev.Wololo\TradeSystem.Communication.Houbi\TradeSystem.Communication.Houbi.csproj">
-      <Project>{cca841f3-b4bc-4027-a961-418c02881de2}</Project>
-      <Name>TradeSystem.Communication.Houbi</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\git\QvaDev.Wololo\TradeSystem.Communication.Mt5\TradeSystem.Communication.Mt5.csproj">
-      <Project>{aa3796e1-5b4c-4bdd-a102-22d6411f9b93}</Project>
-      <Name>TradeSystem.Communication.Mt5</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\git\QvaDev.Wololo\TradeSystem.Communication.SnwApi\TradeSystem.Communication.SnwApi.csproj">
-      <Project>{3455f630-ea48-4c6f-8012-a9dfa9ce1428}</Project>
-      <Name>TradeSystem.Communication.SnwApi</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\git\QvaDev.Wololo\TradeSystem.Communication\TradeSystem.Communication.csproj">
+    <ProjectReference Include="..\..\QvaDev.Wololo\TradeSystem.Communication\TradeSystem.Communication.csproj">
       <Project>{9b577bd6-aea9-4f64-9f1d-6ec760103295}</Project>
       <Name>TradeSystem.Communication</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\git\QvaDev.Wololo\TradeSystem\TradeSystem.csproj">
-      <Project>{FDFCE270-50AC-4930-8680-A760F6F7C637}</Project>
+    <ProjectReference Include="..\..\QvaDev.Wololo\TradeSystem\TradeSystem.csproj">
+      <Project>{fdfce270-50ac-4930-8680-a760f6f7c637}</Project>
       <Name>TradeSystem</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\TradeSystem\Applications\Testers\IConnector\TradeSystem.Communication.ConnectorTester.DtcExtensions\TradeSystem.Communication.ConnectorTester.DtcExtensions.csproj">
+      <Project>{354d7eef-7828-46da-8e72-aafe0f0cf284}</Project>
+      <Name>TradeSystem.Communication.ConnectorTester.DtcExtensions</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\TradeSystem\Applications\Testers\IConnector\TradeSystem.Communication.ConnectorTester.FixExtensions\TradeSystem.Communication.ConnectorTester.FixExtensions.csproj">
+      <Project>{1df2f201-1d2d-4303-bba0-553a5d1ff62a}</Project>
+      <Name>TradeSystem.Communication.ConnectorTester.FixExtensions</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\TradeSystem\Applications\Testers\IConnector\TradeSystem.Communication.ConnectorTester.Mt5Extensions\TradeSystem.Communication.ConnectorTester.Mt5Extensions.csproj">
+      <Project>{e683a44e-e066-4cf7-9977-b7b3c7f3c852}</Project>
+      <Name>TradeSystem.Communication.ConnectorTester.Mt5Extensions</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\QvaDev.Wololo\Bitmex.NET\Bitmex.NET.csproj">
+      <Project>{35a78f17-924a-4c87-9a76-01f879050f7c}</Project>
+      <Name>Bitmex.NET</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\TradeSystem\TradeSystem.Communication.Binance\TradeSystem.Communication.Binance.csproj">
+      <Project>{ac155e47-e9a3-4689-ab13-6d308a47cc42}</Project>
+      <Name>TradeSystem.Communication.Binance</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\QvaDev.Wololo\TradeSystem.Communication.Bitmex\TradeSystem.Communication.Bitmex.csproj">
+      <Project>{a96eaae3-c983-4f54-a434-a6928f847fa5}</Project>
+      <Name>TradeSystem.Communication.Bitmex</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\TradeSystem\TradeSystem.Communication.ConnectorTester.Interfaces\TradeSystem.Communication.ConnectorTester.Interfaces.csproj">
+      <Project>{e7913c17-8be4-4951-b68d-0697a9d59e48}</Project>
+      <Name>TradeSystem.Communication.ConnectorTester.Interfaces</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\TradeSystem\TradeSystem.Communication.ConnectorTester.SnwExtensions\TradeSystem.Communication.ConnectorTester.SnwExtensions.csproj">
+      <Project>{3eaf2a7c-eb13-4188-8435-93047b780b7e}</Project>
+      <Name>TradeSystem.Communication.ConnectorTester.SnwExtensions</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\TradeSystem\TradeSystem.Communication.DtcApi\TradeSystem.Communication.DtcApi.csproj">
+      <Project>{eed1bd13-cc26-4ede-99e4-dd59eb4d09bb}</Project>
+      <Name>TradeSystem.Communication.DtcApi</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\TradeSystem\TradeSystem.Communication.FastFeed\TradeSystem.Communication.FastFeed.csproj">
+      <Project>{5f9d1672-8038-4d3d-a7c0-df0a8d6b6f99}</Project>
+      <Name>TradeSystem.Communication.FastFeed</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\TradeSystem\TradeSystem.Communication.FixApi.Connectors\TradeSystem.Communication.FixApi.Connectors.csproj">
+      <Project>{c38c4681-11e5-417b-9923-6e754402ec1b}</Project>
+      <Name>TradeSystem.Communication.FixApi.Connectors</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\TradeSystem\TradeSystem.Communication.Ftx\TradeSystem.Communication.Ftx.csproj">
+      <Project>{7cc1ee8b-90a2-4cf7-af5e-30104bda14d8}</Project>
+      <Name>TradeSystem.Communication.Ftx</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\QvaDev.Wololo\TradeSystem.Communication.Houbi\TradeSystem.Communication.Houbi.csproj">
+      <Project>{cca841f3-b4bc-4027-a961-418c02881de2}</Project>
+      <Name>TradeSystem.Communication.Houbi</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\TradeSystem\TradeSystem.Communication.Mt5\TradeSystem.Communication.Mt5.csproj">
+      <Project>{aa3796e1-5b4c-4bdd-a102-22d6411f9b93}</Project>
+      <Name>TradeSystem.Communication.Mt5</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\TradeSystem\TradeSystem.Communication.SnwApi\TradeSystem.Communication.SnwApi.csproj">
+      <Project>{3455f630-ea48-4c6f-8012-a9dfa9ce1428}</Project>
+      <Name>TradeSystem.Communication.SnwApi</Name>
     </ProjectReference>
     <ProjectReference Include="..\TradeSystem.Backtester\TradeSystem.Backtester.csproj">
       <Project>{8221E41C-E688-4417-8577-8E697643C848}</Project>
       <Name>TradeSystem.Backtester</Name>
     </ProjectReference>
     <ProjectReference Include="..\TradeSystem.Common\TradeSystem.Common.csproj">
-      <Project>{10A3EF89-12BB-4D00-9950-36BFED281B91}</Project>
+      <Project>{10a3ef89-12bb-4d00-9950-36bfed281b91}</Project>
       <Name>TradeSystem.Common</Name>
     </ProjectReference>
     <ProjectReference Include="..\TradeSystem.CTraderIntegration\TradeSystem.CTraderIntegration.csproj">
@@ -536,6 +537,10 @@
     <ProjectReference Include="..\TradeSystem.Strategies.MarketMaker\TradeSystem.Strategies.MarketMaker.csproj">
       <Project>{734BFDE5-325E-4EF9-924C-1401562E6626}</Project>
       <Name>TradeSystem.Strategies.MarketMaker</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TradeSystem.Strategies\TradeSystem.Strategies.csproj">
+      <Project>{86CB137F-C15C-4680-A87D-193D8893243E}</Project>
+      <Name>TradeSystem.Strategies</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

@@ -67,7 +67,9 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Common.Logging.Core, Version=3.4.1.0, Culture=neutral, PublicKeyToken=af08829b84f0328e" />
+    <Reference Include="Common.Logging.Core, Version=3.4.1.0, Culture=neutral, PublicKeyToken=af08829b84f0328e">
+      <HintPath>..\packages\Common.Logging.Core.3.4.1\lib\net40\Common.Logging.Core.dll</HintPath>
+    </Reference>
     <Reference Include="CsvHelper, Version=7.0.0.0, Culture=neutral, PublicKeyToken=8c4959082be5c823, processorArchitecture=MSIL">
       <HintPath>..\packages\CsvHelper.7.1.0\lib\net45\CsvHelper.dll</HintPath>
     </Reference>
@@ -118,7 +120,7 @@
       <HintPath>..\lib\MT4Api_latest_x86\MT4ServerAPI.dll</HintPath>
     </Reference>
     <Reference Include="mt5api">
-      <HintPath>..\..\..\git\QvaDev.Wololo\ExternalReferences\MT5Api\mt5api.dll</HintPath>
+      <HintPath>..\..\QvaDev.Wololo\ExternalReferences\MT5Api\mt5api.dll</HintPath>
     </Reference>
     <Reference Include="NPOI, Version=2.3.0.0, Culture=neutral, PublicKeyToken=0df73ec7942b34e1, processorArchitecture=MSIL">
       <HintPath>..\packages\NPOI.2.3.0\lib\net40\NPOI.dll</HintPath>
@@ -172,7 +174,9 @@
     <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.4.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.4.5.1\lib\netstandard2.0\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
     </Reference>
-    <Reference Include="System.Threading.Tasks.Dataflow, Version=4.5.24.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
+    <Reference Include="System.Threading.Tasks.Dataflow, Version=7.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Threading.Tasks.Dataflow.7.0.0\lib\net462\System.Threading.Tasks.Dataflow.dll</HintPath>
+    </Reference>
     <Reference Include="System.Web" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -219,16 +223,16 @@
       <Project>{5a7c14e4-c1f0-4a9e-8284-d01f0082b483}</Project>
       <Name>TradeSystem.Communication.FixApi</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\git\QvaDev.Wololo\TradeSystem.Communication.Mt5\TradeSystem.Communication.Mt5.csproj">
-      <Project>{AA3796E1-5B4C-4BDD-A102-22D6411F9B93}</Project>
+    <ProjectReference Include="..\..\QvaDev.Wololo\TradeSystem.Communication.Mt5\TradeSystem.Communication.Mt5.csproj">
+      <Project>{aa3796e1-5b4c-4bdd-a102-22d6411f9b93}</Project>
       <Name>TradeSystem.Communication.Mt5</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\git\QvaDev.Wololo\TradeSystem.Communication\TradeSystem.Communication.csproj">
-      <Project>{9B577BD6-AEA9-4F64-9F1D-6EC760103295}</Project>
+    <ProjectReference Include="..\..\QvaDev.Wololo\TradeSystem.Communication\TradeSystem.Communication.csproj">
+      <Project>{9b577bd6-aea9-4f64-9f1d-6ec760103295}</Project>
       <Name>TradeSystem.Communication</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\git\QvaDev.Wololo\TradeSystem\TradeSystem.csproj">
-      <Project>{FDFCE270-50AC-4930-8680-A760F6F7C637}</Project>
+    <ProjectReference Include="..\..\QvaDev.Wololo\TradeSystem\TradeSystem.csproj">
+      <Project>{fdfce270-50ac-4930-8680-a760f6f7c637}</Project>
       <Name>TradeSystem</Name>
     </ProjectReference>
     <ProjectReference Include="..\InteractiveBrokersApi\InteractiveBrokersApi.csproj">
@@ -240,7 +244,7 @@
       <Name>TradeSystem.Backtester</Name>
     </ProjectReference>
     <ProjectReference Include="..\TradeSystem.Common\TradeSystem.Common.csproj">
-      <Project>{10A3EF89-12BB-4D00-9950-36BFED281B91}</Project>
+      <Project>{10a3ef89-12bb-4d00-9950-36bfed281b91}</Project>
       <Name>TradeSystem.Common</Name>
     </ProjectReference>
     <ProjectReference Include="..\TradeSystem.CqgClientApiIntegration\TradeSystem.CqgClientApiIntegration.csproj">

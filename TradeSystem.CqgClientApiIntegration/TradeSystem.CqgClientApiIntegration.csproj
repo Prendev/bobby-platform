@@ -49,9 +49,8 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Common.Logging.Core, Version=3.4.1.0, Culture=neutral, PublicKeyToken=af08829b84f0328e" />
-    <Reference Include="QvaDev">
-      <HintPath>..\Externals\QvaDev.Communication.FixApi.Connectors\QvaDev.dll</HintPath>
+    <Reference Include="Common.Logging.Core, Version=3.4.1.0, Culture=neutral, PublicKeyToken=af08829b84f0328e, processorArchitecture=MSIL">
+      <HintPath>..\packages\Common.Logging.Core.3.4.1\lib\net40\Common.Logging.Core.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -68,20 +67,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\git\QvaDev.Wololo\TradeSystem.Communication\TradeSystem.Communication.csproj">
-      <Project>{9B577BD6-AEA9-4F64-9F1D-6EC760103295}</Project>
-      <Name>TradeSystem.Communication</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\git\QvaDev.Wololo\TradeSystem\TradeSystem.csproj">
-      <Project>{FDFCE270-50AC-4930-8680-A760F6F7C637}</Project>
-      <Name>TradeSystem</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\TradeSystem.Common\TradeSystem.Common.csproj">
-      <Project>{10a3ef89-12bb-4d00-9950-36bfed281b91}</Project>
-      <Name>TradeSystem.Common</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <COMReference Include="CQG">
       <Guid>{51F35562-AEB4-4AB3-99E8-AC9666344B64}</Guid>
       <VersionMajor>4</VersionMajor>
@@ -91,6 +76,23 @@
       <Isolated>False</Isolated>
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </COMReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\QvaDev.Wololo\TradeSystem.Communication\TradeSystem.Communication.csproj">
+      <Project>{9b577bd6-aea9-4f64-9f1d-6ec760103295}</Project>
+      <Name>TradeSystem.Communication</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\QvaDev.Wololo\TradeSystem\TradeSystem.csproj">
+      <Project>{fdfce270-50ac-4930-8680-a760f6f7c637}</Project>
+      <Name>TradeSystem</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TradeSystem.Common\TradeSystem.Common.csproj">
+      <Project>{10a3ef89-12bb-4d00-9950-36bfed281b91}</Project>
+      <Name>TradeSystem.Common</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
