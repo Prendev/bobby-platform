@@ -79,19 +79,19 @@
     <Compile Include="FillLogger.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\git\QvaDev.Wololo\TradeSystem.Communication.DtcApi\TradeSystem.Communication.DtcApi.csproj">
+    <ProjectReference Include="..\..\QvaDev.Wololo\TradeSystem.Communication.DtcApi\TradeSystem.Communication.DtcApi.csproj">
       <Project>{eed1bd13-cc26-4ede-99e4-dd59eb4d09bb}</Project>
       <Name>TradeSystem.Communication.DtcApi</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\git\QvaDev.Wololo\TradeSystem.Communication.FixApi.Connectors.Strategies\TradeSystem.Communication.FixApi.Connectors.Strategies.csproj">
+    <ProjectReference Include="..\..\QvaDev.Wololo\TradeSystem.Communication.FixApi.Connectors.Strategies\TradeSystem.Communication.FixApi.Connectors.Strategies.csproj">
       <Project>{D025DB83-5628-432A-832D-0BB89E807252}</Project>
       <Name>TradeSystem.Communication.FixApi.Connectors.Strategies</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\git\QvaDev.Wololo\TradeSystem.Communication.FixApi\TradeSystem.Communication.FixApi.csproj">
+    <ProjectReference Include="..\..\QvaDev.Wololo\TradeSystem.Communication.FixApi\TradeSystem.Communication.FixApi.csproj">
       <Project>{5A7C14E4-C1F0-4A9E-8284-D01F0082B483}</Project>
       <Name>TradeSystem.Communication.FixApi</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\git\QvaDev.Wololo\TradeSystem.Communication.SnwApi\TradeSystem.Communication.SnwApi.csproj">
+    <ProjectReference Include="..\..\QvaDev.Wololo\TradeSystem.Communication.SnwApi\TradeSystem.Communication.SnwApi.csproj">
       <Project>{3455f630-ea48-4c6f-8012-a9dfa9ce1428}</Project>
       <Name>TradeSystem.Communication.SnwApi</Name>
     </ProjectReference>

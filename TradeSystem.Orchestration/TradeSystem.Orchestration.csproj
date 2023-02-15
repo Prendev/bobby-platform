@@ -219,7 +219,7 @@
     <Compile Include="Services\ReportService.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\git\QvaDev.Wololo\TradeSystem.Communication.FixApi\TradeSystem.Communication.FixApi.csproj">
+    <ProjectReference Include="..\..\QvaDev.Wololo\TradeSystem.Communication.FixApi\TradeSystem.Communication.FixApi.csproj">
       <Project>{5a7c14e4-c1f0-4a9e-8284-d01f0082b483}</Project>
       <Name>TradeSystem.Communication.FixApi</Name>
     </ProjectReference>
