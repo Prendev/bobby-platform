@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using TradeSystem.Common;
 using TradeSystem.Common.Integration;
 using TradeSystem.Common.Services;
+using TradeSystem.Data;
 using TradeSystem.Data.Models;
 using MtConnector = TradeSystem.Mt4Integration.IConnector;
 
@@ -145,22 +146,25 @@ namespace TradeSystem.Orchestration.Services.Strategies
 		    var futureSide = pushing.BetaOpenSide.Inv();
 		    // Start spoofing
 		    pushing.StratState = _spoofingService.Spoofing(pushing.Spoof, futureSide);
+		    StratState_LimitFill(pushing);
 
-		    // Pull the price and wait a bit
-		    var contractsNeeded = pd.PullContractSize;
+			// Pull the price and wait a bit
+			var contractsNeeded = pd.PullContractSize;
 		    await FutureBuildUp(pushing, futureSide, contractsNeeded, Phases.Pulling);
 
 		    // Turn spoofing
 		    if (pushing.StratState != null)
-			{
-				await pushing.StratState.Cancel();
-				lock (pushing.StratState)
-					pushing.PushingDetail.OpenedFutures -= pushing.StratState.FilledQuantity;
-			}
+		    {
+			    await pushing.StratState.Cancel();
+			    if (pushing.PushingDetail.SpoofFillAsPush)
+				    lock (pushing.StratState)
+					    pushing.PushingDetail.OpenedFutures -= pushing.StratState.FilledQuantity;
+		    }
 
 		    _threadService.Sleep(pushing.PushingDetail.FutureOpenDelayInMs);
 		    pushing.StratState = _spoofingService.Spoofing(pushing.Spoof, futureSide.Inv());
-	    }
+		    StratState_LimitFill(pushing);
+		}
 
 	    public async Task OpeningHedge(Pushing pushing)
 	    {
@@ -220,8 +224,9 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			if (pushing.StratState != null)
 			{
 				await pushing.StratState.Cancel();
-				lock (pushing.StratState)
-					pushing.PushingDetail.OpenedFutures += pushing.StratState.FilledQuantity;
+				if (pushing.PushingDetail.SpoofFillAsPush)
+					lock (pushing.StratState)
+						pushing.PushingDetail.OpenedFutures += pushing.StratState.FilledQuantity;
 			}
 
 			// Partial close
@@ -263,21 +268,24 @@ namespace TradeSystem.Orchestration.Services.Strategies
 		    var futureSide = pushing.FirstCloseSide;
 		    // Start spoofing
 		    pushing.StratState = _spoofingService.Spoofing(pushing.Spoof, futureSide);
+		    StratState_LimitFill(pushing);
 
 			// Pull the price and wait a bit
 			var contractsNeeded = pd.PullContractSize;
 		    await FutureBuildUp(pushing, futureSide, contractsNeeded, Phases.Pulling);
 
 			// Turn spoofing
-		    if (pushing.StratState != null)
+			if (pushing.StratState != null)
 			{
 				await pushing.StratState.Cancel();
-				lock (pushing.StratState)
-					pushing.PushingDetail.OpenedFutures -= pushing.StratState.FilledQuantity;
+				if (pushing.PushingDetail.SpoofFillAsPush)
+					lock (pushing.StratState)
+						pushing.PushingDetail.OpenedFutures -= pushing.StratState.FilledQuantity;
 			}
 
 			_threadService.Sleep(pushing.PushingDetail.FutureOpenDelayInMs);
 		    pushing.StratState = _spoofingService.Spoofing(pushing.Spoof, futureSide.Inv());
+		    StratState_LimitFill(pushing);
 		}
 
 		public async Task ClosingHedge(Pushing pushing)
@@ -337,8 +345,9 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			if (pushing.StratState != null)
 			{
 				await pushing.StratState.Cancel();
-				lock (pushing.StratState)
-					pushing.PushingDetail.OpenedFutures += pushing.StratState.FilledQuantity;
+				if (pushing.PushingDetail.SpoofFillAsPush)
+					lock (pushing.StratState)
+						pushing.PushingDetail.OpenedFutures += pushing.StratState.FilledQuantity;
 			}
 
 			// Partial close
@@ -575,6 +584,28 @@ namespace TradeSystem.Orchestration.Services.Strategies
 		{
 			if (!pushing.IsFlipClose) return;
 			pushing.BetaOpenSide = pushing.BetaOpenSide.Inv();
+		}
+
+		private void StratState_LimitFill(Pushing pushing)
+		{
+			if (pushing.StratState == null) return;
+			if (pushing.SpoofHedgeAccount == null) return;
+			if (string.IsNullOrWhiteSpace(pushing.SpoofHedgeSymbol)) return;
+
+			pushing.StratState.LimitFill += (sender, e) =>
+			{
+				if (!(sender is IStratState state)) return;
+				if (e.Quantity <= 0) return;
+				if (pushing.PushingDetail.SpoofHedgeLotsPerContract <= 0) return;
+
+				var hedgeConnector = pushing.SpoofHedgeAccount.Connector as Mt4Integration.Connector;
+				if (hedgeConnector?.IsConnected != true) return;
+
+				var hedgeLots = (double)e.Quantity * pushing.PushingDetail.SpoofHedgeLotsPerContract;
+				hedgeConnector.SendMarketOrderRequest(pushing.SpoofHedgeSymbol, state.Side.Inv(),
+					hedgeLots, 0, null,
+					pushing.PushingDetail.MaxRetryCount, pushing.PushingDetail.RetryPeriodInMs);
+			};
 		}
     }
 }

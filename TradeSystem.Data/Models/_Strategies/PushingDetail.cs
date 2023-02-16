@@ -11,6 +11,8 @@ namespace TradeSystem.Data.Models
 
 	    [DisplayName("SpoofSize")] public int SpoofContractSize { get; set; }
 	    [DisplayName("SpoofDistance")] public decimal SpoofDistance { get; set; }
+	    public bool SpoofFillAsPush { get; set; }
+		[DisplayName("SpoofHedgeLots")] public double SpoofHedgeLotsPerContract { get; set; }
 
 		[DisplayName("Small")] public int SmallContractSize { get; set; }
 	    [DisplayName("Big")] public int BigContractSize { get; set; }

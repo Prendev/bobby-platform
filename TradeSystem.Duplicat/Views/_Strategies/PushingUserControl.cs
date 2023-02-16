@@ -144,7 +144,8 @@ namespace TradeSystem.Duplicat.Views
             dgvPushings.AddComboBoxColumn(_viewModel.Accounts, "FeedAccount");
 	        dgvPushings.AddComboBoxColumn(_viewModel.Accounts, "SlowAccount");
 			dgvPushings.AddComboBoxColumn(_viewModel.Accounts, "SpoofAccount");
-            dgvPushings.AddComboBoxColumn(_viewModel.Accounts, "FutureAccount");
+			dgvPushings.AddComboBoxColumn(_viewModel.Accounts, "SpoofHedgeAccount");
+			dgvPushings.AddComboBoxColumn(_viewModel.Accounts, "FutureAccount");
             dgvPushings.AddComboBoxColumn(_viewModel.Accounts, "AlphaMaster");
             dgvPushings.AddComboBoxColumn(_viewModel.Accounts, "BetaMaster");
 	        dgvPushings.AddComboBoxColumn(_viewModel.Accounts, "ScalpAccount");

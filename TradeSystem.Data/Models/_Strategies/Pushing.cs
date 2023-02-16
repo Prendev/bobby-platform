@@ -31,6 +31,10 @@ namespace TradeSystem.Data.Models
 		public Account SpoofAccount { get => Get<Account>(); set => Set(value); }
 		[DisplayName("S Sym")] public string SpoofSymbol { get; set; }
 
+		public int? SpoofHedgeAccountId { get; set; }
+		public Account SpoofHedgeAccount { get => Get<Account>(); set => Set(value); }
+		[DisplayName("SH Sym")] public string SpoofHedgeSymbol { get; set; }
+
 		public int FutureAccountId { get; set; }
         public Account FutureAccount { get => Get<Account>(); set => Set(value); }
 		[DisplayName("F Mode")] public FutureExecutionModes FutureExecutionMode { get; set; }

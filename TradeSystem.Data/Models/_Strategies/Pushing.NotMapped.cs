@@ -119,6 +119,7 @@ namespace TradeSystem.Data.Models
 				HedgeAccount?.Connector?.IsConnected != false &&
 				FeedAccount?.Connector?.IsConnected != false &&
 				SpoofAccount?.Connector?.IsConnected != false &&
+				SpoofHedgeAccount?.Connector?.IsConnected != false &&
 				ReopenAccount?.Connector?.IsConnected != false;
 			ConnectionChanged?.Invoke(this, IsConnected ? ConnectionStates.Connected : ConnectionStates.Disconnected);
 		}

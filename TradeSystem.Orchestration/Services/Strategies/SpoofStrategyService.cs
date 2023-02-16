@@ -175,6 +175,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			spoofing.SpoofState = _twoWaySpoofingService.Spoofing(spoofing.TwoWaySpoof, futureSide);
 			if (spoofing.SpoofState == null) return;
 			_stateMapping[spoofing.SpoofState] = spoofing;
+			spoofing.SpoofState.LimitFill -= SpoofState_LimitFill;
 			spoofing.SpoofState.LimitFill += SpoofState_LimitFill;
 		}
 
