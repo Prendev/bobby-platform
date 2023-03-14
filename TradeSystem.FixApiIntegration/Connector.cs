@@ -108,7 +108,7 @@ namespace TradeSystem.FixApiIntegration
 				foreach (var orderId in orderIds)
 				{
 					var order = await GeneralConnector.GetOrderStatusAsync(orderId);
-					var q = order.FulfilledQuantity ?? 0;
+					var q = order.CumulativeQuantity ?? 0;
 					if (q == 0) continue;
 					
 					var response = await SendMarketOrderRequest(symbol, side, q, timeout, retryCount, retryPeriod, false, orderId);
