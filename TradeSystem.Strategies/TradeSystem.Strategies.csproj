@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\QvaDev.Wololo\TradeSystem\TradeSystem.csproj" />
+    <ProjectReference Include="..\..\QvaDev.Wololo_old\TradeSystem\TradeSystem.csproj" />
     <ProjectReference Include="..\TradeSystem.Common\TradeSystem.Common.csproj" />
     <ProjectReference Include="..\TradeSystem.Data\TradeSystem.Data.csproj" />
   </ItemGroup>

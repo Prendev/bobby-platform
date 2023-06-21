@@ -37,57 +37,57 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InteractiveBrokersApi", "In
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TradeSystem.Communication", "TradeSystem.Communication", "{A173DFEF-C355-4721-BEE1-D8BB147FF8BA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradeSystem", "..\QvaDev.Wololo\TradeSystem\TradeSystem.csproj", "{FDFCE270-50AC-4930-8680-A760F6F7C637}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradeSystem", "..\QvaDev.Wololo_old\TradeSystem\TradeSystem.csproj", "{FDFCE270-50AC-4930-8680-A760F6F7C637}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradeSystem.Communication", "..\QvaDev.Wololo\TradeSystem.Communication\TradeSystem.Communication.csproj", "{9B577BD6-AEA9-4F64-9F1D-6EC760103295}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradeSystem.Communication", "..\QvaDev.Wololo_old\TradeSystem.Communication\TradeSystem.Communication.csproj", "{9B577BD6-AEA9-4F64-9F1D-6EC760103295}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradeSystem.Communication.FixApi", "..\QvaDev.Wololo\TradeSystem.Communication.FixApi\TradeSystem.Communication.FixApi.csproj", "{5A7C14E4-C1F0-4A9E-8284-D01F0082B483}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradeSystem.Communication.FixApi", "..\QvaDev.Wololo_old\TradeSystem.Communication.FixApi\TradeSystem.Communication.FixApi.csproj", "{5A7C14E4-C1F0-4A9E-8284-D01F0082B483}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradeSystem.Communication.FixApi.Connectors", "..\QvaDev.Wololo\TradeSystem.Communication.FixApi.Connectors\TradeSystem.Communication.FixApi.Connectors.csproj", "{C38C4681-11E5-417B-9923-6E754402EC1B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradeSystem.Communication.FixApi.Connectors", "..\QvaDev.Wololo_old\TradeSystem.Communication.FixApi.Connectors\TradeSystem.Communication.FixApi.Connectors.csproj", "{C38C4681-11E5-417B-9923-6E754402EC1B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradeSystem.Communication.FixApi.Connectors.Strategies", "..\QvaDev.Wololo\TradeSystem.Communication.FixApi.Connectors.Strategies\TradeSystem.Communication.FixApi.Connectors.Strategies.csproj", "{D025DB83-5628-432A-832D-0BB89E807252}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradeSystem.Communication.FixApi.Connectors.Strategies", "..\QvaDev.Wololo_old\TradeSystem.Communication.FixApi.Connectors.Strategies\TradeSystem.Communication.FixApi.Connectors.Strategies.csproj", "{D025DB83-5628-432A-832D-0BB89E807252}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradeSystem.Communication.DtcApi", "..\QvaDev.Wololo\TradeSystem.Communication.DtcApi\TradeSystem.Communication.DtcApi.csproj", "{EED1BD13-CC26-4EDE-99E4-DD59EB4D09BB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradeSystem.Communication.DtcApi", "..\QvaDev.Wololo_old\TradeSystem.Communication.DtcApi\TradeSystem.Communication.DtcApi.csproj", "{EED1BD13-CC26-4EDE-99E4-DD59EB4D09BB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradeSystem.Communication.SnwApi", "..\QvaDev.Wololo\TradeSystem.Communication.SnwApi\TradeSystem.Communication.SnwApi.csproj", "{3455F630-EA48-4C6F-8012-A9DFA9CE1428}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradeSystem.Communication.SnwApi", "..\QvaDev.Wololo_old\TradeSystem.Communication.SnwApi\TradeSystem.Communication.SnwApi.csproj", "{3455F630-EA48-4C6F-8012-A9DFA9CE1428}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradeSystem.Communication.Extensions", "..\QvaDev.Wololo\TradeSystem.Communication.Extensions\TradeSystem.Communication.Extensions.csproj", "{A12E5A21-BB5D-4B6E-B229-9A4C625F8DCE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradeSystem.Communication.Extensions", "..\QvaDev.Wololo_old\TradeSystem.Communication.Extensions\TradeSystem.Communication.Extensions.csproj", "{A12E5A21-BB5D-4B6E-B229-9A4C625F8DCE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradeSystem.Communication.Mt5", "..\QvaDev.Wololo\TradeSystem.Communication.Mt5\TradeSystem.Communication.Mt5.csproj", "{AA3796E1-5B4C-4BDD-A102-22D6411F9B93}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradeSystem.Communication.Mt5", "..\QvaDev.Wololo_old\TradeSystem.Communication.Mt5\TradeSystem.Communication.Mt5.csproj", "{AA3796E1-5B4C-4BDD-A102-22D6411F9B93}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradeSystem.Communication.FastFeed", "..\QvaDev.Wololo\TradeSystem.Communication.FastFeed\TradeSystem.Communication.FastFeed.csproj", "{5F9D1672-8038-4D3D-A7C0-DF0A8D6B6F99}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradeSystem.Communication.FastFeed", "..\QvaDev.Wololo_old\TradeSystem.Communication.FastFeed\TradeSystem.Communication.FastFeed.csproj", "{5F9D1672-8038-4D3D-A7C0-DF0A8D6B6F99}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradeSystem.Backtester", "TradeSystem.Backtester\TradeSystem.Backtester.csproj", "{8221E41C-E688-4417-8577-8E697643C848}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TradeSystem.Communication.Bitmex", "..\QvaDev.Wololo\TradeSystem.Communication.Bitmex\TradeSystem.Communication.Bitmex.csproj", "{A96EAAE3-C983-4F54-A434-A6928F847FA5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TradeSystem.Communication.Bitmex", "..\QvaDev.Wololo_old\TradeSystem.Communication.Bitmex\TradeSystem.Communication.Bitmex.csproj", "{A96EAAE3-C983-4F54-A434-A6928F847FA5}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bitmex.NET", "..\QvaDev.Wololo\Bitmex.NET\Bitmex.NET.csproj", "{35A78F17-924A-4C87-9A76-01F879050F7C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bitmex.NET", "..\QvaDev.Wololo_old\Bitmex.NET\Bitmex.NET.csproj", "{35A78F17-924A-4C87-9A76-01F879050F7C}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TradeSystem.Strategies.MarketMaker", "TradeSystem.Strategies.MarketMaker\TradeSystem.Strategies.MarketMaker.csproj", "{734BFDE5-325E-4EF9-924C-1401562E6626}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TradeSystem.Strategies", "TradeSystem.Strategies\TradeSystem.Strategies.csproj", "{86CB137F-C15C-4680-A87D-193D8893243E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradeSystem.Communication.ConnectorTester.DtcExtensions", "..\QvaDev.Wololo\Applications\Testers\IConnector\TradeSystem.Communication.ConnectorTester.DtcExtensions\TradeSystem.Communication.ConnectorTester.DtcExtensions.csproj", "{354D7EEF-7828-46DA-8E72-AAFE0F0CF284}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradeSystem.Communication.ConnectorTester.DtcExtensions", "..\QvaDev.Wololo_old\Applications\Testers\IConnector\TradeSystem.Communication.ConnectorTester.DtcExtensions\TradeSystem.Communication.ConnectorTester.DtcExtensions.csproj", "{354D7EEF-7828-46DA-8E72-AAFE0F0CF284}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradeSystem.Communication.ConnectorTester.FixExtensions", "..\QvaDev.Wololo\Applications\Testers\IConnector\TradeSystem.Communication.ConnectorTester.FixExtensions\TradeSystem.Communication.ConnectorTester.FixExtensions.csproj", "{1DF2F201-1D2D-4303-BBA0-553A5D1FF62A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradeSystem.Communication.ConnectorTester.FixExtensions", "..\QvaDev.Wololo_old\Applications\Testers\IConnector\TradeSystem.Communication.ConnectorTester.FixExtensions\TradeSystem.Communication.ConnectorTester.FixExtensions.csproj", "{1DF2F201-1D2D-4303-BBA0-553A5D1FF62A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradeSystem.Communication.ConnectorTester.Mt5Extensions", "..\QvaDev.Wololo\Applications\Testers\IConnector\TradeSystem.Communication.ConnectorTester.Mt5Extensions\TradeSystem.Communication.ConnectorTester.Mt5Extensions.csproj", "{E683A44E-E066-4CF7-9977-B7B3C7F3C852}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradeSystem.Communication.ConnectorTester.Mt5Extensions", "..\QvaDev.Wololo_old\Applications\Testers\IConnector\TradeSystem.Communication.ConnectorTester.Mt5Extensions\TradeSystem.Communication.ConnectorTester.Mt5Extensions.csproj", "{E683A44E-E066-4CF7-9977-B7B3C7F3C852}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradeSystem.Communication.ConnectorTester.SnwExtensions", "..\QvaDev.Wololo\TradeSystem.Communication.ConnectorTester.SnwExtensions\TradeSystem.Communication.ConnectorTester.SnwExtensions.csproj", "{3EAF2A7C-EB13-4188-8435-93047B780B7E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradeSystem.Communication.ConnectorTester.SnwExtensions", "..\QvaDev.Wololo_old\TradeSystem.Communication.ConnectorTester.SnwExtensions\TradeSystem.Communication.ConnectorTester.SnwExtensions.csproj", "{3EAF2A7C-EB13-4188-8435-93047B780B7E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradeSystem.Communication.ConnectorTester.Interfaces", "..\QvaDev.Wololo\TradeSystem.Communication.ConnectorTester.Interfaces\TradeSystem.Communication.ConnectorTester.Interfaces.csproj", "{E7913C17-8BE4-4951-B68D-0697A9D59E48}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradeSystem.Communication.ConnectorTester.Interfaces", "..\QvaDev.Wololo_old\TradeSystem.Communication.ConnectorTester.Interfaces\TradeSystem.Communication.ConnectorTester.Interfaces.csproj", "{E7913C17-8BE4-4951-B68D-0697A9D59E48}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradeSystem.WinForms", "..\QvaDev.Wololo\TradeSystem.WinForms\TradeSystem.WinForms.csproj", "{A62B3B57-B00A-4992-9281-A882EA7F7F9F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradeSystem.WinForms", "..\QvaDev.Wololo_old\TradeSystem.WinForms\TradeSystem.WinForms.csproj", "{A62B3B57-B00A-4992-9281-A882EA7F7F9F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradeSystem.Communication.ConnectorTester.Controls", "..\QvaDev.Wololo\Applications\Testers\TradeSystem.Communication.ConnectorTester.Controls\TradeSystem.Communication.ConnectorTester.Controls.csproj", "{B17D2F81-62D0-48A5-9CA6-553463D4935B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradeSystem.Communication.ConnectorTester.Controls", "..\QvaDev.Wololo_old\Applications\Testers\TradeSystem.Communication.ConnectorTester.Controls\TradeSystem.Communication.ConnectorTester.Controls.csproj", "{B17D2F81-62D0-48A5-9CA6-553463D4935B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradeSystem.Communication.Binance", "..\QvaDev.Wololo\TradeSystem.Communication.Binance\TradeSystem.Communication.Binance.csproj", "{AC155E47-E9A3-4689-AB13-6D308A47CC42}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradeSystem.Communication.Binance", "..\QvaDev.Wololo_old\TradeSystem.Communication.Binance\TradeSystem.Communication.Binance.csproj", "{AC155E47-E9A3-4689-AB13-6D308A47CC42}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradeSystem.Communication.Ftx", "..\QvaDev.Wololo\TradeSystem.Communication.Ftx\TradeSystem.Communication.Ftx.csproj", "{7CC1EE8B-90A2-4CF7-AF5E-30104BDA14D8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradeSystem.Communication.Ftx", "..\QvaDev.Wololo_old\TradeSystem.Communication.Ftx\TradeSystem.Communication.Ftx.csproj", "{7CC1EE8B-90A2-4CF7-AF5E-30104BDA14D8}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TradeSystem.Communication.Houbi", "..\QvaDev.Wololo\TradeSystem.Communication.Houbi\TradeSystem.Communication.Houbi.csproj", "{CCA841F3-B4BC-4027-A961-418C02881DE2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TradeSystem.Communication.Houbi", "..\QvaDev.Wololo_old\TradeSystem.Communication.Houbi\TradeSystem.Communication.Houbi.csproj", "{CCA841F3-B4BC-4027-A961-418C02881DE2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradeSystem.Communication.Strategies", "..\QvaDev.Wololo\TradeSystem.Communication.Strategies\TradeSystem.Communication.Strategies.csproj", "{E2DEC81B-0810-4592-B742-902A78059449}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradeSystem.Communication.Strategies", "..\QvaDev.Wololo_old\TradeSystem.Communication.Strategies\TradeSystem.Communication.Strategies.csproj", "{E2DEC81B-0810-4592-B742-902A78059449}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -79,35 +79,35 @@
     <Compile Include="FillLogger.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\QvaDev.Wololo\TradeSystem.Communication.DtcApi\TradeSystem.Communication.DtcApi.csproj">
+    <ProjectReference Include="..\..\QvaDev.Wololo_old\TradeSystem.Communication.DtcApi\TradeSystem.Communication.DtcApi.csproj">
       <Project>{eed1bd13-cc26-4ede-99e4-dd59eb4d09bb}</Project>
       <Name>TradeSystem.Communication.DtcApi</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\QvaDev.Wololo\TradeSystem.Communication.FixApi.Connectors.Strategies\TradeSystem.Communication.FixApi.Connectors.Strategies.csproj">
+    <ProjectReference Include="..\..\QvaDev.Wololo_old\TradeSystem.Communication.FixApi.Connectors.Strategies\TradeSystem.Communication.FixApi.Connectors.Strategies.csproj">
       <Project>{D025DB83-5628-432A-832D-0BB89E807252}</Project>
       <Name>TradeSystem.Communication.FixApi.Connectors.Strategies</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\QvaDev.Wololo\TradeSystem.Communication.FixApi\TradeSystem.Communication.FixApi.csproj">
+    <ProjectReference Include="..\..\QvaDev.Wololo_old\TradeSystem.Communication.FixApi\TradeSystem.Communication.FixApi.csproj">
       <Project>{5A7C14E4-C1F0-4A9E-8284-D01F0082B483}</Project>
       <Name>TradeSystem.Communication.FixApi</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\QvaDev.Wololo\TradeSystem.Communication.SnwApi\TradeSystem.Communication.SnwApi.csproj">
+    <ProjectReference Include="..\..\QvaDev.Wololo_old\TradeSystem.Communication.SnwApi\TradeSystem.Communication.SnwApi.csproj">
       <Project>{3455f630-ea48-4c6f-8012-a9dfa9ce1428}</Project>
       <Name>TradeSystem.Communication.SnwApi</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\QvaDev.Wololo\TradeSystem.Communication.Extensions\TradeSystem.Communication.Extensions.csproj">
+    <ProjectReference Include="..\..\QvaDev.Wololo_old\TradeSystem.Communication.Extensions\TradeSystem.Communication.Extensions.csproj">
       <Project>{a12e5a21-bb5d-4b6e-b229-9a4c625f8dce}</Project>
       <Name>TradeSystem.Communication.Extensions</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\QvaDev.Wololo\TradeSystem.Communication.Strategies\TradeSystem.Communication.Strategies.csproj">
+    <ProjectReference Include="..\..\QvaDev.Wololo_old\TradeSystem.Communication.Strategies\TradeSystem.Communication.Strategies.csproj">
       <Project>{e2dec81b-0810-4592-b742-902a78059449}</Project>
       <Name>TradeSystem.Communication.Strategies</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\QvaDev.Wololo\TradeSystem.Communication\TradeSystem.Communication.csproj">
+    <ProjectReference Include="..\..\QvaDev.Wololo_old\TradeSystem.Communication\TradeSystem.Communication.csproj">
       <Project>{9b577bd6-aea9-4f64-9f1d-6ec760103295}</Project>
       <Name>TradeSystem.Communication</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\QvaDev.Wololo\TradeSystem\TradeSystem.csproj">
+    <ProjectReference Include="..\..\QvaDev.Wololo_old\TradeSystem\TradeSystem.csproj">
       <Project>{fdfce270-50ac-4930-8680-a760f6f7c637}</Project>
       <Name>TradeSystem</Name>
     </ProjectReference>

@@ -120,7 +120,7 @@
       <HintPath>..\lib\MT4Api_latest_x86\MT4ServerAPI.dll</HintPath>
     </Reference>
     <Reference Include="mt5api">
-      <HintPath>..\..\QvaDev.Wololo\ExternalReferences\MT5Api\mt5api.dll</HintPath>
+      <HintPath>..\..\QvaDev.Wololo_old\ExternalReferences\MT5Api\mt5api.dll</HintPath>
     </Reference>
     <Reference Include="NPOI, Version=2.3.0.0, Culture=neutral, PublicKeyToken=0df73ec7942b34e1, processorArchitecture=MSIL">
       <HintPath>..\packages\NPOI.2.3.0\lib\net40\NPOI.dll</HintPath>
@@ -219,19 +219,19 @@
     <Compile Include="Services\ReportService.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\QvaDev.Wololo\TradeSystem.Communication.FixApi\TradeSystem.Communication.FixApi.csproj">
+    <ProjectReference Include="..\..\QvaDev.Wololo_old\TradeSystem.Communication.FixApi\TradeSystem.Communication.FixApi.csproj">
       <Project>{5a7c14e4-c1f0-4a9e-8284-d01f0082b483}</Project>
       <Name>TradeSystem.Communication.FixApi</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\QvaDev.Wololo\TradeSystem.Communication.Mt5\TradeSystem.Communication.Mt5.csproj">
+    <ProjectReference Include="..\..\QvaDev.Wololo_old\TradeSystem.Communication.Mt5\TradeSystem.Communication.Mt5.csproj">
       <Project>{aa3796e1-5b4c-4bdd-a102-22d6411f9b93}</Project>
       <Name>TradeSystem.Communication.Mt5</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\QvaDev.Wololo\TradeSystem.Communication\TradeSystem.Communication.csproj">
+    <ProjectReference Include="..\..\QvaDev.Wololo_old\TradeSystem.Communication\TradeSystem.Communication.csproj">
       <Project>{9b577bd6-aea9-4f64-9f1d-6ec760103295}</Project>
       <Name>TradeSystem.Communication</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\QvaDev.Wololo\TradeSystem\TradeSystem.csproj">
+    <ProjectReference Include="..\..\QvaDev.Wololo_old\TradeSystem\TradeSystem.csproj">
       <Project>{fdfce270-50ac-4930-8680-a760f6f7c637}</Project>
       <Name>TradeSystem</Name>
     </ProjectReference>
