@@ -144,9 +144,14 @@ namespace TradeSystem.Orchestration.Services.Strategies
 	    {
 		    var pd = pushing.PushingDetail;
 		    var futureSide = pushing.BetaOpenSide.Inv();
+
 		    // Start spoofing
 		    pushing.StratState = _spoofingService.Spoofing(pushing.Spoof, futureSide);
 		    StratState_LimitFill(pushing);
+
+		    // Start spoofing2
+		    pushing.StratState2 = _spoofingService.Spoofing(pushing.Spoof2, futureSide);
+		    StratState2_LimitFill(pushing);
 
 			// Pull the price and wait a bit
 			var contractsNeeded = pd.PullContractSize;
@@ -161,12 +166,26 @@ namespace TradeSystem.Orchestration.Services.Strategies
 					    pushing.PushingDetail.OpenedFutures -= pushing.StratState.FilledQuantity;
 		    }
 
+		    // Turn spoofing2
+		    if (pushing.StratState2 != null)
+		    {
+			    await pushing.StratState2.Cancel();
+			    if (pushing.PushingDetail.Spoof2FillAsPush)
+				    lock (pushing.StratState2)
+					    pushing.PushingDetail.OpenedFutures -= pushing.StratState2.FilledQuantity;
+		    }
+
 		    _threadService.Sleep(pushing.PushingDetail.FutureOpenDelayInMs);
+
 		    pushing.StratState = _spoofingService.Spoofing(pushing.Spoof, futureSide.Inv());
 		    StratState_LimitFill(pushing);
+			
+		    pushing.StratState2 = _spoofingService.Spoofing(pushing.Spoof2, futureSide.Inv());
+		    StratState2_LimitFill(pushing);
+
 		}
 
-	    public async Task OpeningHedge(Pushing pushing)
+		public async Task OpeningHedge(Pushing pushing)
 	    {
 		    if (!pushing.IsHedgeOpen) return;
 
@@ -229,6 +248,15 @@ namespace TradeSystem.Orchestration.Services.Strategies
 						pushing.PushingDetail.OpenedFutures += pushing.StratState.FilledQuantity;
 			}
 
+			// Stop spoofing2
+			if (pushing.StratState2 != null)
+			{
+				await pushing.StratState2.Cancel();
+				if (pushing.PushingDetail.Spoof2FillAsPush)
+					lock (pushing.StratState2)
+						pushing.PushingDetail.OpenedFutures += pushing.StratState2.FilledQuantity;
+			}
+
 			// Partial close
 			var closeSize = pushing.PushingDetail.OpenedFutures;
 			var percentage = Math.Min(pushing.PushingDetail.PartialClosePercentage, 100);
@@ -270,6 +298,10 @@ namespace TradeSystem.Orchestration.Services.Strategies
 		    pushing.StratState = _spoofingService.Spoofing(pushing.Spoof, futureSide);
 		    StratState_LimitFill(pushing);
 
+		    // Start spoofing2
+		    pushing.StratState2 = _spoofingService.Spoofing(pushing.Spoof2, futureSide);
+		    StratState2_LimitFill(pushing);
+
 			// Pull the price and wait a bit
 			var contractsNeeded = pd.PullContractSize;
 		    await FutureBuildUp(pushing, futureSide, contractsNeeded, Phases.Pulling);
@@ -283,9 +315,22 @@ namespace TradeSystem.Orchestration.Services.Strategies
 						pushing.PushingDetail.OpenedFutures -= pushing.StratState.FilledQuantity;
 			}
 
+			// Turn spoofing2
+			if (pushing.StratState2 != null)
+			{
+				await pushing.StratState2.Cancel();
+				if (pushing.PushingDetail.Spoof2FillAsPush)
+					lock (pushing.StratState2)
+						pushing.PushingDetail.OpenedFutures -= pushing.StratState2.FilledQuantity;
+			}
+
 			_threadService.Sleep(pushing.PushingDetail.FutureOpenDelayInMs);
+
 		    pushing.StratState = _spoofingService.Spoofing(pushing.Spoof, futureSide.Inv());
 		    StratState_LimitFill(pushing);
+
+		    pushing.StratState2 = _spoofingService.Spoofing(pushing.Spoof2, futureSide.Inv());
+		    StratState2_LimitFill(pushing);
 		}
 
 		public async Task ClosingHedge(Pushing pushing)
@@ -350,6 +395,15 @@ namespace TradeSystem.Orchestration.Services.Strategies
 						pushing.PushingDetail.OpenedFutures += pushing.StratState.FilledQuantity;
 			}
 
+			// Stop spoofing2
+			if (pushing.StratState2 != null)
+			{
+				await pushing.StratState2.Cancel();
+				if (pushing.PushingDetail.Spoof2FillAsPush)
+					lock (pushing.StratState2)
+						pushing.PushingDetail.OpenedFutures += pushing.StratState2.FilledQuantity;
+			}
+
 			// Partial close
 			var closeSize = pushing.PushingDetail.OpenedFutures;
 			var percentage = Math.Min(pushing.PushingDetail.PartialClosePercentage, 100);
@@ -366,7 +420,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 		private void InitSpoof(Pushing pushing)
 	    {
-		    pushing.Spoof = new Data.Spoof(
+		    pushing.Spoof = new Spoof(
 			    pushing.FeedAccount, pushing.FeedSymbol,
 			    pushing.SpoofAccount, pushing.SpoofSymbol,
 			    pushing.PushingDetail.SpoofContractSize,
@@ -374,7 +428,16 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			    pushing.PushingDetail.SpoofDistance, 1, 0,
 			    null);
 		    pushing.Spoof?.FeedAccount?.Connector?.Subscribe(pushing.Spoof.FeedSymbol);
-	    }
+
+		    pushing.Spoof2 = new Spoof(
+			    pushing.FeedAccount, pushing.FeedSymbol,
+			    pushing.Spoof2Account, pushing.Spoof2Symbol,
+			    pushing.PushingDetail.Spoof2ContractSize,
+			    pushing.PushingDetail.Spoof2Distance,
+			    pushing.PushingDetail.Spoof2Distance, 1, 0,
+			    null);
+		    pushing.Spoof2?.FeedAccount?.Connector?.Subscribe(pushing.Spoof2.FeedSymbol);
+		}
 
 		private async Task FutureBuildUp(Pushing pushing, Sides side, decimal contractsNeeded, Phases phase)
 		{
@@ -607,5 +670,28 @@ namespace TradeSystem.Orchestration.Services.Strategies
 					pushing.PushingDetail.MaxRetryCount, pushing.PushingDetail.RetryPeriodInMs);
 			};
 		}
-    }
+
+
+		private void StratState2_LimitFill(Pushing pushing)
+		{
+			if (pushing.StratState2 == null) return;
+			if (pushing.SpoofHedgeAccount == null) return;
+			if (string.IsNullOrWhiteSpace(pushing.SpoofHedgeSymbol)) return;
+
+			pushing.StratState2.LimitFill += (sender, e) =>
+			{
+				if (!(sender is IStratState state)) return;
+				if (e.Quantity <= 0) return;
+				if (pushing.PushingDetail.Spoof2HedgeLotsPerContract <= 0) return;
+
+				var hedgeConnector = pushing.SpoofHedgeAccount.Connector as Mt4Integration.Connector;
+				if (hedgeConnector?.IsConnected != true) return;
+
+				var hedgeLots = (double)e.Quantity * pushing.PushingDetail.Spoof2HedgeLotsPerContract;
+				hedgeConnector.SendMarketOrderRequest(pushing.SpoofHedgeSymbol, state.Side.Inv(),
+					hedgeLots, 0, null,
+					pushing.PushingDetail.MaxRetryCount, pushing.PushingDetail.RetryPeriodInMs);
+			};
+		}
+	}
 }

@@ -17,7 +17,9 @@ namespace TradeSystem.Data.Models
 		[NotMapped] [InvisibleColumn] public string NormSlowPrices { get; set; }
 
 		[NotMapped] [InvisibleColumn] public Spoof Spoof { get; set; }
-		[NotMapped] [InvisibleColumn] public IStratState StratState { get; set; }
+		[NotMapped][InvisibleColumn] public IStratState StratState { get; set; }
+		[NotMapped] [InvisibleColumn] public Spoof Spoof2 { get; set; }
+		[NotMapped] [InvisibleColumn] public IStratState StratState2 { get; set; }
 
 		[NotMapped] [InvisibleColumn] public bool IsBuyBeta { get => Get(() => true); set => Set(value); }
 		[NotMapped] [InvisibleColumn] public bool IsSellBeta { get => Get(() => true); set => Set(value); }
@@ -119,6 +121,7 @@ namespace TradeSystem.Data.Models
 				HedgeAccount?.Connector?.IsConnected != false &&
 				FeedAccount?.Connector?.IsConnected != false &&
 				SpoofAccount?.Connector?.IsConnected != false &&
+				Spoof2Account?.Connector?.IsConnected != false &&
 				SpoofHedgeAccount?.Connector?.IsConnected != false &&
 				ReopenAccount?.Connector?.IsConnected != false;
 			ConnectionChanged?.Invoke(this, IsConnected ? ConnectionStates.Connected : ConnectionStates.Disconnected);
