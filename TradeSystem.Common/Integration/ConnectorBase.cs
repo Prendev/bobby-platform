@@ -9,11 +9,13 @@ namespace TradeSystem.Common.Integration
 		public abstract int Id { get; }
 		public abstract string Description { get; }
 		public abstract bool IsConnected { get; }
+
+		public double Balance { get; protected set; }
+		public double Equity { get; protected set; }
+		public double PnL { get; protected set; }
 		public double Margin { get; protected set; }
 		public double MarginLevel { get; protected set; }
 		public double FreeMargin { get; protected set; }
-		public double Equity { get; protected set; }
-		public double PnL { get; protected set; }
 
 		/// <summary>
 		/// Do NOT use it, only from Account

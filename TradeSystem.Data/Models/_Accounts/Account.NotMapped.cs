@@ -26,19 +26,22 @@ namespace TradeSystem.Data.Models
 		public ConnectionStates ConnectionState { get => Get<ConnectionStates>(); set => Set(value); }
 		
 		[DisplayPriority(0, true)] [NotMapped] [ReadOnly(true)]
-		public double Margin { get => Get<double>(); set => Set(value); }
+		public double Balance { get => Get<double>(); set => Set(value); }
 
-		[DisplayName("Free %")] [DisplayPriority(0, true)] [NotMapped] [ReadOnly(true)]
-		public double MarginLevel { get => Get<double>(); set => Set(value); }
-
-		[DisplayName("Free Margin")] [DisplayPriority(0, true)] [NotMapped] [ReadOnly(true)]
-		public double FreeMargin { get => Get<double>(); set => Set(value); }
-
-		[DisplayName("Equity")] [DisplayPriority(0, true)] [NotMapped] [ReadOnly(true)]
+		[DisplayPriority(0, true)] [NotMapped] [ReadOnly(true)]
 		public double Equity { get => Get<double>(); set => Set(value); }
 
-		[DisplayName("PnL")] [DisplayPriority(0, true)] [NotMapped] [ReadOnly(true)]
+		[DisplayPriority(0, true)] [NotMapped] [ReadOnly(true)]
 		public double PnL { get => Get<double>(); set => Set(value); }
+
+		[DisplayPriority(0, true)] [NotMapped] [ReadOnly(true)]
+		public double Margin { get => Get<double>(); set => Set(value); }
+
+		[DisplayName("M %")] [DisplayPriority(0, true)] [NotMapped] [ReadOnly(true)]
+		public double MarginLevel { get => Get<double>(); set => Set(value); }
+
+		[DisplayName("Free M")] [DisplayPriority(0, true)] [NotMapped] [ReadOnly(true)]
+		public double FreeMargin { get => Get<double>(); set => Set(value); }
 
 		[NotMapped] [InvisibleColumn] public IConnector Connector { get => Get<IConnector>(); set => Set(value); }
 		[NotMapped] [InvisibleColumn] public string DestinationHost { get => Get<string>(); set => Set(value); }
@@ -86,11 +89,12 @@ namespace TradeSystem.Data.Models
 
 		private void Connector_MarginChanged(object sender, EventArgs e)
 		{
+			Balance = Connector.Balance;
+			Equity = Connector.Equity;
+			PnL = Connector.PnL;
 			Margin = Connector.Margin;
 			MarginLevel = Connector.MarginLevel;
 			FreeMargin = Connector.FreeMargin;
-			Equity = Connector.Equity;
-			PnL = Connector.PnL;
 		}
 
 		public override string ToString()

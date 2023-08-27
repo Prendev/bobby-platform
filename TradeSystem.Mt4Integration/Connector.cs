@@ -514,11 +514,12 @@ namespace TradeSystem.Mt4Integration
 			{
 				if (!IsConnected) return;
 
-				Margin = QuoteClient?.AccountMargin ?? 0;
-				MarginLevel = Math.Round(Margin != 0 ? (QuoteClient?.AccountEquity / Margin ?? 0) * 100 : 0, 2);
-				FreeMargin = QuoteClient?.AccountFreeMargin ?? 0;
+				Balance = QuoteClient?.AccountBalance ?? 0;
 				Equity = QuoteClient?.AccountEquity ?? 0;
-				PnL = Equity - Margin;
+				PnL = Equity - Balance;
+				Margin = QuoteClient?.AccountMargin ?? 0;
+				MarginLevel = Math.Round(Margin != 0 ? Equity / Margin * 100 : 0, 2);
+				FreeMargin = QuoteClient?.AccountFreeMargin ?? 0;
 
 				OnMarginChanged();
 			}

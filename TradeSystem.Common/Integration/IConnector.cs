@@ -7,11 +7,13 @@ namespace TradeSystem.Common.Integration
 		int Id { get; }
 		string Description { get; }
         bool IsConnected { get; }
-        double Margin { get; }
+
+        double Balance { get; }
+		double Equity { get; }
+        double PnL { get; }
+		double Margin { get; }
         double MarginLevel { get; }
         double FreeMargin { get; }
-        double Equity { get; }
-        double PnL { get; }
 
 		event EventHandler<NewPosition> NewPosition;
 		event EventHandler<LimitFill> LimitFill;
