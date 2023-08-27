@@ -8,7 +8,10 @@ namespace TradeSystem.Common.Integration
 		string Description { get; }
         bool IsConnected { get; }
         double Margin { get; }
+        double MarginLevel { get; }
         double FreeMargin { get; }
+        double Equity { get; }
+        double PnL { get; }
 
 		event EventHandler<NewPosition> NewPosition;
 		event EventHandler<LimitFill> LimitFill;
