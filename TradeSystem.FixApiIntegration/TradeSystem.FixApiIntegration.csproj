@@ -79,6 +79,10 @@
     <Compile Include="FillLogger.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\QvaDev.Wololo_old\mt5-net-api-main\mt5api.csproj">
+      <Project>{19f0e775-116d-4ac6-80f1-f6281acb81be}</Project>
+      <Name>mt5api</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\QvaDev.Wololo_old\TradeSystem.Communication.DtcApi\TradeSystem.Communication.DtcApi.csproj">
       <Project>{eed1bd13-cc26-4ede-99e4-dd59eb4d09bb}</Project>
       <Name>TradeSystem.Communication.DtcApi</Name>
@@ -90,6 +94,10 @@
     <ProjectReference Include="..\..\QvaDev.Wololo_old\TradeSystem.Communication.FixApi\TradeSystem.Communication.FixApi.csproj">
       <Project>{5A7C14E4-C1F0-4A9E-8284-D01F0082B483}</Project>
       <Name>TradeSystem.Communication.FixApi</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\QvaDev.Wololo_old\TradeSystem.Communication.Mt5\TradeSystem.Communication.Mt5.csproj">
+      <Project>{AA3796E1-5B4C-4BDD-A102-22D6411F9B93}</Project>
+      <Name>TradeSystem.Communication.Mt5</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\QvaDev.Wololo_old\TradeSystem.Communication.SnwApi\TradeSystem.Communication.SnwApi.csproj">
       <Project>{3455f630-ea48-4c6f-8012-a9dfa9ce1428}</Project>

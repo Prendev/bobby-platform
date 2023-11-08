@@ -99,7 +99,7 @@
 			this.groupBox1.Size = new System.Drawing.Size(1566, 185);
 			this.groupBox1.TabIndex = 1;
 			this.groupBox1.TabStop = false;
-			this.groupBox1.Text = "FIX API Copiers (create more than one for bursting)";
+			this.groupBox1.Text = "IConnector Copiers (create more than one for bursting)";
 			// 
 			// dgvFixApiCopiers
 			// 
@@ -144,7 +144,7 @@
 			this.groupBox11.Size = new System.Drawing.Size(512, 375);
 			this.groupBox11.TabIndex = 1;
 			this.groupBox11.TabStop = false;
-			this.groupBox11.Text = "Symbol mappings (required for FIX API copy)";
+			this.groupBox11.Text = "Symbol mappings (required for IConnector copy)";
 			// 
 			// dgvSymbolMappings
 			// 
@@ -252,7 +252,7 @@
 			this.btnSyncNoOpen.Name = "btnSyncNoOpen";
 			this.btnSyncNoOpen.Size = new System.Drawing.Size(200, 28);
 			this.btnSyncNoOpen.TabIndex = 21;
-			this.btnSyncNoOpen.Text = "Sync, no open (FIX only)";
+			this.btnSyncNoOpen.Text = "Sync, no open (IConn. only)";
 			this.btnSyncNoOpen.UseVisualStyleBackColor = true;
 			// 
 			// btnArchive
@@ -262,7 +262,7 @@
 			this.btnArchive.Name = "btnArchive";
 			this.btnArchive.Size = new System.Drawing.Size(200, 28);
 			this.btnArchive.TabIndex = 20;
-			this.btnArchive.Text = "Archive selected (FIX only)";
+			this.btnArchive.Text = "Archive selected (IConn. only)";
 			this.btnArchive.UseVisualStyleBackColor = true;
 			// 
 			// btnClose
@@ -272,7 +272,7 @@
 			this.btnClose.Name = "btnClose";
 			this.btnClose.Size = new System.Drawing.Size(200, 28);
 			this.btnClose.TabIndex = 19;
-			this.btnClose.Text = "Close selected (FIX only)";
+			this.btnClose.Text = "Close selected (IConn. only)";
 			this.btnClose.UseVisualStyleBackColor = true;
 			// 
 			// btnSync
@@ -282,7 +282,7 @@
 			this.btnSync.Name = "btnSync";
 			this.btnSync.Size = new System.Drawing.Size(200, 28);
 			this.btnSync.TabIndex = 18;
-			this.btnSync.Text = "Sync selected (FIX only)";
+			this.btnSync.Text = "Sync selected (IConn. only)";
 			this.btnSync.UseVisualStyleBackColor = true;
 			// 
 			// btnStop
@@ -332,7 +332,7 @@
 			this.groupBox10.Size = new System.Drawing.Size(1046, 183);
 			this.groupBox10.TabIndex = 0;
 			this.groupBox10.TabStop = false;
-			this.groupBox10.Text = "Copiers (use double-click, create more than one for bursting)";
+			this.groupBox10.Text = "Copiers to MT4 only (use double-click, create more than one for bursting)";
 			// 
 			// dgvCopiers
 			// 

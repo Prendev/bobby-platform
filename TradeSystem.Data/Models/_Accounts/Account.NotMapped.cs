@@ -37,11 +37,11 @@ namespace TradeSystem.Data.Models
 		[DisplayPriority(0, true)] [NotMapped] [ReadOnly(true)]
 		public double Margin { get => Get<double>(); set => Set(value); }
 
-		[DisplayName("M %")] [DisplayPriority(0, true)] [NotMapped] [ReadOnly(true)]
-		public double MarginLevel { get => Get<double>(); set => Set(value); }
-
 		[DisplayName("Free M")] [DisplayPriority(0, true)] [NotMapped] [ReadOnly(true)]
 		public double FreeMargin { get => Get<double>(); set => Set(value); }
+
+		[DisplayName("M %")] [DisplayPriority(0, true)] [NotMapped] [ReadOnly(true)]
+		public double MarginLevel { get => Get<double>(); set => Set(value); }
 
 		[NotMapped] [InvisibleColumn] public IConnector Connector { get => Get<IConnector>(); set => Set(value); }
 		[NotMapped] [InvisibleColumn] public string DestinationHost { get => Get<string>(); set => Set(value); }
@@ -93,15 +93,15 @@ namespace TradeSystem.Data.Models
 			Equity = Connector.Equity;
 			PnL = Connector.PnL;
 			Margin = Connector.Margin;
-			MarginLevel = Connector.MarginLevel;
 			FreeMargin = Connector.FreeMargin;
+			MarginLevel = Connector.MarginLevel;
 		}
 
 		public override string ToString()
 		{
 			if (MetaTraderAccount != null) return $"{(Id == 0 ? "UNSAVED - " : "")}MT4 | {MetaTraderAccount.Description}";
 			if (CTraderAccount != null) return $"{(Id == 0 ? "UNSAVED - " : "")}CT | {CTraderAccount.Description}";
-			if (FixApiAccount != null) return $"{(Id == 0 ? "UNSAVED - " : "")}FIX | {FixApiAccount.Description}";
+			if (FixApiAccount != null) return $"{(Id == 0 ? "UNSAVED - " : "")}IConn | {FixApiAccount.Description}";
 			if (CqgClientApiAccount != null) return $"{(Id == 0 ? "UNSAVED - " : "")}CQG | {CqgClientApiAccount.Description}";
 			if (IbAccount != null) return $"{(Id == 0 ? "UNSAVED - " : "")}IB | {IbAccount.Description}";
 			if (BacktesterAccount != null) return $"{(Id == 0 ? "UNSAVED - " : "")}BT | {BacktesterAccount.Description}";

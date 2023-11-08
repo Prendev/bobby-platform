@@ -15,6 +15,7 @@ using TradeSystem.Common.Services;
 using TradeSystem.Communication;
 using TradeSystem.Communication.ConnectionManagementRules;
 using TradeSystem.Communication.Extensions;
+using TradeSystem.Communication.Mt5;
 using TradeSystem.Communication.Strategies;
 using IConnector = TradeSystem.Communication.Interfaces.IConnector;
 using OrderResponse = TradeSystem.Common.Integration.OrderResponse;
@@ -32,6 +33,7 @@ namespace TradeSystem.FixApiIntegration
 		private readonly int _marketDepth;
 		private readonly ConcurrentDictionary<LimitResponse, OrderStatusReport> _limitOrderMapping = new ConcurrentDictionary<LimitResponse, OrderStatusReport>();
 		private readonly ConcurrentDictionary<string, LimitResponse> _limitOrders = new ConcurrentDictionary<string, LimitResponse>();
+		private readonly System.Timers.Timer _timer;
 
 		public override int Id => _accountInfo?.DbId ?? 0;
 		public override string Description => _accountInfo?.Description ?? "";
@@ -66,6 +68,9 @@ namespace TradeSystem.FixApiIntegration
 			ConnectionManager.Closed += ConnectionManager_Closed;
 
 			new Thread(QuoteLoop) { IsBackground = true }.Start();
+
+			_timer = new System.Timers.Timer(1000) { AutoReset = true };
+			_timer.Elapsed += (sender, args) => CheckMargin();
 		}
 
 		public async Task Connect()
@@ -73,10 +78,11 @@ namespace TradeSystem.FixApiIntegration
 			try
 			{
 				await ConnectionManager.ConnectAsync();
+				_timer.Start();
 			}
 			catch (Exception e)
 			{
-				Logger.Error($"{Description} FIX account FAILED to connect", e);
+				Logger.Error($"{Description} IConnector account FAILED to connect", e);
 			}
 		}
 
@@ -84,11 +90,12 @@ namespace TradeSystem.FixApiIntegration
 		{
 			try
 			{
+				_timer.Stop();
 				await ConnectionManager.DisconnectAsync();
 			}
 			catch (Exception e)
 			{
-				Logger.Error($"{Description} account ERROR during disconnect", e);
+				Logger.Error($"{Description} IConnector account ERROR during disconnect", e);
 			}
 
 			OnConnectionChanged(ConnectionStates.Disconnected);
@@ -700,6 +707,29 @@ namespace TradeSystem.FixApiIntegration
 
 			OnNewTick(new NewTick { Tick = tick });
 			NewQuote?.Invoke(this, quoteSet);
+		}
+
+
+
+		private void CheckMargin()
+		{
+			try
+			{
+				if (!IsConnected) return;
+				if (!(GeneralConnector is Mt5Connector mt5Connector)) return;
+
+				Balance = mt5Connector.Mt5Api?.Account?.Balance ?? 0;
+				Equity = mt5Connector.Mt5Api?.AccountEquity ?? 0;
+				PnL = Equity - Balance;
+				Margin = mt5Connector.Mt5Api?.AccountMargin ?? 0;
+				MarginLevel = Math.Round(Margin != 0 ? Equity / Margin * 100 : 0, 2);
+				FreeMargin = mt5Connector.Mt5Api?.AccountFreeMargin ?? 0;
+
+				OnMarginChanged();
+			}
+			catch
+			{
+			}
 		}
 	}
 }

@@ -233,7 +233,7 @@
 			this.tabPageFix.Name = "tabPageFix";
 			this.tabPageFix.Size = new System.Drawing.Size(1029, 502);
 			this.tabPageFix.TabIndex = 2;
-			this.tabPageFix.Text = "FIX";
+			this.tabPageFix.Text = "IConnector";
 			this.tabPageFix.UseVisualStyleBackColor = true;
 			// 
 			// ftAccountsUserControl
@@ -670,7 +670,7 @@
 			this.tabPage2.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
 			this.tabPage2.Size = new System.Drawing.Size(1027, 498);
 			this.tabPage2.TabIndex = 1;
-			this.tabPage2.Text = "FIX";
+			this.tabPage2.Text = "IConnector";
 			this.tabPage2.UseVisualStyleBackColor = true;
 			// 
 			// rtbFix
@@ -695,7 +695,7 @@
 			this.tabPage5.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
 			this.tabPage5.Size = new System.Drawing.Size(1027, 498);
 			this.tabPage5.TabIndex = 5;
-			this.tabPage5.Text = "FIX copy";
+			this.tabPage5.Text = "IConnector copy";
 			this.tabPage5.UseVisualStyleBackColor = true;
 			// 
 			// rtbFixCopy
@@ -720,7 +720,7 @@
 			this.tabPage4.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
 			this.tabPage4.Size = new System.Drawing.Size(1027, 498);
 			this.tabPage4.TabIndex = 4;
-			this.tabPage4.Text = "FIX orders";
+			this.tabPage4.Text = "IConnector orders";
 			this.tabPage4.UseVisualStyleBackColor = true;
 			// 
 			// rtbFixOrders
