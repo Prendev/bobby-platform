@@ -62,7 +62,9 @@ namespace TradeSystem.Data
 	    public DbSet<BacktesterInstrumentConfig> BacktesterInstrumentConfigs { get; set; }
 
 		public DbSet<Profile> Profiles { get; set; }
-		public DbSet<Account> Accounts { get; set; }
+		public DbSet<CustomGroup> CustomGroups { get; set; }
+		public DbSet<MappingTable> MappingTables { get; set; }
+        public DbSet<Account> Accounts { get; set; }
 		public DbSet<Aggregator> Aggregators { get; set; }
 		public DbSet<AggregatorAccount> AggregatorAccounts { get; set; }
 	    public DbSet<Proxy> Proxies { get; set; }

@@ -2,7 +2,7 @@
 
 namespace TradeSystem.Common.Integration
 {
-	public abstract class ConnectorBase : IConnector
+    public abstract class ConnectorBase : IConnector
 	{
 		private ConnectionStates _lastState = ConnectionStates.Disconnected;
 
@@ -17,10 +17,12 @@ namespace TradeSystem.Common.Integration
 		public double MarginLevel { get; protected set; }
 		public double FreeMargin { get; protected set; }
 
-		/// <summary>
-		/// Do NOT use it, only from Account
-		/// </summary>
-		public event EventHandler<NewPosition> NewPosition;
+        public string Broker { get; protected set; }
+
+        /// <summary>
+        /// Do NOT use it, only from Account
+        /// </summary>
+        public event EventHandler<NewPosition> NewPosition;
 		/// <summary>
 		/// Do NOT use it, only from Account
 		/// </summary>
