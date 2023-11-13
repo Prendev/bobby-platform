@@ -145,9 +145,11 @@ namespace TradeSystem.Mt4Integration
                 };
                 Positions.AddOrUpdate(o.Ticket, key => pos, (key, old) => pos);
 			}
-		}
 
-		public PositionResponse SendMarketOrderRequest(string symbol, Sides side, double lots, decimal price, decimal deviation, int magicNumber,
+			Broker = QuoteClient.Account.company;
+        }
+
+        public PositionResponse SendMarketOrderRequest(string symbol, Sides side, double lots, decimal price, decimal deviation, int magicNumber,
 			string comment, int maxRetryCount, int retryPeriodInMs)
 		{
 			var retValue = new PositionResponse();

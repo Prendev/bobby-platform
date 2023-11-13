@@ -6,6 +6,7 @@ namespace TradeSystem.Common.Integration
 	{
 		int Id { get; }
 		string Description { get; }
+		string Broker { get; }
         bool IsConnected { get; }
 
         double Balance { get; }
