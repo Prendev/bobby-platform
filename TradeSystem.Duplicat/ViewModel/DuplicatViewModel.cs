@@ -70,8 +70,9 @@ namespace TradeSystem.Duplicat.ViewModel
 			new List<Tuple<IBindingList, ListChangedEventHandler>>();
 		private readonly Timer _autoSaveTimer = new Timer { AutoReset = true };
 		private readonly Timer _autoLoadPosition = new Timer { AutoReset = true };
+		private readonly SymbolStatus _symbolStatusSelectAll = new SymbolStatus { Symbol = "Select All" };
 
-		public BindingList<MetaTraderPlatform> MtPlatforms { get; private set; }
+	public BindingList<MetaTraderPlatform> MtPlatforms { get; private set; }
 		public BindingList<CTraderPlatform> CtPlatforms { get; private set; }
 		public BindingList<MetaTraderAccount> MtAccounts { get; private set; }
 		public BindingList<MetaTraderInstrumentConfig> MtInstrumentConfigs { get; private set; }
@@ -86,7 +87,9 @@ namespace TradeSystem.Duplicat.ViewModel
 
 		public BindingList<Profile> Profiles { get; private set; }
 		public BindingList<CustomGroup> CustomGroups { get; private set; }
-		public BindingList<MappingTable> MappingTables { get; private set; }
+        public BindingList<MappingTable> MappingTables { get; private set; }
+        public BindingList<TwilioSetting> TwilioSettings { get; private set; }
+        public BindingList<PhoneSettings> PhoneSettings { get; private set; }
 		public BindingList<Account> Accounts { get; private set; }
 
 		public BindingList<Aggregator> Aggregators { get; private set; }
@@ -233,11 +236,11 @@ namespace TradeSystem.Duplicat.ViewModel
 
 		private void CreateMtAccount()
 		{
-			foreach (var acc in Accounts)
+			foreach (var account in Accounts)
 			{
-				if (acc.MetaTraderAccount != null && acc.ConnectionState == ConnectionStates.Connected)
+				if (account.MetaTraderAccount != null && account.ConnectionState == ConnectionStates.Connected)
 				{
-					ConnectedMtAccounts.Add(acc);
+					ConnectedMtAccounts.Add(account);
 				}
 			}
 
@@ -248,6 +251,8 @@ namespace TradeSystem.Duplicat.ViewModel
 
 			var symbolStatuses = brokerSymbols.SelectMany(bs => bs.SymbolStatuses).Distinct().OrderBy(symbolStatus => symbolStatus.Symbol).ToList();
 
+
+			SymbolStatusVisibilityList.Add(_symbolStatusSelectAll);
 			foreach (var symbolStatus in symbolStatuses)
 			{
 				SymbolStatusVisibilityList.Add(symbolStatus);
@@ -262,6 +267,7 @@ namespace TradeSystem.Duplicat.ViewModel
 			   (key, s) => new BrokerSymbolStatus { Broker = key, SymbolStatuses = s.SelectMany(symbolStatus => symbolStatus).Distinct().OrderBy(symbolStatus => symbolStatus.Symbol).ToList() }).ToList();
 
 			var symbolStatuses = brokerSymbols.SelectMany(bs => bs.SymbolStatuses).Distinct().OrderBy(symbolStatus => symbolStatus.Symbol).ToList();
+			symbolStatuses.Add(_symbolStatusSelectAll);
 
 			var symbolStatusesToKeep = symbolStatuses.Except(SymbolStatusVisibilityList).ToList();
 			var symbolStatusesToRemove = SymbolStatusVisibilityList.Except(symbolStatuses).ToList();
@@ -367,6 +373,8 @@ namespace TradeSystem.Duplicat.ViewModel
 
 			_duplicatContext.CustomGroups.OrderBy(e => e.ToString()).Load();
 			_duplicatContext.MappingTables.Where(mp => mp.CustomGroupId == selectedCustomGroupId).Include(mp => mp.CustomGroup).Load();
+			_duplicatContext.TwilioSettings.OrderBy(e => e.ToString()).Load();
+			_duplicatContext.PhoneSettings.OrderBy(e => e.ToString()).Load();
 
 			_duplicatContext.Proxies.OrderBy(e => e.ToString()).Load();
 			_duplicatContext.ProfileProxies.Where(e => e.ProfileId == p).OrderBy(e => e.ToString()).Load();
@@ -424,8 +432,10 @@ namespace TradeSystem.Duplicat.ViewModel
 			Proxies = _duplicatContext.Proxies.Local.ToBindingList();
 			ProfileProxies = _duplicatContext.ProfileProxies.Local.ToBindingList();
 
-			CustomGroups = _duplicatContext.CustomGroups.Local.ToBindingList();
-			MappingTables = _duplicatContext.MappingTables.Local.ToBindingList();
+            CustomGroups = _duplicatContext.CustomGroups.Local.ToBindingList();
+            MappingTables = _duplicatContext.MappingTables.Local.ToBindingList();
+            TwilioSettings = _duplicatContext.TwilioSettings.Local.ToBindingList();
+            PhoneSettings = _duplicatContext.PhoneSettings.Local.ToBindingList();
 
 			Masters = _duplicatContext.Masters.Local.ToBindingList();
 			Slaves = _duplicatContext.Slaves.Local.ToBindingList();

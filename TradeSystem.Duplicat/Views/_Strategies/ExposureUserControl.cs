@@ -1,7 +1,6 @@
 ﻿using System.Windows.Forms;
 using TradeSystem.Common.Integration;
 using TradeSystem.Duplicat.ViewModel;
-using TradeSystem.Mt4Integration;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Internal;
 using System.Collections.Generic;
@@ -104,7 +103,7 @@ namespace TradeSystem.Duplicat.Views
 			var brokerSymbols = mtAccountPositions.GroupBy(mtap => mtap.Broker, mtap => mtap.Positions.Select(p => p.SymbolStatus),
 				   (key, s) => new BrokerSymbolStatus { Broker = key, SymbolStatuses = s.SelectMany(symbolStatus => symbolStatus).Distinct().OrderBy(symbolStatus => symbolStatus.Symbol).ToList() }).ToList();
 
-			foreach (var symbolStatus in _viewModel.SymbolStatusVisibilityList)
+			foreach (var symbolStatus in _viewModel.SymbolStatusVisibilityList.Skip(1))
 			{
 				var brokers = brokerSymbols.Where(bs => bs.SymbolStatuses.Any(s => s.Equals(symbolStatus))).Select(bs => bs.Broker).ToList();
 
@@ -136,7 +135,7 @@ namespace TradeSystem.Duplicat.Views
 				var accountRow = new ListViewItem(mtap.AccountName);
 				accountRow.SubItems.Add(mtap.Broker);
 
-				foreach (var symbolStatus in _viewModel.SymbolStatusVisibilityList)
+				foreach (var symbolStatus in _viewModel.SymbolStatusVisibilityList.Skip(1))
 				{
 					var customGroup = _viewModel.AllCustomGroups.FirstOrDefault(cg => cg.GroupName.ToLower() == symbolStatus.Symbol.ToLower());
 
@@ -168,7 +167,7 @@ namespace TradeSystem.Duplicat.Views
 			var brokerSymbols = mtAccountPositions.GroupBy(mtap => mtap.Broker, mtap => mtap.Positions.Select(p => p.SymbolStatus),
 				   (key, s) => new BrokerSymbolStatus { Broker = key, SymbolStatuses = s.SelectMany(symbolStatus => symbolStatus).Distinct().OrderBy(symbolStatus => symbolStatus.Symbol).ToList() }).ToList();
 
-			foreach (var symbolStatus in _viewModel.SymbolStatusVisibilityList)
+			foreach (var symbolStatus in _viewModel.SymbolStatusVisibilityList.Skip(1))
 			{
 				var brokers = brokerSymbols.Where(bs => bs.SymbolStatuses.Any(s => s.Equals(symbolStatus))).Select(bs => bs.Broker).ToList();
 
@@ -205,7 +204,7 @@ namespace TradeSystem.Duplicat.Views
 				var mtap = mtAccountPositions[accountIndex];
 				var accountRow = listViewExposure.Items[accountIndex];
 
-				foreach (var symbolStatus in _viewModel.SymbolStatusVisibilityList)
+				foreach (var symbolStatus in _viewModel.SymbolStatusVisibilityList.Skip(1))
 				{
 					var customGroup = _viewModel.AllCustomGroups.FirstOrDefault(cg => cg.GroupName.ToLower() == symbolStatus.Symbol.ToLower());
 
@@ -265,7 +264,7 @@ namespace TradeSystem.Duplicat.Views
 
 		void listViewExposure_ColumnWidthChanging(object sender, ColumnWidthChangingEventArgs e)
 		{
-			if (e.ColumnIndex >= 2 && !_viewModel.SymbolStatusVisibilityList[e.ColumnIndex - 2].IsVisible)
+			if (e.ColumnIndex >= 2 && !_viewModel.SymbolStatusVisibilityList[e.ColumnIndex].IsVisible)
 			{
 				e.NewWidth = listViewExposure.Columns[e.ColumnIndex].Width;
 				e.Cancel = true;
@@ -328,17 +327,44 @@ namespace TradeSystem.Duplicat.Views
 
 			if (e.ListChangedType == ListChangedType.ItemChanged)
 			{
-				UpdateExposureListView();
-				//+2 because of account name + broker header
-				listViewExposure.Columns[e.NewIndex + 2].Width = _viewModel.SymbolStatusVisibilityList[e.NewIndex].IsVisible ? 75 : 0;
+				// Select All option
+				if (e.NewIndex == 0)
+				{
+					var selectAll = _viewModel.SymbolStatusVisibilityList[e.NewIndex].IsVisible;
+					var isSelectAll = _viewModel.SymbolStatusVisibilityList.Skip(1).All(ssv => ssv.IsVisible);
+
+					if (selectAll)
+					{
+						foreach (var item in _viewModel.SymbolStatusVisibilityList.Skip(1))
+						{
+							item.IsVisible = true;
+						}
+					}
+					else if (isSelectAll && !selectAll)
+					{
+						foreach (var item in _viewModel.SymbolStatusVisibilityList.Skip(1))
+						{
+							item.IsVisible = false;
+						}
+					}
+                }
+				// Single selection
+				else
+				{
+					UpdateExposureListView();
+					//+1 because of account name + broker header - select all
+					listViewExposure.Columns[e.NewIndex + 1].Width = _viewModel.SymbolStatusVisibilityList[e.NewIndex].IsVisible ? 75 : 0;
+
+					_viewModel.SymbolStatusVisibilityList[0].IsVisible = _viewModel.SymbolStatusVisibilityList.Skip(1).All(ssv => ssv.IsVisible);
+				}
 			}
 			if (e.ListChangedType == ListChangedType.ItemDeleted)
 			{
-				////+2 because of account name + broker header
-				columnHeaderColor.Remove(e.NewIndex + 2);
+				////+1 because of account name(index 0) + broker header(index 1)
+				columnHeaderColor.Remove(e.NewIndex + 1);
 				listViewExposure.Invoke((MethodInvoker)(() =>
 				{
-					listViewExposure.Columns.RemoveAt(e.NewIndex + 2);
+					listViewExposure.Columns.RemoveAt(e.NewIndex + 1);
 				}));
 
 				var columnHeaderColorHelper = new Dictionary<int, Brush>();

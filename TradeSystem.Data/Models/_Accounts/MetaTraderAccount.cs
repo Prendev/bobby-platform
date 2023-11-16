@@ -9,8 +9,11 @@ namespace TradeSystem.Data.Models
         [Required] public string Password { get; set; }
         public int MetaTraderPlatformId { get; set; }
         public MetaTraderPlatform MetaTraderPlatform { get; set; }
+        public bool IsAlert { get; set; }
+        public double MarginLevelAlert { get; set; }
+        public double MarginLevelWarning { get; set; }
 
-		public List<Account> Accounts { get; } = new List<Account>();
+        public List<Account> Accounts { get; } = new List<Account>();
 		public List<MetaTraderInstrumentConfig> InstrumentConfigs { get; } = new List<MetaTraderInstrumentConfig>();
 
 		public override string ToString()

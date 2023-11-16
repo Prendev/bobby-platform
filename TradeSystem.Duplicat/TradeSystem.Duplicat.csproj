@@ -232,6 +232,12 @@
     <Compile Include="Views\_Accounts\BtAccountsUserControl.Designer.cs">
       <DependentUpon>BtAccountsUserControl.cs</DependentUpon>
     </Compile>
+    <Compile Include="Views\_Accounts\MtAlertUserControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Views\_Accounts\MtAlertUserControl.Designer.cs">
+      <DependentUpon>MtAlertUserControl.cs</DependentUpon>
+    </Compile>
     <Compile Include="Views\_Strategies\CustomMappingUserControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -370,6 +376,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Views\_Accounts\BtAccountsUserControl.resx">
       <DependentUpon>BtAccountsUserControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\_Accounts\MtAlertUserControl.resx">
+      <DependentUpon>MtAlertUserControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\_Strategies\CustomMappingUserControl.resx">
       <DependentUpon>CustomMappingUserControl.cs</DependentUpon>

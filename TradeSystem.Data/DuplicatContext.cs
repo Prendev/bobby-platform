@@ -7,17 +7,16 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Newtonsoft.Json;
 using TradeSystem.Data.Models;
 using TradeSystem.FileContextCore.Extensions;
-using TradeSystem.FileContextCore.Serializer;
 
 namespace TradeSystem.Data
 {
-    public class DuplicatContext : DbContext
-    {
-	    private readonly string _connectionString;
-	    private readonly string _providerName;
-	    private readonly string _baseDirectory;
+	public class DuplicatContext : DbContext
+	{
+		private readonly string _connectionString;
+		private readonly string _providerName;
+		private readonly string _baseDirectory;
 
-	    public DuplicatContext()
+		public DuplicatContext()
 		{
 			var connectionString = ConfigurationManager.ConnectionStrings["DuplicatContext"];
 
@@ -32,11 +31,11 @@ namespace TradeSystem.Data
 		}
 
 		public DuplicatContext(string connectionString, string providerName, string baseDirectory)
-	    {
-		    _providerName = providerName;
-		    _connectionString = connectionString;
-		    _baseDirectory = baseDirectory;
-	    }
+		{
+			_providerName = providerName;
+			_connectionString = connectionString;
+			_baseDirectory = baseDirectory;
+		}
 
 		protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 		{
@@ -50,48 +49,50 @@ namespace TradeSystem.Data
 		}
 
 		public DbSet<MetaTraderPlatform> MetaTraderPlatforms { get; set; }
-        public DbSet<CTraderPlatform> CTraderPlatforms { get; set; }
-        public DbSet<MetaTraderAccount> MetaTraderAccounts { get; set; }
-        public DbSet<MetaTraderInstrumentConfig> MetaTraderInstrumentConfigs { get; set; }
-        public DbSet<CTraderAccount> CTraderAccounts { get; set; }
+		public DbSet<CTraderPlatform> CTraderPlatforms { get; set; }
+		public DbSet<MetaTraderAccount> MetaTraderAccounts { get; set; }
+		public DbSet<MetaTraderInstrumentConfig> MetaTraderInstrumentConfigs { get; set; }
+		public DbSet<CTraderAccount> CTraderAccounts { get; set; }
 		public DbSet<FixApiAccount> FixApiAccounts { get; set; }
 		public DbSet<IlyaFastFeedAccount> IlyaFastFeedAccounts { get; set; }
 		public DbSet<CqgClientApiAccount> CqgClientApiAccounts { get; set; }
 		public DbSet<IbAccount> IbAccounts { get; set; }
-	    public DbSet<BacktesterAccount> BacktesterAccounts { get; set; }
-	    public DbSet<BacktesterInstrumentConfig> BacktesterInstrumentConfigs { get; set; }
+		public DbSet<BacktesterAccount> BacktesterAccounts { get; set; }
+		public DbSet<BacktesterInstrumentConfig> BacktesterInstrumentConfigs { get; set; }
 
 		public DbSet<Profile> Profiles { get; set; }
 		public DbSet<CustomGroup> CustomGroups { get; set; }
 		public DbSet<MappingTable> MappingTables { get; set; }
-        public DbSet<Account> Accounts { get; set; }
+		public DbSet<TwilioSetting> TwilioSettings { get; set; }
+		public DbSet<PhoneSettings> PhoneSettings { get; set; }
+		public DbSet<Account> Accounts { get; set; }
 		public DbSet<Aggregator> Aggregators { get; set; }
 		public DbSet<AggregatorAccount> AggregatorAccounts { get; set; }
-	    public DbSet<Proxy> Proxies { get; set; }
-	    public DbSet<ProfileProxy> ProfileProxies { get; set; }
+		public DbSet<Proxy> Proxies { get; set; }
+		public DbSet<ProfileProxy> ProfileProxies { get; set; }
 
 		public DbSet<Master> Masters { get; set; }
-        public DbSet<Slave> Slaves { get; set; }
+		public DbSet<Slave> Slaves { get; set; }
 
-        public DbSet<Copier> Copiers { get; set; }
-        public DbSet<CopierPosition> CopierPositions { get; set; }
-	    public DbSet<FixApiCopier> FixApiCopiers { get; set; }
-	    public DbSet<FixApiCopierPosition> FixApiCopierPositions { get; set; }
+		public DbSet<Copier> Copiers { get; set; }
+		public DbSet<CopierPosition> CopierPositions { get; set; }
+		public DbSet<FixApiCopier> FixApiCopiers { get; set; }
+		public DbSet<FixApiCopierPosition> FixApiCopierPositions { get; set; }
 		public DbSet<SymbolMapping> SymbolMappings { get; set; }
 
-        public DbSet<Pushing> Pushings { get; set; }
-        public DbSet<PushingDetail> PushingDetails { get; set; }
-	    public DbSet<Spoofing> Spoofings { get; set; }
+		public DbSet<Pushing> Pushings { get; set; }
+		public DbSet<PushingDetail> PushingDetails { get; set; }
+		public DbSet<Spoofing> Spoofings { get; set; }
 
 		public DbSet<StratPosition> Positions { get; set; }
 		public DbSet<StratHubArb> StratHubArbs { get; set; }
 		public DbSet<StratHubArbPosition> StratHubArbPositions { get; set; }
 
-	    public DbSet<MM> MMs { get; set; }
-	    public DbSet<MarketMaker> MarketMakers { get; set; }
-	    public DbSet<LatencyArb> LatencyArbs { get; set; }
-	    public DbSet<LatencyArbPosition> LatencyArbPositions { get; set; }
-	    public DbSet<NewsArb> NewsArbs { get; set; }
+		public DbSet<MM> MMs { get; set; }
+		public DbSet<MarketMaker> MarketMakers { get; set; }
+		public DbSet<LatencyArb> LatencyArbs { get; set; }
+		public DbSet<LatencyArbPosition> LatencyArbPositions { get; set; }
+		public DbSet<NewsArb> NewsArbs { get; set; }
 		public DbSet<NewsArbPosition> NewsArbPositions { get; set; }
 
 		public DbSet<Ticker> Tickers { get; set; }
@@ -131,6 +132,60 @@ namespace TradeSystem.Data
 						ConfigPath = $"FixApiConfigFiles\\{name}.xml"
 					});
 				}
+				SaveChanges();
+			}
+			catch { }
+
+			try
+			{
+				// Create default entities in the TwilioSettings and delete any existing ones
+				var accountSid = ConfigurationManager.AppSettings["TwilioService.AccountSid"];
+				var authToken = ConfigurationManager.AppSettings["TwilioService.AuthToken"];
+				var twilioPhoneNumber = ConfigurationManager.AppSettings["TwilioService.TwilioPhoneNumber"];
+				var message = ConfigurationManager.AppSettings["TwilioService.Message"];
+				var coolDownTimerInMin = ConfigurationManager.AppSettings["TwilioService.CoolDownTimerInMin"];
+
+				// Check if the default entities already exist
+				var existingEntities = TwilioSettings.ToList();
+
+				if (existingEntities.All(entity => entity.Key != accountSid))
+				{
+					// Add default entity for accountSid
+					TwilioSettings.Add(new TwilioSetting { Key = accountSid });
+				}
+
+				if (existingEntities.All(entity => entity.Key != authToken))
+				{
+					// Add default entity for authToken
+					TwilioSettings.Add(new TwilioSetting { Key = authToken });
+				}
+
+				if (existingEntities.All(entity => entity.Key != twilioPhoneNumber))
+				{
+					// Add default entity for twilioPhoneNumber
+					TwilioSettings.Add(new TwilioSetting { Key = twilioPhoneNumber });
+				}
+
+				if (existingEntities.All(entity => entity.Key != message))
+				{
+					// Add default entity for message
+					TwilioSettings.Add(new TwilioSetting { Key = message });
+				}
+
+				if (existingEntities.All(entity => entity.Key != coolDownTimerInMin))
+				{
+					// Add default entity for message
+					TwilioSettings.Add(new TwilioSetting { Key = coolDownTimerInMin, Value="1" });
+				}
+
+				// Remove other entities from the database
+				foreach (var entity in existingEntities)
+				{
+					if (entity.Key != accountSid && entity.Key != authToken && entity.Key != twilioPhoneNumber && entity.Key != message && entity.Key != coolDownTimerInMin)
+					{
+						TwilioSettings.Remove(entity);
+					}
+				}
 
 				SaveChanges();
 			}
@@ -163,8 +218,8 @@ namespace TradeSystem.Data
 			//	.HasForeignKey(x => x.PositionId);
 
 			var timeSpanConverter = new ValueConverter<TimeSpan, long>(v => v.Ticks, v => new TimeSpan(v));
-			var nullTimeSpanConverter = new ValueConverter<TimeSpan?, long?>(v => v != null ? v.Value.Ticks : (long?) null,
-				v => v != null ? new TimeSpan(v.Value) : (TimeSpan?) null);
+			var nullTimeSpanConverter = new ValueConverter<TimeSpan?, long?>(v => v != null ? v.Value.Ticks : (long?)null,
+				v => v != null ? new TimeSpan(v.Value) : (TimeSpan?)null);
 			var arrayConverter = new ValueConverter<string[], string>(
 				x => JsonConvert.SerializeObject(x),
 				x => JsonConvert.DeserializeObject<string[]>(x));
@@ -175,13 +230,13 @@ namespace TradeSystem.Data
 				.HasConversion(arrayConverter);
 
 			foreach (var entityType in modelBuilder.Model.GetEntityTypes())
-			foreach (var property in entityType.GetProperties())
-			{
-				if (property.ClrType == typeof(TimeSpan))
-					property.SetValueConverter(timeSpanConverter);
-				else if (property.ClrType == typeof(TimeSpan?))
-					property.SetValueConverter(nullTimeSpanConverter);
-			}
+				foreach (var property in entityType.GetProperties())
+				{
+					if (property.ClrType == typeof(TimeSpan))
+						property.SetValueConverter(timeSpanConverter);
+					else if (property.ClrType == typeof(TimeSpan?))
+						property.SetValueConverter(nullTimeSpanConverter);
+				}
 		}
 	}
 }
