@@ -232,6 +232,18 @@
     <Compile Include="Views\_Accounts\BtAccountsUserControl.Designer.cs">
       <DependentUpon>BtAccountsUserControl.cs</DependentUpon>
     </Compile>
+    <Compile Include="Views\_Strategies\CustomMappingUserControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Views\_Strategies\CustomMappingUserControl.Designer.cs">
+      <DependentUpon>CustomMappingUserControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\_Strategies\ExposureUserControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Views\_Strategies\ExposureUserControl.Designer.cs">
+      <DependentUpon>ExposureUserControl.cs</DependentUpon>
+    </Compile>
     <Compile Include="Views\_Strategies\HubArbUserControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -358,6 +370,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Views\_Accounts\BtAccountsUserControl.resx">
       <DependentUpon>BtAccountsUserControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\_Strategies\CustomMappingUserControl.resx">
+      <DependentUpon>CustomMappingUserControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\_Strategies\ExposureUserControl.resx">
+      <DependentUpon>ExposureUserControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\_Strategies\HubArbUserControl.resx">
       <DependentUpon>HubArbUserControl.cs</DependentUpon>

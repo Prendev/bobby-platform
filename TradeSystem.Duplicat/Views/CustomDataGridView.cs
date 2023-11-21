@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
-using Microsoft.EntityFrameworkCore;
 using TradeSystem.Common.Attributes;
 using TradeSystem.Common.Integration;
 using TradeSystem.Data.Models;
