@@ -73,6 +73,10 @@
     <Reference Include="CsvHelper, Version=7.0.0.0, Culture=neutral, PublicKeyToken=8c4959082be5c823, processorArchitecture=MSIL">
       <HintPath>..\packages\CsvHelper.7.1.0\lib\net45\CsvHelper.dll</HintPath>
     </Reference>
+    <Reference Include="MT4ServerAPI, Version=4.1380.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\lib\MT4Api_latest\MT4ServerAPI.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
@@ -150,10 +154,6 @@
     <ProjectReference Include="..\..\QvaDev.Wololo_old\TradeSystem\TradeSystem.csproj">
       <Project>{fdfce270-50ac-4930-8680-a760f6f7c637}</Project>
       <Name>TradeSystem</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\mt4-dotnet-api-master\MT4ServerApiStandard.csproj">
-      <Project>{7d33030e-3096-4bc6-8b05-79d8efbb60db}</Project>
-      <Name>MT4ServerApiStandard</Name>
     </ProjectReference>
     <ProjectReference Include="..\TradeSystem.Common\TradeSystem.Common.csproj">
       <Project>{10a3ef89-12bb-4d00-9950-36bfed281b91}</Project>
