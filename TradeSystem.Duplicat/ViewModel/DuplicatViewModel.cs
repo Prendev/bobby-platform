@@ -234,25 +234,48 @@ namespace TradeSystem.Duplicat.ViewModel
 		{
             foreach (var acc in Accounts)
             {
-                if (acc.MetaTraderAccount != null && acc.ConnectionState == ConnectionStates.Connected)
-                {
-					ConnectedMtAccounts.Add(acc);
-                }
+	            if (acc.ConnectionState != ConnectionStates.Connected) continue;
+                if (acc.MetaTraderAccount != null) ConnectedMtAccounts.Add(acc);
+				else if (acc.FixApiAccount != null && acc.Connector is FixApiIntegration.Connector c &&
+				         c.GeneralConnector is Communication.Mt5.Mt5Connector)
+	                ConnectedMtAccounts.Add(acc);
             }
 
             var allMappingTables = AllCustomGroups.SelectMany(cg => cg.MappingTables).ToList();
 
             var mtAccountPositions = ConnectedMtAccounts.Select(cma => new MtAccount
             {
-                Broker = cma.Connector.Broker,
-                AccountName = cma.MetaTraderAccount.Description,
-                Positions = (cma.Connector as Mt4Integration.Connector).Positions.Select(p => new MtPosition { SymbolStatus = GetSymbol(allMappingTables, p.Value.Symbol, cma.Connector.Broker), LotSize = p.Value.Lots, Side = p.Value.Side }).ToList(),
-            }).OrderBy(mtap => mtap.AccountName).ToList();
+	            Broker = cma.Connector.Broker,
+	            AccountName = cma.MetaTraderAccount?.Description ?? cma.FixApiAccount?.Description ?? "",
+	            Positions = cma.Connector.Positions
+		            .Select(p =>
+			            new MtPosition
+			            {
+				            SymbolStatus = GetSymbol(allMappingTables, p.Value.Symbol, cma.Connector.Broker),
+				            LotSize = p.Value.Lots, Side = p.Value.Side
+			            })
+		            .ToList()
+            }).OrderBy(x => x.AccountName).ToList();
 
-            var brokerSymbols = mtAccountPositions.GroupBy(mtap => mtap.Broker, mtap => mtap.Positions.Select(p => p.SymbolStatus),
-               (key, s) => new BrokerSymbolStatus { Broker = key, SymbolStatuses = s.SelectMany(symbolStatus => symbolStatus).Distinct().OrderBy(symbolStatus => symbolStatus.Symbol).ToList() }).ToList();
+            var brokerSymbols = mtAccountPositions
+	            .GroupBy(x => x.Broker,
+		            x => x.Positions.Select(p => p.SymbolStatus),
+		            (key, s) =>
+			            new BrokerSymbolStatus
+			            {
+				            Broker = key,
+				            SymbolStatuses = s
+					            .SelectMany(x => x)
+					            .Distinct()
+					            .OrderBy(x => x.Symbol)
+					            .ToList()
+			            }).ToList();
 
-            var symbolStatuses = brokerSymbols.SelectMany(bs => bs.SymbolStatuses).Distinct().OrderBy(symbolStatus => symbolStatus.Symbol).ToList();
+            var symbolStatuses = brokerSymbols
+	            .SelectMany(x => x.SymbolStatuses)
+	            .Distinct()
+	            .OrderBy(symbolStatus => symbolStatus.Symbol)
+	            .ToList();
 
             foreach (var symbolStatus in symbolStatuses)
             {
@@ -269,9 +292,9 @@ namespace TradeSystem.Duplicat.ViewModel
             var mtAccountPositions = connectedAccount.Select(cma => new MtAccount
             {
                 Broker = cma.Connector.Broker,
-                AccountName = cma.MetaTraderAccount.Description,
-                Positions = (cma.Connector as Mt4Integration.Connector).Positions.Select(p => new MtPosition { SymbolStatus = GetSymbol(allMappingTables, p.Value.Symbol, cma.Connector.Broker), LotSize = p.Value.Lots, Side = p.Value.Side }).ToList(),
-            }).OrderBy(mtap => mtap.AccountName).ToList();
+                AccountName = cma.MetaTraderAccount?.Description ?? cma.FixApiAccount?.Description ?? "",
+                Positions = cma.Connector.Positions.Select(p => new MtPosition { SymbolStatus = GetSymbol(allMappingTables, p.Value.Symbol, cma.Connector.Broker), LotSize = p.Value.Lots, Side = p.Value.Side }).ToList(),
+            }).OrderBy(x => x.AccountName).ToList();
 
             var brokerSymbols = mtAccountPositions.GroupBy(mtap => mtap.Broker, mtap => mtap.Positions.Select(p => p.SymbolStatus),
                (key, s) => new BrokerSymbolStatus { Broker = key, SymbolStatuses = s.SelectMany(symbolStatus => symbolStatus).Distinct().OrderBy(symbolStatus => symbolStatus.Symbol).ToList() }).ToList();
@@ -295,7 +318,7 @@ namespace TradeSystem.Duplicat.ViewModel
             return mappingTable != null ? new SymbolStatus { Symbol = mappingTable.CustomGroup.GroupName, IsCreatedGroup = true } : new SymbolStatus { Symbol = symbol, IsCreatedGroup = false };
         }
 
-        private void SelectedPushing_ConnectionChanged(object sender, Common.Integration.ConnectionStates connectionStates)
+        private void SelectedPushing_ConnectionChanged(object sender, ConnectionStates connectionStates)
 		{
 			SetPushingEnabled();
 		}
@@ -304,7 +327,7 @@ namespace TradeSystem.Duplicat.ViewModel
 			IsPushingEnabled = SelectedPushing?.IsConnected == true && AreCopiersStarted;
 		}
 
-		private void SelectedSpoofing_ConnectionChanged(object sender, Common.Integration.ConnectionStates connectionStates)
+		private void SelectedSpoofing_ConnectionChanged(object sender, ConnectionStates connectionStates)
 		{
 			SetSpoofingEnabled();
 		}
@@ -322,7 +345,7 @@ namespace TradeSystem.Duplicat.ViewModel
 
 		public void LoadAllCustomGroups()
 		{
-			List<CustomGroup> customGroups = new List<CustomGroup>();
+			List<CustomGroup> customGroups;
 			using (var context = new DuplicatContext())
 			{
                 context.CustomGroups.Include(cg => cg.MappingTables).OrderBy(e => e.ToString()).Load();

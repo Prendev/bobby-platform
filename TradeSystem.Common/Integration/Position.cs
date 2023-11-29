@@ -18,7 +18,7 @@ namespace TradeSystem.Common.Integration
         public long RealVolume { get; set; }
 
 		public string Comment { get; set; }
-        public int MagicNumber { get; set; }
+        public long MagicNumber { get; set; }
 
 		public DateTime OpenTime { get; set; }
         public decimal OpenPrice { get; set; }

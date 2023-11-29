@@ -1,9 +1,7 @@
 ﻿using System.Windows.Forms;
 using TradeSystem.Common.Integration;
 using TradeSystem.Duplicat.ViewModel;
-using TradeSystem.Mt4Integration;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.Internal;
 using System.Collections.Generic;
 using TradeSystem.Data.Models;
 using System.Drawing;
@@ -37,7 +35,7 @@ namespace TradeSystem.Duplicat.Views
             listViewExposure.OwnerDraw = true;
             listViewExposure.DrawColumnHeader += listViewExposure_DrawColumnHeader;
             listViewExposure.DrawSubItem += listViewExposure_DrawSubItem;
-            listViewExposure.ColumnWidthChanging += new ColumnWidthChangingEventHandler(listViewExposure_ColumnWidthChanging);
+            listViewExposure.ColumnWidthChanging += listViewExposure_ColumnWidthChanging;
 
             cdgExposureVisibility.AllowUserToAddRows = false;
             cdgExposureVisibility.RowHeadersVisible = false;
@@ -71,9 +69,9 @@ namespace TradeSystem.Duplicat.Views
                 var mtAccountPositions = _viewModel.ConnectedMtAccounts.Select(cma => new MtAccount
                 {
                     Broker = cma.Connector.Broker,
-                    AccountName = cma.MetaTraderAccount.Description,
-                    Positions = (cma.Connector as Connector).Positions.Select(p => new MtPosition { SymbolStatus = GetSymbol(allMappingTables, p.Value.Symbol, cma.Connector.Broker), LotSize = p.Value.Lots, Side = p.Value.Side }).ToList(),
-                }).OrderBy(mtap => mtap.AccountName).ToList();
+                    AccountName = cma.MetaTraderAccount?.Description ?? cma.FixApiAccount?.Description ?? "",
+                    Positions = cma.Connector.Positions.Select(p => new MtPosition { SymbolStatus = GetSymbol(allMappingTables, p.Value.Symbol, cma.Connector.Broker), LotSize = p.Value.Lots, Side = p.Value.Side }).ToList(),
+                }).OrderBy(x => x.AccountName).ToList();
 
                 var summaryRow = CreateHeaderAndSummaryRow(mtAccountPositions);
                 CreateAccountRows(mtAccountPositions);
@@ -91,9 +89,9 @@ namespace TradeSystem.Duplicat.Views
                 var mtAccountPositions = _viewModel.ConnectedMtAccounts.Select(cma => new MtAccount
                 {
                     Broker = cma.Connector.Broker,
-                    AccountName = cma.MetaTraderAccount.Description,
-                    Positions = (cma.Connector as Connector).Positions.Select(p => new MtPosition { SymbolStatus = GetSymbol(allMappingTables, p.Value.Symbol, cma.Connector.Broker), LotSize = p.Value.Lots, Side = p.Value.Side }).ToList(),
-                }).OrderBy(mtap => mtap.AccountName).ToList();
+                    AccountName = cma.MetaTraderAccount?.Description ?? cma.FixApiAccount?.Description ?? "",
+                    Positions = cma.Connector.Positions.Select(p => new MtPosition { SymbolStatus = GetSymbol(allMappingTables, p.Value.Symbol, cma.Connector.Broker), LotSize = p.Value.Lots, Side = p.Value.Side }).ToList(),
+                }).OrderBy(x => x.AccountName).ToList();
 
                 UpdateHeaderAndSummaryRow(mtAccountPositions);
                 UpdateAccountRows(mtAccountPositions);

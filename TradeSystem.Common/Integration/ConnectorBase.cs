@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 
 namespace TradeSystem.Common.Integration
 {
@@ -19,10 +20,13 @@ namespace TradeSystem.Common.Integration
 
         public string Broker { get; protected set; }
 
-        /// <summary>
-        /// Do NOT use it, only from Account
-        /// </summary>
-        public event EventHandler<NewPosition> NewPosition;
+        public ConcurrentDictionary<long, Position> Positions { get; protected set; } =
+	        new ConcurrentDictionary<long, Position>();
+
+		/// <summary>
+		/// Do NOT use it, only from Account
+		/// </summary>
+		public event EventHandler<NewPosition> NewPosition;
 		/// <summary>
 		/// Do NOT use it, only from Account
 		/// </summary>
