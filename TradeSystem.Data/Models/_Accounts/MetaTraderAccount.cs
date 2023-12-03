@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using static TradeSystem.Data.Models.Proxy;
 
 namespace TradeSystem.Data.Models
 {
@@ -12,8 +13,14 @@ namespace TradeSystem.Data.Models
         public bool IsAlert { get; set; }
         public double MarginLevelAlert { get; set; }
         public double MarginLevelWarning { get; set; }
+		public bool ProxyEnable { get; set; }
+		public string ProxyHost { get; set; }
+		public int ProxyPort { get; set; }
+		public ProxyTypes ProxyType { get; set; }
+		public string ProxyUser { get; set; }
+		public string ProxyPassword { get; set; }
 
-        public List<Account> Accounts { get; } = new List<Account>();
+		public List<Account> Accounts { get; } = new List<Account>();
 		public List<MetaTraderInstrumentConfig> InstrumentConfigs { get; } = new List<MetaTraderInstrumentConfig>();
 
 		public override string ToString()

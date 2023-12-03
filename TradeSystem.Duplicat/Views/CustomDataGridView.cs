@@ -124,7 +124,7 @@ namespace TradeSystem.Duplicat.Views
 
 			if (account.ConnectionState == ConnectionStates.Connected)
 			{
-				if (account.MarginLevel < account.MetaTraderAccount.MarginLevelAlert && !(account.Margin == 0 && account.MarginLevel == 0))
+				if (account.MetaTraderAccount.IsAlert && account.MarginLevel < account.MetaTraderAccount.MarginLevelAlert && !(account.Margin == 0 && account.MarginLevel == 0))
 				{
 					Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.MediumVioletRed;
 				}

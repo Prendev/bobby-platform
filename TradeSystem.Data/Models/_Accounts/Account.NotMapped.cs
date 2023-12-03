@@ -110,6 +110,17 @@ namespace TradeSystem.Data.Models
 
 		public Tick GetLastTick(string symbol) => Connector?.GetLastTick(symbol);
 
+		public override string ToString()
+		{
+			if (MetaTraderAccount != null) return $"{(Id == 0 ? "UNSAVED - " : "")}MT4 | {MetaTraderAccount.Description}";
+			if (CTraderAccount != null) return $"{(Id == 0 ? "UNSAVED - " : "")}CT | {CTraderAccount.Description}";
+			if (FixApiAccount != null) return $"{(Id == 0 ? "UNSAVED - " : "")}IConn | {FixApiAccount.Description}";
+			if (CqgClientApiAccount != null) return $"{(Id == 0 ? "UNSAVED - " : "")}CQG | {CqgClientApiAccount.Description}";
+			if (IbAccount != null) return $"{(Id == 0 ? "UNSAVED - " : "")}IB | {IbAccount.Description}";
+			if (BacktesterAccount != null) return $"{(Id == 0 ? "UNSAVED - " : "")}BT | {BacktesterAccount.Description}";
+			return "";
+		}
+
 		private void Connector_NewTick(object sender, NewTick e)
 		{
 			if (BacktesterAccount != null) BacktesterAccount.UtcNow = e.Tick.Time;
@@ -207,17 +218,6 @@ namespace TradeSystem.Data.Models
 
 			cooldownTimer.Interval = coolDownInMin * 60 * 1000;
 			cooldownTimer.Start();
-		}
-
-		public override string ToString()
-		{
-			if (MetaTraderAccount != null) return $"{(Id == 0 ? "UNSAVED - " : "")}MT4 | {MetaTraderAccount.Description}";
-			if (CTraderAccount != null) return $"{(Id == 0 ? "UNSAVED - " : "")}CT | {CTraderAccount.Description}";
-			if (FixApiAccount != null) return $"{(Id == 0 ? "UNSAVED - " : "")}IConn | {FixApiAccount.Description}";
-			if (CqgClientApiAccount != null) return $"{(Id == 0 ? "UNSAVED - " : "")}CQG | {CqgClientApiAccount.Description}";
-			if (IbAccount != null) return $"{(Id == 0 ? "UNSAVED - " : "")}IB | {IbAccount.Description}";
-			if (BacktesterAccount != null) return $"{(Id == 0 ? "UNSAVED - " : "")}BT | {BacktesterAccount.Description}";
-			return "";
 		}
 	}
 }

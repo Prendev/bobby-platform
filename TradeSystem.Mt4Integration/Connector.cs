@@ -31,20 +31,20 @@ namespace TradeSystem.Mt4Integration
 		//private readonly HashSet<int> _finishedOrderIds = new HashSet<int>();
 		private readonly List<string> _symbols = new List<string>();
 		private readonly ConcurrentDictionary<string, SymbolInfo> _symbolInfos =
-            new ConcurrentDictionary<string, SymbolInfo>();
-        private readonly ConcurrentDictionary<string, Tick> _lastTicks =
-            new ConcurrentDictionary<string, Tick>();
+			new ConcurrentDictionary<string, SymbolInfo>();
+		private readonly ConcurrentDictionary<string, Tick> _lastTicks =
+			new ConcurrentDictionary<string, Tick>();
 		private readonly IEmailService _emailService;
 		private AccountInfo _accountInfo;
 
 		public override int Id => _accountInfo?.DbId ?? 0;
 		public override string Description => _accountInfo?.Description;
 		public override bool IsConnected => QuoteClient?.Connected == true && OrderClient != null;
-	    public DateTime? ServerTime => QuoteClient?.ServerTime;
+		public DateTime? ServerTime => QuoteClient?.ServerTime;
 		public ConcurrentDictionary<long, Position> Positions { get; } = new ConcurrentDictionary<long, Position>();
 
 		public QuoteClient QuoteClient;
-        public OrderClient OrderClient;
+		public OrderClient OrderClient;
 		private Action<string, int> _destinationSetter;
 		private readonly System.Timers.Timer _timer;
 
@@ -62,27 +62,27 @@ namespace TradeSystem.Mt4Integration
 			_timer.Stop();
 
 			QuoteClient.OnDisconnect -= QuoteClient_OnDisconnect;
-            QuoteClient.OnOrderUpdate -= QuoteClient_OnOrderUpdate;
-	        QuoteClient.OnQuote -= QuoteClient_OnQuote;
+			QuoteClient.OnOrderUpdate -= QuoteClient_OnOrderUpdate;
+			QuoteClient.OnQuote -= QuoteClient_OnQuote;
 
 			try
 			{
 				QuoteClient?.Disconnect();
 			}
-	        catch (Exception e)
-	        {
-		        Logger.Error($"{Description} account ERROR during disconnect", e);
+			catch (Exception e)
+			{
+				Logger.Error($"{Description} account ERROR during disconnect", e);
 			}
 
 			OnConnectionChanged(ConnectionStates.Disconnected);
 		}
 
-        public void Connect(AccountInfo accountInfo, Action<string, int> destinationSetter)
-        {
+		public void Connect(AccountInfo accountInfo, Action<string, int> destinationSetter)
+		{
 			_destinationSetter = destinationSetter;
-	        _accountInfo = accountInfo;
+			_accountInfo = accountInfo;
 
-	        Server[] slaves = null;
+			Server[] slaves = null;
 			try
 			{
 				if (Uri.TryCreate($"http://{_accountInfo.Srv}", UriKind.Absolute, out Uri ip))
@@ -92,7 +92,7 @@ namespace TradeSystem.Mt4Integration
 					var srv = QuoteClient.LoadSrv(_accountInfo.Srv, out slaves);
 					QuoteClient = CreateQuoteClient(_accountInfo, srv.Host, srv.Port);
 				}
-				
+
 				QuoteClient.Connect();
 			}
 			catch (Exception e)
@@ -104,52 +104,52 @@ namespace TradeSystem.Mt4Integration
 				if (QuoteClient?.Connected != true) ConnectSlaves(slaves, _accountInfo);
 			}
 
-	        OrderClient = new OrderClient(QuoteClient);
+			OrderClient = new OrderClient(QuoteClient);
 			OnConnectionChanged(IsConnected ? ConnectionStates.Connected : ConnectionStates.Error);
 			if (!IsConnected) return;
 
 			_timer.Start();
 
-            QuoteClient.OnOrderUpdate -= QuoteClient_OnOrderUpdate;
-            QuoteClient.OnOrderUpdate += QuoteClient_OnOrderUpdate;
-            QuoteClient.OnDisconnect -= QuoteClient_OnDisconnect;
-            QuoteClient.OnDisconnect += QuoteClient_OnDisconnect;
-	        QuoteClient.OnQuote -= QuoteClient_OnQuote;
-	        QuoteClient.OnQuote += QuoteClient_OnQuote;
+			QuoteClient.OnOrderUpdate -= QuoteClient_OnOrderUpdate;
+			QuoteClient.OnOrderUpdate += QuoteClient_OnOrderUpdate;
+			QuoteClient.OnDisconnect -= QuoteClient_OnDisconnect;
+			QuoteClient.OnDisconnect += QuoteClient_OnDisconnect;
+			QuoteClient.OnQuote -= QuoteClient_OnQuote;
+			QuoteClient.OnQuote += QuoteClient_OnQuote;
 
-	        lock (_symbols)
-	        {
-		        foreach (var symbol in _symbols)
-		        {
-			        if (QuoteClient.IsSubscribed(symbol)) continue;
-			        QuoteClient.Subscribe(symbol);
-		        }
-	        }
+			lock (_symbols)
+			{
+				foreach (var symbol in _symbols)
+				{
+					if (QuoteClient.IsSubscribed(symbol)) continue;
+					QuoteClient.Subscribe(symbol);
+				}
+			}
 
 			foreach (var o in QuoteClient.GetOpenedOrders().Where(o => o.Type == Op.Buy || o.Type == Op.Sell))
-            {
-                var pos = new Position
-                {
-                    Id = o.Ticket,
-                    Lots = (decimal) o.Lots / M(o.Symbol),
-                    Symbol = o.Symbol,
-                    Side = o.Type == Op.Buy ? Sides.Buy : Sides.Sell,
-                    RealVolume = (long) (o.Lots * GetSymbolInfo(o.Symbol).ContractSize * (o.Type == Op.Buy ? 1 : -1)),
-                    MagicNumber = o.MagicNumber,
-                    Profit = o.Profit,
-                    Commission = o.Commission,
-                    Swap = o.Swap,
-                    OpenTime = o.OpenTime,
-                    OpenPrice = (decimal)o.OpenPrice,
-                    Comment = o.Comment
-                };
-                Positions.AddOrUpdate(o.Ticket, key => pos, (key, old) => pos);
+			{
+				var pos = new Position
+				{
+					Id = o.Ticket,
+					Lots = (decimal)o.Lots / M(o.Symbol),
+					Symbol = o.Symbol,
+					Side = o.Type == Op.Buy ? Sides.Buy : Sides.Sell,
+					RealVolume = (long)(o.Lots * GetSymbolInfo(o.Symbol).ContractSize * (o.Type == Op.Buy ? 1 : -1)),
+					MagicNumber = o.MagicNumber,
+					Profit = o.Profit,
+					Commission = o.Commission,
+					Swap = o.Swap,
+					OpenTime = o.OpenTime,
+					OpenPrice = (decimal)o.OpenPrice,
+					Comment = o.Comment
+				};
+				Positions.AddOrUpdate(o.Ticket, key => pos, (key, old) => pos);
 			}
 
 			Broker = QuoteClient.Account.company;
-        }
+		}
 
-        public PositionResponse SendMarketOrderRequest(string symbol, Sides side, double lots, decimal price, decimal deviation, int magicNumber,
+		public PositionResponse SendMarketOrderRequest(string symbol, Sides side, double lots, decimal price, decimal deviation, int magicNumber,
 			string comment, int maxRetryCount, int retryPeriodInMs)
 		{
 			var retValue = new PositionResponse();
@@ -157,10 +157,10 @@ namespace TradeSystem.Mt4Integration
 			try
 			{
 				var op = side == Sides.Buy ? Op.Buy : Op.Sell;
-				var slippage = deviation == 0 ? 0 : Math.Floor((double) Math.Abs(deviation) / GetSymbolInfo(symbol).Point);
+				var slippage = deviation == 0 ? 0 : Math.Floor((double)Math.Abs(deviation) / GetSymbolInfo(symbol).Point);
 
-				var o = OrderClient.OrderSend(symbol, op, lots * (double) M(symbol), (double) price,
-					(int) slippage, 0, 0, comment, magicNumber, DateTime.MaxValue);
+				var o = OrderClient.OrderSend(symbol, op, lots * (double)M(symbol), (double)price,
+					(int)slippage, 0, 0, comment, magicNumber, DateTime.MaxValue);
 				Logger.Debug(
 					$"{_accountInfo.Description} Connector.SendMarketOrderRequest({symbol}, {side}, {lots}, {price}, {deviation}, {magicNumber}, {comment})" +
 					$" is successful with id {o.Ticket} and {(HiResDatetime.UtcNow - startTime).Milliseconds} ms of execution time");
@@ -186,7 +186,7 @@ namespace TradeSystem.Mt4Integration
 			catch (TradingAPI.MT4Server.TimeoutException e)
 			{
 				Logger.Error($"{_accountInfo.Description} Connector.SendMarketOrderRequest({symbol}, {side}, {lots}, {price}, {deviation}, {magicNumber}, {comment})" +
-				             $" TIMEOUT exception with {(HiResDatetime.UtcNow - startTime).Milliseconds} ms of execution time", e);
+							 $" TIMEOUT exception with {(HiResDatetime.UtcNow - startTime).Milliseconds} ms of execution time", e);
 				retValue.IsUnfinished = true;
 
 				_emailService.Send("ALERT - Market order TIMEOUT",
@@ -199,7 +199,7 @@ namespace TradeSystem.Mt4Integration
 			catch (Exception e)
 			{
 				Logger.Error($"{_accountInfo.Description} Connector.SendMarketOrderRequest({symbol}, {side}, {lots}, {price}, {deviation}, {magicNumber}, {comment})" +
-				             $" exception with {(HiResDatetime.UtcNow - startTime).Milliseconds} ms of execution time", e);
+							 $" exception with {(HiResDatetime.UtcNow - startTime).Milliseconds} ms of execution time", e);
 				if (maxRetryCount <= 0) return retValue;
 
 				Thread.Sleep(retryPeriodInMs);
@@ -216,9 +216,9 @@ namespace TradeSystem.Mt4Integration
 		public PositionResponse SendClosePositionRequests(Position position, int maxRetryCount, int retryPeriodInMs) =>
 			SendClosePositionRequestsAsync(position, maxRetryCount, retryPeriodInMs).Result;
 		public PositionResponse SendClosePositionRequests(long ticket, int maxRetryCount, int retryPeriodInMs)
-	    {
-		    if (!Positions.TryGetValue(ticket, out var position)) return new PositionResponse();
-		    if (position.IsClosed) return new PositionResponse {Pos = position};
+		{
+			if (!Positions.TryGetValue(ticket, out var position)) return new PositionResponse();
+			if (position.IsClosed) return new PositionResponse { Pos = position };
 			return SendClosePositionRequests(position, maxRetryCount, retryPeriodInMs);
 		}
 		private async Task<PositionResponse> SendClosePositionRequestsAsync(Position position, int maxRetryCount,
@@ -237,8 +237,8 @@ namespace TradeSystem.Mt4Integration
 				if (!pos.IsClosed)
 				{
 					var price = GetClosePrice(pos.Symbol, pos.Side);
-					var closing = _taskCompletionManager.CreateCompletableTask<Position>((int) pos.Id);
-					OrderClient.OrderCloseAsync(pos.Symbol, (int) pos.Id, (double) (pos.Lots * M(pos.Symbol)), price, 0);
+					var closing = _taskCompletionManager.CreateCompletableTask<Position>((int)pos.Id);
+					OrderClient.OrderCloseAsync(pos.Symbol, (int)pos.Id, (double)(pos.Lots * M(pos.Symbol)), price, 0);
 					pos = await closing;
 				}
 
@@ -254,9 +254,9 @@ namespace TradeSystem.Mt4Integration
 					Logger.Warn(
 						$"{_accountInfo.Description} Connector.SendClosePositionRequests({pos.Id}, {pos.Comment}, {pos.Lots})" +
 						$" is PARTIAL with {(HiResDatetime.UtcNow - startTime).Milliseconds} ms of execution time");
-					var partial = _taskCompletionManager.CreateCompletableTask<Position>((int) pos.NewPartialTicket);
+					var partial = _taskCompletionManager.CreateCompletableTask<Position>((int)pos.NewPartialTicket);
 					pos = Positions.GetOrAdd(pos.NewPartialTicket.Value, TryFindPosition(null, pos.NewPartialTicket.Value)) ??
-					      await partial ?? pos;
+						  await partial ?? pos;
 				}
 			}
 			catch (Exception e) when (e is TradingAPI.MT4Server.TimeoutException || e is System.TimeoutException)
@@ -272,7 +272,7 @@ namespace TradeSystem.Mt4Integration
 					{
 						Logger.Debug(
 							$"{_accountInfo.Description} Connector.SendClosePositionRequests({pos.Id}, {pos.Comment}, {pos.Lots}) is STILL successful though");
-						return new PositionResponse {Pos = pos};
+						return new PositionResponse { Pos = pos };
 					}
 					Logger.Warn(
 						$"{_accountInfo.Description} Connector.SendClosePositionRequests({pos.Id}, {pos.Comment}, {pos.Lots}) is STILL PARTIAL though");
@@ -286,7 +286,7 @@ namespace TradeSystem.Mt4Integration
 					$" exception with {(HiResDatetime.UtcNow - startTime).Milliseconds} ms of execution time", e);
 			}
 
-			if (maxRetryCount <= 0) return new PositionResponse {Pos = pos};
+			if (maxRetryCount <= 0) return new PositionResponse { Pos = pos };
 			Thread.Sleep(retryPeriodInMs);
 			return await SendClosePositionRequestsAsync(pos, --maxRetryCount, retryPeriodInMs);
 		}
@@ -298,7 +298,7 @@ namespace TradeSystem.Mt4Integration
 				var quote = QuoteClient.GetQuote(symbol);
 				if (quote != null) return side == Sides.Buy ? quote.Bid : quote.Ask;
 				if (_lastTicks.TryGetValue(symbol, out var lastTick))
-					return (double) (side == Sides.Buy ? lastTick.Bid : lastTick.Ask);
+					return (double)(side == Sides.Buy ? lastTick.Bid : lastTick.Ask);
 				return 0;
 			}
 			catch
@@ -335,7 +335,7 @@ namespace TradeSystem.Mt4Integration
 		{
 			try
 			{
-				var lastTick = _lastTicks.GetOrAdd(symbol, (Tick) null);
+				var lastTick = _lastTicks.GetOrAdd(symbol, (Tick)null);
 				if (lastTick != null) return lastTick;
 
 				Subscribe(symbol);
@@ -375,55 +375,55 @@ namespace TradeSystem.Mt4Integration
 		}
 
 		private void QuoteClient_OnQuote(object sender, QuoteEventArgs args)
-        {
-            var tick = new Tick
-            {
-                Symbol = args.Symbol,
-                Ask = (decimal)args.Ask,
-                Bid = (decimal)args.Bid,
-                Time = HiResDatetime.UtcNow,
-            };
-            _lastTicks.AddOrUpdate(args.Symbol, key => tick, (key, old) => tick);
-            OnNewTick(new NewTick {Tick = tick});
-        }
+		{
+			var tick = new Tick
+			{
+				Symbol = args.Symbol,
+				Ask = (decimal)args.Ask,
+				Bid = (decimal)args.Bid,
+				Time = HiResDatetime.UtcNow,
+			};
+			_lastTicks.AddOrUpdate(args.Symbol, key => tick, (key, old) => tick);
+			OnNewTick(new NewTick { Tick = tick });
+		}
 
 		private void QuoteClient_OnDisconnect(object sender, DisconnectEventArgs args)
 		{
 			OnConnectionChanged(ConnectionStates.Error);
-            Logger.Error($"{_accountInfo.Description} account ({_accountInfo.User}) disconnected", args.Exception);
-	        if (!_emailService.IsRolloverTime())
+			Logger.Error($"{_accountInfo.Description} account ({_accountInfo.User}) disconnected", args.Exception);
+			if (!_emailService.IsRolloverTime())
 			{
 				_emailService.Send("ALERT - account disconnected",
 					$"{_accountInfo.Description}" + Environment.NewLine +
 					$"{args.Exception}");
 			}
 			while (!IsConnected)
-            {
-	            Connect(_accountInfo, _destinationSetter);
-	            if (IsConnected)
+			{
+				Connect(_accountInfo, _destinationSetter);
+				if (IsConnected)
 				{
 					_taskCompletionManager.RemoveAll(t => true, new System.TimeoutException());
 					return;
-	            }
+				}
 				Thread.Sleep(new TimeSpan(0, 1, 0));
 			}
 		}
 
-        private void QuoteClient_OnOrderUpdate(object sender, OrderUpdateEventArgs update)
+		private void QuoteClient_OnOrderUpdate(object sender, OrderUpdateEventArgs update)
 		{
 			Mt4Logger.Log(this, update);
 			var o = update.Order;
-			if (!new[] {UpdateAction.PositionOpen, UpdateAction.PositionClose, UpdateAction.PendingFill}.Contains(update.Action)) return;
-	        if (!new[] {Op.Buy, Op.Sell}.Contains(o.Type)) return;
+			if (!new[] { UpdateAction.PositionOpen, UpdateAction.PositionClose, UpdateAction.PendingFill }.Contains(update.Action)) return;
+			if (!new[] { Op.Buy, Op.Sell }.Contains(o.Type)) return;
 			if (update.Action == UpdateAction.PositionClose) o = GetHistoryOrder(o.Ticket) ?? o;
-	        var position = UpdatePosition(o);
-	        _taskCompletionManager.SetResult(o.Ticket, position);
+			var position = UpdatePosition(o);
+			_taskCompletionManager.SetResult(o.Ticket, position);
 
 			OnNewPosition(new NewPosition
-            {
-                AccountType = AccountTypes.Mt4,
-                Position = position,
-                Action = update.Action == UpdateAction.PositionClose ? NewPositionActions.Close : NewPositionActions.Open,
+			{
+				AccountType = AccountTypes.Mt4,
+				Position = position,
+				Action = update.Action == UpdateAction.PositionClose ? NewPositionActions.Close : NewPositionActions.Open,
 			});
 		}
 		private Position UpdatePosition(Order order)
@@ -450,7 +450,7 @@ namespace TradeSystem.Mt4Integration
 			return Positions.AddOrUpdate(order.Ticket, t => position, (t, old) =>
 			{
 				old.CloseTime = order.CloseTime;
-				old.ClosePrice = (decimal) order.ClosePrice;
+				old.ClosePrice = (decimal)order.ClosePrice;
 				old.IsClosed = order.Ex.close_time > 0;
 				old.Profit = order.Profit;
 				old.Commission = order.Commission;
@@ -461,37 +461,46 @@ namespace TradeSystem.Mt4Integration
 		}
 
 		private SymbolInfo GetSymbolInfo(string symbol)
-        {
-            return _symbolInfos.GetOrAdd(symbol, s => QuoteClient.GetSymbolInfo(symbol));
-        }
+		{
+			return _symbolInfos.GetOrAdd(symbol, s => QuoteClient.GetSymbolInfo(symbol));
+		}
 
-        private QuoteClient CreateQuoteClient(AccountInfo accountInfo, string host, int port)
-        {
-	        _destinationSetter?.Invoke(host, port);
-	        var client = new QuoteClient(accountInfo.User, accountInfo.Password,
-		        accountInfo.LocalPortForProxy.HasValue ? "localhost" : host,
-		        accountInfo.LocalPortForProxy ?? port);
-	        return client;
-        }
+		private QuoteClient CreateQuoteClient(AccountInfo accountInfo, string host, int port)
+		{
+			_destinationSetter?.Invoke(host, port);
 
-        private void ConnectSlaves(Server[] slaves, AccountInfo accountInfo)
-        {
+            if (accountInfo.ProxyEnable)
+            {
+				return new QuoteClient(accountInfo.User, accountInfo.Password,
+				accountInfo.LocalPortForProxy.HasValue ? "localhost" : host,
+				accountInfo.LocalPortForProxy ?? port, accountInfo.ProxyHost, accountInfo.ProxyPort, accountInfo.ProxyUser, accountInfo.ProxyPassword, accountInfo.ProxyType);
+			}
+			else
+			{
+				return new QuoteClient(accountInfo.User, accountInfo.Password,
+				accountInfo.LocalPortForProxy.HasValue ? "localhost" : host,
+				accountInfo.LocalPortForProxy ?? port);
+			}
+		}
+
+		private void ConnectSlaves(Server[] slaves, AccountInfo accountInfo)
+		{
 			if (Uri.TryCreate($"http://{_accountInfo.Srv}", UriKind.Absolute, out Uri ip)) return;
 			if (slaves?.Any() != true) return;
-            foreach (var srv in slaves)
-            {
-                try
+			foreach (var srv in slaves)
+			{
+				try
 				{
 					QuoteClient = CreateQuoteClient(accountInfo, srv.Host, srv.Port);
-                    QuoteClient.Connect();
-                    if (IsConnected) return;
-                }
-                catch (Exception e)
-                {
-                    Logger.Error($"{_accountInfo.Description} account ({_accountInfo.User}) FAILED to connect", e);
-                }
-            }
-        }
+					QuoteClient.Connect();
+					if (IsConnected) return;
+				}
+				catch (Exception e)
+				{
+					Logger.Error($"{_accountInfo.Description} account ({_accountInfo.User}) FAILED to connect", e);
+				}
+			}
+		}
 
 		private decimal M(string symbol)
 		{
@@ -500,17 +509,17 @@ namespace TradeSystem.Mt4Integration
 		}
 
 		public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
+		{
+			Dispose(true);
+			GC.SuppressFinalize(this);
+		}
 
-        protected virtual void Dispose(bool disposing)
-        {
-            QuoteClient?.Disconnect();;
-        }
+		protected virtual void Dispose(bool disposing)
+		{
+			QuoteClient?.Disconnect(); ;
+		}
 
-        private void CheckMargin()
+		private void CheckMargin()
 		{
 			try
 			{
@@ -529,8 +538,8 @@ namespace TradeSystem.Mt4Integration
 		}
 
 		~Connector()
-        {
-            Dispose(false);
-        }
-    }
+		{
+			Dispose(false);
+		}
+	}
 }
