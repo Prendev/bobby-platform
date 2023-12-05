@@ -58,6 +58,7 @@ namespace TradeSystem.Orchestration.Services
 					User = account.MetaTraderAccount.User,
 					Password = account.MetaTraderAccount.Password,
 					Srv = account.MetaTraderAccount.MetaTraderPlatform.SrvFilePath,
+					BackupSrv = account.MetaTraderAccount.MetaTraderPlatform.BackupSrvFilePath,
 					InstrumentConfigs = account.MetaTraderAccount.InstrumentConfigs?
 						.ToDictionary(ic => ic.Symbol, ic => ic.Multiplier ?? 1),
 					ProxyEnable = account.MetaTraderAccount.ProxyEnable,

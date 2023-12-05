@@ -18,6 +18,7 @@ namespace TradeSystem.Mt4Integration
         public int User { get; set; }
         public string Password { get; set; }
         public string Srv { get; set; }
+        public string BackupSrv { get; set; }
 
 		public int? LocalPortForProxy { get; set; }
 		public Dictionary<string, decimal> InstrumentConfigs { get; set; }

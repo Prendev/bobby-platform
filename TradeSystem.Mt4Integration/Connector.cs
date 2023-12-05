@@ -81,28 +81,8 @@ namespace TradeSystem.Mt4Integration
 		{
 			_destinationSetter = destinationSetter;
 			_accountInfo = accountInfo;
-
-			Server[] slaves = null;
-			try
-			{
-				if (Uri.TryCreate($"http://{_accountInfo.Srv}", UriKind.Absolute, out Uri ip))
-					QuoteClient = CreateQuoteClient(_accountInfo, ip.Host, ip.IsDefaultPort ? 443 : ip.Port);
-				else
-				{
-					var srv = QuoteClient.LoadSrv(_accountInfo.Srv, out slaves);
-					QuoteClient = CreateQuoteClient(_accountInfo, srv.Host, srv.Port);
-				}
-
-				QuoteClient.Connect();
-			}
-			catch (Exception e)
-			{
-				Logger.Error($"{_accountInfo.Description} account ({_accountInfo.User}) FAILED to connect", e);
-			}
-			finally
-			{
-				if (QuoteClient?.Connected != true) ConnectSlaves(slaves, _accountInfo);
-			}
+			ConnectToQuoteClient(_accountInfo.Srv);
+			if (QuoteClient?.Connected != true && !string.IsNullOrEmpty(_accountInfo.BackupSrv)) ConnectToQuoteClient(_accountInfo.BackupSrv);
 
 			OrderClient = new OrderClient(QuoteClient);
 			OnConnectionChanged(IsConnected ? ConnectionStates.Connected : ConnectionStates.Error);
@@ -483,9 +463,34 @@ namespace TradeSystem.Mt4Integration
 			}
 		}
 
-		private void ConnectSlaves(Server[] slaves, AccountInfo accountInfo)
+		private void ConnectToQuoteClient(string srvFilePath)
 		{
-			if (Uri.TryCreate($"http://{_accountInfo.Srv}", UriKind.Absolute, out Uri ip)) return;
+			Server[] slaves = null;
+			try
+			{
+				if (Uri.TryCreate($"http://{srvFilePath}", UriKind.Absolute, out Uri ip))
+					QuoteClient = CreateQuoteClient(_accountInfo, ip.Host, ip.IsDefaultPort ? 443 : ip.Port);
+				else
+				{
+					var srv = QuoteClient.LoadSrv(srvFilePath, out slaves);
+					QuoteClient = CreateQuoteClient(_accountInfo, srv.Host, srv.Port);
+				}
+
+				QuoteClient.Connect();
+			}
+			catch (Exception e)
+			{
+				Logger.Error($"{_accountInfo.Description} account ({_accountInfo.User}) FAILED to connect with srvFilePath: {srvFilePath}", e);
+			}
+			finally
+			{
+				if (QuoteClient?.Connected != true) ConnectSlaves(slaves, _accountInfo, srvFilePath);
+			}
+		}
+
+		private void ConnectSlaves(Server[] slaves, AccountInfo accountInfo, string srvFilePath)
+		{
+			if (Uri.TryCreate($"http://{srvFilePath}", UriKind.Absolute, out Uri ip)) return;
 			if (slaves?.Any() != true) return;
 			foreach (var srv in slaves)
 			{
