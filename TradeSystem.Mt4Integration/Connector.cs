@@ -21,8 +21,6 @@ namespace TradeSystem.Mt4Integration
 			string comment, int maxRetryCount, int retryPeriodInMs);
 
 		PositionResponse SendClosePositionRequests(Position position, int maxRetryCount, int retryPeriodInMs);
-
-		ConcurrentDictionary<long, Position> Positions { get; }
 	}
 
 	public class Connector : ConnectorBase, IConnector
@@ -41,7 +39,6 @@ namespace TradeSystem.Mt4Integration
 		public override string Description => _accountInfo?.Description;
 		public override bool IsConnected => QuoteClient?.Connected == true && OrderClient != null;
 	    public DateTime? ServerTime => QuoteClient?.ServerTime;
-		public ConcurrentDictionary<long, Position> Positions { get; } = new ConcurrentDictionary<long, Position>();
 
 		public QuoteClient QuoteClient;
         public OrderClient OrderClient;
@@ -145,9 +142,11 @@ namespace TradeSystem.Mt4Integration
                 };
                 Positions.AddOrUpdate(o.Ticket, key => pos, (key, old) => pos);
 			}
-		}
 
-		public PositionResponse SendMarketOrderRequest(string symbol, Sides side, double lots, decimal price, decimal deviation, int magicNumber,
+			Broker = QuoteClient.Account.company;
+        }
+
+        public PositionResponse SendMarketOrderRequest(string symbol, Sides side, double lots, decimal price, decimal deviation, int magicNumber,
 			string comment, int maxRetryCount, int retryPeriodInMs)
 		{
 			var retValue = new PositionResponse();

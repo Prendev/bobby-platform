@@ -1,8 +1,9 @@
 ﻿using System;
+using System.Collections.Concurrent;
 
 namespace TradeSystem.Common.Integration
 {
-	public abstract class ConnectorBase : IConnector
+    public abstract class ConnectorBase : IConnector
 	{
 		private ConnectionStates _lastState = ConnectionStates.Disconnected;
 
@@ -16,6 +17,11 @@ namespace TradeSystem.Common.Integration
 		public double Margin { get; protected set; }
 		public double MarginLevel { get; protected set; }
 		public double FreeMargin { get; protected set; }
+
+        public string Broker { get; protected set; }
+
+        public ConcurrentDictionary<long, Position> Positions { get; protected set; } =
+	        new ConcurrentDictionary<long, Position>();
 
 		/// <summary>
 		/// Do NOT use it, only from Account

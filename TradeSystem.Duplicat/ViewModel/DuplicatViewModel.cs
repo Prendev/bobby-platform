@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Timers;
 using Microsoft.EntityFrameworkCore;
 using TradeSystem.Common;
+using TradeSystem.Common.Integration;
 using TradeSystem.Common.Services;
 using TradeSystem.Data;
 using TradeSystem.Data.Models;
@@ -67,8 +69,9 @@ namespace TradeSystem.Duplicat.ViewModel
 		private readonly List<Tuple<IBindingList, ListChangedEventHandler>> _listChangedDelegates =
 			new List<Tuple<IBindingList, ListChangedEventHandler>>();
 		private readonly Timer _autoSaveTimer = new Timer { AutoReset = true };
+		private readonly Timer _autoLoadPosition = new Timer { AutoReset = true };
 
-		public BindingList<MetaTraderPlatform> MtPlatforms { get; private set; }
+        public BindingList<MetaTraderPlatform> MtPlatforms { get; private set; }
 		public BindingList<CTraderPlatform> CtPlatforms { get; private set; }
 		public BindingList<MetaTraderAccount> MtAccounts { get; private set; }
 		public BindingList<MetaTraderInstrumentConfig> MtInstrumentConfigs { get; private set; }
@@ -82,8 +85,11 @@ namespace TradeSystem.Duplicat.ViewModel
 
 
 		public BindingList<Profile> Profiles { get; private set; }
-		public BindingList<Account> Accounts { get; private set; }
-		public BindingList<Aggregator> Aggregators { get; private set; }
+		public BindingList<CustomGroup> CustomGroups { get; private set; }
+        public BindingList<MappingTable> MappingTables { get; private set; }
+        public BindingList<Account> Accounts { get; private set; }
+
+        public BindingList<Aggregator> Aggregators { get; private set; }
 		public BindingList<AggregatorAccount> AggregatorAccounts { get; private set; }
 		public BindingList<Proxy> Proxies { get; private set; }
 		public BindingList<ProfileProxy> ProfileProxies { get; private set; }
@@ -108,8 +114,16 @@ namespace TradeSystem.Duplicat.ViewModel
 
 		public event DataContextChangedEventHandler DataContextChanged;
 
-		public int AutoSavePeriodInMin { get => Get<int>(); set => Set(value); }
-		public bool IsConfigReadonly { get => Get<bool>(); set => Set(value); }
+        public List<CustomGroup> AllCustomGroups { get; private set; }
+		public ObservableCollection<Account> ConnectedMtAccounts { get; private set; } = new ObservableCollection<Account>();
+		public BindingList<SymbolStatus> SymbolStatusVisibilityList { get; private set; } = new BindingList<SymbolStatus>();
+       
+        public void OnNewTick(Tick e) => Tick?.Invoke(this, e);
+        public event EventHandler<Tick> Tick;
+
+        public int AutoSavePeriodInMin { get => Get<int>(); set => Set(value); }
+        public int AutoLoadPositionsInSec { get => Get<int>(); set => Set(value); }
+        public bool IsConfigReadonly { get => Get<bool>(); set => Set(value); }
 		public bool IsCopierConfigAddEnabled { get => Get<bool>(); set => Set(value); }
 		public bool IsCopierPositionAddEnabled { get => Get<bool>(); set => Set(value); }
 		public bool IsLoading { get => Get<bool>(); set => Set(value); }
@@ -126,7 +140,9 @@ namespace TradeSystem.Duplicat.ViewModel
 		public SaveStates SaveState { get => Get<SaveStates>(); set => Set(value); }
 
 		public Profile SelectedProfile { get => Get<Profile>(); set => Set(value); }
-		public MetaTraderAccount SelectedMt4Account { get => Get<MetaTraderAccount>(); set => Set(value); }
+		public CustomGroup SelectedCustomGroup { get => Get<CustomGroup>(); set => Set(value); }
+		public ObservableCollection<MappingTable> SelectedMappingTables { get => Get<ObservableCollection<MappingTable>>(); set => Set(value); }
+        public MetaTraderAccount SelectedMt4Account { get => Get<MetaTraderAccount>(); set => Set(value); }
 		public BacktesterAccount SelectedBacktesterAccount { get => Get<BacktesterAccount>(); set => Set(value); }
 		public Aggregator SelectedAggregator { get => Get<Aggregator>(); set => Set(value); }
 		public Slave SelectedSlave { get => Get<Slave>(); set => Set(value); }
@@ -140,7 +156,9 @@ namespace TradeSystem.Duplicat.ViewModel
 			IXmlService xmlService)
 		{
 			AutoSavePeriodInMin = 1;
-			_autoSaveTimer.Elapsed += (sender, args) =>
+			AutoLoadPositionsInSec = 1;
+
+            _autoSaveTimer.Elapsed += (sender, args) =>
 			{
 				if (AutoSavePeriodInMin <= 0)
 				{
@@ -150,6 +168,22 @@ namespace TradeSystem.Duplicat.ViewModel
 				_autoSaveTimer.Interval = 1000 * 60 * AutoSavePeriodInMin;
 				SaveCommand(false);
 			};
+
+			_autoLoadPosition.Elapsed += (sender, args) =>
+			{
+				if (AutoLoadPositionsInSec <= 0)
+				{
+					_autoLoadPosition.Interval = 1000 * 1;
+					return;
+				}
+				_autoLoadPosition.Interval = 1000 * AutoLoadPositionsInSec;
+				if (IsConnected && ConnectedMtAccounts.Any())
+				{
+					UpdateMtAccount();
+					OnNewTick(new Tick());
+				}
+			};
+
 			_backtesterService = backtesterService;
 			_xmlService = xmlService;
 			_orchestrator = orchestrator;
@@ -157,17 +191,21 @@ namespace TradeSystem.Duplicat.ViewModel
 		}
 
 		private void DuplicatViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
-		{
-			if (e.PropertyName == nameof(SelectedPushing))
+        {
+			if (e.PropertyName == nameof(AutoLoadPositionsInSec))
 			{
-				SetPushingEnabled();
-				if (SelectedPushing != null)
-				{
-					SelectedPushing.ConnectionChanged -= SelectedPushing_ConnectionChanged;
-					SelectedPushing.ConnectionChanged += SelectedPushing_ConnectionChanged;
-				}
-			}
-			if (e.PropertyName == nameof(SelectedSpoofing))
+                _autoLoadPosition.Interval = 1000 * AutoLoadPositionsInSec == 0 ? 1 : AutoLoadPositionsInSec;
+            }
+			if (e.PropertyName == nameof(SelectedPushing))
+            {
+                SetPushingEnabled();
+                if (SelectedPushing != null)
+                {
+                    SelectedPushing.ConnectionChanged -= SelectedPushing_ConnectionChanged;
+                    SelectedPushing.ConnectionChanged += SelectedPushing_ConnectionChanged;
+                }
+            }
+            if (e.PropertyName == nameof(SelectedSpoofing))
 			{
 				SetSpoofingEnabled();
 				if (SelectedSpoofing != null)
@@ -192,7 +230,95 @@ namespace TradeSystem.Duplicat.ViewModel
 			}
 		}
 
-		private void SelectedPushing_ConnectionChanged(object sender, Common.Integration.ConnectionStates connectionStates)
+		private void CreateMtAccount()
+		{
+            foreach (var acc in Accounts)
+            {
+	            if (acc.ConnectionState != ConnectionStates.Connected) continue;
+                if (acc.MetaTraderAccount != null) ConnectedMtAccounts.Add(acc);
+				else if (acc.FixApiAccount != null && acc.Connector is FixApiIntegration.Connector c &&
+				         c.GeneralConnector is Communication.Mt5.Mt5Connector)
+	                ConnectedMtAccounts.Add(acc);
+            }
+
+            var allMappingTables = AllCustomGroups.SelectMany(cg => cg.MappingTables).ToList();
+
+            var mtAccountPositions = ConnectedMtAccounts.Select(cma => new MtAccount
+            {
+	            Broker = cma.Connector.Broker,
+	            AccountName = cma.MetaTraderAccount?.Description ?? cma.FixApiAccount?.Description ?? "",
+	            Positions = cma.Connector.Positions
+		            .Select(p =>
+			            new MtPosition
+			            {
+				            SymbolStatus = GetSymbol(allMappingTables, p.Value.Symbol, cma.Connector.Broker),
+				            LotSize = p.Value.Lots, Side = p.Value.Side
+			            })
+		            .ToList()
+            }).OrderBy(x => x.AccountName).ToList();
+
+            var brokerSymbols = mtAccountPositions
+	            .GroupBy(x => x.Broker,
+		            x => x.Positions.Select(p => p.SymbolStatus),
+		            (key, s) =>
+			            new BrokerSymbolStatus
+			            {
+				            Broker = key,
+				            SymbolStatuses = s
+					            .SelectMany(x => x)
+					            .Distinct()
+					            .OrderBy(x => x.Symbol)
+					            .ToList()
+			            }).ToList();
+
+            var symbolStatuses = brokerSymbols
+	            .SelectMany(x => x.SymbolStatuses)
+	            .Distinct()
+	            .OrderBy(symbolStatus => symbolStatus.Symbol)
+	            .ToList();
+
+            foreach (var symbolStatus in symbolStatuses)
+            {
+				SymbolStatusVisibilityList.Add(symbolStatus);
+            }
+        }
+
+        private void UpdateMtAccount()
+        {
+			var connectedAccount = Accounts.Where(a => ConnectedMtAccounts.Any(ca => ca.Id == a.Id)).ToList();
+
+            var allMappingTables = AllCustomGroups.SelectMany(cg => cg.MappingTables).ToList();
+
+            var mtAccountPositions = connectedAccount.Select(cma => new MtAccount
+            {
+                Broker = cma.Connector.Broker,
+                AccountName = cma.MetaTraderAccount?.Description ?? cma.FixApiAccount?.Description ?? "",
+                Positions = cma.Connector.Positions.Select(p => new MtPosition { SymbolStatus = GetSymbol(allMappingTables, p.Value.Symbol, cma.Connector.Broker), LotSize = p.Value.Lots, Side = p.Value.Side }).ToList(),
+            }).OrderBy(x => x.AccountName).ToList();
+
+            var brokerSymbols = mtAccountPositions.GroupBy(mtap => mtap.Broker, mtap => mtap.Positions.Select(p => p.SymbolStatus),
+               (key, s) => new BrokerSymbolStatus { Broker = key, SymbolStatuses = s.SelectMany(symbolStatus => symbolStatus).Distinct().OrderBy(symbolStatus => symbolStatus.Symbol).ToList() }).ToList();
+
+            var symbolStatuses = brokerSymbols.SelectMany(bs => bs.SymbolStatuses).Distinct().OrderBy(symbolStatus => symbolStatus.Symbol).ToList();
+
+            foreach (var symbolStatus in symbolStatuses)
+            {
+                if (!SymbolStatusVisibilityList.Any(item => item.Equals(symbolStatus)))
+                {
+                    SymbolStatusVisibilityList.Add(symbolStatus);
+                }
+            }
+        }
+
+
+        private SymbolStatus GetSymbol(List<MappingTable> allMappingTables, string symbol, string broker)
+        {
+            var mappingTable = allMappingTables.FirstOrDefault(mt => mt.BrokerName == broker && mt.Instrument.ToLower() == symbol.ToLower());
+
+            return mappingTable != null ? new SymbolStatus { Symbol = mappingTable.CustomGroup.GroupName, IsCreatedGroup = true } : new SymbolStatus { Symbol = symbol, IsCreatedGroup = false };
+        }
+
+        private void SelectedPushing_ConnectionChanged(object sender, ConnectionStates connectionStates)
 		{
 			SetPushingEnabled();
 		}
@@ -201,7 +327,7 @@ namespace TradeSystem.Duplicat.ViewModel
 			IsPushingEnabled = SelectedPushing?.IsConnected == true && AreCopiersStarted;
 		}
 
-		private void SelectedSpoofing_ConnectionChanged(object sender, Common.Integration.ConnectionStates connectionStates)
+		private void SelectedSpoofing_ConnectionChanged(object sender, ConnectionStates connectionStates)
 		{
 			SetSpoofingEnabled();
 		}
@@ -217,15 +343,32 @@ namespace TradeSystem.Duplicat.ViewModel
 			LoadLocals();
 		}
 
+		public void LoadAllCustomGroups()
+		{
+			List<CustomGroup> customGroups;
+			using (var context = new DuplicatContext())
+			{
+                context.CustomGroups.Include(cg => cg.MappingTables).OrderBy(e => e.ToString()).Load();
+                customGroups = new List<CustomGroup>(context.CustomGroups.ToList());
+            }
+
+            AllCustomGroups = customGroups;
+        }
+
 		private void LoadLocals()
 		{
-			foreach (var propertyChangedEventHandler in _propertyChangedDelegates) PropertyChanged -= propertyChangedEventHandler;
+			LoadAllCustomGroups();
+
+            foreach (var propertyChangedEventHandler in _propertyChangedDelegates) PropertyChanged -= propertyChangedEventHandler;
 			_propertyChangedDelegates.Clear();
 			foreach (var listChanged in _listChangedDelegates) listChanged.Item1.ListChanged -= listChanged.Item2;
 			_listChangedDelegates.Clear();
 
 			var p = SelectedProfile?.Id;
-			_duplicatContext.MetaTraderPlatforms.OrderBy(e => e.ToString()).Load();
+			var selectedCustomGroupId = SelectedCustomGroup?.Id;
+
+
+            _duplicatContext.MetaTraderPlatforms.OrderBy(e => e.ToString()).Load();
 			_duplicatContext.CTraderPlatforms.OrderBy(e => e.ToString()).Load();
 			_duplicatContext.MetaTraderAccounts.Include(e => e.InstrumentConfigs).OrderBy(e => e.ToString()).Load();
 			_duplicatContext.MetaTraderInstrumentConfigs.OrderBy(e => e.ToString()).Load();
@@ -238,11 +381,15 @@ namespace TradeSystem.Duplicat.ViewModel
 			_duplicatContext.BacktesterInstrumentConfigs.OrderBy(e => e.ToString()).Load();
 
 			_duplicatContext.Profiles.OrderBy(e => e.ToString()).Load();
-			_duplicatContext.Proxies.OrderBy(e => e.ToString()).Load();
+
+			_duplicatContext.CustomGroups.OrderBy(e => e.ToString()).Load();
+			_duplicatContext.MappingTables.Where(mp => mp.CustomGroupId == selectedCustomGroupId).Include(mp => mp.CustomGroup).Load();
+			
+            _duplicatContext.Proxies.OrderBy(e => e.ToString()).Load();
 			_duplicatContext.ProfileProxies.Where(e => e.ProfileId == p).OrderBy(e => e.ToString()).Load();
-			_duplicatContext.Accounts.Where(e => e.ProfileId == p).OrderBy(e => e.ToString())
-				.Include(e => e.StratHubArbPositions).ThenInclude(e => e.Position).Load();
-			_duplicatContext.Aggregators.Where(e => e.ProfileId == p).OrderBy(e => e.ToString()).Load();
+            _duplicatContext.Accounts.Where(e => e.ProfileId == p).OrderBy(e => e.ToString())
+                .Include(e => e.StratHubArbPositions).ThenInclude(e => e.Position).Load();
+            _duplicatContext.Aggregators.Where(e => e.ProfileId == p).OrderBy(e => e.ToString()).Load();
 			_duplicatContext.AggregatorAccounts.Where(e => e.Aggregator.ProfileId == p).OrderBy(e => e.ToString()).Load();
 
 			_duplicatContext.Masters.Where(e => e.ProfileId == p).OrderBy(e => e.ToString()).Load();
@@ -289,12 +436,15 @@ namespace TradeSystem.Duplicat.ViewModel
 
 			Profiles = _duplicatContext.Profiles.Local.ToBindingList();
 			Accounts = _duplicatContext.Accounts.Local.ToBindingList();
-			Aggregators = _duplicatContext.Aggregators.Local.ToBindingList();
+            Aggregators = _duplicatContext.Aggregators.Local.ToBindingList();
 			AggregatorAccounts = ToFilteredBindingList(_duplicatContext.AggregatorAccounts.Local, e => e.Aggregator, () => SelectedAggregator);
 			Proxies = _duplicatContext.Proxies.Local.ToBindingList();
 			ProfileProxies = _duplicatContext.ProfileProxies.Local.ToBindingList();
 
-			Masters = _duplicatContext.Masters.Local.ToBindingList();
+            CustomGroups = _duplicatContext.CustomGroups.Local.ToBindingList();
+            MappingTables = _duplicatContext.MappingTables.Local.ToBindingList();
+
+            Masters = _duplicatContext.Masters.Local.ToBindingList();
 			Slaves = _duplicatContext.Slaves.Local.ToBindingList();
 			SymbolMappings = ToFilteredBindingList(_duplicatContext.SymbolMappings.Local, e => e.Slave, () => SelectedSlave);
 			Copiers = ToFilteredBindingList(_duplicatContext.Copiers.Local, e => e.Slave, () => SelectedSlave);
@@ -313,13 +463,49 @@ namespace TradeSystem.Duplicat.ViewModel
 			NewsArbs = _duplicatContext.NewsArbs.Local.ToBindingList();
 			MMs = _duplicatContext.MMs.Local.ToBindingList();
 
-			_duplicatContext.Profiles.Local.CollectionChanged -= Profiles_CollectionChanged;
-			_duplicatContext.Profiles.Local.CollectionChanged += Profiles_CollectionChanged;
-			PropertyChanged -= DuplicatViewModel_PropertyChanged;
-			PropertyChanged += DuplicatViewModel_PropertyChanged;
-		}
+            _duplicatContext.Profiles.Local.CollectionChanged -= Profiles_CollectionChanged;
+            _duplicatContext.Profiles.Local.CollectionChanged += Profiles_CollectionChanged;
 
-		private void Profiles_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+            _duplicatContext.CustomGroups.Local.CollectionChanged -= CustomGroups_CollectionChanged;
+            _duplicatContext.CustomGroups.Local.CollectionChanged += CustomGroups_CollectionChanged;
+
+            _duplicatContext.MappingTables.Local.CollectionChanged -= MappingTables_CollectionChanged;
+            _duplicatContext.MappingTables.Local.CollectionChanged += MappingTables_CollectionChanged;
+
+			if (SelectedMappingTables != null)
+            {
+                foreach (var mappingTable in SelectedMappingTables)
+                {
+                    mappingTable.PropertyChanged -= MappingTable_PropertyChanged;
+                    mappingTable.PropertyChanged += MappingTable_PropertyChanged;
+                }
+            }
+
+            PropertyChanged -= DuplicatViewModel_PropertyChanged;
+			PropertyChanged += DuplicatViewModel_PropertyChanged;
+        }
+
+        private void MappingTables_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            foreach (var mappingTable in MappingTables)
+            {
+				mappingTable.PropertyChanged -= MappingTable_PropertyChanged;
+				mappingTable.PropertyChanged += MappingTable_PropertyChanged;
+            }
+        }
+
+        private void MappingTable_PropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+            LoadLocals();
+        }
+
+        private void CustomGroups_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            if (SelectedCustomGroup != null && _duplicatContext.CustomGroups.Local.Any(l => l.Id == SelectedCustomGroup.Id)) return;
+            LoadLocals();
+        }
+
+        private void Profiles_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
 		{
 			if (SelectedProfile != null && _duplicatContext.Profiles.Local.Any(l => l.Id == SelectedProfile.Id)) return;
 			LoadLocals();

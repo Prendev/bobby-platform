@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Serialization;
 using KGySoft.CoreLibraries;
+using mtapi.mt5;
 using TradeSystem.Collections;
 using TradeSystem.Common.Integration;
 using TradeSystem.Common.Services;
@@ -20,6 +21,8 @@ using TradeSystem.Communication.Strategies;
 using IConnector = TradeSystem.Communication.Interfaces.IConnector;
 using OrderResponse = TradeSystem.Common.Integration.OrderResponse;
 using TimeInForce = TradeSystem.Communication.TimeInForce;
+using OrderType = TradeSystem.Communication.OrderType;
+using Mt5Ot = mtapi.mt5.OrderType;
 
 namespace TradeSystem.FixApiIntegration
 {
@@ -43,6 +46,8 @@ namespace TradeSystem.FixApiIntegration
 		public readonly ConnectionManager ConnectionManager;
 
 		public event EventHandler<QuoteSet> NewQuote;
+
+		private MT5API Mt5Api => (GeneralConnector as Mt5Connector)?.Mt5Api;
 
 		public Connector(
 			AccountInfo accountInfo,
@@ -79,6 +84,33 @@ namespace TradeSystem.FixApiIntegration
 			{
 				await ConnectionManager.ConnectAsync();
 				_timer.Start();
+
+
+				if (Mt5Api == null) return;
+				foreach (var o in Mt5Api.GetOpenedOrders()
+					         .Where(o => o.OrderType == Mt5Ot.Buy || o.OrderType == Mt5Ot.Sell))
+				{
+					var pos = new Position
+					{
+						Id = o.Ticket,
+						Lots = (decimal)o.Lots / M(o.Symbol),
+						Symbol = o.Symbol,
+						Side = o.OrderType == Mt5Ot.Buy ? Sides.Buy : Sides.Sell,
+						RealVolume = (long)(o.Lots * GetSymbolInfo(o.Symbol).ContractSize * (o.OrderType == Mt5Ot.Buy ? 1 : -1)),
+						MagicNumber = o.ExpertId,
+						Profit = o.Profit,
+						Commission = o.Commission,
+						Swap = o.Swap,
+						OpenTime = o.OpenTime,
+						OpenPrice = (decimal)o.OpenPrice,
+						Comment = o.Comment
+					};
+					Positions.AddOrUpdate(o.Ticket, key => pos, (key, old) => pos);
+				}
+
+				Mt5Api.OnOrderUpdate -= QuoteClient_OnOrderUpdate;
+				Mt5Api.OnOrderUpdate += QuoteClient_OnOrderUpdate;
+				Broker = Mt5Api.AccountCompanyName;
 			}
 			catch (Exception e)
 			{
@@ -730,6 +762,64 @@ namespace TradeSystem.FixApiIntegration
 			catch
 			{
 			}
+		}
+
+
+		private void QuoteClient_OnOrderUpdate(MT5API sender, OrderUpdate update)
+		{
+			var o = update.Order;
+			if (!new[] { Mt5Ot.Buy, Mt5Ot.Sell }.Contains(o.OrderType)) return;
+			var position = UpdatePosition(o);
+
+			OnNewPosition(new NewPosition
+			{
+				AccountType = AccountTypes.Mt4,
+				Position = position,
+				Action = position.IsClosed ? NewPositionActions.Close : NewPositionActions.Open,
+			});
+		}
+		private Position UpdatePosition(Order order)
+		{
+			if (order == null) return null;
+			var position = new Position
+			{
+				Id = order.Ticket,
+				Lots = (decimal)order.Lots / M(order.Symbol),
+				RealVolume = (long)(order.Lots * GetSymbolInfo(order.Symbol).ContractSize * (order.OrderType == Mt5Ot.Buy ? 1 : -1)),
+				Symbol = order.Symbol,
+				Side = order.OrderType == Mt5Ot.Buy ? Sides.Buy : Sides.Sell,
+				OpenTime = order.OpenTime,
+				OpenPrice = (decimal)order.OpenPrice,
+				CloseTime = order.CloseTime,
+				ClosePrice = (decimal)order.ClosePrice,
+				IsClosed = (int)order.State > 1,
+				MagicNumber = order.ExpertId,
+				Profit = order.Profit,
+				Commission = order.Commission,
+				Swap = order.Swap,
+				Comment = order.Comment
+			};
+			return Positions.AddOrUpdate(order.Ticket, t => position, (t, old) =>
+			{
+				old.CloseTime = order.CloseTime;
+				old.ClosePrice = (decimal)order.ClosePrice;
+				old.IsClosed = (int)order.State > 1;
+				old.Profit = order.Profit;
+				old.Commission = order.Commission;
+				old.Swap = order.Swap;
+				old.Comment = order.Comment;
+				return old;
+			});
+		}
+
+		private decimal M(string symbol)
+		{
+			return 1;
+		}
+
+		private SymbolInfo GetSymbolInfo(string symbol)
+		{
+			return Mt5Api.Symbols.Infos.TryGetValue(symbol, out var info) ? info : null;
 		}
 	}
 }

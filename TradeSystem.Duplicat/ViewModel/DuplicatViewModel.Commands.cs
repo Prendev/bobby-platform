@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections;
 using System.Configuration;
 using System.Diagnostics;
@@ -15,8 +16,21 @@ namespace TradeSystem.Duplicat.ViewModel
 			SaveState = SaveStates.Default;
             try
             {
-                _duplicatContext.SaveChanges();
-	            if (log) Logger.Debug($"Database is saved");
+				var modifiedDbSets = _duplicatContext.ChangeTracker.Entries()
+				.Where(e => e.State == EntityState.Modified)
+				.Select(e => e.Entity.GetType().Name) // This gives you the entity type name
+				.Distinct()
+				.ToList();
+
+				_duplicatContext.SaveChanges();
+
+				if (modifiedDbSets.Any(ds => ds == nameof(MappingTable) || ds == nameof(CustomGroup)))
+				{
+					InitDataContext();
+					DataContextChanged?.Invoke();
+				}
+
+				if (log) Logger.Debug($"Database is saved");
 				SaveState = SaveStates.Success;
 			}
             catch (Exception e)
@@ -42,16 +56,21 @@ namespace TradeSystem.Duplicat.ViewModel
 				await _orchestrator.StartTickers(_duplicatContext);
 				await _orchestrator.StartStrategies(_duplicatContext);
 
-				AreCopiersStarted = true;
+                CreateMtAccount();
+
+                AreCopiersStarted = true;
 				AreTickersStarted = true;
 				AreStrategiesStarted = true;
 				IsLoading = false;
 				IsConfigReadonly = true;
 				IsConnected = true;
 
-				_autoSaveTimer.Interval = 1000 * 60 * Math.Max(AutoSavePeriodInMin, 1);
-				_autoSaveTimer.Start();
-			}
+                _autoSaveTimer.Interval = 1000 * 60 * Math.Max(AutoSavePeriodInMin, 1);
+                _autoSaveTimer.Start();
+
+                _autoLoadPosition.Interval = 1000 * Math.Max(AutoLoadPositionsInSec, 1);
+                _autoLoadPosition.Start();
+            }
 			catch (Exception e)
 			{
 				Logger.Error("DuplicatViewModel.QuickStartCommand exception", e);
@@ -66,13 +85,18 @@ namespace TradeSystem.Duplicat.ViewModel
 		        IsConfigReadonly = true;
 		        await _orchestrator.Connect(_duplicatContext);
 
-		        IsLoading = false;
+                CreateMtAccount();
+
+                IsLoading = false;
 		        IsConfigReadonly = true;
 		        IsConnected = true;
 
-		        _autoSaveTimer.Interval = 1000 * 60 * Math.Max(AutoSavePeriodInMin, 1);
-				_autoSaveTimer.Start();
-	        }
+                _autoSaveTimer.Interval = 1000 * 60 * Math.Max(AutoSavePeriodInMin, 1);
+                _autoSaveTimer.Start();
+
+                _autoLoadPosition.Interval = 1000 * Math.Max(AutoLoadPositionsInSec, 1);
+                _autoLoadPosition.Start();
+            }
 	        catch (Exception e)
 	        {
 		        Logger.Error("DuplicatViewModel.ConnectCommand exception", e);
@@ -95,7 +119,10 @@ namespace TradeSystem.Duplicat.ViewModel
 		        IsLoading = false;
 		        IsConfigReadonly = false;
 		        IsConnected = false;
-	        }
+
+                ConnectedMtAccounts.Clear();
+				SymbolStatusVisibilityList.Clear();
+            }
 	        catch (Exception e)
 	        {
 		        Logger.Error("DuplicatViewModel.DisconnectCommand exception", e);
@@ -125,7 +152,18 @@ namespace TradeSystem.Duplicat.ViewModel
             DataContextChanged?.Invoke();
 		}
 
-		public async void HeatUp()
+
+        public void LoadCustomGroupesCommand(CustomGroup customGroup)
+        {
+            if (IsConfigReadonly) return;
+            if (IsLoading) return;
+            SelectedCustomGroup = customGroup;
+
+            InitDataContext();
+			DataContextChanged?.Invoke();
+		}
+
+        public async void HeatUp()
 		{
 			await _orchestrator.HeatUp();
 		}

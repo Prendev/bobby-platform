@@ -307,7 +307,7 @@ namespace TradeSystem.Orchestration.Services
 						    if (reopenPos == null) return Task.CompletedTask;
 
 						    reopenPos.MasterTicket = e.Position.Id;
-						    var newPos = slaveConnector.SendMarketOrderRequest(symbol, side, lots, e.Position.MagicNumber,
+						    var newPos = slaveConnector.SendMarketOrderRequest(symbol, side, lots, (int)e.Position.MagicNumber,
 							    copier.TradeComment, copier.MaxRetryCount, copier.RetryPeriodInMs);
 						    if (newPos?.Pos == null) return Task.CompletedTask;
 
@@ -317,7 +317,7 @@ namespace TradeSystem.Orchestration.Services
 					    }
 					    else
 					    {
-						    var newPos = slaveConnector.SendMarketOrderRequest(symbol, side, lots, e.Position.MagicNumber,
+						    var newPos = slaveConnector.SendMarketOrderRequest(symbol, side, lots, (int)e.Position.MagicNumber,
 							    copier.TradeComment, copier.MaxRetryCount, copier.RetryPeriodInMs);
 
 						    if (newPos == null)
@@ -376,7 +376,7 @@ namespace TradeSystem.Orchestration.Services
 		    {
 			    if (pos.IsClosed) return;
 			    var hedge = connector.SendMarketOrderRequest(pos.Symbol, pos.Side.Inv(),
-				    (double) pos.Lots, pos.MagicNumber, null, copier.MaxRetryCount, copier.RetryPeriodInMs);
+				    (double) pos.Lots, (int)pos.MagicNumber, null, copier.MaxRetryCount, copier.RetryPeriodInMs);
 			    if (hedge == null)
 				{
 					CopyLogger.Log(copier.Slave, pos.Symbol, pos.Side, NewPositionActions.Close,

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 
 namespace TradeSystem.Common.Integration
 {
@@ -6,6 +7,7 @@ namespace TradeSystem.Common.Integration
 	{
 		int Id { get; }
 		string Description { get; }
+		string Broker { get; }
         bool IsConnected { get; }
 
         double Balance { get; }
@@ -14,6 +16,7 @@ namespace TradeSystem.Common.Integration
 		double Margin { get; }
         double MarginLevel { get; }
         double FreeMargin { get; }
+        ConcurrentDictionary<long, Position> Positions { get; }
 
 		event EventHandler<NewPosition> NewPosition;
 		event EventHandler<LimitFill> LimitFill;

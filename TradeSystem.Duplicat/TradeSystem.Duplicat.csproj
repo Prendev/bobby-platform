@@ -232,6 +232,18 @@
     <Compile Include="Views\_Accounts\BtAccountsUserControl.Designer.cs">
       <DependentUpon>BtAccountsUserControl.cs</DependentUpon>
     </Compile>
+    <Compile Include="Views\_Strategies\CustomMappingUserControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Views\_Strategies\CustomMappingUserControl.Designer.cs">
+      <DependentUpon>CustomMappingUserControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\_Strategies\ExposureUserControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Views\_Strategies\ExposureUserControl.Designer.cs">
+      <DependentUpon>ExposureUserControl.cs</DependentUpon>
+    </Compile>
     <Compile Include="Views\_Strategies\HubArbUserControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -358,6 +370,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Views\_Accounts\BtAccountsUserControl.resx">
       <DependentUpon>BtAccountsUserControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\_Strategies\CustomMappingUserControl.resx">
+      <DependentUpon>CustomMappingUserControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\_Strategies\ExposureUserControl.resx">
+      <DependentUpon>ExposureUserControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\_Strategies\HubArbUserControl.resx">
       <DependentUpon>HubArbUserControl.cs</DependentUpon>
@@ -529,6 +547,10 @@
     <ProjectReference Include="..\TradeSystem.FixApiIntegration\TradeSystem.FixApiIntegration.csproj">
       <Project>{7f7f4b22-f0bd-4375-baf4-ffafe9b3a853}</Project>
       <Name>TradeSystem.FixApiIntegration</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TradeSystem.Mt4Integration\TradeSystem.Mt4Integration.csproj">
+      <Project>{73a2679e-f17e-4484-8874-461d3fc895dd}</Project>
+      <Name>TradeSystem.Mt4Integration</Name>
     </ProjectReference>
     <ProjectReference Include="..\TradeSystem.Orchestration\TradeSystem.Orchestration.csproj">
       <Project>{7FCD6735-2115-4096-B5C9-E5CD7B4A3C1C}</Project>
