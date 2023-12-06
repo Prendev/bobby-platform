@@ -45,12 +45,12 @@ namespace TradeSystem.Orchestration.Services
 			}
 
 			if (!(account.Connector is Mt4Integration.Connector) ||
-			    account.Connector.Id != account.MetaTraderAccountId)
+				account.Connector.Id != account.MetaTraderAccountId)
 				account.Connector = null;
 
 			if (account.Connector == null)
 				account.Connector = new Mt4Integration.Connector(_emailService);
-			((Mt4Integration.Connector) account.Connector)
+			((Mt4Integration.Connector)account.Connector)
 				.Connect(new Mt4Integration.AccountInfo()
 				{
 					DbId = account.MetaTraderAccount.Id,
@@ -58,15 +58,25 @@ namespace TradeSystem.Orchestration.Services
 					User = account.MetaTraderAccount.User,
 					Password = account.MetaTraderAccount.Password,
 					Srv = account.MetaTraderAccount.MetaTraderPlatform.SrvFilePath,
+					BackupSrv = account.MetaTraderAccount.MetaTraderPlatform.BackupSrvFilePath,
 					InstrumentConfigs = account.MetaTraderAccount.InstrumentConfigs?
-						.ToDictionary(ic => ic.Symbol, ic => ic.Multiplier ?? 1)
+						.ToDictionary(ic => ic.Symbol, ic => ic.Multiplier ?? 1),
+					ProxyEnable = account.MetaTraderAccount.ProxyEnable,
+					ProxyHost = account.MetaTraderAccount.ProxyHost,
+					ProxyPort = account.MetaTraderAccount.ProxyPort,
+					ProxyType = account.MetaTraderAccount.ProxyType == Proxy.ProxyTypes.Socks5 ? 
+					TradingAPI.MT4Server.ProxyTypes.Socks5 : account.MetaTraderAccount.ProxyType == Proxy.ProxyTypes.Socks4 
+					? TradingAPI.MT4Server.ProxyTypes.Socks4 : TradingAPI.MT4Server.ProxyTypes.Https,
+					ProxyUser = account.MetaTraderAccount.ProxyUser ?? string.Empty,
+					ProxyPassword = account.MetaTraderAccount.ProxyPassword ?? string.Empty,
+
 				}, DestinationSetter);
 		}
 
 		private void ConenctCtAccount(Account account)
 		{
 			if (!(account.Connector is CTraderIntegration.Connector) ||
-			    account.Connector.Id != account.CTraderAccountId)
+				account.Connector.Id != account.CTraderAccountId)
 				account.Connector = null;
 
 			if (account.Connector == null)
@@ -96,7 +106,7 @@ namespace TradeSystem.Orchestration.Services
 		private async Task ConnectFixAccount(Account account)
 		{
 			if (!(account.Connector is FixApiIntegration.Connector) ||
-			    account.Connector.Id != account.FixApiAccountId)
+				account.Connector.Id != account.FixApiAccountId)
 				account.Connector = null;
 
 			if (account.Connector == null)
@@ -107,13 +117,13 @@ namespace TradeSystem.Orchestration.Services
 					ConfigPath = account.FixApiAccount.ConfigPath,
 				}, _emailService);
 
-			await ((FixApiIntegration.Connector) account.Connector).Connect();
+			await ((FixApiIntegration.Connector)account.Connector).Connect();
 		}
 
 		private async Task ConnectCqgClientApiAccount(Account account)
 		{
 			if (!(account.Connector is CqgClientApiIntegration.Connector) ||
-			    account.Connector.Id != account.CqgClientApiAccountId)
+				account.Connector.Id != account.CqgClientApiAccountId)
 				account.Connector = null;
 
 			if (account.Connector == null)
@@ -130,7 +140,7 @@ namespace TradeSystem.Orchestration.Services
 		private async Task ConnectIbAccount(Account account)
 		{
 			if (!(account.Connector is IbIntegration.Connector) ||
-			    account.Connector.Id != account.IbAccountId)
+				account.Connector.Id != account.IbAccountId)
 				account.Connector = null;
 
 			if (account.Connector == null)
@@ -148,7 +158,7 @@ namespace TradeSystem.Orchestration.Services
 		private void ConnectBtAccount(Account account)
 		{
 			if (!(account.Connector is Backtester.Connector) ||
-			    account.Connector.Id != account.BacktesterAccountId)
+				account.Connector.Id != account.BacktesterAccountId)
 				account.Connector = null;
 
 			if (account.Connector == null)

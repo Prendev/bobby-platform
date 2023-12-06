@@ -32,5 +32,9 @@ namespace TradeSystem.Data.Models
 		[InvisibleColumn] public DateTime? LastOrderTime { get; set; }
 		public List<AggregatorAccount> Aggregators { get; } = new List<AggregatorAccount>();
 		public List<StratHubArbPosition> StratHubArbPositions { get; } = new List<StratHubArbPosition>();
+
+		public bool IsAlert { get; set; }
+		public double MarginLevelAlert { get; set; }
+		public double MarginLevelWarning { get; set; }
 	}
 }
