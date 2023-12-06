@@ -120,8 +120,9 @@ namespace TradeSystem.Duplicat.ViewModel
 		        IsConfigReadonly = false;
 		        IsConnected = false;
 
-                ConnectedMtAccounts.Clear();
+				ConnectedMtAccounts.Clear();
 				SymbolStatusVisibilityList.Clear();
+				_symbolStatusSelectAll.IsVisible = false;
             }
 	        catch (Exception e)
 	        {

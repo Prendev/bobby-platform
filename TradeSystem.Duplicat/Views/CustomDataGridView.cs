@@ -81,7 +81,7 @@ namespace TradeSystem.Duplicat.Views
 			if ((ModifierKeys & Keys.Alt) == 0 || (ModifierKeys & Keys.Control) == 0) return;
 			Rows[e.RowIndex].Cells[e.ColumnIndex].Value = null;
 		}
-		
+
 		public void AddComboBoxColumn<T>(BindingList<T> list, string name = null, string header = null) where T : BaseEntity
 		{
 			name = name ?? typeof(T).Name;
@@ -123,7 +123,20 @@ namespace TradeSystem.Duplicat.Views
 			if (!(bindingList[e.RowIndex] is Account account)) return;
 
 			if (account.ConnectionState == ConnectionStates.Connected)
-				Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.LightGreen;
+			{
+				if (account.IsAlert && account.MarginLevel < account.MarginLevelAlert && !(account.Margin == 0 && account.MarginLevel == 0))
+				{
+					Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.MediumVioletRed;
+				}
+				else if (account.MarginLevel < account.MarginLevelWarning && !(account.Margin == 0 && account.MarginLevel == 0))
+				{
+					Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.Yellow;
+				}
+				else
+				{
+					Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.LightGreen;
+				}
+			}
 			else if (account.ConnectionState == ConnectionStates.Error)
 				Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.PaleVioletRed;
 			else Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.White;
