@@ -203,6 +203,9 @@ namespace TradeSystem.Orchestration.Services
 		{
 			var symbol = GetSlaveSymbol(e, slave);
 			if (string.IsNullOrWhiteSpace(symbol)) return Task.FromResult(0);
+			if (slave.SymbolMappingOnly && slave.SymbolMappings?.Any(m => m.From == e.Position.Symbol) != true)
+				return Task.FromResult(0);
+
 			if (slave.Account.MetaTraderAccountId.HasValue) return CopyToMtAccount(e, slave, symbol);
 			if (slave.Account.CTraderAccountId.HasValue) return CopyToCtAccount(e, slave, symbol);
 			if (slave.Account.FixApiAccountId.HasValue) return CopyToFixAccount(e, slave, symbol);
