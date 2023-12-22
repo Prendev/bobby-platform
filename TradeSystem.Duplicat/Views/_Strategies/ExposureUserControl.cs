@@ -42,8 +42,6 @@ namespace TradeSystem.Duplicat.Views
 			cdgExposureVisibility.CurrentCellDirtyStateChanged += cdgExposureVisibility_CurrentCellDirtyStateChanged;
 			cdgExposureVisibility.CellFormatting += cdgExposureVisibility_CellFormatting;
 
-			nudThrottling.AddBinding("Value", _viewModel, nameof(_viewModel.AutoLoadPositionsInSec));
-
 			_viewModel.PropertyChanged += DuplicatViewModel_PropertyChanged;
 			_viewModel.SymbolStatusVisibilityList.ListChanged += DuplicatViewModel_SymbolStatusVisibilityList_ListChanged;
 

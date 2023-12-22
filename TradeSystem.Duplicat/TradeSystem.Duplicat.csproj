@@ -220,6 +220,9 @@
     <Compile Include="Views\CopiersUserControl.Designer.cs">
       <DependentUpon>CopiersUserControl.cs</DependentUpon>
     </Compile>
+    <Compile Include="Views\SortableFilterableDataGridView.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Views\ExportUserControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -362,6 +365,12 @@
     <Compile Include="Views\_Strategies\SpoofingUserControl.Designer.cs">
       <DependentUpon>SpoofingUserControl.cs</DependentUpon>
     </Compile>
+    <Compile Include="Views\_Strategies\TradeUserControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Views\_Strategies\TradeUserControl.Designer.cs">
+      <DependentUpon>TradeUserControl.cs</DependentUpon>
+    </Compile>
     <EmbeddedResource Include="Views\AggregatorUserControl.resx">
       <DependentUpon>AggregatorUserControl.cs</DependentUpon>
     </EmbeddedResource>
@@ -443,6 +452,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Views\_Strategies\SpoofingUserControl.resx">
       <DependentUpon>SpoofingUserControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\_Strategies\TradeUserControl.resx">
+      <DependentUpon>TradeUserControl.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="log4net.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

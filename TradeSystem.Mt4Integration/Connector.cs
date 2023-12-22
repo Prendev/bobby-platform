@@ -214,9 +214,9 @@ namespace TradeSystem.Mt4Integration
 				if (!pos.IsClosed)
 				{
 					var price = GetClosePrice(pos.Symbol, pos.Side);
-					var closing = _taskCompletionManager.CreateCompletableTask<Position>((int)pos.Id);
-					OrderClient.OrderCloseAsync(pos.Symbol, (int)pos.Id, (double)(pos.Lots * M(pos.Symbol)), price, 0);
-					pos = await closing;
+					var closedOrder = OrderClient.OrderClose(pos.Symbol, (int)pos.Id, (double)(pos.Lots * M(pos.Symbol)), price, 0);
+
+					pos = UpdatePosition(closedOrder);
 				}
 
 				if (pos.IsClosed)

@@ -101,6 +101,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Attributes\DisplayPriorityAttribute.cs" />
+    <Compile Include="Attributes\SortableColumnAttribute.cs" />
+    <Compile Include="Attributes\FilterableColumnAttribute.cs" />
     <Compile Include="Attributes\ReadOnlyColumnAttribute.cs" />
     <Compile Include="Attributes\InvisibleColumnAttribute.cs" />
     <Compile Include="BaseNotifyPropertyChange.cs" />

@@ -11,6 +11,7 @@ using TradeSystem.Common.Integration;
 using TradeSystem.Common.Services;
 using TradeSystem.Data;
 using TradeSystem.Data.Models;
+using TradeSystem.Mt4Integration;
 using TradeSystem.Orchestration;
 using TradeSystem.Orchestration.Services;
 using IBindingList = System.ComponentModel.IBindingList;
@@ -72,7 +73,7 @@ namespace TradeSystem.Duplicat.ViewModel
 		private readonly Timer _autoLoadPosition = new Timer { AutoReset = true };
 		private readonly SymbolStatus _symbolStatusSelectAll = new SymbolStatus { Symbol = "Select All" };
 
-	public BindingList<MetaTraderPlatform> MtPlatforms { get; private set; }
+		public BindingList<MetaTraderPlatform> MtPlatforms { get; private set; }
 		public BindingList<CTraderPlatform> CtPlatforms { get; private set; }
 		public BindingList<MetaTraderAccount> MtAccounts { get; private set; }
 		public BindingList<MetaTraderInstrumentConfig> MtInstrumentConfigs { get; private set; }
@@ -87,9 +88,9 @@ namespace TradeSystem.Duplicat.ViewModel
 
 		public BindingList<Profile> Profiles { get; private set; }
 		public BindingList<CustomGroup> CustomGroups { get; private set; }
-        public BindingList<MappingTable> MappingTables { get; private set; }
-        public BindingList<TwilioSetting> TwilioSettings { get; private set; }
-        public BindingList<PhoneSettings> PhoneSettings { get; private set; }
+		public BindingList<MappingTable> MappingTables { get; private set; }
+		public BindingList<TwilioSetting> TwilioSettings { get; private set; }
+		public BindingList<PhoneSettings> PhoneSettings { get; private set; }
 		public BindingList<Account> Accounts { get; private set; }
 
 		public BindingList<Aggregator> Aggregators { get; private set; }
@@ -119,6 +120,7 @@ namespace TradeSystem.Duplicat.ViewModel
 
 		public List<CustomGroup> AllCustomGroups { get; private set; }
 		public ObservableCollection<Account> ConnectedMtAccounts { get; private set; } = new ObservableCollection<Account>();
+		public BindingList<MtAccountPosition> MtPositions { get; private set; } = new BindingList<MtAccountPosition>();
 		public List<MtAccount> MtAccountPositions { get; private set; } = new List<MtAccount>();
 		public BindingList<SymbolStatus> SymbolStatusVisibilityList { get; private set; } = new BindingList<SymbolStatus>();
 
@@ -127,6 +129,7 @@ namespace TradeSystem.Duplicat.ViewModel
 
 		public int AutoSavePeriodInMin { get => Get<int>(); set => Set(value); }
 		public int AutoLoadPositionsInSec { get => Get<int>(); set => Set(value); }
+		public string TradeFilter { get => Get<string>(); set => Set(value); }
 		public bool IsConfigReadonly { get => Get<bool>(); set => Set(value); }
 		public bool IsCopierConfigAddEnabled { get => Get<bool>(); set => Set(value); }
 		public bool IsCopierPositionAddEnabled { get => Get<bool>(); set => Set(value); }
@@ -160,7 +163,7 @@ namespace TradeSystem.Duplicat.ViewModel
 			IXmlService xmlService)
 		{
 			AutoSavePeriodInMin = 1;
-			AutoLoadPositionsInSec = 1;
+			AutoLoadPositionsInSec = 5;
 
 			_autoSaveTimer.Elapsed += (sender, args) =>
 			{
@@ -192,6 +195,11 @@ namespace TradeSystem.Duplicat.ViewModel
 			_xmlService = xmlService;
 			_orchestrator = orchestrator;
 			InitDataContext();
+		}
+
+		public void CloseOrder(MtAccountPosition mtAccountPosition)
+		{
+			(mtAccountPosition.Account.Connector as Connector).SendClosePositionRequests(mtAccountPosition.Position);
 		}
 
 		private void DuplicatViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -244,6 +252,7 @@ namespace TradeSystem.Duplicat.ViewModel
 				}
 			}
 
+			UpdateMtPositions();
 			UpdateMtAccountPositions();
 
 			var brokerSymbols = MtAccountPositions.GroupBy(mtap => mtap.Broker, mtap => mtap.Positions.Select(p => p.SymbolStatus),
@@ -259,6 +268,27 @@ namespace TradeSystem.Duplicat.ViewModel
 			}
 		}
 
+		public void UpdateMtPositions()
+		{
+			var mtPositions = ConnectedMtAccounts
+							.SelectMany(cma => cma.Connector.Positions
+							.Where(p => !p.Value.IsClosed).Select(p => new MtAccountPosition
+							{
+								Account = cma,
+								AccountName = cma.MetaTraderAccount?.Description,
+								Position = p.Value,
+								PositionName = p.Value.Symbol,
+								CreatedAt = p.Value.OpenTime.ToString("yyyy.MM.dd. HH:mm:ss"),
+							}));
+
+			MtPositions.Clear();
+
+			foreach (var item in mtPositions)
+			{
+				MtPositions.Add(item);
+			}
+		}
+
 		private void UpdateMtAccount()
 		{
 			UpdateMtAccountPositions();
@@ -271,7 +301,7 @@ namespace TradeSystem.Duplicat.ViewModel
 
 			var symbolStatusesToKeep = symbolStatuses.Except(SymbolStatusVisibilityList).ToList();
 			var symbolStatusesToRemove = SymbolStatusVisibilityList.Except(symbolStatuses).ToList();
-			
+
 			if (symbolStatusesToKeep.Any())
 			{
 				foreach (var symbolStatus in symbolStatusesToKeep)
@@ -432,10 +462,10 @@ namespace TradeSystem.Duplicat.ViewModel
 			Proxies = _duplicatContext.Proxies.Local.ToBindingList();
 			ProfileProxies = _duplicatContext.ProfileProxies.Local.ToBindingList();
 
-            CustomGroups = _duplicatContext.CustomGroups.Local.ToBindingList();
-            MappingTables = _duplicatContext.MappingTables.Local.ToBindingList();
-            TwilioSettings = _duplicatContext.TwilioSettings.Local.ToBindingList();
-            PhoneSettings = _duplicatContext.PhoneSettings.Local.ToBindingList();
+			CustomGroups = _duplicatContext.CustomGroups.Local.ToBindingList();
+			MappingTables = _duplicatContext.MappingTables.Local.ToBindingList();
+			TwilioSettings = _duplicatContext.TwilioSettings.Local.ToBindingList();
+			PhoneSettings = _duplicatContext.PhoneSettings.Local.ToBindingList();
 
 			Masters = _duplicatContext.Masters.Local.ToBindingList();
 			Slaves = _duplicatContext.Slaves.Local.ToBindingList();

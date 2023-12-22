@@ -43,12 +43,15 @@ namespace TradeSystem.Duplicat.Views
 			ThreadPool.GetMinThreads(out var wokerThreads, out var completionPortThreads);
 			Logger.Debug($"ThreadPool.GetMinThreads(out {wokerThreads}, out {completionPortThreads})");
 			newsCalendarService.Start();
+
 		}
 
 		private void InitView()
 		{
 			//btnRestore.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsConfigReadonly), true);
 			nudAutoSave.AddBinding("Value", _viewModel, nameof(_viewModel.AutoSavePeriodInMin));
+			nudThrottling.AddBinding("Value", _viewModel, nameof(_viewModel.AutoLoadPositionsInSec));
+
 			gbControl.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsLoading), true);
             btnConnect.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsConnected), true);
             btnDisconnect.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsConnected));
