@@ -14,18 +14,16 @@ namespace TradeSystem.Duplicat.Views._Accounts
 		public void AttachDataSources()
 		{
 			dgvPhoneSettings.DataSource = _viewModel.PhoneSettings;
-
 			dgvTwilioSettings.DataSource = _viewModel.TwilioSettings;
-			dgvTwilioSettings.AllowUserToAddRows = false;
-			dgvTwilioSettings.RowHeadersVisible = false;
 		}
 
 		public void InitView(DuplicatViewModel viewModel)
 		{
             _viewModel = viewModel;
 
+			dgvTwilioSettings.AllowUserToAddRows = false;
+			dgvTwilioSettings.RowHeadersVisible = false;
 			dgvTwilioSettings.AddBinding("ReadOnly", _viewModel, nameof(_viewModel.IsConfigReadonly));
-			dgvPhoneSettings.AddBinding("ReadOnly", _viewModel, nameof(_viewModel.IsConfigReadonly));
 		}
 	}
 }
