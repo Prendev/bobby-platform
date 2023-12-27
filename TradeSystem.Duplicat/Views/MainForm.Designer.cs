@@ -78,6 +78,10 @@
 			this.rtbAll = new System.Windows.Forms.RichTextBox();
 			this.tlpMain = new System.Windows.Forms.TableLayoutPanel();
 			this.gbControl = new System.Windows.Forms.GroupBox();
+			this.btnStart = new System.Windows.Forms.Button();
+			this.btnStop = new System.Windows.Forms.Button();
+			this.lbThrottling = new System.Windows.Forms.Label();
+			this.nudThrottling = new System.Windows.Forms.NumericUpDown();
 			this.label2 = new System.Windows.Forms.Label();
 			this.nudAutoSave = new System.Windows.Forms.NumericUpDown();
 			this.btnQuickStart = new System.Windows.Forms.Button();
@@ -86,8 +90,7 @@
 			this.btnDisconnect = new System.Windows.Forms.Button();
 			this.btnConnect = new System.Windows.Forms.Button();
 			this.btnSave = new System.Windows.Forms.Button();
-			this.lbThrottling = new System.Windows.Forms.Label();
-			this.nudThrottling = new System.Windows.Forms.NumericUpDown();
+			this.pCopiers = new System.Windows.Forms.Panel();
 			this.profilesUserControl = new TradeSystem.Duplicat.Views.ProfilesUserControl();
 			this.mtAccountsUserControl = new TradeSystem.Duplicat.Views.MtAccountsUserControl();
 			this.ftAccountsUserControl = new TradeSystem.Duplicat.Views.FtAccountsUserControl();
@@ -150,8 +153,9 @@
 			this.tabPage3.SuspendLayout();
 			this.tlpMain.SuspendLayout();
 			this.gbControl.SuspendLayout();
-			((System.ComponentModel.ISupportInitialize)(this.nudAutoSave)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.nudThrottling)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.nudAutoSave)).BeginInit();
+			this.pCopiers.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// tabControlMain
@@ -756,6 +760,7 @@
 			// 
 			// gbControl
 			// 
+			this.gbControl.Controls.Add(this.pCopiers);
 			this.gbControl.Controls.Add(this.lbThrottling);
 			this.gbControl.Controls.Add(this.nudThrottling);
 			this.gbControl.Controls.Add(this.label2);
@@ -773,6 +778,49 @@
 			this.gbControl.TabIndex = 1;
 			this.gbControl.TabStop = false;
 			this.gbControl.Text = "Main control panel - [version]";
+			// 
+			// btnStart
+			// 
+			this.btnStart.Enabled = false;
+			this.btnStart.Location = new System.Drawing.Point(2, 0);
+			this.btnStart.Name = "btnStart";
+			this.btnStart.Size = new System.Drawing.Size(150, 23);
+			this.btnStart.TabIndex = 32;
+			this.btnStart.Text = "Start";
+			this.btnStart.UseVisualStyleBackColor = true;
+			// 
+			// btnStop
+			// 
+			this.btnStop.Location = new System.Drawing.Point(158, 0);
+			this.btnStop.Name = "btnStop";
+			this.btnStop.Size = new System.Drawing.Size(150, 23);
+			this.btnStop.TabIndex = 33;
+			this.btnStop.Text = "Stop";
+			this.btnStop.UseVisualStyleBackColor = true;
+			// 
+			// lbThrottling
+			// 
+			this.lbThrottling.AutoSize = true;
+			this.lbThrottling.Location = new System.Drawing.Point(165, 49);
+			this.lbThrottling.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+			this.lbThrottling.Name = "lbThrottling";
+			this.lbThrottling.Size = new System.Drawing.Size(91, 15);
+			this.lbThrottling.TabIndex = 31;
+			this.lbThrottling.Text = "Throttling (sec):";
+			this.lbThrottling.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			// 
+			// nudThrottling
+			// 
+			this.nudThrottling.Location = new System.Drawing.Point(262, 47);
+			this.nudThrottling.Margin = new System.Windows.Forms.Padding(2);
+			this.nudThrottling.Name = "nudThrottling";
+			this.nudThrottling.Size = new System.Drawing.Size(38, 20);
+			this.nudThrottling.TabIndex = 30;
+			this.nudThrottling.Value = new decimal(new int[] {
+            5,
+            0,
+            0,
+            0});
 			// 
 			// label2
 			// 
@@ -858,29 +906,14 @@
 			this.btnSave.Text = "Save config changes";
 			this.btnSave.UseVisualStyleBackColor = true;
 			// 
-			// lbThrottling
+			// pCopiers
 			// 
-			this.lbThrottling.AutoSize = true;
-			this.lbThrottling.Location = new System.Drawing.Point(165, 49);
-			this.lbThrottling.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-			this.lbThrottling.Name = "lbThrottling";
-			this.lbThrottling.Size = new System.Drawing.Size(91, 15);
-			this.lbThrottling.TabIndex = 31;
-			this.lbThrottling.Text = "Throttling (sec):";
-			this.lbThrottling.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-			// 
-			// nudThrottling
-			// 
-			this.nudThrottling.Location = new System.Drawing.Point(262, 47);
-			this.nudThrottling.Margin = new System.Windows.Forms.Padding(2);
-			this.nudThrottling.Name = "nudThrottling";
-			this.nudThrottling.Size = new System.Drawing.Size(38, 20);
-			this.nudThrottling.TabIndex = 30;
-			this.nudThrottling.Value = new decimal(new int[] {
-            5,
-            0,
-            0,
-            0});
+			this.pCopiers.Controls.Add(this.btnStart);
+			this.pCopiers.Controls.Add(this.btnStop);
+			this.pCopiers.Location = new System.Drawing.Point(614, 45);
+			this.pCopiers.Name = "pCopiers";
+			this.pCopiers.Size = new System.Drawing.Size(308, 25);
+			this.pCopiers.TabIndex = 32;
 			// 
 			// profilesUserControl
 			// 
@@ -1039,6 +1072,7 @@
 			this.tradeUserControl1.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.tradeUserControl1.Location = new System.Drawing.Point(3, 3);
 			this.tradeUserControl1.Name = "tradeUserControl1";
+			this.tradeUserControl1.Padding = new System.Windows.Forms.Padding(6, 0, 6, 0);
 			this.tradeUserControl1.Size = new System.Drawing.Size(902, 357);
 			this.tradeUserControl1.TabIndex = 0;
 			// 
@@ -1120,8 +1154,9 @@
 			this.tlpMain.ResumeLayout(false);
 			this.gbControl.ResumeLayout(false);
 			this.gbControl.PerformLayout();
-			((System.ComponentModel.ISupportInitialize)(this.nudAutoSave)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.nudThrottling)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.nudAutoSave)).EndInit();
+			this.pCopiers.ResumeLayout(false);
 			this.ResumeLayout(false);
 
         }
@@ -1217,6 +1252,9 @@
 		private _Strategies.TradeUserControl tradeUserControl1;
 		private System.Windows.Forms.Label lbThrottling;
 		private System.Windows.Forms.NumericUpDown nudThrottling;
+		private System.Windows.Forms.Button btnStop;
+		private System.Windows.Forms.Button btnStart;
+		private System.Windows.Forms.Panel pCopiers;
 	}
 }
 

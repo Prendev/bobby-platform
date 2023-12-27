@@ -6,12 +6,13 @@ namespace TradeSystem.Data.Models
 {
 	public class MtAccountPosition : BaseNotifyPropertyChange
 	{
-		[InvisibleColumn]
-		public Account Account { get; set; }
 
 		[FilterableColumn]
 		[SortableColumn]
 		public string AccountName { get; set; }
+
+		[InvisibleColumn]
+		public Account Account { get; set; }
 
 		[InvisibleColumn]
 		public Position Position { get; set; }
