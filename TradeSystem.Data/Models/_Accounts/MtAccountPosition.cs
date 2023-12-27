@@ -21,9 +21,6 @@ namespace TradeSystem.Data.Models
 		[SortableColumn]
 		public string PositionName { get; set; }
 
-		[InvisibleColumn]
-		public long PositionId { get; set; }
-
 		[SortableColumn]
 		public string OpenTime { get; set; }
 

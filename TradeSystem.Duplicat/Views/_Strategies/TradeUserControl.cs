@@ -1,7 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore.Internal;
+using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
+using TradeSystem.Common.Integration;
+using TradeSystem.Data.Models;
 using TradeSystem.Duplicat.ViewModel;
 
 namespace TradeSystem.Duplicat.Views._Strategies
@@ -60,13 +63,15 @@ namespace TradeSystem.Duplicat.Views._Strategies
 			{
 				if (!_viewModel.MtPositions.Any()) return;
 
-				var mtPosition = _viewModel.MtPositions[e.RowIndex];
+				var dsMtPosition = (sfdgvTrade.DataSource as BindingList<MtAccountPosition>)[e.RowIndex];
+				var mtPosition = _viewModel.MtPositions.First(mtp => mtp.Position.Id == dsMtPosition.Position.Id);
+
 				if(mtPosition.IsRemoved) return;
 
 				mtPosition.IsRemoved = true;
 				sfdgvTrade.Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.Red;
 
-				_viewModel.CloseOrder(_viewModel.MtPositions[e.RowIndex]);
+				_viewModel.CloseOrder(mtPosition);
 			}
 		}
 	}
