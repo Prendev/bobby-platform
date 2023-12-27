@@ -119,7 +119,7 @@ namespace TradeSystem.Duplicat.ViewModel
 		public event DataContextChangedEventHandler DataContextChanged;
 
 		public List<CustomGroup> AllCustomGroups { get; private set; }
-		public ObservableCollection<Account> ConnectedMtAccounts { get; private set; } = new ObservableCollection<Account>();
+		public List<Account> ConnectedMtAccounts { get; private set; } = new List<Account>();
 		public BindingList<MtAccountPosition> MtPositions { get; private set; } = new BindingList<MtAccountPosition>();
 		public List<MtAccount> MtAccountPositions { get; private set; } = new List<MtAccount>();
 		public BindingList<SymbolStatus> SymbolStatusVisibilityList { get; private set; } = new BindingList<SymbolStatus>();
@@ -148,7 +148,6 @@ namespace TradeSystem.Duplicat.ViewModel
 
 		public Profile SelectedProfile { get => Get<Profile>(); set => Set(value); }
 		public CustomGroup SelectedCustomGroup { get => Get<CustomGroup>(); set => Set(value); }
-		public ObservableCollection<MappingTable> SelectedMappingTables { get => Get<ObservableCollection<MappingTable>>(); set => Set(value); }
 		public MetaTraderAccount SelectedMt4Account { get => Get<MetaTraderAccount>(); set => Set(value); }
 		public BacktesterAccount SelectedBacktesterAccount { get => Get<BacktesterAccount>(); set => Set(value); }
 		public Aggregator SelectedAggregator { get => Get<Aggregator>(); set => Set(value); }
@@ -186,7 +185,6 @@ namespace TradeSystem.Duplicat.ViewModel
 				_autoLoadPosition.Interval = 1000 * AutoLoadPositionsInSec;
 				if (IsConnected && ConnectedMtAccounts.Any())
 				{
-					UpdateMtAccount();
 					OnNewTick(new Tick());
 				}
 			};
@@ -242,15 +240,21 @@ namespace TradeSystem.Duplicat.ViewModel
 			}
 		}
 
+		public void FlushMtAccount()
+		{
+			_autoLoadPosition.Stop();
+
+			ConnectedMtAccounts = new List<Account>();
+			SymbolStatusVisibilityList = new BindingList<SymbolStatus>();
+			_symbolStatusSelectAll.IsVisible = false;
+			CreateMtAccount();
+
+			_autoLoadPosition.Start();
+		}
+
 		private void CreateMtAccount()
 		{
-			foreach (var account in Accounts)
-			{
-				if (account.MetaTraderAccount != null && account.ConnectionState == ConnectionStates.Connected)
-				{
-					ConnectedMtAccounts.Add(account);
-				}
-			}
+			ConnectedMtAccounts = Accounts.Where(account => account.MetaTraderAccount != null && account.ConnectionState == ConnectionStates.Connected).ToList();
 
 			UpdateMtPositions();
 			UpdateMtAccountPositions();
@@ -289,7 +293,7 @@ namespace TradeSystem.Duplicat.ViewModel
 			}
 		}
 
-		private void UpdateMtAccount()
+		public void UpdateMtAccount()
 		{
 			UpdateMtAccountPositions();
 
@@ -306,6 +310,7 @@ namespace TradeSystem.Duplicat.ViewModel
 			{
 				foreach (var symbolStatus in symbolStatusesToKeep)
 				{
+					symbolStatus.IsVisible = _symbolStatusSelectAll.IsVisible;
 					SymbolStatusVisibilityList.Add(symbolStatus);
 				}
 			}
@@ -494,15 +499,6 @@ namespace TradeSystem.Duplicat.ViewModel
 
 			_duplicatContext.MappingTables.Local.CollectionChanged -= MappingTables_CollectionChanged;
 			_duplicatContext.MappingTables.Local.CollectionChanged += MappingTables_CollectionChanged;
-
-			if (SelectedMappingTables != null)
-			{
-				foreach (var mappingTable in SelectedMappingTables)
-				{
-					mappingTable.PropertyChanged -= MappingTable_PropertyChanged;
-					mappingTable.PropertyChanged += MappingTable_PropertyChanged;
-				}
-			}
 
 			PropertyChanged -= DuplicatViewModel_PropertyChanged;
 			PropertyChanged += DuplicatViewModel_PropertyChanged;

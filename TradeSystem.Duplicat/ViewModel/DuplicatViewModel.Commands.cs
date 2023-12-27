@@ -136,6 +136,7 @@ namespace TradeSystem.Duplicat.ViewModel
 			finally
 			{
 				_autoSaveTimer.Stop();
+				_autoLoadPosition.Stop();
 			}
 		}
 
