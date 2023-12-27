@@ -121,6 +121,7 @@
     <Compile Include="Integration\MtPosition.cs" />
     <Compile Include="Integration\OrderResponse.cs" />
     <Compile Include="Integration\PositionResponse.cs" />
+    <Compile Include="Integration\SortableColumn.cs" />
     <Compile Include="Integration\StopResponse.cs" />
     <Compile Include="Integration\SymbolStatus.cs" />
     <Compile Include="Integration\Tick.cs" />

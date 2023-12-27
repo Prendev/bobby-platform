@@ -24,9 +24,8 @@ namespace TradeSystem.Data.Models
 		[InvisibleColumn]
 		public long PositionId { get; set; }
 
-		[FilterableColumn]
 		[SortableColumn]
-		public string CreatedAt { get; set; }
+		public string OpenTime { get; set; }
 
 		[InvisibleColumn]
 		public bool IsRemoved { get; set; }

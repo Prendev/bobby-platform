@@ -78,6 +78,7 @@
 			this.rtbAll = new System.Windows.Forms.RichTextBox();
 			this.tlpMain = new System.Windows.Forms.TableLayoutPanel();
 			this.gbControl = new System.Windows.Forms.GroupBox();
+			this.pCopiers = new System.Windows.Forms.Panel();
 			this.btnStart = new System.Windows.Forms.Button();
 			this.btnStop = new System.Windows.Forms.Button();
 			this.lbThrottling = new System.Windows.Forms.Label();
@@ -90,7 +91,6 @@
 			this.btnDisconnect = new System.Windows.Forms.Button();
 			this.btnConnect = new System.Windows.Forms.Button();
 			this.btnSave = new System.Windows.Forms.Button();
-			this.pCopiers = new System.Windows.Forms.Panel();
 			this.profilesUserControl = new TradeSystem.Duplicat.Views.ProfilesUserControl();
 			this.mtAccountsUserControl = new TradeSystem.Duplicat.Views.MtAccountsUserControl();
 			this.ftAccountsUserControl = new TradeSystem.Duplicat.Views.FtAccountsUserControl();
@@ -112,6 +112,7 @@
 			this.tickersUserControl = new TradeSystem.Duplicat.Views.TickersUserControl();
 			this.exportUserControl1 = new TradeSystem.Duplicat.Views.ExportUserControl();
 			this.connectorTesterUserControl1 = new TradeSystem.Duplicat.Views.ConnectorTesterUserControl();
+			this.panel1 = new System.Windows.Forms.Panel();
 			this.tabControlMain.SuspendLayout();
 			this.tabPageProfile.SuspendLayout();
 			this.tabPageAccount.SuspendLayout();
@@ -153,9 +154,10 @@
 			this.tabPage3.SuspendLayout();
 			this.tlpMain.SuspendLayout();
 			this.gbControl.SuspendLayout();
+			this.pCopiers.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.nudThrottling)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.nudAutoSave)).BeginInit();
-			this.pCopiers.SuspendLayout();
+			this.panel1.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// tabControlMain
@@ -760,11 +762,8 @@
 			// 
 			// gbControl
 			// 
+			this.gbControl.Controls.Add(this.panel1);
 			this.gbControl.Controls.Add(this.pCopiers);
-			this.gbControl.Controls.Add(this.lbThrottling);
-			this.gbControl.Controls.Add(this.nudThrottling);
-			this.gbControl.Controls.Add(this.label2);
-			this.gbControl.Controls.Add(this.nudAutoSave);
 			this.gbControl.Controls.Add(this.btnQuickStart);
 			this.gbControl.Controls.Add(this.labelProfile);
 			this.gbControl.Controls.Add(this.label1);
@@ -778,6 +777,16 @@
 			this.gbControl.TabIndex = 1;
 			this.gbControl.TabStop = false;
 			this.gbControl.Text = "Main control panel - [version]";
+			// 
+			// pCopiers
+			// 
+			this.pCopiers.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.pCopiers.Controls.Add(this.btnStart);
+			this.pCopiers.Controls.Add(this.btnStop);
+			this.pCopiers.Location = new System.Drawing.Point(614, 45);
+			this.pCopiers.Name = "pCopiers";
+			this.pCopiers.Size = new System.Drawing.Size(308, 25);
+			this.pCopiers.TabIndex = 32;
 			// 
 			// btnStart
 			// 
@@ -801,7 +810,7 @@
 			// lbThrottling
 			// 
 			this.lbThrottling.AutoSize = true;
-			this.lbThrottling.Location = new System.Drawing.Point(165, 49);
+			this.lbThrottling.Location = new System.Drawing.Point(8, 30);
 			this.lbThrottling.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
 			this.lbThrottling.Name = "lbThrottling";
 			this.lbThrottling.Size = new System.Drawing.Size(91, 15);
@@ -811,7 +820,7 @@
 			// 
 			// nudThrottling
 			// 
-			this.nudThrottling.Location = new System.Drawing.Point(262, 47);
+			this.nudThrottling.Location = new System.Drawing.Point(105, 28);
 			this.nudThrottling.Margin = new System.Windows.Forms.Padding(2);
 			this.nudThrottling.Name = "nudThrottling";
 			this.nudThrottling.Size = new System.Drawing.Size(38, 20);
@@ -826,7 +835,7 @@
 			// 
 			this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
 			this.label2.AutoSize = true;
-			this.label2.Location = new System.Drawing.Point(165, 23);
+			this.label2.Location = new System.Drawing.Point(8, 4);
 			this.label2.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
 			this.label2.Name = "label2";
 			this.label2.Size = new System.Drawing.Size(94, 15);
@@ -836,7 +845,7 @@
 			// nudAutoSave
 			// 
 			this.nudAutoSave.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.nudAutoSave.Location = new System.Drawing.Point(262, 21);
+			this.nudAutoSave.Location = new System.Drawing.Point(105, 2);
 			this.nudAutoSave.Margin = new System.Windows.Forms.Padding(2);
 			this.nudAutoSave.Name = "nudAutoSave";
 			this.nudAutoSave.Size = new System.Drawing.Size(38, 20);
@@ -905,15 +914,6 @@
 			this.btnSave.TabIndex = 7;
 			this.btnSave.Text = "Save config changes";
 			this.btnSave.UseVisualStyleBackColor = true;
-			// 
-			// pCopiers
-			// 
-			this.pCopiers.Controls.Add(this.btnStart);
-			this.pCopiers.Controls.Add(this.btnStop);
-			this.pCopiers.Location = new System.Drawing.Point(614, 45);
-			this.pCopiers.Name = "pCopiers";
-			this.pCopiers.Size = new System.Drawing.Size(308, 25);
-			this.pCopiers.TabIndex = 32;
 			// 
 			// profilesUserControl
 			// 
@@ -1104,6 +1104,18 @@
 			this.connectorTesterUserControl1.Size = new System.Drawing.Size(916, 389);
 			this.connectorTesterUserControl1.TabIndex = 0;
 			// 
+			// panel1
+			// 
+			this.panel1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.panel1.Controls.Add(this.lbThrottling);
+			this.panel1.Controls.Add(this.nudThrottling);
+			this.panel1.Controls.Add(this.label2);
+			this.panel1.Controls.Add(this.nudAutoSave);
+			this.panel1.Location = new System.Drawing.Point(157, 19);
+			this.panel1.Name = "panel1";
+			this.panel1.Size = new System.Drawing.Size(147, 56);
+			this.panel1.TabIndex = 33;
+			// 
 			// MainForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1154,9 +1166,11 @@
 			this.tlpMain.ResumeLayout(false);
 			this.gbControl.ResumeLayout(false);
 			this.gbControl.PerformLayout();
+			this.pCopiers.ResumeLayout(false);
 			((System.ComponentModel.ISupportInitialize)(this.nudThrottling)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.nudAutoSave)).EndInit();
-			this.pCopiers.ResumeLayout(false);
+			this.panel1.ResumeLayout(false);
+			this.panel1.PerformLayout();
 			this.ResumeLayout(false);
 
         }
@@ -1255,6 +1269,7 @@
 		private System.Windows.Forms.Button btnStop;
 		private System.Windows.Forms.Button btnStart;
 		private System.Windows.Forms.Panel pCopiers;
+		private System.Windows.Forms.Panel panel1;
 	}
 }
 

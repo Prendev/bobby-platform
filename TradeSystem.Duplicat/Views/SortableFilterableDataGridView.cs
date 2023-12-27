@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -9,7 +8,7 @@ using System.Linq;
 using System.Windows.Forms;
 using System.Windows.Forms.VisualStyles;
 using TradeSystem.Common.Attributes;
-using TradeSystem.Duplicat.Views._Strategies;
+using TradeSystem.Common.Integration;
 
 namespace TradeSystem.Duplicat.Views
 {
@@ -60,14 +59,20 @@ namespace TradeSystem.Duplicat.Views
 
 		public void AddButtonColumn(string header, string buttonText)
 		{
+			DataGridViewCellStyle cellStyle = new DataGridViewCellStyle
+			{
+				Padding = new Padding(5, 5, 5, 5)
+			};
+
 			DataGridViewButtonColumn buttonColumn = new DataGridViewButtonColumn
 			{
 				HeaderText = header,
 				Text = buttonText,
 				UseColumnTextForButtonValue = true,
 				AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells,
-				MinimumWidth = 100,
-			};
+				MinimumWidth = 40,
+				DefaultCellStyle = cellStyle
+		};
 
 			Columns.Add(buttonColumn);
 		}

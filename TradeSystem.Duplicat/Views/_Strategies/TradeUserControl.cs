@@ -1,9 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore.Internal;
-using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
-using TradeSystem.Data.Models;
 using TradeSystem.Duplicat.ViewModel;
 
 namespace TradeSystem.Duplicat.Views._Strategies
@@ -71,11 +69,5 @@ namespace TradeSystem.Duplicat.Views._Strategies
 				_viewModel.CloseOrder(_viewModel.MtPositions[e.RowIndex]);
 			}
 		}
-	}
-
-	public class SortableColumn
-	{
-		public int ColumnIndex { get; set; }
-		public SortOrder SortOrder { get; set; }
 	}
 }

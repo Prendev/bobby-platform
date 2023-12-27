@@ -278,7 +278,7 @@ namespace TradeSystem.Duplicat.ViewModel
 								AccountName = cma.MetaTraderAccount?.Description,
 								Position = p.Value,
 								PositionName = p.Value.Symbol,
-								CreatedAt = p.Value.OpenTime.ToString("yyyy.MM.dd. HH:mm:ss"),
+								OpenTime = p.Value.OpenTime.ToString("yyyy.MM.dd. HH:mm:ss"),
 							}));
 
 			MtPositions.Clear();
