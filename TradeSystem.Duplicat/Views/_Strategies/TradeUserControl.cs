@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore.Internal;
 using System.ComponentModel;
+using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 using TradeSystem.Data.Models;
@@ -60,6 +61,12 @@ namespace TradeSystem.Duplicat.Views._Strategies
 				e.RowIndex >= 0)
 			{
 				if (!_viewModel.MtPositions.Any()) return;
+
+				var mtPosition = _viewModel.MtPositions[e.RowIndex];
+				if(mtPosition.IsRemoved) return;
+
+				mtPosition.IsRemoved = true;
+				sfdgvTrade.Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.Red;
 
 				_viewModel.CloseOrder(_viewModel.MtPositions[e.RowIndex]);
 			}

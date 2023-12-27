@@ -27,5 +27,8 @@ namespace TradeSystem.Data.Models
 		[FilterableColumn]
 		[SortableColumn]
 		public string CreatedAt { get; set; }
+
+		[InvisibleColumn]
+		public bool IsRemoved { get; set; }
 	}
 }
