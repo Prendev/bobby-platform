@@ -42,12 +42,18 @@ namespace TradeSystem.Duplicat.Views
 			cdgExposureVisibility.CurrentCellDirtyStateChanged += cdgExposureVisibility_CurrentCellDirtyStateChanged;
 			cdgExposureVisibility.CellFormatting += cdgExposureVisibility_CellFormatting;
 
-			nudThrottling.AddBinding("Value", _viewModel, nameof(_viewModel.AutoLoadPositionsInSec));
+			btnFlush.Click += (s, e) =>
+			{
+				_viewModel.FlushMtAccount();
+				AttachDataSources();
+				_viewModel.SymbolStatusVisibilityList.ListChanged += DuplicatViewModel_SymbolStatusVisibilityList_ListChanged;
+				CreateExposureListView();
+			};
 
 			_viewModel.PropertyChanged += DuplicatViewModel_PropertyChanged;
 			_viewModel.SymbolStatusVisibilityList.ListChanged += DuplicatViewModel_SymbolStatusVisibilityList_ListChanged;
 
-			viewModel.Tick += (sender, e) =>
+			_viewModel.Tick += (sender, e) =>
 			{
 				UpdateExposureListView();
 			};
@@ -75,6 +81,7 @@ namespace TradeSystem.Duplicat.Views
 		{
 			listViewExposure.Invoke((MethodInvoker)(() =>
 			{
+				_viewModel.UpdateMtAccount();
 				UpdateHeaderAndSummaryRow(_viewModel.MtAccountPositions);
 				UpdateAccountRows(_viewModel.MtAccountPositions);
 			}));
@@ -262,9 +269,9 @@ namespace TradeSystem.Duplicat.Views
 			e.DrawDefault = true;
 		}
 
-		void listViewExposure_ColumnWidthChanging(object sender, ColumnWidthChangingEventArgs e)
+		private void listViewExposure_ColumnWidthChanging(object sender, ColumnWidthChangingEventArgs e)
 		{
-			if (e.ColumnIndex >= 2 && !_viewModel.SymbolStatusVisibilityList[e.ColumnIndex].IsVisible)
+			if (e.ColumnIndex >= 2 && !_viewModel.SymbolStatusVisibilityList[e.ColumnIndex - 1].IsVisible)
 			{
 				e.NewWidth = listViewExposure.Columns[e.ColumnIndex].Width;
 				e.Cancel = true;
@@ -347,7 +354,7 @@ namespace TradeSystem.Duplicat.Views
 							item.IsVisible = false;
 						}
 					}
-                }
+				}
 				// Single selection
 				else
 				{

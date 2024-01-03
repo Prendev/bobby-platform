@@ -101,6 +101,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Attributes\DisplayPriorityAttribute.cs" />
+    <Compile Include="Attributes\SortableColumnAttribute.cs" />
+    <Compile Include="Attributes\FilterableColumnAttribute.cs" />
     <Compile Include="Attributes\ReadOnlyColumnAttribute.cs" />
     <Compile Include="Attributes\InvisibleColumnAttribute.cs" />
     <Compile Include="BaseNotifyPropertyChange.cs" />
@@ -119,6 +121,7 @@
     <Compile Include="Integration\MtPosition.cs" />
     <Compile Include="Integration\OrderResponse.cs" />
     <Compile Include="Integration\PositionResponse.cs" />
+    <Compile Include="Integration\SortableColumn.cs" />
     <Compile Include="Integration\StopResponse.cs" />
     <Compile Include="Integration\SymbolStatus.cs" />
     <Compile Include="Integration\Tick.cs" />

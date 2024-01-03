@@ -10,19 +10,19 @@ using TradeSystem.Duplicat.ViewModel;
 
 namespace TradeSystem.Duplicat.Views
 {
-    public partial class MainForm : Form
-    {
-        private readonly DuplicatViewModel _viewModel;
+	public partial class MainForm : Form
+	{
+		private readonly DuplicatViewModel _viewModel;
 
-	    public MainForm(
-            DuplicatViewModel viewModel,
-            INewsCalendarService newsCalendarService
+		public MainForm(
+			DuplicatViewModel viewModel,
+			INewsCalendarService newsCalendarService
 		)
 		{
 			_viewModel = viewModel;
 			DependecyManager.SynchronizationContext = SynchronizationContext.Current;
 
-            Load += (sender, args) => InitView();
+			Load += (sender, args) => InitView();
 			Closing += (sender, args) => _viewModel.SaveCommand();
 			InitializeComponent();
 			gbControl.Text = $"Version {GetProductVersion()}";
@@ -43,19 +43,26 @@ namespace TradeSystem.Duplicat.Views
 			ThreadPool.GetMinThreads(out var wokerThreads, out var completionPortThreads);
 			Logger.Debug($"ThreadPool.GetMinThreads(out {wokerThreads}, out {completionPortThreads})");
 			newsCalendarService.Start();
+
 		}
 
 		private void InitView()
 		{
 			//btnRestore.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsConfigReadonly), true);
 			nudAutoSave.AddBinding("Value", _viewModel, nameof(_viewModel.AutoSavePeriodInMin));
+			nudThrottling.AddBinding("Value", _viewModel, nameof(_viewModel.AutoLoadPositionsInSec));
+
 			gbControl.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsLoading), true);
-            btnConnect.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsConnected), true);
-            btnDisconnect.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsConnected));
+			btnConnect.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsConnected), true);
+			btnDisconnect.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsConnected));
 			btnSave.AddBinding<DuplicatViewModel.SaveStates, Color>("ForeColor", _viewModel,
 				nameof(_viewModel.SaveState), s => s == DuplicatViewModel.SaveStates.Error ? Color.DarkRed : s == DuplicatViewModel.SaveStates.Success ? Color.DarkGreen : Color.Black);
 			btnSave.AddBinding<DuplicatViewModel.SaveStates, string>("Text", _viewModel,
 				nameof(_viewModel.SaveState), s => s == DuplicatViewModel.SaveStates.Error ? "ERROR" : s == DuplicatViewModel.SaveStates.Success ? "SUCCESS" : "Save config changes");
+
+			pCopiers.AddBinding<Profile>("Enabled", _viewModel, nameof(_viewModel.SelectedProfile), p => p != null);
+			btnStart.AddBinding("Enabled", _viewModel, nameof(_viewModel.AreCopiersStarted), true);
+			btnStop.AddBinding("Enabled", _viewModel, nameof(_viewModel.AreCopiersStarted));
 
 			tabPageAggregator.AddBinding<Profile>("Enabled", _viewModel, nameof(_viewModel.SelectedProfile), p => p != null);
 			tabPageCopier.AddBinding<Profile>("Enabled", _viewModel, nameof(_viewModel.SelectedProfile), p => p != null);
@@ -65,46 +72,48 @@ namespace TradeSystem.Duplicat.Views
 
 			btnQuickStart.Click += (s, e) => { _viewModel.QuickStartCommand(); };
 			btnConnect.Click += (s, e) => { _viewModel.ConnectCommand(); };
-            btnDisconnect.Click += (s, e) => { _viewModel.DisconnectCommand(); };
+			btnDisconnect.Click += (s, e) => { _viewModel.DisconnectCommand(); };
 
-            var titleBinding = new Binding("Text", _viewModel, "IsLoading");
-            titleBinding.Format += (s, e) => e.Value = (bool) e.Value ? "TradeSystem.Duplicat - Loading..." : "TradeSystem.Duplicat";
-            DataBindings.Add(titleBinding);
+			var titleBinding = new Binding("Text", _viewModel, "IsLoading");
+			titleBinding.Format += (s, e) => e.Value = (bool)e.Value ? "TradeSystem.Duplicat - Loading..." : "TradeSystem.Duplicat";
+			DataBindings.Add(titleBinding);
 
-            btnSave.Click += (s, e) => { _viewModel.SaveCommand(); };
+			btnSave.Click += (s, e) => { _viewModel.SaveCommand(); };
+			btnStart.Click += (s, e) => { _viewModel.StartCopiersCommand(); };
+			btnStop.Click += (s, e) => { _viewModel.StopCopiersCommand(); };
 
 			_viewModel.DataContextChanged += () => AttachDataSources(this);
 
-	        InitViews(this);
-	        AttachDataSources(this);
-        }
+			InitViews(this);
+			AttachDataSources(this);
+		}
 
 		private void AttachDataSources(Control parent)
 		{
 			if (parent == null) return;
 			foreach (Control c in parent.Controls)
-		    {
+			{
 				if (!(c is IMvvmUserControl mvvm))
 					AttachDataSources(c);
 				else mvvm.AttachDataSources();
 			}
 		}
 
-	    private void InitViews(Control parent)
+		private void InitViews(Control parent)
 		{
 			if (parent == null) return;
 			foreach (Control c in parent.Controls)
-		    {
-			    if (!(c is IMvvmUserControl mvvm))
-				    InitViews(c);
-			    else mvvm.InitView(_viewModel);
-		    }
+			{
+				if (!(c is IMvvmUserControl mvvm))
+					InitViews(c);
+				else mvvm.InitView(_viewModel);
+			}
 		}
 
-	    public string GetProductVersion()
-	    {
-		    var assembly = Assembly.GetExecutingAssembly();
-		    return AssemblyName.GetAssemblyName(assembly.Location).Version.ToString();
-	    }
+		public string GetProductVersion()
+		{
+			var assembly = Assembly.GetExecutingAssembly();
+			return AssemblyName.GetAssemblyName(assembly.Location).Version.ToString();
+		}
 	}
 }
