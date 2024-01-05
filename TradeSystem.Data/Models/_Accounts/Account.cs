@@ -33,8 +33,11 @@ namespace TradeSystem.Data.Models
 		public List<AggregatorAccount> Aggregators { get; } = new List<AggregatorAccount>();
 		public List<StratHubArbPosition> StratHubArbPositions { get; } = new List<StratHubArbPosition>();
 
+		[EditableColumn]
 		public bool IsAlert { get; set; }
+		[EditableColumn]
 		public double MarginLevelAlert { get; set; }
+		[EditableColumn]
 		public double MarginLevelWarning { get; set; }
 	}
 }

@@ -19,6 +19,9 @@ namespace TradeSystem.Data.Models
 		private readonly Object _lock = new Object();
 		private Timer cooldownTimer;
 
+		private volatile bool _isBusy;
+		private bool isUserEditing;
+
 		[NotMapped]
 		[InvisibleColumn]
 		public bool IsBusy
@@ -26,7 +29,15 @@ namespace TradeSystem.Data.Models
 			get => _isBusy;
 			set => _isBusy = value;
 		}
-		private volatile bool _isBusy;
+
+		[NotMapped]
+		[InvisibleColumn]
+		public bool IsUserEditing
+		{
+			get => isUserEditing;
+			set => isUserEditing = value;
+		}
+
 
 		public event EventHandler<NewTick> NewTick;
 		public event EventHandler<ConnectionStates> ConnectionChanged;
@@ -138,16 +149,19 @@ namespace TradeSystem.Data.Models
 
 		private void Connector_MarginChanged(object sender, EventArgs e)
 		{
-			Balance = Connector.Balance;
-			Equity = Connector.Equity;
-			PnL = Connector.PnL;
-			Margin = Connector.Margin;
-			FreeMargin = Connector.FreeMargin;
-			MarginLevel = Connector.MarginLevel;
+			if (!isUserEditing)
+			{
+				Balance = Connector.Balance;
+				Equity = Connector.Equity;
+				PnL = Connector.PnL;
+				Margin = Connector.Margin;
+				FreeMargin = Connector.FreeMargin;
+				MarginLevel = Connector.MarginLevel;
+			}
 
 			lock (_lock)
 			{
-				if (!notificationSent && IsAlert && MarginLevel < MarginLevelAlert && !(Margin == 0 && MarginLevel == 0))
+				if (!notificationSent && IsAlert && Connector.MarginLevel < MarginLevelAlert && !(Connector.Margin == 0 && Connector.MarginLevel == 0))
 				{
 					SendTwilioNotifications();
 				}

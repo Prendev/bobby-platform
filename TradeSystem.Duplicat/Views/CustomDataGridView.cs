@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
@@ -12,6 +13,7 @@ namespace TradeSystem.Duplicat.Views
 {
 	public class CustomDataGridView : DataGridView
 	{
+		private readonly List<string> _mofifiableColumns = new List<string>();
 		private readonly List<string> _invisibleColumns = new List<string>();
 		private ToolTip _tooltip = null;
 
@@ -37,6 +39,33 @@ namespace TradeSystem.Duplicat.Views
 			CellValidating += CustomDataGridView_CellValidating;
 			CellMouseEnter += CustomDataGridView_CellMouseEnter;
 			CellMouseLeave += CustomDataGridView_CellMouseLeave;
+
+			CellBeginEdit += CustomDataGridView_CellBeginEdit;
+			CellEndEdit += CustomDataGridView_CellEndEdit;
+			CellContentClick += CustomDataGridView_CellContentClick;
+		}
+
+		private void CustomDataGridView_CellContentClick(object sender, DataGridViewCellEventArgs e)
+		{
+			if ((Columns[e.ColumnIndex] is DataGridViewCheckBoxColumn) && _mofifiableColumns.Contains(Columns[e.ColumnIndex].HeaderText) && Rows[e.RowIndex].DataBoundItem is Account)
+			{
+				EndEdit();
+			}
+		}
+
+		private void CustomDataGridView_CellBeginEdit(object sender, DataGridViewCellCancelEventArgs e)
+		{
+			if (_mofifiableColumns.Contains(Columns[e.ColumnIndex].HeaderText) && Rows[e.RowIndex].DataBoundItem is Account account)
+			{
+				account.IsUserEditing = true;
+			}
+		}
+		private void CustomDataGridView_CellEndEdit(object sender, DataGridViewCellEventArgs e)
+		{
+			if (_mofifiableColumns.Contains(Columns[e.ColumnIndex].HeaderText) && Rows[e.RowIndex].DataBoundItem is Account account)
+			{
+				account.IsUserEditing = false;
+			}
 		}
 
 		private void CustomDataGridView_CellMouseEnter(object sender, DataGridViewCellEventArgs e)
@@ -152,12 +181,20 @@ namespace TradeSystem.Duplicat.Views
 			// Set invisible columns
 			foreach (var prop in genericArgs[0].GetProperties().Where(p => Columns.Contains(p.Name)))
 			{
-				if (prop.GetCustomAttributes(true).FirstOrDefault(a => a is InvisibleColumnAttribute) == null) continue;
-
-				if (!_invisibleColumns.Contains(prop.Name))
-					_invisibleColumns.Add(prop.Name);
-				if (Columns.Contains($"{prop.Name}*") && !_invisibleColumns.Contains($"{prop.Name}*"))
-					_invisibleColumns.Add($"{prop.Name}*");
+				if (prop.GetCustomAttributes(true).FirstOrDefault(a => a is InvisibleColumnAttribute) != null)
+				{
+					if (!_invisibleColumns.Contains(prop.Name))
+						_invisibleColumns.Add(prop.Name);
+					if (Columns.Contains($"{prop.Name}*") && !_invisibleColumns.Contains($"{prop.Name}*"))
+						_invisibleColumns.Add($"{prop.Name}*");
+				}
+				else if (prop.GetCustomAttributes(true).FirstOrDefault(a => a is EditableColumnAttribute) != null)
+				{
+					if (!_mofifiableColumns.Contains(prop.Name))
+						_mofifiableColumns.Add(prop.Name);
+					if (Columns.Contains($"{prop.Name}*") && !_mofifiableColumns.Contains($"{prop.Name}*"))
+						_mofifiableColumns.Add($"{prop.Name}*");
+				}
 			}
 			foreach (var name in _invisibleColumns)
 			{
