@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Timers;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using TradeSystem.Common;
 using TradeSystem.Common.Integration;
 using TradeSystem.Common.Services;
@@ -14,6 +14,7 @@ using TradeSystem.Data.Models;
 using TradeSystem.Mt4Integration;
 using TradeSystem.Orchestration;
 using TradeSystem.Orchestration.Services;
+using static Bitmex.NET.BitmexApiUrls;
 using IBindingList = System.ComponentModel.IBindingList;
 
 namespace TradeSystem.Duplicat.ViewModel
@@ -120,8 +121,11 @@ namespace TradeSystem.Duplicat.ViewModel
 
 		public List<CustomGroup> AllCustomGroups { get; private set; }
 		public List<Account> ConnectedMtAccounts { get; private set; } = new List<Account>();
-		public BindingList<MtAccountPosition> MtPositions { get; private set; } = new BindingList<MtAccountPosition>();
-		public List<MtAccount> MtAccountPositions { get; private set; } = new List<MtAccount>();
+		public List<MtAccountAsset> MtAccountAssets { get; private set; } = new List<MtAccountAsset>();
+
+		public BindingList<MtAccountPosition> MtAccountPositionTrades { get; private set; }
+		public MySortableBindingList<MtAccountPosition> MtAccountPositionTradesForFiltering { get; private set; } = new MySortableBindingList<MtAccountPosition>();
+
 		public BindingList<SymbolStatus> SymbolStatusVisibilityList { get; private set; } = new BindingList<SymbolStatus>();
 
 		public void OnNewTick(Tick e) => Tick?.Invoke(this, e);
@@ -197,8 +201,12 @@ namespace TradeSystem.Duplicat.ViewModel
 
 		public void CloseOrder(MtAccountPosition mtAccountPosition)
 		{
-			(mtAccountPosition.Account.Connector as Connector).SendClosePositionRequests(mtAccountPosition.Position);
-		}
+			var res = (mtAccountPosition.Account.Connector as Connector).SendClosePositionRequests(mtAccountPosition.Position);
+            if (!res.Pos.IsClosed)
+            {
+				mtAccountPosition.IsRemoved = false;
+            }
+        }
 
 		private void DuplicatViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
 		{
@@ -255,11 +263,15 @@ namespace TradeSystem.Duplicat.ViewModel
 		private void CreateMtAccount()
 		{
 			ConnectedMtAccounts = Accounts.Where(account => account.MetaTraderAccount != null && account.ConnectionState == ConnectionStates.Connected).ToList();
-
+			foreach (var item in MtAccountPositionTrades.Where(mtp => ConnectedMtAccounts.Contains(mtp.Account)))
+			{
+				MtAccountPositionTradesForFiltering.Add(item);
+			}
 			UpdateMtPositions();
+
 			UpdateMtAccountPositions();
 
-			var brokerSymbols = MtAccountPositions.GroupBy(mtap => mtap.Broker, mtap => mtap.Positions.Select(p => p.SymbolStatus),
+			var brokerSymbols = MtAccountAssets.GroupBy(mtap => mtap.Broker, mtap => mtap.Positions.Select(p => p.SymbolStatus),
 			   (key, s) => new BrokerSymbolStatus { Broker = key, SymbolStatuses = s.SelectMany(symbolStatus => symbolStatus).Distinct().OrderBy(symbolStatus => symbolStatus.Symbol).ToList() }).ToList();
 
 			var symbolStatuses = brokerSymbols.SelectMany(bs => bs.SymbolStatuses).Distinct().OrderBy(symbolStatus => symbolStatus.Symbol).ToList();
@@ -274,22 +286,37 @@ namespace TradeSystem.Duplicat.ViewModel
 
 		public void UpdateMtPositions()
 		{
-			var mtPositions = ConnectedMtAccounts
+			var mtPositionTrades = ConnectedMtAccounts
 							.SelectMany(cma => cma.Connector.Positions
 							.Where(p => !p.Value.IsClosed).Select(p => new MtAccountPosition
 							{
 								Account = cma,
-								AccountName = cma.MetaTraderAccount?.Description,
-								Position = p.Value,
-								PositionName = p.Value.Symbol,
 								OpenTime = p.Value.OpenTime.ToString("yyyy.MM.dd. HH:mm:ss"),
+								OrderTicket = p.Key,
+								OrderSize = p.Value.Lots,
+								Comment = p.Value.Comment
 							}));
 
-			MtPositions.Clear();
+			var connectedMtAccountPositionTradeDb = MtAccountPositionTrades.Where(mtp => ConnectedMtAccounts.Contains(mtp.Account));
 
-			foreach (var item in mtPositions)
+			var newMtPositionTrades = mtPositionTrades.Where(mtp => !connectedMtAccountPositionTradeDb.Any(mtap => mtap.Account == mtp.Account && mtap.OrderTicket == mtp.OrderTicket)).ToList();
+			var removeMtPositionTrades = connectedMtAccountPositionTradeDb.Where(mtp => !mtPositionTrades.Any(mtap => mtap.Account == mtp.Account && mtap.OrderTicket == mtp.OrderTicket)).ToList();
+
+			foreach (var mtPositionTrade in newMtPositionTrades)
 			{
-				MtPositions.Add(item);
+				MtAccountPositionTrades.Add(mtPositionTrade);
+				MtAccountPositionTradesForFiltering.Add(mtPositionTrade);
+			}
+			foreach (var mtPositionTrade in removeMtPositionTrades)
+			{
+				MtAccountPositionTrades.Remove(mtPositionTrade);
+				MtAccountPositionTradesForFiltering.Remove(mtPositionTrade);
+			}
+
+			foreach (var mtAccountPosition in MtAccountPositionTrades.Where(mtap => mtap.IsPreOrderClosing && mtap.Account.Margin > mtap.Margin))
+			{
+				mtAccountPosition.IsRemoved = true;
+				CloseOrder(mtAccountPosition);
 			}
 		}
 
@@ -297,7 +324,7 @@ namespace TradeSystem.Duplicat.ViewModel
 		{
 			UpdateMtAccountPositions();
 
-			var brokerSymbols = MtAccountPositions.GroupBy(mtap => mtap.Broker, mtap => mtap.Positions.Select(p => p.SymbolStatus),
+			var brokerSymbols = MtAccountAssets.GroupBy(mtap => mtap.Broker, mtap => mtap.Positions.Select(p => p.SymbolStatus),
 			   (key, s) => new BrokerSymbolStatus { Broker = key, SymbolStatuses = s.SelectMany(symbolStatus => symbolStatus).Distinct().OrderBy(symbolStatus => symbolStatus.Symbol).ToList() }).ToList();
 
 			var symbolStatuses = brokerSymbols.SelectMany(bs => bs.SymbolStatuses).Distinct().OrderBy(symbolStatus => symbolStatus.Symbol).ToList();
@@ -327,7 +354,7 @@ namespace TradeSystem.Duplicat.ViewModel
 		{
 			var allMappingTables = AllCustomGroups.SelectMany(cg => cg.MappingTables).ToList();
 
-			MtAccountPositions = ConnectedMtAccounts.Select(cma => new MtAccount
+			MtAccountAssets = ConnectedMtAccounts.Select(cma => new MtAccountAsset
 			{
 				Broker = cma.Connector.Broker,
 				AccountName = cma.MetaTraderAccount?.Description ?? cma.FixApiAccount?.Description ?? "",
@@ -391,7 +418,7 @@ namespace TradeSystem.Duplicat.ViewModel
 			var p = SelectedProfile?.Id;
 			var selectedCustomGroupId = SelectedCustomGroup?.Id;
 
-
+			_duplicatContext.MtAccountPositionTrades.Include(mta => mta.Account).Load();
 			_duplicatContext.MetaTraderPlatforms.OrderBy(e => e.ToString()).Load();
 			_duplicatContext.CTraderPlatforms.OrderBy(e => e.ToString()).Load();
 			_duplicatContext.MetaTraderAccounts.Include(e => e.InstrumentConfigs).OrderBy(e => e.ToString()).Load();
@@ -445,6 +472,7 @@ namespace TradeSystem.Duplicat.ViewModel
 				.Include(e => e.NewsArbPositions).ThenInclude(e => e.ShortPosition).Load();
 			_duplicatContext.MMs.Where(e => e.ProfileId == p).OrderBy(e => e.ToString()).Load();
 
+			MtAccountPositionTrades = _duplicatContext.MtAccountPositionTrades.Local.ToBindingList();
 			MtPlatforms = _duplicatContext.MetaTraderPlatforms.Local.ToBindingList();
 			CtPlatforms = _duplicatContext.CTraderPlatforms.Local.ToBindingList();
 			MtAccounts = _duplicatContext.MetaTraderAccounts.Local.ToBindingList();

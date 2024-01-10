@@ -70,8 +70,8 @@ namespace TradeSystem.Duplicat.Views
 
 				columnHeaderColor.Clear();
 
-				var summaryRow = CreateHeaderAndSummaryRow(_viewModel.MtAccountPositions);
-				CreateAccountRows(_viewModel.MtAccountPositions);
+				var summaryRow = CreateHeaderAndSummaryRow(_viewModel.MtAccountAssets);
+				CreateAccountRows(_viewModel.MtAccountAssets);
 
 				listViewExposure.Items.Add(summaryRow);
 			}));
@@ -82,8 +82,8 @@ namespace TradeSystem.Duplicat.Views
 			listViewExposure.Invoke((MethodInvoker)(() =>
 			{
 				_viewModel.UpdateMtAccount();
-				UpdateHeaderAndSummaryRow(_viewModel.MtAccountPositions);
-				UpdateAccountRows(_viewModel.MtAccountPositions);
+				UpdateHeaderAndSummaryRow(_viewModel.MtAccountAssets);
+				UpdateAccountRows(_viewModel.MtAccountAssets);
 			}));
 		}
 
@@ -95,7 +95,7 @@ namespace TradeSystem.Duplicat.Views
 		}
 
 		// Create headers and calculate summary row
-		private ListViewItem CreateHeaderAndSummaryRow(List<MtAccount> mtAccountPositions)
+		private ListViewItem CreateHeaderAndSummaryRow(List<MtAccountAsset> mtAccountPositions)
 		{
 			var headerColumnIndex = 0; // Initialize headerColumnIndex.
 
@@ -135,7 +135,7 @@ namespace TradeSystem.Duplicat.Views
 		}
 
 		// Calculate the summary of positions for multiple accounts
-		private void CreateAccountRows(List<MtAccount> mtAccountPositions)
+		private void CreateAccountRows(List<MtAccountAsset> mtAccountPositions)
 		{
 			foreach (var mtap in mtAccountPositions)
 			{
@@ -167,7 +167,7 @@ namespace TradeSystem.Duplicat.Views
 		}
 
 		// Add new headers, set columns visibility and recalculate summary row
-		private void UpdateHeaderAndSummaryRow(List<MtAccount> mtAccountPositions)
+		private void UpdateHeaderAndSummaryRow(List<MtAccountAsset> mtAccountPositions)
 		{
 			var headerColumnIndex = 2;
 
@@ -203,7 +203,7 @@ namespace TradeSystem.Duplicat.Views
 		}
 
 		// Recalculate the summary of positions for multiple accounts
-		private void UpdateAccountRows(List<MtAccount> mtAccountPositions)
+		private void UpdateAccountRows(List<MtAccountAsset> mtAccountPositions)
 		{
 			for (int accountIndex = 0; accountIndex < listViewExposure.Items.Count - 1; accountIndex++)
 			{

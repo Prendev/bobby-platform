@@ -202,6 +202,7 @@
     <Compile Include="ViewModel\DuplicatViewModel.SpoofingCommands.cs" />
     <Compile Include="ViewModel\DuplicatViewModel.PushingCommands.cs" />
     <Compile Include="ViewModel\DuplicatViewModel.Commands.cs" />
+    <Compile Include="ViewModel\MySortableBindingList.cs" />
     <Compile Include="Views\AggregatorUserControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -220,7 +221,7 @@
     <Compile Include="Views\CopiersUserControl.Designer.cs">
       <DependentUpon>CopiersUserControl.cs</DependentUpon>
     </Compile>
-    <Compile Include="Views\SortableFilterableDataGridView.cs">
+    <Compile Include="Views\FilterableCustomDataGridView.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Views\ExportUserControl.cs">

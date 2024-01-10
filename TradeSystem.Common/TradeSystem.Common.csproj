@@ -102,7 +102,6 @@
   <ItemGroup>
     <Compile Include="Attributes\DisplayPriorityAttribute.cs" />
     <Compile Include="Attributes\EditableColumnAttribute.cs" />
-    <Compile Include="Attributes\SortableColumnAttribute.cs" />
     <Compile Include="Attributes\FilterableColumnAttribute.cs" />
     <Compile Include="Attributes\ReadOnlyColumnAttribute.cs" />
     <Compile Include="Attributes\InvisibleColumnAttribute.cs" />
@@ -118,7 +117,7 @@
     <Compile Include="Integration\IFixConnector.cs" />
     <Compile Include="Integration\LimitFill.cs" />
     <Compile Include="Integration\LimitResponse.cs" />
-    <Compile Include="Integration\MtAccount.cs" />
+    <Compile Include="Integration\MtAccountAsset.cs" />
     <Compile Include="Integration\MtPosition.cs" />
     <Compile Include="Integration\OrderResponse.cs" />
     <Compile Include="Integration\PositionResponse.cs" />

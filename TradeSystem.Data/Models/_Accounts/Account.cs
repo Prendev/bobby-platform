@@ -30,6 +30,7 @@ namespace TradeSystem.Data.Models
 		public BacktesterAccount BacktesterAccount { get; set; }
 
 		[InvisibleColumn] public DateTime? LastOrderTime { get; set; }
+		public List<MtAccountPosition> MtAccountPositionTrades { get; } = new List<MtAccountPosition>();
 		public List<AggregatorAccount> Aggregators { get; } = new List<AggregatorAccount>();
 		public List<StratHubArbPosition> StratHubArbPositions { get; } = new List<StratHubArbPosition>();
 

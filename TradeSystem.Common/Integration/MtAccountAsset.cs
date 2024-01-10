@@ -2,7 +2,7 @@
 
 namespace TradeSystem.Common.Integration
 {
-    public class MtAccount
+    public class MtAccountAsset
     {
         public string Broker { get; set; }
         public string AccountName { get; set; }

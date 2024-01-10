@@ -122,7 +122,7 @@ namespace TradeSystem.Duplicat.ViewModel
 
 				ConnectedMtAccounts.Clear();
 				SymbolStatusVisibilityList.Clear();
-				MtPositions.Clear();
+				MtAccountPositionTradesForFiltering.Clear();
 
 				_symbolStatusSelectAll.IsVisible = false;
 			}
