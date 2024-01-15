@@ -1,13 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore.Internal;
-using System.ComponentModel;
-using System.Linq;
-using TradeSystem.Common;
+﻿using System.ComponentModel;
 using TradeSystem.Common.Attributes;
-using TradeSystem.Common.Integration;
 
 namespace TradeSystem.Data.Models
 {
-	public class MtAccountPosition : BaseEntity
+	public class MetaTraderPosition : BaseEntity
 	{
 		[ReadOnly(true)]
 		[FilterableColumn]
@@ -22,31 +18,20 @@ namespace TradeSystem.Data.Models
 		[InvisibleColumn]
 		public Account Account { get; set; }
 
-		[InvisibleColumn]
-		public Position Position
-		{
-			get => Account?.Connector?.Positions.FirstOrDefault(p => p.Key == OrderTicket).Value;
-		}
-
 		[ReadOnly(true)]
 		[DisplayName("Order")]
-		public long OrderTicket { get; set; }
+		public long PositionKey { get; set; }
 
 		[ReadOnly(true)]
 		[DisplayName("Time")]
 		public string OpenTime { get; set; }
 
 		[ReadOnly(true)]
-		[DisplayName("Size")]
-		public decimal OrderSize { get; set; }
+		public decimal Size { get; set; }
 
 		[ReadOnly(true)]
 		[FilterableColumn]
-		[DisplayName("Symbol")]
-		public string PositionName
-		{
-			get => Position?.Symbol;
-		}
+		public string Symbol { get; set; }
 
 		[ReadOnly(true)]
 		public string Comment { get; set; }

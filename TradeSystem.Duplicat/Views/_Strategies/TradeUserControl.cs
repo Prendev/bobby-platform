@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
+using TradeSystem.Common.Integration;
 using TradeSystem.Data.Models;
 using TradeSystem.Duplicat.ViewModel;
 
@@ -19,7 +20,7 @@ namespace TradeSystem.Duplicat.Views._Strategies
 
 		public void AttachDataSources()
 		{
-			fcdvTrade.FilterableDataSource = _viewModel.MtAccountPositionTradesForFiltering;
+			fcdvTrade.FilterableDataSource = _viewModel.ConnectedMtPositions;
 		}
 
 		public void InitView(DuplicatViewModel viewModel)
@@ -44,6 +45,16 @@ namespace TradeSystem.Duplicat.Views._Strategies
 				});
 			};
 
+			_viewModel.PropertyChanged += (sender, e) =>
+			{
+				if (e.PropertyName == "IsConnected" && _viewModel.IsConnected)
+				{
+					for (int rowIndex = 0; rowIndex < _viewModel.ConnectedMtPositions.Count; rowIndex++)
+					{
+						SetRowColor(rowIndex);
+					}
+				}
+			};
 		}
 
 		private void FcdvTrade_CellContentClick(object sender, DataGridViewCellEventArgs e)
@@ -53,29 +64,31 @@ namespace TradeSystem.Duplicat.Views._Strategies
 			if (senderGrid.Columns[e.ColumnIndex] is DataGridViewButtonColumn &&
 				e.RowIndex >= 0)
 			{
-				if (!_viewModel.MtAccountPositionTradesForFiltering.Any()) return;
+				if (!_viewModel.ConnectedMtPositions.Any()) return;
 
-				var dsMtPosition = (fcdvTrade.DataSource as BindingList<MtAccountPosition>)[e.RowIndex];
-				var mtPosition = _viewModel.MtAccountPositionTradesForFiltering.First(mtp => mtp.OrderTicket == dsMtPosition.OrderTicket);
-
+				var mtPosition = (fcdvTrade.DataSource as BindingList<MetaTraderPosition>)[e.RowIndex];
 				if (mtPosition.IsRemoved) return;
 
-				mtPosition.IsRemoved = true;
 				_viewModel.CloseOrder(mtPosition);
 			}
 		}
 
 		private void FcdvTrade_RowPrePaint(object sender, DataGridViewRowPrePaintEventArgs e)
 		{
-			if (!(fcdvTrade.DataSource is IBindingList bindingList)) return;
-			if (bindingList.Count <= e.RowIndex) return;
-			var mtAccountPosition = bindingList[e.RowIndex] as MtAccountPosition;
+			SetRowColor(e.RowIndex);
+		}
 
-			if (mtAccountPosition.IsRemoved || (mtAccountPosition.IsPreOrderClosing && mtAccountPosition.Account.Margin > mtAccountPosition.Margin))
+		private void SetRowColor(int rowIndex)
+		{
+			if (!(fcdvTrade.DataSource is IBindingList bindingList)) return;
+			if (bindingList.Count <= rowIndex) return;
+			var mtPosition = bindingList[rowIndex] as MetaTraderPosition;
+
+			if (mtPosition.IsRemoved || (mtPosition.IsPreOrderClosing && mtPosition.Account.Margin > mtPosition.Margin))
 			{
-				fcdvTrade.Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.MediumVioletRed;
+				fcdvTrade.Rows[rowIndex].DefaultCellStyle.BackColor = Color.MediumVioletRed;
 			}
-			else fcdvTrade.Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.White;
+			else fcdvTrade.Rows[rowIndex].DefaultCellStyle.BackColor = Color.White;
 		}
 	}
 }

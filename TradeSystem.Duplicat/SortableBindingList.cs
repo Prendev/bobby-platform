@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace TradeSystem.Duplicat.ViewModel
 {
-	public class MySortableBindingList<T> : BindingList<T> where T : class
+	public class SortableBindingList<T> : BindingList<T> where T : class
 	{
 		private bool _isSorted;
 		private ListSortDirection _sortDirection = ListSortDirection.Ascending;
@@ -16,7 +16,7 @@ namespace TradeSystem.Duplicat.ViewModel
 		/// <summary>
 		/// Initializes a new instance of the <see cref="SortableBindingList{T}"/> class.
 		/// </summary>
-		public MySortableBindingList()
+		public SortableBindingList()
 		{
 		}
 
@@ -24,7 +24,7 @@ namespace TradeSystem.Duplicat.ViewModel
 		/// Initializes a new instance of the <see cref="SortableBindingList{T}"/> class.
 		/// </summary>
 		/// <param name="list">An <see cref="T:System.Collections.Generic.IList`1" /> of items to be contained in the <see cref="T:System.ComponentModel.BindingList`1" />.</param>
-		public MySortableBindingList(IList<T> list)
+		public SortableBindingList(IList<T> list)
 			: base(list)
 		{
 		}

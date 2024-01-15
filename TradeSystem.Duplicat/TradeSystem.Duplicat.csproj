@@ -202,7 +202,7 @@
     <Compile Include="ViewModel\DuplicatViewModel.SpoofingCommands.cs" />
     <Compile Include="ViewModel\DuplicatViewModel.PushingCommands.cs" />
     <Compile Include="ViewModel\DuplicatViewModel.Commands.cs" />
-    <Compile Include="ViewModel\MySortableBindingList.cs" />
+    <Compile Include="SortableBindingList.cs" />
     <Compile Include="Views\AggregatorUserControl.cs">
       <SubType>UserControl</SubType>
     </Compile>

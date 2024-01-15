@@ -97,7 +97,7 @@ namespace TradeSystem.Duplicat.Views
 
 		private void FilterableCustomDataGridView_CurrentCellDirtyStateChanged(object sender, EventArgs e)
 		{
-			if (IsCurrentCellDirty)
+			if (IsCurrentCellDirty && (Columns[CurrentCell.ColumnIndex] is DataGridViewCheckBoxColumn))
 			{
 				EndEdit();
 			}
@@ -191,7 +191,7 @@ namespace TradeSystem.Duplicat.Views
 
 			var propertyInfos = filterableColumns.Select(propertyName => bindinglist.GetType().GetGenericArguments()[0].GetProperty(propertyName)).ToList();
 
-			Type bindingListType = typeof(MySortableBindingList<>).MakeGenericType(objectType);
+			Type bindingListType = typeof(SortableBindingList<>).MakeGenericType(objectType);
 			var bindingListInstance = Activator.CreateInstance(bindingListType);
 			var filteredBindingList = (IBindingList)bindingListInstance;
 

@@ -118,7 +118,7 @@
     <Compile Include="Integration\IFixConnector.cs" />
     <Compile Include="Integration\LimitFill.cs" />
     <Compile Include="Integration\LimitResponse.cs" />
-    <Compile Include="Integration\MtAccountAsset.cs" />
+    <Compile Include="Integration\MtAccountPosition.cs" />
     <Compile Include="Integration\MtPosition.cs" />
     <Compile Include="Integration\OrderResponse.cs" />
     <Compile Include="Integration\PositionResponse.cs" />
