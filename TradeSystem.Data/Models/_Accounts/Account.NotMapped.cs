@@ -52,33 +52,39 @@ namespace TradeSystem.Data.Models
 		[DisplayPriority(0, true)]
 		[NotMapped]
 		[ReadOnly(true)]
+		[DecimalPrecision(2)]
 		public double Balance { get => Get<double>(); set => Set(value); }
 
 		[DisplayPriority(0, true)]
 		[NotMapped]
 		[ReadOnly(true)]
+		[DecimalPrecision(2)]
 		public double Equity { get => Get<double>(); set => Set(value); }
 
 		[DisplayPriority(0, true)]
 		[NotMapped]
 		[ReadOnly(true)]
+		[DecimalPrecision(2)]
 		public double PnL { get => Get<double>(); set => Set(value); }
 
 		[DisplayPriority(0, true)]
 		[NotMapped]
 		[ReadOnly(true)]
+		[DecimalPrecision(2)]
 		public double Margin { get => Get<double>(); set => Set(value); }
 
 		[DisplayName("Free M")]
 		[DisplayPriority(0, true)]
 		[NotMapped]
 		[ReadOnly(true)]
+		[DecimalPrecision(2)]
 		public double FreeMargin { get => Get<double>(); set => Set(value); }
 
 		[DisplayName("M %")]
 		[DisplayPriority(0, true)]
 		[NotMapped]
 		[ReadOnly(true)]
+		[DecimalPrecision(2)]
 		public double MarginLevel { get => Get<double>(); set => Set(value); }
 
 		[NotMapped][InvisibleColumn] public IConnector Connector { get => Get<IConnector>(); set => Set(value); }

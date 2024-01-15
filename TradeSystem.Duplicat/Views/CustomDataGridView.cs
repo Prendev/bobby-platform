@@ -39,6 +39,7 @@ namespace TradeSystem.Duplicat.Views
 			CellValidating += CustomDataGridView_CellValidating;
 			CellMouseEnter += CustomDataGridView_CellMouseEnter;
 			CellMouseLeave += CustomDataGridView_CellMouseLeave;
+			CellFormatting += CustomDataGridView_CellFormatting;
 
 			CellBeginEdit += CustomDataGridView_CellBeginEdit;
 			CellEndEdit += CustomDataGridView_CellEndEdit;
@@ -169,6 +170,26 @@ namespace TradeSystem.Duplicat.Views
 			else if (account.ConnectionState == ConnectionStates.Error)
 				Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.PaleVioletRed;
 			else Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.White;
+		}
+
+		private void CustomDataGridView_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
+		{
+			if (e.Value != null && double.TryParse(e.Value.ToString(), out double originalValue))
+			{
+				var property = Rows[e.RowIndex].DataBoundItem.GetType().GetProperty(Columns[e.ColumnIndex].Name);
+				var decimalPrecisionAttribute = (DecimalPrecisionAttribute)Attribute.GetCustomAttribute(property, typeof(DecimalPrecisionAttribute));
+
+				if (decimalPrecisionAttribute != null)
+				{
+					var decimalPlaces = decimalPrecisionAttribute.DecimalPlaces;
+					var roundedValue = Math.Round(originalValue, decimalPlaces);
+
+					string formattedValue = string.Format($"{{0:N{decimalPlaces}}}", roundedValue);
+
+					e.Value = formattedValue;
+					e.FormattingApplied = true;
+				}
+			}
 		}
 
 		private void CustomDataGridView_DataSourceChanged(object sender, EventArgs e)
