@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Linq.Expressions;
@@ -15,7 +16,6 @@ using TradeSystem.Data.Models;
 using TradeSystem.Mt4Integration;
 using TradeSystem.Orchestration;
 using TradeSystem.Orchestration.Services;
-using static Bitmex.NET.BitmexApiUrls;
 using IBindingList = System.ComponentModel.IBindingList;
 
 namespace TradeSystem.Duplicat.ViewModel
@@ -121,7 +121,10 @@ namespace TradeSystem.Duplicat.ViewModel
 		public event DataContextChangedEventHandler DataContextChanged;
 
 		public List<CustomGroup> AllCustomGroups { get; private set; }
+		public List<Account> ConnectedAccounts { get; private set; } = new List<Account>();
 		public List<Account> ConnectedMtAccounts { get; private set; } = new List<Account>();
+		public BindingList<AccountMetric> AccountMetrics { get; }
+
 		public List<MtAccountPosition> MtAccountPositions { get; private set; } = new List<MtAccountPosition>();
 
 		public BindingList<MetaTraderPosition> MtPositions { get; private set; }
@@ -168,6 +171,14 @@ namespace TradeSystem.Duplicat.ViewModel
 		{
 			AutoSavePeriodInMin = 1;
 			AutoLoadPositionsInSec = 5;
+			AccountMetrics = new BindingList<AccountMetric>
+			{
+				new AccountMetric { Metric="Balance" },
+				new AccountMetric { Metric="Equity" },
+				new AccountMetric { Metric="PnL" },
+				new AccountMetric { Metric="Margin" },
+				new AccountMetric { Metric="Free M" },
+			};							 
 
 			_autoSaveTimer.Elapsed += (sender, args) =>
 			{
@@ -264,9 +275,25 @@ namespace TradeSystem.Duplicat.ViewModel
 			}
 		}
 
+		private void Account_PropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			AccountMetrics.First(ams => ams.Metric == "Balance").Sum = ConnectedAccounts.Sum(ca => ca.Balance);
+			AccountMetrics.First(ams => ams.Metric == "Equity").Sum = ConnectedAccounts.Sum(ca => ca.Equity);
+			AccountMetrics.First(ams => ams.Metric == "PnL").Sum = ConnectedAccounts.Sum(ca => ca.PnL);
+			AccountMetrics.First(ams => ams.Metric == "Margin").Sum = ConnectedAccounts.Sum(ca => ca.Margin);
+			AccountMetrics.First(ams => ams.Metric == "Free M").Sum = ConnectedAccounts.Sum(ca => ca.FreeMargin);
+		}
 		private void CreateMtAccount()
 		{
-			ConnectedMtAccounts = Accounts.Where(account => account.MetaTraderAccount != null && account.ConnectionState == ConnectionStates.Connected).ToList();
+			ConnectedAccounts = Accounts.Where(account => account.ConnectionState == ConnectionStates.Connected).ToList();
+			ConnectedMtAccounts = ConnectedAccounts.Where(account => account.MetaTraderAccount != null).ToList();
+
+			ConnectedAccounts.ForEach(account =>
+			{
+				account.PropertyChanged -= Account_PropertyChanged;
+				account.PropertyChanged += Account_PropertyChanged;
+			});
+
 			foreach (var mtPosition in MtPositions.Where(mtp => ConnectedMtAccounts.Contains(mtp.Account)))
 			{
 				ConnectedMtPositions.Add(mtPosition);

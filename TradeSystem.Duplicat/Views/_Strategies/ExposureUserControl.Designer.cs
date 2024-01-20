@@ -31,19 +31,19 @@
 			System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
 			this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
 			this.gbExposureList = new System.Windows.Forms.GroupBox();
+			this.cdgExposureVisibility = new TradeSystem.Duplicat.Views.CustomDataGridView();
 			this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
 			this.groupBox2 = new System.Windows.Forms.GroupBox();
 			this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
 			this.listViewExposure = new System.Windows.Forms.ListView();
-			this.cdgExposureVisibility = new TradeSystem.Duplicat.Views.CustomDataGridView();
 			this.gbControl = new System.Windows.Forms.GroupBox();
 			this.btnFlush = new System.Windows.Forms.Button();
 			this.tableLayoutPanel1.SuspendLayout();
 			this.gbExposureList.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)(this.cdgExposureVisibility)).BeginInit();
 			this.tableLayoutPanel2.SuspendLayout();
 			this.groupBox2.SuspendLayout();
 			this.tableLayoutPanel3.SuspendLayout();
-			((System.ComponentModel.ISupportInitialize)(this.cdgExposureVisibility)).BeginInit();
 			this.gbControl.SuspendLayout();
 			this.SuspendLayout();
 			// 
@@ -72,6 +72,27 @@
 			this.gbExposureList.TabIndex = 9;
 			this.gbExposureList.TabStop = false;
 			this.gbExposureList.Text = "Exposure Visibility";
+			// 
+			// cdgExposureVisibility
+			// 
+			this.cdgExposureVisibility.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
+			dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+			dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Control;
+			dataGridViewCellStyle1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+			dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.WindowText;
+			dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+			dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+			dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+			this.cdgExposureVisibility.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
+			this.cdgExposureVisibility.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+			this.cdgExposureVisibility.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.cdgExposureVisibility.Location = new System.Drawing.Point(3, 16);
+			this.cdgExposureVisibility.MultiSelect = false;
+			this.cdgExposureVisibility.Name = "cdgExposureVisibility";
+			this.cdgExposureVisibility.RowHeadersWidth = 51;
+			this.cdgExposureVisibility.ShowCellToolTips = false;
+			this.cdgExposureVisibility.Size = new System.Drawing.Size(156, 425);
+			this.cdgExposureVisibility.TabIndex = 2;
 			// 
 			// tableLayoutPanel2
 			// 
@@ -127,27 +148,6 @@
 			this.listViewExposure.TabIndex = 1;
 			this.listViewExposure.UseCompatibleStateImageBehavior = false;
 			// 
-			// cdgExposureVisibility
-			// 
-			this.cdgExposureVisibility.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
-			dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-			dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Control;
-			dataGridViewCellStyle1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-			dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.WindowText;
-			dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-			dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-			dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
-			this.cdgExposureVisibility.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
-			this.cdgExposureVisibility.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-			this.cdgExposureVisibility.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.cdgExposureVisibility.Location = new System.Drawing.Point(3, 16);
-			this.cdgExposureVisibility.MultiSelect = false;
-			this.cdgExposureVisibility.Name = "cdgExposureVisibility";
-			this.cdgExposureVisibility.RowHeadersWidth = 51;
-			this.cdgExposureVisibility.ShowCellToolTips = false;
-			this.cdgExposureVisibility.Size = new System.Drawing.Size(156, 425);
-			this.cdgExposureVisibility.TabIndex = 2;
-			// 
 			// gbControl
 			// 
 			this.gbControl.Controls.Add(this.btnFlush);
@@ -179,10 +179,10 @@
 			this.Size = new System.Drawing.Size(804, 450);
 			this.tableLayoutPanel1.ResumeLayout(false);
 			this.gbExposureList.ResumeLayout(false);
+			((System.ComponentModel.ISupportInitialize)(this.cdgExposureVisibility)).EndInit();
 			this.tableLayoutPanel2.ResumeLayout(false);
 			this.groupBox2.ResumeLayout(false);
 			this.tableLayoutPanel3.ResumeLayout(false);
-			((System.ComponentModel.ISupportInitialize)(this.cdgExposureVisibility)).EndInit();
 			this.gbControl.ResumeLayout(false);
 			this.ResumeLayout(false);
 

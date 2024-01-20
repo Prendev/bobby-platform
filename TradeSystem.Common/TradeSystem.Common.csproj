@@ -100,6 +100,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Attributes\DateTimeFormatAttribute.cs" />
     <Compile Include="Attributes\DecimalPrecisionAttribute.cs" />
     <Compile Include="Attributes\DisplayPriorityAttribute.cs" />
     <Compile Include="Attributes\EditableColumnAttribute.cs" />
@@ -124,6 +125,7 @@
     <Compile Include="Integration\PositionResponse.cs" />
     <Compile Include="Integration\SortableColumn.cs" />
     <Compile Include="Integration\StopResponse.cs" />
+    <Compile Include="Integration\AccountMetric.cs" />
     <Compile Include="Integration\SymbolStatus.cs" />
     <Compile Include="Integration\Tick.cs" />
     <Compile Include="Integration\Bar.cs" />

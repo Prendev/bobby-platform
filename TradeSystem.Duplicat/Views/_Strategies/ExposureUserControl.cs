@@ -87,13 +87,6 @@ namespace TradeSystem.Duplicat.Views
 			}));
 		}
 
-		private SymbolStatus GetSymbol(List<MappingTable> allMappingTables, string symbol, string broker)
-		{
-			var mappingTable = allMappingTables.FirstOrDefault(mt => mt.BrokerName == broker && mt.Instrument.ToLower() == symbol.ToLower());
-
-			return mappingTable != null ? new SymbolStatus { Symbol = mappingTable.CustomGroup.GroupName, IsCreatedGroup = true } : new SymbolStatus { Symbol = symbol, IsCreatedGroup = false };
-		}
-
 		// Create headers and calculate summary row
 		private ListViewItem CreateHeaderAndSummaryRow(List<MtAccountPosition> mtAccountPositions)
 		{

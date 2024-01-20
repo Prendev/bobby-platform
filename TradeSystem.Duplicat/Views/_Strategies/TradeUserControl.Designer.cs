@@ -88,8 +88,7 @@
 			this.fcdvTrade.AllowUserToAddRows = false;
 			this.fcdvTrade.AllowUserToDeleteRows = false;
 			this.fcdvTrade.AllowUserToResizeRows = false;
-			this.fcdvTrade.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
-			this.fcdvTrade.FilterableDataSource = null;
+			this.fcdvTrade.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
 			dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
 			dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Control;
 			dataGridViewCellStyle1.Font = new System.Drawing.Font("Microsoft Sans Serif", 6.6F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
@@ -100,6 +99,8 @@
 			this.fcdvTrade.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
 			this.fcdvTrade.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
 			this.fcdvTrade.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.fcdvTrade.FilterableDataSource = null;
+			this.fcdvTrade.FilteredText = null;
 			this.fcdvTrade.Location = new System.Drawing.Point(3, 83);
 			this.fcdvTrade.MultiSelect = false;
 			this.fcdvTrade.Name = "fcdvTrade";

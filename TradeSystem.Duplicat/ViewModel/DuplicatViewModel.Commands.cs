@@ -124,6 +124,12 @@ namespace TradeSystem.Duplicat.ViewModel
 				SymbolStatusVisibilityList.Clear();
 				ConnectedMtPositions.Clear();
 
+				AccountMetrics.First(ams => ams.Metric == "Balance").Sum = 0;
+				AccountMetrics.First(ams => ams.Metric == "Equity").Sum = 0;
+				AccountMetrics.First(ams => ams.Metric == "PnL").Sum = 0;
+				AccountMetrics.First(ams => ams.Metric == "Margin").Sum = 0;
+				AccountMetrics.First(ams => ams.Metric == "Free M").Sum = 0;
+
 				_symbolStatusSelectAll.IsVisible = false;
 			}
 			catch (Exception e)

@@ -20,11 +20,11 @@ namespace TradeSystem.Data.Models
 		public int? CTraderAccountId { get; set; }
 		public CTraderAccount CTraderAccount { get; set; }
 
-		public int? CqgClientApiAccountId { get; set; }
-		public CqgClientApiAccount CqgClientApiAccount { get; set; }
+		[InvisibleColumn] public int? CqgClientApiAccountId { get; set; }
+		[InvisibleColumn] public CqgClientApiAccount CqgClientApiAccount { get; set; }
 
-		public int? IbAccountId { get; set; }
-		public IbAccount IbAccount { get; set; }
+		[InvisibleColumn] public int? IbAccountId { get; set; }
+		[InvisibleColumn] public IbAccount IbAccount { get; set; }
 
 		public int? BacktesterAccountId { get; set; }
 		public BacktesterAccount BacktesterAccount { get; set; }
@@ -34,6 +34,12 @@ namespace TradeSystem.Data.Models
 		public List<AggregatorAccount> Aggregators { get; } = new List<AggregatorAccount>();
 		public List<StratHubArbPosition> StratHubArbPositions { get; } = new List<StratHubArbPosition>();
 
+		[EditableColumn]
+		public double TransferAmount { get; set; }
+
+		[EditableColumn]
+		[DateTimeFormat("yyyy.MM.dd hh:mm:ss")]
+		public DateTime? ExpectedDate { get; set; }
 		[EditableColumn]
 		public bool IsAlert { get; set; }
 		[EditableColumn]

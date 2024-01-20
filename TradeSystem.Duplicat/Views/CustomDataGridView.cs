@@ -209,12 +209,21 @@ namespace TradeSystem.Duplicat.Views
 					if (Columns.Contains($"{prop.Name}*") && !_invisibleColumns.Contains($"{prop.Name}*"))
 						_invisibleColumns.Add($"{prop.Name}*");
 				}
-				else if (prop.GetCustomAttributes(true).FirstOrDefault(a => a is EditableColumnAttribute) != null)
+				else
 				{
-					if (!_mofifiableColumns.Contains(prop.Name))
-						_mofifiableColumns.Add(prop.Name);
-					if (Columns.Contains($"{prop.Name}*") && !_mofifiableColumns.Contains($"{prop.Name}*"))
-						_mofifiableColumns.Add($"{prop.Name}*");
+					if (prop.GetCustomAttributes(true).FirstOrDefault(a => a is EditableColumnAttribute) != null)
+					{
+						if (!_mofifiableColumns.Contains(prop.Name))
+							_mofifiableColumns.Add(prop.Name);
+						if (Columns.Contains($"{prop.Name}*") && !_mofifiableColumns.Contains($"{prop.Name}*"))
+							_mofifiableColumns.Add($"{prop.Name}*");
+					}
+
+					if (prop.GetCustomAttributes(true).Any(a => a is DateTimeFormatAttribute))
+					{
+						var dateTimeFormatAttribute = (DateTimeFormatAttribute)Attribute.GetCustomAttribute(prop, typeof(DateTimeFormatAttribute));
+						Columns[prop.Name].DefaultCellStyle.Format = dateTimeFormatAttribute.DateTimeFormat;
+					}
 				}
 			}
 			foreach (var name in _invisibleColumns)
