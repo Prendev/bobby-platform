@@ -11,6 +11,10 @@ namespace TradeSystem.Data.Models
 
 		[DisplayPriority(-1)] public bool Run { get; set; }
 
+		[DisplayPriority(-1)]
+		[EditableColumn]
+		public bool Sum { get; set; }
+
 		public int? MetaTraderAccountId { get; set; }
 		public MetaTraderAccount MetaTraderAccount { get; set; }
 
@@ -34,9 +38,11 @@ namespace TradeSystem.Data.Models
 		public List<AggregatorAccount> Aggregators { get; } = new List<AggregatorAccount>();
 		public List<StratHubArbPosition> StratHubArbPositions { get; } = new List<StratHubArbPosition>();
 
+		[DisplayPriority(-1, true)]
 		[EditableColumn]
 		public double TransferAmount { get; set; }
 
+		[DisplayPriority(-1, true)]
 		[EditableColumn]
 		[DateTimeFormat("yyyy.MM.dd hh:mm:ss")]
 		public DateTime? ExpectedDate { get; set; }

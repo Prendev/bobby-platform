@@ -99,6 +99,12 @@ namespace TradeSystem.Data
 		public DbSet<Ticker> Tickers { get; set; }
 		public DbSet<Export> Exports { get; set; }
 
+		public override int SaveChanges()
+		{
+			AddTimestamps();
+			return base.SaveChanges();
+		}
+
 		public void Init()
 		{
 			if (bool.TryParse(ConfigurationManager.AppSettings["AllowDatabaseMigration"], out bool migrate) && migrate)
@@ -238,6 +244,23 @@ namespace TradeSystem.Data
 					else if (property.ClrType == typeof(TimeSpan?))
 						property.SetValueConverter(nullTimeSpanConverter);
 				}
+		}
+
+		private void AddTimestamps()
+		{
+			var entities = ChangeTracker.Entries()
+				.Where(x => x.Entity is BaseEntity && (x.State == EntityState.Added || x.State == EntityState.Modified));
+
+			foreach (var entity in entities)
+			{
+				var now = DateTime.UtcNow; // current datetime
+
+				if (entity.State == EntityState.Added)
+				{
+					((BaseEntity)entity.Entity).CreatedAt = now;
+				}
+				((BaseEntity)entity.Entity).UpdatedAt = now;
+			}
 		}
 	}
 }

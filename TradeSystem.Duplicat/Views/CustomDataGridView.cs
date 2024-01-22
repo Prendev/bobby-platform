@@ -13,7 +13,7 @@ namespace TradeSystem.Duplicat.Views
 {
 	public class CustomDataGridView : DataGridView
 	{
-		private readonly List<string> _mofifiableColumns = new List<string>();
+		private readonly List<string> _editableColumns = new List<string>();
 		private readonly List<string> _invisibleColumns = new List<string>();
 		private ToolTip _tooltip = null;
 
@@ -43,12 +43,13 @@ namespace TradeSystem.Duplicat.Views
 
 			CellBeginEdit += CustomDataGridView_CellBeginEdit;
 			CellEndEdit += CustomDataGridView_CellEndEdit;
-			CellContentClick += CustomDataGridView_CellContentClick;
+
+			CurrentCellDirtyStateChanged += CustomDataGridView_CurrentCellDirtyStateChanged;
 		}
 
-		private void CustomDataGridView_CellContentClick(object sender, DataGridViewCellEventArgs e)
+		private void CustomDataGridView_CurrentCellDirtyStateChanged(object sender, EventArgs e)
 		{
-			if ((Columns[e.ColumnIndex] is DataGridViewCheckBoxColumn) && _mofifiableColumns.Contains(Columns[e.ColumnIndex].HeaderText) && Rows[e.RowIndex].DataBoundItem is Account)
+			if ((Columns[CurrentCell.ColumnIndex] is DataGridViewCheckBoxColumn) && _editableColumns.Contains(Columns[CurrentCell.ColumnIndex].HeaderText) && Rows[CurrentRow.Index].DataBoundItem is Account)
 			{
 				EndEdit();
 			}
@@ -56,14 +57,14 @@ namespace TradeSystem.Duplicat.Views
 
 		private void CustomDataGridView_CellBeginEdit(object sender, DataGridViewCellCancelEventArgs e)
 		{
-			if (_mofifiableColumns.Contains(Columns[e.ColumnIndex].HeaderText) && Rows[e.RowIndex].DataBoundItem is Account account)
+			if (_editableColumns.Contains(Columns[e.ColumnIndex].HeaderText) && Rows[e.RowIndex].DataBoundItem is Account account)
 			{
 				account.IsUserEditing = true;
 			}
 		}
 		private void CustomDataGridView_CellEndEdit(object sender, DataGridViewCellEventArgs e)
 		{
-			if (_mofifiableColumns.Contains(Columns[e.ColumnIndex].HeaderText) && Rows[e.RowIndex].DataBoundItem is Account account)
+			if (_editableColumns.Contains(Columns[e.ColumnIndex].HeaderText) && Rows[e.RowIndex].DataBoundItem is Account account)
 			{
 				account.IsUserEditing = false;
 			}
@@ -213,10 +214,10 @@ namespace TradeSystem.Duplicat.Views
 				{
 					if (prop.GetCustomAttributes(true).FirstOrDefault(a => a is EditableColumnAttribute) != null)
 					{
-						if (!_mofifiableColumns.Contains(prop.Name))
-							_mofifiableColumns.Add(prop.Name);
-						if (Columns.Contains($"{prop.Name}*") && !_mofifiableColumns.Contains($"{prop.Name}*"))
-							_mofifiableColumns.Add($"{prop.Name}*");
+						if (!_editableColumns.Contains(prop.Name))
+							_editableColumns.Add(prop.Name);
+						if (Columns.Contains($"{prop.Name}*") && !_editableColumns.Contains($"{prop.Name}*"))
+							_editableColumns.Add($"{prop.Name}*");
 					}
 
 					if (prop.GetCustomAttributes(true).Any(a => a is DateTimeFormatAttribute))

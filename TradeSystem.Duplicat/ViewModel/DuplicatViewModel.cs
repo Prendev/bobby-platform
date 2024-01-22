@@ -1,16 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Timers;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
 using TradeSystem.Common;
 using TradeSystem.Common.Integration;
 using TradeSystem.Common.Services;
-using TradeSystem.Communication;
 using TradeSystem.Data;
 using TradeSystem.Data.Models;
 using TradeSystem.Mt4Integration;
@@ -173,12 +171,12 @@ namespace TradeSystem.Duplicat.ViewModel
 			AutoLoadPositionsInSec = 5;
 			AccountMetrics = new BindingList<AccountMetric>
 			{
-				new AccountMetric { Metric="Balance" },
-				new AccountMetric { Metric="Equity" },
-				new AccountMetric { Metric="PnL" },
-				new AccountMetric { Metric="Margin" },
-				new AccountMetric { Metric="Free M" },
-			};							 
+				new AccountMetric { Metric = Metric.Balance },
+				new AccountMetric { Metric = Metric.Equity },
+				new AccountMetric { Metric = Metric.PnL },
+				new AccountMetric { Metric = Metric.Margin },
+				new AccountMetric { Metric = Metric.FreeMargin }
+			};
 
 			_autoSaveTimer.Elapsed += (sender, args) =>
 			{
@@ -277,11 +275,11 @@ namespace TradeSystem.Duplicat.ViewModel
 
 		private void Account_PropertyChanged(object sender, PropertyChangedEventArgs e)
 		{
-			AccountMetrics.First(ams => ams.Metric == "Balance").Sum = ConnectedAccounts.Sum(ca => ca.Balance);
-			AccountMetrics.First(ams => ams.Metric == "Equity").Sum = ConnectedAccounts.Sum(ca => ca.Equity);
-			AccountMetrics.First(ams => ams.Metric == "PnL").Sum = ConnectedAccounts.Sum(ca => ca.PnL);
-			AccountMetrics.First(ams => ams.Metric == "Margin").Sum = ConnectedAccounts.Sum(ca => ca.Margin);
-			AccountMetrics.First(ams => ams.Metric == "Free M").Sum = ConnectedAccounts.Sum(ca => ca.FreeMargin);
+			AccountMetrics.First(ams => ams.Metric == Metric.Balance).Sum = ConnectedAccounts.Where(ca => ca.Sum).Sum(ca => ca.Balance);
+			AccountMetrics.First(ams => ams.Metric == Metric.Equity).Sum = ConnectedAccounts.Where(ca => ca.Sum).Sum(ca => ca.Equity);
+			AccountMetrics.First(ams => ams.Metric == Metric.PnL).Sum = ConnectedAccounts.Where(ca => ca.Sum).Sum(ca => ca.PnL);
+			AccountMetrics.First(ams => ams.Metric == Metric.Margin).Sum = ConnectedAccounts.Where(ca => ca.Sum).Sum(ca => ca.Margin);
+			AccountMetrics.First(ams => ams.Metric == Metric.FreeMargin).Sum = ConnectedAccounts.Where(ca => ca.Sum).Sum(ca => ca.FreeMargin);
 		}
 		private void CreateMtAccount()
 		{
@@ -293,6 +291,18 @@ namespace TradeSystem.Duplicat.ViewModel
 				account.PropertyChanged -= Account_PropertyChanged;
 				account.PropertyChanged += Account_PropertyChanged;
 			});
+
+			// TODO - remove duplicated entites that shouldn't be created
+			foreach (var mtPosGroupByTicketNumber in MtPositions.GroupBy(mp => mp.OpenTime, mp => mp).ToList())
+			{
+				if(mtPosGroupByTicketNumber.Count() > 1)
+				{
+                    foreach (var mtPosition in mtPosGroupByTicketNumber.Skip(1))
+                    {
+						MtPositions.Remove(mtPosition);
+                    }
+                }
+			}
 
 			foreach (var mtPosition in MtPositions.Where(mtp => ConnectedMtAccounts.Contains(mtp.Account)))
 			{
@@ -553,34 +563,8 @@ namespace TradeSystem.Duplicat.ViewModel
 			_duplicatContext.Profiles.Local.CollectionChanged -= Profiles_CollectionChanged;
 			_duplicatContext.Profiles.Local.CollectionChanged += Profiles_CollectionChanged;
 
-			_duplicatContext.CustomGroups.Local.CollectionChanged -= CustomGroups_CollectionChanged;
-			_duplicatContext.CustomGroups.Local.CollectionChanged += CustomGroups_CollectionChanged;
-
-			_duplicatContext.MappingTables.Local.CollectionChanged -= MappingTables_CollectionChanged;
-			_duplicatContext.MappingTables.Local.CollectionChanged += MappingTables_CollectionChanged;
-
 			PropertyChanged -= DuplicatViewModel_PropertyChanged;
 			PropertyChanged += DuplicatViewModel_PropertyChanged;
-		}
-
-		private void MappingTables_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
-		{
-			foreach (var mappingTable in MappingTables)
-			{
-				mappingTable.PropertyChanged -= MappingTable_PropertyChanged;
-				mappingTable.PropertyChanged += MappingTable_PropertyChanged;
-			}
-		}
-
-		private void MappingTable_PropertyChanged(object sender, PropertyChangedEventArgs e)
-		{
-			LoadLocals();
-		}
-
-		private void CustomGroups_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
-		{
-			if (SelectedCustomGroup != null && _duplicatContext.CustomGroups.Local.Any(l => l.Id == SelectedCustomGroup.Id)) return;
-			LoadLocals();
 		}
 
 		private void Profiles_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
