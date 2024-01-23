@@ -13,7 +13,6 @@ namespace TradeSystem.Duplicat.Views
 {
 	public class CustomDataGridView : DataGridView
 	{
-		private readonly List<string> _editableColumns = new List<string>();
 		private readonly List<string> _invisibleColumns = new List<string>();
 		private ToolTip _tooltip = null;
 
@@ -40,34 +39,6 @@ namespace TradeSystem.Duplicat.Views
 			CellMouseEnter += CustomDataGridView_CellMouseEnter;
 			CellMouseLeave += CustomDataGridView_CellMouseLeave;
 			CellFormatting += CustomDataGridView_CellFormatting;
-
-			CellBeginEdit += CustomDataGridView_CellBeginEdit;
-			CellEndEdit += CustomDataGridView_CellEndEdit;
-
-			CurrentCellDirtyStateChanged += CustomDataGridView_CurrentCellDirtyStateChanged;
-		}
-
-		private void CustomDataGridView_CurrentCellDirtyStateChanged(object sender, EventArgs e)
-		{
-			if ((Columns[CurrentCell.ColumnIndex] is DataGridViewCheckBoxColumn) && _editableColumns.Contains(Columns[CurrentCell.ColumnIndex].HeaderText) && Rows[CurrentRow.Index].DataBoundItem is Account)
-			{
-				EndEdit();
-			}
-		}
-
-		private void CustomDataGridView_CellBeginEdit(object sender, DataGridViewCellCancelEventArgs e)
-		{
-			if (_editableColumns.Contains(Columns[e.ColumnIndex].HeaderText) && Rows[e.RowIndex].DataBoundItem is Account account)
-			{
-				account.IsUserEditing = true;
-			}
-		}
-		private void CustomDataGridView_CellEndEdit(object sender, DataGridViewCellEventArgs e)
-		{
-			if (_editableColumns.Contains(Columns[e.ColumnIndex].HeaderText) && Rows[e.RowIndex].DataBoundItem is Account account)
-			{
-				account.IsUserEditing = false;
-			}
 		}
 
 		private void CustomDataGridView_CellMouseEnter(object sender, DataGridViewCellEventArgs e)
@@ -212,14 +183,6 @@ namespace TradeSystem.Duplicat.Views
 				}
 				else
 				{
-					if (prop.GetCustomAttributes(true).FirstOrDefault(a => a is EditableColumnAttribute) != null)
-					{
-						if (!_editableColumns.Contains(prop.Name))
-							_editableColumns.Add(prop.Name);
-						if (Columns.Contains($"{prop.Name}*") && !_editableColumns.Contains($"{prop.Name}*"))
-							_editableColumns.Add($"{prop.Name}*");
-					}
-
 					if (prop.GetCustomAttributes(true).Any(a => a is DateTimeFormatAttribute))
 					{
 						var dateTimeFormatAttribute = (DateTimeFormatAttribute)Attribute.GetCustomAttribute(prop, typeof(DateTimeFormatAttribute));
