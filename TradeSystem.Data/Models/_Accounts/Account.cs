@@ -40,7 +40,7 @@ namespace TradeSystem.Data.Models
 
 		[DisplayPriority(-1, true)]
 		[EditableColumn]
-		public double TransferAmount { get; set; }
+		public double PendingTransfers { get; set; }
 
 		[DisplayPriority(-1, true)]
 		[EditableColumn]
