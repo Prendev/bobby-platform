@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
@@ -37,6 +38,7 @@ namespace TradeSystem.Duplicat.Views
 			CellValidating += CustomDataGridView_CellValidating;
 			CellMouseEnter += CustomDataGridView_CellMouseEnter;
 			CellMouseLeave += CustomDataGridView_CellMouseLeave;
+			CellFormatting += CustomDataGridView_CellFormatting;
 		}
 
 		private void CustomDataGridView_CellMouseEnter(object sender, DataGridViewCellEventArgs e)
@@ -142,6 +144,26 @@ namespace TradeSystem.Duplicat.Views
 			else Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.White;
 		}
 
+		private void CustomDataGridView_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
+		{
+			if (Rows[e.RowIndex].DataBoundItem != null && e.Value != null && double.TryParse(e.Value.ToString(), out double originalValue))
+			{
+				var property = Rows[e.RowIndex].DataBoundItem.GetType().GetProperty(Columns[e.ColumnIndex].Name);
+				var decimalPrecisionAttribute = (DecimalPrecisionAttribute)Attribute.GetCustomAttribute(property, typeof(DecimalPrecisionAttribute));
+
+				if (decimalPrecisionAttribute != null)
+				{
+					var decimalPlaces = decimalPrecisionAttribute.DecimalPlaces;
+					var roundedValue = Math.Round(originalValue, decimalPlaces);
+
+					string formattedValue = string.Format($"{{0:N{decimalPlaces}}}", roundedValue);
+
+					e.Value = formattedValue;
+					e.FormattingApplied = true;
+				}
+			}
+		}
+
 		private void CustomDataGridView_DataSourceChanged(object sender, EventArgs e)
 		{
 			var genericArgs = DataSource?.GetType().GetGenericArguments();
@@ -152,12 +174,21 @@ namespace TradeSystem.Duplicat.Views
 			// Set invisible columns
 			foreach (var prop in genericArgs[0].GetProperties().Where(p => Columns.Contains(p.Name)))
 			{
-				if (prop.GetCustomAttributes(true).FirstOrDefault(a => a is InvisibleColumnAttribute) == null) continue;
-
-				if (!_invisibleColumns.Contains(prop.Name))
-					_invisibleColumns.Add(prop.Name);
-				if (Columns.Contains($"{prop.Name}*") && !_invisibleColumns.Contains($"{prop.Name}*"))
-					_invisibleColumns.Add($"{prop.Name}*");
+				if (prop.GetCustomAttributes(true).FirstOrDefault(a => a is InvisibleColumnAttribute) != null)
+				{
+					if (!_invisibleColumns.Contains(prop.Name))
+						_invisibleColumns.Add(prop.Name);
+					if (Columns.Contains($"{prop.Name}*") && !_invisibleColumns.Contains($"{prop.Name}*"))
+						_invisibleColumns.Add($"{prop.Name}*");
+				}
+				else
+				{
+					if (prop.GetCustomAttributes(true).Any(a => a is DateTimeFormatAttribute))
+					{
+						var dateTimeFormatAttribute = (DateTimeFormatAttribute)Attribute.GetCustomAttribute(prop, typeof(DateTimeFormatAttribute));
+						Columns[prop.Name].DefaultCellStyle.Format = dateTimeFormatAttribute.DateTimeFormat;
+					}
+				}
 			}
 			foreach (var name in _invisibleColumns)
 			{

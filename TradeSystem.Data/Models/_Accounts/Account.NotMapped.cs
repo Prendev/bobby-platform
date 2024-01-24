@@ -19,6 +19,9 @@ namespace TradeSystem.Data.Models
 		private readonly Object _lock = new Object();
 		private Timer cooldownTimer;
 
+		private volatile bool _isBusy;
+		private bool isUserEditing;
+
 		[NotMapped]
 		[InvisibleColumn]
 		public bool IsBusy
@@ -26,7 +29,15 @@ namespace TradeSystem.Data.Models
 			get => _isBusy;
 			set => _isBusy = value;
 		}
-		private volatile bool _isBusy;
+
+		[NotMapped]
+		[InvisibleColumn]
+		public bool IsUserEditing
+		{
+			get => isUserEditing;
+			set => isUserEditing = value;
+		}
+
 
 		public event EventHandler<NewTick> NewTick;
 		public event EventHandler<ConnectionStates> ConnectionChanged;
@@ -41,33 +52,39 @@ namespace TradeSystem.Data.Models
 		[DisplayPriority(0, true)]
 		[NotMapped]
 		[ReadOnly(true)]
+		[DecimalPrecision(2)]
 		public double Balance { get => Get<double>(); set => Set(value); }
 
 		[DisplayPriority(0, true)]
 		[NotMapped]
 		[ReadOnly(true)]
+		[DecimalPrecision(2)]
 		public double Equity { get => Get<double>(); set => Set(value); }
 
 		[DisplayPriority(0, true)]
 		[NotMapped]
 		[ReadOnly(true)]
+		[DecimalPrecision(2)]
 		public double PnL { get => Get<double>(); set => Set(value); }
 
 		[DisplayPriority(0, true)]
 		[NotMapped]
 		[ReadOnly(true)]
+		[DecimalPrecision(2)]
 		public double Margin { get => Get<double>(); set => Set(value); }
 
 		[DisplayName("Free M")]
 		[DisplayPriority(0, true)]
 		[NotMapped]
 		[ReadOnly(true)]
+		[DecimalPrecision(2)]
 		public double FreeMargin { get => Get<double>(); set => Set(value); }
 
 		[DisplayName("M %")]
 		[DisplayPriority(0, true)]
 		[NotMapped]
 		[ReadOnly(true)]
+		[DecimalPrecision(2)]
 		public double MarginLevel { get => Get<double>(); set => Set(value); }
 
 		[NotMapped][InvisibleColumn] public IConnector Connector { get => Get<IConnector>(); set => Set(value); }
@@ -138,16 +155,19 @@ namespace TradeSystem.Data.Models
 
 		private void Connector_MarginChanged(object sender, EventArgs e)
 		{
-			Balance = Connector.Balance;
-			Equity = Connector.Equity;
-			PnL = Connector.PnL;
-			Margin = Connector.Margin;
-			FreeMargin = Connector.FreeMargin;
-			MarginLevel = Connector.MarginLevel;
+			if (!isUserEditing)
+			{
+				Balance = Connector.Balance;
+				Equity = Connector.Equity;
+				PnL = Connector.PnL;
+				Margin = Connector.Margin;
+				FreeMargin = Connector.FreeMargin;
+				MarginLevel = Connector.MarginLevel;
+			}
 
 			lock (_lock)
 			{
-				if (!notificationSent && IsAlert && MarginLevel < MarginLevelAlert && !(Margin == 0 && MarginLevel == 0))
+				if (!notificationSent && IsAlert && Connector.MarginLevel < MarginLevelAlert && !(Connector.Margin == 0 && Connector.MarginLevel == 0))
 				{
 					SendTwilioNotifications();
 				}

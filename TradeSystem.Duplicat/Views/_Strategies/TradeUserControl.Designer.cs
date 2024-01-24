@@ -33,10 +33,10 @@
 			this.label1 = new System.Windows.Forms.Label();
 			this.tbTrade = new System.Windows.Forms.TextBox();
 			this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
-			this.sfdgvTrade = new TradeSystem.Duplicat.Views.SortableFilterableDataGridView();
+			this.fcdvTrade = new TradeSystem.Duplicat.Views.FilterableCustomDataGridView();
 			this.gbTrade.SuspendLayout();
 			this.tableLayoutPanel1.SuspendLayout();
-			((System.ComponentModel.ISupportInitialize)(this.sfdgvTrade)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.fcdvTrade)).BeginInit();
 			this.SuspendLayout();
 			// 
 			// gbTrade
@@ -72,7 +72,7 @@
 			this.tableLayoutPanel1.ColumnCount = 1;
 			this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
 			this.tableLayoutPanel1.Controls.Add(this.gbTrade, 0, 0);
-			this.tableLayoutPanel1.Controls.Add(this.sfdgvTrade, 0, 1);
+			this.tableLayoutPanel1.Controls.Add(this.fcdvTrade, 0, 1);
 			this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.tableLayoutPanel1.Location = new System.Drawing.Point(6, 0);
 			this.tableLayoutPanel1.Name = "tableLayoutPanel1";
@@ -83,11 +83,12 @@
 			this.tableLayoutPanel1.Size = new System.Drawing.Size(787, 483);
 			this.tableLayoutPanel1.TabIndex = 0;
 			// 
-			// sfdgvTrade
+			// fcdvTrade
 			// 
-			this.sfdgvTrade.AllowUserToAddRows = false;
-			this.sfdgvTrade.AllowUserToDeleteRows = false;
-			this.sfdgvTrade.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
+			this.fcdvTrade.AllowUserToAddRows = false;
+			this.fcdvTrade.AllowUserToDeleteRows = false;
+			this.fcdvTrade.AllowUserToResizeRows = false;
+			this.fcdvTrade.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
 			dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
 			dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Control;
 			dataGridViewCellStyle1.Font = new System.Drawing.Font("Microsoft Sans Serif", 6.6F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
@@ -95,17 +96,19 @@
 			dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight;
 			dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
 			dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
-			this.sfdgvTrade.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
-			this.sfdgvTrade.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-			this.sfdgvTrade.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.sfdgvTrade.Location = new System.Drawing.Point(3, 83);
-			this.sfdgvTrade.MultiSelect = false;
-			this.sfdgvTrade.Name = "sfdgvTrade";
-			this.sfdgvTrade.ReadOnly = true;
-			this.sfdgvTrade.RowHeadersWidth = 51;
-			this.sfdgvTrade.ShowCellToolTips = false;
-			this.sfdgvTrade.Size = new System.Drawing.Size(781, 397);
-			this.sfdgvTrade.TabIndex = 3;
+			this.fcdvTrade.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
+			this.fcdvTrade.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+			this.fcdvTrade.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.fcdvTrade.FilterableDataSource = null;
+			this.fcdvTrade.FilteredText = null;
+			this.fcdvTrade.Location = new System.Drawing.Point(3, 83);
+			this.fcdvTrade.MultiSelect = false;
+			this.fcdvTrade.Name = "fcdvTrade";
+			this.fcdvTrade.RowHeadersVisible = false;
+			this.fcdvTrade.RowHeadersWidth = 51;
+			this.fcdvTrade.ShowCellToolTips = false;
+			this.fcdvTrade.Size = new System.Drawing.Size(781, 397);
+			this.fcdvTrade.TabIndex = 3;
 			// 
 			// TradeUserControl
 			// 
@@ -118,7 +121,7 @@
 			this.gbTrade.ResumeLayout(false);
 			this.gbTrade.PerformLayout();
 			this.tableLayoutPanel1.ResumeLayout(false);
-			((System.ComponentModel.ISupportInitialize)(this.sfdgvTrade)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.fcdvTrade)).EndInit();
 			this.ResumeLayout(false);
 
 		}
@@ -129,6 +132,6 @@
 		private System.Windows.Forms.Label label1;
 		private System.Windows.Forms.TextBox tbTrade;
 		private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
-		private SortableFilterableDataGridView sfdgvTrade;
+		private FilterableCustomDataGridView fcdvTrade;
 	}
 }

@@ -2,7 +2,7 @@
 
 namespace TradeSystem.Common.Attributes
 {
-    public class SortableColumnAttribute : Attribute
+    public class EditableColumnAttribute : Attribute
     {
     }
 }

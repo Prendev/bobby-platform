@@ -234,7 +234,7 @@
     <Compile Include="Models\MappingTable.cs" />
     <Compile Include="Models\Export.cs" />
     <Compile Include="Models\FixApiCopierPosition.cs" />
-    <Compile Include="Models\_Accounts\MtAccountPosition.cs" />
+    <Compile Include="Models\_Accounts\MetaTraderPosition.cs" />
     <Compile Include="Models\_Strategies\TwilioSettings.cs" />
     <Compile Include="Models\_Strategies\PhoneSettings.cs" />
     <Compile Include="Models\_Strategies\CustomGroup.cs" />

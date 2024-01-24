@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Timers;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Internal;
 using TradeSystem.Common;
 using TradeSystem.Common.Integration;
 using TradeSystem.Common.Services;
@@ -119,9 +119,15 @@ namespace TradeSystem.Duplicat.ViewModel
 		public event DataContextChangedEventHandler DataContextChanged;
 
 		public List<CustomGroup> AllCustomGroups { get; private set; }
+		public List<Account> ConnectedAccounts { get; private set; } = new List<Account>();
 		public List<Account> ConnectedMtAccounts { get; private set; } = new List<Account>();
-		public BindingList<MtAccountPosition> MtPositions { get; private set; } = new BindingList<MtAccountPosition>();
-		public List<MtAccount> MtAccountPositions { get; private set; } = new List<MtAccount>();
+		public BindingList<AccountMetric> AccountMetrics { get; }
+
+		public List<MtAccountPosition> MtAccountPositions { get; private set; } = new List<MtAccountPosition>();
+
+		public BindingList<MetaTraderPosition> MtPositions { get; private set; }
+		public SortableBindingList<MetaTraderPosition> ConnectedMtPositions { get; private set; } = new SortableBindingList<MetaTraderPosition>();
+
 		public BindingList<SymbolStatus> SymbolStatusVisibilityList { get; private set; } = new BindingList<SymbolStatus>();
 
 		public void OnNewTick(Tick e) => Tick?.Invoke(this, e);
@@ -163,6 +169,14 @@ namespace TradeSystem.Duplicat.ViewModel
 		{
 			AutoSavePeriodInMin = 1;
 			AutoLoadPositionsInSec = 5;
+			AccountMetrics = new BindingList<AccountMetric>
+			{
+				new AccountMetric { Metric = Metric.Balance },
+				new AccountMetric { Metric = Metric.Equity },
+				new AccountMetric { Metric = Metric.PnL },
+				new AccountMetric { Metric = Metric.Margin },
+				new AccountMetric { Metric = Metric.FreeMargin }
+			};
 
 			_autoSaveTimer.Elapsed += (sender, args) =>
 			{
@@ -195,9 +209,28 @@ namespace TradeSystem.Duplicat.ViewModel
 			InitDataContext();
 		}
 
-		public void CloseOrder(MtAccountPosition mtAccountPosition)
+		public void CloseOrder(MetaTraderPosition mtPosition)
 		{
-			(mtAccountPosition.Account.Connector as Connector).SendClosePositionRequests(mtAccountPosition.Position);
+			mtPosition.IsRemoved = true;
+			var position = (mtPosition.Account.Connector as Connector).Positions.FirstOrDefault(p => p.Key == mtPosition.PositionKey);
+
+			if (position.Value != null)
+			{
+				var res = (mtPosition.Account.Connector as Connector).SendClosePositionRequests(position.Value);
+				if (!res.Pos.IsClosed) mtPosition.IsRemoved = false;
+			}
+		}
+
+		public void FlushMtAccount()
+		{
+			_autoLoadPosition.Stop();
+
+			ConnectedMtAccounts = new List<Account>();
+			SymbolStatusVisibilityList = new BindingList<SymbolStatus>();
+			_symbolStatusSelectAll.IsVisible = false;
+			CreateMtAccount();
+
+			_autoLoadPosition.Start();
 		}
 
 		private void DuplicatViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -240,22 +273,42 @@ namespace TradeSystem.Duplicat.ViewModel
 			}
 		}
 
-		public void FlushMtAccount()
+		private void Account_PropertyChanged(object sender, PropertyChangedEventArgs e)
 		{
-			_autoLoadPosition.Stop();
-
-			ConnectedMtAccounts = new List<Account>();
-			SymbolStatusVisibilityList = new BindingList<SymbolStatus>();
-			_symbolStatusSelectAll.IsVisible = false;
-			CreateMtAccount();
-
-			_autoLoadPosition.Start();
+			AccountMetrics.First(ams => ams.Metric == Metric.Balance).Sum = ConnectedAccounts.Where(ca => ca.Sum).Sum(ca => ca.Balance);
+			AccountMetrics.First(ams => ams.Metric == Metric.Equity).Sum = ConnectedAccounts.Where(ca => ca.Sum).Sum(ca => ca.Equity);
+			AccountMetrics.First(ams => ams.Metric == Metric.PnL).Sum = ConnectedAccounts.Where(ca => ca.Sum).Sum(ca => ca.PnL);
+			AccountMetrics.First(ams => ams.Metric == Metric.Margin).Sum = ConnectedAccounts.Where(ca => ca.Sum).Sum(ca => ca.Margin);
+			AccountMetrics.First(ams => ams.Metric == Metric.FreeMargin).Sum = ConnectedAccounts.Where(ca => ca.Sum).Sum(ca => ca.FreeMargin);
 		}
-
 		private void CreateMtAccount()
 		{
-			ConnectedMtAccounts = Accounts.Where(account => account.MetaTraderAccount != null && account.ConnectionState == ConnectionStates.Connected).ToList();
+			ConnectedAccounts = Accounts.Where(account => account.ConnectionState == ConnectionStates.Connected).ToList();
+			ConnectedMtAccounts = ConnectedAccounts.Where(account => account.MetaTraderAccount != null).ToList();
 
+			ConnectedAccounts.ForEach(account =>
+			{
+				account.PropertyChanged -= Account_PropertyChanged;
+				account.PropertyChanged += Account_PropertyChanged;
+			});
+
+			// TODO - remove duplicated entites that shouldn't be created
+			foreach (var mtPosGroupByTicketNumber in MtPositions.GroupBy(mp => mp.OpenTime, mp => mp).ToList())
+			{
+				if(mtPosGroupByTicketNumber.Count() > 1)
+				{
+                    foreach (var mtPosition in mtPosGroupByTicketNumber.Skip(1))
+                    {
+						MtPositions.Remove(mtPosition);
+                    }
+                }
+			}
+
+			foreach (var mtPosition in MtPositions.Where(mtp => ConnectedMtAccounts.Contains(mtp.Account)))
+			{
+				ConnectedMtPositions.Add(mtPosition);
+				if (mtPosition.IsRemoved) CloseOrder(mtPosition);
+			}
 			UpdateMtPositions();
 			UpdateMtAccountPositions();
 
@@ -274,22 +327,37 @@ namespace TradeSystem.Duplicat.ViewModel
 
 		public void UpdateMtPositions()
 		{
-			var mtPositions = ConnectedMtAccounts
+			var mtPositionTrades = ConnectedMtAccounts
 							.SelectMany(cma => cma.Connector.Positions
-							.Where(p => !p.Value.IsClosed).Select(p => new MtAccountPosition
+							.Where(p => !p.Value.IsClosed).Select(p => new MetaTraderPosition
 							{
 								Account = cma,
-								AccountName = cma.MetaTraderAccount?.Description,
-								Position = p.Value,
-								PositionName = p.Value.Symbol,
 								OpenTime = p.Value.OpenTime.ToString("yyyy.MM.dd. HH:mm:ss"),
+								PositionKey = p.Key,
+								Size = p.Value.Lots,
+								Symbol = p.Value.Symbol,
+								Comment = p.Value.Comment
 							}));
 
-			MtPositions.Clear();
+			var connectedMtAccountPositionTradeDb = MtPositions.Where(mtp => ConnectedMtAccounts.Contains(mtp.Account));
 
-			foreach (var item in mtPositions)
+			var newMtPositionTrades = mtPositionTrades.Where(mtp => !connectedMtAccountPositionTradeDb.Any(mtap => mtap.Account == mtp.Account && mtap.PositionKey == mtp.PositionKey)).ToList();
+			var removeMtPositionTrades = connectedMtAccountPositionTradeDb.Where(mtp => !mtPositionTrades.Any(mtap => mtap.Account == mtp.Account && mtap.PositionKey == mtp.PositionKey)).ToList();
+
+			foreach (var mtPositionTrade in newMtPositionTrades)
 			{
-				MtPositions.Add(item);
+				MtPositions.Add(mtPositionTrade);
+				ConnectedMtPositions.Add(mtPositionTrade);
+			}
+			foreach (var mtPositionTrade in removeMtPositionTrades)
+			{
+				MtPositions.Remove(mtPositionTrade);
+				ConnectedMtPositions.Remove(mtPositionTrade);
+			}
+
+			foreach (var mtAccountPosition in MtPositions.Where(mtap => mtap.IsPreOrderClosing && mtap.Account.Margin > mtap.Margin))
+			{
+				CloseOrder(mtAccountPosition);
 			}
 		}
 
@@ -327,7 +395,7 @@ namespace TradeSystem.Duplicat.ViewModel
 		{
 			var allMappingTables = AllCustomGroups.SelectMany(cg => cg.MappingTables).ToList();
 
-			MtAccountPositions = ConnectedMtAccounts.Select(cma => new MtAccount
+			MtAccountPositions = ConnectedMtAccounts.Select(cma => new MtAccountPosition
 			{
 				Broker = cma.Connector.Broker,
 				AccountName = cma.MetaTraderAccount?.Description ?? cma.FixApiAccount?.Description ?? "",
@@ -391,7 +459,7 @@ namespace TradeSystem.Duplicat.ViewModel
 			var p = SelectedProfile?.Id;
 			var selectedCustomGroupId = SelectedCustomGroup?.Id;
 
-
+			_duplicatContext.MetaTraderPositions.Load();
 			_duplicatContext.MetaTraderPlatforms.OrderBy(e => e.ToString()).Load();
 			_duplicatContext.CTraderPlatforms.OrderBy(e => e.ToString()).Load();
 			_duplicatContext.MetaTraderAccounts.Include(e => e.InstrumentConfigs).OrderBy(e => e.ToString()).Load();
@@ -445,6 +513,7 @@ namespace TradeSystem.Duplicat.ViewModel
 				.Include(e => e.NewsArbPositions).ThenInclude(e => e.ShortPosition).Load();
 			_duplicatContext.MMs.Where(e => e.ProfileId == p).OrderBy(e => e.ToString()).Load();
 
+			MtPositions = _duplicatContext.MetaTraderPositions.Local.ToBindingList();
 			MtPlatforms = _duplicatContext.MetaTraderPlatforms.Local.ToBindingList();
 			CtPlatforms = _duplicatContext.CTraderPlatforms.Local.ToBindingList();
 			MtAccounts = _duplicatContext.MetaTraderAccounts.Local.ToBindingList();
@@ -494,34 +563,8 @@ namespace TradeSystem.Duplicat.ViewModel
 			_duplicatContext.Profiles.Local.CollectionChanged -= Profiles_CollectionChanged;
 			_duplicatContext.Profiles.Local.CollectionChanged += Profiles_CollectionChanged;
 
-			_duplicatContext.CustomGroups.Local.CollectionChanged -= CustomGroups_CollectionChanged;
-			_duplicatContext.CustomGroups.Local.CollectionChanged += CustomGroups_CollectionChanged;
-
-			_duplicatContext.MappingTables.Local.CollectionChanged -= MappingTables_CollectionChanged;
-			_duplicatContext.MappingTables.Local.CollectionChanged += MappingTables_CollectionChanged;
-
 			PropertyChanged -= DuplicatViewModel_PropertyChanged;
 			PropertyChanged += DuplicatViewModel_PropertyChanged;
-		}
-
-		private void MappingTables_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
-		{
-			foreach (var mappingTable in MappingTables)
-			{
-				mappingTable.PropertyChanged -= MappingTable_PropertyChanged;
-				mappingTable.PropertyChanged += MappingTable_PropertyChanged;
-			}
-		}
-
-		private void MappingTable_PropertyChanged(object sender, PropertyChangedEventArgs e)
-		{
-			LoadLocals();
-		}
-
-		private void CustomGroups_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
-		{
-			if (SelectedCustomGroup != null && _duplicatContext.CustomGroups.Local.Any(l => l.Id == SelectedCustomGroup.Id)) return;
-			LoadLocals();
 		}
 
 		private void Profiles_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)

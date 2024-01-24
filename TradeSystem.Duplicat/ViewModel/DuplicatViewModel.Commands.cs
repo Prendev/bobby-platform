@@ -16,18 +16,16 @@ namespace TradeSystem.Duplicat.ViewModel
 			SaveState = SaveStates.Default;
 			try
 			{
-				var modifiedDbSets = _duplicatContext.ChangeTracker.Entries()
+				var modifiedEntities = _duplicatContext.ChangeTracker.Entries()
 				.Where(e => e.State == EntityState.Modified)
-				.Select(e => e.Entity.GetType().Name) // This gives you the entity type name
-				.Distinct()
+				.Select(e => e.Entity)
 				.ToList();
 
 				_duplicatContext.SaveChanges();
 
-				if (modifiedDbSets.Any(ds => ds == nameof(MappingTable) || ds == nameof(CustomGroup)))
+				if (modifiedEntities.Any(ds => ds.GetType() == typeof(MappingTable) || ds.GetType() == typeof(CustomGroup)))
 				{
-					InitDataContext();
-					DataContextChanged?.Invoke();
+					LoadAllCustomGroups();
 				}
 
 				if (log) Logger.Debug($"Database is saved");
@@ -120,9 +118,15 @@ namespace TradeSystem.Duplicat.ViewModel
 				IsConfigReadonly = false;
 				IsConnected = false;
 
+				ConnectedAccounts.Clear();
 				ConnectedMtAccounts.Clear();
 				SymbolStatusVisibilityList.Clear();
-				MtPositions.Clear();
+				ConnectedMtPositions.Clear();
+
+				foreach (var accountMetrics in AccountMetrics)
+				{
+					accountMetrics.Sum = 0;
+				}
 
 				_symbolStatusSelectAll.IsVisible = false;
 			}

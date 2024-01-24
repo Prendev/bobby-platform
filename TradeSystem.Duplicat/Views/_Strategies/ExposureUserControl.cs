@@ -87,15 +87,8 @@ namespace TradeSystem.Duplicat.Views
 			}));
 		}
 
-		private SymbolStatus GetSymbol(List<MappingTable> allMappingTables, string symbol, string broker)
-		{
-			var mappingTable = allMappingTables.FirstOrDefault(mt => mt.BrokerName == broker && mt.Instrument.ToLower() == symbol.ToLower());
-
-			return mappingTable != null ? new SymbolStatus { Symbol = mappingTable.CustomGroup.GroupName, IsCreatedGroup = true } : new SymbolStatus { Symbol = symbol, IsCreatedGroup = false };
-		}
-
 		// Create headers and calculate summary row
-		private ListViewItem CreateHeaderAndSummaryRow(List<MtAccount> mtAccountPositions)
+		private ListViewItem CreateHeaderAndSummaryRow(List<MtAccountPosition> mtAccountPositions)
 		{
 			var headerColumnIndex = 0; // Initialize headerColumnIndex.
 
@@ -135,7 +128,7 @@ namespace TradeSystem.Duplicat.Views
 		}
 
 		// Calculate the summary of positions for multiple accounts
-		private void CreateAccountRows(List<MtAccount> mtAccountPositions)
+		private void CreateAccountRows(List<MtAccountPosition> mtAccountPositions)
 		{
 			foreach (var mtap in mtAccountPositions)
 			{
@@ -167,7 +160,7 @@ namespace TradeSystem.Duplicat.Views
 		}
 
 		// Add new headers, set columns visibility and recalculate summary row
-		private void UpdateHeaderAndSummaryRow(List<MtAccount> mtAccountPositions)
+		private void UpdateHeaderAndSummaryRow(List<MtAccountPosition> mtAccountPositions)
 		{
 			var headerColumnIndex = 2;
 
@@ -203,7 +196,7 @@ namespace TradeSystem.Duplicat.Views
 		}
 
 		// Recalculate the summary of positions for multiple accounts
-		private void UpdateAccountRows(List<MtAccount> mtAccountPositions)
+		private void UpdateAccountRows(List<MtAccountPosition> mtAccountPositions)
 		{
 			for (int accountIndex = 0; accountIndex < listViewExposure.Items.Count - 1; accountIndex++)
 			{

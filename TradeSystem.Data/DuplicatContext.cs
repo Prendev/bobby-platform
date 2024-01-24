@@ -52,6 +52,7 @@ namespace TradeSystem.Data
 		public DbSet<CTraderPlatform> CTraderPlatforms { get; set; }
 		public DbSet<MetaTraderAccount> MetaTraderAccounts { get; set; }
 		public DbSet<MetaTraderInstrumentConfig> MetaTraderInstrumentConfigs { get; set; }
+		public DbSet<MetaTraderPosition> MetaTraderPositions { get; set; }
 		public DbSet<CTraderAccount> CTraderAccounts { get; set; }
 		public DbSet<FixApiAccount> FixApiAccounts { get; set; }
 		public DbSet<IlyaFastFeedAccount> IlyaFastFeedAccounts { get; set; }
@@ -97,6 +98,12 @@ namespace TradeSystem.Data
 
 		public DbSet<Ticker> Tickers { get; set; }
 		public DbSet<Export> Exports { get; set; }
+
+		public override int SaveChanges()
+		{
+			AddTimestamps();
+			return base.SaveChanges();
+		}
 
 		public void Init()
 		{
@@ -237,6 +244,23 @@ namespace TradeSystem.Data
 					else if (property.ClrType == typeof(TimeSpan?))
 						property.SetValueConverter(nullTimeSpanConverter);
 				}
+		}
+
+		private void AddTimestamps()
+		{
+			var entities = ChangeTracker.Entries()
+				.Where(x => x.Entity is BaseEntity && (x.State == EntityState.Added || x.State == EntityState.Modified));
+
+			foreach (var entity in entities)
+			{
+				var now = DateTime.UtcNow; // current datetime
+
+				if (entity.State == EntityState.Added)
+				{
+					((BaseEntity)entity.Entity).CreatedAt = now;
+				}
+				((BaseEntity)entity.Entity).UpdatedAt = now;
+			}
 		}
 	}
 }
