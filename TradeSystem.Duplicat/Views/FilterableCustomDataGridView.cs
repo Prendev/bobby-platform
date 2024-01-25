@@ -24,7 +24,6 @@ namespace TradeSystem.Duplicat.Views
 			RowHeadersVisible = false;
 			AllowUserToAddRows = false;
 			AllowUserToDeleteRows = false;
-			AllowUserToResizeRows = false;
 
 			AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
 			ColumnHeadersDefaultCellStyle.WrapMode = DataGridViewTriState.False;

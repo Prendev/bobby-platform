@@ -13,8 +13,11 @@ namespace TradeSystem.Duplicat.Views
 {
 	public class CustomDataGridView : DataGridView
 	{
-		private readonly List<string> _invisibleColumns = new List<string>();
 		private ToolTip _tooltip = null;
+		private Tuple<DateTimePicker, DataGridViewCell> lastUsedDateTimePicker = null;
+
+		private readonly List<string> _invisibleColumns = new List<string>();
+		private readonly Dictionary<string, DateTimePicker> _dateTimePickers = new Dictionary<string, DateTimePicker>();
 
 		public EventHandler RowDoubleClick;
 
@@ -39,6 +42,10 @@ namespace TradeSystem.Duplicat.Views
 			CellMouseEnter += CustomDataGridView_CellMouseEnter;
 			CellMouseLeave += CustomDataGridView_CellMouseLeave;
 			CellFormatting += CustomDataGridView_CellFormatting;
+
+			CellClick += CustomDataGridView_DateTimePicker_CellClick;
+			Scroll += CustomDataGridView_Close_DateTimePicker;
+			CellLeave += CustomDataGridView_Close_DateTimePicker;
 		}
 
 		private void CustomDataGridView_CellMouseEnter(object sender, DataGridViewCellEventArgs e)
@@ -183,11 +190,24 @@ namespace TradeSystem.Duplicat.Views
 				}
 				else
 				{
-					if (prop.GetCustomAttributes(true).Any(a => a is DateTimeFormatAttribute))
+					if (prop.GetCustomAttributes(true).Any(a => a is DateTimePickerAttribute) && !_dateTimePickers.ContainsKey(prop.Name))
 					{
-						var dateTimeFormatAttribute = (DateTimeFormatAttribute)Attribute.GetCustomAttribute(prop, typeof(DateTimeFormatAttribute));
-						Columns[prop.Name].DefaultCellStyle.Format = dateTimeFormatAttribute.DateTimeFormat;
+						var format = ((DateTimePickerAttribute)Attribute.GetCustomAttribute(prop, typeof(DateTimePickerAttribute))).Format;
+						Columns[prop.Name].DefaultCellStyle.Format = format;
+						Columns[prop.Name].MinimumWidth = 130;
+
+						var dtp = new DateTimePicker();
+						dtp.Visible = false;
+						dtp.Format = DateTimePickerFormat.Custom;
+						dtp.ShowUpDown = true;
+						dtp.CustomFormat = format;
+						dtp.TextChanged += Dp_TextChanged;
+						dtp.KeyDown += Dtp_KeyDown;
+
+						Controls.Add(dtp);
+						_dateTimePickers.Add(prop.Name, dtp);
 					}
+
 				}
 			}
 			foreach (var name in _invisibleColumns)
@@ -206,6 +226,46 @@ namespace TradeSystem.Duplicat.Views
 				if (Columns.Contains(p.Name)) Columns[p.Name].DisplayIndex = i;
 				if (Columns.Contains($"{p.Name}*")) Columns[$"{p.Name}*"].DisplayIndex = i;
 			}
+		}
+
+		private void Dtp_KeyDown(object sender, KeyEventArgs e)
+		{
+			if (e.KeyCode == Keys.Delete)
+			{
+				lastUsedDateTimePicker.Item1.Visible = false;
+				lastUsedDateTimePicker.Item2.Value = null;
+			}
+		}
+
+		private void Dp_TextChanged(object sender, EventArgs e)
+		{
+			if (_dateTimePickers.ContainsKey(Columns[CurrentCell.ColumnIndex].Name))
+			{
+				CurrentCell.Value = _dateTimePickers[Columns[CurrentCell.ColumnIndex].Name].Value.ToString();
+			}
+		}
+
+		private void CustomDataGridView_DateTimePicker_CellClick(object sender, DataGridViewCellEventArgs e)
+		{
+			if (_dateTimePickers != null && _dateTimePickers.ContainsKey(Columns[CurrentCell.ColumnIndex].Name))
+			{
+				var dtp = _dateTimePickers[Columns[CurrentCell.ColumnIndex].Name];
+
+				dtp.Text = CurrentCell.Value != null ? CurrentCell.Value.ToString() : DateTime.Now.ToString();
+
+				var recatngle = GetCellDisplayRectangle(e.ColumnIndex, e.RowIndex, true);
+
+				dtp.Size = new Size(recatngle.Width, recatngle.Height);
+				dtp.Location = new Point(recatngle.X, recatngle.Y);
+				dtp.Visible = true;
+
+				lastUsedDateTimePicker = new Tuple<DateTimePicker, DataGridViewCell>(dtp, CurrentCell);
+			}
+		}
+
+		private void CustomDataGridView_Close_DateTimePicker(object sender, EventArgs e)
+		{
+			if (lastUsedDateTimePicker != null) lastUsedDateTimePicker.Item1.Visible = false;
 		}
 
 		private void DataGridView_DataError(object sender, DataGridViewDataErrorEventArgs e)
