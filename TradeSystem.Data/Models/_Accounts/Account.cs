@@ -38,19 +38,22 @@ namespace TradeSystem.Data.Models
 		public List<AggregatorAccount> Aggregators { get; } = new List<AggregatorAccount>();
 		public List<StratHubArbPosition> StratHubArbPositions { get; } = new List<StratHubArbPosition>();
 
+		[EditableColumn]
+		public bool IsAlert { get; set; }
+
+		[EditableColumn]
+		public double MarginLevelAlert { get; set; }
+
+		[EditableColumn]
+		public double MarginLevelWarning { get; set; }
+
 		[DisplayPriority(-1, true)]
 		[EditableColumn]
 		public double PendingTransfers { get; set; }
 
 		[DisplayPriority(-1, true)]
 		[EditableColumn]
-		[DateTimeFormat("yyyy.MM.dd hh:mm:ss")]
+		[DateTimePicker]
 		public DateTime? ExpectedDate { get; set; }
-		[EditableColumn]
-		public bool IsAlert { get; set; }
-		[EditableColumn]
-		public double MarginLevelAlert { get; set; }
-		[EditableColumn]
-		public double MarginLevelWarning { get; set; }
 	}
 }

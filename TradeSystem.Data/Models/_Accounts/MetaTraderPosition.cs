@@ -20,13 +20,16 @@ namespace TradeSystem.Data.Models
 
 		[ReadOnly(true)]
 		[DisplayName("Order")]
+		[FilterableColumn]
 		public long PositionKey { get; set; }
 
 		[ReadOnly(true)]
 		[DisplayName("Time")]
+		[FilterableColumn]
 		public string OpenTime { get; set; }
 
 		[ReadOnly(true)]
+		[FilterableColumn]
 		public decimal Size { get; set; }
 
 		[ReadOnly(true)]
@@ -34,12 +37,14 @@ namespace TradeSystem.Data.Models
 		public string Symbol { get; set; }
 
 		[ReadOnly(true)]
+		[FilterableColumn]
 		public string Comment { get; set; }
 
 		[DisplayName("Pre-order closing")]
 		public bool IsPreOrderClosing { get; set; }
 
-		public double Margin { get; set; }
+		[DisplayName("M %")]
+		public double MarginLevel { get; set; }
 
 		[InvisibleColumn]
 		public bool IsRemoved { get; set; }

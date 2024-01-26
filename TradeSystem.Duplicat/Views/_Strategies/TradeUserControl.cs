@@ -84,7 +84,7 @@ namespace TradeSystem.Duplicat.Views._Strategies
 			if (bindingList.Count <= rowIndex) return;
 			var mtPosition = bindingList[rowIndex] as MetaTraderPosition;
 
-			if (mtPosition.IsRemoved || (mtPosition.IsPreOrderClosing && mtPosition.Account.Margin > mtPosition.Margin))
+			if (mtPosition.IsRemoved || (mtPosition.IsPreOrderClosing && mtPosition.Account.MarginLevel < mtPosition.MarginLevel))
 			{
 				fcdvTrade.Rows[rowIndex].DefaultCellStyle.BackColor = Color.MediumVioletRed;
 			}

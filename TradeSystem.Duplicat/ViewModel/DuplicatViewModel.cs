@@ -355,7 +355,7 @@ namespace TradeSystem.Duplicat.ViewModel
 				ConnectedMtPositions.Remove(mtPositionTrade);
 			}
 
-			foreach (var mtAccountPosition in MtPositions.Where(mtap => mtap.IsPreOrderClosing && mtap.Account.Margin > mtap.Margin))
+			foreach (var mtAccountPosition in MtPositions.Where(mtap => mtap.IsPreOrderClosing && mtap.Account.MarginLevel < mtap.MarginLevel))
 			{
 				CloseOrder(mtAccountPosition);
 			}
