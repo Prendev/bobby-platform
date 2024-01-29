@@ -224,6 +224,9 @@
     <Compile Include="Views\CopiersUserControl.Designer.cs">
       <DependentUpon>CopiersUserControl.cs</DependentUpon>
     </Compile>
+    <Compile Include="Views\RotatedDataGridView.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Views\FilterableCustomDataGridView.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -363,6 +366,12 @@
     <Compile Include="Views\TickersUserControl.Designer.cs">
       <DependentUpon>TickersUserControl.cs</DependentUpon>
     </Compile>
+    <Compile Include="Views\_Strategies\RiskManagementUserControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Views\_Strategies\RiskManagementUserControl.Designer.cs">
+      <DependentUpon>RiskManagementUserControl.cs</DependentUpon>
+    </Compile>
     <Compile Include="Views\_Strategies\SpoofingUserControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -453,6 +462,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Views\TickersUserControl.resx">
       <DependentUpon>TickersUserControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\_Strategies\RiskManagementUserControl.resx">
+      <DependentUpon>RiskManagementUserControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\_Strategies\SpoofingUserControl.resx">
       <DependentUpon>SpoofingUserControl.cs</DependentUpon>

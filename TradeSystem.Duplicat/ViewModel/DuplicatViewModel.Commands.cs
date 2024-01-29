@@ -54,7 +54,7 @@ namespace TradeSystem.Duplicat.ViewModel
 				await _orchestrator.StartTickers(_duplicatContext);
 				await _orchestrator.StartStrategies(_duplicatContext);
 
-				CreateMtAccount();
+				ConnectToAccounts();
 
 				AreCopiersStarted = true;
 				AreTickersStarted = true;
@@ -83,7 +83,7 @@ namespace TradeSystem.Duplicat.ViewModel
 				IsConfigReadonly = true;
 				await _orchestrator.Connect(_duplicatContext);
 
-				CreateMtAccount();
+				ConnectToAccounts();
 
 				IsLoading = false;
 				IsConfigReadonly = true;
@@ -118,11 +118,6 @@ namespace TradeSystem.Duplicat.ViewModel
 				IsConfigReadonly = false;
 				IsConnected = false;
 
-				ConnectedAccounts.Clear();
-				ConnectedMtAccounts.Clear();
-				SymbolStatusVisibilityList.Clear();
-				ConnectedMtPositions.Clear();
-
 				foreach (var accountMetrics in AccountMetrics)
 				{
 					accountMetrics.Sum = 0;
@@ -139,6 +134,14 @@ namespace TradeSystem.Duplicat.ViewModel
 			}
 			finally
 			{
+				ConnectedAccounts.Clear();
+				ConnectedMtAccounts.Clear();
+				SymbolStatusVisibilityList.Clear();
+				ConnectedMtPositions.Clear();
+				SelectedRiskManagements.Clear();
+				SelectedRiskManagementSettings.Clear();
+				SelectedRiskManagementSetting = null;
+
 				_autoSaveTimer.Stop();
 				_autoLoadPosition.Stop();
 			}
@@ -155,9 +158,19 @@ namespace TradeSystem.Duplicat.ViewModel
 			SelectedSlave = null;
 			SelectedCopier = null;
 			SelectedPushing = null;
+			SelectedRiskManagementSetting = null;
 
 			InitDataContext();
 			DataContextChanged?.Invoke();
+		}
+
+		public void LoadSettingCommand(RiskManagement riskManagement)
+		{
+			//if (IsConfigReadonly) return;
+			//if (IsLoading) return;
+			SelectedRiskManagementSetting = riskManagement.RiskManagementSetting;
+			SelectedRiskManagementSettings.Clear();
+			SelectedRiskManagementSettings.Add(riskManagement.RiskManagementSetting);
 		}
 
 

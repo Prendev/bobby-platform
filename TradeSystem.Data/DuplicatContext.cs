@@ -66,7 +66,7 @@ namespace TradeSystem.Data
 		public DbSet<MappingTable> MappingTables { get; set; }
 		public DbSet<TwilioSetting> TwilioSettings { get; set; }
 		public DbSet<PhoneSettings> PhoneSettings { get; set; }
-        public DbSet<Account> Accounts { get; set; }
+		public DbSet<Account> Accounts { get; set; }
 		public DbSet<Aggregator> Aggregators { get; set; }
 		public DbSet<AggregatorAccount> AggregatorAccounts { get; set; }
 		public DbSet<Proxy> Proxies { get; set; }
@@ -99,8 +99,11 @@ namespace TradeSystem.Data
 		public DbSet<Ticker> Tickers { get; set; }
 		public DbSet<Export> Exports { get; set; }
 
+		public DbSet<RiskManagementSetting> Settings { get; set; }
+		public DbSet<RiskManagement> RiskManagements { get; set; }
 		public override int SaveChanges()
 		{
+			AddRiskManager();
 			AddTimestamps();
 			return base.SaveChanges();
 		}
@@ -145,6 +148,16 @@ namespace TradeSystem.Data
 
 			try
 			{
+				foreach (var a in Accounts.Where(a => a.RiskManagement == null))
+				{
+					a.RiskManagement = new RiskManagement { RiskManagementSetting = new RiskManagementSetting() };
+				}
+				SaveChanges();
+			}
+			catch { }
+
+			try
+			{
 				// Create default entities in the TwilioSettings and delete any existing ones
 				var accountSid = ConfigurationManager.AppSettings["TwilioService.AccountSid"];
 				var authToken = ConfigurationManager.AppSettings["TwilioService.AuthToken"];
@@ -182,7 +195,7 @@ namespace TradeSystem.Data
 				if (existingEntities.All(entity => entity.Key != coolDownTimerInMin))
 				{
 					// Add default entity for message
-					TwilioSettings.Add(new TwilioSetting { Key = coolDownTimerInMin, Value="1" });
+					TwilioSettings.Add(new TwilioSetting { Key = coolDownTimerInMin, Value = "1" });
 				}
 
 				// Remove other entities from the database
@@ -224,6 +237,20 @@ namespace TradeSystem.Data
 			//	.HasOne(x => x.Position).WithMany(x => x.StratHubArbPositions)
 			//	.HasForeignKey(x => x.PositionId);
 
+			modelBuilder.Entity<Account>()
+			.HasOne(a => a.RiskManagement)
+			.WithOne(r => r.Account)
+			.HasForeignKey<RiskManagement>(r => r.AccountId)
+			.IsRequired()
+			.OnDelete(DeleteBehavior.Cascade);
+
+			modelBuilder.Entity<RiskManagement>()
+			.HasOne(rm => rm.RiskManagementSetting)
+			.WithOne(s => s.RiskManagement)
+			.HasForeignKey<RiskManagementSetting>(s => s.RiskManagementId)
+			.IsRequired()
+			.OnDelete(DeleteBehavior.Cascade);
+
 			var timeSpanConverter = new ValueConverter<TimeSpan, long>(v => v.Ticks, v => new TimeSpan(v));
 			var nullTimeSpanConverter = new ValueConverter<TimeSpan?, long?>(v => v != null ? v.Value.Ticks : (long?)null,
 				v => v != null ? new TimeSpan(v.Value) : (TimeSpan?)null);
@@ -244,6 +271,24 @@ namespace TradeSystem.Data
 					else if (property.ClrType == typeof(TimeSpan?))
 						property.SetValueConverter(nullTimeSpanConverter);
 				}
+
+			//modelBuilder.Entity<RiskManagement>()
+			//	.Has
+			//.HasRequired(s => s.)
+			//.WithOptional()
+			//.Map(m => m.MapKey("FirstId"));
+		}
+
+		private void AddRiskManager()
+		{
+			var accountEntities = ChangeTracker.Entries()
+				.Where(x => x.State == EntityState.Added && (x.Entity is Account));
+
+			foreach (var acc in accountEntities)
+			{
+				var rm = new RiskManagement { RiskManagementSetting = new RiskManagementSetting() };
+				(acc.Entity as Account).RiskManagement = rm;
+			}
 		}
 
 		private void AddTimestamps()

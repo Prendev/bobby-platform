@@ -231,6 +231,9 @@
     </Compile>
     <Compile Include="Migrations\DuplicatContextModelSnapshot.cs" />
     <Compile Include="Models\CopierPosition.cs" />
+    <Compile Include="Models\_Strategies\RiskManagement.NotMapped.cs" />
+    <Compile Include="Models\_Strategies\RiskManagement.cs" />
+    <Compile Include="Models\_Strategies\RiskManagementSetting.cs" />
     <Compile Include="Models\MappingTable.cs" />
     <Compile Include="Models\Export.cs" />
     <Compile Include="Models\FixApiCopierPosition.cs" />
