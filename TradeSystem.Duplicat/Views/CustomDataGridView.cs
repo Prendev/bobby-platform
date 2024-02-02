@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.Globalization;
 using System.Linq;
 using System.Windows.Forms;
 using TradeSystem.Common.Attributes;
@@ -46,6 +47,7 @@ namespace TradeSystem.Duplicat.Views
 			CellClick += CustomDataGridView_DateTimePicker_CellClick;
 			Scroll += CustomDataGridView_Close_DateTimePicker;
 			CellLeave += CustomDataGridView_Close_DateTimePicker;
+			RowHeaderMouseClick += CustomDataGridView_Close_DateTimePicker;
 		}
 
 		private void CustomDataGridView_CellMouseEnter(object sender, DataGridViewCellEventArgs e)
@@ -192,15 +194,22 @@ namespace TradeSystem.Duplicat.Views
 				{
 					if (prop.GetCustomAttributes(true).Any(a => a is DateTimePickerAttribute) && !_dateTimePickers.ContainsKey(prop.Name))
 					{
-						var format = ((DateTimePickerAttribute)Attribute.GetCustomAttribute(prop, typeof(DateTimePickerAttribute))).Format;
-						Columns[prop.Name].DefaultCellStyle.Format = format;
-						Columns[prop.Name].MinimumWidth = 130;
-
 						var dtp = new DateTimePicker();
+						var format = ((DateTimePickerAttribute)Attribute.GetCustomAttribute(prop, typeof(DateTimePickerAttribute))).Format;
+						if(format == null)
+						{
+							dtp.Format = DateTimePickerFormat.Short;
+							Columns[prop.Name].DefaultCellStyle.Format = "d";
+							Columns[prop.Name].DefaultCellStyle.FormatProvider = CultureInfo.CurrentCulture;
+						}
+						else
+						{
+							Columns[prop.Name].DefaultCellStyle.Format = format;
+							dtp.Format = DateTimePickerFormat.Custom;
+							dtp.CustomFormat = format;
+						}
+
 						dtp.Visible = false;
-						dtp.Format = DateTimePickerFormat.Custom;
-						dtp.ShowUpDown = true;
-						dtp.CustomFormat = format;
 						dtp.TextChanged += Dp_TextChanged;
 						dtp.KeyDown += Dtp_KeyDown;
 
@@ -230,7 +239,7 @@ namespace TradeSystem.Duplicat.Views
 
 		private void Dtp_KeyDown(object sender, KeyEventArgs e)
 		{
-			if (e.KeyCode == Keys.Delete)
+			if (e.KeyCode == Keys.Delete || e.KeyCode == Keys.Back)
 			{
 				lastUsedDateTimePicker.Item1.Visible = false;
 				lastUsedDateTimePicker.Item2.Value = null;

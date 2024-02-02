@@ -6,7 +6,7 @@ namespace TradeSystem.Common.Attributes
     {
         public string Format { get; }
 
-		public DateTimePickerAttribute(string format = "yyyy-MM-dd HH:mm:ss")
+		public DateTimePickerAttribute(string format = null)
 		{
 			Format = format;
 		}
