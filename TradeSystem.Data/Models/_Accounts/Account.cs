@@ -13,13 +13,13 @@ namespace TradeSystem.Data.Models
 
 		[DisplayPriority(-1)]
 		[EditableColumn]
-		public bool Sum { get; set; }
+		public bool Sum { get => Get<bool>(); set => Set(value); }
 
 		public int? MetaTraderAccountId { get; set; }
-		public MetaTraderAccount MetaTraderAccount { get => Get<MetaTraderAccount>(); set => Set(value); }
+		public MetaTraderAccount MetaTraderAccount { get; set; }
 
 		public int? FixApiAccountId { get; set; }
-		public FixApiAccount FixApiAccount { get => Get<FixApiAccount>(); set => Set(value); }
+		public FixApiAccount FixApiAccount { get; set; }
 
 		public int? CTraderAccountId { get; set; }
 		public CTraderAccount CTraderAccount { get; set; }

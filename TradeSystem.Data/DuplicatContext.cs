@@ -271,12 +271,6 @@ namespace TradeSystem.Data
 					else if (property.ClrType == typeof(TimeSpan?))
 						property.SetValueConverter(nullTimeSpanConverter);
 				}
-
-			//modelBuilder.Entity<RiskManagement>()
-			//	.Has
-			//.HasRequired(s => s.)
-			//.WithOptional()
-			//.Map(m => m.MapKey("FirstId"));
 		}
 
 		private void AddRiskManager()

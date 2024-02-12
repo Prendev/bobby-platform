@@ -224,9 +224,6 @@
     <Compile Include="Views\CopiersUserControl.Designer.cs">
       <DependentUpon>CopiersUserControl.cs</DependentUpon>
     </Compile>
-    <Compile Include="Views\RotatedDataGridView.cs">
-      <SubType>Component</SubType>
-    </Compile>
     <Compile Include="Views\FilterableCustomDataGridView.cs">
       <SubType>Component</SubType>
     </Compile>

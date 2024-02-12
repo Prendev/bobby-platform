@@ -282,11 +282,11 @@ namespace TradeSystem.Duplicat.ViewModel
 
 		private void Account_PropertyChanged(object sender, PropertyChangedEventArgs e)
 		{
-			AccountMetrics.First(ams => ams.Metric == Metric.Balance).Sum = ConnectedAccounts.Where(ca => ca.Sum).Sum(ca => ca.Balance);
-			AccountMetrics.First(ams => ams.Metric == Metric.Equity).Sum = ConnectedAccounts.Where(ca => ca.Sum).Sum(ca => ca.Equity);
-			AccountMetrics.First(ams => ams.Metric == Metric.PnL).Sum = ConnectedAccounts.Where(ca => ca.Sum).Sum(ca => ca.PnL);
-			AccountMetrics.First(ams => ams.Metric == Metric.Margin).Sum = ConnectedAccounts.Where(ca => ca.Sum).Sum(ca => ca.Margin);
-			AccountMetrics.First(ams => ams.Metric == Metric.FreeMargin).Sum = ConnectedAccounts.Where(ca => ca.Sum).Sum(ca => ca.FreeMargin);
+			AccountMetrics.First(ams => ams.Metric == Metric.Balance).Sum = ConnectedAccounts.Where(ca => ca.Sum && ca.ConnectionState == ConnectionStates.Connected).Sum(ca => ca.Balance);
+			AccountMetrics.First(ams => ams.Metric == Metric.Equity).Sum = ConnectedAccounts.Where(ca => ca.Sum && ca.ConnectionState == ConnectionStates.Connected).Sum(ca => ca.Equity);
+			AccountMetrics.First(ams => ams.Metric == Metric.PnL).Sum = ConnectedAccounts.Where(ca => ca.Sum && ca.ConnectionState == ConnectionStates.Connected).Sum(ca => ca.PnL);
+			AccountMetrics.First(ams => ams.Metric == Metric.Margin).Sum = ConnectedAccounts.Where(ca => ca.Sum && ca.ConnectionState == ConnectionStates.Connected).Sum(ca => ca.Margin);
+			AccountMetrics.First(ams => ams.Metric == Metric.FreeMargin).Sum = ConnectedAccounts.Where(ca => ca.Sum && ca.ConnectionState == ConnectionStates.Connected).Sum(ca => ca.FreeMargin);
 		}
 		private void ConnectToAccounts()
 		{
