@@ -224,6 +224,9 @@
     <Compile Include="Views\CopiersUserControl.Designer.cs">
       <DependentUpon>CopiersUserControl.cs</DependentUpon>
     </Compile>
+    <Compile Include="Views\CustomDateTimePicker.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Views\FilterableCustomDataGridView.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -603,6 +606,8 @@
     <Content Include="icon.ico">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <None Include="Resources\calendarWhite.png" />
+    <None Include="Resources\calendarDark.png" />
     <Content Include="todo.txt" />
   </ItemGroup>
   <ItemGroup />
