@@ -37,6 +37,11 @@ namespace TradeSystem.Duplicat.Views._Strategies
 			cdgRiskManagements.AllowUserToDeleteRows = false;
 			cdgRiskManagements.DoubleClick += CdgRiskManagements_DoubleClick;
 			cdgRiskManagements.CellFormatting += CdgRiskManagements_CellFormatting;
+
+			_viewModel.Tick += (sender, e) =>
+			{
+				_viewModel.UpdateRiskManagement();
+			};
 		}
 
 		private void CdgRiskManagements_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
@@ -59,6 +64,10 @@ namespace TradeSystem.Duplicat.Views._Strategies
 						break;
 					case nameof(RiskManagement.Regulated):
 						cell.Style.BackColor = riskManagement.Regulated ? Color.FromArgb(0, 255, 0) : Color.FromArgb(255, 0, 0);
+						break;
+					case nameof(RiskManagement.HighestTicketDuration):
+						if (riskManagement.HighestTicketDuration != null) FormatCellFill(cell, riskManagement.RiskManagementSetting.MaxTicketDuration);
+						else cell.Style.BackColor = Color.White;
 						break;
 				}
 			}

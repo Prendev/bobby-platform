@@ -33,6 +33,7 @@ namespace TradeSystem.Orchestration
 		Task BalanceProfitExport(DuplicatContext duplicatContext, DateTime from, DateTime to);
 		void MtAccountImport(DuplicatContext duplicatContext);
 		void SaveTheWeekend(DuplicatContext duplicatContext, DateTime from, DateTime to);
+		void UpdateRiskManagementForOpenPositions(DuplicatContext duplicatContext);
 	}
 
 	public partial class Orchestrator : IOrchestrator
@@ -223,6 +224,35 @@ namespace TradeSystem.Orchestration
 				.ToList();
 
 			await _reportService.BalanceProfitExport(exports, from, to);
+		}
+
+		public void UpdateRiskManagementForOpenPositions(DuplicatContext duplicatContext)
+		{
+			var riskManagements = duplicatContext.Accounts.Where(a => a.ConnectionState == ConnectionStates.Connected).Select(a => a.RiskManagement);
+
+			foreach (var riskManagement in riskManagements)
+			{
+				riskManagement.HighestTicketDuration = GetHighetTicketDuration(riskManagement.Account);
+				riskManagement.NumTicketsHighDuration = GetNumTicketsHighDuration(riskManagement.Account);
+			}
+		}
+		private int? GetHighetTicketDuration(Account account)
+		{
+			var opennedPositions = account.Connector.Positions.Where(p => !p.Value.IsClosed);
+			if (opennedPositions.Any())
+			{
+				return opennedPositions.Max(p => DateTime.Now - p.Value.OpenTime).Days;
+			}
+			return null;
+		}
+		private int? GetNumTicketsHighDuration(Account account)
+		{
+			var opennedPositions = account.Connector.Positions.Where(p => !p.Value.IsClosed);
+			if (opennedPositions.Any())
+			{
+				return opennedPositions.Count(p => (DateTime.Now - p.Value.OpenTime).Days == account.RiskManagement.HighestTicketDuration);
+			}
+			return null;
 		}
 	}
 }

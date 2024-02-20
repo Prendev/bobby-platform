@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
 using TradeSystem.Common.Attributes;
 
 namespace TradeSystem.Data.Models
@@ -26,6 +27,16 @@ namespace TradeSystem.Data.Models
 		[ReadOnly(true)]
 		[DisplayPriority(2)]
 		public int AccountAge { get => Get<int>(GetAccountAge); private set => Set(value); }
+
+		[NotMapped]
+		[ReadOnly(true)]
+		[DisplayPriority(4)]
+		public int? HighestTicketDuration { get => Get<int?>(); set => Set(value); }
+
+		[NotMapped]
+		[ReadOnly(true)]
+		[DisplayPriority(4)]
+		public int? NumTicketsHighDuration { get => Get<int?>(); set => Set(value); }
 
 		private int GetAccountAge()
 		{

@@ -14,7 +14,8 @@ namespace TradeSystem.Data.Models
 		[DisplayName("Max P/L")]
 		public double MaxPnL { get; set; }
 
-        [Required]
         public double MaxSwaps { get; set; }
-    }
+
+		public int MaxTicketDuration { get; set; }
+	}
 }

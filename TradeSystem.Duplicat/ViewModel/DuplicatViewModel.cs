@@ -333,6 +333,11 @@ namespace TradeSystem.Duplicat.ViewModel
 			}
 		}
 
+		public void UpdateRiskManagement()
+		{
+			_orchestrator.UpdateRiskManagementForOpenPositions(_duplicatContext);
+		}
+
 		public void UpdateMtPositions()
 		{
 			var mtPositionTrades = ConnectedMtAccounts

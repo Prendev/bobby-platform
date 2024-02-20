@@ -55,6 +55,8 @@ namespace TradeSystem.Duplicat.ViewModel
 				await _orchestrator.StartTickers(_duplicatContext);
 				await _orchestrator.StartStrategies(_duplicatContext);
 
+				_orchestrator.UpdateRiskManagementForOpenPositions(_duplicatContext);
+
 				ConnectToAccounts();
 
 				AreCopiersStarted = true;
@@ -83,7 +85,8 @@ namespace TradeSystem.Duplicat.ViewModel
 				IsLoading = true;
 				IsConfigReadonly = true;
 				await _orchestrator.Connect(_duplicatContext);
-
+				_orchestrator.UpdateRiskManagementForOpenPositions(_duplicatContext);
+				
 				ConnectToAccounts();
 
 				IsLoading = false;
