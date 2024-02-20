@@ -225,7 +225,13 @@ namespace TradeSystem.Duplicat.ViewModel
 			if (position.Value != null)
 			{
 				var res = (mtPosition.Account.Connector as Connector).SendClosePositionRequests(position.Value);
-				if (!res.Pos.IsClosed) mtPosition.IsRemoved = false;
+
+				if (res.Pos.IsClosed)
+				{
+					MtPositions.Remove(mtPosition);
+					ConnectedMtPositions.Remove(mtPosition);
+				}
+				else mtPosition.IsRemoved = false;
 			}
 		}
 
@@ -304,17 +310,7 @@ namespace TradeSystem.Duplicat.ViewModel
 				account.PropertyChanged += Account_PropertyChanged;
 			});
 
-			// TODO - remove duplicated entites that shouldn't be created
-			foreach (var mtPosGroupByTicketNumber in MtPositions.GroupBy(mp => mp.OpenTime, mp => mp).ToList())
-			{
-				if (mtPosGroupByTicketNumber.Count() > 1)
-				{
-					foreach (var mtPosition in mtPosGroupByTicketNumber.Skip(1))
-					{
-						MtPositions.Remove(mtPosition);
-					}
-				}
-			}
+			CheckDuplicatedPositions();
 
 			foreach (var mtPosition in MtPositions.Where(mtp => ConnectedMtAccounts.Contains(mtp.Account)))
 			{
@@ -351,6 +347,7 @@ namespace TradeSystem.Duplicat.ViewModel
 								Comment = p.Value.Comment
 							}));
 
+			CheckDuplicatedPositions();
 			var connectedMtAccountPositionTradeDb = MtPositions.Where(mtp => ConnectedMtAccounts.Contains(mtp.Account));
 
 			var newMtPositionTrades = mtPositionTrades.Where(mtp => !connectedMtAccountPositionTradeDb.Any(mtap => mtap.Account == mtp.Account && mtap.PositionKey == mtp.PositionKey)).ToList();
@@ -367,7 +364,7 @@ namespace TradeSystem.Duplicat.ViewModel
 				ConnectedMtPositions.Remove(mtPositionTrade);
 			}
 
-			foreach (var mtAccountPosition in MtPositions.Where(mtap => mtap.IsPreOrderClosing && mtap.Account.MarginLevel < mtap.MarginLevel))
+			foreach (var mtAccountPosition in MtPositions.Where(mtap => mtap.IsPreOrderClosing && mtap.Account.MarginLevel < mtap.MarginLevel).ToList())
 			{
 				CloseOrder(mtAccountPosition);
 			}
@@ -599,6 +596,21 @@ namespace TradeSystem.Duplicat.ViewModel
 			if (e.ListChangedType == ListChangedType.ItemAdded && Accounts.Count > 1)
 			{
 				Accounts.Last().OrderNumber = Accounts[Accounts.Count - 2].OrderNumber + 1;
+			}
+		}
+
+		private void CheckDuplicatedPositions()
+		{
+			// TODO - remove duplicated entites that shouldn't be created
+			foreach (var mtPosGroupByTicketNumber in MtPositions.GroupBy(mp => mp.OpenTime, mp => mp).ToList())
+			{
+				if (mtPosGroupByTicketNumber.Count() > 1)
+				{
+					foreach (var mtPosition in mtPosGroupByTicketNumber.Skip(1))
+					{
+						MtPositions.Remove(mtPosition);
+					}
+				}
 			}
 		}
 
