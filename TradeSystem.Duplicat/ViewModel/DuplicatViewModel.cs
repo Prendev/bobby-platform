@@ -158,6 +158,7 @@ namespace TradeSystem.Duplicat.ViewModel
 		public SaveStates SaveState { get => Get<SaveStates>(); set => Set(value); }
 
 		public Profile SelectedProfile { get => Get<Profile>(); set => Set(value); }
+		public Account SelectedAccount { get => Get<Account>(); set => Set(value); }
 		public CustomGroup SelectedCustomGroup { get => Get<CustomGroup>(); set => Set(value); }
 		public MetaTraderAccount SelectedMt4Account { get => Get<MetaTraderAccount>(); set => Set(value); }
 		public BacktesterAccount SelectedBacktesterAccount { get => Get<BacktesterAccount>(); set => Set(value); }
@@ -492,7 +493,7 @@ namespace TradeSystem.Duplicat.ViewModel
 
 			_duplicatContext.Proxies.OrderBy(e => e.ToString()).Load();
 			_duplicatContext.ProfileProxies.Where(e => e.ProfileId == p).OrderBy(e => e.ToString()).Load();
-			_duplicatContext.Accounts.Where(e => e.ProfileId == p).OrderBy(e => e.ToString())
+			_duplicatContext.Accounts.Where(e => e.ProfileId == p).OrderBy(e => e.OrderNumber)
 				.Include(e => e.StratHubArbPositions).ThenInclude(e => e.Position)
 				.Include(e => e.RiskManagement).Load();
 
@@ -584,6 +585,21 @@ namespace TradeSystem.Duplicat.ViewModel
 
 			PropertyChanged -= DuplicatViewModel_PropertyChanged;
 			PropertyChanged += DuplicatViewModel_PropertyChanged;
+
+			Accounts.ListChanged -= Accounts_ListChanged;
+			Accounts.ListChanged += Accounts_ListChanged;
+		}
+
+		private void Accounts_ListChanged(object sender, ListChangedEventArgs e)
+		{
+			if (e.ListChangedType == ListChangedType.ItemAdded && Accounts.Count == 1)
+			{
+				Accounts.First().OrderNumber = 1;
+			}
+			if (e.ListChangedType == ListChangedType.ItemAdded && Accounts.Count > 1)
+			{
+				Accounts.Last().OrderNumber = Accounts[Accounts.Count - 2].OrderNumber + 1;
+			}
 		}
 
 		private BindingList<T> ToBindingList<T, TSelected>(

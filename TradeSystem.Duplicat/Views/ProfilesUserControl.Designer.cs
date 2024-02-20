@@ -35,24 +35,30 @@
 			this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
 			this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
 			this.gbControl = new System.Windows.Forms.GroupBox();
+			this.panel1 = new System.Windows.Forms.Panel();
+			this.labelAccount = new System.Windows.Forms.Label();
+			this.label1 = new System.Windows.Forms.Label();
+			this.btnAccountDown = new System.Windows.Forms.Button();
 			this.btnHeatUp = new System.Windows.Forms.Button();
+			this.btnAccountUp = new System.Windows.Forms.Button();
 			this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
 			this.groupBox1 = new System.Windows.Forms.GroupBox();
-			this.groupBox2 = new System.Windows.Forms.GroupBox();
-			this.gbProfile = new System.Windows.Forms.GroupBox();
 			this.dgvAccounts = new TradeSystem.Duplicat.Views.CustomDataGridView();
+			this.groupBox2 = new System.Windows.Forms.GroupBox();
 			this.dgvMetrics = new TradeSystem.Duplicat.Views.CustomDataGridView();
+			this.gbProfile = new System.Windows.Forms.GroupBox();
 			this.dgvProfiles = new TradeSystem.Duplicat.Views.CustomDataGridView();
 			this.tlpMain.SuspendLayout();
 			this.tableLayoutPanel1.SuspendLayout();
 			this.tableLayoutPanel2.SuspendLayout();
 			this.gbControl.SuspendLayout();
+			this.panel1.SuspendLayout();
 			this.tableLayoutPanel3.SuspendLayout();
 			this.groupBox1.SuspendLayout();
-			this.groupBox2.SuspendLayout();
-			this.gbProfile.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.dgvAccounts)).BeginInit();
+			this.groupBox2.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.dgvMetrics)).BeginInit();
+			this.gbProfile.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.dgvProfiles)).BeginInit();
 			this.SuspendLayout();
 			// 
@@ -104,7 +110,10 @@
 			// 
 			// gbControl
 			// 
+			this.gbControl.Controls.Add(this.panel1);
+			this.gbControl.Controls.Add(this.btnAccountDown);
 			this.gbControl.Controls.Add(this.btnHeatUp);
+			this.gbControl.Controls.Add(this.btnAccountUp);
 			this.gbControl.Dock = System.Windows.Forms.DockStyle.Top;
 			this.gbControl.Location = new System.Drawing.Point(2, 2);
 			this.gbControl.Margin = new System.Windows.Forms.Padding(2);
@@ -115,6 +124,45 @@
 			this.gbControl.TabStop = false;
 			this.gbControl.Text = "Control";
 			// 
+			// panel1
+			// 
+			this.panel1.Controls.Add(this.labelAccount);
+			this.panel1.Controls.Add(this.label1);
+			this.panel1.Location = new System.Drawing.Point(397, 18);
+			this.panel1.Name = "panel1";
+			this.panel1.Size = new System.Drawing.Size(315, 29);
+			this.panel1.TabIndex = 23;
+			// 
+			// labelAccount
+			// 
+			this.labelAccount.AutoSize = true;
+			this.labelAccount.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.labelAccount.Location = new System.Drawing.Point(101, 5);
+			this.labelAccount.Name = "labelAccount";
+			this.labelAccount.Size = new System.Drawing.Size(14, 17);
+			this.labelAccount.TabIndex = 30;
+			this.labelAccount.Text = "-";
+			// 
+			// label1
+			// 
+			this.label1.Anchor = System.Windows.Forms.AnchorStyles.Left;
+			this.label1.AutoSize = true;
+			this.label1.Location = new System.Drawing.Point(3, 5);
+			this.label1.Name = "label1";
+			this.label1.Size = new System.Drawing.Size(104, 15);
+			this.label1.TabIndex = 29;
+			this.label1.Text = "Selected account:";
+			this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			// 
+			// btnAccountDown
+			// 
+			this.btnAccountDown.Location = new System.Drawing.Point(285, 18);
+			this.btnAccountDown.Name = "btnAccountDown";
+			this.btnAccountDown.Size = new System.Drawing.Size(106, 23);
+			this.btnAccountDown.TabIndex = 1;
+			this.btnAccountDown.Text = "Down";
+			this.btnAccountDown.UseVisualStyleBackColor = true;
+			// 
 			// btnHeatUp
 			// 
 			this.btnHeatUp.Location = new System.Drawing.Point(5, 18);
@@ -124,11 +172,21 @@
 			this.btnHeatUp.Text = "Heat up test order";
 			this.btnHeatUp.UseVisualStyleBackColor = true;
 			// 
+			// btnAccountUp
+			// 
+			this.btnAccountUp.Location = new System.Drawing.Point(175, 18);
+			this.btnAccountUp.Name = "btnAccountUp";
+			this.btnAccountUp.Size = new System.Drawing.Size(105, 23);
+			this.btnAccountUp.TabIndex = 0;
+			this.btnAccountUp.Text = "Up";
+			this.btnAccountUp.UseVisualStyleBackColor = true;
+			// 
 			// tableLayoutPanel3
 			// 
 			this.tableLayoutPanel3.ColumnCount = 2;
 			this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 171F));
 			this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+			this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
 			this.tableLayoutPanel3.Controls.Add(this.groupBox1, 1, 0);
 			this.tableLayoutPanel3.Controls.Add(this.groupBox2, 0, 0);
 			this.tableLayoutPanel3.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -136,7 +194,6 @@
 			this.tableLayoutPanel3.Name = "tableLayoutPanel3";
 			this.tableLayoutPanel3.RowCount = 1;
 			this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-			this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
 			this.tableLayoutPanel3.Size = new System.Drawing.Size(774, 539);
 			this.tableLayoutPanel3.TabIndex = 3;
 			// 
@@ -152,30 +209,6 @@
 			this.groupBox1.TabIndex = 4;
 			this.groupBox1.TabStop = false;
 			this.groupBox1.Text = "Accounts";
-			// 
-			// groupBox2
-			// 
-			this.groupBox2.Controls.Add(this.dgvMetrics);
-			this.groupBox2.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.groupBox2.Location = new System.Drawing.Point(2, 2);
-			this.groupBox2.Margin = new System.Windows.Forms.Padding(2);
-			this.groupBox2.Name = "groupBox2";
-			this.groupBox2.Padding = new System.Windows.Forms.Padding(2);
-			this.groupBox2.Size = new System.Drawing.Size(167, 535);
-			this.groupBox2.TabIndex = 5;
-			this.groupBox2.TabStop = false;
-			this.groupBox2.Text = "Sum of Connected Metrics";
-			// 
-			// gbProfile
-			// 
-			this.gbProfile.Controls.Add(this.dgvProfiles);
-			this.gbProfile.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.gbProfile.Location = new System.Drawing.Point(3, 3);
-			this.gbProfile.Name = "gbProfile";
-			this.gbProfile.Size = new System.Drawing.Size(144, 595);
-			this.gbProfile.TabIndex = 0;
-			this.gbProfile.TabStop = false;
-			this.gbProfile.Text = "Profiles (use double-click)";
 			// 
 			// dgvAccounts
 			// 
@@ -200,6 +233,19 @@
 			this.dgvAccounts.Size = new System.Drawing.Size(595, 518);
 			this.dgvAccounts.TabIndex = 0;
 			// 
+			// groupBox2
+			// 
+			this.groupBox2.Controls.Add(this.dgvMetrics);
+			this.groupBox2.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.groupBox2.Location = new System.Drawing.Point(2, 2);
+			this.groupBox2.Margin = new System.Windows.Forms.Padding(2);
+			this.groupBox2.Name = "groupBox2";
+			this.groupBox2.Padding = new System.Windows.Forms.Padding(2);
+			this.groupBox2.Size = new System.Drawing.Size(167, 535);
+			this.groupBox2.TabIndex = 5;
+			this.groupBox2.TabStop = false;
+			this.groupBox2.Text = "Sum of Connected Metrics";
+			// 
 			// dgvMetrics
 			// 
 			this.dgvMetrics.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
@@ -220,6 +266,17 @@
 			this.dgvMetrics.ShowCellToolTips = false;
 			this.dgvMetrics.Size = new System.Drawing.Size(163, 518);
 			this.dgvMetrics.TabIndex = 0;
+			// 
+			// gbProfile
+			// 
+			this.gbProfile.Controls.Add(this.dgvProfiles);
+			this.gbProfile.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.gbProfile.Location = new System.Drawing.Point(3, 3);
+			this.gbProfile.Name = "gbProfile";
+			this.gbProfile.Size = new System.Drawing.Size(144, 595);
+			this.gbProfile.TabIndex = 0;
+			this.gbProfile.TabStop = false;
+			this.gbProfile.Text = "Profiles (use double-click)";
 			// 
 			// dgvProfiles
 			// 
@@ -253,12 +310,14 @@
 			this.tableLayoutPanel1.ResumeLayout(false);
 			this.tableLayoutPanel2.ResumeLayout(false);
 			this.gbControl.ResumeLayout(false);
+			this.panel1.ResumeLayout(false);
+			this.panel1.PerformLayout();
 			this.tableLayoutPanel3.ResumeLayout(false);
 			this.groupBox1.ResumeLayout(false);
-			this.groupBox2.ResumeLayout(false);
-			this.gbProfile.ResumeLayout(false);
 			((System.ComponentModel.ISupportInitialize)(this.dgvAccounts)).EndInit();
+			this.groupBox2.ResumeLayout(false);
 			((System.ComponentModel.ISupportInitialize)(this.dgvMetrics)).EndInit();
+			this.gbProfile.ResumeLayout(false);
 			((System.ComponentModel.ISupportInitialize)(this.dgvProfiles)).EndInit();
 			this.ResumeLayout(false);
 
@@ -278,5 +337,10 @@
 		private CustomDataGridView dgvAccounts;
 		private System.Windows.Forms.GroupBox groupBox2;
 		private CustomDataGridView dgvMetrics;
+		private System.Windows.Forms.Button btnAccountDown;
+		private System.Windows.Forms.Button btnAccountUp;
+		private System.Windows.Forms.Panel panel1;
+		private System.Windows.Forms.Label labelAccount;
+		private System.Windows.Forms.Label label1;
 	}
 }

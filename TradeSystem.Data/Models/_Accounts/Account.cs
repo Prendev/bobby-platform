@@ -6,6 +6,7 @@ namespace TradeSystem.Data.Models
 {
 	public partial class Account : BaseEntity
 	{
+		[InvisibleColumn] public int OrderNumber { get; set; }
 		[InvisibleColumn] public int ProfileId { get; set; }
 		[InvisibleColumn] public Profile Profile { get; set; }
 

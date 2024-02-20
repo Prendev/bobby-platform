@@ -3,6 +3,7 @@ using System.Configuration;
 using System.IO;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Newtonsoft.Json;
 using TradeSystem.Data.Models;
@@ -148,6 +149,14 @@ namespace TradeSystem.Data
 
 			try
 			{
+				if (Accounts.Any(a => a.OrderNumber == 0))
+				{
+					var orderNumber = 1;
+					foreach (var a in Accounts)
+					{
+						a.OrderNumber = orderNumber++;
+					}
+				}
 				foreach (var a in Accounts.Where(a => a.RiskManagement == null))
 				{
 					a.RiskManagement = new RiskManagement { RiskManagementSetting = new RiskManagementSetting() };

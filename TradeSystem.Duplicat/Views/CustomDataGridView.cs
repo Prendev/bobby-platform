@@ -30,7 +30,6 @@ namespace TradeSystem.Duplicat.Views
 			AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
 			ColumnHeadersDefaultCellStyle.WrapMode = DataGridViewTriState.False;
 			DataSourceChanged += CustomDataGridView_DataSourceChanged;
-			RowPrePaint += CustomDataGridView_RowPrePaint;
 			DataError += DataGridView_DataError;
 			DoubleClick += (sender, args) =>
 			{
@@ -128,32 +127,6 @@ namespace TradeSystem.Duplicat.Views
 		public T GetSelectedItem<T>() where T : class
 		{
 			return CurrentRow?.DataBoundItem as T;
-		}
-
-		private void CustomDataGridView_RowPrePaint(object sender, DataGridViewRowPrePaintEventArgs e)
-		{
-			if (!(DataSource is IBindingList bindingList)) return;
-			if (bindingList.Count <= e.RowIndex) return;
-			if (!(bindingList[e.RowIndex] is Account account)) return;
-
-			if (account.ConnectionState == ConnectionStates.Connected)
-			{
-				if (account.IsAlert && account.MarginLevel < account.MarginLevelAlert && !(account.Margin == 0 && account.MarginLevel == 0))
-				{
-					Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.MediumVioletRed;
-				}
-				else if (account.MarginLevel < account.MarginLevelWarning && !(account.Margin == 0 && account.MarginLevel == 0))
-				{
-					Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.Yellow;
-				}
-				else
-				{
-					Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.LightGreen;
-				}
-			}
-			else if (account.ConnectionState == ConnectionStates.Error)
-				Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.PaleVioletRed;
-			else Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.White;
 		}
 
 		private void CustomDataGridView_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)

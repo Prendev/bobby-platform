@@ -5,6 +5,7 @@ using System.Configuration;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using TradeSystem.Data;
 using TradeSystem.Data.Models;
 
 namespace TradeSystem.Duplicat.ViewModel
@@ -153,6 +154,7 @@ namespace TradeSystem.Duplicat.ViewModel
 			if (IsLoading) return;
 
 			SelectedProfile = profile;
+			SelectedAccount = null;
 			SelectedMt4Account = null;
 			SelectedAggregator = null;
 			SelectedSlave = null;
@@ -162,6 +164,37 @@ namespace TradeSystem.Duplicat.ViewModel
 
 			InitDataContext();
 			DataContextChanged?.Invoke();
+		}
+
+		public void MoveToAccount(bool moveToDown)
+		{
+			if (IsConfigReadonly) return;
+			if (IsLoading) return;
+
+			if (SelectedAccount == null ||
+				(moveToDown && Accounts.IndexOf(SelectedAccount) == Accounts.Count - 1) ||
+				(!moveToDown && Accounts.IndexOf(SelectedAccount) == 0)) return;
+
+			var selectedIndex = Accounts.IndexOf(SelectedAccount);
+			var orderNumber = SelectedAccount.OrderNumber;
+
+			if (moveToDown)
+			{
+				SelectedAccount.OrderNumber = Accounts[selectedIndex + 1].OrderNumber;
+				Accounts[selectedIndex + 1].OrderNumber = orderNumber;
+			}
+			else
+			{
+				SelectedAccount.OrderNumber = Accounts[selectedIndex - 1].OrderNumber;
+				Accounts[selectedIndex - 1].OrderNumber = orderNumber;
+			}
+
+			_duplicatContext.SaveChanges();
+
+			InitDataContext();
+			DataContextChanged?.Invoke();
+
+			SelectedAccount = Accounts.First(a => a.Id == SelectedAccount.Id);
 		}
 
 		public void LoadSettingCommand(RiskManagement riskManagement)
