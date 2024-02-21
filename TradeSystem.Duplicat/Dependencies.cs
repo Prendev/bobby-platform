@@ -113,8 +113,8 @@ namespace TradeSystem.Duplicat
 			builder.RegisterType<AntiMarketMakerService>().As<IAntiMarketMakerService>();
 			builder.RegisterType<MtAccountImportService>().As<IMtAccountImportService>();
 	        builder.RegisterType<BacktesterService>().As<IBacktesterService>();
-
 	        builder.RegisterType<MMStrategyService>().As<IMMStrategyService>();
+	        builder.RegisterType<RiskManagementStrategyService>().As<IRiskManagementStrategyService>();
 		}
     }
 }

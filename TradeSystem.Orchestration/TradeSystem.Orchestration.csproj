@@ -201,6 +201,7 @@
     <Compile Include="Services\StopOrderService.cs" />
     <Compile Include="Services\Strategies\NewsArbService.cs" />
     <Compile Include="Services\Strategies\LatencyArbService.cs" />
+    <Compile Include="Services\Strategies\RiskManagementStrategyService.cs" />
     <Compile Include="Services\TwoWaySpoofingService.cs" />
     <Compile Include="Services\Strategies\HubArbService.SendPosition.cs" />
     <Compile Include="Services\Strategies\HubArbService.Opening.cs" />

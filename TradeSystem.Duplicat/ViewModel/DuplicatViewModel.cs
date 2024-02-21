@@ -335,7 +335,7 @@ namespace TradeSystem.Duplicat.ViewModel
 
 		public void UpdateRiskManagement()
 		{
-			_orchestrator.UpdateRiskManagementForOpenPositions(_duplicatContext);
+			_orchestrator.HighestTicketDuration(_duplicatContext);
 		}
 
 		public void UpdateMtPositions()

@@ -55,7 +55,7 @@ namespace TradeSystem.Duplicat.ViewModel
 				await _orchestrator.StartTickers(_duplicatContext);
 				await _orchestrator.StartStrategies(_duplicatContext);
 
-				_orchestrator.UpdateRiskManagementForOpenPositions(_duplicatContext);
+				_orchestrator.HighestTicketDuration(_duplicatContext);
 
 				ConnectToAccounts();
 
@@ -85,7 +85,7 @@ namespace TradeSystem.Duplicat.ViewModel
 				IsLoading = true;
 				IsConfigReadonly = true;
 				await _orchestrator.Connect(_duplicatContext);
-				_orchestrator.UpdateRiskManagementForOpenPositions(_duplicatContext);
+				_orchestrator.HighestTicketDuration(_duplicatContext);
 				
 				ConnectToAccounts();
 

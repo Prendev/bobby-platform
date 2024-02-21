@@ -104,7 +104,7 @@ namespace TradeSystem.Data
 		public DbSet<RiskManagement> RiskManagements { get; set; }
 		public override int SaveChanges()
 		{
-			AddRiskManager();
+			AddRiskManagement();
 			AddTimestamps();
 			return base.SaveChanges();
 		}
@@ -282,7 +282,7 @@ namespace TradeSystem.Data
 				}
 		}
 
-		private void AddRiskManager()
+		private void AddRiskManagement()
 		{
 			var accountEntities = ChangeTracker.Entries()
 				.Where(x => x.State == EntityState.Added && (x.Entity is Account));

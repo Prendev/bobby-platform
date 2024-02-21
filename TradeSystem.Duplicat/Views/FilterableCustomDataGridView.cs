@@ -195,8 +195,7 @@ namespace TradeSystem.Duplicat.Views
 			var filteredBindingList = (IBindingList)bindingListInstance;
 
 			var filteredList = bindinglist.Cast<object>().Where(item => propertyInfos.Any(prop =>
-			prop.GetValue(item).ToString().Contains(filteredText)))
-				.ToList();
+				prop.GetValue(item) != null && prop.GetValue(item).ToString().Contains(filteredText))).ToList();
 
 			foreach (var item in filteredList)
 			{
