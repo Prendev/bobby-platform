@@ -1,25 +1,62 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using TradeSystem.Data.Models;
 
 namespace TradeSystem.Orchestration.Services.Strategies
 {
 	public interface IRiskManagementStrategyService
 	{
-		void UpdateHighestDurationForOpenPositions(List<RiskManagement> riskManagements);
+		void Start(List<RiskManagement> riskManagements, int throttlingInSec);
+		void Stop();
+		void SetThrottling(int throttlingInSec);
 	}
-	public class RiskManagementStrategyService : IRiskManagementStrategyService
+	public class RiskManagementStrategyService : BaseStrategyService, IRiskManagementStrategyService
 	{
-		public void UpdateHighestDurationForOpenPositions(List<RiskManagement> riskManagements)
+		private volatile CancellationTokenSource _cancellation;
+
+		public void Start(List<RiskManagement> riskManagements, int throttlingInSec)
 		{
-			foreach (var riskManagement in riskManagements)
-			{
-				riskManagement.HighestTicketDuration = GetHighetTicketDuration(riskManagement.Account);
-				riskManagement.NumTicketsHighDuration = GetNumTicketsHighDuration(riskManagement.Account);
-			}
+			_throttlingInSec = throttlingInSec;
+			_cancellation?.Dispose();
+
+			_cancellation = new CancellationTokenSource();
+			new Thread(() => SetLoop(riskManagements, _cancellation.Token)) { Name = $"RiskManagement_strategy", IsBackground = true }.Start();
+
+			Logger.Info("Risk Management are started");
 		}
 
+		public void Stop()
+		{
+			_cancellation?.Cancel(true);
+			Logger.Info("Risk Management are stopped");
+		}
+
+		private void SetLoop(List<RiskManagement> riskManagements, CancellationToken token)
+		{
+			while (!token.IsCancellationRequested)
+			{
+				try
+				{
+					foreach (var riskManagement in riskManagements)
+					{
+						riskManagement.HighestTicketDuration = GetHighetTicketDuration(riskManagement.Account);
+						riskManagement.NumTicketsHighDuration = GetNumTicketsHighDuration(riskManagement.Account);
+					}
+
+					Thread.Sleep(_throttlingInSec * 1000);
+				}
+				catch (OperationCanceledException)
+				{
+					break;
+				}
+				catch (Exception e)
+				{
+					Logger.Error("TradesService.Loop exception", e);
+				}
+			}
+		}
 
 		private int? GetHighetTicketDuration(Account account)
 		{
@@ -30,6 +67,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			}
 			return null;
 		}
+
 		private int? GetNumTicketsHighDuration(Account account)
 		{
 			var opennedPositions = account.Connector.Positions.Where(p => !p.Value.IsClosed);

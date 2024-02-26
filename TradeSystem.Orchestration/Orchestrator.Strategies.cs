@@ -49,7 +49,7 @@ namespace TradeSystem.Orchestration
 
 		void StartTradeStrategy(int throttlingInSec);
 		Task TradePositionClose(MetaTraderPosition position);
-		void HighestTicketDuration();
+		void StartRiskManagementStrategy(int throttlingInSec);
 		void SetThrottling(int throttlingInSec);
 	}
 
@@ -161,6 +161,9 @@ namespace TradeSystem.Orchestration
 			mms.ForEach(mm => _mmStrategyService.Start(mm));
 
 			_tradeService.Start(duplicatContext, throttlingInSec);
+
+			var riskManagements = _duplicatContext.Accounts.Local.Where(a => a.Connector?.IsConnected == true).Select(a => a.RiskManagement).ToList();
+			_riskManagementService.Start(riskManagements, throttlingInSec);
 		}
 
 		public void StopStrategies()
@@ -244,6 +247,7 @@ namespace TradeSystem.Orchestration
 		public void SetThrottling(int throttlingInSec)
 		{
 			_tradeService.SetThrottling(throttlingInSec);
+			_riskManagementService.SetThrottling(throttlingInSec);
 		}
 		public void StartTradeStrategy(int throttlingInSec)
 		{
@@ -255,10 +259,10 @@ namespace TradeSystem.Orchestration
 			await _tradeService.TradePositionClose(_duplicatContext.MetaTraderPositions.Local.ToBindingList(), position);
 		}
 
-		public void HighestTicketDuration()
+		public void StartRiskManagementStrategy(int throttlingInSec)
 		{
 			var riskManagements = _duplicatContext.Accounts.Local.Where(a => a.Connector?.IsConnected == true).Select(a => a.RiskManagement).ToList();
-			_riskManagementService.UpdateHighestDurationForOpenPositions(riskManagements);
+			_riskManagementService.Start(riskManagements, throttlingInSec);
 		}
 	}
 }

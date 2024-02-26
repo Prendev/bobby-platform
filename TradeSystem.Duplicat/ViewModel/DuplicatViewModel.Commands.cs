@@ -54,8 +54,6 @@ namespace TradeSystem.Duplicat.ViewModel
 				await _orchestrator.StartTickers(_duplicatContext);
 				await _orchestrator.StartStrategies(_duplicatContext, AutoLoadPositionsInSec);
 
-				_orchestrator.HighestTicketDuration();
-
 				LoadConnectedLocals();
 
 				ConnectToAccounts();
@@ -88,7 +86,7 @@ namespace TradeSystem.Duplicat.ViewModel
 				await _orchestrator.Connect(_duplicatContext);
 
 				_orchestrator.StartTradeStrategy(AutoLoadPositionsInSec);
-				_orchestrator.HighestTicketDuration();
+				_orchestrator.StartRiskManagementStrategy(AutoLoadPositionsInSec);
 
 				LoadConnectedLocals();
 

@@ -300,6 +300,7 @@ namespace TradeSystem.Duplicat.ViewModel
 				account.PropertyChanged += Account_PropertyChanged;
 			});
 
+			//TODO
 			CheckDuplicatedPositions();
 
 			UpdateMtAccountPositions();
@@ -315,11 +316,6 @@ namespace TradeSystem.Duplicat.ViewModel
 			{
 				SymbolStatusVisibilityList.Add(symbolStatus);
 			}
-		}
-
-		public void UpdateRiskManagementStrategy()
-		{
-			_orchestrator.HighestTicketDuration();
 		}
 
 		public void UpdateMtAccountForExposureStrategy()

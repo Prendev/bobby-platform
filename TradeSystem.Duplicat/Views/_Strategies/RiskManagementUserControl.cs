@@ -34,8 +34,6 @@ namespace TradeSystem.Duplicat.Views._Strategies
 			cdgRiskManagements.AllowUserToDeleteRows = false;
 			cdgRiskManagements.DoubleClick += CdgRiskManagements_DoubleClick;
 			cdgRiskManagements.CellFormatting += CdgRiskManagements_CellFormatting;
-
-			_viewModel.ThrottlingTick += (sender, e) => _viewModel.UpdateRiskManagementStrategy();
 		}
 
 		private void CdgRiskManagements_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)

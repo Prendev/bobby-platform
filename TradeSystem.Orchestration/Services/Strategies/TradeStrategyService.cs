@@ -15,10 +15,9 @@ namespace TradeSystem.Orchestration.Services.Strategies
 		void SetThrottling(int throttlingInSec);
 		Task TradePositionClose(BindingList<MetaTraderPosition> metaTraderPositions, MetaTraderPosition metaTraderPosition);
 	}
-	public class TradeStrategyService : ITradeStrategyService
+	public class TradeStrategyService : BaseStrategyService, ITradeStrategyService
 	{
 		private volatile CancellationTokenSource _cancellation;
-		private int _throttlingInSec;
 
 		public void Start(DuplicatContext duplicatContext, int throttlingInSec)
 		{
@@ -26,21 +25,15 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			_cancellation?.Dispose();
 
 			_cancellation = new CancellationTokenSource();
-			new Thread(() => SetLoop(duplicatContext, _cancellation.Token)) { Name = $"Trade_{1}", IsBackground = true }
-				.Start();
+			new Thread(() => SetLoop(duplicatContext, _cancellation.Token)) { Name = $"Trade_strategy", IsBackground = true }.Start();
 
-			Logger.Info("Trade positions checking are started");
+			Logger.Info("Trade strategy's position monitoring are started");
 		}
 
 		public void Stop()
 		{
 			_cancellation?.Cancel(true);
-			Logger.Info("Trade positions checking are stopped");
-		}
-
-		public void SetThrottling(int throttlingInSec)
-		{
-			_throttlingInSec = throttlingInSec;
+			Logger.Info("Trade strategy's position monitoring are stopped");
 		}
 
 		private async void SetLoop(DuplicatContext duplicatContext, CancellationToken token)
