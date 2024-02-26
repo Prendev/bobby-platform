@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Threading;
 
 namespace TradeSystem.Duplicat.ViewModel
 {
@@ -9,6 +10,8 @@ namespace TradeSystem.Duplicat.ViewModel
 		private bool _isSorted;
 		private ListSortDirection _sortDirection = ListSortDirection.Ascending;
 		private PropertyDescriptor _sortProperty;
+
+		private readonly SynchronizationContext m_syncContext = SynchronizationContext.Current;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="SortableBindingList{T}"/> class.
@@ -86,6 +89,38 @@ namespace TradeSystem.Duplicat.ViewModel
 			_isSorted = true;
 			//fire an event that the list has been changed.
 			OnListChanged(new ListChangedEventArgs(ListChangedType.Reset, -1));
+		}
+
+		/// <summary>
+		/// Overrides the OnAddingNew method to ensure that modifications to the BindingList are performed on the main UI thread by using the captured synchronization context.
+		/// </summary>
+		/// <param name="e"></param>
+		protected override void OnAddingNew(AddingNewEventArgs e)
+		{
+			if (m_syncContext == null)
+				BaseAddingNew(e);
+			else
+				m_syncContext.Send(state => BaseAddingNew(e), null);
+		}
+
+		/// <summary>
+		/// Overrides the OnListChanged method to ensure that modifications to the BindingList are performed on the main UI thread by using the captured synchronization context.
+		/// </summary>
+		/// <param name="e"></param>
+		protected override void OnListChanged(ListChangedEventArgs e)
+		{
+			if (m_syncContext == null)
+				base.OnListChanged(e);
+			else
+				m_syncContext.Send(state => BaseListChanged(e), null);
+		}
+		private void BaseAddingNew(AddingNewEventArgs e)
+		{
+			base.OnAddingNew(e);
+		}
+		private void BaseListChanged(ListChangedEventArgs e)
+		{
+			base.OnListChanged(e);
 		}
 
 

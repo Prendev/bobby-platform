@@ -5,7 +5,6 @@ using System.Configuration;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-using TradeSystem.Data;
 using TradeSystem.Data.Models;
 
 namespace TradeSystem.Duplicat.ViewModel
@@ -53,9 +52,8 @@ namespace TradeSystem.Duplicat.ViewModel
 				await _orchestrator.Connect(_duplicatContext);
 				await _orchestrator.StartCopiers(_duplicatContext);
 				await _orchestrator.StartTickers(_duplicatContext);
-				await _orchestrator.StartStrategies(_duplicatContext);
+				await _orchestrator.StartStrategies(_duplicatContext, AutoLoadPositionsInSec);
 
-				await _orchestrator.AccountOpenedPosition();
 				_orchestrator.HighestTicketDuration();
 
 				LoadConnectedLocals();
@@ -89,7 +87,7 @@ namespace TradeSystem.Duplicat.ViewModel
 				IsConfigReadonly = true;
 				await _orchestrator.Connect(_duplicatContext);
 
-				await _orchestrator.AccountOpenedPosition();
+				_orchestrator.StartTradeStrategy(AutoLoadPositionsInSec);
 				_orchestrator.HighestTicketDuration();
 
 				LoadConnectedLocals();
@@ -374,7 +372,7 @@ namespace TradeSystem.Duplicat.ViewModel
 		{
 			IsLoading = true;
 			IsConfigReadonly = true;
-			await _orchestrator.StartStrategies(_duplicatContext);
+			await _orchestrator.StartStrategies(_duplicatContext, AutoLoadPositionsInSec);
 			IsLoading = false;
 			IsConnected = true;
 			AreStrategiesStarted = true;

@@ -34,9 +34,6 @@ namespace TradeSystem.Orchestration
 		Task BalanceProfitExport(DuplicatContext duplicatContext, DateTime from, DateTime to);
 		void MtAccountImport(DuplicatContext duplicatContext);
 		void SaveTheWeekend(DuplicatContext duplicatContext, DateTime from, DateTime to);
-		Task AccountOpenedPosition();
-		Task TradePositionClose(MetaTraderPosition position);
-		void HighestTicketDuration();
 	}
 
 	public partial class Orchestrator : IOrchestrator
@@ -233,22 +230,6 @@ namespace TradeSystem.Orchestration
 				.ToList();
 
 			await _reportService.BalanceProfitExport(exports, from, to);
-		}
-
-		public async Task AccountOpenedPosition()
-		{
-			await _tradeService.RefreshOpenedPosition(_duplicatContext);
-		}
-
-		public async Task TradePositionClose(MetaTraderPosition position)
-		{
-			await _tradeService.TradePositionClose(_duplicatContext.MetaTraderPositions.Local.ToBindingList(), position);
-		}
-
-		public void HighestTicketDuration()
-		{
-			var riskManagements = _duplicatContext.Accounts.Local.Where(a => a.Connector?.IsConnected == true).Select(a => a.RiskManagement).ToList();
-			_riskManagementService.UpdateHighestDurationForOpenPositions(riskManagements);
 		}
 	}
 }

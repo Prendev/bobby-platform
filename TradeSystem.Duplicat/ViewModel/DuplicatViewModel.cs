@@ -238,6 +238,7 @@ namespace TradeSystem.Duplicat.ViewModel
 			if (e.PropertyName == nameof(AutoLoadPositionsInSec))
 			{
 				_autoLoadPosition.Interval = 1000 * AutoLoadPositionsInSec == 0 ? 1 : AutoLoadPositionsInSec;
+				_orchestrator.SetThrottling(AutoLoadPositionsInSec == 0 ? 1 : AutoLoadPositionsInSec);
 			}
 			if (e.PropertyName == nameof(SelectedPushing))
 			{
@@ -319,12 +320,6 @@ namespace TradeSystem.Duplicat.ViewModel
 		public void UpdateRiskManagementStrategy()
 		{
 			_orchestrator.HighestTicketDuration();
-		}
-
-		public async void UpdateMtPositionsForTradeStrategy()
-		{
-			await _orchestrator.AccountOpenedPosition();
-			CheckDuplicatedPositions();
 		}
 
 		public void UpdateMtAccountForExposureStrategy()
@@ -666,7 +661,7 @@ namespace TradeSystem.Duplicat.ViewModel
 		/// <param name="bindingList">The original BindingList used as a reference list.</param>
 		/// <param name="sortableBindingList">The SortableBindingList to be initialized in the constructor or at declaration.</param>
 		/// <param name="sortingPredicate">Optional. The predicate used for default selection from the original list. If not provided, no predicate is applied.</param>
-		private void ToSortableBindingList<T>(BindingList<T> bindingList, SortableBindingList<T> sortableBindingList, Predicate<T> sortingPredicate = null) where T : class
+		private void ToSortableBindingList<T>(BindingList<T> bindingList, SortableBindingList<T> sortableBindingList, Predicate<T> sortingPredicate = null) where T : BaseEntity
 		{
 			if (sortingPredicate != null)
 			{

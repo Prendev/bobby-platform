@@ -1,5 +1,7 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using TradeSystem.Data;
 using TradeSystem.Data.Models;
@@ -8,45 +10,88 @@ namespace TradeSystem.Orchestration.Services.Strategies
 {
 	public interface ITradeStrategyService
 	{
-		Task RefreshOpenedPosition(DuplicatContext duplicatContext);
+		void Start(DuplicatContext duplicatContext, int throttlingInSec);
+		void Stop();
+		void SetThrottling(int throttlingInSec);
 		Task TradePositionClose(BindingList<MetaTraderPosition> metaTraderPositions, MetaTraderPosition metaTraderPosition);
 	}
 	public class TradeStrategyService : ITradeStrategyService
 	{
-		public async Task RefreshOpenedPosition(DuplicatContext duplicatContext)
+		private volatile CancellationTokenSource _cancellation;
+		private int _throttlingInSec;
+
+		public void Start(DuplicatContext duplicatContext, int throttlingInSec)
 		{
-			//TODO - maybe I should add to be mt5 for fixapi
-			var connectedAccounts = duplicatContext.Accounts.Local.Where(a => a.Connector?.IsConnected == true && (a.MetaTraderAccount != null || a.FixApiAccount != null)).ToList();
+			_throttlingInSec = throttlingInSec;
+			_cancellation?.Dispose();
 
-			var metaTraderPositions = connectedAccounts
-				.SelectMany(cma => cma.Connector.Positions
-					.Where(p => !p.Value.IsClosed)
-					.Select(p => new MetaTraderPosition
-					{
-						Account = cma,
-						OpenTime = p.Value.OpenTime.ToString("yyyy.MM.dd. HH:mm:ss"),
-						PositionKey = p.Key,
-						Size = p.Value.Lots,
-						Symbol = p.Value.Symbol,
-						Comment = p.Value.Comment
-					}))
-				.ToList();
+			_cancellation = new CancellationTokenSource();
+			new Thread(() => SetLoop(duplicatContext, _cancellation.Token)) { Name = $"Trade_{1}", IsBackground = true }
+				.Start();
 
-			var positions = duplicatContext.MetaTraderPositions.Local.Where(mtp => connectedAccounts.Contains(mtp.Account)).ToList();
+			Logger.Info("Trade positions checking are started");
+		}
 
-			var connectedMtAccountPositionTradeDb = positions.Where(mtp => connectedAccounts.Contains(mtp.Account)).ToList();
+		public void Stop()
+		{
+			_cancellation?.Cancel(true);
+			Logger.Info("Trade positions checking are stopped");
+		}
 
-			var newMtPositionTrades = metaTraderPositions.Where(mtp => !connectedMtAccountPositionTradeDb.Any(mtap => mtap.Account == mtp.Account && mtap.PositionKey == mtp.PositionKey)).ToList();
-			var removeMtPositionTrades = connectedMtAccountPositionTradeDb.Where(mtp => !metaTraderPositions.Any(mtap => mtap.Account == mtp.Account && mtap.PositionKey == mtp.PositionKey)).ToList();
+		public void SetThrottling(int throttlingInSec)
+		{
+			_throttlingInSec = throttlingInSec;
+		}
 
-			duplicatContext.AddRange(newMtPositionTrades);
-			duplicatContext.RemoveRange(removeMtPositionTrades);
-
-			duplicatContext.SaveChanges();
-
-			foreach (var position in positions.Where(mtap => mtap.IsPreOrderClosing && mtap.Account.MarginLevel < mtap.MarginLevel).ToList())
+		private async void SetLoop(DuplicatContext duplicatContext, CancellationToken token)
+		{
+			while (!token.IsCancellationRequested)
 			{
-				await TradePositionClose(duplicatContext.MetaTraderPositions.Local.ToBindingList(), position);
+				try
+				{
+					var connectedAccounts = duplicatContext.Accounts.Local.Where(a => a.Connector?.IsConnected == true && (a.MetaTraderAccount != null || a.FixApiAccount != null)).ToList();
+
+					var metaTraderPositions = connectedAccounts
+						.SelectMany(cma => cma.Connector.Positions
+							.Where(p => !p.Value.IsClosed)
+							.Select(p => new MetaTraderPosition
+							{
+								Account = cma,
+								OpenTime = p.Value.OpenTime.ToString("yyyy.MM.dd. HH:mm:ss"),
+								PositionKey = p.Key,
+								Size = p.Value.Lots,
+								Symbol = p.Value.Symbol,
+								Comment = p.Value.Comment
+							}))
+						.ToList();
+
+					var positions = duplicatContext.MetaTraderPositions.Local.Where(mtp => connectedAccounts.Contains(mtp.Account)).ToList();
+
+					var connectedMtAccountPositionTradeDb = positions.Where(mtp => connectedAccounts.Contains(mtp.Account)).ToList();
+
+					var newMtPositionTrades = metaTraderPositions.Where(mtp => !connectedMtAccountPositionTradeDb.Any(mtap => mtap.Account == mtp.Account && mtap.PositionKey == mtp.PositionKey)).ToList();
+					var removeMtPositionTrades = connectedMtAccountPositionTradeDb.Where(mtp => !metaTraderPositions.Any(mtap => mtap.Account == mtp.Account && mtap.PositionKey == mtp.PositionKey)).ToList();
+
+					duplicatContext.MetaTraderPositions.AddRange(newMtPositionTrades);
+					duplicatContext.MetaTraderPositions.RemoveRange(removeMtPositionTrades);
+
+					duplicatContext.SaveChanges();
+
+					foreach (var position in positions.Where(mtap => mtap.IsPreOrderClosing && mtap.Account.MarginLevel < mtap.MarginLevel).ToList())
+					{
+						await TradePositionClose(duplicatContext.MetaTraderPositions.Local.ToBindingList(), position);
+					}
+
+					Thread.Sleep(_throttlingInSec * 1000);
+				}
+				catch (OperationCanceledException)
+				{
+					break;
+				}
+				catch (Exception e)
+				{
+					Logger.Error("TradesService.Loop exception", e);
+				}
 			}
 		}
 

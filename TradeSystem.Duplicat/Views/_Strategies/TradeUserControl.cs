@@ -40,14 +40,6 @@ namespace TradeSystem.Duplicat.Views._Strategies
 				_viewModel.FilterList((sender as TextBox).Text);
 			};
 
-			_viewModel.ThrottlingTick += (sender, e) =>
-			{
-				scdvTrade.Invoke((MethodInvoker)delegate
-				{
-					_viewModel.UpdateMtPositionsForTradeStrategy();
-				});
-			};
-
 			_viewModel.PropertyChanged += (sender, e) =>
 			{
 				if (e.PropertyName == "IsConnected" && _viewModel.IsConnected)
@@ -83,7 +75,7 @@ namespace TradeSystem.Duplicat.Views._Strategies
 		private void SetRowColor(int rowIndex)
 		{
 			if (!(scdvTrade.DataSource is IBindingList bindingList)) return;
-			if (bindingList.Count <= rowIndex) return;
+			if (bindingList.Count <= rowIndex || scdvTrade.Rows.Count <= rowIndex) return;
 			var mtPosition = bindingList[rowIndex] as MetaTraderPosition;
 
 			if (mtPosition.IsRemoved || (mtPosition.IsPreOrderClosing && mtPosition.Account.MarginLevel < mtPosition.MarginLevel))
