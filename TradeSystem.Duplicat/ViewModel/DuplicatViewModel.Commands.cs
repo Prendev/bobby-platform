@@ -55,7 +55,10 @@ namespace TradeSystem.Duplicat.ViewModel
 				await _orchestrator.StartTickers(_duplicatContext);
 				await _orchestrator.StartStrategies(_duplicatContext);
 
-				_orchestrator.HighestTicketDuration(_duplicatContext);
+				await _orchestrator.AccountOpenedPosition();
+				_orchestrator.HighestTicketDuration();
+
+				LoadConnectedLocals();
 
 				ConnectToAccounts();
 
@@ -85,8 +88,12 @@ namespace TradeSystem.Duplicat.ViewModel
 				IsLoading = true;
 				IsConfigReadonly = true;
 				await _orchestrator.Connect(_duplicatContext);
-				_orchestrator.HighestTicketDuration(_duplicatContext);
-				
+
+				await _orchestrator.AccountOpenedPosition();
+				_orchestrator.HighestTicketDuration();
+
+				LoadConnectedLocals();
+
 				ConnectToAccounts();
 
 				IsLoading = false;
@@ -140,8 +147,9 @@ namespace TradeSystem.Duplicat.ViewModel
 			{
 				ConnectedAccounts.Clear();
 				ConnectedMtAccounts.Clear();
+				ConnectedMt4AndConnectorAccounts.Clear();
 				SymbolStatusVisibilityList.Clear();
-				ConnectedMtPositions.Clear();
+				SortedMtPositions.Clear();
 				SelectedRiskManagements.Clear();
 				SelectedRiskManagementSettings.Clear();
 				SelectedRiskManagementSetting = null;
@@ -430,6 +438,11 @@ namespace TradeSystem.Duplicat.ViewModel
 		{
 			Logger.Debug($"{account} backtester stoping...");
 			_backtesterService.Stop(account);
+		}
+
+		public async void TradePositionCloseCommand(MetaTraderPosition mtPosition)
+		{
+			await _orchestrator.TradePositionClose(mtPosition);
 		}
 	}
 }

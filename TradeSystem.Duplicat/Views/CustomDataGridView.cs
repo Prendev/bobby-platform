@@ -131,22 +131,27 @@ namespace TradeSystem.Duplicat.Views
 
 		private void CustomDataGridView_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
 		{
-			if (Rows[e.RowIndex].DataBoundItem != null && e.Value != null && double.TryParse(e.Value.ToString(), out double originalValue))
+			try
 			{
-				var property = Rows[e.RowIndex].DataBoundItem.GetType().GetProperty(Columns[e.ColumnIndex].Name);
-				var decimalPrecisionAttribute = (DecimalPrecisionAttribute)Attribute.GetCustomAttribute(property, typeof(DecimalPrecisionAttribute));
-
-				if (decimalPrecisionAttribute != null)
+				//TODO - get error if remove position from trade strategy =>  Rows[e.RowIndex].DataBoundItem is throwing OutOfRange exception. (Rows[e.RowIndex] is good)
+				if (Rows[e.RowIndex].DataBoundItem != null && e.Value != null && double.TryParse(e.Value.ToString(), out double originalValue))
 				{
-					var decimalPlaces = decimalPrecisionAttribute.DecimalPlaces;
-					var roundedValue = Math.Round(originalValue, decimalPlaces);
+					var property = Rows[e.RowIndex].DataBoundItem.GetType().GetProperty(Columns[e.ColumnIndex].Name);
+					var decimalPrecisionAttribute = (DecimalPrecisionAttribute)Attribute.GetCustomAttribute(property, typeof(DecimalPrecisionAttribute));
 
-					string formattedValue = string.Format($"{{0:N{decimalPlaces}}}", roundedValue);
+					if (decimalPrecisionAttribute != null)
+					{
+						var decimalPlaces = decimalPrecisionAttribute.DecimalPlaces;
+						var roundedValue = Math.Round(originalValue, decimalPlaces);
 
-					e.Value = formattedValue;
-					e.FormattingApplied = true;
+						string formattedValue = string.Format($"{{0:N{decimalPlaces}}}", roundedValue);
+
+						e.Value = formattedValue;
+						e.FormattingApplied = true;
+					}
 				}
 			}
+			catch { }
 		}
 
 		private void CustomDataGridView_DataSourceChanged(object sender, EventArgs e)

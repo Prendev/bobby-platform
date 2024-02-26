@@ -227,7 +227,7 @@
     <Compile Include="Views\CustomDateTimePicker.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Views\FilterableCustomDataGridView.cs">
+    <Compile Include="Views\SortableCustomDataGridView.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Views\ExportUserControl.cs">
@@ -236,6 +236,7 @@
     <Compile Include="Views\ExportUserControl.Designer.cs">
       <DependentUpon>ExportUserControl.cs</DependentUpon>
     </Compile>
+    <Compile Include="Views\IMvvmConnectedUserControl.cs" />
     <Compile Include="Views\_Accounts\BtAccountsUserControl.cs">
       <SubType>UserControl</SubType>
     </Compile>

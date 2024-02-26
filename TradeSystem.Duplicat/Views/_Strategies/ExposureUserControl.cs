@@ -53,7 +53,7 @@ namespace TradeSystem.Duplicat.Views
 			_viewModel.PropertyChanged += DuplicatViewModel_PropertyChanged;
 			_viewModel.SymbolStatusVisibilityList.ListChanged += DuplicatViewModel_SymbolStatusVisibilityList_ListChanged;
 
-			_viewModel.Tick += (sender, e) =>
+			_viewModel.ThrottlingTick += (sender, e) =>
 			{
 				UpdateExposureListView();
 			};
@@ -81,7 +81,7 @@ namespace TradeSystem.Duplicat.Views
 		{
 			listViewExposure.Invoke((MethodInvoker)(() =>
 			{
-				_viewModel.UpdateMtAccount();
+				_viewModel.UpdateMtAccountForExposureStrategy();
 				UpdateHeaderAndSummaryRow(_viewModel.MtAccountPositions);
 				UpdateAccountRows(_viewModel.MtAccountPositions);
 			}));

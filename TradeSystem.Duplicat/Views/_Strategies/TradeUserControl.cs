@@ -3,13 +3,12 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
-using TradeSystem.Common.Integration;
 using TradeSystem.Data.Models;
 using TradeSystem.Duplicat.ViewModel;
 
 namespace TradeSystem.Duplicat.Views._Strategies
 {
-	public partial class TradeUserControl : UserControl, IMvvmUserControl
+	public partial class TradeUserControl : UserControl, IMvvmConnectedUserControl
 	{
 		private DuplicatViewModel _viewModel;
 
@@ -18,30 +17,34 @@ namespace TradeSystem.Duplicat.Views._Strategies
 			InitializeComponent();
 		}
 
+		public void AttachConnectedDataSources()
+		{
+			scdvTrade.SortableDataSource = _viewModel.SortedMtPositions;
+		}
+
 		public void AttachDataSources()
 		{
-			fcdvTrade.FilterableDataSource = _viewModel.ConnectedMtPositions;
+			scdvTrade.SortableDataSource = _viewModel.SortedMtPositions;
 		}
 
 		public void InitView(DuplicatViewModel viewModel)
 		{
 			_viewModel = viewModel;
-			fcdvTrade.AddButtonColumn("Close", "X");
+			scdvTrade.AddButtonColumn("Close", "X");
 
-			fcdvTrade.CellContentClick += FcdvTrade_CellContentClick;
-			fcdvTrade.AddBinding<string, string>("FilteredText", _viewModel, nameof(_viewModel.TradeFilter), p => p);
-			fcdvTrade.RowPrePaint += FcdvTrade_RowPrePaint;
+			scdvTrade.CellContentClick += FcdvTrade_CellContentClick;
+			scdvTrade.RowPrePaint += FcdvTrade_RowPrePaint;
 
 			tbTrade.TextChanged += (sender, e) =>
 			{
-				_viewModel.TradeFilter = (sender as TextBox).Text;
+				_viewModel.FilterList((sender as TextBox).Text);
 			};
 
-			_viewModel.Tick += (sender, e) =>
+			_viewModel.ThrottlingTick += (sender, e) =>
 			{
-				fcdvTrade.Invoke((MethodInvoker)delegate
+				scdvTrade.Invoke((MethodInvoker)delegate
 				{
-					_viewModel.UpdateMtPositions();
+					_viewModel.UpdateMtPositionsForTradeStrategy();
 				});
 			};
 
@@ -49,7 +52,7 @@ namespace TradeSystem.Duplicat.Views._Strategies
 			{
 				if (e.PropertyName == "IsConnected" && _viewModel.IsConnected)
 				{
-					for (int rowIndex = 0; rowIndex < _viewModel.ConnectedMtPositions.Count; rowIndex++)
+					for (int rowIndex = 0; rowIndex < _viewModel.SortedMtPositions.Count; rowIndex++)
 					{
 						SetRowColor(rowIndex);
 					}
@@ -61,15 +64,14 @@ namespace TradeSystem.Duplicat.Views._Strategies
 		{
 			var senderGrid = (DataGridView)sender;
 
-			if (senderGrid.Columns[e.ColumnIndex] is DataGridViewButtonColumn &&
-				e.RowIndex >= 0)
+			if (senderGrid.Columns[e.ColumnIndex] is DataGridViewButtonColumn && e.RowIndex >= 0)
 			{
-				if (!_viewModel.ConnectedMtPositions.Any()) return;
+				if (!_viewModel.SortedMtPositions.Any()) return;
 
-				var mtPosition = (fcdvTrade.DataSource as BindingList<MetaTraderPosition>)[e.RowIndex];
+				var mtPosition = (scdvTrade.DataSource as BindingList<MetaTraderPosition>)[e.RowIndex];
 				if (mtPosition.IsRemoved) return;
 
-				_viewModel.CloseOrder(mtPosition);
+				_viewModel.TradePositionCloseCommand(mtPosition);
 			}
 		}
 
@@ -80,15 +82,15 @@ namespace TradeSystem.Duplicat.Views._Strategies
 
 		private void SetRowColor(int rowIndex)
 		{
-			if (!(fcdvTrade.DataSource is IBindingList bindingList)) return;
+			if (!(scdvTrade.DataSource is IBindingList bindingList)) return;
 			if (bindingList.Count <= rowIndex) return;
 			var mtPosition = bindingList[rowIndex] as MetaTraderPosition;
 
 			if (mtPosition.IsRemoved || (mtPosition.IsPreOrderClosing && mtPosition.Account.MarginLevel < mtPosition.MarginLevel))
 			{
-				fcdvTrade.Rows[rowIndex].DefaultCellStyle.BackColor = Color.MediumVioletRed;
+				scdvTrade.Rows[rowIndex].DefaultCellStyle.BackColor = Color.MediumVioletRed;
 			}
-			else fcdvTrade.Rows[rowIndex].DefaultCellStyle.BackColor = Color.White;
+			else scdvTrade.Rows[rowIndex].DefaultCellStyle.BackColor = Color.White;
 		}
 	}
 }

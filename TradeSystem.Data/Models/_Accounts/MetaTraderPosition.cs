@@ -9,7 +9,7 @@ namespace TradeSystem.Data.Models
 		[FilterableColumn]
 		public string AccountName
 		{
-			get => Account?.MetaTraderAccount.Description;
+			get => Account?.MetaTraderAccount?.Description ?? Account?.FixApiAccount.Description ?? "";
 		}
 
 		[InvisibleColumn]

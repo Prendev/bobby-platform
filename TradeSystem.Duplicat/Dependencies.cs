@@ -114,6 +114,7 @@ namespace TradeSystem.Duplicat
 			builder.RegisterType<MtAccountImportService>().As<IMtAccountImportService>();
 	        builder.RegisterType<BacktesterService>().As<IBacktesterService>();
 	        builder.RegisterType<MMStrategyService>().As<IMMStrategyService>();
+	        builder.RegisterType<TradeStrategyService>().As<ITradeStrategyService>();
 	        builder.RegisterType<RiskManagementStrategyService>().As<IRiskManagementStrategyService>();
 		}
     }

@@ -3,17 +3,21 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
+using System.Runtime.Remoting.Contexts;
+using System.Threading.Tasks;
 using System.Timers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Internal;
 using TradeSystem.Common;
+using TradeSystem.Common.Attributes;
 using TradeSystem.Common.Integration;
 using TradeSystem.Common.Services;
 using TradeSystem.Data;
 using TradeSystem.Data.Models;
-using TradeSystem.Mt4Integration;
 using TradeSystem.Orchestration;
 using TradeSystem.Orchestration.Services;
+using static System.Net.WebRequestMethods;
 using IBindingList = System.ComponentModel.IBindingList;
 
 namespace TradeSystem.Duplicat.ViewModel
@@ -117,16 +121,18 @@ namespace TradeSystem.Duplicat.ViewModel
 		public BindingList<MM> MMs { get; private set; }
 
 		public event DataContextChangedEventHandler DataContextChanged;
+		public event DataContextChangedEventHandler ConnectedDataContextChanged;
 
 		public List<CustomGroup> AllCustomGroups { get; private set; }
 		public List<Account> ConnectedAccounts { get; private set; } = new List<Account>();
 		public List<Account> ConnectedMtAccounts { get; private set; } = new List<Account>();
+		public List<Account> ConnectedMt4AndConnectorAccounts { get; private set; } = new List<Account>();
 		public BindingList<AccountMetric> AccountMetrics { get; }
 
 		public List<MtAccountPosition> MtAccountPositions { get; private set; } = new List<MtAccountPosition>();
 
 		public BindingList<MetaTraderPosition> MtPositions { get; private set; }
-		public SortableBindingList<MetaTraderPosition> ConnectedMtPositions { get; private set; } = new SortableBindingList<MetaTraderPosition>();
+		public SortableBindingList<MetaTraderPosition> SortedMtPositions { get; private set; } = new SortableBindingList<MetaTraderPosition>();
 
 		public BindingList<SymbolStatus> SymbolStatusVisibilityList { get; private set; } = new BindingList<SymbolStatus>();
 
@@ -135,12 +141,10 @@ namespace TradeSystem.Duplicat.ViewModel
 		public BindingList<RiskManagement> SelectedRiskManagements { get; private set; } = new BindingList<RiskManagement>();
 		public BindingList<RiskManagementSetting> SelectedRiskManagementSettings { get; private set; } = new BindingList<RiskManagementSetting>();
 
-		public void OnNewTick(Tick e) => Tick?.Invoke(this, e);
-		public event EventHandler<Tick> Tick;
+		public event EventHandler ThrottlingTick;
 
 		public int AutoSavePeriodInMin { get => Get<int>(); set => Set(value); }
 		public int AutoLoadPositionsInSec { get => Get<int>(); set => Set(value); }
-		public string TradeFilter { get => Get<string>(); set => Set(value); }
 		public bool IsConfigReadonly { get => Get<bool>(); set => Set(value); }
 		public bool IsCopierConfigAddEnabled { get => Get<bool>(); set => Set(value); }
 		public bool IsCopierPositionAddEnabled { get => Get<bool>(); set => Set(value); }
@@ -205,9 +209,9 @@ namespace TradeSystem.Duplicat.ViewModel
 					return;
 				}
 				_autoLoadPosition.Interval = 1000 * AutoLoadPositionsInSec;
-				if (IsConnected && ConnectedMtAccounts.Any())
+				if (IsConnected && Accounts.Any(a => a.Connector?.IsConnected == true))
 				{
-					OnNewTick(new Tick());
+					ThrottlingTick?.Invoke(this, EventArgs.Empty);
 				}
 			};
 
@@ -215,24 +219,6 @@ namespace TradeSystem.Duplicat.ViewModel
 			_xmlService = xmlService;
 			_orchestrator = orchestrator;
 			InitDataContext();
-		}
-
-		public void CloseOrder(MetaTraderPosition mtPosition)
-		{
-			mtPosition.IsRemoved = true;
-			var position = (mtPosition.Account.Connector as Connector).Positions.FirstOrDefault(p => p.Key == mtPosition.PositionKey);
-
-			if (position.Value != null)
-			{
-				var res = (mtPosition.Account.Connector as Connector).SendClosePositionRequests(position.Value);
-
-				if (res.Pos.IsClosed)
-				{
-					MtPositions.Remove(mtPosition);
-					ConnectedMtPositions.Remove(mtPosition);
-				}
-				else mtPosition.IsRemoved = false;
-			}
 		}
 
 		public void FlushMtAccount()
@@ -299,6 +285,9 @@ namespace TradeSystem.Duplicat.ViewModel
 		{
 			ConnectedAccounts = Accounts.Where(account => account.Connector != null && account.Connector.IsConnected).ToList();
 			ConnectedMtAccounts = ConnectedAccounts.Where(account => account.MetaTraderAccount != null).ToList();
+
+			ConnectedMt4AndConnectorAccounts = ConnectedAccounts.Where(account => account.MetaTraderAccount != null || account.FixApiAccount != null).ToList();
+
 			foreach (var account in ConnectedAccounts.Where(account => account.MetaTraderAccount != null || account.FixApiAccount != null))
 			{
 				SelectedRiskManagements.Add(account.RiskManagement);
@@ -312,12 +301,6 @@ namespace TradeSystem.Duplicat.ViewModel
 
 			CheckDuplicatedPositions();
 
-			foreach (var mtPosition in MtPositions.Where(mtp => ConnectedMtAccounts.Contains(mtp.Account)))
-			{
-				ConnectedMtPositions.Add(mtPosition);
-				if (mtPosition.IsRemoved) CloseOrder(mtPosition);
-			}
-			UpdateMtPositions();
 			UpdateMtAccountPositions();
 
 			var brokerSymbols = MtAccountPositions.GroupBy(mtap => mtap.Broker, mtap => mtap.Positions.Select(p => p.SymbolStatus),
@@ -333,49 +316,18 @@ namespace TradeSystem.Duplicat.ViewModel
 			}
 		}
 
-		public void UpdateRiskManagement()
+		public void UpdateRiskManagementStrategy()
 		{
-			_orchestrator.HighestTicketDuration(_duplicatContext);
+			_orchestrator.HighestTicketDuration();
 		}
 
-		public void UpdateMtPositions()
+		public async void UpdateMtPositionsForTradeStrategy()
 		{
-			var mtPositionTrades = ConnectedMtAccounts
-							.SelectMany(cma => cma.Connector.Positions
-							.Where(p => !p.Value.IsClosed).Select(p => new MetaTraderPosition
-							{
-								Account = cma,
-								OpenTime = p.Value.OpenTime.ToString("yyyy.MM.dd. HH:mm:ss"),
-								PositionKey = p.Key,
-								Size = p.Value.Lots,
-								Symbol = p.Value.Symbol,
-								Comment = p.Value.Comment
-							}));
-
+			await _orchestrator.AccountOpenedPosition();
 			CheckDuplicatedPositions();
-			var connectedMtAccountPositionTradeDb = MtPositions.Where(mtp => ConnectedMtAccounts.Contains(mtp.Account));
-
-			var newMtPositionTrades = mtPositionTrades.Where(mtp => !connectedMtAccountPositionTradeDb.Any(mtap => mtap.Account == mtp.Account && mtap.PositionKey == mtp.PositionKey)).ToList();
-			var removeMtPositionTrades = connectedMtAccountPositionTradeDb.Where(mtp => !mtPositionTrades.Any(mtap => mtap.Account == mtp.Account && mtap.PositionKey == mtp.PositionKey)).ToList();
-
-			foreach (var mtPositionTrade in newMtPositionTrades)
-			{
-				MtPositions.Add(mtPositionTrade);
-				ConnectedMtPositions.Add(mtPositionTrade);
-			}
-			foreach (var mtPositionTrade in removeMtPositionTrades)
-			{
-				MtPositions.Remove(mtPositionTrade);
-				ConnectedMtPositions.Remove(mtPositionTrade);
-			}
-
-			foreach (var mtAccountPosition in MtPositions.Where(mtap => mtap.IsPreOrderClosing && mtap.Account.MarginLevel < mtap.MarginLevel).ToList())
-			{
-				CloseOrder(mtAccountPosition);
-			}
 		}
 
-		public void UpdateMtAccount()
+		public void UpdateMtAccountForExposureStrategy()
 		{
 			UpdateMtAccountPositions();
 
@@ -459,6 +411,25 @@ namespace TradeSystem.Duplicat.ViewModel
 			}
 
 			AllCustomGroups = customGroups;
+		}
+
+		private void LoadConnectedLocals()
+		{
+			SortedMtPositions = new SortableBindingList<MetaTraderPosition>();
+			ToSortableBindingList(MtPositions, SortedMtPositions, (mtp) => mtp?.Account?.Connector != null && mtp.Account.Connector.IsConnected == true);
+			ConnectedDataContextChanged?.Invoke();
+		}
+
+		private bool CreateFilterPredicate<T>(T o, string searchString) where T : class
+		{
+			return typeof(T).GetProperties().Any(p => p.GetCustomAttributes(true).Any(a => a is FilterableColumnAttribute) && p.GetValue(o)?.ToString() != null && p.GetValue(o).ToString().Contains(searchString));
+		}
+
+		public void FilterList(string searchString)
+		{
+			SortedMtPositions = new SortableBindingList<MetaTraderPosition>();
+			ToSortableBindingList(MtPositions, SortedMtPositions, (mtp) => mtp?.Account?.Connector != null && mtp.Account.Connector.IsConnected == true && CreateFilterPredicate(mtp, searchString));
+			ConnectedDataContextChanged?.Invoke();
 		}
 
 		private void LoadLocals()
@@ -607,7 +578,7 @@ namespace TradeSystem.Duplicat.ViewModel
 		private void CheckDuplicatedPositions()
 		{
 			// TODO - remove duplicated entites that shouldn't be created
-			foreach (var mtPosGroupByTicketNumber in MtPositions.GroupBy(mp => mp.OpenTime, mp => mp).ToList())
+			foreach (var mtPosGroupByTicketNumber in MtPositions.GroupBy(mp => $"{mp.PositionKey}-{mp.OpenTime}", mp => mp).ToList())
 			{
 				if (mtPosGroupByTicketNumber.Count() > 1)
 				{
@@ -686,6 +657,49 @@ namespace TradeSystem.Duplicat.ViewModel
 			_propertyChangedDelegates.Add(PropChanged);
 			PropertyChanged += PropChanged;
 			return bindingList;
+		}
+
+		/// <summary>
+		/// Creates a sortable list based on the original BindingList and synchronizes them if any items are added or removed from the original list.
+		/// </summary>
+		/// <typeparam name="T">The type of elements in the lists.</typeparam>
+		/// <param name="bindingList">The original BindingList used as a reference list.</param>
+		/// <param name="sortableBindingList">The SortableBindingList to be initialized in the constructor or at declaration.</param>
+		/// <param name="sortingPredicate">Optional. The predicate used for default selection from the original list. If not provided, no predicate is applied.</param>
+		private void ToSortableBindingList<T>(BindingList<T> bindingList, SortableBindingList<T> sortableBindingList, Predicate<T> sortingPredicate = null) where T : class
+		{
+			if (sortingPredicate != null)
+			{
+				foreach (var item in bindingList.Where(bl => sortingPredicate(bl)))
+				{
+					sortableBindingList.Add(item);
+				}
+			}
+			else
+			{
+				foreach (var item in bindingList)
+				{
+					sortableBindingList.Add(item);
+				}
+			}
+
+			void ListChanged(object sender, ListChangedEventArgs args)
+			{
+				if (args.ListChangedType == ListChangedType.ItemAdded && (sortingPredicate == null || sortingPredicate(bindingList[args.NewIndex])))
+				{
+					sortableBindingList.Add(bindingList[args.NewIndex]);
+				}
+
+				if (args.ListChangedType == ListChangedType.ItemDeleted)
+				{
+					var filteredBindingList = sortingPredicate != null ? bindingList.Where(bl => sortingPredicate(bl)).ToList() : bindingList.ToList();
+					var removedItem = sortableBindingList.Except(filteredBindingList).FirstOrDefault();
+					if (removedItem != null) sortableBindingList.Remove(removedItem);
+				}
+			}
+
+			_listChangedDelegates.Add(new Tuple<IBindingList, ListChangedEventHandler>(bindingList, ListChanged));
+			bindingList.ListChanged += ListChanged;
 		}
 
 		private BindingList<T> ToFilteredBindingList<T, TProp>(
