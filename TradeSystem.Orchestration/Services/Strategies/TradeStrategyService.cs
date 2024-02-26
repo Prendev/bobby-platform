@@ -76,13 +76,12 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				if (pos.Value != null)
 				{
 					//string symbol, Sides side, decimal quantity, int timeout, int retryCount, int retryPeriod, string[] orderIds
-					var res = await fixApiConnector.CloseOrderRequest(pos.Value.Symbol, pos.Value.Side, pos.Value.Lots, 10000000, 2, 2, new[] { pos.Key.ToString() });
-					//if (res.Pos.IsClosed)
-					//{
-					//	MtPositions.Remove(mtPosition);
-					//	ConnectedMtPositions.Remove(mtPosition);
-					//}
-					//else mtPosition.IsRemoved = false;
+					var res = await fixApiConnector.CloseOrderRequest(pos.Value.Symbol, pos.Value.Side, pos.Value.Lots, 1000, 1, 5, new[] { pos.Key.ToString() });
+					if (res.OrderIds != null && res.OrderIds.Any(orderId => orderId.Equals(pos.Key.ToString())))
+					{
+						metaTraderPositions.Remove(metaTraderPosition);
+					}
+					else metaTraderPosition.IsRemoved = false;
 				}
 			}
 		}

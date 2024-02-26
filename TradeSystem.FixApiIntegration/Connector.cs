@@ -792,7 +792,7 @@ namespace TradeSystem.FixApiIntegration
 				OpenPrice = (decimal)order.OpenPrice,
 				CloseTime = order.CloseTime,
 				ClosePrice = (decimal)order.ClosePrice,
-				IsClosed = (int)order.State > 1,
+				IsClosed = order.CloseTime > DateTime.MinValue,
 				MagicNumber = order.ExpertId,
 				Profit = order.Profit,
 				Commission = order.Commission,
@@ -803,7 +803,7 @@ namespace TradeSystem.FixApiIntegration
 			{
 				old.CloseTime = order.CloseTime;
 				old.ClosePrice = (decimal)order.ClosePrice;
-				old.IsClosed = (int)order.State > 1;
+				old.IsClosed = order.CloseTime > DateTime.MinValue;
 				old.Profit = order.Profit;
 				old.Commission = order.Commission;
 				old.Swap = order.Swap;
