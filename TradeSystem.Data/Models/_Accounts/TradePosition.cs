@@ -3,7 +3,7 @@ using TradeSystem.Common.Attributes;
 
 namespace TradeSystem.Data.Models
 {
-	public class MetaTraderPosition : BaseEntity
+	public class TradePosition : BaseEntity
 	{
 		[ReadOnly(true)]
 		[FilterableColumn]

@@ -132,8 +132,8 @@ namespace TradeSystem.Duplicat.ViewModel
 
 		public List<MtAccountPosition> MtAccountPositions { get; private set; } = new List<MtAccountPosition>();
 
-		public BindingList<MetaTraderPosition> MtPositions { get; private set; }
-		public SortableBindingList<MetaTraderPosition> SortedMtPositions { get; private set; } = new SortableBindingList<MetaTraderPosition>();
+		public BindingList<TradePosition> TradePositions { get; private set; }
+		public SortableBindingList<TradePosition> SortedTradePosition { get; private set; } = new SortableBindingList<TradePosition>();
 
 		public BindingList<SymbolStatus> SymbolStatusVisibilityList { get; private set; } = new BindingList<SymbolStatus>();
 
@@ -213,6 +213,9 @@ namespace TradeSystem.Duplicat.ViewModel
 				if (IsConnected && Accounts.Any(a => a.Connector?.IsConnected == true))
 				{
 					ThrottlingTick?.Invoke(this, EventArgs.Empty);
+
+					//TODO
+					CheckDuplicatedPositions();
 				}
 			};
 
@@ -232,6 +235,69 @@ namespace TradeSystem.Duplicat.ViewModel
 			ConnectToAccounts();
 
 			_autoLoadPosition.Start();
+		}
+
+		public void UpdateMtAccountForExposureStrategy()
+		{
+			UpdateMtAccountPositions();
+
+			var brokerSymbols = MtAccountPositions.GroupBy(mtap => mtap.Broker, mtap => mtap.Positions.Select(p => p.SymbolStatus),
+			   (key, s) => new BrokerSymbolStatus { Broker = key, SymbolStatuses = s.SelectMany(symbolStatus => symbolStatus).Distinct().OrderBy(symbolStatus => symbolStatus.Symbol).ToList() }).ToList();
+
+			var symbolStatuses = brokerSymbols.SelectMany(bs => bs.SymbolStatuses).Distinct().OrderBy(symbolStatus => symbolStatus.Symbol).ToList();
+			symbolStatuses.Add(_symbolStatusSelectAll);
+
+			var symbolStatusesToKeep = symbolStatuses.Except(SymbolStatusVisibilityList).ToList();
+			var symbolStatusesToRemove = SymbolStatusVisibilityList.Except(symbolStatuses).ToList();
+
+			if (symbolStatusesToKeep.Any())
+			{
+				foreach (var symbolStatus in symbolStatusesToKeep)
+				{
+					symbolStatus.IsVisible = _symbolStatusSelectAll.IsVisible;
+					SymbolStatusVisibilityList.Add(symbolStatus);
+				}
+			}
+			if (symbolStatusesToRemove.Any())
+			{
+				foreach (var symbolStatus in symbolStatusesToRemove)
+				{
+					SymbolStatusVisibilityList.Remove(symbolStatus);
+				}
+			}
+		}
+
+		public void LoadAllCustomGroups()
+		{
+			List<CustomGroup> customGroups = new List<CustomGroup>();
+			using (var context = new DuplicatContext())
+			{
+				context.CustomGroups.Include(cg => cg.MappingTables).OrderBy(e => e.ToString()).Load();
+				customGroups = new List<CustomGroup>(context.CustomGroups.ToList());
+			}
+
+			AllCustomGroups = customGroups;
+		}
+
+		public void FilterTradePositions(string searchString)
+		{
+			SortedTradePosition = new SortableBindingList<TradePosition>();
+			Predicate<TradePosition> filterPredicate = (mtp) =>
+				mtp?.Account?.Connector != null &&
+				mtp.Account.Connector.IsConnected == true &&
+				GenerateFilterConditionByAttribute(mtp, searchString);
+
+			ToSortableBindingList(TradePositions, SortedTradePosition, filterPredicate);
+
+			ConnectedDataContextChanged?.Invoke();
+		}
+
+		private bool GenerateFilterConditionByAttribute<T>(T o, string searchString) where T : BaseEntity
+		{
+			return typeof(T).GetProperties().Any(p =>
+				p.GetCustomAttributes(true).Any(a => a is FilterableColumnAttribute) &&
+				p.GetValue(o)?.ToString() != null &&
+				p.GetValue(o).ToString().Contains(searchString));
 		}
 
 		private void DuplicatViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -319,36 +385,6 @@ namespace TradeSystem.Duplicat.ViewModel
 			}
 		}
 
-		public void UpdateMtAccountForExposureStrategy()
-		{
-			UpdateMtAccountPositions();
-
-			var brokerSymbols = MtAccountPositions.GroupBy(mtap => mtap.Broker, mtap => mtap.Positions.Select(p => p.SymbolStatus),
-			   (key, s) => new BrokerSymbolStatus { Broker = key, SymbolStatuses = s.SelectMany(symbolStatus => symbolStatus).Distinct().OrderBy(symbolStatus => symbolStatus.Symbol).ToList() }).ToList();
-
-			var symbolStatuses = brokerSymbols.SelectMany(bs => bs.SymbolStatuses).Distinct().OrderBy(symbolStatus => symbolStatus.Symbol).ToList();
-			symbolStatuses.Add(_symbolStatusSelectAll);
-
-			var symbolStatusesToKeep = symbolStatuses.Except(SymbolStatusVisibilityList).ToList();
-			var symbolStatusesToRemove = SymbolStatusVisibilityList.Except(symbolStatuses).ToList();
-
-			if (symbolStatusesToKeep.Any())
-			{
-				foreach (var symbolStatus in symbolStatusesToKeep)
-				{
-					symbolStatus.IsVisible = _symbolStatusSelectAll.IsVisible;
-					SymbolStatusVisibilityList.Add(symbolStatus);
-				}
-			}
-			if (symbolStatusesToRemove.Any())
-			{
-				foreach (var symbolStatus in symbolStatusesToRemove)
-				{
-					SymbolStatusVisibilityList.Remove(symbolStatus);
-				}
-			}
-		}
-
 		private void UpdateMtAccountPositions()
 		{
 			var allMappingTables = AllCustomGroups.SelectMany(cg => cg.MappingTables).ToList();
@@ -393,34 +429,13 @@ namespace TradeSystem.Duplicat.ViewModel
 			LoadLocals();
 		}
 
-		public void LoadAllCustomGroups()
-		{
-			List<CustomGroup> customGroups = new List<CustomGroup>();
-			using (var context = new DuplicatContext())
-			{
-				context.CustomGroups.Include(cg => cg.MappingTables).OrderBy(e => e.ToString()).Load();
-				customGroups = new List<CustomGroup>(context.CustomGroups.ToList());
-			}
-
-			AllCustomGroups = customGroups;
-		}
-
 		private void LoadConnectedLocals()
 		{
-			SortedMtPositions = new SortableBindingList<MetaTraderPosition>();
-			ToSortableBindingList(MtPositions, SortedMtPositions, (mtp) => mtp?.Account?.Connector != null && mtp.Account.Connector.IsConnected == true);
-			ConnectedDataContextChanged?.Invoke();
-		}
+			SortedTradePosition = new SortableBindingList<TradePosition>();
+			ToSortableBindingList(TradePositions, SortedTradePosition, (mtp) =>
+				mtp?.Account?.Connector != null &&
+				mtp.Account.Connector.IsConnected == true);
 
-		private bool CreateFilterPredicate<T>(T o, string searchString) where T : class
-		{
-			return typeof(T).GetProperties().Any(p => p.GetCustomAttributes(true).Any(a => a is FilterableColumnAttribute) && p.GetValue(o)?.ToString() != null && p.GetValue(o).ToString().Contains(searchString));
-		}
-
-		public void FilterList(string searchString)
-		{
-			SortedMtPositions = new SortableBindingList<MetaTraderPosition>();
-			ToSortableBindingList(MtPositions, SortedMtPositions, (mtp) => mtp?.Account?.Connector != null && mtp.Account.Connector.IsConnected == true && CreateFilterPredicate(mtp, searchString));
 			ConnectedDataContextChanged?.Invoke();
 		}
 
@@ -498,7 +513,7 @@ namespace TradeSystem.Duplicat.ViewModel
 
 			_duplicatContext.Settings.OrderBy(e => e.ToString()).Load();
 
-			MtPositions = _duplicatContext.MetaTraderPositions.Local.ToBindingList();
+			TradePositions = _duplicatContext.MetaTraderPositions.Local.ToBindingList();
 			MtPlatforms = _duplicatContext.MetaTraderPlatforms.Local.ToBindingList();
 			CtPlatforms = _duplicatContext.CTraderPlatforms.Local.ToBindingList();
 			MtAccounts = _duplicatContext.MetaTraderAccounts.Local.ToBindingList();
@@ -570,13 +585,13 @@ namespace TradeSystem.Duplicat.ViewModel
 		private void CheckDuplicatedPositions()
 		{
 			// TODO - remove duplicated entites that shouldn't be created
-			foreach (var mtPosGroupByTicketNumber in MtPositions.GroupBy(mp => $"{mp.PositionKey}-{mp.OpenTime}", mp => mp).ToList())
+			foreach (var mtPosGroupByTicketNumber in TradePositions.GroupBy(mp => $"{mp.PositionKey}-{mp.OpenTime}", mp => mp).ToList())
 			{
 				if (mtPosGroupByTicketNumber.Count() > 1)
 				{
 					foreach (var mtPosition in mtPosGroupByTicketNumber.Skip(1))
 					{
-						MtPositions.Remove(mtPosition);
+						TradePositions.Remove(mtPosition);
 					}
 				}
 			}

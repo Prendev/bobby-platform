@@ -19,12 +19,12 @@ namespace TradeSystem.Duplicat.Views._Strategies
 
 		public void AttachConnectedDataSources()
 		{
-			scdvTrade.SortableDataSource = _viewModel.SortedMtPositions;
+			scdvTrade.SortableDataSource = _viewModel.SortedTradePosition;
 		}
 
 		public void AttachDataSources()
 		{
-			scdvTrade.SortableDataSource = _viewModel.SortedMtPositions;
+			scdvTrade.SortableDataSource = _viewModel.SortedTradePosition;
 		}
 
 		public void InitView(DuplicatViewModel viewModel)
@@ -37,14 +37,14 @@ namespace TradeSystem.Duplicat.Views._Strategies
 
 			tbTrade.TextChanged += (sender, e) =>
 			{
-				_viewModel.FilterList((sender as TextBox).Text);
+				_viewModel.FilterTradePositions((sender as TextBox).Text);
 			};
 
 			_viewModel.PropertyChanged += (sender, e) =>
 			{
 				if (e.PropertyName == "IsConnected" && _viewModel.IsConnected)
 				{
-					for (int rowIndex = 0; rowIndex < _viewModel.SortedMtPositions.Count; rowIndex++)
+					for (int rowIndex = 0; rowIndex < _viewModel.SortedTradePosition.Count; rowIndex++)
 					{
 						SetRowColor(rowIndex);
 					}
@@ -58,9 +58,9 @@ namespace TradeSystem.Duplicat.Views._Strategies
 
 			if (senderGrid.Columns[e.ColumnIndex] is DataGridViewButtonColumn && e.RowIndex >= 0)
 			{
-				if (!_viewModel.SortedMtPositions.Any()) return;
+				if (!_viewModel.SortedTradePosition.Any()) return;
 
-				var mtPosition = (scdvTrade.DataSource as BindingList<MetaTraderPosition>)[e.RowIndex];
+				var mtPosition = (scdvTrade.DataSource as BindingList<TradePosition>)[e.RowIndex];
 				if (mtPosition.IsRemoved) return;
 
 				_viewModel.TradePositionCloseCommand(mtPosition);
@@ -76,7 +76,7 @@ namespace TradeSystem.Duplicat.Views._Strategies
 		{
 			if (!(scdvTrade.DataSource is IBindingList bindingList)) return;
 			if (bindingList.Count <= rowIndex || scdvTrade.Rows.Count <= rowIndex) return;
-			var mtPosition = bindingList[rowIndex] as MetaTraderPosition;
+			var mtPosition = bindingList[rowIndex] as TradePosition;
 
 			if (mtPosition.IsRemoved || (mtPosition.IsPreOrderClosing && mtPosition.Account.MarginLevel < mtPosition.MarginLevel))
 			{

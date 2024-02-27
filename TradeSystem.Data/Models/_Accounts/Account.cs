@@ -37,7 +37,7 @@ namespace TradeSystem.Data.Models
 		[InvisibleColumn] public RiskManagement RiskManagement { get; set; }
 
 		[InvisibleColumn] public DateTime? LastOrderTime { get; set; }
-		public List<MetaTraderPosition> MetaTraderPositions { get; } = new List<MetaTraderPosition>();
+		public List<TradePosition> MetaTraderPositions { get; } = new List<TradePosition>();
 		public List<AggregatorAccount> Aggregators { get; } = new List<AggregatorAccount>();
 		public List<StratHubArbPosition> StratHubArbPositions { get; } = new List<StratHubArbPosition>();
 

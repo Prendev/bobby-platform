@@ -145,7 +145,7 @@ namespace TradeSystem.Duplicat.ViewModel
 				ConnectedMtAccounts.Clear();
 				ConnectedMt4AndConnectorAccounts.Clear();
 				SymbolStatusVisibilityList.Clear();
-				SortedMtPositions.Clear();
+				SortedTradePosition.Clear();
 				SelectedRiskManagements.Clear();
 				SelectedRiskManagementSettings.Clear();
 				SelectedRiskManagementSetting = null;
@@ -436,7 +436,7 @@ namespace TradeSystem.Duplicat.ViewModel
 			_backtesterService.Stop(account);
 		}
 
-		public async void TradePositionCloseCommand(MetaTraderPosition mtPosition)
+		public async void TradePositionCloseCommand(TradePosition mtPosition)
 		{
 			await _orchestrator.TradePositionClose(mtPosition);
 		}

@@ -13,7 +13,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 		void Start(DuplicatContext duplicatContext, int throttlingInSec);
 		void Stop();
 		void SetThrottling(int throttlingInSec);
-		Task TradePositionClose(BindingList<MetaTraderPosition> metaTraderPositions, MetaTraderPosition metaTraderPosition);
+		Task TradePositionClose(BindingList<TradePosition> metaTraderPositions, TradePosition metaTraderPosition);
 	}
 	public class TradeStrategyService : BaseStrategyService, ITradeStrategyService
 	{
@@ -27,13 +27,13 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			_cancellation = new CancellationTokenSource();
 			new Thread(() => SetLoop(duplicatContext, _cancellation.Token)) { Name = $"Trade_strategy", IsBackground = true }.Start();
 
-			Logger.Info("Trade strategy's position monitoring are started");
+			Logger.Info("Trade strategy's positions monitoring are started");
 		}
 
 		public void Stop()
 		{
 			_cancellation?.Cancel(true);
-			Logger.Info("Trade strategy's position monitoring are stopped");
+			Logger.Info("Trade strategy's positions monitoring are stopped");
 		}
 
 		private async void SetLoop(DuplicatContext duplicatContext, CancellationToken token)
@@ -47,7 +47,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 					var metaTraderPositions = connectedAccounts
 						.SelectMany(cma => cma.Connector.Positions
 							.Where(p => !p.Value.IsClosed)
-							.Select(p => new MetaTraderPosition
+							.Select(p => new TradePosition
 							{
 								Account = cma,
 								OpenTime = p.Value.OpenTime.ToString("yyyy.MM.dd. HH:mm:ss"),
@@ -88,7 +88,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			}
 		}
 
-		public async Task TradePositionClose(BindingList<MetaTraderPosition> metaTraderPositions, MetaTraderPosition metaTraderPosition)
+		public async Task TradePositionClose(BindingList<TradePosition> metaTraderPositions, TradePosition metaTraderPosition)
 		{
 			metaTraderPosition.IsRemoved = true;
 

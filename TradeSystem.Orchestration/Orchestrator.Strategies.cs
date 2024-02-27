@@ -48,7 +48,7 @@ namespace TradeSystem.Orchestration
 		void Panic(Spoofing spoofing);
 
 		void StartTradeStrategy(int throttlingInSec);
-		Task TradePositionClose(MetaTraderPosition position);
+		Task TradePositionClose(TradePosition position);
 		void StartRiskManagementStrategy(int throttlingInSec);
 		void SetThrottling(int throttlingInSec);
 	}
@@ -254,7 +254,7 @@ namespace TradeSystem.Orchestration
 			_tradeService.Start(_duplicatContext, throttlingInSec);
 		}
 
-		public async Task TradePositionClose(MetaTraderPosition position)
+		public async Task TradePositionClose(TradePosition position)
 		{
 			await _tradeService.TradePositionClose(_duplicatContext.MetaTraderPositions.Local.ToBindingList(), position);
 		}

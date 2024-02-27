@@ -5,7 +5,7 @@ using System.Threading;
 
 namespace TradeSystem.Duplicat.BindingLists
 {
-	public class SortableBindingList<T> : ConcurrentBindingList<T> where T : class
+	public class SortableBindingList<T> : SyncBindingList<T> where T : class
 	{
 		private bool _isSorted;
 		private ListSortDirection _sortDirection = ListSortDirection.Ascending;

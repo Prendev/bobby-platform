@@ -24,13 +24,13 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			_cancellation = new CancellationTokenSource();
 			new Thread(() => SetLoop(riskManagements, _cancellation.Token)) { Name = $"RiskManagement_strategy", IsBackground = true }.Start();
 
-			Logger.Info("Risk Management are started");
+			Logger.Info("Risk Management is started");
 		}
 
 		public void Stop()
 		{
 			_cancellation?.Cancel(true);
-			Logger.Info("Risk Management are stopped");
+			Logger.Info("Risk Management is stopped");
 		}
 
 		private void SetLoop(List<RiskManagement> riskManagements, CancellationToken token)
