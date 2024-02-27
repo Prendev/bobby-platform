@@ -29,7 +29,7 @@ namespace TradeSystem.Data.Models
 		[InvisibleColumn] public Slave Slave { get; set; }
 
 		[DisplayPriority(-1)] public bool Run { get; set; }
-		public CopierModes Mode { get; set; }
+		public CopierModes Mode { get => Get<CopierModes>(); set => Set(value); }
 		public bool ValueCopy { get; set; }
 		[DisplayName("Ratio/Value")] public decimal CopyRatio { get; set; }
 		public CopierOrderTypes OrderType { get; set; }

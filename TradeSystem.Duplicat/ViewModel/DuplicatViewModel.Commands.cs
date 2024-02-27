@@ -308,6 +308,18 @@ namespace TradeSystem.Duplicat.ViewModel
 			Logger.Info("CopierService.Archive finished");
 		}
 
+		public void CopierSetAllToCloseOnlyCommand(Slave slave)
+		{
+			if (slave == null) return;
+			slave.Copiers.ToList().ForEach(c => c.Mode = Copier.CopierModes.CloseOnly);
+		}
+
+		public void CopierSetAllToBothCommand(Slave slave)
+		{
+			if (slave == null) return;
+			slave.Copiers.ForEach(c => c.Mode = Copier.CopierModes.Both);
+		}
+
 		public async void OrderHistoryExportCommand()
 		{
 			if (!IsConnected) return;
