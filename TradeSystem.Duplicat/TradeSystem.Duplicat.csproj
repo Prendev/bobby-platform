@@ -201,11 +201,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BindingLists\ConcurrentBindingList.cs" />
     <Compile Include="NullEntity.cs" />
     <Compile Include="ViewModel\DuplicatViewModel.SpoofingCommands.cs" />
     <Compile Include="ViewModel\DuplicatViewModel.PushingCommands.cs" />
     <Compile Include="ViewModel\DuplicatViewModel.Commands.cs" />
-    <Compile Include="SortableBindingList.cs" />
+    <Compile Include="BindingLists\SortableBindingList.cs" />
     <Compile Include="Views\AggregatorUserControl.cs">
       <SubType>UserControl</SubType>
     </Compile>

@@ -15,6 +15,7 @@ using TradeSystem.Common.Integration;
 using TradeSystem.Common.Services;
 using TradeSystem.Data;
 using TradeSystem.Data.Models;
+using TradeSystem.Duplicat.BindingLists;
 using TradeSystem.Orchestration;
 using TradeSystem.Orchestration.Services;
 using static System.Net.WebRequestMethods;
