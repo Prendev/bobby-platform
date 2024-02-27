@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using TradeSystem.Common.Attributes;
 using static TradeSystem.Data.Models.Proxy;
 
 namespace TradeSystem.Data.Models

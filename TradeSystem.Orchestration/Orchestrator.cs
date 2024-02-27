@@ -33,6 +33,7 @@ namespace TradeSystem.Orchestration
 		Task BalanceProfitExport(DuplicatContext duplicatContext, DateTime from, DateTime to);
 		void MtAccountImport(DuplicatContext duplicatContext);
 		void SaveTheWeekend(DuplicatContext duplicatContext, DateTime from, DateTime to);
+		void HighestTicketDuration(DuplicatContext duplicatContext);
 	}
 
 	public partial class Orchestrator : IOrchestrator
@@ -53,6 +54,7 @@ namespace TradeSystem.Orchestration
 		private readonly IAntiMarketMakerService _antiMarketMakerService;
 		private readonly ILatencyArbService _latencyArbService;
 		private readonly INewsArbService _newsArbService;
+		private readonly IRiskManagementStrategyService _riskManagementService;
 
 		public Orchestrator(
 			Func<SynchronizationContext> synchronizationContextFactory,
@@ -68,7 +70,8 @@ namespace TradeSystem.Orchestration
 			IAntiMarketMakerService antiMarketMakerService,
 			IReportService reportService,
 			IMtAccountImportService mtAccountImportService,
-			IMMStrategyService mmStrategyService)
+			IMMStrategyService mmStrategyService,
+			IRiskManagementStrategyService riskManagementService)
 		{
 			_newsArbService = newsArbService;
 			_latencyArbService = latencyArbService;
@@ -84,6 +87,7 @@ namespace TradeSystem.Orchestration
 			_pushStrategyService = pushStrategyService;
 			_copierService = copierService;
 			_synchronizationContextFactory = synchronizationContextFactory;
+			_riskManagementService = riskManagementService;
 		}
 
 		public async Task Connect(DuplicatContext duplicatContext)
@@ -223,6 +227,12 @@ namespace TradeSystem.Orchestration
 				.ToList();
 
 			await _reportService.BalanceProfitExport(exports, from, to);
+		}
+
+		public void HighestTicketDuration(DuplicatContext duplicatContext)
+		{
+			var riskManagements = duplicatContext.Accounts.Local.Where(a => a.Connector?.IsConnected == true).Select(a => a.RiskManagement).ToList();
+			_riskManagementService.UpdateHighestDurationForOpenPositions(riskManagements);
 		}
 	}
 }

@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 using TradeSystem.Common.Attributes;
+using TradeSystem.Common.Integration;
 using TradeSystem.Data.Models;
 using TradeSystem.Duplicat.ViewModel;
 
@@ -23,18 +26,30 @@ namespace TradeSystem.Duplicat.Views
 			_viewModel = viewModel;
 
 			gbControl.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsLoading), true);
-			dgvProfiles.AddBinding("ReadOnly", _viewModel, nameof(_viewModel.IsConfigReadonly));
-			dgvAccounts.AddBinding<Profile>("Enabled", _viewModel, nameof(_viewModel.SelectedProfile), p => p != null);
+
+			labelAccount.AddBinding<Account, string>("Text", _viewModel, nameof(_viewModel.SelectedAccount), GetAccountName);
+
+			btnHeatUp.Click += (s, e) => { _viewModel.HeatUp(); };
+
+			btnAccountUp.Click += (s, e) => _viewModel.MoveToAccount(false);
+			btnAccountUp.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsConfigReadonly), true);
+
+			btnAccountDown.Click += (s, e) => _viewModel.MoveToAccount(true);
+			btnAccountDown.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsConfigReadonly), true);
+
 			gbProfile.AddBinding<Profile, string>("Text", _viewModel, nameof(_viewModel.SelectedProfile),
 				p => $"Profiles (use double-click) - {p}");
 
-			dgvAccounts.DefaultValuesNeeded += (s, e) => e.Row.Cells["ProfileId"].Value = _viewModel.SelectedProfile.Id;
-
-			btnHeatUp.Click += (s, e) => { _viewModel.HeatUp(); };
+			dgvProfiles.AddBinding("ReadOnly", _viewModel, nameof(_viewModel.IsConfigReadonly));
 			dgvProfiles.RowDoubleClick += (s, e) => _viewModel.LoadProfileCommand(dgvProfiles.GetSelectedItem<Profile>());
 
 			dgvMetrics.AllowUserToAddRows = false;
 			dgvMetrics.RowHeadersVisible = false;
+
+			dgvAccounts.DefaultValuesNeeded += (s, e) => e.Row.Cells["ProfileId"].Value = _viewModel.SelectedProfile.Id;
+			dgvAccounts.AddBinding<Profile>("Enabled", _viewModel, nameof(_viewModel.SelectedProfile), p => p != null);
+			dgvAccounts.RowDoubleClick += (s, e) => _viewModel.SelectedAccount = dgvAccounts.GetSelectedItem<Account>();
+			dgvAccounts.RowPrePaint += DgvAccounts_RowPrePaint;
 
 			// These events are necessary to allow editable fields to be modified when accounts are connected
 			dgvAccounts.DataSourceChanged += DgvAccounts_DataSourceChanged;
@@ -72,6 +87,49 @@ namespace TradeSystem.Duplicat.Views
 						_editableColumns.Add($"{prop.Name}*");
 				}
 			}
+		}
+
+		private string GetAccountName(Account account)
+		{
+			if (account == null) return "-";
+			else if (account.MetaTraderAccountId.HasValue) return account.MetaTraderAccount.Description;
+			else if (account.CTraderAccountId.HasValue) return account.CTraderAccount.Description;
+			else if (account.FixApiAccountId.HasValue) return account.FixApiAccount.Description;
+			else if (account.CqgClientApiAccountId.HasValue) return account.CqgClientApiAccount.Description;
+			else if (account.IbAccountId.HasValue) return account.IbAccount.Description;
+			else if (account.BacktesterAccountId.HasValue) return account.BacktesterAccount.Description;
+
+			return "-";
+		}
+
+		private void DgvAccounts_RowPrePaint(object sender, DataGridViewRowPrePaintEventArgs e)
+		{
+			if (!(dgvAccounts.DataSource is BindingList<Account> bindingList) || bindingList.Count <= e.RowIndex) return;
+			var account = bindingList[e.RowIndex];
+
+			if (account.ConnectionState == ConnectionStates.Connected)
+			{
+				if (account.IsAlert && account.MarginLevel < account.MarginLevelAlert && !(account.Margin == 0 && account.MarginLevel == 0))
+				{
+					dgvAccounts.Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.MediumVioletRed;
+				}
+				else if (account.MarginLevel < account.MarginLevelWarning && !(account.Margin == 0 && account.MarginLevel == 0))
+				{
+					dgvAccounts.Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.Yellow;
+				}
+				else
+				{
+					dgvAccounts.Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.LightGreen;
+				}
+			}
+			else if (account.ConnectionState == ConnectionStates.Error)
+				dgvAccounts.Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.PaleVioletRed;
+			else if (!_viewModel.IsConnected && _viewModel.SelectedAccount != null && e.RowIndex == bindingList.IndexOf(_viewModel.SelectedAccount))
+			{
+				dgvAccounts.Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.LightSteelBlue;
+			}
+			else dgvAccounts.Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.White;
+
 		}
 
 		// If you click the checkbox field, it also triggers and halts the updating process. Therefore, this event cannot be used when the field is a checkbox

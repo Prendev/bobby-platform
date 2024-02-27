@@ -6,6 +6,7 @@ namespace TradeSystem.Data.Models
 {
 	public partial class Account : BaseEntity
 	{
+		[InvisibleColumn] public int OrderNumber { get; set; }
 		[InvisibleColumn] public int ProfileId { get; set; }
 		[InvisibleColumn] public Profile Profile { get; set; }
 
@@ -13,7 +14,7 @@ namespace TradeSystem.Data.Models
 
 		[DisplayPriority(-1)]
 		[EditableColumn]
-		public bool Sum { get; set; }
+		public bool Sum { get => Get<bool>(); set => Set(value); }
 
 		public int? MetaTraderAccountId { get; set; }
 		public MetaTraderAccount MetaTraderAccount { get; set; }
@@ -32,6 +33,8 @@ namespace TradeSystem.Data.Models
 
 		public int? BacktesterAccountId { get; set; }
 		public BacktesterAccount BacktesterAccount { get; set; }
+
+		[InvisibleColumn] public RiskManagement RiskManagement { get; set; }
 
 		[InvisibleColumn] public DateTime? LastOrderTime { get; set; }
 		public List<MetaTraderPosition> MetaTraderPositions { get; } = new List<MetaTraderPosition>();

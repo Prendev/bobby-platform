@@ -130,6 +130,11 @@ namespace TradeSystem.Duplicat.ViewModel
 
 		public BindingList<SymbolStatus> SymbolStatusVisibilityList { get; private set; } = new BindingList<SymbolStatus>();
 
+		public BindingList<RiskManagementSetting> Settings { get; private set; }
+		public BindingList<RiskManagement> RiskManagements { get; private set; }
+		public BindingList<RiskManagement> SelectedRiskManagements { get; private set; } = new BindingList<RiskManagement>();
+		public BindingList<RiskManagementSetting> SelectedRiskManagementSettings { get; private set; } = new BindingList<RiskManagementSetting>();
+
 		public void OnNewTick(Tick e) => Tick?.Invoke(this, e);
 		public event EventHandler<Tick> Tick;
 
@@ -153,6 +158,7 @@ namespace TradeSystem.Duplicat.ViewModel
 		public SaveStates SaveState { get => Get<SaveStates>(); set => Set(value); }
 
 		public Profile SelectedProfile { get => Get<Profile>(); set => Set(value); }
+		public Account SelectedAccount { get => Get<Account>(); set => Set(value); }
 		public CustomGroup SelectedCustomGroup { get => Get<CustomGroup>(); set => Set(value); }
 		public MetaTraderAccount SelectedMt4Account { get => Get<MetaTraderAccount>(); set => Set(value); }
 		public BacktesterAccount SelectedBacktesterAccount { get => Get<BacktesterAccount>(); set => Set(value); }
@@ -161,6 +167,8 @@ namespace TradeSystem.Duplicat.ViewModel
 		public Copier SelectedCopier { get => Get<Copier>(); set => Set(value); }
 		public Pushing SelectedPushing { get => Get<Pushing>(); set => Set(value); }
 		public Spoofing SelectedSpoofing { get => Get<Spoofing>(); set => Set(value); }
+		public RiskManagement SelectedRiskManagement { get => Get<RiskManagement>(); set => Set(value); }
+		public RiskManagementSetting SelectedRiskManagementSetting { get => Get<RiskManagementSetting>(); set => Set(value); }
 
 		public DuplicatViewModel(
 			IBacktesterService backtesterService,
@@ -217,7 +225,13 @@ namespace TradeSystem.Duplicat.ViewModel
 			if (position.Value != null)
 			{
 				var res = (mtPosition.Account.Connector as Connector).SendClosePositionRequests(position.Value);
-				if (!res.Pos.IsClosed) mtPosition.IsRemoved = false;
+
+				if (res.Pos.IsClosed)
+				{
+					MtPositions.Remove(mtPosition);
+					ConnectedMtPositions.Remove(mtPosition);
+				}
+				else mtPosition.IsRemoved = false;
 			}
 		}
 
@@ -228,7 +242,7 @@ namespace TradeSystem.Duplicat.ViewModel
 			ConnectedMtAccounts = new List<Account>();
 			SymbolStatusVisibilityList = new BindingList<SymbolStatus>();
 			_symbolStatusSelectAll.IsVisible = false;
-			CreateMtAccount();
+			ConnectToAccounts();
 
 			_autoLoadPosition.Start();
 		}
@@ -275,16 +289,20 @@ namespace TradeSystem.Duplicat.ViewModel
 
 		private void Account_PropertyChanged(object sender, PropertyChangedEventArgs e)
 		{
-			AccountMetrics.First(ams => ams.Metric == Metric.Balance).Sum = ConnectedAccounts.Where(ca => ca.Sum).Sum(ca => ca.Balance);
-			AccountMetrics.First(ams => ams.Metric == Metric.Equity).Sum = ConnectedAccounts.Where(ca => ca.Sum).Sum(ca => ca.Equity);
-			AccountMetrics.First(ams => ams.Metric == Metric.PnL).Sum = ConnectedAccounts.Where(ca => ca.Sum).Sum(ca => ca.PnL);
-			AccountMetrics.First(ams => ams.Metric == Metric.Margin).Sum = ConnectedAccounts.Where(ca => ca.Sum).Sum(ca => ca.Margin);
-			AccountMetrics.First(ams => ams.Metric == Metric.FreeMargin).Sum = ConnectedAccounts.Where(ca => ca.Sum).Sum(ca => ca.FreeMargin);
+			AccountMetrics.First(ams => ams.Metric == Metric.Balance).Sum = ConnectedAccounts.Where(ca => ca.Sum && ca.ConnectionState == ConnectionStates.Connected).Sum(ca => ca.Balance);
+			AccountMetrics.First(ams => ams.Metric == Metric.Equity).Sum = ConnectedAccounts.Where(ca => ca.Sum && ca.ConnectionState == ConnectionStates.Connected).Sum(ca => ca.Equity);
+			AccountMetrics.First(ams => ams.Metric == Metric.PnL).Sum = ConnectedAccounts.Where(ca => ca.Sum && ca.ConnectionState == ConnectionStates.Connected).Sum(ca => ca.PnL);
+			AccountMetrics.First(ams => ams.Metric == Metric.Margin).Sum = ConnectedAccounts.Where(ca => ca.Sum && ca.ConnectionState == ConnectionStates.Connected).Sum(ca => ca.Margin);
+			AccountMetrics.First(ams => ams.Metric == Metric.FreeMargin).Sum = ConnectedAccounts.Where(ca => ca.Sum && ca.ConnectionState == ConnectionStates.Connected).Sum(ca => ca.FreeMargin);
 		}
-		private void CreateMtAccount()
+		private void ConnectToAccounts()
 		{
-			ConnectedAccounts = Accounts.Where(account => account.ConnectionState == ConnectionStates.Connected).ToList();
+			ConnectedAccounts = Accounts.Where(account => account.Connector != null && account.Connector.IsConnected).ToList();
 			ConnectedMtAccounts = ConnectedAccounts.Where(account => account.MetaTraderAccount != null).ToList();
+			foreach (var account in ConnectedAccounts.Where(account => account.MetaTraderAccount != null || account.FixApiAccount != null))
+			{
+				SelectedRiskManagements.Add(account.RiskManagement);
+			}
 
 			ConnectedAccounts.ForEach(account =>
 			{
@@ -292,17 +310,7 @@ namespace TradeSystem.Duplicat.ViewModel
 				account.PropertyChanged += Account_PropertyChanged;
 			});
 
-			// TODO - remove duplicated entites that shouldn't be created
-			foreach (var mtPosGroupByTicketNumber in MtPositions.GroupBy(mp => mp.OpenTime, mp => mp).ToList())
-			{
-				if(mtPosGroupByTicketNumber.Count() > 1)
-				{
-                    foreach (var mtPosition in mtPosGroupByTicketNumber.Skip(1))
-                    {
-						MtPositions.Remove(mtPosition);
-                    }
-                }
-			}
+			CheckDuplicatedPositions();
 
 			foreach (var mtPosition in MtPositions.Where(mtp => ConnectedMtAccounts.Contains(mtp.Account)))
 			{
@@ -325,6 +333,11 @@ namespace TradeSystem.Duplicat.ViewModel
 			}
 		}
 
+		public void UpdateRiskManagement()
+		{
+			_orchestrator.HighestTicketDuration(_duplicatContext);
+		}
+
 		public void UpdateMtPositions()
 		{
 			var mtPositionTrades = ConnectedMtAccounts
@@ -339,6 +352,7 @@ namespace TradeSystem.Duplicat.ViewModel
 								Comment = p.Value.Comment
 							}));
 
+			CheckDuplicatedPositions();
 			var connectedMtAccountPositionTradeDb = MtPositions.Where(mtp => ConnectedMtAccounts.Contains(mtp.Account));
 
 			var newMtPositionTrades = mtPositionTrades.Where(mtp => !connectedMtAccountPositionTradeDb.Any(mtap => mtap.Account == mtp.Account && mtap.PositionKey == mtp.PositionKey)).ToList();
@@ -355,7 +369,7 @@ namespace TradeSystem.Duplicat.ViewModel
 				ConnectedMtPositions.Remove(mtPositionTrade);
 			}
 
-			foreach (var mtAccountPosition in MtPositions.Where(mtap => mtap.IsPreOrderClosing && mtap.Account.MarginLevel < mtap.MarginLevel))
+			foreach (var mtAccountPosition in MtPositions.Where(mtap => mtap.IsPreOrderClosing && mtap.Account.MarginLevel < mtap.MarginLevel).ToList())
 			{
 				CloseOrder(mtAccountPosition);
 			}
@@ -481,8 +495,10 @@ namespace TradeSystem.Duplicat.ViewModel
 
 			_duplicatContext.Proxies.OrderBy(e => e.ToString()).Load();
 			_duplicatContext.ProfileProxies.Where(e => e.ProfileId == p).OrderBy(e => e.ToString()).Load();
-			_duplicatContext.Accounts.Where(e => e.ProfileId == p).OrderBy(e => e.ToString())
-				.Include(e => e.StratHubArbPositions).ThenInclude(e => e.Position).Load();
+			_duplicatContext.Accounts.Where(e => e.ProfileId == p).OrderBy(e => e.OrderNumber)
+				.Include(e => e.StratHubArbPositions).ThenInclude(e => e.Position)
+				.Include(e => e.RiskManagement).Load();
+
 			_duplicatContext.Aggregators.Where(e => e.ProfileId == p).OrderBy(e => e.ToString()).Load();
 			_duplicatContext.AggregatorAccounts.Where(e => e.Aggregator.ProfileId == p).OrderBy(e => e.ToString()).Load();
 
@@ -513,6 +529,12 @@ namespace TradeSystem.Duplicat.ViewModel
 				.Include(e => e.NewsArbPositions).ThenInclude(e => e.ShortPosition).Load();
 			_duplicatContext.MMs.Where(e => e.ProfileId == p).OrderBy(e => e.ToString()).Load();
 
+			_duplicatContext.RiskManagements.Where(rm => rm.Account.ProfileId == p)
+				.Include(rm => rm.RiskManagementSetting)
+				.OrderBy(e => e.ToString()).Load();
+
+			_duplicatContext.Settings.OrderBy(e => e.ToString()).Load();
+
 			MtPositions = _duplicatContext.MetaTraderPositions.Local.ToBindingList();
 			MtPlatforms = _duplicatContext.MetaTraderPlatforms.Local.ToBindingList();
 			CtPlatforms = _duplicatContext.CTraderPlatforms.Local.ToBindingList();
@@ -531,6 +553,7 @@ namespace TradeSystem.Duplicat.ViewModel
 
 			Profiles = _duplicatContext.Profiles.Local.ToBindingList();
 			Accounts = _duplicatContext.Accounts.Local.ToBindingList();
+
 			Aggregators = _duplicatContext.Aggregators.Local.ToBindingList();
 			AggregatorAccounts = ToFilteredBindingList(_duplicatContext.AggregatorAccounts.Local, e => e.Aggregator, () => SelectedAggregator);
 			Proxies = _duplicatContext.Proxies.Local.ToBindingList();
@@ -560,17 +583,40 @@ namespace TradeSystem.Duplicat.ViewModel
 			NewsArbs = _duplicatContext.NewsArbs.Local.ToBindingList();
 			MMs = _duplicatContext.MMs.Local.ToBindingList();
 
-			_duplicatContext.Profiles.Local.CollectionChanged -= Profiles_CollectionChanged;
-			_duplicatContext.Profiles.Local.CollectionChanged += Profiles_CollectionChanged;
+			RiskManagements = _duplicatContext.RiskManagements.Local.ToBindingList();
 
 			PropertyChanged -= DuplicatViewModel_PropertyChanged;
 			PropertyChanged += DuplicatViewModel_PropertyChanged;
+
+			Accounts.ListChanged -= Accounts_ListChanged;
+			Accounts.ListChanged += Accounts_ListChanged;
 		}
 
-		private void Profiles_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+		private void Accounts_ListChanged(object sender, ListChangedEventArgs e)
 		{
-			if (SelectedProfile != null && _duplicatContext.Profiles.Local.Any(l => l.Id == SelectedProfile.Id)) return;
-			LoadLocals();
+			if (e.ListChangedType == ListChangedType.ItemAdded && Accounts.Count == 1)
+			{
+				Accounts.First().OrderNumber = 1;
+			}
+			if (e.ListChangedType == ListChangedType.ItemAdded && Accounts.Count > 1)
+			{
+				Accounts.Last().OrderNumber = Accounts[Accounts.Count - 2].OrderNumber + 1;
+			}
+		}
+
+		private void CheckDuplicatedPositions()
+		{
+			// TODO - remove duplicated entites that shouldn't be created
+			foreach (var mtPosGroupByTicketNumber in MtPositions.GroupBy(mp => mp.OpenTime, mp => mp).ToList())
+			{
+				if (mtPosGroupByTicketNumber.Count() > 1)
+				{
+					foreach (var mtPosition in mtPosGroupByTicketNumber.Skip(1))
+					{
+						MtPositions.Remove(mtPosition);
+					}
+				}
+			}
 		}
 
 		private BindingList<T> ToBindingList<T, TSelected>(

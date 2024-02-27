@@ -5,6 +5,7 @@ using System.Configuration;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using TradeSystem.Data;
 using TradeSystem.Data.Models;
 
 namespace TradeSystem.Duplicat.ViewModel
@@ -54,7 +55,9 @@ namespace TradeSystem.Duplicat.ViewModel
 				await _orchestrator.StartTickers(_duplicatContext);
 				await _orchestrator.StartStrategies(_duplicatContext);
 
-				CreateMtAccount();
+				_orchestrator.HighestTicketDuration(_duplicatContext);
+
+				ConnectToAccounts();
 
 				AreCopiersStarted = true;
 				AreTickersStarted = true;
@@ -82,8 +85,9 @@ namespace TradeSystem.Duplicat.ViewModel
 				IsLoading = true;
 				IsConfigReadonly = true;
 				await _orchestrator.Connect(_duplicatContext);
-
-				CreateMtAccount();
+				_orchestrator.HighestTicketDuration(_duplicatContext);
+				
+				ConnectToAccounts();
 
 				IsLoading = false;
 				IsConfigReadonly = true;
@@ -118,11 +122,6 @@ namespace TradeSystem.Duplicat.ViewModel
 				IsConfigReadonly = false;
 				IsConnected = false;
 
-				ConnectedAccounts.Clear();
-				ConnectedMtAccounts.Clear();
-				SymbolStatusVisibilityList.Clear();
-				ConnectedMtPositions.Clear();
-
 				foreach (var accountMetrics in AccountMetrics)
 				{
 					accountMetrics.Sum = 0;
@@ -139,6 +138,14 @@ namespace TradeSystem.Duplicat.ViewModel
 			}
 			finally
 			{
+				ConnectedAccounts.Clear();
+				ConnectedMtAccounts.Clear();
+				SymbolStatusVisibilityList.Clear();
+				ConnectedMtPositions.Clear();
+				SelectedRiskManagements.Clear();
+				SelectedRiskManagementSettings.Clear();
+				SelectedRiskManagementSetting = null;
+
 				_autoSaveTimer.Stop();
 				_autoLoadPosition.Stop();
 			}
@@ -150,14 +157,56 @@ namespace TradeSystem.Duplicat.ViewModel
 			if (IsLoading) return;
 
 			SelectedProfile = profile;
+			SelectedAccount = null;
 			SelectedMt4Account = null;
 			SelectedAggregator = null;
 			SelectedSlave = null;
 			SelectedCopier = null;
 			SelectedPushing = null;
+			SelectedRiskManagementSetting = null;
 
 			InitDataContext();
 			DataContextChanged?.Invoke();
+		}
+
+		public void MoveToAccount(bool moveToDown)
+		{
+			if (IsConfigReadonly) return;
+			if (IsLoading) return;
+
+			if (SelectedAccount == null ||
+				(moveToDown && Accounts.IndexOf(SelectedAccount) == Accounts.Count - 1) ||
+				(!moveToDown && Accounts.IndexOf(SelectedAccount) == 0)) return;
+
+			var selectedIndex = Accounts.IndexOf(SelectedAccount);
+			var orderNumber = SelectedAccount.OrderNumber;
+
+			if (moveToDown)
+			{
+				SelectedAccount.OrderNumber = Accounts[selectedIndex + 1].OrderNumber;
+				Accounts[selectedIndex + 1].OrderNumber = orderNumber;
+			}
+			else
+			{
+				SelectedAccount.OrderNumber = Accounts[selectedIndex - 1].OrderNumber;
+				Accounts[selectedIndex - 1].OrderNumber = orderNumber;
+			}
+
+			_duplicatContext.SaveChanges();
+
+			InitDataContext();
+			DataContextChanged?.Invoke();
+
+			SelectedAccount = Accounts.First(a => a.Id == SelectedAccount.Id);
+		}
+
+		public void LoadSettingCommand(RiskManagement riskManagement)
+		{
+			//if (IsConfigReadonly) return;
+			//if (IsLoading) return;
+			SelectedRiskManagementSetting = riskManagement.RiskManagementSetting;
+			SelectedRiskManagementSettings.Clear();
+			SelectedRiskManagementSettings.Add(riskManagement.RiskManagementSetting);
 		}
 
 
