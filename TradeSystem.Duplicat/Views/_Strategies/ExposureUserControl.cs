@@ -22,6 +22,7 @@ namespace TradeSystem.Duplicat.Views
 
 		public void AttachDataSources()
 		{
+			dgvGroupes.DataSource = _viewModel.CustomGroups;
 		}
 
 		public void AttachConnectedDataSources()
@@ -34,6 +35,17 @@ namespace TradeSystem.Duplicat.Views
 		{
 			_viewModel = viewModel;
 			_viewModel.IsConnectedChanged += _viewModel_IsConnectedChanged;
+
+			lbGroupNameTitle.AddBinding<CustomGroup, string>("Text", _viewModel, nameof(_viewModel.SelectedCustomGroup),
+				cg => $"{cg?.GroupName ?? "not selected"}");
+
+			dgvMappingTable.DefaultValuesNeeded += (s, e) => e.Row.Cells["CustomGroupId"].Value = _viewModel.SelectedCustomGroup.Id;
+
+			dgvGroupes.RowDoubleClick += (s, e) =>
+			{
+				_viewModel.LoadCustomGroupesCommand(dgvGroupes.GetSelectedItem<CustomGroup>());
+				dgvMappingTable.DataSource = _viewModel.SelectedMappingTables;
+			};
 
 			btnSelectAll.Click += (s, e) => _viewModel.ExposureSelectAllCommand();
 			btnClearAll.Click += (s, e) => _viewModel.ExposureClearAllCommand();
