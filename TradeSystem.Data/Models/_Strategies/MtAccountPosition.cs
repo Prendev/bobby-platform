@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace TradeSystem.Common.Integration
+namespace TradeSystem.Data.Models
 {
     public class MtAccountPosition
     {

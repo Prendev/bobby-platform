@@ -2,6 +2,8 @@
 using System.Configuration;
 using System.IO;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -107,6 +109,12 @@ namespace TradeSystem.Data
 			AddRiskManagement();
 			AddTimestamps();
 			return base.SaveChanges();
+		}
+		public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+		{
+			AddRiskManagement();
+			AddTimestamps();
+			return base.SaveChangesAsync(cancellationToken);
 		}
 
 		public void Init()

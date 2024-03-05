@@ -25,7 +25,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			_cancellation?.Dispose();
 
 			_cancellation = new CancellationTokenSource();
-			new Thread(() => SetLoop(duplicatContext, _cancellation.Token)) { Name = $"Trade_strategy", IsBackground = true }.Start();
+			Task.Run(() => SetLoop(duplicatContext, _cancellation.Token), _cancellation.Token);
 
 			Logger.Info("Trade strategy's positions monitoring are started");
 		}
@@ -36,7 +36,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			Logger.Info("Trade strategy's positions monitoring are stopped");
 		}
 
-		private async void SetLoop(DuplicatContext duplicatContext, CancellationToken token)
+		private async Task SetLoop(DuplicatContext duplicatContext, CancellationToken token)
 		{
 			while (!token.IsCancellationRequested)
 			{
@@ -68,7 +68,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 					duplicatContext.MetaTraderPositions.AddRange(newMtPositionTrades);
 					duplicatContext.MetaTraderPositions.RemoveRange(removeMtPositionTrades);
 
-					duplicatContext.SaveChanges();
+					await duplicatContext.SaveChangesAsync();
 
 					foreach (var position in positions.Where(mtap => mtap.IsPreOrderClosing && mtap.Account.MarginLevel < mtap.MarginLevel).ToList())
 					{
@@ -113,7 +113,6 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 				if (pos.Value != null)
 				{
-					//string symbol, Sides side, decimal quantity, int timeout, int retryCount, int retryPeriod, string[] orderIds
 					var res = await fixApiConnector.CloseOrderRequest(pos.Value.Symbol, pos.Value.Side, pos.Value.Lots, 1000, 1, 5, new[] { pos.Key.ToString() });
 					if (res.OrderIds != null && res.OrderIds.Any(orderId => orderId.Equals(pos.Key.ToString())))
 					{

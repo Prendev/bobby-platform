@@ -54,6 +54,7 @@ namespace TradeSystem.Orchestration
 		private readonly IAntiMarketMakerService _antiMarketMakerService;
 		private readonly ILatencyArbService _latencyArbService;
 		private readonly INewsArbService _newsArbService;
+		private readonly IExposureStrategyService _exposureStrategyService;
 		private readonly ITradeStrategyService _tradeService;
 		private readonly IRiskManagementStrategyService _riskManagementService;
 
@@ -72,6 +73,7 @@ namespace TradeSystem.Orchestration
 			IReportService reportService,
 			IMtAccountImportService mtAccountImportService,
 			IMMStrategyService mmStrategyService,
+			IExposureStrategyService exposureStrategyService,
 			ITradeStrategyService tradeService,
 			IRiskManagementStrategyService riskManagementService)
 		{
@@ -89,6 +91,7 @@ namespace TradeSystem.Orchestration
 			_pushStrategyService = pushStrategyService;
 			_copierService = copierService;
 			_synchronizationContextFactory = synchronizationContextFactory;
+			_exposureStrategyService = exposureStrategyService;
 			_tradeService = tradeService;
 			_riskManagementService = riskManagementService;
 		}

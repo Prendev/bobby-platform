@@ -2,7 +2,7 @@
 using System.ComponentModel;
 using System.Threading;
 
-namespace TradeSystem.Duplicat.BindingLists
+namespace TradeSystem.Common.BindingLists
 {
 	public class SyncBindingList<T> : BindingList<T> where T : class
 	{

@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Threading;
 
-namespace TradeSystem.Duplicat.BindingLists
+namespace TradeSystem.Common.BindingLists
 {
 	public class SortableBindingList<T> : SyncBindingList<T> where T : class
 	{

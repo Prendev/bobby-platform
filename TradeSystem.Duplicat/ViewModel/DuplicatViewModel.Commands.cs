@@ -1,6 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System;
+﻿using System;
 using System.Collections;
+using System.ComponentModel;
 using System.Configuration;
 using System.Diagnostics;
 using System.Linq;
@@ -16,17 +16,7 @@ namespace TradeSystem.Duplicat.ViewModel
 			SaveState = SaveStates.Default;
 			try
 			{
-				var modifiedEntities = _duplicatContext.ChangeTracker.Entries()
-				.Where(e => e.State == EntityState.Modified)
-				.Select(e => e.Entity)
-				.ToList();
-
 				_duplicatContext.SaveChanges();
-
-				if (modifiedEntities.Any(ds => ds.GetType() == typeof(MappingTable) || ds.GetType() == typeof(CustomGroup)))
-				{
-					LoadAllCustomGroups();
-				}
 
 				if (log) Logger.Debug($"Database is saved");
 				SaveState = SaveStates.Success;
@@ -53,6 +43,7 @@ namespace TradeSystem.Duplicat.ViewModel
 				await _orchestrator.StartCopiers(_duplicatContext);
 				await _orchestrator.StartTickers(_duplicatContext);
 				await _orchestrator.StartStrategies(_duplicatContext, AutoLoadPositionsInSec);
+				_orchestrator.StartExposureStrategy(SymbolStatusVisibilities, AutoLoadPositionsInSec);
 
 				LoadConnectedLocals();
 
@@ -85,6 +76,7 @@ namespace TradeSystem.Duplicat.ViewModel
 				IsConfigReadonly = true;
 				await _orchestrator.Connect(_duplicatContext);
 
+				_orchestrator.StartExposureStrategy(SymbolStatusVisibilities, AutoLoadPositionsInSec);
 				_orchestrator.StartTradeStrategy(AutoLoadPositionsInSec);
 				_orchestrator.StartRiskManagementStrategy(AutoLoadPositionsInSec);
 
@@ -129,8 +121,6 @@ namespace TradeSystem.Duplicat.ViewModel
 				{
 					accountMetrics.Sum = 0;
 				}
-
-				_symbolStatusSelectAll.IsVisible = false;
 			}
 			catch (Exception e)
 			{
@@ -142,9 +132,10 @@ namespace TradeSystem.Duplicat.ViewModel
 			finally
 			{
 				ConnectedAccounts.Clear();
+				ConnectedMt4Mt5Accounts.Clear();
 				ConnectedMtAccounts.Clear();
 				ConnectedMt4AndConnectorAccounts.Clear();
-				SymbolStatusVisibilityList.Clear();
+				SymbolStatusVisibilities.Clear();
 				SortedTradePosition.Clear();
 				SelectedRiskManagements.Clear();
 				SelectedRiskManagementSettings.Clear();
@@ -214,14 +205,20 @@ namespace TradeSystem.Duplicat.ViewModel
 		}
 
 
-		public void LoadCustomGroupesCommand(CustomGroup customGroup)
+		public void LoadCustomGroupesCommand(CustomGroup selectedCustomGroup)
 		{
-			if (IsConfigReadonly) return;
-			if (IsLoading) return;
-			SelectedCustomGroup = customGroup;
-
-			InitDataContext();
-			DataContextChanged?.Invoke();
+			SelectedCustomGroup = selectedCustomGroup;
+			SelectedMappingTables = new BindingList<MappingTable>(MappingTables.Where(mt => mt.CustomGroup != null && mt.CustomGroup.Equals(selectedCustomGroup)).ToList());
+			SelectedMappingTables.ListChanged += (object sender, ListChangedEventArgs e) =>
+			{
+				if (!(sender is BindingList<MappingTable> bindingList)) return;
+				if (e.ListChangedType == ListChangedType.ItemAdded && bindingList.Any()) MappingTables.Add(bindingList[e.NewIndex]);
+				else if (e.ListChangedType == ListChangedType.ItemDeleted)
+				{
+					var except = MappingTables.Where(mt => mt.CustomGroup != null && mt.CustomGroup.Equals(selectedCustomGroup)).Except(bindingList).FirstOrDefault();
+					MappingTables.Remove(except);
+				}
+			};
 		}
 
 		public async void HeatUp()
@@ -371,6 +368,7 @@ namespace TradeSystem.Duplicat.ViewModel
 			IsLoading = true;
 			IsConfigReadonly = true;
 			await _orchestrator.StartStrategies(_duplicatContext, AutoLoadPositionsInSec);
+			_orchestrator.StartExposureStrategy(SymbolStatusVisibilities, AutoLoadPositionsInSec);
 			IsLoading = false;
 			IsConnected = true;
 			AreStrategiesStarted = true;
@@ -434,6 +432,16 @@ namespace TradeSystem.Duplicat.ViewModel
 		{
 			Logger.Debug($"{account} backtester stoping...");
 			_backtesterService.Stop(account);
+		}
+
+		public void ExposureSelectAllCommand()
+		{
+			SymbolStatusVisibilities.ToList().ForEach(ssv => ssv.IsVisible = true);
+		}
+
+		public void ExposureClearAllCommand()
+		{
+			SymbolStatusVisibilities.ToList().ForEach(ssv => ssv.IsVisible = false);
 		}
 
 		public async void TradePositionCloseCommand(TradePosition mtPosition)

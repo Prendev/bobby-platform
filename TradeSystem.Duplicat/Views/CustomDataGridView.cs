@@ -6,6 +6,7 @@ using System.Drawing;
 using System.Globalization;
 using System.Linq;
 using System.Windows.Forms;
+using System.Windows.Forms.VisualStyles;
 using TradeSystem.Common.Attributes;
 using TradeSystem.Common.Integration;
 using TradeSystem.Data.Models;
@@ -124,6 +125,47 @@ namespace TradeSystem.Duplicat.Views
 			}
 		}
 
+		private void DgvCheckBoxHeaderCell_CheckBoxHeaderCellStateChanged(object sender, CheckBoxStateChangedEventArgs e)
+		{
+			foreach (DataGridViewRow row in Rows)
+			{
+				if (!row.Cells[e.ColumnIndex].ReadOnly)
+				{
+					row.Cells[e.ColumnIndex].Value = e.IsChecked;
+				}
+			}
+		}
+
+		public void AddCheckBoxColumn(string propertyName)
+		{
+			var genericArgs = DataSource?.GetType().GetGenericArguments();
+			if (genericArgs?.Length > 0 != true) return;
+
+			if (!Columns.Contains(propertyName) || genericArgs[0].GetProperties().FirstOrDefault(p => p.Name == propertyName)?.GetCustomAttributes(true).Any(a => a is CheckBoxAttribute) != true) return;
+
+			if (!_invisibleColumns.Contains(propertyName))
+			{
+				_invisibleColumns.Add(propertyName);
+				Columns[propertyName].Visible = false;
+			}
+
+			var columnName = $"{propertyName}*";
+
+			if (!Columns.Contains($"{propertyName}*"))
+			{
+				var column = new GridViewCheckBoxColumn(propertyName, columnName);
+				column.HeaderText = "";
+				Columns.Add(column);
+
+				Columns[propertyName].DisplayIndex = Columns[columnName].Index;
+			}
+			else if (Columns[$"{propertyName}*"] is GridViewCheckBoxColumn)
+			{
+				var column = (GridViewCheckBoxColumn)Columns[$"{propertyName}*"];
+			}
+
+		}
+
 		public T GetSelectedItem<T>() where T : class
 		{
 			return CurrentRow?.DataBoundItem as T;
@@ -198,7 +240,6 @@ namespace TradeSystem.Duplicat.Views
 						Controls.Add(dtp);
 						_dateTimePickers.Add(prop.Name, dtp);
 					}
-
 				}
 			}
 			foreach (var name in _invisibleColumns)
@@ -221,7 +262,7 @@ namespace TradeSystem.Duplicat.Views
 
 		private void CustomDataGridView_KeyDown(object sender, KeyEventArgs e)
 		{
-			if (_dateTimePickers.ContainsKey(Columns[CurrentCell.ColumnIndex].Name) && (e.KeyCode == Keys.Delete || e.KeyCode == Keys.Back))
+			if (CurrentCell != null && _dateTimePickers.ContainsKey(Columns[CurrentCell.ColumnIndex].Name) && (e.KeyCode == Keys.Delete || e.KeyCode == Keys.Back))
 			{
 				lastUsedDateTimePicker.Item1.Visible = false;
 				lastUsedDateTimePicker.Item2.Value = null;
@@ -296,6 +337,91 @@ namespace TradeSystem.Duplicat.Views
 					Columns.RemoveAt(index);
 					Columns.Insert(index, c);
 				});
+		}
+	}
+	//public class CheckBoxStateChangedEventArgs : EventArgs
+	//{
+	//	public bool IsChecked { get; set; }
+	//	public int ColumnIndex { get; set; }
+	//}
+
+	//public delegate void CheckBoxHeaderCellStateChangedHandler(object sender, CheckBoxStateChangedEventArgs e);
+
+	public class DataGridViewCheckBoxHeaderCell2 : DataGridViewColumnHeaderCell
+	{
+		private Point checkBoxLocation;
+		private bool isChecked = false;
+		private readonly string _headerText;
+
+		public DataGridViewCheckBoxHeaderCell2(string headerText = "")
+		{
+			_headerText = headerText;
+		}
+
+		public event CheckBoxHeaderCellStateChangedHandler CheckBoxHeaderCellStateChanged;
+
+		protected void OnCheckBoxHeaderCellStateChanged(CheckBoxStateChangedEventArgs e)
+		{
+			CheckBoxHeaderCellStateChanged?.Invoke(this, e);
+		}
+
+		private int extraSpaceWidth = 10; // Adjust this value according to your needs
+
+		//protected override Size GetPreferredSize(Graphics graphics, DataGridViewCellStyle cellStyle, int rowIndex, Size constraintSize)
+		//{
+		//	Size size = base.GetPreferredSize(graphics, cellStyle, rowIndex, constraintSize);
+		//	size.Width += extraSpaceWidth;
+		//	return size;
+		//}
+
+		//protected override Rectangle GetContentBounds(Graphics graphics, DataGridViewCellStyle cellStyle, int rowIndex)
+		//{
+		//	Rectangle bounds = base.GetContentBounds(graphics, cellStyle, rowIndex);
+		//	bounds.Width += extraSpaceWidth;
+		//	return bounds;
+		//}
+
+		//protected override void Paint(Graphics graphics, Rectangle clipBounds, Rectangle cellBounds, int rowIndex, DataGridViewElementStates dataGridViewElementState, object value, object formattedValue, string errorText, DataGridViewCellStyle cellStyle, DataGridViewAdvancedBorderStyle advancedBorderStyle, DataGridViewPaintParts paintParts)
+		//{
+		//	cellBounds.Width += extraSpaceWidth;
+		//	base.Paint(graphics, clipBounds, cellBounds, rowIndex, dataGridViewElementState, value, formattedValue, errorText, cellStyle, advancedBorderStyle, paintParts);
+		//}
+
+		protected override void Paint(Graphics graphics, Rectangle clipBounds, Rectangle cellBounds, int rowIndex, DataGridViewElementStates dataGridViewElementState, object value, object formattedValue, string errorText, DataGridViewCellStyle cellStyle, DataGridViewAdvancedBorderStyle advancedBorderStyle, DataGridViewPaintParts paintParts)
+		{
+			cellBounds.Width += extraSpaceWidth;
+			base.Paint(graphics, clipBounds, cellBounds, rowIndex, dataGridViewElementState, value, formattedValue, errorText, cellStyle, advancedBorderStyle, paintParts);
+			// Calculate the location and size of the checkbox
+			int x = cellBounds.Location.X + (cellBounds.Width - 16) / 2 + 1;
+			int y = cellBounds.Location.Y + (cellBounds.Height - 16) / 2 + 2;
+
+			if (!string.IsNullOrEmpty(_headerText))
+			{
+				Size textSize = TextRenderer.MeasureText(_headerText, cellStyle.Font);
+				//x = cellBounds.Location.X + textSize.Width;
+			}
+			checkBoxLocation = new Point(x, y);
+			// Draw the checkbox
+			CheckBoxRenderer.DrawCheckBox(graphics, checkBoxLocation, isChecked ? CheckBoxState.CheckedNormal : CheckBoxState.UncheckedNormal);
+		}
+
+		protected override void OnMouseClick(DataGridViewCellMouseEventArgs e)
+		{
+			base.OnMouseClick(e);
+
+			// Toggle the checkbox state when clicked
+			isChecked = !isChecked;
+			DataGridView.InvalidateCell(this);
+
+
+			// Fire the event with the updated state
+			OnCheckBoxHeaderCellStateChanged(new CheckBoxStateChangedEventArgs { IsChecked = isChecked, ColumnIndex = e.ColumnIndex });
+		}
+
+		public void SetCheckedState(bool state)
+		{
+			isChecked = state;
+			DataGridView?.InvalidateCell(this);
 		}
 	}
 }

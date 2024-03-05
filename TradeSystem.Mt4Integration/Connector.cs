@@ -124,9 +124,9 @@ namespace TradeSystem.Mt4Integration
 			}
 
 			Broker = QuoteClient.Account.company;
-        }
+		}
 
-        public PositionResponse SendMarketOrderRequest(string symbol, Sides side, double lots, decimal price, decimal deviation, int magicNumber,
+		public PositionResponse SendMarketOrderRequest(string symbol, Sides side, double lots, decimal price, decimal deviation, int magicNumber,
 			string comment, int maxRetryCount, int retryPeriodInMs)
 		{
 			var retValue = new PositionResponse();
@@ -206,7 +206,6 @@ namespace TradeSystem.Mt4Integration
 				Logger.Error($"{_accountInfo.Description} Connector.SendClosePositionRequests position is NULL");
 				return new PositionResponse();
 			}
-
 			var startTime = HiResDatetime.UtcNow;
 			var pos = position;
 			try
@@ -255,6 +254,11 @@ namespace TradeSystem.Mt4Integration
 						$"{_accountInfo.Description} Connector.SendClosePositionRequests({pos.Id}, {pos.Comment}, {pos.Lots}) is STILL PARTIAL though");
 					pos = TryFindPosition(pos, pos.NewPartialTicket.Value);
 				}
+			}
+			catch (Exception e) when (e is RequoteException)
+			{
+				Mt4Logger.Log(this, $"Connector.SendClosePositionRequests({pos.Id}, {pos.Comment}): REQUOTE" 
+					+ $"\tServer reply: {e.Message}");
 			}
 			catch (Exception e)
 			{
@@ -446,8 +450,8 @@ namespace TradeSystem.Mt4Integration
 		{
 			_destinationSetter?.Invoke(host, port);
 
-            if (accountInfo.ProxyEnable)
-            {
+			if (accountInfo.ProxyEnable)
+			{
 				return new QuoteClient(accountInfo.User, accountInfo.Password,
 				accountInfo.LocalPortForProxy.HasValue ? "localhost" : host,
 				accountInfo.LocalPortForProxy ?? port, accountInfo.ProxyHost, accountInfo.ProxyPort, accountInfo.ProxyUser, accountInfo.ProxyPassword, accountInfo.ProxyType);

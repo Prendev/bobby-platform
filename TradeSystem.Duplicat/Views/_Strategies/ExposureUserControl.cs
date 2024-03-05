@@ -1,20 +1,19 @@
 ﻿using System.Windows.Forms;
-using TradeSystem.Common.Integration;
 using TradeSystem.Duplicat.ViewModel;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Internal;
 using System.Collections.Generic;
-using TradeSystem.Data.Models;
 using System.Drawing;
 using System.ComponentModel;
 using System;
+using TradeSystem.Data.Models;
 
 namespace TradeSystem.Duplicat.Views
 {
 	public partial class ExposureUserControl : UserControl, IMvvmUserControl
 	{
 		private DuplicatViewModel _viewModel;
-		private Dictionary<int, Brush> columnHeaderColor = new Dictionary<int, Brush>();
+		private Dictionary<SymbolStatus, Brush> symbolColumnHeaderColor = new Dictionary<SymbolStatus, Brush>();
 
 		public ExposureUserControl()
 		{
@@ -23,235 +22,197 @@ namespace TradeSystem.Duplicat.Views
 
 		public void AttachDataSources()
 		{
-			cdgExposureVisibility.DataSource = _viewModel.SymbolStatusVisibilityList;
+			cdgExposureVisibility.DataSource = _viewModel.SymbolStatusVisibilities;
 		}
 
 		public void InitView(DuplicatViewModel viewModel)
 		{
 			_viewModel = viewModel;
+			_viewModel.IsConnectedChanged += _viewModel_IsConnectedChanged;
+
+			btnSelectAll.Click += (s, e) => _viewModel.ExposureSelectAllCommand();
+			btnClearAll.Click += (s, e) => _viewModel.ExposureClearAllCommand();
+			btnFlush.Click += (s, e) =>
+			{
+				listViewExposure.Items.Clear();
+				listViewExposure.Columns.Clear();
+				symbolColumnHeaderColor.Clear();
+				_viewModel.FlushMtAccount();
+
+				cdgExposureVisibility.DataSource = _viewModel.SymbolStatusVisibilities;
+				_viewModel.SymbolStatusVisibilities.ListChanged += SymbolStatusVisibilities_ListChanged;
+			};
 
 			listViewExposure.View = View.Details;
 			listViewExposure.FullRowSelect = true;
 			listViewExposure.OwnerDraw = true;
+			listViewExposure.Scrollable = true;
 			listViewExposure.DrawColumnHeader += listViewExposure_DrawColumnHeader;
 			listViewExposure.DrawSubItem += listViewExposure_DrawSubItem;
 			listViewExposure.ColumnWidthChanging += listViewExposure_ColumnWidthChanging;
 
-			cdgExposureVisibility.AllowUserToAddRows = false;
 			cdgExposureVisibility.RowHeadersVisible = false;
-			cdgExposureVisibility.CurrentCellDirtyStateChanged += cdgExposureVisibility_CurrentCellDirtyStateChanged;
+			cdgExposureVisibility.AllowUserToAddRows = false;
+			cdgExposureVisibility.AllowUserToDeleteRows = false;
 			cdgExposureVisibility.CellFormatting += cdgExposureVisibility_CellFormatting;
+			cdgExposureVisibility.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+			cdgExposureVisibility.CurrentCellDirtyStateChanged += cdgExposureVisibility_CurrentCellDirtyStateChanged;
 
-			btnFlush.Click += (s, e) =>
-			{
-				_viewModel.FlushMtAccount();
-				AttachDataSources();
-				_viewModel.SymbolStatusVisibilityList.ListChanged += DuplicatViewModel_SymbolStatusVisibilityList_ListChanged;
-				CreateExposureListView();
-			};
-
-			_viewModel.PropertyChanged += DuplicatViewModel_PropertyChanged;
-			_viewModel.SymbolStatusVisibilityList.ListChanged += DuplicatViewModel_SymbolStatusVisibilityList_ListChanged;
-
-			_viewModel.ThrottlingTick += (sender, e) =>
-			{
-				UpdateExposureListView();
-			};
+			_viewModel.SymbolStatusVisibilities.ListChanged += SymbolStatusVisibilities_ListChanged;
 		}
 
-		private void CreateExposureListView()
+		private void _viewModel_IsConnectedChanged(object sender, bool e)
 		{
-			listViewExposure.Invoke((MethodInvoker)(() =>
+			if (!e)
 			{
-				if (!_viewModel.ConnectedMtAccounts.Any()) return;
-
 				listViewExposure.Items.Clear();
 				listViewExposure.Columns.Clear();
-
-				columnHeaderColor.Clear();
-
-				var summaryRow = CreateHeaderAndSummaryRow(_viewModel.MtAccountPositions);
-				CreateAccountRows(_viewModel.MtAccountPositions);
-
-				listViewExposure.Items.Add(summaryRow);
-			}));
+				symbolColumnHeaderColor.Clear();
+			}
 		}
 
-		private void UpdateExposureListView()
+		private void SymbolStatusVisibilities_ListChanged(object sender, ListChangedEventArgs e)
 		{
-			listViewExposure.Invoke((MethodInvoker)(() =>
+			if (!_viewModel.IsConnected) return;
+
+			if (!listViewExposure.Items.Any())
 			{
-				_viewModel.UpdateMtAccountForExposureStrategy();
-				UpdateHeaderAndSummaryRow(_viewModel.MtAccountPositions);
-				UpdateAccountRows(_viewModel.MtAccountPositions);
-			}));
+				InitListview();
+			}
+
+			switch (e.ListChangedType)
+			{
+				case ListChangedType.ItemAdded:
+					var newSymbolStatus = _viewModel.SymbolStatusVisibilities[e.NewIndex];
+
+					if (!symbolColumnHeaderColor.ContainsKey(newSymbolStatus))
+					{
+						symbolColumnHeaderColor.Add(newSymbolStatus, newSymbolStatus.IsCreatedGroup ? Brushes.DarkKhaki : Brushes.White);
+					}
+
+					listViewExposure.Columns.Add(newSymbolStatus.Symbol, newSymbolStatus.IsVisible ? 80 : 0);
+
+					var newRowIndex = 0;
+					foreach (var acc in _viewModel.ConnectedMt4Mt5Accounts)
+					{
+						var account = newSymbolStatus.AccountSum.FirstOrDefault(accSum => accSum.Account == acc);
+						if (account != null)
+						{
+							listViewExposure.Items[newRowIndex].SubItems.Add(account.SumLot.ToString());
+							listViewExposure.Items[_viewModel.ConnectedMt4Mt5Accounts.Count].SubItems.Add(newSymbolStatus.AccountSum.Sum(accSum => accSum.SumLot).ToString());
+						}
+						else
+						{
+							listViewExposure.Items[newRowIndex].SubItems.Add("-");
+							listViewExposure.Items[_viewModel.ConnectedMt4Mt5Accounts.Count].SubItems.Add("-");
+						}
+						newRowIndex++;
+					}
+
+					break;
+
+				case ListChangedType.ItemDeleted:
+					listViewExposure.Columns.RemoveAt(e.NewIndex + 2);
+					foreach (ListViewItem item in listViewExposure.Items)
+					{
+						item.SubItems.RemoveAt(e.NewIndex + 2);
+					}
+					break;
+
+				case ListChangedType.ItemChanged:
+					var changedSymbolStatus = _viewModel.SymbolStatusVisibilities[e.NewIndex];
+					listViewExposure.Columns[e.NewIndex + 2].Width = changedSymbolStatus.IsVisible ? 80 : 0;
+
+					var changedRowIndex = 0;
+					foreach (var acc in _viewModel.ConnectedMt4Mt5Accounts)
+					{
+						var accSum = changedSymbolStatus.AccountSum.FirstOrDefault(ss => ss.Account.Equals(acc));
+
+						if (accSum != null)
+						{
+							listViewExposure.Items[changedRowIndex].SubItems[e.NewIndex + 2].Text = accSum.SumLot.ToString();
+						}
+						else
+						{
+							listViewExposure.Items[changedRowIndex].SubItems[e.NewIndex + 2].Text = "-";
+						}
+
+						changedRowIndex++;
+					}
+
+					listViewExposure.Items[_viewModel.ConnectedMt4Mt5Accounts.Count].SubItems[e.NewIndex + 2].Text = changedSymbolStatus.AccountSum.Sum(accSum => accSum.SumLot).ToString();
+					break;
+
+				case ListChangedType.Reset:
+					InitListview();
+
+					foreach (var symbolStatus in _viewModel.SymbolStatusVisibilities)
+					{
+						if (!symbolColumnHeaderColor.ContainsKey(symbolStatus))
+						{
+							symbolColumnHeaderColor.Add(symbolStatus, symbolStatus.IsCreatedGroup ? Brushes.DarkKhaki : Brushes.White);
+							listViewExposure.Columns.Add(symbolStatus.Symbol, symbolStatus.IsVisible ? 80 : 0);
+						}
+
+						var resetRowIndex = 0;
+						foreach (var acc in _viewModel.ConnectedMt4Mt5Accounts)
+						{
+							var account = symbolStatus.AccountSum.FirstOrDefault(accSum => accSum.Account == acc);
+							if (account != null)
+							{
+								listViewExposure.Items[resetRowIndex].SubItems.Add(account.SumLot.ToString());
+							}
+							else
+							{
+								listViewExposure.Items[resetRowIndex].SubItems.Add("-");
+							}
+							resetRowIndex++;
+						}
+
+						if (symbolStatus.AccountSum.Any()) listViewExposure.Items[_viewModel.ConnectedMt4Mt5Accounts.Count].SubItems.Add(symbolStatus.AccountSum.Sum(accSum => accSum.SumLot).ToString());
+						else listViewExposure.Items[_viewModel.ConnectedMt4Mt5Accounts.Count].SubItems.Add("-");
+					}
+					break;
+			}
 		}
 
-		// Create headers and calculate summary row
-		private ListViewItem CreateHeaderAndSummaryRow(List<MtAccountPosition> mtAccountPositions)
+		private void InitListview()
 		{
-			var headerColumnIndex = 0; // Initialize headerColumnIndex.
+			listViewExposure.Items.Clear();
+			listViewExposure.Columns.Clear();
+			symbolColumnHeaderColor.Clear();
 
 			listViewExposure.Columns.Add("Account Name", 100);
-			columnHeaderColor.Add(headerColumnIndex++, Brushes.LightGray);
 			listViewExposure.Columns.Add("Broker", 125);
-			columnHeaderColor.Add(headerColumnIndex++, Brushes.LightGray);
 
-			var summaryRow = new ListViewItem("Sum");
-			summaryRow.SubItems.Add("-");
-
-			var brokerSymbols = mtAccountPositions.GroupBy(mtap => mtap.Broker, mtap => mtap.Positions.Select(p => p.SymbolStatus),
-				   (key, s) => new BrokerSymbolStatus { Broker = key, SymbolStatuses = s.SelectMany(symbolStatus => symbolStatus).Distinct().OrderBy(symbolStatus => symbolStatus.Symbol).ToList() }).ToList();
-
-			foreach (var symbolStatus in _viewModel.SymbolStatusVisibilityList.Skip(1))
+			foreach (var acc in _viewModel.ConnectedMt4Mt5Accounts)
 			{
-				var brokers = brokerSymbols.Where(bs => bs.SymbolStatuses.Any(s => s.Equals(symbolStatus))).Select(bs => bs.Broker).ToList();
-
-				var customGroup = _viewModel.AllCustomGroups.FirstOrDefault(cg => cg.GroupName.ToLower() == symbolStatus.Symbol.ToLower() && cg.MappingTables.Any(mt => brokers.Contains(mt.BrokerName)));
-
-				// It should be 0 because list view visibility will set the column width
-				listViewExposure.Columns.Add(symbolStatus.Symbol, symbolStatus.IsVisible ? 75 : 0);
-
-				columnHeaderColor.Add(headerColumnIndex++, symbolStatus.IsCreatedGroup ? Brushes.DarkKhaki : Brushes.White);
-
-				var sum = mtAccountPositions.SelectMany(mtap => mtap.Positions
-				.Where(p => p.SymbolStatus.Equals(symbolStatus))
-				.Select(p => (
-				p.Side == Sides.Sell ? -(p.LotSize) : p.LotSize) *
-				(customGroup?.MappingTables.FirstOrDefault(mt => mt.BrokerName == mtap.Broker)?.LotSize ?? 1)))
-				.Sum();
-
-				summaryRow.SubItems.Add(sum.ToString());
-			}
-
-			return summaryRow;
-		}
-
-		// Calculate the summary of positions for multiple accounts
-		private void CreateAccountRows(List<MtAccountPosition> mtAccountPositions)
-		{
-			foreach (var mtap in mtAccountPositions)
-			{
-				var accountRow = new ListViewItem(mtap.AccountName);
-				accountRow.SubItems.Add(mtap.Broker);
-
-				foreach (var symbolStatus in _viewModel.SymbolStatusVisibilityList.Skip(1))
-				{
-					var customGroup = _viewModel.AllCustomGroups.FirstOrDefault(cg => cg.GroupName.ToLower() == symbolStatus.Symbol.ToLower());
-
-					var sum = mtap.Positions.Where(p => p.SymbolStatus.Equals(symbolStatus))?
-					.Sum(p => (
-					p.Side == Sides.Sell ? -(p.LotSize) : p.LotSize)
-					* (customGroup?.MappingTables.FirstOrDefault(mt => mt.BrokerName == mtap.Broker)?.LotSize ?? 1)
-					);
-
-					if (sum == null)
-					{
-						accountRow.SubItems.Add("-");
-					}
-					else
-					{
-						accountRow.SubItems.Add(sum.ToString());
-					}
-				}
-
+				var accountRow = new ListViewItem(acc.Connector.Description);
+				accountRow.SubItems.Add(acc.Connector.Broker);
 				listViewExposure.Items.Add(accountRow);
 			}
-		}
 
-		// Add new headers, set columns visibility and recalculate summary row
-		private void UpdateHeaderAndSummaryRow(List<MtAccountPosition> mtAccountPositions)
-		{
-			var headerColumnIndex = 2;
-
-			var brokerSymbols = mtAccountPositions.GroupBy(mtap => mtap.Broker, mtap => mtap.Positions.Select(p => p.SymbolStatus),
-				   (key, s) => new BrokerSymbolStatus { Broker = key, SymbolStatuses = s.SelectMany(symbolStatus => symbolStatus).Distinct().OrderBy(symbolStatus => symbolStatus.Symbol).ToList() }).ToList();
-
-			foreach (var symbolStatus in _viewModel.SymbolStatusVisibilityList.Skip(1))
-			{
-				var brokers = brokerSymbols.Where(bs => bs.SymbolStatuses.Any(s => s.Equals(symbolStatus))).Select(bs => bs.Broker).ToList();
-
-				var customGroup = _viewModel.AllCustomGroups.FirstOrDefault(cg => cg.GroupName.ToLower() == symbolStatus.Symbol.ToLower() && cg.MappingTables.Any(mt => brokers.Contains(mt.BrokerName)));
-
-				var sum = mtAccountPositions.SelectMany(mtap => mtap.Positions
-				.Where(p => p.SymbolStatus.Equals(symbolStatus))
-				.Select(p => (
-				p.Side == Sides.Sell ? -(p.LotSize) : p.LotSize) *
-				(customGroup?.MappingTables.FirstOrDefault(mt => mt.BrokerName == mtap.Broker)?.LotSize ?? 1)))
-				.Sum();
-
-				if (columnHeaderColor.ContainsKey(headerColumnIndex))
-				{
-					listViewExposure.Items[listViewExposure.Items.Count - 1].SubItems[headerColumnIndex].Text = sum.ToString();
-				}
-				else
-				{
-					listViewExposure.Columns.Add(symbolStatus.Symbol, symbolStatus.IsVisible ? 75 : 0);
-					columnHeaderColor.Add(columnHeaderColor.Count, symbolStatus.IsCreatedGroup ? Brushes.DarkKhaki : Brushes.White);
-					listViewExposure.Items[listViewExposure.Items.Count - 1].SubItems.Add(sum.ToString());
-				}
-
-				headerColumnIndex++;
-			}
-		}
-
-		// Recalculate the summary of positions for multiple accounts
-		private void UpdateAccountRows(List<MtAccountPosition> mtAccountPositions)
-		{
-			for (int accountIndex = 0; accountIndex < listViewExposure.Items.Count - 1; accountIndex++)
-			{
-				var headerColumnIndex = 2;
-				var mtap = mtAccountPositions[accountIndex];
-				var accountRow = listViewExposure.Items[accountIndex];
-
-				foreach (var symbolStatus in _viewModel.SymbolStatusVisibilityList.Skip(1))
-				{
-					var customGroup = _viewModel.AllCustomGroups.FirstOrDefault(cg => cg.GroupName.ToLower() == symbolStatus.Symbol.ToLower());
-
-					var sum = mtap.Positions.Where(p => p.SymbolStatus.Equals(symbolStatus))?
-					.Sum(p => (
-					p.Side == Sides.Sell ? -(p.LotSize) : p.LotSize)
-					* (customGroup?.MappingTables.FirstOrDefault(mt => mt.BrokerName == mtap.Broker)?.LotSize ?? 1)
-					);
-
-					if (sum == null)
-					{
-						if (accountRow.SubItems.Count == headerColumnIndex)
-						{
-							accountRow.SubItems.Add("-");
-						}
-						else
-						{
-							accountRow.SubItems[headerColumnIndex].Text = "-";
-						}
-					}
-					else
-					{
-						if (accountRow.SubItems.Count == headerColumnIndex)
-						{
-							accountRow.SubItems.Add(sum.ToString());
-						}
-						else
-						{
-							accountRow.SubItems[headerColumnIndex].Text = sum.ToString();
-						}
-					}
-
-					headerColumnIndex++;
-				}
-			}
+			var sumRow = new ListViewItem("Sum");
+			sumRow.SubItems.Add("-");
+			listViewExposure.Items.Add(sumRow);
 		}
 
 		private void listViewExposure_DrawColumnHeader(object sender, DrawListViewColumnHeaderEventArgs e)
 		{
-			if (columnHeaderColor.ContainsKey(e.ColumnIndex))
+			if (e.ColumnIndex == 0 || e.ColumnIndex == 1)
 			{
-				e.Graphics.FillRectangle(columnHeaderColor[e.ColumnIndex], e.Bounds);
-				using (Pen borderPen = new Pen(Color.Black, 1))
-				{
-					int rightBorderX = e.Bounds.Right - 1;
-					e.Graphics.DrawLine(borderPen, rightBorderX, e.Bounds.Top, rightBorderX, e.Bounds.Bottom);
-				}
+				e.Graphics.FillRectangle(Brushes.LightGray, e.Bounds);
+			}
+			else if (_viewModel.SymbolStatusVisibilities.Count() > e.ColumnIndex - 2)
+			{
+				var brush = _viewModel.SymbolStatusVisibilities[e.ColumnIndex - 2].IsCreatedGroup ? Brushes.DarkKhaki : Brushes.White;
+				e.Graphics.FillRectangle(brush, e.Bounds);
+			}
+
+			using (Pen borderPen = new Pen(Color.Black, 1))
+			{
+				int rightBorderX = e.Bounds.Right - 1;
+				e.Graphics.DrawLine(borderPen, rightBorderX, e.Bounds.Top, rightBorderX, e.Bounds.Bottom);
 			}
 
 			e.DrawText(TextFormatFlags.VerticalCenter);
@@ -264,16 +225,23 @@ namespace TradeSystem.Duplicat.Views
 
 		private void listViewExposure_ColumnWidthChanging(object sender, ColumnWidthChangingEventArgs e)
 		{
-			if (e.ColumnIndex >= 2 && !_viewModel.SymbolStatusVisibilityList[e.ColumnIndex - 1].IsVisible)
+			if (e.ColumnIndex >= 2 && !_viewModel.SymbolStatusVisibilities[e.ColumnIndex - 2].IsVisible)
 			{
 				e.NewWidth = listViewExposure.Columns[e.ColumnIndex].Width;
 				e.Cancel = true;
 			}
 		}
+		private void cdgExposureVisibility_CurrentCellDirtyStateChanged(object sender, EventArgs e)
+		{
+			if (cdgExposureVisibility.CurrentCell is DataGridViewCheckBoxCell)
+			{
+				cdgExposureVisibility.EndEdit();
+			}
+		}
 
 		private void cdgExposureVisibility_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
 		{
-			if (e.RowIndex >= 0)
+			if (_viewModel.IsConnected && cdgExposureVisibility.Rows.Any() && cdgExposureVisibility.Rows.Count > e.RowIndex)
 			{
 				var rowData = cdgExposureVisibility.Rows[e.RowIndex].DataBoundItem as SymbolStatus;
 
@@ -288,94 +256,6 @@ namespace TradeSystem.Duplicat.Views
 						cdgExposureVisibility.Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.White;
 					}
 				}
-			}
-		}
-
-		private void cdgExposureVisibility_CurrentCellDirtyStateChanged(object sender, EventArgs e)
-		{
-			if (cdgExposureVisibility.CurrentCell is DataGridViewCheckBoxCell)
-			{
-				cdgExposureVisibility.EndEdit();
-			}
-		}
-
-		private void DuplicatViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
-		{
-			if (e.PropertyName == "IsConnected" && _viewModel.IsConnected)
-			{
-				CreateExposureListView();
-			}
-			else if (e.PropertyName == "IsConnected" && !_viewModel.IsConnected)
-			{
-				listViewExposure.Items.Clear();
-				listViewExposure.Columns.Clear();
-			}
-
-			if (e.PropertyName == nameof(_viewModel.AutoLoadPositionsInSec))
-			{
-				UpdateExposureListView();
-			}
-		}
-
-		private void DuplicatViewModel_SymbolStatusVisibilityList_ListChanged(object sender, ListChangedEventArgs e)
-		{
-			cdgExposureVisibility.Invoke((MethodInvoker)delegate
-			{
-				cdgExposureVisibility.DataSource = null;
-				cdgExposureVisibility.DataSource = _viewModel.SymbolStatusVisibilityList;
-			});
-
-			if (e.ListChangedType == ListChangedType.ItemChanged)
-			{
-				// Select All option
-				if (e.NewIndex == 0)
-				{
-					var selectAll = _viewModel.SymbolStatusVisibilityList[e.NewIndex].IsVisible;
-					var isSelectAll = _viewModel.SymbolStatusVisibilityList.Skip(1).All(ssv => ssv.IsVisible);
-
-					if (selectAll)
-					{
-						foreach (var item in _viewModel.SymbolStatusVisibilityList.Skip(1))
-						{
-							item.IsVisible = true;
-						}
-					}
-					else if (isSelectAll && !selectAll)
-					{
-						foreach (var item in _viewModel.SymbolStatusVisibilityList.Skip(1))
-						{
-							item.IsVisible = false;
-						}
-					}
-				}
-				// Single selection
-				else
-				{
-					UpdateExposureListView();
-					//+1 because of account name + broker header - select all
-					listViewExposure.Columns[e.NewIndex + 1].Width = _viewModel.SymbolStatusVisibilityList[e.NewIndex].IsVisible ? 75 : 0;
-
-					_viewModel.SymbolStatusVisibilityList[0].IsVisible = _viewModel.SymbolStatusVisibilityList.Skip(1).All(ssv => ssv.IsVisible);
-				}
-			}
-			if (e.ListChangedType == ListChangedType.ItemDeleted)
-			{
-				////+1 because of account name(index 0) + broker header(index 1)
-				columnHeaderColor.Remove(e.NewIndex + 1);
-				listViewExposure.Invoke((MethodInvoker)(() =>
-				{
-					listViewExposure.Columns.RemoveAt(e.NewIndex + 1);
-				}));
-
-				var columnHeaderColorHelper = new Dictionary<int, Brush>();
-				var columnIndex = 0;
-				foreach (var item in columnHeaderColor)
-				{
-					columnHeaderColorHelper.Add(columnIndex, item.Value);
-					columnIndex++;
-				}
-				// Update the keys after removal to maintain order
-				columnHeaderColor = columnHeaderColorHelper;
 			}
 		}
 	}

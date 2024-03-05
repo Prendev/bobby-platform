@@ -201,18 +201,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BindingLists\SyncBindingList.cs" />
     <Compile Include="NullEntity.cs" />
     <Compile Include="ViewModel\DuplicatViewModel.SpoofingCommands.cs" />
     <Compile Include="ViewModel\DuplicatViewModel.PushingCommands.cs" />
     <Compile Include="ViewModel\DuplicatViewModel.Commands.cs" />
-    <Compile Include="BindingLists\SortableBindingList.cs" />
     <Compile Include="Views\AggregatorUserControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="Views\AggregatorUserControl.Designer.cs">
       <DependentUpon>AggregatorUserControl.cs</DependentUpon>
     </Compile>
+    <Compile Include="Views\GridViewCheckBoxColumn.cs" />
     <Compile Include="Views\ConnectorTesterUserControl.cs">
       <SubType>UserControl</SubType>
     </Compile>

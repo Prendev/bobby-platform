@@ -231,6 +231,9 @@
     </Compile>
     <Compile Include="Migrations\DuplicatContextModelSnapshot.cs" />
     <Compile Include="Models\CopierPosition.cs" />
+    <Compile Include="Models\_Strategies\BrokerSymbolStatus.cs" />
+    <Compile Include="Models\_Strategies\MtAccountPosition.cs" />
+    <Compile Include="Models\_Strategies\MtPosition.cs" />
     <Compile Include="Models\_Strategies\RiskManagement.NotMapped.cs" />
     <Compile Include="Models\_Strategies\RiskManagement.cs" />
     <Compile Include="Models\_Strategies\RiskManagementSetting.cs" />
@@ -238,6 +241,7 @@
     <Compile Include="Models\Export.cs" />
     <Compile Include="Models\FixApiCopierPosition.cs" />
     <Compile Include="Models\_Accounts\TradePosition.cs" />
+    <Compile Include="Models\_Strategies\SymbolStatus.cs" />
     <Compile Include="Models\_Strategies\TwilioSettings.cs" />
     <Compile Include="Models\_Strategies\PhoneSettings.cs" />
     <Compile Include="Models\_Strategies\CustomGroup.cs" />

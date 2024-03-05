@@ -3,7 +3,6 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using TradeSystem.Common.Integration;
-using TradeSystem.Communication;
 using TradeSystem.Communication.Mt5;
 using TradeSystem.Data;
 using TradeSystem.Data.Models;

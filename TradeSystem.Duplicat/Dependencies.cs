@@ -116,6 +116,7 @@ namespace TradeSystem.Duplicat
 	        builder.RegisterType<MMStrategyService>().As<IMMStrategyService>();
 	        builder.RegisterType<TradeStrategyService>().As<ITradeStrategyService>();
 	        builder.RegisterType<RiskManagementStrategyService>().As<IRiskManagementStrategyService>();
+	        builder.RegisterType<ExposureStrategyService>().As<IExposureStrategyService>();
 		}
     }
 }

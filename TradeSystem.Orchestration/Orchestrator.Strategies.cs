@@ -2,7 +2,9 @@
 using System.Threading;
 using System.Threading.Tasks;
 using TradeSystem.Common;
+using TradeSystem.Common.BindingLists;
 using TradeSystem.Common.Integration;
+using TradeSystem.Communication.Mt5;
 using TradeSystem.Data;
 using TradeSystem.Data.Models;
 
@@ -46,7 +48,8 @@ namespace TradeSystem.Orchestration
 		Task ClosingSecondEnd(Spoofing spoofing);
 		void FlipFinish(Spoofing spoofing);
 		void Panic(Spoofing spoofing);
-
+		void StartExposureStrategy(SortableBindingList<SymbolStatus> symbolStatuses, int throttlingInSec);
+		void StopExposureStrategy();
 		void StartTradeStrategy(int throttlingInSec);
 		Task TradePositionClose(TradePosition position);
 		void StartRiskManagementStrategy(int throttlingInSec);
@@ -174,7 +177,9 @@ namespace TradeSystem.Orchestration
 			_latencyArbService.Stop();
 			_newsArbService.Stop();
 			_mmStrategyService.SuspendAll();
+			_exposureStrategyService.Stop();
 			_tradeService.Stop();
+			_riskManagementService.Stop();
 		}
 
 		public async Task HubArbsGoFlat(DuplicatContext duplicatContext)
@@ -246,9 +251,28 @@ namespace TradeSystem.Orchestration
 
 		public void SetThrottling(int throttlingInSec)
 		{
+			_exposureStrategyService.SetThrottling(throttlingInSec);
 			_tradeService.SetThrottling(throttlingInSec);
 			_riskManagementService.SetThrottling(throttlingInSec);
 		}
+
+		public void StartExposureStrategy(SortableBindingList<SymbolStatus> symbolStatuses, int throttlingInSec)
+		{
+			var connectedMt4Mt5Accounts = _duplicatContext.Accounts.Local
+				.Where(a => a.Connector?.IsConnected == true &&
+					(a.MetaTraderAccount != null ||
+					(a.FixApiAccount != null &&
+					(a.Connector as FixApiIntegration.Connector).GeneralConnector is Mt5Connector)))
+				.ToList();
+
+			var mappingTables = _duplicatContext.MappingTables.Local.ToBindingList();
+			_exposureStrategyService.Start(connectedMt4Mt5Accounts, mappingTables, symbolStatuses, throttlingInSec);
+		}
+		public void StopExposureStrategy()
+		{
+			_exposureStrategyService.Stop();
+		}
+
 		public void StartTradeStrategy(int throttlingInSec)
 		{
 			_tradeService.Start(_duplicatContext, throttlingInSec);
