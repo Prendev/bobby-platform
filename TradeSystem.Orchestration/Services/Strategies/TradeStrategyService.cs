@@ -58,21 +58,21 @@ namespace TradeSystem.Orchestration.Services.Strategies
 							}))
 						.ToList();
 
-					var positions = duplicatContext.MetaTraderPositions.Local.Where(mtp => connectedAccounts.Contains(mtp.Account)).ToList();
+					var positions = duplicatContext.TraderPositions.Local.Where(mtp => connectedAccounts.Contains(mtp.Account)).ToList();
 
 					var connectedMtAccountPositionTradeDb = positions.Where(mtp => connectedAccounts.Contains(mtp.Account)).ToList();
 
 					var newMtPositionTrades = metaTraderPositions.Where(mtp => !connectedMtAccountPositionTradeDb.Any(mtap => mtap.Account == mtp.Account && mtap.PositionKey == mtp.PositionKey)).ToList();
 					var removeMtPositionTrades = connectedMtAccountPositionTradeDb.Where(mtp => !metaTraderPositions.Any(mtap => mtap.Account == mtp.Account && mtap.PositionKey == mtp.PositionKey)).ToList();
 
-					duplicatContext.MetaTraderPositions.AddRange(newMtPositionTrades);
-					duplicatContext.MetaTraderPositions.RemoveRange(removeMtPositionTrades);
+					duplicatContext.TraderPositions.AddRange(newMtPositionTrades);
+					duplicatContext.TraderPositions.RemoveRange(removeMtPositionTrades);
 
 					await duplicatContext.SaveChangesAsync();
 
 					foreach (var position in positions.Where(mtap => mtap.IsPreOrderClosing && mtap.Account.MarginLevel < mtap.MarginLevel).ToList())
 					{
-						await TradePositionClose(duplicatContext.MetaTraderPositions.Local.ToBindingList(), position);
+						await TradePositionClose(duplicatContext.TraderPositions.Local.ToBindingList(), position);
 					}
 
 					Thread.Sleep(_throttlingInSec * 1000);

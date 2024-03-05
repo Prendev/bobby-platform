@@ -19,12 +19,12 @@ namespace TradeSystem.Duplicat.Views._Strategies
 
 		public void AttachConnectedDataSources()
 		{
-			scdvTrade.SortableDataSource = _viewModel.SortedTradePosition;
+			scdvTrade.SortableDataSource = _viewModel.SortedTradePositions;
 		}
 
 		public void AttachDataSources()
 		{
-			scdvTrade.SortableDataSource = _viewModel.SortedTradePosition;
+			scdvTrade.SortableDataSource = _viewModel.SortedTradePositions;
 		}
 
 		public void InitView(DuplicatViewModel viewModel)
@@ -44,7 +44,7 @@ namespace TradeSystem.Duplicat.Views._Strategies
 			{
 				if (e.PropertyName == "IsConnected" && _viewModel.IsConnected)
 				{
-					for (int rowIndex = 0; rowIndex < _viewModel.SortedTradePosition.Count; rowIndex++)
+					for (int rowIndex = 0; rowIndex < _viewModel.SortedTradePositions.Count; rowIndex++)
 					{
 						SetRowColor(rowIndex);
 					}
@@ -58,7 +58,7 @@ namespace TradeSystem.Duplicat.Views._Strategies
 
 			if (senderGrid.Columns[e.ColumnIndex] is DataGridViewButtonColumn && e.RowIndex >= 0)
 			{
-				if (!_viewModel.SortedTradePosition.Any()) return;
+				if (!_viewModel.SortedTradePositions.Any()) return;
 
 				var mtPosition = (scdvTrade.DataSource as BindingList<TradePosition>)[e.RowIndex];
 				if (mtPosition.IsRemoved) return;

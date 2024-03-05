@@ -280,7 +280,7 @@ namespace TradeSystem.Orchestration
 
 		public async Task TradePositionClose(TradePosition position)
 		{
-			await _tradeService.TradePositionClose(_duplicatContext.MetaTraderPositions.Local.ToBindingList(), position);
+			await _tradeService.TradePositionClose(_duplicatContext.TraderPositions.Local.ToBindingList(), position);
 		}
 
 		public void StartRiskManagementStrategy(int throttlingInSec)

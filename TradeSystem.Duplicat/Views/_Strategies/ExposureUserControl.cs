@@ -10,7 +10,7 @@ using TradeSystem.Data.Models;
 
 namespace TradeSystem.Duplicat.Views
 {
-	public partial class ExposureUserControl : UserControl, IMvvmUserControl
+	public partial class ExposureUserControl : UserControl, IMvvmUserControl, IMvvmConnectedUserControl
 	{
 		private DuplicatViewModel _viewModel;
 		private Dictionary<SymbolStatus, Brush> symbolColumnHeaderColor = new Dictionary<SymbolStatus, Brush>();
@@ -22,7 +22,12 @@ namespace TradeSystem.Duplicat.Views
 
 		public void AttachDataSources()
 		{
+		}
+
+		public void AttachConnectedDataSources()
+		{
 			cdgExposureVisibility.DataSource = _viewModel.SymbolStatusVisibilities;
+			_viewModel.SymbolStatusVisibilities.ListChanged += SymbolStatusVisibilities_ListChanged;
 		}
 
 		public void InitView(DuplicatViewModel viewModel)
@@ -57,13 +62,11 @@ namespace TradeSystem.Duplicat.Views
 			cdgExposureVisibility.CellFormatting += cdgExposureVisibility_CellFormatting;
 			cdgExposureVisibility.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
 			cdgExposureVisibility.CurrentCellDirtyStateChanged += cdgExposureVisibility_CurrentCellDirtyStateChanged;
-
-			_viewModel.SymbolStatusVisibilities.ListChanged += SymbolStatusVisibilities_ListChanged;
 		}
 
-		private void _viewModel_IsConnectedChanged(object sender, bool e)
+		private void _viewModel_IsConnectedChanged(object sender, bool isConnected)
 		{
-			if (!e)
+			if (!isConnected)
 			{
 				listViewExposure.Items.Clear();
 				listViewExposure.Columns.Clear();

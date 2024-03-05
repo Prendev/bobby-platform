@@ -124,14 +124,13 @@ namespace TradeSystem.Duplicat.ViewModel
 
 		public List<Account> ConnectedAccounts { get; private set; } = new List<Account>();
 		public List<Account> ConnectedMt4Mt5Accounts { get; private set; } = new List<Account>();
-		public List<Account> ConnectedMtAccounts { get; private set; } = new List<Account>();
 		public List<Account> ConnectedMt4AndConnectorAccounts { get; private set; } = new List<Account>();
 		public BindingList<AccountMetric> AccountMetrics { get; }
 
 		public List<MtAccountPosition> MtAccountPositions { get; private set; } = new List<MtAccountPosition>();
 
 		public BindingList<TradePosition> TradePositions { get; private set; }
-		public SortableBindingList<TradePosition> SortedTradePosition { get; private set; } = new SortableBindingList<TradePosition>();
+		public SortableBindingList<TradePosition> SortedTradePositions { get; private set; } = new SortableBindingList<TradePosition>();
 
 		public SortableBindingList<SymbolStatus> SymbolStatusVisibilities { get; private set; } = new SortableBindingList<SymbolStatus>();
 
@@ -220,8 +219,8 @@ namespace TradeSystem.Duplicat.ViewModel
 
 		public void FlushMtAccount()
 		{
-			 _orchestrator.StopExposureStrategy();
-			
+			_orchestrator.StopExposureStrategy();
+
 			SymbolStatusVisibilities = new SortableBindingList<SymbolStatus>();
 
 			_orchestrator.StartExposureStrategy(SymbolStatusVisibilities, AutoLoadPositionsInSec);
@@ -229,13 +228,13 @@ namespace TradeSystem.Duplicat.ViewModel
 
 		public void FilterTradePositions(string searchString)
 		{
-			SortedTradePosition = new SortableBindingList<TradePosition>();
+			SortedTradePositions = new SortableBindingList<TradePosition>();
 			Predicate<TradePosition> filterPredicate = (mtp) =>
 				mtp?.Account?.Connector != null &&
 				mtp.Account.Connector.IsConnected == true &&
 				GenerateFilterConditionByAttribute(mtp, searchString);
 
-			ToSortableBindingList(TradePositions, SortedTradePosition, filterPredicate);
+			ToSortableBindingList(TradePositions, SortedTradePositions, filterPredicate);
 
 			ConnectedDataContextChanged?.Invoke();
 		}
@@ -302,25 +301,6 @@ namespace TradeSystem.Duplicat.ViewModel
 			AccountMetrics.First(ams => ams.Metric == Metric.Margin).Sum = ConnectedAccounts.Where(ca => ca.Sum && ca.ConnectionState == ConnectionStates.Connected).Sum(ca => ca.Margin);
 			AccountMetrics.First(ams => ams.Metric == Metric.FreeMargin).Sum = ConnectedAccounts.Where(ca => ca.Sum && ca.ConnectionState == ConnectionStates.Connected).Sum(ca => ca.FreeMargin);
 		}
-		private void ConnectToAccounts()
-		{
-			ConnectedMtAccounts = ConnectedAccounts.Where(account => account.MetaTraderAccount != null).ToList();
-			ConnectedMt4AndConnectorAccounts = ConnectedAccounts.Where(account => account.MetaTraderAccount != null || account.FixApiAccount != null).ToList();
-
-			foreach (var account in ConnectedAccounts.Where(account => account.MetaTraderAccount != null || account.FixApiAccount != null))
-			{
-				SelectedRiskManagements.Add(account.RiskManagement);
-			}
-
-			ConnectedAccounts.ForEach(account =>
-			{
-				account.PropertyChanged -= Account_PropertyChanged;
-				account.PropertyChanged += Account_PropertyChanged;
-			});
-
-			//TODO
-			CheckDuplicatedPositions();
-		}
 
 		private void SelectedPushing_ConnectionChanged(object sender, Common.Integration.ConnectionStates connectionStates)
 		{
@@ -349,20 +329,57 @@ namespace TradeSystem.Duplicat.ViewModel
 
 		private void LoadConnectedLocals()
 		{
-			ConnectedAccounts = Accounts.Where(account => account.Connector?.IsConnected == true).ToList();
-			ConnectedMt4Mt5Accounts = _duplicatContext.Accounts.Local
+			ConnectToAccounts();
+
+			SymbolStatusVisibilities = new SortableBindingList<SymbolStatus>();
+			
+			SortedTradePositions = new SortableBindingList<TradePosition>();
+			ToSortableBindingList(TradePositions, SortedTradePositions, (mtp) =>
+				mtp?.Account?.Connector != null &&
+				mtp.Account.Connector.IsConnected == true);
+
+			ConnectedDataContextChanged?.Invoke();
+		}
+		private void ConnectToAccounts()
+		{
+			foreach (var account in Accounts)
+			{
+				account.ConnectionChanged -= Account_ConnectionChanged;
+				account.ConnectionChanged += Account_ConnectionChanged;
+			}
+
+			// focus on connected account
+			//ConnectedAccounts = Accounts.Where(account => account.Connector?.IsConnected == true).ToList();
+			ConnectedMt4Mt5Accounts = Accounts
 				.Where(a => a.Connector?.IsConnected == true &&
 					(a.MetaTraderAccount != null ||
 					(a.FixApiAccount != null &&
 					(a.Connector as FixApiIntegration.Connector).GeneralConnector is Mt5Connector)))
 				.ToList();
 
-			SortedTradePosition = new SortableBindingList<TradePosition>();
-			ToSortableBindingList(TradePositions, SortedTradePosition, (mtp) =>
-				mtp?.Account?.Connector != null &&
-				mtp.Account.Connector.IsConnected == true);
+			foreach (var account in ConnectedAccounts.Where(account => account.MetaTraderAccount != null || account.FixApiAccount != null))
+			{
+				SelectedRiskManagements.Add(account.RiskManagement);
+			}
 
-			ConnectedDataContextChanged?.Invoke();
+			//TODO
+			CheckDuplicatedPositions();
+		}
+
+		private void Account_ConnectionChanged(object sender, ConnectionStates e)
+		{
+			if (!(sender is Account account)) return;
+
+			if (e == ConnectionStates.Connected && !ConnectedAccounts.Contains(account))
+			{
+				ConnectedAccounts.Add(account);
+				account.PropertyChanged += Account_PropertyChanged;
+			}
+			else if (ConnectedAccounts.Contains(account) && (e == ConnectionStates.Disconnected || e == ConnectionStates.Error))
+			{
+				ConnectedAccounts.Remove(account);
+				account.PropertyChanged -= Account_PropertyChanged;
+			}
 		}
 
 		private void LoadLocals()
@@ -374,7 +391,7 @@ namespace TradeSystem.Duplicat.ViewModel
 
 			var p = SelectedProfile?.Id;
 
-			_duplicatContext.MetaTraderPositions.Load();
+			_duplicatContext.TraderPositions.Load();
 			_duplicatContext.MetaTraderPlatforms.OrderBy(e => e.ToString()).Load();
 			_duplicatContext.CTraderPlatforms.OrderBy(e => e.ToString()).Load();
 			_duplicatContext.MetaTraderAccounts.Include(e => e.InstrumentConfigs).OrderBy(e => e.ToString()).Load();
@@ -435,7 +452,7 @@ namespace TradeSystem.Duplicat.ViewModel
 
 			_duplicatContext.Settings.OrderBy(e => e.ToString()).Load();
 
-			TradePositions = _duplicatContext.MetaTraderPositions.Local.ToBindingList();
+			TradePositions = _duplicatContext.TraderPositions.Local.ToBindingList();
 			MtPlatforms = _duplicatContext.MetaTraderPlatforms.Local.ToBindingList();
 			CtPlatforms = _duplicatContext.CTraderPlatforms.Local.ToBindingList();
 			MtAccounts = _duplicatContext.MetaTraderAccounts.Local.ToBindingList();

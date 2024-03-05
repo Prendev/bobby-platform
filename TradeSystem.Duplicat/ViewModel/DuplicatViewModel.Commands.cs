@@ -5,6 +5,7 @@ using System.Configuration;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using TradeSystem.Common.BindingLists;
 using TradeSystem.Data.Models;
 
 namespace TradeSystem.Duplicat.ViewModel
@@ -43,11 +44,9 @@ namespace TradeSystem.Duplicat.ViewModel
 				await _orchestrator.StartCopiers(_duplicatContext);
 				await _orchestrator.StartTickers(_duplicatContext);
 				await _orchestrator.StartStrategies(_duplicatContext, AutoLoadPositionsInSec);
-				_orchestrator.StartExposureStrategy(SymbolStatusVisibilities, AutoLoadPositionsInSec);
 
 				LoadConnectedLocals();
-
-				ConnectToAccounts();
+				_orchestrator.StartExposureStrategy(SymbolStatusVisibilities, AutoLoadPositionsInSec);
 
 				AreCopiersStarted = true;
 				AreTickersStarted = true;
@@ -76,13 +75,12 @@ namespace TradeSystem.Duplicat.ViewModel
 				IsConfigReadonly = true;
 				await _orchestrator.Connect(_duplicatContext);
 
+				LoadConnectedLocals();
+
 				_orchestrator.StartExposureStrategy(SymbolStatusVisibilities, AutoLoadPositionsInSec);
 				_orchestrator.StartTradeStrategy(AutoLoadPositionsInSec);
 				_orchestrator.StartRiskManagementStrategy(AutoLoadPositionsInSec);
 
-				LoadConnectedLocals();
-
-				ConnectToAccounts();
 
 				IsLoading = false;
 				IsConfigReadonly = true;
@@ -133,10 +131,8 @@ namespace TradeSystem.Duplicat.ViewModel
 			{
 				ConnectedAccounts.Clear();
 				ConnectedMt4Mt5Accounts.Clear();
-				ConnectedMtAccounts.Clear();
-				ConnectedMt4AndConnectorAccounts.Clear();
 				SymbolStatusVisibilities.Clear();
-				SortedTradePosition.Clear();
+				SortedTradePositions.Clear();
 				SelectedRiskManagements.Clear();
 				SelectedRiskManagementSettings.Clear();
 				SelectedRiskManagementSetting = null;
