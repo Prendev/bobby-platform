@@ -1,20 +1,19 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
-using System.Security.Policy;
 using TradeSystem.Common;
 using TradeSystem.Common.Attributes;
-using TradeSystem.Common.Integration;
 
 namespace TradeSystem.Data.Models
 {
 	public class SymbolStatus : BaseNotifyPropertyChange
 	{
+		private CustomGroup customGroup;
+
 		[ReadOnly(true)]
 		[DisplayName("Group Name")]
-		public string Symbol { get; set; }
+		public string Symbol { get => Get<string>(); set => Set(value); }
 
 		[InvisibleColumn]
 		public bool IsCreatedGroup { get; set; }
@@ -24,16 +23,29 @@ namespace TradeSystem.Data.Models
 
 
 		[InvisibleColumn]
-		public ObservableCollection<AccountLot> AccountSum { get; set; } = new ObservableCollection<AccountLot>();
+		public ObservableCollection<AccountLot> AccountLotList { get; set; } = new ObservableCollection<AccountLot>();
+
+		[InvisibleColumn]
+		public CustomGroup CustomGroup
+		{
+			get { return customGroup; }
+			set
+			{
+				customGroup = value;
+				customGroup.PropertyChanged += Value_PropertyChanged;
+
+				Symbol = customGroup.GroupName;
+			}
+		}
 
 		public SymbolStatus()
 		{
-			AccountSum.CollectionChanged += AccountSum_CollectionChanged;
+			AccountLotList.CollectionChanged += AccountSum_CollectionChanged;
 		}
 
 		private void AccountSum_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
 		{
-			OnPropertyChanged(nameof(AccountSum));
+			OnPropertyChanged(nameof(AccountLotList));
 			if (e.Action == NotifyCollectionChangedAction.Add)
 			{
 				foreach (var item in e.NewItems)
@@ -48,20 +60,9 @@ namespace TradeSystem.Data.Models
 			OnPropertyChanged(nameof(AccountLot.SumLot));
 		}
 
-		public override bool Equals(object obj)
+		private void Value_PropertyChanged(object sender, PropertyChangedEventArgs e)
 		{
-			if (obj == null || GetType() != obj.GetType())
-			{
-				return false;
-			}
-
-			SymbolStatus other = (SymbolStatus)obj;
-			return Symbol == other.Symbol && IsCreatedGroup == other.IsCreatedGroup;
-		}
-
-		public override int GetHashCode()
-		{
-			return Symbol.GetHashCode() + IsCreatedGroup.GetHashCode();
+			Symbol = customGroup.GroupName;
 		}
 	}
 
@@ -69,8 +70,8 @@ namespace TradeSystem.Data.Models
 	{
 		private decimal sumLot;
 		public Account Account { get; set; }
-
-		public decimal SumLot
+        public string Instrument { get; set; }
+        public decimal SumLot
 		{
 			get { return sumLot; }
 			set

@@ -7,6 +7,8 @@ using System.Drawing;
 using System.ComponentModel;
 using System;
 using TradeSystem.Data.Models;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace TradeSystem.Duplicat.Views
 {
@@ -14,6 +16,7 @@ namespace TradeSystem.Duplicat.Views
 	{
 		private DuplicatViewModel _viewModel;
 		private Dictionary<SymbolStatus, Brush> symbolColumnHeaderColor = new Dictionary<SymbolStatus, Brush>();
+		private string selectedColumnText;
 
 		public ExposureUserControl()
 		{
@@ -74,6 +77,35 @@ namespace TradeSystem.Duplicat.Views
 			cdgExposureVisibility.CellFormatting += cdgExposureVisibility_CellFormatting;
 			cdgExposureVisibility.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
 			cdgExposureVisibility.CurrentCellDirtyStateChanged += cdgExposureVisibility_CurrentCellDirtyStateChanged;
+
+			listViewExposure.ColumnClick += ListViewExposure_ColumnClick;
+			listViewExposure.KeyDown += listViewExposure_KeyDown;
+		}
+
+		private void ListViewExposure_ColumnClick(object sender, ColumnClickEventArgs e)
+		{
+			selectedColumnText = listViewExposure.Columns[e.Column].Text;
+		}
+
+		private void listViewExposure_KeyDown(object sender, KeyEventArgs e)
+		{
+			Logger.Debug(e.Control + "\t" + e.KeyCode.ToString());
+			if (e.Control && e.KeyCode == Keys.C)
+			{
+				Point mousePos = listViewExposure.PointToClient(MousePosition);
+				ListViewHitTestInfo hitTest = listViewExposure.HitTest(mousePos);
+				Logger.Debug("CtrlC");
+
+				if (hitTest.SubItem != null)
+				{
+					var text = mousePos.Y < 25 ? selectedColumnText : hitTest.SubItem.Text;
+					Logger.Debug(text);
+					if (!string.IsNullOrEmpty(text))
+					{
+						Clipboard.SetText(text);
+					}
+				}
+			}
 		}
 
 		private void _viewModel_IsConnectedChanged(object sender, bool isConnected)
@@ -110,11 +142,11 @@ namespace TradeSystem.Duplicat.Views
 					var newRowIndex = 0;
 					foreach (var acc in _viewModel.ConnectedMt4Mt5Accounts)
 					{
-						var account = newSymbolStatus.AccountSum.FirstOrDefault(accSum => accSum.Account == acc);
+						var account = newSymbolStatus.AccountLotList.FirstOrDefault(accSum => accSum.Account == acc);
 						if (account != null)
 						{
 							listViewExposure.Items[newRowIndex].SubItems.Add(account.SumLot.ToString());
-							listViewExposure.Items[_viewModel.ConnectedMt4Mt5Accounts.Count].SubItems.Add(newSymbolStatus.AccountSum.Sum(accSum => accSum.SumLot).ToString());
+							listViewExposure.Items[_viewModel.ConnectedMt4Mt5Accounts.Count].SubItems.Add(newSymbolStatus.AccountLotList.Sum(accSum => accSum.SumLot).ToString());
 						}
 						else
 						{
@@ -137,11 +169,13 @@ namespace TradeSystem.Duplicat.Views
 				case ListChangedType.ItemChanged:
 					var changedSymbolStatus = _viewModel.SymbolStatusVisibilities[e.NewIndex];
 					listViewExposure.Columns[e.NewIndex + 2].Width = changedSymbolStatus.IsVisible ? 80 : 0;
+					listViewExposure.Columns[e.NewIndex + 2].Name = changedSymbolStatus.Symbol;
+					listViewExposure.Columns[e.NewIndex + 2].Text = changedSymbolStatus.Symbol;
 
 					var changedRowIndex = 0;
 					foreach (var acc in _viewModel.ConnectedMt4Mt5Accounts)
 					{
-						var accSum = changedSymbolStatus.AccountSum.FirstOrDefault(ss => ss.Account.Equals(acc));
+						var accSum = changedSymbolStatus.AccountLotList.FirstOrDefault(ss => ss.Account.Equals(acc));
 
 						if (accSum != null)
 						{
@@ -155,7 +189,7 @@ namespace TradeSystem.Duplicat.Views
 						changedRowIndex++;
 					}
 
-					listViewExposure.Items[_viewModel.ConnectedMt4Mt5Accounts.Count].SubItems[e.NewIndex + 2].Text = changedSymbolStatus.AccountSum.Sum(accSum => accSum.SumLot).ToString();
+					listViewExposure.Items[_viewModel.ConnectedMt4Mt5Accounts.Count].SubItems[e.NewIndex + 2].Text = changedSymbolStatus.AccountLotList.Sum(accSum => accSum.SumLot).ToString();
 					break;
 
 				case ListChangedType.Reset:
@@ -172,7 +206,7 @@ namespace TradeSystem.Duplicat.Views
 						var resetRowIndex = 0;
 						foreach (var acc in _viewModel.ConnectedMt4Mt5Accounts)
 						{
-							var account = symbolStatus.AccountSum.FirstOrDefault(accSum => accSum.Account == acc);
+							var account = symbolStatus.AccountLotList.FirstOrDefault(accSum => accSum.Account == acc);
 							if (account != null)
 							{
 								listViewExposure.Items[resetRowIndex].SubItems.Add(account.SumLot.ToString());
@@ -184,7 +218,7 @@ namespace TradeSystem.Duplicat.Views
 							resetRowIndex++;
 						}
 
-						if (symbolStatus.AccountSum.Any()) listViewExposure.Items[_viewModel.ConnectedMt4Mt5Accounts.Count].SubItems.Add(symbolStatus.AccountSum.Sum(accSum => accSum.SumLot).ToString());
+						if (symbolStatus.AccountLotList.Any()) listViewExposure.Items[_viewModel.ConnectedMt4Mt5Accounts.Count].SubItems.Add(symbolStatus.AccountLotList.Sum(accSum => accSum.SumLot).ToString());
 						else listViewExposure.Items[_viewModel.ConnectedMt4Mt5Accounts.Count].SubItems.Add("-");
 					}
 					break;

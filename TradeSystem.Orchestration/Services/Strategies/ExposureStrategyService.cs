@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -53,44 +52,49 @@ namespace TradeSystem.Orchestration.Services.Strategies
 							AccountSum = new AccountLot { Account = a, SumLot = gp.Sum(p => p.Value.Side == Sides.Buy ? p.Value.Lots : -p.Value.Lots) },
 						})).ToList();
 
-					var positionsSummaryGroup = positionsSummary
-						.GroupBy(p => p.Symbol)
+					var instrumentSummaryDict = accounts.SelectMany(a => a.Connector.Positions
+						.Where(p => !p.Value.IsClosed)
+						.GroupBy(p => p.Value.Symbol)
+						.Select(gp => new
+						{
+							Instrument = gp.Key,
+							AccountSum = new AccountLot
+							{
+								Account = a,
+								Instrument = gp.Key,
+								SumLot = gp.Sum(p => p.Value.Side == Sides.Buy ? p.Value.Lots : -p.Value.Lots)
+							},
+						}))
+						.GroupBy(item => item.Instrument)
 						.ToDictionary(
 							g => g.Key,
-							g => g.ToList());
+							g => g.Select(item => item.AccountSum).ToList()
+						);
 
-					// Get valid symbols
-					var allCurrentSymbols = positionsSummary.Select(ps =>
-					{
-						var symbol = mappingTables.FirstOrDefault(mt =>
-						mt.BrokerName == ps.AccountSum.Account.Connector.Broker &&
-						!string.IsNullOrEmpty(mt.Instrument) &&
-						mt.Instrument.ToLower() == ps.Symbol.ToLower())?.CustomGroup?.GroupName;
-
-						return symbol != null ? symbol : ps.Symbol;
-					}).Distinct().ToList();
-
-					var removeSymbolStatuses = new List<SymbolStatus>();
 
 					#region Remove not valid symbol statuses
-					foreach (var symbolStatus in symbolStatuses)
+					var removeSymbolStatuses = new List<SymbolStatus>();
+
+					foreach (var symbolStatus in symbolStatuses.ToList())
 					{
-						foreach (var accSum in symbolStatus.AccountSum.ToList())
+						foreach (var accountLot in symbolStatus.AccountLotList.ToList())
 						{
-							// Check if the symbol is a custom group symbol and it is not contained in any mapping table
 							if (symbolStatus.IsCreatedGroup)
 							{
 								var mappingTable = mappingTables.FirstOrDefault(mt =>
-									mt.BrokerName == accSum.Account.Connector.Broker &&
-									mt.CustomGroup.GroupName.ToLower() == symbolStatus.Symbol.ToLower());
+									!string.IsNullOrEmpty(mt.Instrument) &&
+									mt.BrokerName == accountLot.Account.Connector.Broker &&
+									mt.Instrument.ToLower() == accountLot.Instrument.ToLower() &&
+									mt.CustomGroup.Equals(symbolStatus.CustomGroup)
+									);
 
 								if (mappingTable == null ||
 										(!string.IsNullOrEmpty(mappingTable.Instrument) &&
 										!positionsSummary.Any(ps => ps.Symbol.ToLower() == mappingTable.Instrument.ToLower() &&
-										accSum.Account.Equals(ps.AccountSum.Account))))
+										accountLot.Account.Equals(ps.AccountSum.Account))))
 								{
 									_syncContext.Send(_ =>
-									symbolStatus.AccountSum.Remove(accSum)
+									symbolStatus.AccountLotList.Remove(accountLot)
 									, null);
 								}
 							}
@@ -98,96 +102,101 @@ namespace TradeSystem.Orchestration.Services.Strategies
 							{
 								var mappingTable = mappingTables.FirstOrDefault(mt =>
 										!string.IsNullOrEmpty(mt.Instrument) &&
-										mt.BrokerName == accSum.Account.Connector.Broker &&
-										mt.Instrument.ToLower() == symbolStatus.Symbol.ToLower());
+										mt.BrokerName == accountLot.Account.Connector.Broker &&
+										mt.Instrument.ToLower() == accountLot.Instrument.ToLower());
 
-								if (mappingTable != null)
+								if (mappingTable != null || !instrumentSummaryDict.ContainsKey(accountLot.Instrument))
 								{
 									_syncContext.Send(_ =>
-									symbolStatus.AccountSum.Remove(accSum)
+									symbolStatus.AccountLotList.Remove(accountLot)
 									, null);
 								}
 							}
 						}
-
 						// Check if the symbol is not present in allCurrentSymbols
 						// or if it's not associated with any custom group
-						if (!allCurrentSymbols.Contains(symbolStatus.Symbol) ||
-							(symbolStatus.IsCreatedGroup && !symbolStatus.AccountSum.Any()) ||
-							(!symbolStatus.IsCreatedGroup && symbolStatus.AccountSum.All(accSum =>
+						if (!symbolStatus.AccountLotList.Any() ||
+							(!symbolStatus.IsCreatedGroup && symbolStatus.AccountLotList.All(accountLot =>
 								mappingTables.Any(mt =>
-									mt.BrokerName == accSum.Account.Connector.Broker &&
-									mt.CustomGroup.GroupName.ToLower() == symbolStatus.Symbol.ToLower()))))
+									!string.IsNullOrEmpty(mt.Instrument) &&
+									mt.BrokerName == accountLot.Account.Connector.Broker &&
+									mt.Instrument.ToLower() == accountLot.Instrument.ToLower()))))
 						{
-							removeSymbolStatuses.Add(symbolStatus);
+							_syncContext.Send(_ =>
+							symbolStatuses.Remove(symbolStatus)
+							, null);
 						}
 					}
-
-					removeSymbolStatuses.ForEach(ss =>
-					_syncContext.Send(_ =>
-						symbolStatuses.Remove(ss)
-						, null)
-						);
 					#endregion
 
 					#region Add new symbol statuses
-					positionsSummary.ForEach(ps =>
+					foreach (var instrumentSummary in instrumentSummaryDict)
 					{
-						var mappingTable = mappingTables.FirstOrDefault(mt => !string.IsNullOrEmpty(mt.Instrument) && mt.BrokerName == ps.AccountSum.Account.Connector.Broker && mt.Instrument.ToLower() == ps.Symbol.ToLower());
-						var symbol = mappingTable?.CustomGroup?.GroupName;
-
-						if (symbol != null)
+						instrumentSummary.Value.ForEach(accountLot =>
 						{
-							var symbolStatus = symbolStatuses.FirstOrDefault(ss => ss.Symbol == symbol && ss.IsCreatedGroup);
-							if (symbolStatus != null && symbolStatus.AccountSum.Any(accSum => accSum.Account == ps.AccountSum.Account))
+							var mappingTable = mappingTables.FirstOrDefault(mt =>
+								!string.IsNullOrEmpty(mt.Instrument) &&
+								mt.BrokerName == accountLot.Account.Connector.Broker &&
+								mt.Instrument.ToLower() == instrumentSummary.Key.ToLower());
+
+							if (mappingTable != null)
 							{
-								_syncContext.Send(_ =>
-								symbolStatus.AccountSum.First(a => a.Account == ps.AccountSum.Account).SumLot = ps.AccountSum.SumLot * mappingTable.LotSize
-								, null);
-							}
-							else if (symbolStatus != null)
-							{
-								_syncContext.Send(_ =>
-								symbolStatus.AccountSum.Add(new AccountLot { Account = ps.AccountSum.Account, SumLot = ps.AccountSum.SumLot * mappingTable.LotSize })
-								, null);
+								var symbolStatus = symbolStatuses.FirstOrDefault(ss => ss.IsCreatedGroup && (ss.CustomGroup.Equals(mappingTable.CustomGroup)));
+								if (symbolStatus != null && symbolStatus.AccountLotList.FirstOrDefault(accLot => accLot.Account.Equals(accountLot.Account)) is AccountLot symbolStatusAccountLot)
+								{
+									_syncContext.Send(_ =>
+									symbolStatusAccountLot.SumLot = accountLot.SumLot * mappingTable.LotSize
+									, null);
+								}
+								else if (symbolStatus != null)
+								{
+									_syncContext.Send(_ =>
+									symbolStatus.AccountLotList.Add(new AccountLot { Account = accountLot.Account, SumLot = accountLot.SumLot * mappingTable.LotSize, Instrument = accountLot.Instrument })
+									, null);
+								}
+								else
+								{
+									var newSymbolStatus = new SymbolStatus
+									{
+										//Symbol = mappingTable.CustomGroup.GroupName,
+										IsCreatedGroup = true,
+										CustomGroup = mappingTable.CustomGroup,
+									};
+
+									newSymbolStatus.AccountLotList.Add(new AccountLot { Account = accountLot.Account, SumLot = accountLot.SumLot * mappingTable.LotSize, Instrument = accountLot.Instrument });
+
+									_syncContext.Send(_ =>
+									symbolStatuses.Add(newSymbolStatus)
+									, null);
+								}
 							}
 							else
 							{
-								var newSymbolStatus = new SymbolStatus { Symbol = symbol, IsCreatedGroup = true };
-								newSymbolStatus.AccountSum.Add(new AccountLot { Account = ps.AccountSum.Account, SumLot = ps.AccountSum.SumLot * mappingTable.LotSize });
+								var symbolStatus = symbolStatuses.FirstOrDefault(ss => !ss.IsCreatedGroup && ss.Symbol.Equals(instrumentSummary.Key));
+								if (symbolStatus != null && symbolStatus.AccountLotList.FirstOrDefault(accSum => accSum.Account.Equals(accountLot.Account)) is AccountLot symbolStatusAccountLot)
+								{
+									_syncContext.Send(_ =>
+									symbolStatusAccountLot.SumLot = accountLot.SumLot
+									, null);
+								}
+								else if (symbolStatus != null)
+								{
+									_syncContext.Send(_ =>
+									symbolStatus.AccountLotList.Add(accountLot)
+									, null);
+								}
+								else
+								{
+									var newSymbolStatus = new SymbolStatus { Symbol = instrumentSummary.Key };
+									newSymbolStatus.AccountLotList.Add(accountLot);
 
-								_syncContext.Send(_ =>
-								symbolStatuses.Add(newSymbolStatus)
-								, null);
+									_syncContext.Send(_ =>
+									symbolStatuses.Add(newSymbolStatus)
+									, null);
+								}
 							}
-						}
-						else
-						{
-							var symbolStatus = symbolStatuses.FirstOrDefault(ss => ss.Symbol == ps.Symbol && !ss.IsCreatedGroup);
-							if (symbolStatus != null && symbolStatus.AccountSum.Any(accSum => accSum.Account == ps.AccountSum.Account))
-							{
-								_syncContext.Send(_ =>
-								symbolStatus.AccountSum.First(a => a.Account == ps.AccountSum.Account).SumLot = ps.AccountSum.SumLot
-								, null);
-							}
-							else if (symbolStatus != null)
-							{
-								_syncContext.Send(_ =>
-								symbolStatus.AccountSum.Add(new AccountLot { Account = ps.AccountSum.Account, SumLot = ps.AccountSum.SumLot })
-								, null);
-							}
-							else
-							{
-								var newSymbolStatus = new SymbolStatus { Symbol = ps.Symbol };
-								newSymbolStatus.AccountSum.Add(new AccountLot { Account = ps.AccountSum.Account, SumLot = ps.AccountSum.SumLot });
-
-								_syncContext.Send(_ =>
-								symbolStatuses.Add(newSymbolStatus)
-								, null);
-							}
-						}
-
-					});
+						});
+					}
 					#endregion
 
 					Thread.Sleep(_throttlingInSec * 1000);
