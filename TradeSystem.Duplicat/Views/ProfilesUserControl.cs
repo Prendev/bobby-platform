@@ -14,6 +14,7 @@ namespace TradeSystem.Duplicat.Views
 	public partial class ProfilesUserControl : UserControl, IMvvmUserControl
 	{
 		private DuplicatViewModel _viewModel;
+		private float tableLayoutDefaultWidth;
 		private readonly List<string> _editableColumns = new List<string>();
 
 		public ProfilesUserControl()
@@ -24,6 +25,9 @@ namespace TradeSystem.Duplicat.Views
 		public void InitView(DuplicatViewModel viewModel)
 		{
 			_viewModel = viewModel;
+			_viewModel.IsConfigReadonlyChanged += _viewModel_IsConfigReadonlyChanged; ;
+
+			tableLayoutDefaultWidth = tableLayoutPanel1.ColumnStyles[0].Width;
 
 			gbControl.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsLoading), true);
 
@@ -58,6 +62,18 @@ namespace TradeSystem.Duplicat.Views
 			dgvAccounts.CellEndEdit += DgvAccounts_CellEndEdit;
 			dgvAccounts.CurrentCellDirtyStateChanged += DgvAccounts_CurrentCellDirtyStateChanged;
 			dgvAccounts.CellContentClick += DgvAccounts_CellContentClick;
+		}
+
+		private void _viewModel_IsConfigReadonlyChanged(object sender, bool isConfigReadonly)
+		{
+			if (isConfigReadonly)
+			{
+				tableLayoutPanel1.ColumnStyles[0].Width = 0;
+			}
+			else
+			{
+				tableLayoutPanel1.ColumnStyles[0].Width = tableLayoutDefaultWidth;
+			}
 		}
 
 		public void AttachDataSources()

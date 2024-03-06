@@ -105,11 +105,11 @@
 			this.gbControl.Controls.Add(this.btnFlush);
 			this.gbControl.Controls.Add(this.btnSelectAll);
 			this.gbControl.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.gbControl.Location = new System.Drawing.Point(3, 2);
-			this.gbControl.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.gbControl.Location = new System.Drawing.Point(10, 9);
+			this.gbControl.Margin = new System.Windows.Forms.Padding(8, 7, 7, 2);
 			this.gbControl.Name = "gbControl";
 			this.gbControl.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
-			this.gbControl.Size = new System.Drawing.Size(503, 96);
+			this.gbControl.Size = new System.Drawing.Size(618, 120);
 			this.gbControl.TabIndex = 1;
 			this.gbControl.TabStop = false;
 			this.gbControl.Text = "Control";
@@ -125,7 +125,7 @@
 			this.tableLayoutPanel1.Margin = new System.Windows.Forms.Padding(4);
 			this.tableLayoutPanel1.Name = "tableLayoutPanel1";
 			this.tableLayoutPanel1.RowCount = 2;
-			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 100F));
+			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 105F));
 			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
 			this.tableLayoutPanel1.Size = new System.Drawing.Size(509, 546);
 			this.tableLayoutPanel1.TabIndex = 2;
@@ -138,13 +138,13 @@
 			this.tableLayoutPanel2.Controls.Add(this.listViewExposure, 0, 0);
 			this.tableLayoutPanel2.Controls.Add(this.cdgExposureVisibility, 0, 0);
 			this.tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.tableLayoutPanel2.Location = new System.Drawing.Point(4, 104);
+			this.tableLayoutPanel2.Location = new System.Drawing.Point(4, 109);
 			this.tableLayoutPanel2.Margin = new System.Windows.Forms.Padding(4);
 			this.tableLayoutPanel2.Name = "tableLayoutPanel2";
 			this.tableLayoutPanel2.RowCount = 1;
 			this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-			this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 438F));
-			this.tableLayoutPanel2.Size = new System.Drawing.Size(501, 438);
+			this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 433F));
+			this.tableLayoutPanel2.Size = new System.Drawing.Size(501, 433);
 			this.tableLayoutPanel2.TabIndex = 2;
 			// 
 			// listViewExposure
@@ -154,7 +154,7 @@
 			this.listViewExposure.Location = new System.Drawing.Point(228, 4);
 			this.listViewExposure.Margin = new System.Windows.Forms.Padding(4);
 			this.listViewExposure.Name = "listViewExposure";
-			this.listViewExposure.Size = new System.Drawing.Size(269, 430);
+			this.listViewExposure.Size = new System.Drawing.Size(269, 425);
 			this.listViewExposure.TabIndex = 4;
 			this.listViewExposure.UseCompatibleStateImageBehavior = false;
 			// 
@@ -219,11 +219,11 @@
 			// 
 			this.gbGroupName.Controls.Add(this.panel1);
 			this.gbGroupName.Dock = System.Windows.Forms.DockStyle.Top;
-			this.gbGroupName.Location = new System.Drawing.Point(3, 0);
-			this.gbGroupName.Margin = new System.Windows.Forms.Padding(3, 0, 3, 2);
+			this.gbGroupName.Location = new System.Drawing.Point(5, 0);
+			this.gbGroupName.Margin = new System.Windows.Forms.Padding(5, 0, 5, 2);
 			this.gbGroupName.Name = "gbGroupName";
-			this.gbGroupName.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
-			this.gbGroupName.Size = new System.Drawing.Size(525, 63);
+			this.gbGroupName.Padding = new System.Windows.Forms.Padding(3, 0, 3, 2);
+			this.gbGroupName.Size = new System.Drawing.Size(521, 66);
 			this.gbGroupName.TabIndex = 5;
 			this.gbGroupName.TabStop = false;
 			// 
@@ -372,7 +372,7 @@
 			this.cdgExposureVisibility.Name = "cdgExposureVisibility";
 			this.cdgExposureVisibility.RowHeadersWidth = 51;
 			this.cdgExposureVisibility.ShowCellToolTips = false;
-			this.cdgExposureVisibility.Size = new System.Drawing.Size(216, 430);
+			this.cdgExposureVisibility.Size = new System.Drawing.Size(216, 425);
 			this.cdgExposureVisibility.TabIndex = 3;
 			// 
 			// ExposureUserControl

@@ -119,6 +119,7 @@ namespace TradeSystem.Duplicat.ViewModel
 		public BindingList<MM> MMs { get; private set; }
 
 		public event EventHandler<bool> IsConnectedChanged;
+		public event EventHandler<bool> IsConfigReadonlyChanged;
 		public event DataContextChangedEventHandler DataContextChanged;
 		public event DataContextChangedEventHandler ConnectedDataContextChanged;
 
@@ -253,6 +254,10 @@ namespace TradeSystem.Duplicat.ViewModel
 			{
 				IsConnectedChanged?.Invoke(this, IsConnected);
 			}
+			if (e.PropertyName == nameof(IsConnected))
+			{
+				IsConfigReadonlyChanged?.Invoke(this, IsConfigReadonly);
+			}
 
 			if (e.PropertyName == nameof(AutoLoadPositionsInSec))
 			{
@@ -332,7 +337,7 @@ namespace TradeSystem.Duplicat.ViewModel
 			ConnectToAccounts();
 
 			SymbolStatusVisibilities = new SortableBindingList<SymbolStatus>();
-			
+
 			SortedTradePositions = new SortableBindingList<TradePosition>();
 			ToSortableBindingList(TradePositions, SortedTradePositions, (mtp) =>
 				mtp?.Account?.Connector != null &&

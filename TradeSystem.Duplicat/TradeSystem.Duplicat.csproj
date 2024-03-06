@@ -249,12 +249,6 @@
     <Compile Include="Views\_Accounts\MtAlertUserControl.Designer.cs">
       <DependentUpon>MtAlertUserControl.cs</DependentUpon>
     </Compile>
-    <Compile Include="Views\_Strategies\CustomMappingUserControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Views\_Strategies\CustomMappingUserControl.Designer.cs">
-      <DependentUpon>CustomMappingUserControl.cs</DependentUpon>
-    </Compile>
     <Compile Include="Views\_Strategies\ExposureUserControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -402,9 +396,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Views\_Accounts\MtAlertUserControl.resx">
       <DependentUpon>MtAlertUserControl.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Views\_Strategies\CustomMappingUserControl.resx">
-      <DependentUpon>CustomMappingUserControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\_Strategies\ExposureUserControl.resx">
       <DependentUpon>ExposureUserControl.cs</DependentUpon>
