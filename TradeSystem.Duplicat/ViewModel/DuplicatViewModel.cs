@@ -376,10 +376,7 @@ namespace TradeSystem.Duplicat.ViewModel
 					(a.Connector as FixApiIntegration.Connector).GeneralConnector is Mt5Connector)))
 				.ToList();
 
-			foreach (var account in ConnectedAccounts.Where(account => account.MetaTraderAccount != null || account.FixApiAccount != null))
-			{
-				SelectedRiskManagements.Add(account.RiskManagement);
-			}
+			Accounts.Where(a => (a.MetaTraderAccount != null || a.FixApiAccount != null) && a.Connector?.IsConnected == true).Select(a => a.RiskManagement).ToList().ForEach(rm => SelectedRiskManagements.Add(rm));
 
 			//TODO
 			CheckDuplicatedPositions();
