@@ -1,11 +1,12 @@
 ﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
 using TradeSystem.Common.Attributes;
 
 namespace TradeSystem.Data.Models
 {
-    public class Copier : BaseEntity
+    public class Copier : BaseDescriptionEntity
 	{
 		public enum CopierModes
 		{
@@ -48,11 +49,12 @@ namespace TradeSystem.Data.Models
 		public int? CrossCopierId { get; set; }
 		public Copier CrossCopier { get => Get<Copier>(); set => Set(value); }
 		[InverseProperty("CrossCopier")]
-		public List<Copier> ParentCopiers { get; } = new List<Copier>();
+		public ObservableCollection<Copier> ParentCopiers { get; } = new ObservableCollection<Copier>();
 
 		public override string ToString()
 		{
-			return $"{(Id == 0 ? "UNSAVED - " : "")}{Slave} - {Id}";
+			var description = string.IsNullOrEmpty(Description) ? $"{Id}" : Description;
+			return $"{(Id == 0 ? "UNSAVED - " : "")}{Slave} - {description}";
 		}
 	}
 }

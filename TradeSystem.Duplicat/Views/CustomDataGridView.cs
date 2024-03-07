@@ -125,47 +125,6 @@ namespace TradeSystem.Duplicat.Views
 			}
 		}
 
-		private void DgvCheckBoxHeaderCell_CheckBoxHeaderCellStateChanged(object sender, CheckBoxStateChangedEventArgs e)
-		{
-			foreach (DataGridViewRow row in Rows)
-			{
-				if (!row.Cells[e.ColumnIndex].ReadOnly)
-				{
-					row.Cells[e.ColumnIndex].Value = e.IsChecked;
-				}
-			}
-		}
-
-		public void AddCheckBoxColumn(string propertyName)
-		{
-			var genericArgs = DataSource?.GetType().GetGenericArguments();
-			if (genericArgs?.Length > 0 != true) return;
-
-			if (!Columns.Contains(propertyName) || genericArgs[0].GetProperties().FirstOrDefault(p => p.Name == propertyName)?.GetCustomAttributes(true).Any(a => a is CheckBoxAttribute) != true) return;
-
-			if (!_invisibleColumns.Contains(propertyName))
-			{
-				_invisibleColumns.Add(propertyName);
-				Columns[propertyName].Visible = false;
-			}
-
-			var columnName = $"{propertyName}*";
-
-			if (!Columns.Contains($"{propertyName}*"))
-			{
-				var column = new GridViewCheckBoxColumn(propertyName, columnName);
-				column.HeaderText = "";
-				Columns.Add(column);
-
-				Columns[propertyName].DisplayIndex = Columns[columnName].Index;
-			}
-			else if (Columns[$"{propertyName}*"] is GridViewCheckBoxColumn)
-			{
-				var column = (GridViewCheckBoxColumn)Columns[$"{propertyName}*"];
-			}
-
-		}
-
 		public T GetSelectedItem<T>() where T : class
 		{
 			return CurrentRow?.DataBoundItem as T;
@@ -266,6 +225,11 @@ namespace TradeSystem.Duplicat.Views
 			{
 				lastUsedDateTimePicker.Item1.Visible = false;
 				lastUsedDateTimePicker.Item2.Value = null;
+			}
+
+			if (CurrentCell != null && Columns[CurrentCell.ColumnIndex] is DataGridViewColumn && (e.KeyCode == Keys.Delete || e.KeyCode == Keys.Back))
+			{
+				CurrentCell.Value = null;
 			}
 		}
 

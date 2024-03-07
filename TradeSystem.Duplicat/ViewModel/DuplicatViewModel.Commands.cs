@@ -106,6 +106,8 @@ namespace TradeSystem.Duplicat.ViewModel
 				StopTickersCommand();
 				StopStrategiesCommand();
 
+				ConnectedAccounts.Clear();
+
 				IsLoading = true;
 				IsConfigReadonly = true;
 				await _orchestrator.Disconnect();
@@ -129,7 +131,6 @@ namespace TradeSystem.Duplicat.ViewModel
 			}
 			finally
 			{
-				ConnectedAccounts.Clear();
 				ConnectedMt4Mt5Accounts.Clear();
 				SymbolStatusVisibilities.Clear();
 				SortedTradePositions.Clear();
