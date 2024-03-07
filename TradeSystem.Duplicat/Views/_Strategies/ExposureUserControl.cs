@@ -89,17 +89,14 @@ namespace TradeSystem.Duplicat.Views
 
 		private void listViewExposure_KeyDown(object sender, KeyEventArgs e)
 		{
-			Logger.Debug(e.Control + "\t" + e.KeyCode.ToString());
 			if (e.Control && e.KeyCode == Keys.C)
 			{
 				Point mousePos = listViewExposure.PointToClient(MousePosition);
 				ListViewHitTestInfo hitTest = listViewExposure.HitTest(mousePos);
-				Logger.Debug("CtrlC");
 
 				if (hitTest.SubItem != null)
 				{
 					var text = mousePos.Y < 25 ? selectedColumnText : hitTest.SubItem.Text;
-					Logger.Debug(text);
 					if (!string.IsNullOrEmpty(text))
 					{
 						Clipboard.SetText(text);
