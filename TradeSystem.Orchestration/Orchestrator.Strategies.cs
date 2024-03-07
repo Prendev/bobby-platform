@@ -51,6 +51,7 @@ namespace TradeSystem.Orchestration
 		void StartExposureStrategy(SortableBindingList<SymbolStatus> symbolStatuses, int throttlingInSec);
 		void StopExposureStrategy();
 		void StartTradeStrategy(int throttlingInSec);
+		void StopTradeStrategy();
 		Task TradePositionClose(TradePosition position);
 		void StartRiskManagementStrategy(int throttlingInSec);
 		void SetThrottling(int throttlingInSec);
@@ -276,6 +277,11 @@ namespace TradeSystem.Orchestration
 		public void StartTradeStrategy(int throttlingInSec)
 		{
 			_tradeService.Start(_duplicatContext, throttlingInSec);
+		}
+
+		public void StopTradeStrategy()
+		{
+			_tradeService.Stop();
 		}
 
 		public async Task TradePositionClose(TradePosition position)

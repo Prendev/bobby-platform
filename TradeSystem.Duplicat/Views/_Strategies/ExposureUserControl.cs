@@ -57,7 +57,7 @@ namespace TradeSystem.Duplicat.Views
 				listViewExposure.Items.Clear();
 				listViewExposure.Columns.Clear();
 				symbolColumnHeaderColor.Clear();
-				_viewModel.FlushMtAccount();
+				_viewModel.FlushExposure();
 
 				cdgExposureVisibility.DataSource = _viewModel.SymbolStatusVisibilities;
 				_viewModel.SymbolStatusVisibilities.ListChanged += SymbolStatusVisibilities_ListChanged;

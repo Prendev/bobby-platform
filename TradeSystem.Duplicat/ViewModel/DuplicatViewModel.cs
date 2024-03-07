@@ -139,6 +139,7 @@ namespace TradeSystem.Duplicat.ViewModel
 		public BindingList<RiskManagement> SelectedRiskManagements { get; private set; } = new BindingList<RiskManagement>();
 		public BindingList<RiskManagementSetting> SelectedRiskManagementSettings { get; private set; } = new BindingList<RiskManagementSetting>();
 
+		public string FilterText { get => Get<string>(); set => Set(value); }
 		public int AutoSavePeriodInMin { get => Get<int>(); set => Set(value); }
 		public int AutoLoadPositionsInSec { get => Get<int>(); set => Set(value); }
 		public bool IsConfigReadonly { get => Get<bool>(); set => Set(value); }
@@ -218,7 +219,7 @@ namespace TradeSystem.Duplicat.ViewModel
 			InitDataContext();
 		}
 
-		public void FlushMtAccount()
+		public void FlushExposure()
 		{
 			_orchestrator.StopExposureStrategy();
 
@@ -227,13 +228,26 @@ namespace TradeSystem.Duplicat.ViewModel
 			_orchestrator.StartExposureStrategy(SymbolStatusVisibilities, AutoLoadPositionsInSec);
 		}
 
-		public void FilterTradePositions(string searchString)
+
+		public void FlushTrade()
 		{
+			_orchestrator.StopTradeStrategy();
+
+			FilterText = string.Empty;
+			TradePositions.Clear();
+			SortedTradePositions.Clear();
+
+			_orchestrator.StartTradeStrategy(AutoLoadPositionsInSec);
+		}
+
+		public void FilterTradePositions(string filterText)
+		{
+			FilterText = filterText;
 			SortedTradePositions = new SortableBindingList<TradePosition>();
 			Predicate<TradePosition> filterPredicate = (mtp) =>
 				mtp?.Account?.Connector != null &&
 				mtp.Account.Connector.IsConnected == true &&
-				GenerateFilterConditionByAttribute(mtp, searchString);
+				GenerateFilterConditionByAttribute(mtp, filterText);
 
 			ToSortableBindingList(TradePositions, SortedTradePositions, filterPredicate);
 

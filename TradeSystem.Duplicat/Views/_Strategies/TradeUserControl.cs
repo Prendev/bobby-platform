@@ -35,6 +35,15 @@ namespace TradeSystem.Duplicat.Views._Strategies
 			scdvTrade.CellContentClick += FcdvTrade_CellContentClick;
 			scdvTrade.RowPrePaint += FcdvTrade_RowPrePaint;
 
+			lbTrade.AddBinding<string, bool>("Visible", viewModel, nameof(_viewModel.FilterText), s => string.IsNullOrEmpty(s));
+			lbTrade.Click += (s, e) => { tbTrade.Focus(); };
+
+			btnFlush.Click += (s, e) =>
+			{
+				tbTrade.Text = string.Empty;
+				_viewModel.FlushTrade();
+			};
+
 			tbTrade.TextChanged += (sender, e) =>
 			{
 				_viewModel.FilterTradePositions((sender as TextBox).Text);

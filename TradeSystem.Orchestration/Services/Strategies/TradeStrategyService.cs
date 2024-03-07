@@ -51,6 +51,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 							{
 								Account = cma,
 								OpenTime = p.Value.OpenTime.ToString("yyyy.MM.dd. HH:mm:ss"),
+								Type = p.Value.Side.ToString(),
 								PositionKey = p.Key,
 								Size = p.Value.Lots,
 								Symbol = p.Value.Symbol,

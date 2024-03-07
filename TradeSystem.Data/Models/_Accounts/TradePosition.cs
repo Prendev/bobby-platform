@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using TradeSystem.Common.Attributes;
+using TradeSystem.Common.Integration;
 
 namespace TradeSystem.Data.Models
 {
@@ -27,6 +28,10 @@ namespace TradeSystem.Data.Models
 		[DisplayName("Time")]
 		[FilterableColumn]
 		public string OpenTime { get; set; }
+
+		[ReadOnly(true)]
+		[FilterableColumn]
+		public string Type { get; set; }
 
 		[ReadOnly(true)]
 		[FilterableColumn]
