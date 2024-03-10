@@ -19,7 +19,7 @@ namespace TradeSystem.Common
 		protected T Get<T>(Func<T> defaultValueFactory = null, [CallerMemberName] string propertyName = null)
 		{
 			if (string.IsNullOrWhiteSpace(propertyName)) return default(T);
-			return (T) _propertyValues.GetOrAdd(propertyName,
+			return (T)_propertyValues.GetOrAdd(propertyName,
 				p => defaultValueFactory == null ? default(T) : defaultValueFactory.Invoke());
 		}
 
@@ -35,7 +35,7 @@ namespace TradeSystem.Common
 				updated = true;
 
 				if (_propertyPrevActions.TryGetValue(propertyName, out var prev) && prev is Action<T> prevAction)
-					prevAction.Invoke((T) oldValue);
+					prevAction.Invoke((T)oldValue);
 				if (_propertyPostActions.TryGetValue(propertyName, out var post) && post is Action<T> postAction)
 					postAction.Invoke(value);
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -33,7 +34,6 @@ namespace TradeSystem.Orchestration
 		Task BalanceProfitExport(DuplicatContext duplicatContext, DateTime from, DateTime to);
 		void MtAccountImport(DuplicatContext duplicatContext);
 		void SaveTheWeekend(DuplicatContext duplicatContext, DateTime from, DateTime to);
-		void HighestTicketDuration(DuplicatContext duplicatContext);
 	}
 
 	public partial class Orchestrator : IOrchestrator
@@ -54,6 +54,8 @@ namespace TradeSystem.Orchestration
 		private readonly IAntiMarketMakerService _antiMarketMakerService;
 		private readonly ILatencyArbService _latencyArbService;
 		private readonly INewsArbService _newsArbService;
+		private readonly IExposureStrategyService _exposureStrategyService;
+		private readonly ITradeStrategyService _tradeService;
 		private readonly IRiskManagementStrategyService _riskManagementService;
 
 		public Orchestrator(
@@ -71,6 +73,8 @@ namespace TradeSystem.Orchestration
 			IReportService reportService,
 			IMtAccountImportService mtAccountImportService,
 			IMMStrategyService mmStrategyService,
+			IExposureStrategyService exposureStrategyService,
+			ITradeStrategyService tradeService,
 			IRiskManagementStrategyService riskManagementService)
 		{
 			_newsArbService = newsArbService;
@@ -87,6 +91,8 @@ namespace TradeSystem.Orchestration
 			_pushStrategyService = pushStrategyService;
 			_copierService = copierService;
 			_synchronizationContextFactory = synchronizationContextFactory;
+			_exposureStrategyService = exposureStrategyService;
+			_tradeService = tradeService;
 			_riskManagementService = riskManagementService;
 		}
 
@@ -120,7 +126,7 @@ namespace TradeSystem.Orchestration
 				var groups = aggAccounts.Select(a =>
 					new
 					{
-						IConnector = ((FixApiIntegration.Connector) a.Account.Connector).GeneralConnector,
+						IConnector = ((FixApiIntegration.Connector)a.Account.Connector).GeneralConnector,
 						Symbol = Symbol.Parse(a.Symbol)
 					}).ToDictionary(x => x.IConnector, x => x.Symbol);
 				agg.QuoteAggregator = MarketDataManager.CreateQuoteAggregator(groups);
@@ -209,13 +215,13 @@ namespace TradeSystem.Orchestration
 			_mtAccountImportService.SaveTheWeekend(duplicatContext, from, to);
 
 		public async Task SwapExport(DuplicatContext duplicatContext)
-        {
-            var exports = duplicatContext.Exports.Local
-                .Where(a => a.Account.ConnectionState == ConnectionStates.Connected)
-                .Where(a => a.Account.MetaTraderAccountId.HasValue ||
-                            a.Account.FixApiAccountId.HasValue &&
-                            ((FixApiIntegration.Connector) a.Account.Connector).GeneralConnector is Mt5Connector)
-                .ToList();
+		{
+			var exports = duplicatContext.Exports.Local
+				.Where(a => a.Account.ConnectionState == ConnectionStates.Connected)
+				.Where(a => a.Account.MetaTraderAccountId.HasValue ||
+							a.Account.FixApiAccountId.HasValue &&
+							((FixApiIntegration.Connector)a.Account.Connector).GeneralConnector is Mt5Connector)
+				.ToList();
 
 			await _reportService.SwapExport(exports);
 		}
@@ -227,12 +233,6 @@ namespace TradeSystem.Orchestration
 				.ToList();
 
 			await _reportService.BalanceProfitExport(exports, from, to);
-		}
-
-		public void HighestTicketDuration(DuplicatContext duplicatContext)
-		{
-			var riskManagements = duplicatContext.Accounts.Local.Where(a => a.Connector?.IsConnected == true).Select(a => a.RiskManagement).ToList();
-			_riskManagementService.UpdateHighestDurationForOpenPositions(riskManagements);
 		}
 	}
 }

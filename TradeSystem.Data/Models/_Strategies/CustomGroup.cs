@@ -8,11 +8,9 @@ namespace TradeSystem.Data.Models
     {
         public List<MappingTable> MappingTables { get; } = new List<MappingTable>();
 
-        [Required]
-        [DisplayPriority(0)]
-        public string GroupName { get; set; }
+        public string GroupName { get => Get<string>(); set => Set(value); }
 
-        public override string ToString()
+		public override string ToString()
         {
             return (Id == 0 ? "UNSAVED - " : "") + GroupName;
         }

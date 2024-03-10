@@ -205,13 +205,13 @@
     <Compile Include="ViewModel\DuplicatViewModel.SpoofingCommands.cs" />
     <Compile Include="ViewModel\DuplicatViewModel.PushingCommands.cs" />
     <Compile Include="ViewModel\DuplicatViewModel.Commands.cs" />
-    <Compile Include="SortableBindingList.cs" />
     <Compile Include="Views\AggregatorUserControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="Views\AggregatorUserControl.Designer.cs">
       <DependentUpon>AggregatorUserControl.cs</DependentUpon>
     </Compile>
+    <Compile Include="Views\GridViewCheckBoxColumn.cs" />
     <Compile Include="Views\ConnectorTesterUserControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -227,7 +227,7 @@
     <Compile Include="Views\CustomDateTimePicker.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Views\FilterableCustomDataGridView.cs">
+    <Compile Include="Views\SortableCustomDataGridView.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Views\ExportUserControl.cs">
@@ -236,6 +236,7 @@
     <Compile Include="Views\ExportUserControl.Designer.cs">
       <DependentUpon>ExportUserControl.cs</DependentUpon>
     </Compile>
+    <Compile Include="Views\IMvvmConnectedUserControl.cs" />
     <Compile Include="Views\_Accounts\BtAccountsUserControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -247,12 +248,6 @@
     </Compile>
     <Compile Include="Views\_Accounts\MtAlertUserControl.Designer.cs">
       <DependentUpon>MtAlertUserControl.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Views\_Strategies\CustomMappingUserControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Views\_Strategies\CustomMappingUserControl.Designer.cs">
-      <DependentUpon>CustomMappingUserControl.cs</DependentUpon>
     </Compile>
     <Compile Include="Views\_Strategies\ExposureUserControl.cs">
       <SubType>UserControl</SubType>
@@ -401,9 +396,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Views\_Accounts\MtAlertUserControl.resx">
       <DependentUpon>MtAlertUserControl.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Views\_Strategies\CustomMappingUserControl.resx">
-      <DependentUpon>CustomMappingUserControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\_Strategies\ExposureUserControl.resx">
       <DependentUpon>ExposureUserControl.cs</DependentUpon>

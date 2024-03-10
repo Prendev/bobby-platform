@@ -21,5 +21,11 @@ namespace TradeSystem.Mt4Integration
 						 $"\t{e.Order?.Profit}" +
 						 $"\t{e.Order?.Comment}");
 		}
+
+		public static void Log(Connector connector, string message)
+		{
+			Logger.Debug($"\t{connector?.Description}" +
+						 $"\t{message}");
+		}
 	}
 }

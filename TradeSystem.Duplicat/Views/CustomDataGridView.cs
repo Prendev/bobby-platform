@@ -6,6 +6,7 @@ using System.Drawing;
 using System.Globalization;
 using System.Linq;
 using System.Windows.Forms;
+using System.Windows.Forms.VisualStyles;
 using TradeSystem.Common.Attributes;
 using TradeSystem.Common.Integration;
 using TradeSystem.Data.Models;
@@ -131,22 +132,27 @@ namespace TradeSystem.Duplicat.Views
 
 		private void CustomDataGridView_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
 		{
-			if (Rows[e.RowIndex].DataBoundItem != null && e.Value != null && double.TryParse(e.Value.ToString(), out double originalValue))
+			try
 			{
-				var property = Rows[e.RowIndex].DataBoundItem.GetType().GetProperty(Columns[e.ColumnIndex].Name);
-				var decimalPrecisionAttribute = (DecimalPrecisionAttribute)Attribute.GetCustomAttribute(property, typeof(DecimalPrecisionAttribute));
-
-				if (decimalPrecisionAttribute != null)
+				//TODO - get error if remove position from trade strategy =>  Rows[e.RowIndex].DataBoundItem is throwing OutOfRange exception. (Rows[e.RowIndex] is good)
+				if (Rows[e.RowIndex].DataBoundItem != null && e.Value != null && double.TryParse(e.Value.ToString(), out double originalValue))
 				{
-					var decimalPlaces = decimalPrecisionAttribute.DecimalPlaces;
-					var roundedValue = Math.Round(originalValue, decimalPlaces);
+					var property = Rows[e.RowIndex].DataBoundItem.GetType().GetProperty(Columns[e.ColumnIndex].Name);
+					var decimalPrecisionAttribute = (DecimalPrecisionAttribute)Attribute.GetCustomAttribute(property, typeof(DecimalPrecisionAttribute));
 
-					string formattedValue = string.Format($"{{0:N{decimalPlaces}}}", roundedValue);
+					if (decimalPrecisionAttribute != null)
+					{
+						var decimalPlaces = decimalPrecisionAttribute.DecimalPlaces;
+						var roundedValue = Math.Round(originalValue, decimalPlaces);
 
-					e.Value = formattedValue;
-					e.FormattingApplied = true;
+						string formattedValue = string.Format($"{{0:N{decimalPlaces}}}", roundedValue);
+
+						e.Value = formattedValue;
+						e.FormattingApplied = true;
+					}
 				}
 			}
+			catch { }
 		}
 
 		private void CustomDataGridView_DataSourceChanged(object sender, EventArgs e)
@@ -193,7 +199,6 @@ namespace TradeSystem.Duplicat.Views
 						Controls.Add(dtp);
 						_dateTimePickers.Add(prop.Name, dtp);
 					}
-
 				}
 			}
 			foreach (var name in _invisibleColumns)
@@ -216,10 +221,15 @@ namespace TradeSystem.Duplicat.Views
 
 		private void CustomDataGridView_KeyDown(object sender, KeyEventArgs e)
 		{
-			if (_dateTimePickers.ContainsKey(Columns[CurrentCell.ColumnIndex].Name) && (e.KeyCode == Keys.Delete || e.KeyCode == Keys.Back))
+			if (CurrentCell != null && _dateTimePickers.ContainsKey(Columns[CurrentCell.ColumnIndex].Name) && (e.KeyCode == Keys.Delete || e.KeyCode == Keys.Back))
 			{
 				lastUsedDateTimePicker.Item1.Visible = false;
 				lastUsedDateTimePicker.Item2.Value = null;
+			}
+
+			if (CurrentCell != null && Columns[CurrentCell.ColumnIndex] is DataGridViewColumn && (e.KeyCode == Keys.Delete || e.KeyCode == Keys.Back))
+			{
+				CurrentCell.Value = null;
 			}
 		}
 
@@ -291,6 +301,91 @@ namespace TradeSystem.Duplicat.Views
 					Columns.RemoveAt(index);
 					Columns.Insert(index, c);
 				});
+		}
+	}
+	//public class CheckBoxStateChangedEventArgs : EventArgs
+	//{
+	//	public bool IsChecked { get; set; }
+	//	public int ColumnIndex { get; set; }
+	//}
+
+	//public delegate void CheckBoxHeaderCellStateChangedHandler(object sender, CheckBoxStateChangedEventArgs e);
+
+	public class DataGridViewCheckBoxHeaderCell2 : DataGridViewColumnHeaderCell
+	{
+		private Point checkBoxLocation;
+		private bool isChecked = false;
+		private readonly string _headerText;
+
+		public DataGridViewCheckBoxHeaderCell2(string headerText = "")
+		{
+			_headerText = headerText;
+		}
+
+		public event CheckBoxHeaderCellStateChangedHandler CheckBoxHeaderCellStateChanged;
+
+		protected void OnCheckBoxHeaderCellStateChanged(CheckBoxStateChangedEventArgs e)
+		{
+			CheckBoxHeaderCellStateChanged?.Invoke(this, e);
+		}
+
+		private int extraSpaceWidth = 10; // Adjust this value according to your needs
+
+		//protected override Size GetPreferredSize(Graphics graphics, DataGridViewCellStyle cellStyle, int rowIndex, Size constraintSize)
+		//{
+		//	Size size = base.GetPreferredSize(graphics, cellStyle, rowIndex, constraintSize);
+		//	size.Width += extraSpaceWidth;
+		//	return size;
+		//}
+
+		//protected override Rectangle GetContentBounds(Graphics graphics, DataGridViewCellStyle cellStyle, int rowIndex)
+		//{
+		//	Rectangle bounds = base.GetContentBounds(graphics, cellStyle, rowIndex);
+		//	bounds.Width += extraSpaceWidth;
+		//	return bounds;
+		//}
+
+		//protected override void Paint(Graphics graphics, Rectangle clipBounds, Rectangle cellBounds, int rowIndex, DataGridViewElementStates dataGridViewElementState, object value, object formattedValue, string errorText, DataGridViewCellStyle cellStyle, DataGridViewAdvancedBorderStyle advancedBorderStyle, DataGridViewPaintParts paintParts)
+		//{
+		//	cellBounds.Width += extraSpaceWidth;
+		//	base.Paint(graphics, clipBounds, cellBounds, rowIndex, dataGridViewElementState, value, formattedValue, errorText, cellStyle, advancedBorderStyle, paintParts);
+		//}
+
+		protected override void Paint(Graphics graphics, Rectangle clipBounds, Rectangle cellBounds, int rowIndex, DataGridViewElementStates dataGridViewElementState, object value, object formattedValue, string errorText, DataGridViewCellStyle cellStyle, DataGridViewAdvancedBorderStyle advancedBorderStyle, DataGridViewPaintParts paintParts)
+		{
+			cellBounds.Width += extraSpaceWidth;
+			base.Paint(graphics, clipBounds, cellBounds, rowIndex, dataGridViewElementState, value, formattedValue, errorText, cellStyle, advancedBorderStyle, paintParts);
+			// Calculate the location and size of the checkbox
+			int x = cellBounds.Location.X + (cellBounds.Width - 16) / 2 + 1;
+			int y = cellBounds.Location.Y + (cellBounds.Height - 16) / 2 + 2;
+
+			if (!string.IsNullOrEmpty(_headerText))
+			{
+				Size textSize = TextRenderer.MeasureText(_headerText, cellStyle.Font);
+				//x = cellBounds.Location.X + textSize.Width;
+			}
+			checkBoxLocation = new Point(x, y);
+			// Draw the checkbox
+			CheckBoxRenderer.DrawCheckBox(graphics, checkBoxLocation, isChecked ? CheckBoxState.CheckedNormal : CheckBoxState.UncheckedNormal);
+		}
+
+		protected override void OnMouseClick(DataGridViewCellMouseEventArgs e)
+		{
+			base.OnMouseClick(e);
+
+			// Toggle the checkbox state when clicked
+			isChecked = !isChecked;
+			DataGridView.InvalidateCell(this);
+
+
+			// Fire the event with the updated state
+			OnCheckBoxHeaderCellStateChanged(new CheckBoxStateChangedEventArgs { IsChecked = isChecked, ColumnIndex = e.ColumnIndex });
+		}
+
+		public void SetCheckedState(bool state)
+		{
+			isChecked = state;
+			DataGridView?.InvalidateCell(this);
 		}
 	}
 }

@@ -27,7 +27,9 @@ namespace TradeSystem.Data.Models
 
 		public override string ToString()
 		{
-			return $"{(Id == 0 ? "UNSAVED - " : "")}{Master} - {Account}";
+			var description = string.IsNullOrEmpty(Description) ? $"{Master} - {Account}" : Description;
+			return $"{(Id == 0 ? "UNSAVED - " : "")}{description}";
+
 		}
 	}
 }

@@ -1,15 +1,16 @@
 ﻿using System.ComponentModel;
 using TradeSystem.Common.Attributes;
+using TradeSystem.Common.Integration;
 
 namespace TradeSystem.Data.Models
 {
-	public class MetaTraderPosition : BaseEntity
+	public class TradePosition : BaseEntity
 	{
 		[ReadOnly(true)]
 		[FilterableColumn]
 		public string AccountName
 		{
-			get => Account?.MetaTraderAccount.Description;
+			get => Account?.MetaTraderAccount?.Description ?? Account?.FixApiAccount.Description ?? "";
 		}
 
 		[InvisibleColumn]
@@ -27,6 +28,10 @@ namespace TradeSystem.Data.Models
 		[DisplayName("Time")]
 		[FilterableColumn]
 		public string OpenTime { get; set; }
+
+		[ReadOnly(true)]
+		[FilterableColumn]
+		public string Type { get; set; }
 
 		[ReadOnly(true)]
 		[FilterableColumn]

@@ -83,9 +83,11 @@ namespace TradeSystem.Duplicat.Views
 			btnStop.Click += (s, e) => { _viewModel.StopCopiersCommand(); };
 
 			_viewModel.DataContextChanged += () => AttachDataSources(this);
+			_viewModel.ConnectedDataContextChanged += () => AttachConnectedDataSources(this);
 
 			InitViews(this);
 			AttachDataSources(this);
+			AttachConnectedDataSources(this);
 		}
 
 		private void AttachDataSources(Control parent)
@@ -107,6 +109,17 @@ namespace TradeSystem.Duplicat.Views
 				if (!(c is IMvvmUserControl mvvm))
 					InitViews(c);
 				else mvvm.InitView(_viewModel);
+			}
+		}
+
+		private void AttachConnectedDataSources(Control parent)
+		{
+			if (parent == null) return;
+			foreach (Control c in parent.Controls)
+			{
+				if (!(c is IMvvmConnectedUserControl mvvm))
+					AttachConnectedDataSources(c);
+				else mvvm.AttachConnectedDataSources();
 			}
 		}
 

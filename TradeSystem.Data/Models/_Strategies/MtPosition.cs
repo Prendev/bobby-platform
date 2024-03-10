@@ -1,4 +1,6 @@
-﻿namespace TradeSystem.Common.Integration
+﻿using TradeSystem.Common.Integration;
+
+namespace TradeSystem.Data.Models
 {
     public class MtPosition
     {

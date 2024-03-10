@@ -2,50 +2,59 @@
 using System.Threading;
 using System.Threading.Tasks;
 using TradeSystem.Common;
+using TradeSystem.Common.BindingLists;
 using TradeSystem.Common.Integration;
+using TradeSystem.Communication.Mt5;
 using TradeSystem.Data;
 using TradeSystem.Data.Models;
 
 namespace TradeSystem.Orchestration
 {
-    public partial interface IOrchestrator
-    {
+	public partial interface IOrchestrator
+	{
 		void SendOrder(Account account, Sides side, string symbol, decimal contractSize);
 
-	    Task<Sides> LatencyStart(Pushing pushing);
-	    void LatencyStop(Pushing pushing);
+		Task<Sides> LatencyStart(Pushing pushing);
+		void LatencyStop(Pushing pushing);
 
 		Task OpeningBeta(Pushing pushing);
-	    Task OpeningPull(Pushing pushing);
-	    Task OpeningHedge(Pushing pushing);
-	    Task OpeningAlpha(Pushing pushing);
+		Task OpeningPull(Pushing pushing);
+		Task OpeningHedge(Pushing pushing);
+		Task OpeningAlpha(Pushing pushing);
 		Task OpeningFinish(Pushing pushing);
 
 		Task ClosingFirst(Pushing pushing);
-	    Task ClosingPull(Pushing pushing);
+		Task ClosingPull(Pushing pushing);
 		Task ClosingHedge(Pushing pushing);
 		Task ClosingSecond(Pushing pushing);
 		Task ClosingFinish(Pushing pushing);
-	    void FlipFinish(Pushing pushing);
+		void FlipFinish(Pushing pushing);
 
 		void Panic(Pushing pushing);
 
-	    Task StartStrategies(DuplicatContext duplicatContext);
-	    void StopStrategies();
+		Task StartStrategies(DuplicatContext duplicatContext, int throttlingInSec);
+		void StopStrategies();
 
-	    Task HubArbsGoFlat(DuplicatContext duplicatContext);
-	    Task HubArbsExport(DuplicatContext duplicatContext);
+		Task HubArbsGoFlat(DuplicatContext duplicatContext);
+		Task HubArbsExport(DuplicatContext duplicatContext);
 
-	    Task OpeningBeta(Spoofing spoofing);
-	    Task OpeningBetaEnd(Spoofing spoofing);
+		Task OpeningBeta(Spoofing spoofing);
+		Task OpeningBetaEnd(Spoofing spoofing);
 		Task OpeningAlpha(Spoofing spoofing);
-	    Task OpeningAlphaEnd(Spoofing spoofing);
+		Task OpeningAlphaEnd(Spoofing spoofing);
 		Task ClosingFirst(Spoofing spoofing);
-	    Task ClosingFirstEnd(Spoofing spoofing);
+		Task ClosingFirstEnd(Spoofing spoofing);
 		Task ClosingSecond(Spoofing spoofing);
-	    Task ClosingSecondEnd(Spoofing spoofing);
-	    void FlipFinish(Spoofing spoofing);
+		Task ClosingSecondEnd(Spoofing spoofing);
+		void FlipFinish(Spoofing spoofing);
 		void Panic(Spoofing spoofing);
+		void StartExposureStrategy(SortableBindingList<SymbolStatus> symbolStatuses, int throttlingInSec);
+		void StopExposureStrategy();
+		void StartTradeStrategy(int throttlingInSec);
+		void StopTradeStrategy();
+		Task TradePositionClose(TradePosition position);
+		void StartRiskManagementStrategy(int throttlingInSec);
+		void SetThrottling(int throttlingInSec);
 	}
 
 	public partial class Orchestrator : IOrchestrator
@@ -55,7 +64,7 @@ namespace TradeSystem.Orchestration
 			if (!(account.Connector is IFixConnector connector)) return;
 			var response = await connector.SendMarketOrderRequest(symbol, side, contractSize);
 		}
-		
+
 		public Task<Sides> LatencyStart(Pushing pushing)
 		{
 			return Task.Run(() => _pushStrategyService.LatencyStart(pushing));
@@ -94,7 +103,7 @@ namespace TradeSystem.Orchestration
 			pushing.InPanic = false;
 			return Task.Run(() => _pushStrategyService.OpeningFinish(pushing));
 		}
-		
+
 		public Task ClosingFirst(Pushing pushing)
 		{
 			pushing.PushingDetail.OpenedFutures = 0;
@@ -134,7 +143,7 @@ namespace TradeSystem.Orchestration
 			pushing.InPanic = true;
 		}
 
-		public async Task StartStrategies(DuplicatContext duplicatContext)
+		public async Task StartStrategies(DuplicatContext duplicatContext, int throttlingInSec)
 		{
 			await Connect(duplicatContext);
 
@@ -154,6 +163,11 @@ namespace TradeSystem.Orchestration
 
 			var mms = duplicatContext.MMs.Local.ToList();
 			mms.ForEach(mm => _mmStrategyService.Start(mm));
+
+			_tradeService.Start(duplicatContext, throttlingInSec);
+
+			var riskManagements = _duplicatContext.Accounts.Local.Where(a => a.Connector?.IsConnected == true).Select(a => a.RiskManagement).ToList();
+			_riskManagementService.Start(riskManagements, throttlingInSec);
 		}
 
 		public void StopStrategies()
@@ -164,6 +178,9 @@ namespace TradeSystem.Orchestration
 			_latencyArbService.Stop();
 			_newsArbService.Stop();
 			_mmStrategyService.SuspendAll();
+			_exposureStrategyService.Stop();
+			_tradeService.Stop();
+			_riskManagementService.Stop();
 		}
 
 		public async Task HubArbsGoFlat(DuplicatContext duplicatContext)
@@ -231,6 +248,51 @@ namespace TradeSystem.Orchestration
 		public void Panic(Spoofing spoofing)
 		{
 			spoofing.PanicSource.CancelEx();
+		}
+
+		public void SetThrottling(int throttlingInSec)
+		{
+			_exposureStrategyService.SetThrottling(throttlingInSec);
+			_tradeService.SetThrottling(throttlingInSec);
+			_riskManagementService.SetThrottling(throttlingInSec);
+		}
+
+		public void StartExposureStrategy(SortableBindingList<SymbolStatus> symbolStatuses, int throttlingInSec)
+		{
+			var connectedMt4Mt5Accounts = _duplicatContext.Accounts.Local
+				.Where(a => a.Connector?.IsConnected == true &&
+					(a.MetaTraderAccount != null ||
+					(a.FixApiAccount != null &&
+					(a.Connector as FixApiIntegration.Connector).GeneralConnector is Mt5Connector)))
+				.ToList();
+
+			var mappingTables = _duplicatContext.MappingTables.Local.ToBindingList();
+			_exposureStrategyService.Start(connectedMt4Mt5Accounts, mappingTables, symbolStatuses, throttlingInSec);
+		}
+		public void StopExposureStrategy()
+		{
+			_exposureStrategyService.Stop();
+		}
+
+		public void StartTradeStrategy(int throttlingInSec)
+		{
+			_tradeService.Start(_duplicatContext, throttlingInSec);
+		}
+
+		public void StopTradeStrategy()
+		{
+			_tradeService.Stop();
+		}
+
+		public async Task TradePositionClose(TradePosition position)
+		{
+			await _tradeService.TradePositionClose(_duplicatContext.TraderPositions.Local.ToBindingList(), position);
+		}
+
+		public void StartRiskManagementStrategy(int throttlingInSec)
+		{
+			var riskManagements = _duplicatContext.Accounts.Local.Where(a => a.Connector?.IsConnected == true).Select(a => a.RiskManagement).ToList();
+			_riskManagementService.Start(riskManagements, throttlingInSec);
 		}
 	}
 }

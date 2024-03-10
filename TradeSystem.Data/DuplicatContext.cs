@@ -2,6 +2,8 @@
 using System.Configuration;
 using System.IO;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -53,7 +55,7 @@ namespace TradeSystem.Data
 		public DbSet<CTraderPlatform> CTraderPlatforms { get; set; }
 		public DbSet<MetaTraderAccount> MetaTraderAccounts { get; set; }
 		public DbSet<MetaTraderInstrumentConfig> MetaTraderInstrumentConfigs { get; set; }
-		public DbSet<MetaTraderPosition> MetaTraderPositions { get; set; }
+		public DbSet<TradePosition> TraderPositions { get; set; }
 		public DbSet<CTraderAccount> CTraderAccounts { get; set; }
 		public DbSet<FixApiAccount> FixApiAccounts { get; set; }
 		public DbSet<IlyaFastFeedAccount> IlyaFastFeedAccounts { get; set; }
@@ -107,6 +109,12 @@ namespace TradeSystem.Data
 			AddRiskManagement();
 			AddTimestamps();
 			return base.SaveChanges();
+		}
+		public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+		{
+			AddRiskManagement();
+			AddTimestamps();
+			return base.SaveChangesAsync(cancellationToken);
 		}
 
 		public void Init()

@@ -1,9 +1,6 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Drawing;
-using System.Linq;
 using System.Windows.Forms;
-using System.Xml;
 using TradeSystem.Data.Models;
 using TradeSystem.Duplicat.ViewModel;
 
@@ -37,11 +34,6 @@ namespace TradeSystem.Duplicat.Views._Strategies
 			cdgRiskManagements.AllowUserToDeleteRows = false;
 			cdgRiskManagements.DoubleClick += CdgRiskManagements_DoubleClick;
 			cdgRiskManagements.CellFormatting += CdgRiskManagements_CellFormatting;
-
-			_viewModel.Tick += (sender, e) =>
-			{
-				_viewModel.UpdateRiskManagement();
-			};
 		}
 
 		private void CdgRiskManagements_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)

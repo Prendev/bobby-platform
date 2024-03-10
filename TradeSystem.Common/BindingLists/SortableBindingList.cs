@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 
-namespace TradeSystem.Duplicat.ViewModel
+namespace TradeSystem.Common.BindingLists
 {
-	public class SortableBindingList<T> : BindingList<T> where T : class
+	public class SortableBindingList<T> : SyncBindingList<T> where T : class
 	{
 		private bool _isSorted;
 		private ListSortDirection _sortDirection = ListSortDirection.Ascending;
@@ -87,7 +87,6 @@ namespace TradeSystem.Duplicat.ViewModel
 			//fire an event that the list has been changed.
 			OnListChanged(new ListChangedEventArgs(ListChangedType.Reset, -1));
 		}
-
 
 		private int Compare(T lhs, T rhs)
 		{
