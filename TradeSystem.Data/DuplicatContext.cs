@@ -68,7 +68,9 @@ namespace TradeSystem.Data
 		public DbSet<CustomGroup> CustomGroups { get; set; }
 		public DbSet<MappingTable> MappingTables { get; set; }
 		public DbSet<TwilioSetting> TwilioSettings { get; set; }
-		public DbSet<PhoneSettings> PhoneSettings { get; set; }
+		public DbSet<TwilioPhoneSetting> TwilioPhoneSettings { get; set; }
+		public DbSet<TelegramSetting> TelegramSettings { get; set; }
+		public DbSet<TelegramChatSetting> TelegramChatSettings { get; set; }
 		public DbSet<Account> Accounts { get; set; }
 		public DbSet<Aggregator> Aggregators { get; set; }
 		public DbSet<AggregatorAccount> AggregatorAccounts { get; set; }
@@ -173,6 +175,7 @@ namespace TradeSystem.Data
 			}
 			catch { }
 
+			#region Twilio settings
 			try
 			{
 				// Create default entities in the TwilioSettings and delete any existing ones
@@ -227,6 +230,50 @@ namespace TradeSystem.Data
 				SaveChanges();
 			}
 			catch { }
+			#endregion
+
+			#region Telegram settings
+			try
+			{
+				// Create default entities in the Telegram settings and delete any existing ones
+				var token = ConfigurationManager.AppSettings["TelegramService.Token"];
+				var message = ConfigurationManager.AppSettings["TelegramService.Message"];
+				var coolDownTimerInMin = ConfigurationManager.AppSettings["TelegramService.CoolDownTimerInMin"];
+
+				// Check if the default entities already exist
+				var existingEntities = TelegramSettings.ToList();
+
+				if (existingEntities.All(entity => entity.Key != token))
+				{
+					// Add default entity for Token
+					TelegramSettings.Add(new TelegramSetting { Key = token });
+				}
+
+				if (existingEntities.All(entity => entity.Key != message))
+				{
+					// Add default entity for message
+					TelegramSettings.Add(new TelegramSetting { Key = message });
+				}
+
+				if (existingEntities.All(entity => entity.Key != coolDownTimerInMin))
+				{
+					// Add default entity for message
+					TelegramSettings.Add(new TelegramSetting { Key = coolDownTimerInMin, Value = "1" });
+				}
+
+				// Remove other entities from the database
+				foreach (var entity in existingEntities)
+				{
+					if (entity.Key != token && entity.Key != message && entity.Key != coolDownTimerInMin)
+					{
+						TelegramSettings.Remove(entity);
+					}
+				}
+
+				SaveChanges();
+			}
+			catch { }
+			#endregion
 		}
 
 		protected override void OnModelCreating(ModelBuilder modelBuilder)

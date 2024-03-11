@@ -10,14 +10,20 @@ using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Configuration;
 using System.Timers;
+using TradeSystem.Notification;
+using Telegram.Bot;
+using System.Threading.Tasks;
 
 namespace TradeSystem.Data.Models
 {
 	public partial class Account
 	{
-		private bool notificationSent;
-		private readonly Object _lock = new Object();
-		private Timer cooldownTimer;
+		private readonly System.Threading.SemaphoreSlim semaphoreSlim;
+
+		private bool twilioNotificationSent;
+		private bool telegramNotificationSent;
+		private Timer twilioCooldownTimer;
+		private Timer telegramCooldownTimer;
 
 		private volatile bool _isBusy;
 		private bool isUserEditing;
@@ -114,15 +120,28 @@ namespace TradeSystem.Data.Models
 					x.MarginChanged += Connector_MarginChanged;
 				});
 
-			cooldownTimer = new Timer();
-			cooldownTimer.Elapsed += (sender, args) =>
+			semaphoreSlim = new System.Threading.SemaphoreSlim(1, 1);
+
+			twilioCooldownTimer = new Timer();
+			twilioCooldownTimer.Elapsed += (sender, args) =>
 			{
 				// Timer has elapsed, set notify property to false
-				notificationSent = false;
+				twilioNotificationSent = false;
 
 				// Stop the timer
 				((Timer)sender).Stop();
-			}; ;
+			};
+
+			telegramCooldownTimer = new Timer();
+			telegramCooldownTimer.Elapsed += (sender, args) =>
+			{
+				// Timer has elapsed, set notify property to false
+				telegramNotificationSent = false;
+
+				// Stop the timer
+				((Timer)sender).Stop();
+			};
+
 		}
 
 		public Tick GetLastTick(string symbol) => Connector?.GetLastTick(symbol);
@@ -153,7 +172,7 @@ namespace TradeSystem.Data.Models
 		private void Connector_NewPosition(object sender, NewPosition e) => NewPosition?.Invoke(this, e);
 		private void Connector_LimitFill(object sender, LimitFill e) => LimitFill?.Invoke(this, e);
 
-		private void Connector_MarginChanged(object sender, EventArgs e)
+		private async void Connector_MarginChanged(object sender, EventArgs e)
 		{
 			if (!isUserEditing)
 			{
@@ -165,36 +184,47 @@ namespace TradeSystem.Data.Models
 				MarginLevel = Connector.MarginLevel;
 			}
 
-			lock (_lock)
+			await semaphoreSlim.WaitAsync();
+			
+			if(!IsAlert) return;
+			try
 			{
-				if (!notificationSent && IsAlert && Connector.MarginLevel < MarginLevelAlert && !(Connector.Margin == 0 && Connector.MarginLevel == 0))
+				if (!twilioNotificationSent && Connector.MarginLevel < MarginLevelAlert && !(Connector.Margin == 0 && Connector.MarginLevel == 0))
 				{
 					SendTwilioNotifications();
 				}
+
+				if (!telegramNotificationSent && Connector.MarginLevel < MarginLevelAlert && !(Connector.Margin == 0 && Connector.MarginLevel == 0))
+				{
+					await SendTelegramNotifications();
+				}
+			}
+			finally
+			{
+				semaphoreSlim.Release();
 			}
 		}
 
 		private void SendTwilioNotifications()
 		{
 			var coolDownInMin = 1;
-			notificationSent = true;
+			twilioNotificationSent = true;
 
 			using (var context = new DuplicatContext())
 			{
 				context.TwilioSettings.Load();
-				context.PhoneSettings.Load();
+				context.TwilioPhoneSettings.Load();
 
 				var twilioSettings = context.TwilioSettings.ToList();
-				var phoneSettings = context.PhoneSettings.Where(ps => ps.Active).ToList();
+				var phoneSettings = context.TwilioPhoneSettings.Where(ps => ps.Active).ToList();
 
 				if (!phoneSettings.Any())
 				{
-					Logger.Info($"The {MetaTraderAccount.Description} account has triggered an alert.");
-					Logger.Warn($"A call notification hasn't been sent because there are no active phone numbers for notification.");
+					TwilioLogger.Info($"The {ToString()} account has triggered an alert.");
+					TwilioLogger.Warn($"A call notification hasn't been sent because there are no active phone numbers for notification.");
 				}
 				else
 				{
-
 					try
 					{
 						var accountSid = twilioSettings.FirstOrDefault(ts => ts.Key.Equals(ConfigurationManager.AppSettings["TwilioService.AccountSid"]));
@@ -205,7 +235,7 @@ namespace TradeSystem.Data.Models
 
 						if (!int.TryParse(coolDownTimerInMin.Value, out coolDownInMin))
 						{
-							Logger.Error($"Invalid value for twilio CoolDownTimerInMin property. Please provide a valid numerical value for the cooldown timer.");
+							TwilioLogger.Error($"Invalid value for twilio CoolDownTimerInMin property. Please provide a valid numerical value for the cooldown timer.");
 							return;
 						}
 
@@ -216,28 +246,87 @@ namespace TradeSystem.Data.Models
 							try
 							{
 								var call = CallResource.Create(
-								twiml: new Twiml($"<Response><Say>{message?.Value ?? $"{MetaTraderAccount.Description} account alert!"}</Say></Response>"),
+								twiml: new Twiml($"<Response><Say>{message?.Value ?? $"{ToString()} account alert!"}</Say></Response>"),
 								to: new PhoneNumber(phoneSetting.PhoneNumber),
 								from: new PhoneNumber(twilioPhoneNumber.Value));
 
-								Logger.Info($"The {MetaTraderAccount.Description} account has triggered an alert. A call notification has been successfully sent to {phoneSetting.Name}.");
+								TwilioLogger.Info($"The {ToString()} account has triggered an alert. A call notification has been successfully sent to {phoneSetting.Name}.");
 							}
 							catch (Exception messageError)
 							{
-								Logger.Error($"Unable to send notification for the {MetaTraderAccount.Description} account alert due to an error. Please check your notification settings and ensure that the account details are correct.", messageError);
+								TwilioLogger.Error($"Unable to send notification for the {ToString()} account alert due to an error. Please check your notification settings and ensure that the account details are correct.", messageError);
 							}
 						}
 
 					}
 					catch (Exception twilioError)
 					{
-						Logger.Error($"There was an error with the Twilio credentials. Please review your API secrets.", twilioError);
+						TwilioLogger.Error($"There was an error with the Twilio credentials. Please review your API secrets.", twilioError);
 					}
 				}
 			}
 
-			cooldownTimer.Interval = coolDownInMin * 60 * 1000;
-			cooldownTimer.Start();
+			twilioCooldownTimer.Interval = coolDownInMin * 60 * 1000;
+			twilioCooldownTimer.Start();
+		}
+
+		private async Task SendTelegramNotifications()
+		{
+			var coolDownInMin = 1;
+			telegramNotificationSent = true;
+
+			using (var context = new DuplicatContext())
+			{
+				context.TelegramSettings.Load();
+				context.TelegramChatSettings.Load();
+
+				var telegramSettings = context.TelegramSettings.ToList();
+				var telegramChatSettings = context.TelegramChatSettings.Where(ps => ps.Active).ToList();
+
+				if (!telegramChatSettings.Any())
+				{
+					TelegramLogger.Info($"The {ToString()} account has triggered an alert.");
+					TelegramLogger.Warn($"A telegram notification hasn't been sent because there are no active telegram chats for notification.");
+				}
+				else
+				{
+					try
+					{
+						var token = telegramSettings.FirstOrDefault(ts => ts.Key.Equals(ConfigurationManager.AppSettings["TelegramService.Token"]));
+						var message = telegramSettings.FirstOrDefault(ts => ts.Key.Equals(ConfigurationManager.AppSettings["TelegramService.Message"]));
+						var coolDownTimerInMin = telegramSettings.FirstOrDefault(ts => ts.Key.Equals(ConfigurationManager.AppSettings["TelegramService.CoolDownTimerInMin"]));
+
+						if (!int.TryParse(coolDownTimerInMin.Value, out coolDownInMin))
+						{
+							TelegramLogger.Error($"Invalid value for telegram CoolDownTimerInMin property. Please provide a valid numerical value for the cooldown timer.");
+							return;
+						}
+
+						var botClient = new TelegramBotClient(token.Value);
+
+						foreach (var telegramChatSetting in telegramChatSettings)
+						{
+							try
+							{
+								await botClient.SendTextMessageAsync(telegramChatSetting.ChatId, $"{ToString()} account alert!\n{message?.Value}");
+								TelegramLogger.Info($"The {ToString()} account has triggered an alert. A telegram notification has been successfully sent to chat id: '{telegramChatSetting.ChatId}'.");
+							}
+							catch (Exception messageError)
+							{
+								TelegramLogger.Error($"Unable to send notification for the {ToString()} account alert due to an error. Please check your notification settings and ensure that the account details are correct.", messageError);
+							}
+						}
+
+					}
+					catch (Exception telegramEx)
+					{
+						TelegramLogger.Error($"There was an error with the Telegram credentials. Please review your API secrets.", telegramEx);
+					}
+				}
+			}
+
+			telegramCooldownTimer.Interval = coolDownInMin * 60 * 1000;
+			telegramCooldownTimer.Start();
 		}
 	}
 }
