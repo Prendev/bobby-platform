@@ -81,7 +81,10 @@ namespace TradeSystem.Mt4Integration
 			ConnectToQuoteClient(_accountInfo.Srv);
 			if (QuoteClient?.Connected != true && !string.IsNullOrEmpty(_accountInfo.BackupSrv)) ConnectToQuoteClient(_accountInfo.BackupSrv);
 
-			OrderClient = new OrderClient(QuoteClient);
+			OrderClient = new OrderClient(QuoteClient)
+			{
+				PlacedType = accountInfo.PlacedType
+			};
 			OnConnectionChanged(IsConnected ? ConnectionStates.Connected : ConnectionStates.Error);
 			if (!IsConnected) return;
 
@@ -135,7 +138,7 @@ namespace TradeSystem.Mt4Integration
 			{
 				var op = side == Sides.Buy ? Op.Buy : Op.Sell;
 				var slippage = deviation == 0 ? 0 : Math.Floor((double)Math.Abs(deviation) / GetSymbolInfo(symbol).Point);
-
+				
 				var o = OrderClient.OrderSend(symbol, op, lots * (double)M(symbol), (double)price,
 					(int)slippage, 0, 0, comment, magicNumber, DateTime.MaxValue);
 				Logger.Debug(

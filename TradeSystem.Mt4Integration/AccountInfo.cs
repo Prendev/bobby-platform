@@ -28,5 +28,6 @@ namespace TradeSystem.Mt4Integration
 		public ProxyTypes ProxyType { get; set; }
 		public string ProxyUser { get; set; }
 		public string ProxyPassword { get; set; }
+		public PlacedType PlacedType { get; set; }
 	}
 }

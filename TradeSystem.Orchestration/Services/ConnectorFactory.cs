@@ -4,6 +4,8 @@ using System.Threading.Tasks;
 using TradeSystem.Common.Services;
 using TradeSystem.Data;
 using TradeSystem.Data.Models;
+using Mt4PlacedType = TradingAPI.MT4Server.PlacedType;
+using Mt5PlacedType = mtapi.mt5.PlacedType;
 
 namespace TradeSystem.Orchestration.Services
 {
@@ -69,7 +71,7 @@ namespace TradeSystem.Orchestration.Services
 					? TradingAPI.MT4Server.ProxyTypes.Socks4 : TradingAPI.MT4Server.ProxyTypes.Https,
 					ProxyUser = account.MetaTraderAccount.ProxyUser ?? string.Empty,
 					ProxyPassword = account.MetaTraderAccount.ProxyPassword ?? string.Empty,
-
+					PlacedType = (Mt4PlacedType)account.MetaTraderAccount.PlacedType
 				}, DestinationSetter);
 		}
 
@@ -115,6 +117,7 @@ namespace TradeSystem.Orchestration.Services
 					DbId = account.FixApiAccount.Id,
 					Description = account.FixApiAccount.Description,
 					ConfigPath = account.FixApiAccount.ConfigPath,
+					PlacedType = (Mt5PlacedType)account.FixApiAccount.PlacedType
 				}, _emailService);
 
 			await ((FixApiIntegration.Connector)account.Connector).Connect();

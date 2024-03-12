@@ -87,6 +87,7 @@ namespace TradeSystem.FixApiIntegration
 
 
 				if (Mt5Api == null) return;
+				Mt5Api.PlacedType = _accountInfo.PlacedType;
 				foreach (var o in Mt5Api.GetOpenedOrders()
 					         .Where(o => o.OrderType == Mt5Ot.Buy || o.OrderType == Mt5Ot.Sell))
 				{

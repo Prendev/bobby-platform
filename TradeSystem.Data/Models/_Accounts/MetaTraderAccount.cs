@@ -1,13 +1,17 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using TradeSystem.Common.Attributes;
 using static TradeSystem.Data.Models.Proxy;
 
 namespace TradeSystem.Data.Models
 {
     public class MetaTraderAccount : BaseDescriptionEntity
 	{
-        public int User { get; set; }
+		public enum PlacedTypes
+		{
+			Client = 0, Expert = 1, Dealer = 2, Signal = 3, Gateway = 4, Mobile = 5, Web = 6, Api = 7
+		}
+
+		public int User { get; set; }
         [Required] public string Password { get; set; }
         public int MetaTraderPlatformId { get; set; }
         public MetaTraderPlatform MetaTraderPlatform { get; set; }
@@ -17,6 +21,7 @@ namespace TradeSystem.Data.Models
 		public ProxyTypes ProxyType { get; set; }
 		public string ProxyUser { get; set; }
 		public string ProxyPassword { get; set; }
+		public PlacedTypes PlacedType { get; set; } = PlacedTypes.Client;
 
 		public List<Account> Accounts { get; } = new List<Account>();
 		public List<MetaTraderInstrumentConfig> InstrumentConfigs { get; } = new List<MetaTraderInstrumentConfig>();
@@ -25,5 +30,6 @@ namespace TradeSystem.Data.Models
         {
             return $"{(Id == 0 ? "UNSAVED - " : "")}{Description} ({User})";
         }
+
     }
 }
