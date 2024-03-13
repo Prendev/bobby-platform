@@ -279,28 +279,55 @@ namespace TradeSystem.Duplicat.Views
 
 		private void UseComboBoxForEnums()
 		{
-			Columns.Cast<DataGridViewColumn>()
-				.Where(x => x.ValueType?.IsEnum == true)
-				.ToList().ForEach(x =>
+			var enumValues = Columns.Cast<DataGridViewColumn>().Where(x => x.ValueType?.IsEnum == true).ToList();
+			var nullableEnumValues = Columns.Cast<DataGridViewColumn>().Where(x => x.ValueType != null && Nullable.GetUnderlyingType(x.ValueType)?.IsEnum == true)
+				.ToList();
+
+			enumValues.ForEach(x =>
+			{
+				var c = new DataGridViewComboBoxColumn
 				{
-					var c = new DataGridViewComboBoxColumn
+					ValueType = x.ValueType,
+					ValueMember = "Value",
+					DisplayMember = "Name",
+					DataPropertyName = x.DataPropertyName,
+					HeaderText = x.HeaderText,
+					Name = x.Name,
+					DataSource = Enum.GetValues(x.ValueType).Cast<object>().Select(v => new
 					{
-						ValueType = x.ValueType,
-						ValueMember = "Value",
-						DisplayMember = "Name",
-						DataPropertyName = x.DataPropertyName,
-						HeaderText = x.HeaderText,
-						Name = x.Name,
-						DataSource = Enum.GetValues(x.ValueType).Cast<object>().Select(v => new
-						{
-							Value = (int)v,
-							Name = Enum.GetName(x.ValueType, v)
-						}).OrderBy(v => v.Value).ToList(),
-					};
-					var index = x.Index;
-					Columns.RemoveAt(index);
-					Columns.Insert(index, c);
-				});
+						Value = (int)v,
+						Name = Enum.GetName(x.ValueType, v)
+					}).OrderBy(v => v.Value).ToList(),
+				};
+				var index = x.Index;
+				Columns.RemoveAt(index);
+				Columns.Insert(index, c);
+			});
+
+			nullableEnumValues.ForEach(x =>
+			{
+				var nullableEnumType = Nullable.GetUnderlyingType(x.ValueType);
+
+				DataGridViewComboBoxColumn col = new DataGridViewComboBoxColumn();
+				col.Name = "My Enum Column";
+				col.DataSource = Enum.GetValues(nullableEnumType);
+				col.ValueType = nullableEnumType;
+
+				var c = new DataGridViewComboBoxColumn
+				{
+					ValueType = nullableEnumType,
+					DataPropertyName = x.DataPropertyName,
+					HeaderText = x.HeaderText,
+					Name = x.Name,
+					DataSource = Enum.GetValues(nullableEnumType),
+				};
+
+
+				var index = x.Index;
+				Columns.RemoveAt(index);
+				Columns.Insert(index, c);
+
+			});
 		}
 	}
 	//public class CheckBoxStateChangedEventArgs : EventArgs

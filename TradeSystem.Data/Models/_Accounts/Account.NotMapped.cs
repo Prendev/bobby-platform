@@ -13,12 +13,14 @@ using System.Timers;
 using TradeSystem.Notification;
 using Telegram.Bot;
 using System.Threading.Tasks;
+using System.Diagnostics;
 
 namespace TradeSystem.Data.Models
 {
 	public partial class Account
 	{
 		private readonly System.Threading.SemaphoreSlim semaphoreSlim;
+		private readonly System.Threading.SemaphoreSlim disconnectedAccountSemaphoreSlim;
 
 		private bool twilioNotificationSent;
 		private bool telegramNotificationSent;
@@ -27,6 +29,8 @@ namespace TradeSystem.Data.Models
 
 		private volatile bool _isBusy;
 		private bool isUserEditing;
+
+		private int errorStateInMin;
 
 		[NotMapped]
 		[InvisibleColumn]
@@ -44,6 +48,9 @@ namespace TradeSystem.Data.Models
 			set => isUserEditing = value;
 		}
 
+		[NotMapped]
+		[InvisibleColumn]
+		public bool HasAlreadyConnected { get; set; }
 
 		public event EventHandler<NewTick> NewTick;
 		public event EventHandler<ConnectionStates> ConnectionChanged;
@@ -121,6 +128,7 @@ namespace TradeSystem.Data.Models
 				});
 
 			semaphoreSlim = new System.Threading.SemaphoreSlim(1, 1);
+			disconnectedAccountSemaphoreSlim = new System.Threading.SemaphoreSlim(1, 1);
 
 			twilioCooldownTimer = new Timer();
 			twilioCooldownTimer.Elapsed += (sender, args) =>
@@ -162,11 +170,73 @@ namespace TradeSystem.Data.Models
 			if (BacktesterAccount != null) BacktesterAccount.UtcNow = e.Tick.Time;
 			NewTick?.Invoke(this, e);
 		}
-
-		private void Connector_ConnectionChanged(object sender, ConnectionStates e)
+		private async void Connector_ConnectionChanged(object sender, ConnectionStates e)
 		{
 			ConnectionState = e;
 			ConnectionChanged?.Invoke(this, ConnectionState);
+
+			switch (e)
+			{
+				case ConnectionStates.Connected:
+					HasAlreadyConnected = true;
+					errorStateInMin = 0;
+					break;
+				case ConnectionStates.Error:
+					if (disconnectedAccountSemaphoreSlim.CurrentCount == 0) return;
+					await disconnectedAccountSemaphoreSlim.WaitAsync();
+					try
+					{
+						if (HasAlreadyConnected && DisconnectAlert != null)
+							await CheckDisconnectedError();
+					}
+					finally
+					{
+						disconnectedAccountSemaphoreSlim.Release();
+					}
+					break;
+			}
+		}
+
+		private async Task CheckDisconnectedError()
+		{
+			while (ConnectionState == ConnectionStates.Error && HasAlreadyConnected)
+			{
+				var currentUtcMinusOneHour = DateTime.UtcNow.AddHours(-1);
+				var isWeekEnd = currentUtcMinusOneHour.DayOfWeek == DayOfWeek.Saturday || currentUtcMinusOneHour.DayOfWeek == DayOfWeek.Sunday;
+
+				errorStateInMin++;
+				switch (DisconnectAlert)
+				{
+					case Common.Integration.DisconnectAlert.WeekDays_3min:
+						if (!isWeekEnd && errorStateInMin > 3)
+						{
+							await SendNotifications();
+						}
+						break;
+					case Common.Integration.DisconnectAlert.WeekEnd_2hours:
+						if (isWeekEnd && errorStateInMin > 120)
+						{
+							await SendNotifications();
+						}
+						break;
+					case Common.Integration.DisconnectAlert.WeekDays_3min_WeekEnd_2hours:
+						if ((!isWeekEnd && errorStateInMin > 3) || (isWeekEnd && errorStateInMin > 120))
+						{
+							await SendNotifications();
+						}
+						break;
+					case Common.Integration.DisconnectAlert.AllDay_3min:
+						if (errorStateInMin > 3)
+						{
+							await SendNotifications();
+						}
+						break;
+				}
+
+				await Task.Delay(60 * 1000);
+			}
+
+			errorStateInMin = 0;
 		}
 
 		private void Connector_NewPosition(object sender, NewPosition e) => NewPosition?.Invoke(this, e);
@@ -185,23 +255,28 @@ namespace TradeSystem.Data.Models
 			}
 
 			await semaphoreSlim.WaitAsync();
-			
-			if(!IsAlert) return;
 			try
 			{
-				if (!twilioNotificationSent && Connector.MarginLevel < MarginLevelAlert && !(Connector.Margin == 0 && Connector.MarginLevel == 0))
-				{
-					SendTwilioNotifications();
-				}
-
-				if (!telegramNotificationSent && Connector.MarginLevel < MarginLevelAlert && !(Connector.Margin == 0 && Connector.MarginLevel == 0))
-				{
-					await SendTelegramNotifications();
-				}
+				if (Connector.MarginLevel < MarginLevelAlert && !(Connector.Margin == 0 && Connector.MarginLevel == 0))
+					await SendNotifications();
 			}
 			finally
 			{
 				semaphoreSlim.Release();
+			}
+		}
+
+		private async Task SendNotifications()
+		{
+			if (!IsAlert) return;
+			if (!twilioNotificationSent)
+			{
+				SendTwilioNotifications();
+			}
+
+			if (!telegramNotificationSent)
+			{
+				await SendTelegramNotifications();
 			}
 		}
 
@@ -252,9 +327,9 @@ namespace TradeSystem.Data.Models
 
 								TwilioLogger.Info($"The {ToString()} account has triggered an alert. A call notification has been successfully sent to {phoneSetting.Name}.");
 							}
-							catch (Exception messageError)
+							catch (Exception ex)
 							{
-								TwilioLogger.Error($"Unable to send notification for the {ToString()} account alert due to an error. Please check your notification settings and ensure that the account details are correct.", messageError);
+								TwilioLogger.Error($"Unable to send notification for the {ToString()} account alert due to an error. Please check your notification settings and ensure that the account details are correct.", ex);
 							}
 						}
 
@@ -311,16 +386,16 @@ namespace TradeSystem.Data.Models
 								await botClient.SendTextMessageAsync(telegramChatSetting.ChatId, $"{ToString()} account alert!\n{message?.Value}");
 								TelegramLogger.Info($"The {ToString()} account has triggered an alert. A telegram notification has been successfully sent to chat id: '{telegramChatSetting.ChatId}'.");
 							}
-							catch (Exception messageError)
+							catch (Exception ex)
 							{
-								TelegramLogger.Error($"Unable to send notification for the {ToString()} account alert due to an error. Please check your notification settings and ensure that the account details are correct.", messageError);
+								TelegramLogger.Error($"Unable to send notification for the {ToString()} account alert due to an error. Please check your notification settings and ensure that the account details are correct.\n{ex.Message}");
 							}
 						}
 
 					}
-					catch (Exception telegramEx)
+					catch (Exception ex)
 					{
-						TelegramLogger.Error($"There was an error with the Telegram credentials. Please review your API secrets.", telegramEx);
+						TelegramLogger.Error($"There was an error with the Telegram credentials. Please review your API secrets.", ex);
 					}
 				}
 			}
