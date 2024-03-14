@@ -207,7 +207,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				}
 				catch (Exception e)
 				{
-					Logger.Error("TradesService.Loop exception", e);
+					Logger.Error("ExposureService.Loop exception", e);
 				}
 			}
 		}

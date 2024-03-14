@@ -139,6 +139,7 @@ namespace TradeSystem.Duplicat.ViewModel
 
 		public BindingList<RiskManagement> RiskManagements { get; private set; }
 		public BindingList<RiskManagement> SelectedRiskManagements { get; private set; } = new BindingList<RiskManagement>();
+		public SortableBindingList<RiskManagerAccountVisibility> RiskManagementAccoutVisibilities { get; private set; } = new SortableBindingList<RiskManagerAccountVisibility>();
 		public BindingList<RiskManagementSetting> SelectedRiskManagementSettings { get; private set; } = new BindingList<RiskManagementSetting>();
 
 		public string FilterText { get => Get<string>(); set => Set(value); }
@@ -369,8 +370,6 @@ namespace TradeSystem.Duplicat.ViewModel
 				account.ConnectionChanged += Account_ConnectionChanged;
 			}
 
-			// focus on connected account
-			//ConnectedAccounts = Accounts.Where(account => account.Connector?.IsConnected == true).ToList();
 			ConnectedMt4Mt5Accounts = Accounts
 				.Where(a => a.Connector?.IsConnected == true &&
 					(a.MetaTraderAccount != null ||
@@ -378,7 +377,12 @@ namespace TradeSystem.Duplicat.ViewModel
 					(a.Connector as FixApiIntegration.Connector).GeneralConnector is Mt5Connector)))
 				.ToList();
 
-			Accounts.Where(a => (a.MetaTraderAccount != null || a.FixApiAccount != null) && a.Connector?.IsConnected == true).Select(a => a.RiskManagement).ToList().ForEach(rm => SelectedRiskManagements.Add(rm));
+			Accounts.Where(a => (a.MetaTraderAccount != null || a.FixApiAccount != null) && a.Connector?.IsConnected == true)
+				.Select(a => a.RiskManagement).ToList()
+				.ForEach(rm =>
+				{
+					RiskManagementAccoutVisibilities.Add(new RiskManagerAccountVisibility { AccountName = rm.Account.MetaTraderAccount?.Description ?? rm.Account.FixApiAccount.Description, RiskManagement = rm});
+				});
 
 			//TODO
 			CheckDuplicatedPositions();

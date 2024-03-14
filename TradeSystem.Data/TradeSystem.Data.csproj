@@ -247,6 +247,7 @@
     <Compile Include="Models\Export.cs" />
     <Compile Include="Models\FixApiCopierPosition.cs" />
     <Compile Include="Models\_Accounts\TradePosition.cs" />
+    <Compile Include="Models\_Strategies\RiskManagerAccountVisibility.cs" />
     <Compile Include="Models\_Strategies\SymbolStatus.cs" />
     <Compile Include="Models\_Strategies\TelegramSetting.cs" />
     <Compile Include="Models\_Strategies\TelegramChatSetting.cs" />

@@ -7,8 +7,6 @@ using System.Drawing;
 using System.ComponentModel;
 using System;
 using TradeSystem.Data.Models;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace TradeSystem.Duplicat.Views
 {

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
 using TradeSystem.Common.Attributes;
 
 namespace TradeSystem.Data.Models

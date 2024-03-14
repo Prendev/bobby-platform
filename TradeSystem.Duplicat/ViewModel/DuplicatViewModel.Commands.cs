@@ -133,6 +133,7 @@ namespace TradeSystem.Duplicat.ViewModel
 			{
 				ConnectedMt4Mt5Accounts.Clear();
 				SymbolStatusVisibilities.Clear();
+				RiskManagementAccoutVisibilities.Clear();
 				SortedTradePositions.Clear();
 				SelectedRiskManagements.Clear();
 				SelectedRiskManagementSettings.Clear();
@@ -451,6 +452,16 @@ namespace TradeSystem.Duplicat.ViewModel
 		public void ExposureClearAllCommand()
 		{
 			SymbolStatusVisibilities.ToList().ForEach(ssv => ssv.IsVisible = false);
+		}
+
+		public void RiskManagementSelectAllCommand()
+		{
+			RiskManagementAccoutVisibilities.ToList().ForEach(ssv => ssv.IsVisible = true);
+		}
+
+		public void RiskManagementClearAllCommand()
+		{
+			RiskManagementAccoutVisibilities.ToList().ForEach(ssv => ssv.IsVisible = false);
 		}
 
 		public async void TradePositionCloseCommand(TradePosition mtPosition)
