@@ -2844,9 +2844,19 @@
             Quote retrieving, account information, order updates.
             </summary>
         </member>
+        <member name="F:TradingAPI.MT4Server.QuoteClient.DisconnectCalledByUser">
+            <summary>
+            If you get OnDisonnect event, please use this flag to check if it was called by user.
+            </summary>
+        </member>
         <member name="F:TradingAPI.MT4Server.QuoteClient.OrderHistoryTimeoutMs">
             <summary>
             How long to wait order hsitory. Lof of trades can take lot of time to download.
+            </summary>
+        </member>
+        <member name="F:TradingAPI.MT4Server.QuoteClient.LoginIdTimeoutMs">
+            <summary>
+            How long to wait response from login id web server
             </summary>
         </member>
         <member name="F:TradingAPI.MT4Server.QuoteClient.CalculateTradePropertiesTimeoutMs">
@@ -2857,6 +2867,11 @@
         <member name="F:TradingAPI.MT4Server.QuoteClient.ProcessEventTimeoutMs">
             <summary>
             Maimum time for user to process event, after that task will be aborted
+            </summary>
+        </member>
+        <member name="P:TradingAPI.MT4Server.QuoteClient.ServerBuild">
+            <summary>
+            Server version
             </summary>
         </member>
         <member name="M:TradingAPI.MT4Server.QuoteClient.ChangePassword(System.String,System.Boolean)">
@@ -2946,11 +2961,6 @@
             Terminal build number
             </summary>
         </member>
-        <member name="P:TradingAPI.MT4Server.QuoteClient.ServerBuidl">
-            <summary>
-            Terminal build number
-            </summary>
-        </member>
         <member name="P:TradingAPI.MT4Server.QuoteClient.AccountBalance">
             <summary>
             Account balance.
@@ -3019,11 +3029,6 @@
         <member name="P:TradingAPI.MT4Server.QuoteClient.ServerTimeZone">
             <summary>
             Server time zone 
-            </summary>
-        </member>
-        <member name="P:TradingAPI.MT4Server.QuoteClient.ServerBuild">
-            <summary>
-            Server build. 
             </summary>
         </member>
         <member name="F:TradingAPI.MT4Server.QuoteClient._AccountMode">
@@ -3104,6 +3109,11 @@
         <member name="F:TradingAPI.MT4Server.QuoteClient.NoServerMessagesTimeout">
             <summary>
              Force reconnect if no quotes for some number of milliseconds.
+            </summary>
+        </member>
+        <member name="P:TradingAPI.MT4Server.QuoteClient.SoftId">
+            <summary>
+            Software id that shown on mt4 server. Random if equals to 0.
             </summary>
         </member>
         <member name="P:TradingAPI.MT4Server.QuoteClient.SymbolsInfo">
@@ -3801,6 +3811,11 @@
         <member name="T:TradingAPI.MT4Server.SymbolInfoEx">
             <summary>
             Security config 
+            </summary>
+        </member>
+        <member name="P:TradingAPI.MT4Server.SymbolInfoEx.SymbolAsString">
+            <summary>
+            Symbol as string
             </summary>
         </member>
         <member name="F:TradingAPI.MT4Server.SymbolInfoEx.symbol">
