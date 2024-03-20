@@ -44,8 +44,6 @@ namespace TradeSystem.Orchestration.Services.Strategies
 						riskManagement.HighestTicketDuration = GetHighetTicketDuration(riskManagement.Account);
 						riskManagement.NumTicketsHighDuration = GetNumTicketsHighDuration(riskManagement.Account);
 					}
-
-					Thread.Sleep(_throttlingInSec * 1000);
 				}
 				catch (OperationCanceledException)
 				{
@@ -55,6 +53,8 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				{
 					Logger.Error("TradesService.Loop exception", e);
 				}
+
+				Thread.Sleep(_throttlingInSec * 1000);
 			}
 		}
 

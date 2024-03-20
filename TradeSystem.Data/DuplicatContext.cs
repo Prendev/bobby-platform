@@ -2,8 +2,8 @@
 using System.Configuration;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
+using System.Threading;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -18,6 +18,7 @@ namespace TradeSystem.Data
 		private readonly string _connectionString;
 		private readonly string _providerName;
 		private readonly string _baseDirectory;
+		private readonly SemaphoreSlim semaphoreSlim;
 
 		public DuplicatContext()
 		{
@@ -31,6 +32,7 @@ namespace TradeSystem.Data
 
 			_providerName = connectionString.ProviderName.ToLowerInvariant();
 			_baseDirectory = AppContext.BaseDirectory;
+			semaphoreSlim = new SemaphoreSlim(1, 1);
 		}
 
 		public DuplicatContext(string connectionString, string providerName, string baseDirectory)
@@ -109,14 +111,28 @@ namespace TradeSystem.Data
 		public override int SaveChanges()
 		{
 			AddRiskManagement();
-			AddTimestamps();
-			return base.SaveChanges();
+			semaphoreSlim.Wait();
+			try
+			{
+				return base.SaveChanges();
+			}
+			finally
+			{
+				semaphoreSlim.Release();
+			}
 		}
-		public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+
+		public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
 		{
-			AddRiskManagement();
-			AddTimestamps();
-			return base.SaveChangesAsync(cancellationToken);
+			await semaphoreSlim.WaitAsync();
+			try
+			{
+				return await base.SaveChangesAsync(cancellationToken);
+			}
+			finally
+			{
+				semaphoreSlim.Release();
+			}
 		}
 
 		public void Init()
@@ -346,23 +362,6 @@ namespace TradeSystem.Data
 			{
 				var rm = new RiskManagement { RiskManagementSetting = new RiskManagementSetting() };
 				(acc.Entity as Account).RiskManagement = rm;
-			}
-		}
-
-		private void AddTimestamps()
-		{
-			var entities = ChangeTracker.Entries()
-				.Where(x => x.Entity is BaseEntity && (x.State == EntityState.Added || x.State == EntityState.Modified));
-
-			foreach (var entity in entities)
-			{
-				var now = DateTime.UtcNow; // current datetime
-
-				if (entity.State == EntityState.Added)
-				{
-					((BaseEntity)entity.Entity).CreatedAt = now;
-				}
-				((BaseEntity)entity.Entity).UpdatedAt = now;
 			}
 		}
 	}

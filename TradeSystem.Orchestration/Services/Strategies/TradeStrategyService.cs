@@ -1,5 +1,5 @@
-﻿using System;
-using System.ComponentModel;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,11 +13,17 @@ namespace TradeSystem.Orchestration.Services.Strategies
 		void Start(DuplicatContext duplicatContext, int throttlingInSec);
 		void Stop();
 		void SetThrottling(int throttlingInSec);
-		Task TradePositionClose(BindingList<TradePosition> metaTraderPositions, TradePosition metaTraderPosition);
+		Task TradePositionClose(DuplicatContext duplicatContext, TradePosition metaTraderPosition);
 	}
 	public class TradeStrategyService : BaseStrategyService, ITradeStrategyService
 	{
 		private volatile CancellationTokenSource _cancellation;
+		private readonly SemaphoreSlim semaphoreSlim;
+
+		public TradeStrategyService()
+		{
+			semaphoreSlim = new SemaphoreSlim(1, 1);
+		}
 
 		public void Start(DuplicatContext duplicatContext, int throttlingInSec)
 		{
@@ -42,7 +48,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			{
 				try
 				{
-					var connectedAccounts = duplicatContext.Accounts.Local.Where(a => a.Connector?.IsConnected == true && (a.MetaTraderAccount != null || a.FixApiAccount != null)).ToList();
+					var connectedAccounts = duplicatContext.Accounts.Local.Where(a => a?.Connector?.IsConnected != null && a.Connector.IsConnected && (a.MetaTraderAccount != null || a.FixApiAccount != null)).ToList();
 
 					var metaTraderPositions = connectedAccounts
 						.SelectMany(cma => cma.Connector.Positions
@@ -69,14 +75,12 @@ namespace TradeSystem.Orchestration.Services.Strategies
 					duplicatContext.TraderPositions.AddRange(newMtPositionTrades);
 					duplicatContext.TraderPositions.RemoveRange(removeMtPositionTrades);
 
-					await duplicatContext.SaveChangesAsync();
+					var positionsToClose = positions.Where(mtap => mtap.IsPreOrderClosing && mtap.Account.MarginLevel < mtap.MarginLevel).ToList();
 
-					foreach (var position in positions.Where(mtap => mtap.IsPreOrderClosing && mtap.Account.MarginLevel < mtap.MarginLevel).ToList())
+					foreach (var position in positionsToClose)
 					{
-						await TradePositionClose(duplicatContext.TraderPositions.Local.ToBindingList(), position);
+						await TradePositionClose(duplicatContext, position);
 					}
-
-					Thread.Sleep(_throttlingInSec * 1000);
 				}
 				catch (OperationCanceledException)
 				{
@@ -86,41 +90,56 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				{
 					Logger.Error("TradesService.Loop exception", e);
 				}
+
+				await Task.Delay(_throttlingInSec * 1000);
 			}
 		}
 
-		public async Task TradePositionClose(BindingList<TradePosition> metaTraderPositions, TradePosition metaTraderPosition)
+		public async Task TradePositionClose(DuplicatContext duplicatContext, TradePosition metaTraderPosition)
 		{
 			metaTraderPosition.IsRemoved = true;
 
-			if (metaTraderPosition.Account.Connector is Mt4Integration.Connector mt4Connector)
+			await semaphoreSlim.WaitAsync();
+
+			try
 			{
-				var pos = mt4Connector.Positions.FirstOrDefault(p => p.Key == metaTraderPosition.PositionKey);
-
-				if (pos.Value != null)
+				if (metaTraderPosition.Account.Connector is Mt4Integration.Connector mt4Connector)
 				{
-					var res = mt4Connector.SendClosePositionRequests(pos.Value);
+					var pos = mt4Connector.Positions.FirstOrDefault(p => p.Key == metaTraderPosition.PositionKey);
 
-					if (res.Pos.IsClosed)
+					if (pos.Value != null)
 					{
-						metaTraderPositions.Remove(metaTraderPosition);
+						var res = mt4Connector.SendClosePositionRequests(pos.Value);
+
+						if (res.Pos.IsClosed)
+						{
+							var tp = duplicatContext.TraderPositions.Local.First(t => t.Id == metaTraderPosition.Id);
+							duplicatContext.TraderPositions.Remove(tp);
+						}
+						else metaTraderPosition.IsRemoved = false;
 					}
-					else metaTraderPosition.IsRemoved = false;
 				}
+				else if (metaTraderPosition.Account.Connector is FixApiIntegration.Connector fixApiConnector)
+				{
+					var pos = fixApiConnector.Positions.FirstOrDefault(p => p.Key == metaTraderPosition.PositionKey);
+
+					if (pos.Value != null)
+					{
+						var res = await fixApiConnector.CloseOrderRequest(pos.Value.Symbol, pos.Value.Side, pos.Value.Lots, 1000, 1, 5, new[] { pos.Key.ToString() });
+						if (res.OrderIds != null && res.OrderIds.Any(orderId => orderId.Equals(pos.Key.ToString())))
+						{
+							var tp = duplicatContext.TraderPositions.Local.First(t => t.Id == metaTraderPosition.Id);
+							duplicatContext.TraderPositions.Remove(tp);
+						}
+						else metaTraderPosition.IsRemoved = false;
+					}
+				}
+
+				await duplicatContext.SaveChangesAsync();
 			}
-			else if (metaTraderPosition.Account.Connector is FixApiIntegration.Connector fixApiConnector)
+			finally
 			{
-				var pos = fixApiConnector.Positions.FirstOrDefault(p => p.Key == metaTraderPosition.PositionKey);
-
-				if (pos.Value != null)
-				{
-					var res = await fixApiConnector.CloseOrderRequest(pos.Value.Symbol, pos.Value.Side, pos.Value.Lots, 1000, 1, 5, new[] { pos.Key.ToString() });
-					if (res.OrderIds != null && res.OrderIds.Any(orderId => orderId.Equals(pos.Key.ToString())))
-					{
-						metaTraderPositions.Remove(metaTraderPosition);
-					}
-					else metaTraderPosition.IsRemoved = false;
-				}
+				semaphoreSlim.Release();
 			}
 		}
 	}

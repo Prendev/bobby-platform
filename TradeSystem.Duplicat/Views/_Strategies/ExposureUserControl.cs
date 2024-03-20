@@ -7,6 +7,7 @@ using System.Drawing;
 using System.ComponentModel;
 using System;
 using TradeSystem.Data.Models;
+using System.Threading;
 
 namespace TradeSystem.Duplicat.Views
 {
@@ -15,9 +16,11 @@ namespace TradeSystem.Duplicat.Views
 		private DuplicatViewModel _viewModel;
 		private Dictionary<SymbolStatus, Brush> symbolColumnHeaderColor = new Dictionary<SymbolStatus, Brush>();
 		private string selectedColumnText;
+		private readonly SemaphoreSlim semaphoreSlim;
 
 		public ExposureUserControl()
 		{
+			semaphoreSlim = new SemaphoreSlim(1, 1);
 			InitializeComponent();
 		}
 
@@ -117,106 +120,115 @@ namespace TradeSystem.Duplicat.Views
 		{
 			if (!_viewModel.IsConnected) return;
 
-			if (!listViewExposure.Items.Any())
+			semaphoreSlim.Wait();
+			try
 			{
-				InitListview();
-			}
 
-			switch (e.ListChangedType)
-			{
-				case ListChangedType.ItemAdded:
-					var newSymbolStatus = _viewModel.SymbolStatusVisibilities[e.NewIndex];
-
-					if (!symbolColumnHeaderColor.ContainsKey(newSymbolStatus))
-					{
-						symbolColumnHeaderColor.Add(newSymbolStatus, newSymbolStatus.IsCreatedGroup ? Brushes.DarkKhaki : Brushes.White);
-					}
-
-					listViewExposure.Columns.Add(newSymbolStatus.Symbol, newSymbolStatus.IsVisible ? 80 : 0);
-
-					var newRowIndex = 0;
-					foreach (var acc in _viewModel.ConnectedMt4Mt5Accounts)
-					{
-						var account = newSymbolStatus.AccountLotList.FirstOrDefault(accSum => accSum.Account == acc);
-						if (account != null)
-						{
-							listViewExposure.Items[newRowIndex].SubItems.Add(account.SumLot.ToString());
-							listViewExposure.Items[_viewModel.ConnectedMt4Mt5Accounts.Count].SubItems.Add(newSymbolStatus.AccountLotList.Sum(accSum => accSum.SumLot).ToString());
-						}
-						else
-						{
-							listViewExposure.Items[newRowIndex].SubItems.Add("-");
-							listViewExposure.Items[_viewModel.ConnectedMt4Mt5Accounts.Count].SubItems.Add("-");
-						}
-						newRowIndex++;
-					}
-
-					break;
-
-				case ListChangedType.ItemDeleted:
-					listViewExposure.Columns.RemoveAt(e.NewIndex + 2);
-					foreach (ListViewItem item in listViewExposure.Items)
-					{
-						item.SubItems.RemoveAt(e.NewIndex + 2);
-					}
-					break;
-
-				case ListChangedType.ItemChanged:
-					var changedSymbolStatus = _viewModel.SymbolStatusVisibilities[e.NewIndex];
-					listViewExposure.Columns[e.NewIndex + 2].Width = changedSymbolStatus.IsVisible ? 80 : 0;
-					listViewExposure.Columns[e.NewIndex + 2].Name = changedSymbolStatus.Symbol;
-					listViewExposure.Columns[e.NewIndex + 2].Text = changedSymbolStatus.Symbol;
-
-					var changedRowIndex = 0;
-					foreach (var acc in _viewModel.ConnectedMt4Mt5Accounts)
-					{
-						var accSum = changedSymbolStatus.AccountLotList.FirstOrDefault(ss => ss.Account.Equals(acc));
-
-						if (accSum != null)
-						{
-							listViewExposure.Items[changedRowIndex].SubItems[e.NewIndex + 2].Text = accSum.SumLot.ToString();
-						}
-						else
-						{
-							listViewExposure.Items[changedRowIndex].SubItems[e.NewIndex + 2].Text = "-";
-						}
-
-						changedRowIndex++;
-					}
-
-					listViewExposure.Items[_viewModel.ConnectedMt4Mt5Accounts.Count].SubItems[e.NewIndex + 2].Text = changedSymbolStatus.AccountLotList.Sum(accSum => accSum.SumLot).ToString();
-					break;
-
-				case ListChangedType.Reset:
+				if (!listViewExposure.Items.Any())
+				{
 					InitListview();
+				}
 
-					foreach (var symbolStatus in _viewModel.SymbolStatusVisibilities)
-					{
-						if (!symbolColumnHeaderColor.ContainsKey(symbolStatus))
+				switch (e.ListChangedType)
+				{
+					case ListChangedType.ItemAdded:
+						var newSymbolStatus = _viewModel.SymbolStatusVisibilities[e.NewIndex];
+
+						if (!symbolColumnHeaderColor.ContainsKey(newSymbolStatus))
 						{
-							symbolColumnHeaderColor.Add(symbolStatus, symbolStatus.IsCreatedGroup ? Brushes.DarkKhaki : Brushes.White);
-							listViewExposure.Columns.Add(symbolStatus.Symbol, symbolStatus.IsVisible ? 80 : 0);
+							symbolColumnHeaderColor.Add(newSymbolStatus, newSymbolStatus.IsCreatedGroup ? Brushes.DarkKhaki : Brushes.White);
 						}
 
-						var resetRowIndex = 0;
+						listViewExposure.Columns.Add(newSymbolStatus.Symbol, newSymbolStatus.IsVisible ? 80 : 0);
+
+						var newRowIndex = 0;
 						foreach (var acc in _viewModel.ConnectedMt4Mt5Accounts)
 						{
-							var account = symbolStatus.AccountLotList.FirstOrDefault(accSum => accSum.Account == acc);
+							var account = newSymbolStatus.AccountLotList.FirstOrDefault(accSum => accSum.Account == acc);
 							if (account != null)
 							{
-								listViewExposure.Items[resetRowIndex].SubItems.Add(account.SumLot.ToString());
+								listViewExposure.Items[newRowIndex].SubItems.Add(account.SumLot.ToString());
+								listViewExposure.Items[_viewModel.ConnectedMt4Mt5Accounts.Count].SubItems.Add(newSymbolStatus.AccountLotList.Sum(accSum => accSum.SumLot).ToString());
 							}
 							else
 							{
-								listViewExposure.Items[resetRowIndex].SubItems.Add("-");
+								listViewExposure.Items[newRowIndex].SubItems.Add("-");
+								listViewExposure.Items[_viewModel.ConnectedMt4Mt5Accounts.Count].SubItems.Add("-");
 							}
-							resetRowIndex++;
+							newRowIndex++;
 						}
 
-						if (symbolStatus.AccountLotList.Any()) listViewExposure.Items[_viewModel.ConnectedMt4Mt5Accounts.Count].SubItems.Add(symbolStatus.AccountLotList.Sum(accSum => accSum.SumLot).ToString());
-						else listViewExposure.Items[_viewModel.ConnectedMt4Mt5Accounts.Count].SubItems.Add("-");
-					}
-					break;
+						break;
+
+					case ListChangedType.ItemDeleted:
+						listViewExposure.Columns.RemoveAt(e.NewIndex + 2);
+						foreach (ListViewItem item in listViewExposure.Items)
+						{
+							item.SubItems.RemoveAt(e.NewIndex + 2);
+						}
+						break;
+
+					case ListChangedType.ItemChanged:
+						var changedSymbolStatus = _viewModel.SymbolStatusVisibilities[e.NewIndex];
+						listViewExposure.Columns[e.NewIndex + 2].Width = changedSymbolStatus.IsVisible ? 80 : 0;
+						listViewExposure.Columns[e.NewIndex + 2].Name = changedSymbolStatus.Symbol;
+						listViewExposure.Columns[e.NewIndex + 2].Text = changedSymbolStatus.Symbol;
+
+						var changedRowIndex = 0;
+						foreach (var acc in _viewModel.ConnectedMt4Mt5Accounts)
+						{
+							var accSum = changedSymbolStatus.AccountLotList.FirstOrDefault(ss => ss.Account.Equals(acc));
+
+							if (accSum != null)
+							{
+								listViewExposure.Items[changedRowIndex].SubItems[e.NewIndex + 2].Text = accSum.SumLot.ToString();
+							}
+							else
+							{
+								listViewExposure.Items[changedRowIndex].SubItems[e.NewIndex + 2].Text = "-";
+							}
+
+							changedRowIndex++;
+						}
+
+						listViewExposure.Items[_viewModel.ConnectedMt4Mt5Accounts.Count].SubItems[e.NewIndex + 2].Text = changedSymbolStatus.AccountLotList.Sum(accSum => accSum.SumLot).ToString();
+						break;
+
+					case ListChangedType.Reset:
+						InitListview();
+
+						foreach (var symbolStatus in _viewModel.SymbolStatusVisibilities)
+						{
+							if (!symbolColumnHeaderColor.ContainsKey(symbolStatus))
+							{
+								symbolColumnHeaderColor.Add(symbolStatus, symbolStatus.IsCreatedGroup ? Brushes.DarkKhaki : Brushes.White);
+								listViewExposure.Columns.Add(symbolStatus.Symbol, symbolStatus.IsVisible ? 80 : 0);
+							}
+
+							var resetRowIndex = 0;
+							foreach (var acc in _viewModel.ConnectedMt4Mt5Accounts)
+							{
+								var account = symbolStatus.AccountLotList.FirstOrDefault(accSum => accSum.Account == acc);
+								if (account != null)
+								{
+									listViewExposure.Items[resetRowIndex].SubItems.Add(account.SumLot.ToString());
+								}
+								else
+								{
+									listViewExposure.Items[resetRowIndex].SubItems.Add("-");
+								}
+								resetRowIndex++;
+							}
+
+							if (symbolStatus.AccountLotList.Any()) listViewExposure.Items[_viewModel.ConnectedMt4Mt5Accounts.Count].SubItems.Add(symbolStatus.AccountLotList.Sum(accSum => accSum.SumLot).ToString());
+							else listViewExposure.Items[_viewModel.ConnectedMt4Mt5Accounts.Count].SubItems.Add("-");
+						}
+						break;
+				}
+			}
+			finally
+			{
+				semaphoreSlim.Release();
 			}
 		}
 

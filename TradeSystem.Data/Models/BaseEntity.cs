@@ -13,12 +13,6 @@ namespace TradeSystem.Data.Models
 		[InvisibleColumn]
 		public int Id { get; set; }
 
-		[InvisibleColumn]
-		public DateTime? CreatedAt { get; set; }
-
-		[InvisibleColumn]
-		public DateTime? UpdatedAt { get; set; }
-
 		[NotMapped]
 		[InvisibleColumn]
 		public string DisplayMember => ToString();
