@@ -91,6 +91,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradeSystem.Communication.S
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "mt5api", "..\QvaDev.Wololo_old\mt5-net-api-main\mt5api.csproj", "{19F0E775-116D-4AC6-80F1-F6281ACB81BE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradeSystem.Notification", "TradeSystem.Notification\TradeSystem.Notification.csproj", "{FAF355B7-1510-474E-BD4C-9ECC583347FA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -1115,6 +1117,36 @@ Global
 		{19F0E775-116D-4AC6-80F1-F6281ACB81BE}.Trial|x64.Build.0 = Trial|Any CPU
 		{19F0E775-116D-4AC6-80F1-F6281ACB81BE}.Trial|x86.ActiveCfg = Trial|Any CPU
 		{19F0E775-116D-4AC6-80F1-F6281ACB81BE}.Trial|x86.Build.0 = Trial|Any CPU
+		{FAF355B7-1510-474E-BD4C-9ECC583347FA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FAF355B7-1510-474E-BD4C-9ECC583347FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FAF355B7-1510-474E-BD4C-9ECC583347FA}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{FAF355B7-1510-474E-BD4C-9ECC583347FA}.Debug|x64.Build.0 = Debug|Any CPU
+		{FAF355B7-1510-474E-BD4C-9ECC583347FA}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{FAF355B7-1510-474E-BD4C-9ECC583347FA}.Debug|x86.Build.0 = Debug|Any CPU
+		{FAF355B7-1510-474E-BD4C-9ECC583347FA}.Full|Any CPU.ActiveCfg = Debug|Any CPU
+		{FAF355B7-1510-474E-BD4C-9ECC583347FA}.Full|Any CPU.Build.0 = Debug|Any CPU
+		{FAF355B7-1510-474E-BD4C-9ECC583347FA}.Full|x64.ActiveCfg = Debug|Any CPU
+		{FAF355B7-1510-474E-BD4C-9ECC583347FA}.Full|x64.Build.0 = Debug|Any CPU
+		{FAF355B7-1510-474E-BD4C-9ECC583347FA}.Full|x86.ActiveCfg = Debug|Any CPU
+		{FAF355B7-1510-474E-BD4C-9ECC583347FA}.Full|x86.Build.0 = Debug|Any CPU
+		{FAF355B7-1510-474E-BD4C-9ECC583347FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FAF355B7-1510-474E-BD4C-9ECC583347FA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FAF355B7-1510-474E-BD4C-9ECC583347FA}.Release|x64.ActiveCfg = Release|Any CPU
+		{FAF355B7-1510-474E-BD4C-9ECC583347FA}.Release|x64.Build.0 = Release|Any CPU
+		{FAF355B7-1510-474E-BD4C-9ECC583347FA}.Release|x86.ActiveCfg = Release|Any CPU
+		{FAF355B7-1510-474E-BD4C-9ECC583347FA}.Release|x86.Build.0 = Release|Any CPU
+		{FAF355B7-1510-474E-BD4C-9ECC583347FA}.TradeSystem.Duplicat|Any CPU.ActiveCfg = Debug|Any CPU
+		{FAF355B7-1510-474E-BD4C-9ECC583347FA}.TradeSystem.Duplicat|Any CPU.Build.0 = Debug|Any CPU
+		{FAF355B7-1510-474E-BD4C-9ECC583347FA}.TradeSystem.Duplicat|x64.ActiveCfg = Debug|Any CPU
+		{FAF355B7-1510-474E-BD4C-9ECC583347FA}.TradeSystem.Duplicat|x64.Build.0 = Debug|Any CPU
+		{FAF355B7-1510-474E-BD4C-9ECC583347FA}.TradeSystem.Duplicat|x86.ActiveCfg = Debug|Any CPU
+		{FAF355B7-1510-474E-BD4C-9ECC583347FA}.TradeSystem.Duplicat|x86.Build.0 = Debug|Any CPU
+		{FAF355B7-1510-474E-BD4C-9ECC583347FA}.Trial|Any CPU.ActiveCfg = Debug|Any CPU
+		{FAF355B7-1510-474E-BD4C-9ECC583347FA}.Trial|Any CPU.Build.0 = Debug|Any CPU
+		{FAF355B7-1510-474E-BD4C-9ECC583347FA}.Trial|x64.ActiveCfg = Debug|Any CPU
+		{FAF355B7-1510-474E-BD4C-9ECC583347FA}.Trial|x64.Build.0 = Debug|Any CPU
+		{FAF355B7-1510-474E-BD4C-9ECC583347FA}.Trial|x86.ActiveCfg = Debug|Any CPU
+		{FAF355B7-1510-474E-BD4C-9ECC583347FA}.Trial|x86.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

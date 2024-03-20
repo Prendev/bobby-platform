@@ -2,8 +2,8 @@
 using System.Configuration;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
+using System.Threading;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -18,6 +18,7 @@ namespace TradeSystem.Data
 		private readonly string _connectionString;
 		private readonly string _providerName;
 		private readonly string _baseDirectory;
+		private readonly SemaphoreSlim semaphoreSlim;
 
 		public DuplicatContext()
 		{
@@ -31,6 +32,7 @@ namespace TradeSystem.Data
 
 			_providerName = connectionString.ProviderName.ToLowerInvariant();
 			_baseDirectory = AppContext.BaseDirectory;
+			semaphoreSlim = new SemaphoreSlim(1, 1);
 		}
 
 		public DuplicatContext(string connectionString, string providerName, string baseDirectory)
@@ -68,7 +70,9 @@ namespace TradeSystem.Data
 		public DbSet<CustomGroup> CustomGroups { get; set; }
 		public DbSet<MappingTable> MappingTables { get; set; }
 		public DbSet<TwilioSetting> TwilioSettings { get; set; }
-		public DbSet<PhoneSettings> PhoneSettings { get; set; }
+		public DbSet<TwilioPhoneSetting> TwilioPhoneSettings { get; set; }
+		public DbSet<TelegramSetting> TelegramSettings { get; set; }
+		public DbSet<TelegramChatSetting> TelegramChatSettings { get; set; }
 		public DbSet<Account> Accounts { get; set; }
 		public DbSet<Aggregator> Aggregators { get; set; }
 		public DbSet<AggregatorAccount> AggregatorAccounts { get; set; }
@@ -107,14 +111,28 @@ namespace TradeSystem.Data
 		public override int SaveChanges()
 		{
 			AddRiskManagement();
-			AddTimestamps();
-			return base.SaveChanges();
+			semaphoreSlim.Wait();
+			try
+			{
+				return base.SaveChanges();
+			}
+			finally
+			{
+				semaphoreSlim.Release();
+			}
 		}
-		public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+
+		public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
 		{
-			AddRiskManagement();
-			AddTimestamps();
-			return base.SaveChangesAsync(cancellationToken);
+			await semaphoreSlim.WaitAsync();
+			try
+			{
+				return await base.SaveChangesAsync(cancellationToken);
+			}
+			finally
+			{
+				semaphoreSlim.Release();
+			}
 		}
 
 		public void Init()
@@ -173,6 +191,7 @@ namespace TradeSystem.Data
 			}
 			catch { }
 
+			#region Twilio settings
 			try
 			{
 				// Create default entities in the TwilioSettings and delete any existing ones
@@ -227,6 +246,50 @@ namespace TradeSystem.Data
 				SaveChanges();
 			}
 			catch { }
+			#endregion
+
+			#region Telegram settings
+			try
+			{
+				// Create default entities in the Telegram settings and delete any existing ones
+				var token = ConfigurationManager.AppSettings["TelegramService.Token"];
+				var message = ConfigurationManager.AppSettings["TelegramService.Message"];
+				var coolDownTimerInMin = ConfigurationManager.AppSettings["TelegramService.CoolDownTimerInMin"];
+
+				// Check if the default entities already exist
+				var existingEntities = TelegramSettings.ToList();
+
+				if (existingEntities.All(entity => entity.Key != token))
+				{
+					// Add default entity for Token
+					TelegramSettings.Add(new TelegramSetting { Key = token });
+				}
+
+				if (existingEntities.All(entity => entity.Key != message))
+				{
+					// Add default entity for message
+					TelegramSettings.Add(new TelegramSetting { Key = message });
+				}
+
+				if (existingEntities.All(entity => entity.Key != coolDownTimerInMin))
+				{
+					// Add default entity for message
+					TelegramSettings.Add(new TelegramSetting { Key = coolDownTimerInMin, Value = "1" });
+				}
+
+				// Remove other entities from the database
+				foreach (var entity in existingEntities)
+				{
+					if (entity.Key != token && entity.Key != message && entity.Key != coolDownTimerInMin)
+					{
+						TelegramSettings.Remove(entity);
+					}
+				}
+
+				SaveChanges();
+			}
+			catch { }
+			#endregion
 		}
 
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -299,23 +362,6 @@ namespace TradeSystem.Data
 			{
 				var rm = new RiskManagement { RiskManagementSetting = new RiskManagementSetting() };
 				(acc.Entity as Account).RiskManagement = rm;
-			}
-		}
-
-		private void AddTimestamps()
-		{
-			var entities = ChangeTracker.Entries()
-				.Where(x => x.Entity is BaseEntity && (x.State == EntityState.Added || x.State == EntityState.Modified));
-
-			foreach (var entity in entities)
-			{
-				var now = DateTime.UtcNow; // current datetime
-
-				if (entity.State == EntityState.Added)
-				{
-					((BaseEntity)entity.Entity).CreatedAt = now;
-				}
-				((BaseEntity)entity.Entity).UpdatedAt = now;
 			}
 		}
 	}

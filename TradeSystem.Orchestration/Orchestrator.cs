@@ -146,7 +146,11 @@ namespace TradeSystem.Orchestration
 			}
 
 			var accounts = _duplicatContext.Accounts.Local.ToList();
-			var tasks = accounts.Select(pa => Task.Run(() => pa.Connector?.Disconnect()));
+			var tasks = accounts.Select(pa => Task.Run(() =>
+			{
+				pa.HasAlreadyConnected = false;
+				pa.Connector?.Disconnect();
+			}));
 
 			await Task.WhenAll(tasks);
 		}

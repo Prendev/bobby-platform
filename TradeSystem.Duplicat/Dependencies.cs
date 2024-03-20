@@ -49,7 +49,9 @@ namespace TradeSystem.Duplicat
 				    @"TradeSystem.FixApiIntegration\FillLogger",
 					@"TradeSystem.CTraderApi\CTraderApi",
 					@"TradeSystem.CTraderIntegration\CtLogger",
-					@"TradeSystem.Backtester\BacktesterLogger"
+					@"TradeSystem.Backtester\BacktesterLogger",
+					@"TradeSystem.Notification\TwilioLogger",
+					@"TradeSystem.Notification\TelegramLogger"
 				});
 		    Logger.AddLogger(new LogAdapter(LogManager.GetLogger("Copy")),
 			    filePathInclude: new[] { @"TradeSystem.Orchestration\Services\CopyLogger" });
@@ -63,8 +65,12 @@ namespace TradeSystem.Duplicat
 				filePathInclude: new[] { @"TradeSystem.FixApiIntegration\FillLogger" });
 		    Logger.AddLogger(new LogAdapter(LogManager.GetLogger("CT")),
 			    filePathInclude: new[] { @"TradeSystem.CTraderIntegration\CtLogger", @"TradeSystem.CTraderApi\CTraderApi" });
-		    Logger.AddLogger(new LogAdapter(LogManager.GetLogger("BT")),
-			    filePathInclude: new[] { @"TradeSystem.Backtester\BacktesterLogger" });
+			Logger.AddLogger(new LogAdapter(LogManager.GetLogger("BT")),
+				filePathInclude: new[] { @"TradeSystem.Backtester\BacktesterLogger" });
+			Logger.AddLogger(new LogAdapter(LogManager.GetLogger("TWILIO")),
+				filePathInclude: new[] { @"TradeSystem.Notification\TwilioLogger" });
+			Logger.AddLogger(new LogAdapter(LogManager.GetLogger("TELEGRAM")),
+				filePathInclude: new[] { @"TradeSystem.Notification\TelegramLogger" });
 		}
 
         private static void RegisterApp(ContainerBuilder builder)

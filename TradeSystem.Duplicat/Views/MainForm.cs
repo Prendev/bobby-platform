@@ -37,13 +37,13 @@ namespace TradeSystem.Duplicat.Views
 				TextBoxAppender.ConfigureTextBoxAppender(rtbFixOrders, "FIX orders", 1000);
 				TextBoxAppender.ConfigureTextBoxAppender(rtbCTrader, "CT", 1000);
 				TextBoxAppender.ConfigureTextBoxAppender(rtbBacktester, "BT", 1000);
-				TextBoxAppender.ConfigureTextBoxAppender(rtbAll, "General|MT4|FIX|CT", 1000);
+				TextBoxAppender.ConfigureTextBoxAppender(rtbAllNotifications, "TWILIO|TELEGRAM", 1000);
+				TextBoxAppender.ConfigureTextBoxAppender(rtbAll, "General|MT4|FIX|CT|TWILIO|TELEGRAM", 1000);
 			}
 
 			ThreadPool.GetMinThreads(out var wokerThreads, out var completionPortThreads);
 			Logger.Debug($"ThreadPool.GetMinThreads(out {wokerThreads}, out {completionPortThreads})");
 			newsCalendarService.Start();
-
 		}
 
 		private void InitView()

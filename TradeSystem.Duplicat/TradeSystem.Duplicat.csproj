@@ -227,6 +227,12 @@
     <Compile Include="Views\CustomDateTimePicker.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Views\Notifications\TelegramNotificationUserControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Views\Notifications\TelegramNotificationUserControl.Designer.cs">
+      <DependentUpon>TelegramNotificationUserControl.cs</DependentUpon>
+    </Compile>
     <Compile Include="Views\SortableCustomDataGridView.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -243,11 +249,11 @@
     <Compile Include="Views\_Accounts\BtAccountsUserControl.Designer.cs">
       <DependentUpon>BtAccountsUserControl.cs</DependentUpon>
     </Compile>
-    <Compile Include="Views\_Accounts\MtAlertUserControl.cs">
+    <Compile Include="Views\Notifications\TwilioNotificationUserControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Views\_Accounts\MtAlertUserControl.Designer.cs">
-      <DependentUpon>MtAlertUserControl.cs</DependentUpon>
+    <Compile Include="Views\Notifications\TwilioNotificationUserControl.Designer.cs">
+      <DependentUpon>TwilioNotificationUserControl.cs</DependentUpon>
     </Compile>
     <Compile Include="Views\_Strategies\ExposureUserControl.cs">
       <SubType>UserControl</SubType>
@@ -391,11 +397,14 @@
     <EmbeddedResource Include="Views\ExportUserControl.resx">
       <DependentUpon>ExportUserControl.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Views\Notifications\TelegramNotificationUserControl.resx">
+      <DependentUpon>TelegramNotificationUserControl.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Views\_Accounts\BtAccountsUserControl.resx">
       <DependentUpon>BtAccountsUserControl.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Views\_Accounts\MtAlertUserControl.resx">
-      <DependentUpon>MtAlertUserControl.cs</DependentUpon>
+    <EmbeddedResource Include="Views\Notifications\TwilioNotificationUserControl.resx">
+      <DependentUpon>TwilioNotificationUserControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\_Strategies\ExposureUserControl.resx">
       <DependentUpon>ExposureUserControl.cs</DependentUpon>

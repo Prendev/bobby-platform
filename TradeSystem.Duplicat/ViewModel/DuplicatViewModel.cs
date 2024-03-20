@@ -92,7 +92,9 @@ namespace TradeSystem.Duplicat.ViewModel
 		public BindingList<MappingTable> MappingTables { get; private set; }
 		public BindingList<MappingTable> SelectedMappingTables { get; private set; }
 		public BindingList<TwilioSetting> TwilioSettings { get; private set; }
-		public BindingList<PhoneSettings> PhoneSettings { get; private set; }
+		public BindingList<TwilioPhoneSetting> TwilioPhoneSettings { get; private set; }
+		public BindingList<TelegramSetting> TelegramSettings { get; private set; }
+		public BindingList<TelegramChatSetting> TelegramChatSettings { get; private set; }
 		public BindingList<Account> Accounts { get; private set; }
 
 		public BindingList<Aggregator> Aggregators { get; private set; }
@@ -137,6 +139,7 @@ namespace TradeSystem.Duplicat.ViewModel
 
 		public BindingList<RiskManagement> RiskManagements { get; private set; }
 		public BindingList<RiskManagement> SelectedRiskManagements { get; private set; } = new BindingList<RiskManagement>();
+		public SortableBindingList<RiskManagerAccountVisibility> RiskManagementAccoutVisibilities { get; private set; } = new SortableBindingList<RiskManagerAccountVisibility>();
 		public BindingList<RiskManagementSetting> SelectedRiskManagementSettings { get; private set; } = new BindingList<RiskManagementSetting>();
 
 		public string FilterText { get => Get<string>(); set => Set(value); }
@@ -367,8 +370,6 @@ namespace TradeSystem.Duplicat.ViewModel
 				account.ConnectionChanged += Account_ConnectionChanged;
 			}
 
-			// focus on connected account
-			//ConnectedAccounts = Accounts.Where(account => account.Connector?.IsConnected == true).ToList();
 			ConnectedMt4Mt5Accounts = Accounts
 				.Where(a => a.Connector?.IsConnected == true &&
 					(a.MetaTraderAccount != null ||
@@ -376,7 +377,12 @@ namespace TradeSystem.Duplicat.ViewModel
 					(a.Connector as FixApiIntegration.Connector).GeneralConnector is Mt5Connector)))
 				.ToList();
 
-			Accounts.Where(a => (a.MetaTraderAccount != null || a.FixApiAccount != null) && a.Connector?.IsConnected == true).Select(a => a.RiskManagement).ToList().ForEach(rm => SelectedRiskManagements.Add(rm));
+			Accounts.Where(a => (a.MetaTraderAccount != null || a.FixApiAccount != null) && a.Connector?.IsConnected == true)
+				.Select(a => a.RiskManagement).ToList()
+				.ForEach(rm =>
+				{
+					RiskManagementAccoutVisibilities.Add(new RiskManagerAccountVisibility { AccountName = rm.Account.MetaTraderAccount?.Description ?? rm.Account.FixApiAccount.Description, RiskManagement = rm});
+				});
 
 			//TODO
 			CheckDuplicatedPositions();
@@ -423,8 +429,12 @@ namespace TradeSystem.Duplicat.ViewModel
 			_duplicatContext.Profiles.OrderBy(e => e.ToString()).Load();
 
 			_duplicatContext.CustomGroups.Include(mp => mp.MappingTables).Load();
+
 			_duplicatContext.TwilioSettings.OrderBy(e => e.ToString()).Load();
-			_duplicatContext.PhoneSettings.OrderBy(e => e.ToString()).Load();
+			_duplicatContext.TwilioPhoneSettings.OrderBy(e => e.ToString()).Load();
+
+			_duplicatContext.TelegramSettings.OrderByDescending(e => e.ToString()).Load();
+			_duplicatContext.TelegramChatSettings.OrderBy(e => e.ToString()).Load();
 
 			_duplicatContext.Proxies.OrderBy(e => e.ToString()).Load();
 			_duplicatContext.ProfileProxies.Where(e => e.ProfileId == p).OrderBy(e => e.ToString()).Load();
@@ -495,7 +505,9 @@ namespace TradeSystem.Duplicat.ViewModel
 			CustomGroups = _duplicatContext.CustomGroups.Local.ToBindingList();
 			MappingTables = _duplicatContext.MappingTables.Local.ToBindingList();
 			TwilioSettings = _duplicatContext.TwilioSettings.Local.ToBindingList();
-			PhoneSettings = _duplicatContext.PhoneSettings.Local.ToBindingList();
+			TwilioPhoneSettings = _duplicatContext.TwilioPhoneSettings.Local.ToBindingList();
+			TelegramSettings = _duplicatContext.TelegramSettings.Local.ToBindingList();
+			TelegramChatSettings = _duplicatContext.TelegramChatSettings.Local.ToBindingList();
 
 			Masters = _duplicatContext.Masters.Local.ToBindingList();
 			Slaves = _duplicatContext.Slaves.Local.ToBindingList();

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using TradeSystem.Common.Attributes;
+using TradeSystem.Common.Integration;
 
 namespace TradeSystem.Data.Models
 {
@@ -43,6 +44,9 @@ namespace TradeSystem.Data.Models
 
 		[EditableColumn]
 		public bool IsAlert { get; set; }
+
+		[EditableColumn]
+		public DisconnectAlert? DisconnectAlert { get; set; }
 
 		[EditableColumn]
 		public double MarginLevelAlert { get; set; }

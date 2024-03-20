@@ -115,6 +115,7 @@
     <Compile Include="DependecyManager.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="Integration\AccountTypes.cs" />
+    <Compile Include="Integration\DisconnectAlert.cs" />
     <Compile Include="Integration\ConnectionStates.cs" />
     <Compile Include="Integration\FixApiConnectorBase.cs" />
     <Compile Include="Integration\ConnectorBase.cs" />

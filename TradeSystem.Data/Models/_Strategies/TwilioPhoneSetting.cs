@@ -1,6 +1,6 @@
 ﻿namespace TradeSystem.Data.Models
 {
-	public class PhoneSettings : BaseEntity
+	public class TwilioPhoneSetting : BaseEntity
 	{
 		public string Name { get; set; }
 		public string PhoneNumber { get; set; }

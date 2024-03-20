@@ -1,5 +1,7 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Drawing;
+using System.Linq;
 using System.Windows.Forms;
 using TradeSystem.Data.Models;
 using TradeSystem.Duplicat.ViewModel;
@@ -18,6 +20,30 @@ namespace TradeSystem.Duplicat.Views._Strategies
 		{
 			cdgSettings.DataSource = _viewModel.SelectedRiskManagementSettings;
 			cdgRiskManagements.DataSource = _viewModel.SelectedRiskManagements;
+			cdgAccountVisibility.DataSource = _viewModel.RiskManagementAccoutVisibilities;
+		}
+
+		private void CdgAccountVisibility_CurrentCellDirtyStateChanged(object sender, EventArgs e)
+		{
+			if (cdgAccountVisibility.CurrentCell is DataGridViewCheckBoxCell)
+			{
+				cdgAccountVisibility.EndEdit();
+			}
+		}
+
+		private void RiskManagementAccoutVisibilities_ListChanged(object sender, System.ComponentModel.ListChangedEventArgs e)
+		{
+			if (!_viewModel.IsConnected) return;
+
+			_viewModel.SelectedRiskManagements.Clear();
+			_viewModel.RiskManagementAccoutVisibilities.ToList().ForEach(acc =>
+			{
+				if (acc.IsVisible)
+				{
+					_viewModel.SelectedRiskManagements.Add(acc.RiskManagement);
+				}
+			});
+
 		}
 
 		public void InitView(DuplicatViewModel viewModel)
@@ -34,6 +60,15 @@ namespace TradeSystem.Duplicat.Views._Strategies
 			cdgRiskManagements.AllowUserToDeleteRows = false;
 			cdgRiskManagements.DoubleClick += CdgRiskManagements_DoubleClick;
 			cdgRiskManagements.CellFormatting += CdgRiskManagements_CellFormatting;
+
+			cdgAccountVisibility.RowHeadersVisible = false;
+			cdgAccountVisibility.AllowUserToAddRows = false;
+			cdgAccountVisibility.AllowUserToDeleteRows = false;
+			cdgAccountVisibility.CurrentCellDirtyStateChanged += CdgAccountVisibility_CurrentCellDirtyStateChanged;
+			_viewModel.RiskManagementAccoutVisibilities.ListChanged += RiskManagementAccoutVisibilities_ListChanged;
+
+			btnSelectAll.Click += (s, e) => _viewModel.RiskManagementSelectAllCommand();
+			btnClearAll.Click += (s, e) => _viewModel.RiskManagementClearAllCommand();
 		}
 
 		private void CdgRiskManagements_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)

@@ -198,8 +198,6 @@ namespace TradeSystem.Orchestration.Services.Strategies
 						});
 					}
 					#endregion
-
-					Thread.Sleep(_throttlingInSec * 1000);
 				}
 				catch (OperationCanceledException)
 				{
@@ -207,8 +205,10 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				}
 				catch (Exception e)
 				{
-					Logger.Error("TradesService.Loop exception", e);
+					Logger.Error("ExposureService.Loop exception", e);
 				}
+
+				Thread.Sleep(_throttlingInSec * 1000);
 			}
 		}
 	}
