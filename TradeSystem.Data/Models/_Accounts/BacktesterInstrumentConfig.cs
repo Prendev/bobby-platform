@@ -16,8 +16,8 @@ namespace TradeSystem.Data.Models
 		[DisplayName("MaxSlippage")] public int MaxSlippageInMs { get; set; }
 
 		[Required] public string Folder { get; set; }
-		public string DateTimeFormat { get; set; }
-		public string Delimeter { get; set; }
+		public string DateTimeFormat { get; set; } = "yyyy.MM.dd HH:mm:ss.fff";
+		public string Delimeter { get; set; } = ",";
 		public int DateTimeColumn { get; set; } = 0;
 		public int AskColumn { get; set; } = 1;
 		public int BidColumn { get; set; } = 2;
