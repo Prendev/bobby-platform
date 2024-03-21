@@ -419,7 +419,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				if (set.LongAccount.Connector is Mt4Integration.Connector connector)
 				{
 					var pos = connector.SendMarketOrderRequest(set.LongSymbol, Sides.Buy, (double) quantity,
-						signalPrice, set.Deviation, 0, set.Comment, 0, 0);
+						signalPrice, set.Deviation, 0, set.LongComment2, 0, 0);
 					CheckUnfinished(set, pos);
 					if (pos?.Pos == null) return null;
 					return new OpenResult
@@ -496,7 +496,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				if (set.ShortAccount.Connector is Mt4Integration.Connector connector)
 				{
 					var pos = connector.SendMarketOrderRequest(set.ShortSymbol, Sides.Sell, (double) quantity,
-						signalPrice, set.Deviation, 0, set.Comment, 0, 0);
+						signalPrice, set.Deviation, 0, set.ShortComment2, 0, 0);
 					CheckUnfinished(set, pos);
 					if (pos?.Pos == null) return null;
 					return new OpenResult
@@ -1135,7 +1135,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				if (longPos.Value.Lots != set.LongSize) continue;
 				if (longPos.Value.Symbol != set.LongSymbol) continue;
 				if (set.LivePositions.Any(p => p.LongTicket == longPos.Key)) continue;
-				if (!string.IsNullOrWhiteSpace(set.Comment) && longPos.Value.Comment != set.Comment) continue;
+				if (!string.IsNullOrWhiteSpace(set.LongComment2) && longPos.Value.Comment != set.LongComment2) continue;
 
 				KeyValuePair<long, Position>? match = null;
 				foreach (var shortPos in shortPositions)
@@ -1145,7 +1145,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 					if (shortPos.Value.Lots != set.ShortSize) continue;
 					if (shortPos.Value.Symbol != set.ShortSymbol) continue;
 					if (set.LivePositions.Any(p => p.ShortTicket == shortPos.Key)) continue;
-					if (!string.IsNullOrWhiteSpace(set.Comment) && shortPos.Value.Comment != set.Comment) continue;
+					if (!string.IsNullOrWhiteSpace(set.ShortComment2) && shortPos.Value.Comment != set.ShortComment2) continue;
 					match = shortPos;
 					break;
 				}
@@ -1188,7 +1188,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				if (longPos.Value.Lots != set.LongSize) continue;
 				if (longPos.Value.Symbol != set.LongSymbol) continue;
 				if (set.LivePositions.Any(p => p.LongTicket == longPos.Key)) continue;
-				if (!string.IsNullOrWhiteSpace(set.Comment) && longPos.Value.Comment != set.Comment) continue;
+				if (!string.IsNullOrWhiteSpace(set.LongComment2) && longPos.Value.Comment != set.LongComment2) continue;
 
 				var level = set.LivePositions.Count + 1;
 				var arbPos = new LatencyArbPosition()
@@ -1216,7 +1216,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 				if (shortPos.Value.Lots != set.ShortSize) continue;
 				if (shortPos.Value.Symbol != set.ShortSymbol) continue;
 				if (set.LivePositions.Any(p => p.ShortTicket == shortPos.Key)) continue;
-				if (!string.IsNullOrWhiteSpace(set.Comment) && shortPos.Value.Comment != set.Comment) continue;
+				if (!string.IsNullOrWhiteSpace(set.ShortComment2) && shortPos.Value.Comment != set.ShortComment2) continue;
 
 				var level = set.LivePositions.Count + 1;
 				var arbPos = new LatencyArbPosition()

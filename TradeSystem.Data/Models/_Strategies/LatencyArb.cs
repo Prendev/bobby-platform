@@ -122,6 +122,10 @@ namespace TradeSystem.Data.Models
 		public decimal PipSize { get; set; }
 		public decimal PipValue { get; set; }
 		public string Comment { get; set; }
+		[DisplayName("S Comment")]
+		public string ShortComment { get; set; }
+		[DisplayName("L Comment")]
+		public string LongComment { get; set; }
 
 		public int? CopierId { get; set; }
 		public Copier Copier { get; set; }

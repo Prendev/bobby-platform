@@ -92,6 +92,9 @@ namespace TradeSystem.Data.Models
 		[NotMapped] [InvisibleColumn] public decimal? LivePnl { get; set; }
 		[NotMapped] [InvisibleColumn] public decimal? ClosedPnl { get; set; }
 
+		[NotMapped][InvisibleColumn] public string ShortComment2 => string.IsNullOrWhiteSpace(ShortComment) ? Comment : ShortComment;
+		[NotMapped][InvisibleColumn] public string LongComment2 => string.IsNullOrWhiteSpace(LongComment) ? Comment : LongComment;
+
 		[NotMapped] [InvisibleColumn] public Stopwatch Stopwatch { get; } = new Stopwatch();
 
 		[NotMapped] [InvisibleColumn] public DateTime UtcNow =>
