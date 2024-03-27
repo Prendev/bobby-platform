@@ -1,0 +1,286 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>KGySoft.Design</name>
+    </assembly>
+    <members>
+        <member name="T:KGySoft.ComponentModel.Design.AdvancedCollectionEditor">
+            <summary>
+            A localizable editor of collection types that makes possible to edit the collection properties along with child elements.
+            Override this editor to make possible to edit collections of abstract class elements.
+            </summary>
+        </member>
+        <member name="M:KGySoft.ComponentModel.Design.AdvancedCollectionEditor.GetEditStyle(System.ComponentModel.ITypeDescriptorContext)">
+            <summary>
+            Gets the editor style used by the <see cref="M:System.Drawing.Design.UITypeEditor.EditValue(System.IServiceProvider,System.Object)"/> method.
+            </summary>
+            <returns>
+            A <see cref="T:System.Drawing.Design.UITypeEditorEditStyle"/> value that indicates the style of editor used by the <see cref="M:System.Drawing.Design.UITypeEditor.EditValue(System.IServiceProvider,System.Object)"/> method. If the <see cref="T:System.Drawing.Design.UITypeEditor"/> does not support this method, then <see cref="M:System.Drawing.Design.UITypeEditor.GetEditStyle"/> will return <see cref="F:System.Drawing.Design.UITypeEditorEditStyle.None"/>.
+            </returns>
+            <param name="context">An <see cref="T:System.ComponentModel.ITypeDescriptorContext"/> that can be used to gain additional context information.</param>
+        </member>
+        <member name="M:KGySoft.ComponentModel.Design.AdvancedCollectionEditor.EditValue(System.ComponentModel.ITypeDescriptorContext,System.IServiceProvider,System.Object)">
+            <summary>
+            Edits the specified object's value using the editor style indicated by the <see cref="M:System.Drawing.Design.UITypeEditor.GetEditStyle"/> method.
+            </summary>
+            <returns>
+            The new value of the object. If the value of the object has not changed, this should return the same object it was passed.
+            </returns>
+            <param name="context">An <see cref="T:System.ComponentModel.ITypeDescriptorContext"/> that can be used to gain additional context information.</param>
+            <param name="provider">An <see cref="T:System.IServiceProvider"/> that this editor can use to obtain services.</param>
+            <param name="value">The object to edit.</param>
+        </member>
+        <member name="M:KGySoft.ComponentModel.Design.AdvancedCollectionEditor.OnBeforeEditCollection(System.Collections.IList)">
+            <summary>
+            Called before editing collection.
+            </summary>
+            <param name="collection">The collection to edit.</param>
+        </member>
+        <member name="P:KGySoft.ComponentModel.Design.AdvancedCollectionEditor.TypeSelectorElements">
+            <summary>
+            If overridden along with <see cref="M:KGySoft.ComponentModel.Design.AdvancedCollectionEditor.CreateInstance(System.String)"/> method and returns a  non-null value, then a combo box will be appeared above Add button where
+            user can select type of added element. May be useful if element type in edited collection is abstract.
+            </summary>
+        </member>
+        <member name="P:KGySoft.ComponentModel.Design.AdvancedCollectionEditor.ElementType">
+            <summary>
+            Override this property if edited collection is not array or a generic collection type,
+            or when element type is abstract and <see cref="P:KGySoft.ComponentModel.Design.AdvancedCollectionEditor.TypeSelectorElements"/> is not overridden.
+            Thus the staticly added element type can be defined.
+            </summary>
+        </member>
+        <member name="P:KGySoft.ComponentModel.Design.AdvancedCollectionEditor.CollectionItemType">
+            <summary>
+            Gets the data type of each item in the collection.
+            </summary>
+        </member>
+        <member name="P:KGySoft.ComponentModel.Design.AdvancedCollectionEditor.CollectionType">
+            <summary>
+            Gets the data type of the collection object.
+            </summary>
+        </member>
+        <member name="P:KGySoft.ComponentModel.Design.AdvancedCollectionEditor.CanEditSelfProperties">
+            <summary>
+            By default, editing self properties is allowed. To disable it override this property and return false.
+            </summary>
+        </member>
+        <member name="M:KGySoft.ComponentModel.Design.AdvancedCollectionEditor.GetDisplayText(System.Object)">
+            <summary>
+            Obtains the name of the object. Override to return a specific name.
+            Should display both the name of the collection and collection items.
+            </summary>
+        </member>
+        <member name="M:KGySoft.ComponentModel.Design.AdvancedCollectionEditor.DestroyInstance(System.Object)">
+            <summary>
+            Called when a collection item is about to be destroyed. By default handles components and <see cref="T:System.IDisposable"/> instances.
+            Override this method to perform more specific tasks.
+            </summary>
+            <param name="instance">The instance to be destroyed.</param>
+        </member>
+        <member name="M:KGySoft.ComponentModel.Design.AdvancedCollectionEditor.CanRemoveInstance(System.Object)">
+            <summary>
+            Override to handle whether an instance can be removed or not.
+            </summary>
+        </member>
+        <member name="M:KGySoft.ComponentModel.Design.AdvancedCollectionEditor.CanAddInstance(System.Collections.IList,System.Object,System.String@)">
+            <summary>
+            Override to handle whether an instance can be added or not.
+            </summary>
+        </member>
+        <member name="M:KGySoft.ComponentModel.Design.AdvancedCollectionEditor.CreateInstance(System.Type)">
+            <summary>
+            Override to adjust instance creation.
+            </summary>
+        </member>
+        <member name="M:KGySoft.ComponentModel.Design.AdvancedCollectionEditor.CreateInstance(System.String)">
+            <summary>
+            Override this method along with <see cref="P:KGySoft.ComponentModel.Design.AdvancedCollectionEditor.TypeSelectorElements"/> property to
+            make element creation possible via type selection.
+            </summary>
+        </member>
+        <member name="M:KGySoft.ComponentModel.Design.AdvancedCollectionEditor.SetTypeDescriptorContext(System.ComponentModel.ITypeDescriptorContext)">
+            <summary>
+            Sets a new type descriptor context. Default is <see langword="null"/>.
+            </summary>
+            <param name="newContext">The new context to set.</param>
+        </member>
+        <member name="M:KGySoft.ComponentModel.Design.AdvancedCollectionEditor.OnChangesCanceled(System.Collections.IList)">
+            <summary>
+            Override to do any special handling on canceled editing.
+            </summary>
+        </member>
+        <member name="M:KGySoft.ComponentModel.Design.AdvancedCollectionEditor.OnChangesCommited(System.Collections.IList)">
+            <summary>
+            Override to do any special handling on applied editing.
+            </summary>
+        </member>
+        <member name="M:KGySoft.ComponentModel.Design.AdvancedCollectionEditor.CommitChanges(System.Collections.IList,System.Object[])">
+            <summary>
+            Called when the changes of the editing is about to be applied.
+            </summary>
+            <param name="collection">The edited collection. When this method called, contains the original
+            instances after the editing. Destroying of the removed instances is called separately.</param>
+            <param name="newItems">The new items to be applied to the collection.</param>
+        </member>
+        <member name="M:KGySoft.ComponentModel.Design.AdvancedCollectionEditor.CancelChanges(System.Collections.IList,System.Object[])">
+            <summary>
+            Called when the changes of the editing is about to be canceled. Restoring of the self properties is
+            called separately.
+            </summary>
+            <param name="collection">The edited collection. When this method called, contains the original
+            instances after the editing.</param>
+            <param name="originalItems">A copy of the original items to be applied to the collection.</param>
+        </member>
+        <member name="M:KGySoft.ComponentModel.Design.AdvancedCollectionEditor.SaveSelfProperties(System.Collections.IList)">
+            <summary>
+            Saves self properties of edited collection instance without the contained elements in the collection.
+            Override to perform a specific and optimized implementation or when self properties cannot be serialized.
+            By default saves public read-write properties by serialization. Called only when <see cref="P:KGySoft.ComponentModel.Design.AdvancedCollectionEditor.CanEditSelfProperties"/> returns <see langword="true"/>.
+            </summary>
+            <param name="value">The edited collection instance.</param>
+            <returns>Any data that can be restored by <see cref="M:KGySoft.ComponentModel.Design.AdvancedCollectionEditor.RestoreSelfProperties(System.Collections.IList,System.Object)"/>.</returns>
+            <exception cref="T:System.ArgumentNullException"><paramref name="value"/> must not be null.</exception>
+            <exception cref="T:System.Runtime.Serialization.SerializationException">A property cannot be serialized. In such case override this method and implement your own solution.</exception>
+        </member>
+        <member name="M:KGySoft.ComponentModel.Design.AdvancedCollectionEditor.RestoreSelfProperties(System.Collections.IList,System.Object)">
+            <summary>
+            Restores self properties of edited collection instance without the contained elements in the collection.
+            Override to perform a specific and optimized implementation or when self properties cannot be serialized.
+            Called only when <see cref="P:KGySoft.ComponentModel.Design.AdvancedCollectionEditor.CanEditSelfProperties"/> returns <see langword="true"/>.
+            </summary>
+            <param name="value">The edited collection instance.</param>
+            <param name="selfPropertiesData">Self properties data saved by <see cref="M:KGySoft.ComponentModel.Design.AdvancedCollectionEditor.SaveSelfProperties(System.Collections.IList)"/>.</param>
+            <exception cref="T:System.ArgumentNullException"><paramref name="value"/> must not be null.</exception>
+            <exception cref="T:System.Runtime.Serialization.SerializationException">A property cannot be serialized. In such case override this method
+            and implement your own solution.</exception>
+        </member>
+        <member name="M:KGySoft.ComponentModel.Design.AdvancedCollectionEditor.CloneElement(System.Object)">
+            <summary>
+            Creates a copy of an element in the edited collection. Override this method for best optimized implementation.
+            Needed for restoring items if edit is canceled. This method is called only when collection is not read-only.
+            To save/restore read-only collections you might to override <see cref="M:KGySoft.ComponentModel.Design.AdvancedCollectionEditor.OnBeforeEditCollection(System.Collections.IList)"/> and <see cref="M:KGySoft.ComponentModel.Design.AdvancedCollectionEditor.OnChangesCanceled(System.Collections.IList)"/> methods.
+            </summary>
+            <param name="item">An element of the edited collection.</param>
+            <returns>A copy of the edited element.</returns>
+            <remarks>
+            The base implementation creates a copy of the element by <see cref="M:KGySoft.CoreLibraries.ObjectExtensions.DeepClone``1(``0,System.Boolean)"/> method.
+            </remarks>
+        </member>
+        <member name="M:KGySoft.ComponentModel.Design.AdvancedCollectionEditor.IsCollectionReadOnly(System.Collections.IList)">
+            <summary>
+            Determines whether the editor should treat the <paramref name="collection"/> as a read only one.
+            The elements of a read-only collection cannot be removed, inserted and re-ordered; however, the elements
+            itself can be edited. Affects only the elements; for the self properties use the <see cref="P:KGySoft.ComponentModel.Design.AdvancedCollectionEditor.CanEditSelfProperties"/>
+            property.
+            </summary>
+            <param name="collection">The edited collection.</param>
+            <returns><see langword="true"/>, if the collection is read-only; otherwise, <see langword="false"/>.</returns>
+        </member>
+        <member name="M:KGySoft.ComponentModel.Design.AdvancedCollectionEditor.IsCollectionFixedSize(System.Collections.IList)">
+            <summary>
+            Determines whether the editor should treat the <paramref name="collection"/> as a fixed-size one.
+            If a non read-only collection has a fixed size, only reordering of the elements is allowed.
+            </summary>
+            <param name="collection">The collection.</param>
+            <returns><see langword="true"/>, if the collection has a fixed size; otherwise, <see langword="false"/>.</returns>
+        </member>
+        <member name="T:KGySoft.ComponentModel.Design.AdvancedCollectionEditorWithoutSelfProperties">
+            <summary>
+            A simple overridden class of <see cref="T:KGySoft.ComponentModel.Design.AdvancedCollectionEditor"/> where editing of self properties are disabled.
+            </summary>
+        </member>
+        <member name="T:KGySoft.ComponentModel.Design.MacroTextEditor">
+            <summary>
+            Base class of text editors of string properties that may contain macros.
+            Derived classes must define the usable macros and whether the text is single- or multiline.
+            Editor is localizable.
+            </summary>
+        </member>
+        <member name="T:KGySoft.ComponentModel.Design.MacroTextEditor.MacroInfo">
+            <summary>
+            Macro info
+            </summary>
+        </member>
+        <member name="P:KGySoft.ComponentModel.Design.MacroTextEditor.IsMultiline">
+            <summary>
+            Gets whether the editor control is multiline or not.
+            </summary>
+        </member>
+        <member name="T:KGySoft.ComponentModel.Design.AdvancedCollectionEditorForm">
+            <summary>
+            A form that makes possible to edit a collection object along with self properties.
+            Controls and descriptions are localized.
+            </summary>
+        </member>
+        <member name="P:KGySoft.ComponentModel.Design.AdvancedCollectionEditorForm.Text">
+            <summary>
+            Text should be translated on assign, not on load.
+            </summary>
+        </member>
+        <member name="F:KGySoft.ComponentModel.Design.AdvancedCollectionEditorForm.components">
+            <summary>
+            Required designer variable.
+            </summary>
+        </member>
+        <member name="M:KGySoft.ComponentModel.Design.AdvancedCollectionEditorForm.Dispose(System.Boolean)">
+            <summary>
+            Clean up any resources being used.
+            </summary>
+            <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        </member>
+        <member name="M:KGySoft.ComponentModel.Design.AdvancedCollectionEditorForm.InitializeComponent">
+            <summary>
+            Required method for Designer support - do not modify
+            the contents of this method with the code editor.
+            </summary>
+        </member>
+        <member name="F:KGySoft.ComponentModel.Design.MacroTextEditorControl.components">
+            <summary> 
+            Required designer variable.
+            </summary>
+        </member>
+        <member name="M:KGySoft.ComponentModel.Design.MacroTextEditorControl.Dispose(System.Boolean)">
+            <summary> 
+            Clean up any resources being used.
+            </summary>
+            <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        </member>
+        <member name="M:KGySoft.ComponentModel.Design.MacroTextEditorControl.InitializeComponent">
+            <summary> 
+            Required method for Designer support - do not modify 
+            the contents of this method with the code editor.
+            </summary>
+        </member>
+        <member name="T:KGySoft.ComponentModel.Design.PropertyGridSite">
+            <summary>
+            Provides an <see cref="T:System.ComponentModel.ISite"/> for a <see cref="T:System.Windows.Forms.PropertyGrid"/>
+            </summary>
+        </member>
+        <member name="T:KGySoft.Properties.Resources">
+            <summary>
+              A strongly-typed resource class, for looking up localized strings, etc.
+            </summary>
+        </member>
+        <member name="P:KGySoft.Properties.Resources.ResourceManager">
+            <summary>
+              Returns the cached ResourceManager instance used by this class.
+            </summary>
+        </member>
+        <member name="P:KGySoft.Properties.Resources.Culture">
+            <summary>
+              Overrides the current thread's CurrentUICulture property for all
+              resource lookups using this strongly typed resource class.
+            </summary>
+        </member>
+        <member name="P:KGySoft.Properties.Resources.ArrowDown">
+            <summary>
+              Looks up a localized resource of type System.Drawing.Bitmap.
+            </summary>
+        </member>
+        <member name="P:KGySoft.Properties.Resources.ArrowUp">
+            <summary>
+              Looks up a localized resource of type System.Drawing.Bitmap.
+            </summary>
+        </member>
+    </members>
+</doc>

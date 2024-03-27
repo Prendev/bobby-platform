@@ -1,0 +1,1502 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>TradeSystem.Communication</name>
+    </assembly>
+    <members>
+        <member name="T:TradeSystem.Communication.Interfaces.IConnectorConfiguration">
+            <summary>
+            Represents the configuration of an <see cref="T:TradeSystem.Communication.Interfaces.IConnector"/> instance.
+            </summary>
+        </member>
+        <member name="M:TradeSystem.Communication.Interfaces.IConnectorConfiguration.GetConnectorType">
+            <summary>
+            Gets the type of the connector this configuration belongs to. Expected to be an <see cref="T:TradeSystem.Communication.Interfaces.IConnector"/> implementation with a constructor,
+            which has an argument of the type of this configuration.
+            </summary>
+        </member>
+        <member name="T:TradeSystem.Communication.Interfaces.IConnector">
+            <summary>
+            Represents a connector regardless of the used protocol.
+            </summary>
+            <seealso cref="T:System.IDisposable" />
+        </member>
+        <member name="E:TradeSystem.Communication.Interfaces.IConnector.Closed">
+            <summary>
+            Occurs when the connector closes (disconnects).
+            </summary>
+        </member>
+        <member name="E:TradeSystem.Communication.Interfaces.IConnector.Connected">
+            <summary>
+            Occurs when the connector connected. If this <see cref="T:TradeSystem.Communication.Interfaces.IConnector"/> is a managed one it can occur without calling the <see cref="M:TradeSystem.Communication.Interfaces.IConnector.ConnectAsync"/> explicitly.
+            </summary>
+        </member>
+        <member name="E:TradeSystem.Communication.Interfaces.IConnector.MessageReceived">
+            <summary>
+            Occurs when a connector specific message is received.
+            </summary>
+        </member>
+        <member name="E:TradeSystem.Communication.Interfaces.IConnector.Quote">
+            <summary>
+            Occurs when a quote message is received after subscribing to a <see cref="T:TradeSystem.Communication.Symbol"/> change by the <see cref="M:TradeSystem.Communication.Interfaces.IConnector.SubscribeMarketDataAsync(TradeSystem.Communication.Symbol,System.Int32)"/> method.
+            </summary>
+        </member>
+        <member name="E:TradeSystem.Communication.Interfaces.IConnector.OrderUpdate">
+            <summary>
+            Occurs when the status of an order changes.
+            </summary>
+        </member>
+        <member name="E:TradeSystem.Communication.Interfaces.IConnector.EnabledFeaturesChanged">
+            <summary>
+            Occurs when the <see cref="P:TradeSystem.Communication.Interfaces.IConnector.EnabledFeatures"/> property changed.
+            </summary>
+        </member>
+        <member name="P:TradeSystem.Communication.Interfaces.IConnector.IsConnected">
+            <summary>
+            Gets whether the connector is connected.
+            </summary>
+        </member>
+        <member name="P:TradeSystem.Communication.Interfaces.IConnector.IsDisposed">
+            <summary>
+            Gets whether this instance is disposed.
+            </summary>
+        </member>
+        <member name="P:TradeSystem.Communication.Interfaces.IConnector.Configuration">
+            <summary>
+            Gets the configuration.
+            </summary>
+        </member>
+        <member name="P:TradeSystem.Communication.Interfaces.IConnector.EnabledFeatures">
+            <summary>
+            Gets the currently enabled features supported by this <see cref="T:TradeSystem.Communication.Interfaces.IConnector"/> instance.
+            The returned value can change during the lifetime the connection. See also the <see cref="E:TradeSystem.Communication.Interfaces.IConnector.EnabledFeaturesChanged"/> event.
+            </summary>
+        </member>
+        <member name="M:TradeSystem.Communication.Interfaces.IConnector.ConnectAsync">
+            <summary>
+            Connects the connector.
+            </summary>
+        </member>
+        <member name="M:TradeSystem.Communication.Interfaces.IConnector.DisconnectAsync">
+            <summary>
+            Disconnects the connector.
+            </summary>
+        </member>
+        <member name="M:TradeSystem.Communication.Interfaces.IConnector.SubscribeMarketDataAsync(TradeSystem.Communication.Symbol,System.Int32)">
+            <summary>
+            Subscribes to the market data of the specified symbol <paramref name="symbol"/>.
+            <br/>Can be called if the <see cref="P:TradeSystem.Communication.EnabledFeatures.StandardFeatures"/> property of <see cref="P:TradeSystem.Communication.Interfaces.IConnector.EnabledFeatures"/> contains the <see cref="F:TradeSystem.Communication.StandardFeatures.SubscribeMarketData"/> flag.
+            </summary>
+            <param name="symbol">The symbol to subscribe to.</param>
+            <param name="marketDepth">The market depth to obtain. 0 means full book. This parameter is optional.
+            <br/>Default value: <c>1</c>. Other values are supported if the return value of <see cref="P:TradeSystem.Communication.Interfaces.IConnector.EnabledFeatures"/> contains the <see cref="F:TradeSystem.Communication.StandardFeatures.MarketDataCustomDepths"/> flag.</param>
+        </member>
+        <member name="M:TradeSystem.Communication.Interfaces.IConnector.UnsubscribeMarketDataAsync(TradeSystem.Communication.Symbol)">
+            <summary>
+            Removes subscription from the market data of the specified symbol <paramref name="symbol"/>.
+            <br/>Can be called if the <see cref="P:TradeSystem.Communication.EnabledFeatures.StandardFeatures"/> property of <see cref="P:TradeSystem.Communication.Interfaces.IConnector.EnabledFeatures"/> contains the <see cref="F:TradeSystem.Communication.StandardFeatures.UnsubscribeMarketData"/> flag.
+            </summary>
+            <param name="symbol">The symbol to unsubscribe from.</param>
+        </member>
+        <member name="M:TradeSystem.Communication.Interfaces.IConnector.PutNewOrderAsync(TradeSystem.Communication.NewOrderRequest)">
+            <summary>
+            Puts a new order request in the underlying trading system.
+            <br/>Can be called if the <see cref="P:TradeSystem.Communication.EnabledFeatures.StandardFeatures"/> property of <see cref="P:TradeSystem.Communication.Interfaces.IConnector.EnabledFeatures"/> contains the <see cref="F:TradeSystem.Communication.StandardFeatures.PutNewOrder"/> flag.
+            </summary>
+            <param name="request">The request containing the order data.</param>
+            <returns>An <see cref="T:TradeSystem.Communication.OrderStatusReport"/> containing the initial response by the server as well as the order id. If the order is accepted, then
+            further updates can be captured by the <see cref="T:TradeSystem.Communication.OrderManager" /> class.</returns>
+        </member>
+        <member name="M:TradeSystem.Communication.Interfaces.IConnector.CancelOrderAsync(System.String)">
+            <summary>
+            Cancels an order requested by the <see cref="M:TradeSystem.Communication.Interfaces.IConnector.PutNewOrderAsync(TradeSystem.Communication.NewOrderRequest)"/> method.
+            <br/>Can be called if the <see cref="P:TradeSystem.Communication.EnabledFeatures.StandardFeatures"/> property of <see cref="P:TradeSystem.Communication.Interfaces.IConnector.EnabledFeatures"/> contains the <see cref="F:TradeSystem.Communication.StandardFeatures.CancelOrder"/> flag.
+            </summary>
+            <param name="originalOrderId">The ID of the original order returned by the <see cref="P:TradeSystem.Communication.OrderStatusReport.OrderId"/> property of the <see cref="M:TradeSystem.Communication.Interfaces.IConnector.PutNewOrderAsync(TradeSystem.Communication.NewOrderRequest)"/> method.</param>
+            <returns>An <see cref="T:TradeSystem.Communication.OrderStatusReport"/> containing the result of the cancel. If the request is accepted, then
+            further updates can be captured by the <see cref="T:TradeSystem.Communication.OrderManager" /> class.</returns>
+        </member>
+        <member name="M:TradeSystem.Communication.Interfaces.IConnector.UpdateOrderAsync(TradeSystem.Communication.UpdateOrderRequest)">
+            <summary>
+            Updates an new order requested by the <see cref="M:TradeSystem.Communication.Interfaces.IConnector.PutNewOrderAsync(TradeSystem.Communication.NewOrderRequest)"/> method.
+            <br/>Can be called if the <see cref="P:TradeSystem.Communication.EnabledFeatures.StandardFeatures"/> property of <see cref="P:TradeSystem.Communication.Interfaces.IConnector.EnabledFeatures"/> contains the <see cref="F:TradeSystem.Communication.StandardFeatures.UpdateOrder"/> flag.
+            </summary>
+            <param name="request">The request containing the order data.</param>
+            <returns>An <see cref="T:TradeSystem.Communication.OrderStatusReport"/> containing the initial response by the server as well as the order id. If the order is accepted, then
+            further updates can be captured by the <see cref="T:TradeSystem.Communication.OrderManager" /> class.</returns>
+        </member>
+        <member name="M:TradeSystem.Communication.Interfaces.IConnector.GetOrderStatusAsync(System.String)">
+            <summary>
+            Gets the status of the order requested by the <see cref="M:TradeSystem.Communication.Interfaces.IConnector.PutNewOrderAsync(TradeSystem.Communication.NewOrderRequest)"/> method.
+            <br/>Can be called if the <see cref="P:TradeSystem.Communication.EnabledFeatures.StandardFeatures"/> property of <see cref="P:TradeSystem.Communication.Interfaces.IConnector.EnabledFeatures"/> contains the <see cref="F:TradeSystem.Communication.StandardFeatures.GetOrderStatus"/> flag.
+            </summary>
+            <param name="originalOrderId">The ID of the original order returned by the <see cref="P:TradeSystem.Communication.OrderStatusReport.OrderId"/> property of the <see cref="M:TradeSystem.Communication.Interfaces.IConnector.PutNewOrderAsync(TradeSystem.Communication.NewOrderRequest)"/> method.</param>
+            <returns>An <see cref="T:TradeSystem.Communication.OrderStatusReport"/> containing the result of the cancel. If the request is accepted, then
+            further updates can be captured by the <see cref="T:TradeSystem.Communication.OrderManager" /> class.</returns>
+        </member>
+        <member name="M:TradeSystem.Communication.Interfaces.IConnector.GetCustomFeatures">
+            <summary>
+            Gets the custom features supported by this <see cref="T:TradeSystem.Communication.Interfaces.IConnector"/> instance. This method should always return the same value during the lifetime of the connector. The currently enabled features
+            are returned by the <see cref="P:TradeSystem.Communication.Interfaces.IConnector.EnabledFeatures"/> property.
+            </summary>
+            <returns>An array of <see cref="T:TradeSystem.Communication.CustomFeatureDescriptor"/> instances containing the custom features supported by this <see cref="T:TradeSystem.Communication.Interfaces.IConnector"/> instance.</returns>
+        </member>
+        <member name="M:TradeSystem.Communication.Interfaces.IConnector.ExecuteCustomFeatureAsync(TradeSystem.Communication.CustomFeatureRequest)">
+            <summary>
+            Executes a custom feature.
+            </summary>
+            <param name="request">The request of the feature.</param>
+            <returns>The response of the execution.</returns>
+        </member>
+        <member name="T:TradeSystem.Communication.OrderManager">
+            <summary>
+            Can be used for centralizing order info from different connector sources.
+            Incoming data of different sources can be processed by <see cref="M:TradeSystem.Communication.OrderManager.PostOrderStatus(TradeSystem.Communication.Interfaces.IConnector,TradeSystem.Communication.OrderStatusReport,System.Int64)"/>, which can be consumed by the <see cref="M:TradeSystem.Communication.OrderManager.GetOrderStatus(TradeSystem.Communication.Interfaces.IConnector,System.String)"/> method
+            and <see cref="M:TradeSystem.Communication.OrderManager.GetOrderHistory(TradeSystem.Communication.Interfaces.IConnector,System.String)"/> methods.
+            </summary>
+        </member>
+        <member name="M:TradeSystem.Communication.OrderManager.OrderHistory.#ctor(TradeSystem.Communication.Interfaces.IConnector,TradeSystem.Communication.NewOrderRequest)">
+            <summary>
+            Initializes a new instance of the <see cref="T:TradeSystem.Communication.OrderManager.OrderHistory"/> class by a new request.
+            </summary>
+        </member>
+        <member name="M:TradeSystem.Communication.OrderManager.OrderHistory.#ctor(TradeSystem.Communication.Interfaces.IConnector,TradeSystem.Communication.OrderStatusReport)">
+            <summary>
+            Initializes a new instance of the <see cref="T:TradeSystem.Communication.OrderManager.OrderHistory"/> class without the original request.
+            </summary>
+        </member>
+        <member name="M:TradeSystem.Communication.OrderManager.GetInitialRequest(TradeSystem.Communication.Interfaces.IConnector,System.String)">
+            <summary>
+            Gets the original request for the original or related <paramref name="orderId"/>. If not found, and <see cref="T:System.ArgumentException"/> will be thrown.
+            </summary>
+        </member>
+        <member name="M:TradeSystem.Communication.OrderManager.TryGetInitialRequest(TradeSystem.Communication.Interfaces.IConnector,System.String)">
+            <summary>
+            Gets the original request for the original or related <paramref name="orderId"/>, or <see langword="null"/>, if <paramref name="orderId"/> was not found.
+            </summary>
+        </member>
+        <member name="M:TradeSystem.Communication.OrderManager.RemoveConnector(TradeSystem.Communication.Interfaces.IConnector)">
+            <summary>
+            Removes the stored market data of the connector along with its subscriptions.
+            </summary>
+            <param name="source">The source.</param>
+        </member>
+        <member name="M:TradeSystem.Communication.OrderManager.SubscribeOrderUpdate(TradeSystem.Communication.Interfaces.IConnector,System.String,System.EventHandler{KGySoft.CoreLibraries.EventArgs{TradeSystem.Communication.OrderStatusReport}},System.Boolean)">
+            <summary>
+            Subscribes the specified callback <paramref name="handler"/> to the change of the update of an order.
+            This is similar to the <see cref="E:TradeSystem.Communication.Interfaces.IConnector.OrderUpdate"/> event but method triggers the callback
+            only for the specified order and if <paramref name="invokeForExistingReports"/> is <see langword="true"/>, then
+            it is invoked also for the already captured updates, too.
+            </summary>
+        </member>
+        <member name="M:TradeSystem.Communication.OrderManager.UnsubscribeOrderUpdate(TradeSystem.Communication.Interfaces.IConnector,System.String,System.EventHandler{KGySoft.CoreLibraries.EventArgs{TradeSystem.Communication.OrderStatusReport}})">
+            <summary>
+            Unsubscribes the specified callback <paramref name="handler"/> from the change of an order.
+            </summary>
+        </member>
+        <member name="E:TradeSystem.Communication.WebSocketClient`1.Disconnected">
+            <summary>
+            Occurs when the underlying web socket is disconnected by the server.
+            The event is invoked on the reader or writer thread. The <see cref="T:TradeSystem.Communication.WebSocketHandler"/> will be disposed after invoking the event.
+            </summary>
+        </member>
+        <member name="E:TradeSystem.Communication.WebSocketClient`1.Error">
+            <summary>
+            Occurs when exception is thrown in the dedicated reader thread of the current <see cref="T:TradeSystem.Communication.WebSocketHandler"/> instance.
+            The event is invoked on the reader or writer thread just before disposing the <see cref="T:TradeSystem.Communication.WebSocketHandler"/> instance.
+            </summary>
+        </member>
+        <member name="E:TradeSystem.Communication.WebSocketClient`1.DataReceived">
+            <summary>
+            Occurs when exception is thrown in the dedicated reader thread of the current <see cref="T:TradeSystem.Communication.WebSocketHandler"/> instance.
+            The event is invoked on the reader or writer thread just before disposing the <see cref="T:TradeSystem.Communication.WebSocketHandler"/> instance.
+            </summary>
+        </member>
+        <member name="T:TradeSystem.Communication.WebSocketDataReceivedEventArgs">
+            <summary>
+            Represents the data of <see cref="E:TradeSystem.Communication.WebSocketHandler.DataReceived"/>
+            and <see cref="E:TradeSystem.Communication.Interfaces.IWebSocketClient`1.DataReceived"/> events.
+            </summary>
+        </member>
+        <member name="P:TradeSystem.Communication.WebSocketDataReceivedEventArgs.SocketId">
+            <summary>
+            Gets the id of the socket that sent the data.
+            </summary>
+        </member>
+        <member name="P:TradeSystem.Communication.WebSocketDataReceivedEventArgs.Buffer">
+            <summary>
+            Gets the buffer of received data.
+            </summary>
+        </member>
+        <member name="P:TradeSystem.Communication.WebSocketDataReceivedEventArgs.IsTextMessage">
+            <summary>
+            Gets whether <see cref="P:TradeSystem.Communication.WebSocketDataReceivedEventArgs.Buffer"/> should be interpreted as a text.
+            </summary>
+        </member>
+        <member name="T:TradeSystem.Communication.WebSocketHandler">
+            <summary>
+            Provides continuous reading corresponding events for a web socket instance.
+            </summary>
+        </member>
+        <member name="E:TradeSystem.Communication.WebSocketHandler.DataReceived">
+            <summary>
+            Occurs when data is received on the underlying web socket. The event is invoked on the reader thread.
+            </summary>
+            <remarks>
+            An unhandled non-fatal <see cref="T:System.Exception"/> in the event handler will not let the reader thread stop.
+            However, if an <see cref="T:System.OperationCanceledException"/> is caught from the handler, the <see cref="T:TradeSystem.Communication.WebSocketHandler"/> will be closed.
+            </remarks>
+        </member>
+        <member name="E:TradeSystem.Communication.WebSocketHandler.Disconnected">
+            <summary>
+            Occurs when the underlying web socket is disconnected by the server.
+            The event is invoked on the reader or writer thread. The <see cref="T:TradeSystem.Communication.WebSocketHandler"/> will be disposed after invoking the event.
+            </summary>
+        </member>
+        <member name="E:TradeSystem.Communication.WebSocketHandler.Error">
+            <summary>
+            Occurs when exception is thrown in the dedicated reader thread of the current <see cref="T:TradeSystem.Communication.WebSocketHandler"/> instance.
+            The event is invoked on the reader or writer thread just before disposing the <see cref="T:TradeSystem.Communication.WebSocketHandler"/> instance.
+            </summary>
+        </member>
+        <member name="P:TradeSystem.Communication.WebSocketHandler.IsRunning">
+            <summary>
+            Gets whether the receiving loop is running.
+            </summary>
+        </member>
+        <member name="P:TradeSystem.Communication.WebSocketHandler.IsDisposed">
+            <summary>
+            Gets whether this <see cref="T:TradeSystem.Communication.WebSocketHandler"/> instance is disposed.
+            </summary>
+        </member>
+        <member name="P:TradeSystem.Communication.WebSocketHandler.Uri">
+            <summary>
+            Gets the URI of the current WebSocket handler.
+            </summary>
+        </member>
+        <member name="M:TradeSystem.Communication.WebSocketHandler.#ctor(System.Uri)">
+            <summary>
+            Initializes a new instance of the <see cref="T:TradeSystem.Communication.WebSocketHandler"/> class.
+            </summary>
+            <param name="uri">The absolute URI to connect to.</param>
+        </member>
+        <member name="M:TradeSystem.Communication.WebSocketHandler.StartAsync(System.Threading.CancellationToken)">
+            <summary>
+            Connects the web socket and starts listening to the messages. Before call this method subscribe events in order not to miss any incoming message.
+            </summary>
+            <param name="token">An optional cancellation token.</param>
+        </member>
+        <member name="T:TradeSystem.Communication.CommunicationExceptionBase">
+            <summary>
+            Communication level base exception
+            </summary>
+        </member>
+        <member name="T:TradeSystem.Communication.RequestRejectException">
+            <summary>
+            Common request reject exception
+            </summary>
+        </member>
+        <member name="P:TradeSystem.Communication.CustomFeatureDescriptor.Id">
+            <summary>
+            Gets or sets the custom feature identifier. This id should be returned in <see cref="P:TradeSystem.Communication.EnabledFeatures.CustomFeatureIds"/> if the feature is enabled
+            and this should be set in <see cref="P:TradeSystem.Communication.CustomFeatureRequest.Id"/> when executing the feature by the <see cref="M:TradeSystem.Communication.Interfaces.IConnector.ExecuteCustomFeatureAsync(TradeSystem.Communication.CustomFeatureRequest)"/> method.
+            </summary>
+        </member>
+        <member name="P:TradeSystem.Communication.CustomFeatureDescriptor.Name">
+            <summary>
+            Gets or sets the name of the feature.
+            </summary>
+        </member>
+        <member name="P:TradeSystem.Communication.CustomFeatureDescriptor.Properties">
+            <summary>
+            Gets the properties for the feature.
+            </summary>
+        </member>
+        <member name="P:TradeSystem.Communication.CustomFeatureDescriptor.Description">
+            <summary>
+            Gets or sets the description of the feature.
+            </summary>
+        </member>
+        <member name="P:TradeSystem.Communication.CustomFeatureRequest.Id">
+            <summary>
+            Gets the feature identifier. Must be the value of an <see cref="P:TradeSystem.Communication.CustomFeatureDescriptor.Id"/>
+            returned by the <see cref="M:TradeSystem.Communication.Interfaces.IConnector.GetCustomFeatures"/> method.
+            </summary>
+        </member>
+        <member name="P:TradeSystem.Communication.CustomFeatureRequest.Properties">
+            <summary>
+            Gets the properties of the request.
+            </summary>
+        </member>
+        <member name="P:TradeSystem.Communication.CustomFeatureResponse.ExecutionStatus">
+            <summary>
+            Gets the execution status of the custom feature.
+            </summary>
+        </member>
+        <member name="P:TradeSystem.Communication.CustomFeatureResponse.Result">
+            <summary>
+            Gets the result of the request. The
+            </summary>
+        </member>
+        <member name="P:TradeSystem.Communication.CustomFeatureResponse.Error">
+            <summary>
+            Gets the error occurred during the processing.
+            </summary>
+        </member>
+        <member name="P:TradeSystem.Communication.CustomFeatureResponse.Message">
+            <summary>
+            Gets an optional information about the execution result.
+            </summary>
+        </member>
+        <member name="T:TradeSystem.Communication.CustomPropertiesObject">
+            <summary>
+            Provides a dynamic object with an exact set of custom properties.
+            </summary>
+            <seealso cref="T:System.Dynamic.DynamicObject" />
+            <seealso cref="T:System.ComponentModel.ICustomTypeDescriptor" />
+        </member>
+        <member name="M:TradeSystem.Communication.CustomPropertiesObject.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:TradeSystem.Communication.CustomPropertiesObject"/> class.
+            This constructor allows to assign any properties in this object as a dynamic object.
+            </summary>
+        </member>
+        <member name="M:TradeSystem.Communication.CustomPropertiesObject.GetDefaultProperties">
+            <summary>
+            An overridden class may provide default properties if there weren't passed any properties to the constructor.
+            </summary>
+        </member>
+        <member name="M:TradeSystem.Communication.EnabledFeatures.#ctor(TradeSystem.Communication.StandardFeatures,System.Collections.Generic.IReadOnlyCollection{System.Object})">
+            <summary>
+            Initializes a new instance of the <see cref="T:TradeSystem.Communication.EnabledFeatures"/> <see langword="struct"/>.
+            </summary>
+            <param name="standardFeatures">The enabled standard features.</param>
+            <param name="customFeatureIds">The identifiers of the enabled custom features.</param>
+        </member>
+        <member name="T:TradeSystem.Communication.ExecutionStatus">
+            <summary>
+            Represents the execution status of a custom feature.
+            </summary>
+        </member>
+        <member name="F:TradeSystem.Communication.ExecutionStatus.Accepted">
+            <summary>
+            The request has been accepted and the execution is in progress.
+            The final result can be seen in the logs or can be queried by other requests.
+            </summary>
+        </member>
+        <member name="F:TradeSystem.Communication.ExecutionStatus.Success">
+            <summary>
+            The request has been processed and executed.
+            </summary>
+        </member>
+        <member name="F:TradeSystem.Communication.ExecutionStatus.Error">
+            <summary>
+            The request has been rejected or some error occurred during the processing.
+            </summary>
+        </member>
+        <member name="T:TradeSystem.Communication.CustomPropertyDescriptor">
+            <summary>
+            Represents a property stored in an <see cref="T:TradeSystem.Communication.Interfaces.ICustomPropertiesProvider"/> or in any string-object <see cref="T:System.Collections.Generic.IDictionary`2"/> implementation.
+            </summary>
+        </member>
+        <member name="T:TradeSystem.Communication.EndpointIdentifier">
+            <summary>
+            Represents an HTTP endpoint.
+            </summary>
+            <seealso cref="T:System.IEquatable`1" />
+        </member>
+        <member name="M:TradeSystem.Communication.EndpointIdentifier.#ctor(System.Net.Http.HttpMethod,System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:TradeSystem.Communication.EndpointIdentifier"/>&#160;<see langword="struct"/>.
+            </summary>
+            <param name="method">The HTTP method to use for the endpoint.</param>
+            <param name="resource">The resource (URI postfix) of the endpoint.</param>
+        </member>
+        <member name="P:TradeSystem.Communication.EndpointIdentifier.Method">
+            <summary>
+            Gets the HTTP method of the endpoint.
+            </summary>
+        </member>
+        <member name="P:TradeSystem.Communication.EndpointIdentifier.Resource">
+            <summary>
+            Gets the resource (URI postfix) for the endpoint.
+            </summary>
+        </member>
+        <member name="M:TradeSystem.Communication.EndpointIdentifier.Equals(TradeSystem.Communication.EndpointIdentifier)">
+            <summary>
+            Indicates whether the current object is equal to another object of the same type.
+            </summary>
+            <param name="other">An object to compare with this object.</param>
+            <returns>
+            <c>true</c> if the current object is equal to the <paramref name="other" /> parameter; otherwise, <c>false</c>.
+            </returns>
+        </member>
+        <member name="M:TradeSystem.Communication.EndpointIdentifier.Equals(System.Object)">
+            <summary>
+            Determines whether the specified <see cref="T:System.Object" />, is equal to this instance.
+            </summary>
+            <param name="other">The <see cref="T:System.Object" /> to compare with this instance.</param>
+            <returns>
+              <c>true</c> if the specified <see cref="T:System.Object" /> is equal to this instance; otherwise, <c>false</c>.
+            </returns>
+        </member>
+        <member name="M:TradeSystem.Communication.EndpointIdentifier.GetHashCode">
+            <summary>
+            Returns a hash code for this instance.
+            </summary>
+            <returns>
+            A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table.
+            </returns>
+        </member>
+        <member name="M:TradeSystem.Communication.EndpointIdentifier.ToString">
+            <summary>
+            Returns a <see cref="T:System.String" /> that represents this instance.
+            </summary>
+            <returns>
+            A <see cref="T:System.String" /> that represents this instance.
+            </returns>
+        </member>
+        <member name="T:TradeSystem.Communication.NewOrderRequest">
+            <summary>
+            Represents the request for a <see cref="M:TradeSystem.Communication.Interfaces.IConnector.PutNewOrderAsync(TradeSystem.Communication.NewOrderRequest)"/> call. If a connector supports more specific order request,
+            then it can be requested by the <see cref="M:TradeSystem.Communication.Interfaces.IConnector.ExecuteCustomFeatureAsync(TradeSystem.Communication.CustomFeatureRequest)"/> method.
+            </summary>
+        </member>
+        <member name="P:TradeSystem.Communication.NewOrderRequest.Symbol">
+            <summary>
+            Gets or sets the symbol.
+            </summary>
+        </member>
+        <member name="P:TradeSystem.Communication.NewOrderRequest.Side">
+            <summary>
+            Gets or sets the side.
+            </summary>
+        </member>
+        <member name="P:TradeSystem.Communication.NewOrderRequest.Quantity">
+            <summary>
+            Gets or sets the quantity of the order.
+            </summary>
+        </member>
+        <member name="P:TradeSystem.Communication.NewOrderRequest.Type">
+            <summary>
+            Gets or sets the type of the order. Note that some connectors may not support all possible values.
+            </summary>
+        </member>
+        <member name="P:TradeSystem.Communication.NewOrderRequest.LimitPrice">
+            <summary>
+            Gets or sets the limit price. Required if <see cref="P:TradeSystem.Communication.NewOrderRequest.Type"/> is <see cref="F:TradeSystem.Communication.OrderType.Limit"/> or <see cref="!:OrdType.StopLimit"/>.
+            </summary>
+        </member>
+        <member name="P:TradeSystem.Communication.NewOrderRequest.StopPrice">
+            <summary>
+            Gets or sets the stop price. Required if <see cref="P:TradeSystem.Communication.NewOrderRequest.Type"/> is <see cref="F:TradeSystem.Communication.OrderType.Stop"/> or <see cref="!:OrdType.StopLimit"/>.
+            </summary>
+        </member>
+        <member name="P:TradeSystem.Communication.NewOrderRequest.TimeInForceHint">
+            <summary>
+            Gets or sets the suggested time in force. Note that some connectors may not support all possible values or can ignore this property.
+            </summary>
+        </member>
+        <member name="P:TradeSystem.Communication.NewOrderRequest.ExpirationHint">
+            <summary>
+            Gets or sets the suggested expiration time. Note that some connectors may ignore either the time part or the complete property.
+            </summary>
+        </member>
+        <member name="P:TradeSystem.Communication.NewOrderRequest.OpenOrCloseHint">
+            <summary>
+            Gets or sets the suggested open or close direction. Note that some connectors may ignore this property.
+            </summary>
+        </member>
+        <member name="P:TradeSystem.Communication.NewOrderRequest.OrderId">
+            <summary>
+            Gets or sets the suggested ID of order to be closed. Note that some connectors may ignore this property.
+            </summary>
+        </member>
+        <member name="M:TradeSystem.Communication.NewOrderRequest.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:TradeSystem.Communication.NewOrderRequest"/> class.
+            </summary>
+        </member>
+        <member name="M:TradeSystem.Communication.NewOrderRequest.#ctor(TradeSystem.Communication.NewOrderRequest)">
+            <summary>
+            Initializes a new instance of the <see cref="T:TradeSystem.Communication.NewOrderRequest"/> class.
+            </summary>
+            <param name="request">The request to copy the properties from.</param>
+        </member>
+        <member name="T:TradeSystem.Communication.ConnectionManagementRules.LogRule">
+            <summary>
+            Represents a logging rule can be attached to a <see cref="T:TradeSystem.Communication.ConnectionManagementRules.RuleBase"/> instance. Can be used to emit a log if the associated rule matches.
+            </summary>
+        </member>
+        <member name="P:TradeSystem.Communication.ConnectionManagementRules.LogRule.Level">
+            <summary>
+            Gets or sets the log level for the associated rule.
+            </summary>
+        </member>
+        <member name="P:TradeSystem.Communication.ConnectionManagementRules.LogRule.Message">
+            <summary>
+            Gets or sets a message for this <see cref="T:TradeSystem.Communication.ConnectionManagementRules.LogRule"/> if <see cref="P:TradeSystem.Communication.ConnectionManagementRules.LogRule.LogMessageFactory"/> is <see langword="null"/>.
+            </summary>
+        </member>
+        <member name="P:TradeSystem.Communication.ConnectionManagementRules.LogRule.LogMessageFactory">
+            <summary>
+            Gets or sets the log message factory for this <see cref="T:TradeSystem.Communication.ConnectionManagementRules.LogRule"/>.
+            <br/>The first parameter is the <see cref="T:TradeSystem.Communication.ConnectionManagementRules.RuleBase"/> this <see cref="T:TradeSystem.Communication.ConnectionManagementRules.LogRule"/> belongs to.
+            <br/>The second parameter is the managed <see cref="T:TradeSystem.Communication.Interfaces.IConnector"/> instance.
+            <br/>The third parameter is the argument object was used to evaluate the <see cref="T:TradeSystem.Communication.ConnectionManagementRules.LogRule"/> instance.
+            <br/>If the returned object is <see langword="null"/>, then no log will be emitted. Otherwise, the returned object will be passed to the <see cref="T:TradeSystem.Logger"/>.
+            </summary>
+        </member>
+        <member name="P:TradeSystem.Communication.ConnectionManagementRules.OnlinePeriod.IsContinuous">
+            <summary>
+            When <see cref="P:TradeSystem.Communication.ConnectionManagementRules.OnlinePeriod.DayFrom"/> and <see cref="P:TradeSystem.Communication.ConnectionManagementRules.OnlinePeriod.DayTo"/> are different gets or sets whether the time period is continuous.
+            </summary>
+            <value>
+            If <see langword="true"/> the online period takes from the first day to the last one continuously.
+            if <see langword="false"/> the online period takes each day for the specified range.
+            </value>
+        </member>
+        <member name="T:TradeSystem.Communication.ConnectionManagementRules.ConnectionManagementContext">
+            <summary>
+            Represents a context when evaluating connection management rules.
+            </summary>
+        </member>
+        <member name="F:TradeSystem.Communication.ConnectionManagementRules.ConnectionManagementContext.UserConnecting">
+            <summary>
+            The managed <see cref="T:TradeSystem.Communication.Interfaces.IConnector"/> is being connected explicitly.
+            The additional argument of the <see cref="M:TradeSystem.Communication.ConnectionManagementRules.RuleBase.IsMatch(TradeSystem.Communication.ConnectionManagementRules.ConnectionManagementContext,System.Object)"/> and <see cref="M:TradeSystem.Communication.ConnectionManagementRules.RuleBase.Execute(TradeSystem.Communication.ConnectionManagementRules.ConnectionManagementContext,TradeSystem.Communication.Interfaces.IConnector,System.Object)"/> methods is always <see langword="null"/>.
+            </summary>
+        </member>
+        <member name="F:TradeSystem.Communication.ConnectionManagementRules.ConnectionManagementContext.UserDisconnecting">
+            <summary>
+            The managed <see cref="T:TradeSystem.Communication.Interfaces.IConnector"/> is being disconnected explicitly.
+            The additional argument of the <see cref="M:TradeSystem.Communication.ConnectionManagementRules.RuleBase.IsMatch(TradeSystem.Communication.ConnectionManagementRules.ConnectionManagementContext,System.Object)"/> and <see cref="M:TradeSystem.Communication.ConnectionManagementRules.RuleBase.Execute(TradeSystem.Communication.ConnectionManagementRules.ConnectionManagementContext,TradeSystem.Communication.Interfaces.IConnector,System.Object)"/> methods is always <see langword="null"/>.
+            </summary>
+        </member>
+        <member name="F:TradeSystem.Communication.ConnectionManagementRules.ConnectionManagementContext.Connected">
+            <summary>
+            The managed <see cref="T:TradeSystem.Communication.Interfaces.IConnector"/> has been connected.
+            The additional argument of the <see cref="M:TradeSystem.Communication.ConnectionManagementRules.RuleBase.IsMatch(TradeSystem.Communication.ConnectionManagementRules.ConnectionManagementContext,System.Object)"/> and <see cref="M:TradeSystem.Communication.ConnectionManagementRules.RuleBase.Execute(TradeSystem.Communication.ConnectionManagementRules.ConnectionManagementContext,TradeSystem.Communication.Interfaces.IConnector,System.Object)"/> methods is always <see langword="null"/>.
+            </summary>
+        </member>
+        <member name="F:TradeSystem.Communication.ConnectionManagementRules.ConnectionManagementContext.Disconnected">
+            <summary>
+            The managed <see cref="T:TradeSystem.Communication.Interfaces.IConnector"/> has been disconnected.
+            The additional argument of the <see cref="M:TradeSystem.Communication.ConnectionManagementRules.RuleBase.IsMatch(TradeSystem.Communication.ConnectionManagementRules.ConnectionManagementContext,System.Object)"/> and <see cref="M:TradeSystem.Communication.ConnectionManagementRules.RuleBase.Execute(TradeSystem.Communication.ConnectionManagementRules.ConnectionManagementContext,TradeSystem.Communication.Interfaces.IConnector,System.Object)"/> methods is <see langword="null"/> if there was no error; otherwise, it is an <see cref="T:System.Exception"/> instance.
+            </summary>
+        </member>
+        <member name="F:TradeSystem.Communication.ConnectionManagementRules.ConnectionManagementContext.Disposed">
+            <summary>
+            The <see cref="T:TradeSystem.Communication.ConnectionManager"/> instance has been disposed.
+            The additional argument of the <see cref="M:TradeSystem.Communication.ConnectionManagementRules.RuleBase.IsMatch(TradeSystem.Communication.ConnectionManagementRules.ConnectionManagementContext,System.Object)"/> and <see cref="M:TradeSystem.Communication.ConnectionManagementRules.RuleBase.Execute(TradeSystem.Communication.ConnectionManagementRules.ConnectionManagementContext,TradeSystem.Communication.Interfaces.IConnector,System.Object)"/> methods is always <see langword="null"/>.
+            </summary>
+        </member>
+        <member name="T:TradeSystem.Communication.ConnectionManagementRules.ReconnectIfExceptionMatches">
+            <summary>
+            Represents a rule for reconnecting after a specified time if the connection has been closed with an exception containing a specific message.
+            </summary>
+            <seealso cref="T:TradeSystem.Communication.ConnectionManagementRules.ReconnectAfterDelay" />
+        </member>
+        <member name="P:TradeSystem.Communication.ConnectionManagementRules.ReconnectIfExceptionMatches.ContainedMessagePatterns">
+            <summary>
+            Gets or sets the message fragments, which satisfy the rule. Each line is evaluated separately until the rule is satisfied.
+            </summary>
+        </member>
+        <member name="T:TradeSystem.Communication.ConnectionManagementRules.RuleBase">
+            <summary>
+            Represents a connection management rule.
+            </summary>
+        </member>
+        <member name="P:TradeSystem.Communication.ConnectionManagementRules.RuleBase.Description">
+            <summary>
+            Gets or sets the description of the rule.
+            </summary>
+        </member>
+        <member name="P:TradeSystem.Communication.ConnectionManagementRules.RuleBase.LogRule">
+            <summary>
+            Gets or sets a custom log rule for this rule. Will be emitted if the rule is activated.
+            </summary>
+        </member>
+        <member name="M:TradeSystem.Communication.ConnectionManagementRules.RuleBase.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:TradeSystem.Communication.ConnectionManagementRules.RuleBase"/> class.
+            </summary>
+        </member>
+        <member name="M:TradeSystem.Communication.ConnectionManagementRules.RuleBase.ToString">
+            <summary>
+            Returns a <see cref="T:System.String" /> that represents this instance.
+            </summary>
+        </member>
+        <member name="M:TradeSystem.Communication.ConnectionManagementRules.RuleBase.IsMatch(TradeSystem.Communication.ConnectionManagementRules.ConnectionManagementContext,System.Object)">
+            <summary>
+            Determines whether this rule matches the specified context and argument.
+            </summary>
+            <param name="context">The context of the evaluation.</param>
+            <param name="arg">An optional additional argument. See the <see cref="T:TradeSystem.Communication.ConnectionManagementRules.ConnectionManagementContext"/> for details.</param>
+            <returns><see langword="true"/> if the current instance matches; otherwise, <see langword="false"/>.</returns>
+        </member>
+        <member name="M:TradeSystem.Communication.ConnectionManagementRules.RuleBase.Execute(TradeSystem.Communication.ConnectionManagementRules.ConnectionManagementContext,TradeSystem.Communication.Interfaces.IConnector,System.Object)">
+            <summary>
+            Executes the current rule actions. The base implementation handles the logging. Call the base implementation for the default log handling.
+            </summary>
+            <param name="context">The context of the evaluation.</param>
+            <param name="arg">An optional additional argument. See the <see cref="T:TradeSystem.Communication.ConnectionManagementRules.ConnectionManagementContext"/> for details.</param>
+            <param name="connector">The managed connector instance.</param>
+            <returns><see langword="true"/>To continue the evaluation of the other rules in the same context; <see langword="false"/> to break the evaluation.
+            The base implementation returns <see langword="true"/>.</returns>
+        </member>
+        <member name="T:TradeSystem.Communication.ConnectionManagementRules.ReconnectAfterDelay">
+            <summary>
+            Represents a rule for reconnecting after a specified time if the connection has been closed.
+            The log is processed only context is <see cref="F:TradeSystem.Communication.ConnectionManagementRules.ConnectionManagementContext.Disconnected"/>.
+            The rules processing is continued only if context is not <see cref="F:TradeSystem.Communication.ConnectionManagementRules.ConnectionManagementContext.Disconnected"/>.
+            </summary>
+        </member>
+        <member name="P:TradeSystem.Communication.ConnectionManagementRules.ReconnectAfterDelay.Delay">
+            <summary>
+            Gets or sets the delay in seconds.
+            </summary>
+        </member>
+        <member name="T:TradeSystem.Communication.ConnectionManagementRules.SubscribeMarketData">
+            <summary>
+            Represents a rule, which makes possible auto subscription for market data.
+            Triggered only in <see cref="F:TradeSystem.Communication.ConnectionManagementRules.ConnectionManagementContext.Connected"/> context.
+            Processing other rules are continued if <see cref="P:TradeSystem.Communication.ConnectionManagementRules.SubscribeMarketData.ContinueProcessing"/> is <see langword="true"/>.
+            </summary>
+            <seealso cref="T:TradeSystem.Communication.ConnectionManagementRules.RuleBase" />
+        </member>
+        <member name="P:TradeSystem.Communication.ConnectionManagementRules.SubscribeMarketData.Subscriptions">
+            <summary>
+            Gets the subscriptions for this rule.
+            </summary>
+        </member>
+        <member name="P:TradeSystem.Communication.ConnectionManagementRules.SubscribeMarketData.ContinueProcessing">
+            <summary>
+            Gets or sets whether the evaluation of rules can be continued if this rule is executed.
+            </summary>
+        </member>
+        <member name="T:TradeSystem.Communication.MarketDataManager">
+            <summary>
+            Can be used for centralizing market data info from different connector sources.
+            It automatically manages delta quotes and provides a consistent book based on last data.
+            Incoming data of different sources can be processed by <see cref="M:TradeSystem.Communication.MarketDataManager.PostQuoteSet(TradeSystem.Communication.Interfaces.IConnector,TradeSystem.Communication.QuoteSet)"/>, which can be consumed by subscribing the <see cref="M:TradeSystem.Communication.MarketDataManager.SubscribeBookChange(TradeSystem.Communication.Interfaces.IConnector,TradeSystem.Communication.Symbol,System.EventHandler{TradeSystem.Communication.QuoteEventArgs})"/> event.
+            </summary>
+        </member>
+        <member name="P:TradeSystem.Communication.MarketDataManager.AsynchronousInvocation">
+            <summary>
+            Event sync mode
+            </summary>
+        </member>
+        <member name="M:TradeSystem.Communication.MarketDataManager.PostQuoteSet(TradeSystem.Communication.Interfaces.IConnector,TradeSystem.Communication.QuoteSet)">
+            <summary>
+            Posts a <see cref="T:TradeSystem.Communication.QuoteSet"/> to the manager to be merged with the currently set data.
+            An <see cref="T:TradeSystem.Communication.Interfaces.IConnector"/> can call this method if subscribed to a <see cref="T:TradeSystem.Communication.Symbol"/>, in which case
+            it is not needed to call this method externally.
+            </summary>
+            <param name="source">The source connector. If not used before, will be registered automatically.</param>
+            <param name="quoteSet">The quote set to process.</param>
+        </member>
+        <member name="M:TradeSystem.Communication.MarketDataManager.RemoveConnector(TradeSystem.Communication.Interfaces.IConnector)">
+            <summary>
+            Removes the stored market data of the connector along with its subscriptions.
+            </summary>
+            <param name="source">The source.</param>
+        </member>
+        <member name="M:TradeSystem.Communication.MarketDataManager.GetTopOfTheBook(TradeSystem.Communication.Interfaces.IConnector,TradeSystem.Communication.Symbol)">
+            <summary>
+            Gets the top of the book for the requested <paramref name="symbol"/> or <see langword="null"/> if
+            the <paramref name="connector"/> does not have stored data for the symbol.
+            </summary>
+        </member>
+        <member name="M:TradeSystem.Communication.MarketDataManager.GetBook(TradeSystem.Communication.Interfaces.IConnector,TradeSystem.Communication.Symbol)">
+            <summary>
+            Gets the book for the requested <paramref name="symbol"/>. Returns an empty set if
+            the <paramref name="connector"/> does not have stored data for the symbol.
+            </summary>
+        </member>
+        <member name="M:TradeSystem.Communication.MarketDataManager.SubscribeBookChange(TradeSystem.Communication.Interfaces.IConnector,TradeSystem.Communication.Symbol,System.EventHandler{TradeSystem.Communication.QuoteEventArgs})">
+            <summary>
+            Subscribes the specified callback <paramref name="handler"/> to the change of the book.
+            This is similar to the <see cref="E:TradeSystem.Communication.Interfaces.IConnector.Quote"/> event but this contains the
+            historical data, too (if <see cref="E:TradeSystem.Communication.Interfaces.IConnector.Quote"/> event provides delta ticks),
+            and is triggered to a specified <see cref="T:TradeSystem.Communication.Symbol"/> only.
+            </summary>
+        </member>
+        <member name="M:TradeSystem.Communication.MarketDataManager.UnsubscribeBookChange(TradeSystem.Communication.Interfaces.IConnector,TradeSystem.Communication.Symbol,System.EventHandler{TradeSystem.Communication.QuoteEventArgs})">
+            <summary>
+            Unsubscribes the specified callback <paramref name="handler"/> from the change of the book.
+            </summary>
+        </member>
+        <member name="M:TradeSystem.Communication.MarketDataManager.CreateQuoteAggregator(TradeSystem.Communication.Interfaces.IConnector[],TradeSystem.Communication.Symbol[])">
+            <summary>
+            Creates a new quote aggregator for symbols, which are identical through all connectors.
+            </summary>
+            <param name="connectors">The connectors to aggregate.</param>
+            <param name="symbols">The symbols to watch. If <see langword="null"/>, then the <see cref="E:TradeSystem.Communication.Interfaces.IQuoteAggregator.GroupQuote"/> event will be triggered for any <see cref="T:TradeSystem.Communication.Symbol"/>.</param>
+            <returns>An <see cref="T:TradeSystem.Communication.Interfaces.IQuoteAggregator"/> instance, which raises the <see cref="E:TradeSystem.Communication.Interfaces.IQuoteAggregator.GroupQuote"/> event for any change of the specified <paramref name="symbols"/> on the provided <paramref name="connectors"/>.</returns>
+        </member>
+        <member name="M:TradeSystem.Communication.MarketDataManager.CreateQuoteAggregator(System.Collections.Generic.IDictionary{TradeSystem.Communication.Interfaces.IConnector,TradeSystem.Communication.Symbol}[])">
+            <summary>
+            Creates a new quote aggregator for symbols, which can have different names in different connectors.
+            </summary>
+            <param name="groups">One or more <see cref="T:System.Collections.Generic.IDictionary`2"/> of connector-symbol pairs, whose most recent top price should be returned in a single
+            <see cref="E:TradeSystem.Communication.Interfaces.IQuoteAggregator.GroupQuote"/> event if any of the symbol in a group changes.</param>
+            <returns>An <see cref="T:TradeSystem.Communication.Interfaces.IQuoteAggregator"/> instance, which raises the <see cref="E:TradeSystem.Communication.Interfaces.IQuoteAggregator.GroupQuote"/> event for any change of symbols in a group.</returns>
+        </member>
+        <member name="M:TradeSystem.Communication.ScheduledTaskManager`1.AddOrReplace(`0,System.Action,System.Int32,System.Boolean,System.Boolean)">
+            <summary>
+            Adds a new scheduled task to the manager or replaces an already existing one.
+            </summary>
+            <param name="key">The key. Must not be <see langword="null"/>.</param>
+            <param name="action">The action to execute when scheduled.</param>
+            <param name="interval">The interval in milliseconds to execute the <paramref name="action"/>.</param>
+            <param name="start"><see langword="true"/> to start the timer immediately; otherwise, <see langword="false"/>.</param>
+            <param name="repeating"><see langword="true"/> to allow to execute the <paramref name="action"/> repeatedly; <see langword="false"/> to execute the task only once. The timing can be started again by the <see cref="M:TradeSystem.Communication.ScheduledTaskManager`1.Update(`0,System.Nullable{System.Int32},System.Nullable{System.Boolean})"/> method.</param>
+            <exception cref="T:System.ArgumentNullException"><paramref name="key"/> is <see langword="null"/>.</exception>
+        </member>
+        <member name="M:TradeSystem.Communication.ScheduledTaskManager`1.Update(`0,System.Nullable{System.Int32},System.Nullable{System.Boolean})">
+            <summary>
+            Updates the interval and active state of specified scheduled task.
+            </summary>
+            <param name="key">The key. Must not be <see langword="null"/>.</param>
+            <param name="interval">If not <see langword="null"/>, the new interval in milliseconds of the corresponding task. If specified for and already running task, then the timer will be reset.</param>
+            <param name="enabled">If not <see langword="null"/>, sets the new enabled status of the corresponding task.</param>
+            <exception cref="T:System.ArgumentNullException"><paramref name="key"/> is <see langword="null"/>.</exception>
+            <exception cref="T:System.ArgumentException">No scheduled task found with the specified <paramref name="key"/>.</exception>
+        </member>
+        <member name="M:TradeSystem.Communication.ScheduledTaskManager`1.ResetTimer(`0)">
+            <summary>
+            Resets the timer for the corresponding tasks, meaning, if the task is currently active, then its trigger will not occur before the specified interval.
+            </summary>
+            <param name="key">The key.</param>
+            <exception cref="T:System.ArgumentNullException"><paramref name="key"/> is <see langword="null"/>.</exception>
+            <exception cref="T:System.ArgumentException">No scheduled task found with the specified <paramref name="key"/>.</exception>
+        </member>
+        <member name="M:TradeSystem.Communication.ScheduledTaskManager`1.Exists(`0)">
+            <summary>
+            Gets whether a scheduled task with the specified <paramref name="key"/> exists in the scheduler.
+            </summary>
+            <param name="key">The key.</param>
+        </member>
+        <member name="M:TradeSystem.Communication.ScheduledTaskManager`1.Remove(`0)">
+            <summary>
+            Removes the task of the specified <paramref name="key"/> from the scheduler.
+            </summary>
+            <exception cref="T:System.ArgumentNullException"><paramref name="key"/> is <see langword="null"/>.</exception>
+        </member>
+        <member name="M:TradeSystem.Communication.ScheduledTaskManager`1.IsActive(`0)">
+            <summary>
+            Gets whether a scheduled task with the specified <paramref name="key"/> exists and is currently active in the scheduler, meaning, it will be executed when the specified interval is elapsed.
+            </summary>
+            <param name="key">The key.</param>
+        </member>
+        <member name="M:TradeSystem.Communication.ScheduledTaskManager`1.RemoveAll">
+            <summary>
+            Removes all tasks from the scheduler.
+            </summary>
+        </member>
+        <member name="M:TradeSystem.Communication.ScheduledTaskManager`1.Dispose">
+            <summary>
+            Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+            </summary>
+        </member>
+        <member name="T:TradeSystem.Communication.ConnectionManager">
+            <summary>
+            Adds a management layer to an existing <see cref="T:TradeSystem.Communication.Interfaces.IConnector"/> instance.
+            </summary>
+        </member>
+        <member name="E:TradeSystem.Communication.ConnectionManager.Closed">
+            <summary>
+            Occurs when the wrapped connector closes (disconnects).
+            </summary>
+        </member>
+        <member name="E:TradeSystem.Communication.ConnectionManager.Connected">
+            <summary>
+            Occurs when the wrapped connector has been connected
+            </summary>
+        </member>
+        <member name="E:TradeSystem.Communication.ConnectionManager.MessageReceived">
+            <summary>
+            Occurs when a connector specific message is received by the wrapped connector.
+            </summary>
+        </member>
+        <member name="E:TradeSystem.Communication.ConnectionManager.Quote">
+            <summary>
+            Occurs when the wrapped connector raises a <see cref="E:TradeSystem.Communication.Interfaces.IConnector.Quote"/> event.
+            </summary>
+        </member>
+        <member name="E:TradeSystem.Communication.ConnectionManager.EnabledFeaturesChanged">
+            <summary>
+            Occurs when the wrapped connector raises a <see cref="E:TradeSystem.Communication.Interfaces.IConnector.EnabledFeaturesChanged"/> event.
+            </summary>
+        </member>
+        <member name="E:TradeSystem.Communication.ConnectionManager.OrderUpdate">
+            <summary>
+            Occurs when the wrapped connector raises an <see cref="E:TradeSystem.Communication.Interfaces.IConnector.OrderUpdate"/> event.
+            </summary>
+        </member>
+        <member name="P:TradeSystem.Communication.ConnectionManager.Connector">
+            <summary>
+            Gets the wrapped managed connector.
+            </summary>
+        </member>
+        <member name="P:TradeSystem.Communication.ConnectionManager.IsDisposed">
+            <summary>
+            Gets whether this instance is disposed.
+            </summary>
+        </member>
+        <member name="P:TradeSystem.Communication.ConnectionManager.Configuration">
+            <summary>
+            Gets the configuration of the wrapped connector.
+            </summary>
+        </member>
+        <member name="P:TradeSystem.Communication.ConnectionManager.EnabledFeatures">
+            <summary>
+            Gets the currently enabled features supported by the wrapped connector.
+            The returned value can change during the lifetime the connection. See also the <see cref="E:TradeSystem.Communication.ConnectionManager.EnabledFeaturesChanged" /> event.
+            </summary>
+        </member>
+        <member name="P:TradeSystem.Communication.ConnectionManager.IsConnected">
+            <summary>
+            Gets whether the wrapped connector is connected.
+            </summary>
+        </member>
+        <member name="M:TradeSystem.Communication.ConnectionManager.#ctor(TradeSystem.Communication.ConnectionManagerConfiguration)">
+            <summary>
+            Initializes a new instance of the <see cref="T:TradeSystem.Communication.ConnectionManager"/> class.
+            </summary>
+            <param name="configuration">The configuration.</param>
+            <exception cref="T:System.ArgumentNullException"><paramref name="configuration"/> is <see langword="null"/>.</exception>
+        </member>
+        <member name="M:TradeSystem.Communication.ConnectionManager.#ctor(TradeSystem.Communication.Interfaces.IConnectorConfiguration,TradeSystem.Communication.ConnectionManagementRules.RulesCollection)">
+            <summary>
+            Initializes a new instance of the <see cref="T:TradeSystem.Communication.ConnectionManager"/> class.
+            </summary>
+            <param name="connectorConfig">The connector configuration.</param>
+            <param name="rules">The rules to use.</param>
+        </member>
+        <member name="M:TradeSystem.Communication.ConnectionManager.#ctor(TradeSystem.Communication.Interfaces.IConnector,TradeSystem.Communication.ConnectionManagementRules.RulesCollection)">
+            <summary>
+            Initializes a new instance of the <see cref="T:TradeSystem.Communication.ConnectionManager"/> class.
+            </summary>
+            <param name="connector">The connector to manage.</param>
+            <param name="rules">The rules to use.</param>
+            <exception cref="T:System.ArgumentNullException">connector</exception>
+        </member>
+        <member name="M:TradeSystem.Communication.ConnectionManager.Dispose">
+            <summary>
+            Closes and releases the managed <see cref="T:TradeSystem.Communication.Interfaces.IConnector"/>.
+            </summary>
+        </member>
+        <member name="M:TradeSystem.Communication.ConnectionManager.ConnectAsync">
+            <summary>
+            Connects the wrapped connector.
+            </summary>
+        </member>
+        <member name="M:TradeSystem.Communication.ConnectionManager.DisconnectAsync">
+            <summary>
+            Disconnects the wrapped connector.
+            </summary>
+        </member>
+        <member name="M:TradeSystem.Communication.ConnectionManager.SubscribeMarketDataAsync(TradeSystem.Communication.Symbol,System.Int32)">
+            <inheritdoc/>
+        </member>
+        <member name="M:TradeSystem.Communication.ConnectionManager.UnsubscribeMarketDataAsync(TradeSystem.Communication.Symbol)">
+            <inheritdoc/>
+        </member>
+        <member name="M:TradeSystem.Communication.ConnectionManager.PutNewOrderAsync(TradeSystem.Communication.NewOrderRequest)">
+            <inheritdoc/>
+        </member>
+        <member name="M:TradeSystem.Communication.ConnectionManager.CancelOrderAsync(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:TradeSystem.Communication.ConnectionManager.UpdateOrderAsync(TradeSystem.Communication.UpdateOrderRequest)">
+            <inheritdoc/>
+        </member>
+        <member name="M:TradeSystem.Communication.ConnectionManager.GetOrderStatusAsync(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:TradeSystem.Communication.ConnectionManager.GetCustomFeatures">
+            <inheritdoc/>
+        </member>
+        <member name="M:TradeSystem.Communication.ConnectionManager.ExecuteCustomFeatureAsync(TradeSystem.Communication.CustomFeatureRequest)">
+            <inheritdoc/>
+        </member>
+        <member name="T:TradeSystem.Communication.ConnectionManagerConfiguration">
+            <summary>
+            Represents the configuration of the <see cref="T:TradeSystem.Communication.ConnectionManager"/> class.
+            </summary>
+        </member>
+        <member name="P:TradeSystem.Communication.ConnectionManagerConfiguration.ConnectorConfiguration">
+            <summary>
+            Gets or sets the configuration of the connector to be managed.
+            </summary>
+        </member>
+        <member name="P:TradeSystem.Communication.ConnectionManagerConfiguration.ManagementRules">
+            <summary>
+            Gets or sets the management rules for the maintained connection.
+            </summary>
+        </member>
+        <member name="T:TradeSystem.Communication.ConnectorFactory">
+            <summary>
+            Contains factory methods for creating and discovering connectors.
+            </summary>
+        </member>
+        <member name="M:TradeSystem.Communication.ConnectorFactory.CreateConnector(TradeSystem.Communication.Interfaces.IConnectorConfiguration)">
+            <summary>
+            Creates an <see cref="T:TradeSystem.Communication.Interfaces.IConnector"/> instance for the given <paramref name="connectorConfig"/>.
+            </summary>
+            <param name="connectorConfig">The connector configuration.</param>
+            <returns></returns>
+            <exception cref="T:System.ArgumentNullException"><paramref name="connectorConfig"/> is <see langword="null"/>.</exception>
+            <exception cref="T:System.ArgumentException">Invalid connector type, or no proper constructor found.</exception>
+        </member>
+        <member name="M:TradeSystem.Communication.ConnectorFactory.RegisterConnectorAssembly(System.Reflection.Assembly)">
+            <summary>
+            Registers the specified <paramref name="assembly"/> in which the <see cref="M:TradeSystem.Communication.ConnectorFactory.GetConnectorTypes"/> and <see cref="M:TradeSystem.Communication.ConnectorFactory.GetConfigurationTypes"/> methods look for connector and configuration types.
+            </summary>
+            <param name="assembly">The assembly.</param>
+        </member>
+        <member name="M:TradeSystem.Communication.ConnectorFactory.GetConnectorTypes">
+            <summary>
+            Gets the connector types from the assemblies registered by the <see cref="M:TradeSystem.Communication.ConnectorFactory.RegisterConnectorAssembly(System.Reflection.Assembly)"/> methods including
+            the results of the previous <see cref="M:TradeSystem.Communication.ConnectorFactory.GetConfigurationType(System.Type)"/> calls so far.
+            </summary>
+            <returns>A collection of t</returns>
+        </member>
+        <member name="M:TradeSystem.Communication.ConnectorFactory.GetConfigurationTypes">
+            <summary>
+            Gets the configuration types from the assemblies registered by the <see cref="M:TradeSystem.Communication.ConnectorFactory.RegisterConnectorAssembly(System.Reflection.Assembly)"/> methods including
+            the results of the previous <see cref="M:TradeSystem.Communication.ConnectorFactory.GetConfigurationType(System.Type)"/> calls so far.
+            </summary>
+            <returns>A collection of t</returns>
+        </member>
+        <member name="M:TradeSystem.Communication.ConnectorFactory.GetConfigurationType(System.Type)">
+            <summary>
+            Gets the type of the configuration of the specified <paramref name="connectorType"/>.
+            </summary>
+            <param name="connectorType">Type of the connector. Must be an <see cref="T:TradeSystem.Communication.Interfaces.IConnector"/> implementation.</param>
+            <returns></returns>
+            <exception cref="T:System.ArgumentNullException"><paramref name="connectorType"/> is <see langword="null"/>.</exception>
+            <exception cref="T:System.ArgumentException"><paramref name="connectorType"/> is not an implementation of <see cref="T:TradeSystem.Communication.Interfaces.IConnector"/> or
+            does not have a constructor with a single parameter of an <see cref="T:TradeSystem.Communication.Interfaces.IConnectorConfiguration"/> parameter.</exception>
+        </member>
+        <member name="M:TradeSystem.Communication.ConnectorFactory.GetConfigurationCtor(System.Type,System.Boolean)">
+            <summary>
+            Gets the configuration constructor for a connector type.
+            </summary>
+        </member>
+        <member name="T:TradeSystem.Communication.StandardFeatures">
+            <summary>
+            Represents the standard features supported by an <see cref="T:TradeSystem.Communication.Interfaces.IConnector"/>.
+            </summary>
+        </member>
+        <member name="F:TradeSystem.Communication.StandardFeatures.None">
+            <summary>
+            Represents none of the features.
+            </summary>
+        </member>
+        <member name="F:TradeSystem.Communication.StandardFeatures.SubscribeMarketData">
+            <summary>
+            If this flag is <see langword="true"/>, then <see cref="M:TradeSystem.Communication.Interfaces.IConnector.SubscribeMarketDataAsync(TradeSystem.Communication.Symbol,System.Int32)"/> method is supported.
+            </summary>
+        </member>
+        <member name="F:TradeSystem.Communication.StandardFeatures.UnsubscribeMarketData">
+            <summary>
+            If this flag is <see langword="true"/>, then <see cref="M:TradeSystem.Communication.Interfaces.IConnector.UnsubscribeMarketDataAsync(TradeSystem.Communication.Symbol)"/> method is supported.
+            </summary>
+        </member>
+        <member name="F:TradeSystem.Communication.StandardFeatures.MarketDataCustomDepths">
+            <summary>
+            If this flag is <see langword="true"/>, then <see cref="M:TradeSystem.Communication.Interfaces.IConnector.SubscribeMarketDataAsync(TradeSystem.Communication.Symbol,System.Int32)"/> method supports other market depths than 1.
+            </summary>
+        </member>
+        <member name="F:TradeSystem.Communication.StandardFeatures.PutNewOrder">
+            <summary>
+            If this flag is <see langword="true"/>, then <see cref="M:TradeSystem.Communication.Interfaces.IConnector.PutNewOrderAsync(TradeSystem.Communication.NewOrderRequest)"/> method is supported.
+            </summary>
+        </member>
+        <member name="F:TradeSystem.Communication.StandardFeatures.CancelOrder">
+            <summary>
+            If this flag is <see langword="true"/>, then <see cref="M:TradeSystem.Communication.Interfaces.IConnector.CancelOrderAsync(System.String)"/> method is supported.
+            </summary>
+        </member>
+        <member name="F:TradeSystem.Communication.StandardFeatures.UpdateOrder">
+            <summary>
+            If this flag is <see langword="true"/>, then <see cref="M:TradeSystem.Communication.Interfaces.IConnector.UpdateOrderAsync(TradeSystem.Communication.UpdateOrderRequest)"/> method is supported.
+            </summary>
+        </member>
+        <member name="F:TradeSystem.Communication.StandardFeatures.GetOrderStatus">
+            <summary>
+            If this flag is <see langword="true"/>, then <see cref="M:TradeSystem.Communication.Interfaces.IConnector.GetOrderStatusAsync(System.String)"/> method is supported.
+            </summary>
+        </member>
+        <member name="F:TradeSystem.Communication.StandardFeatures.CloseOrder">
+            <summary>
+            If this flag is <see langword="true"/>, then <see cref="M:TradeSystem.Communication.Interfaces.IConnector.PutNewOrderAsync(TradeSystem.Communication.NewOrderRequest)"/> method is supported with close hint.
+            </summary>
+        </member>
+        <member name="P:TradeSystem.Communication.ClosedEventArgs.Error">
+            <summary>
+            If the closing occurred due to an error gets the causing exception.
+            If closing occurred due to user request this property returns null.
+            </summary>
+        </member>
+        <member name="M:TradeSystem.Communication.ClosedEventArgs.#ctor(System.Exception)">
+            <summary>
+            Initializes a new instance of the <see cref="T:TradeSystem.Communication.ClosedEventArgs"/> class.
+            </summary>
+            <param name="exception">The exception or <see langword="null"/> if no error occurred.</param>
+        </member>
+        <member name="T:TradeSystem.Communication.DataReceivedEventArgs">
+            <summary>
+            Represents the data of <see cref="E:TradeSystem.Communication.DuplexStreamConcurrentHandler.DataReceived"/> event.
+            </summary>
+        </member>
+        <member name="P:TradeSystem.Communication.DataReceivedEventArgs.Buffer">
+            <summary>
+            Gets the buffer of received data. The length of actually received data is returned by <see cref="P:TradeSystem.Communication.DataReceivedEventArgs.Length"/> property.
+            </summary>
+        </member>
+        <member name="P:TradeSystem.Communication.DataReceivedEventArgs.Length">
+            <summary>
+            Gets the actual length of <see cref="P:TradeSystem.Communication.DataReceivedEventArgs.Buffer"/> to process.
+            </summary>
+        </member>
+        <member name="P:TradeSystem.Communication.GroupQuoteEventArgs.TriggeringSymbol">
+            <summary>
+            Gets the symbol of the group quote event.
+            </summary>
+        </member>
+        <member name="P:TradeSystem.Communication.GroupQuoteEventArgs.TriggeringConnector">
+            <summary>
+            Gets the connector, which triggered the group quote event for the <see cref="T:TradeSystem.Communication.Symbol"/>.
+            </summary>
+        </member>
+        <member name="P:TradeSystem.Communication.GroupQuoteEventArgs.BookTops">
+            <summary>
+            Gets the top of the book for each connector in the aggregated quote.
+            </summary>
+        </member>
+        <member name="T:TradeSystem.Communication.MessageReceivedEventArgs`1">
+            <summary>
+            Represents the data of the <see cref="!:IConnector.MessageReceived"/> event.
+            </summary>
+        </member>
+        <member name="P:TradeSystem.Communication.MessageReceivedEventArgs`1.Message">
+            <summary>
+            Gets the message.
+            </summary>
+        </member>
+        <member name="T:TradeSystem.Communication.MessageReceivedEventArgs">
+            <summary>
+            Represents the data of the <see cref="!:IConnector.MessageReceived"/> event.
+            </summary>
+        </member>
+        <member name="P:TradeSystem.Communication.MessageReceivedEventArgs.Message">
+            <summary>
+            Gets the connector specific message.
+            </summary>
+        </member>
+        <member name="P:TradeSystem.Communication.MessageReceivedEventArgs.Handled">
+            <summary>
+            Gets or sets whether the message was handled. Initialized by the implementer connector.
+            </summary>
+        </member>
+        <member name="T:TradeSystem.Communication.QuoteEventArgs">
+            <summary>
+            Represents the data of the <see cref="E:TradeSystem.Communication.Interfaces.IConnector.Quote"/> event.
+            </summary>
+        </member>
+        <member name="P:TradeSystem.Communication.QuoteEventArgs.QuoteSet">
+            <summary>
+            Gets the quote set.
+            </summary>
+        </member>
+        <member name="M:TradeSystem.Communication.QuoteEventArgs.#ctor(TradeSystem.Communication.QuoteSet)">
+            <summary>
+            Initializes a new instance of the <see cref="T:TradeSystem.Communication.QuoteEventArgs"/> class.
+            </summary>
+            <param name="quoteSet">The quote set.</param>
+        </member>
+        <member name="M:TradeSystem.Communication.EventHandlerExtensions.InvokeSafe``1(System.EventHandler,System.Object,``0)">
+            <summary>
+            Invoking the user's self subscription without risking the stop of reader/writer thread due to an error in user's event handler.
+            If <see cref="T:System.OperationCanceledException"/> is thrown it is propagated to the caller.
+            </summary>
+        </member>
+        <member name="M:TradeSystem.Communication.EventHandlerExtensions.InvokeSafe``1(System.EventHandler{``0},System.Object,``0)">
+            <summary>
+            Invoking the user's self subscription without risking the stop of reader/writer thread due to an error in user's event handler.
+            If <see cref="T:System.OperationCanceledException"/> is thrown it is propagated to the caller.
+            </summary>
+        </member>
+        <member name="T:TradeSystem.Communication.TaskCompletionManager`1">
+            <summary>
+            Represents a manager for completable <see cref="T:System.Threading.Tasks.Task"/> instances, which automatically timed out if their result is not set in a specified time interval.
+            </summary>
+            <seealso cref="T:System.IDisposable" />
+        </member>
+        <member name="M:TradeSystem.Communication.TaskCompletionManager`1.#ctor(System.Int32,System.Int32,System.Boolean)">
+            <summary>
+            Initializes a new instance of the <see cref="T:TradeSystem.Communication.TaskCompletionManager`1"/> class.
+            </summary>
+            <param name="interval">The interval, in milliseconds, for checking task statuses.</param>
+            <param name="timeout">The interval, in milliseconds, after an uncompleted task will timeout.</param>
+            <param name="throwErrorOnTimeout">If <c>true</c>, a <see cref="T:System.TimeoutException"/> will be thrown on timeout. If <c>false</c>, the created task will be completed by setting the default result.</param>
+        </member>
+        <member name="M:TradeSystem.Communication.TaskCompletionManager`1.IsCompleted(`0)">
+            <summary>
+            Gets whether the <see cref="T:System.Threading.Tasks.Task"/> of the specified <paramref name="key"/> is completed.
+            </summary>
+            <param name="key">The key of the <see cref="T:System.Threading.Tasks.Task"/>.</param>
+            <returns><see langword="null"/> if no <see cref="T:System.Threading.Tasks.Task"/> found with the specified <paramref name="key"/>,
+            <c>true</c> if the corresponding <see cref="T:System.Threading.Tasks.Task"/> is completed,
+            <c>false</c> if the corresponding <see cref="T:System.Threading.Tasks.Task"/> is not completed.</returns>
+        </member>
+        <member name="M:TradeSystem.Communication.TaskCompletionManager`1.CreateCompletableTask``1(`0)">
+            <summary>
+            Creates a <see cref="T:System.Threading.Tasks.Task`1"/>, which can be completed by using the public methods of this <see cref="T:TradeSystem.Communication.TaskCompletionManager`1"/> instance.
+            </summary>
+            <typeparam name="TResult">The type of the result.</typeparam>
+            <param name="key">The key, which can be used to complete the result <see cref="T:System.Threading.Tasks.Task`1"/> by calling the methods of this <see cref="T:TradeSystem.Communication.TaskCompletionManager`1"/> instance.
+            If the same key is re-used multiple times, the possibly not completed previous task will be canceled.</param>
+            <returns>A not completed <see cref="T:System.Threading.Tasks.Task`1"/> instance.</returns>
+        </member>
+        <member name="M:TradeSystem.Communication.TaskCompletionManager`1.CreateCompletableTask(`0)">
+            <summary>
+            Creates a <see cref="T:System.Threading.Tasks.Task"/>, which can be completed by using the public methods of this <see cref="T:TradeSystem.Communication.TaskCompletionManager`1"/> instance.
+            </summary>
+            <param name="key">The key, which can be used to complete the result <see cref="T:System.Threading.Tasks.Task"/> by calling the methods of this <see cref="T:TradeSystem.Communication.TaskCompletionManager`1"/> instance.
+            If the same key is re-used multiple times, the possibly not completed previous task will be canceled.</param>
+            <returns>A not completed <see cref="T:System.Threading.Tasks.Task"/> instance.</returns>
+        </member>
+        <member name="M:TradeSystem.Communication.TaskCompletionManager`1.ReplaceCompletableTask``1(`0,``0,System.Exception)">
+            <summary>
+            Creates a <see cref="T:System.Threading.Tasks.Task`1"/>, which can be completed by using the public methods of this <see cref="T:TradeSystem.Communication.TaskCompletionManager`1"/> instance.
+            </summary>
+            <typeparam name="TResult">The type of the result.</typeparam>
+            <param name="key">The key, which can be used to complete the result <see cref="T:System.Threading.Tasks.Task`1"/> by calling the methods of this <see cref="T:TradeSystem.Communication.TaskCompletionManager`1"/> instance.
+            If the same key is re-used multiple times, the possibly not completed previous task will be canceled.</param>
+            <param name="oldTaskResult">If there is an old task to replace, then </param>
+            <returns>A not completed <see cref="T:System.Threading.Tasks.Task`1"/> instance.</returns>
+        </member>
+        <member name="M:TradeSystem.Communication.TaskCompletionManager`1.ReplaceCompletableTask(`0,System.Exception)">
+            <summary>
+            Creates a <see cref="T:System.Threading.Tasks.Task`1"/>, which can be completed by using the public methods of this <see cref="T:TradeSystem.Communication.TaskCompletionManager`1"/> instance.
+            </summary>
+            <typeparam name="TResult">The type of the result.</typeparam>
+            <param name="key">The key, which can be used to complete the result <see cref="T:System.Threading.Tasks.Task`1"/> by calling the methods of this <see cref="T:TradeSystem.Communication.TaskCompletionManager`1"/> instance.
+            If the same key is re-used multiple times, the possibly not completed previous task will be canceled.</param>
+            <returns>A not completed <see cref="T:System.Threading.Tasks.Task`1"/> instance.</returns>
+        </member>
+        <member name="M:TradeSystem.Communication.TaskCompletionManager`1.RemoveAll(System.Func{`0,System.Boolean},System.Exception)">
+            <summary>
+            Removes all <see cref="T:System.Threading.Tasks.Task"/>s from the <see cref="T:TradeSystem.Communication.TaskCompletionManager`1"/> selected by the provided <paramref name="predicate"/>
+            and cancels all of the removed unfinished tasks.
+            </summary>
+            <param name="predicate">The predicate, which selects the entries to remove.</param>
+            <param name="error">If <see langword="null"/>, then the unfinished tasks to remove will be canceled; otherwise, they will be finished with error.</param>
+        </member>
+        <member name="M:TradeSystem.Communication.TaskCompletionManager`1.Clear(System.Exception)">
+            <summary>
+            Removes all <see cref="T:System.Threading.Tasks.Task"/>s from the <see cref="T:TradeSystem.Communication.TaskCompletionManager`1"/> and cancels all of the removed unfinished tasks.
+            </summary>
+            <param name="error">If <see langword="null"/>, then the unfinished tasks to remove will be canceled; otherwise, they will be finished with error.</param>
+        </member>
+        <member name="M:TradeSystem.Communication.TaskCompletionManager`1.Dispose">
+            <summary>
+            Disposes this <see cref="T:TradeSystem.Communication.TaskCompletionManager`1"/> instance.
+            </summary>
+        </member>
+        <member name="M:TradeSystem.Communication.TaskCompletionManager`1.ContainsKey(`0)">
+            <summary>
+            Determines whether the <see cref="T:TradeSystem.Communication.TaskCompletionManager`1"/> contains a <see cref="T:System.Threading.Tasks.Task"/> with specified <paramref name="key"/>.
+            </summary>
+            <param name="key">The key to check.</param>
+            <returns><c>true</c> if the specified <paramref name="key"/> exists in current <see cref="T:TradeSystem.Communication.TaskCompletionManager`1"/>; otherwise, <c>false</c>.</returns>
+        </member>
+        <member name="M:TradeSystem.Communication.TaskCompletionManager`1.TryGetTask(`0,System.Threading.Tasks.Task@)">
+            <summary>
+            Tries the get a <see cref="T:System.Threading.Tasks.Task"/> with specified <paramref name="key"/>.
+            </summary>
+            <param name="key">The key of the <see cref="T:System.Threading.Tasks.Task"/> to get.</param>
+            <param name="task">The result <see cref="T:System.Threading.Tasks.Task"/> if the return value is <c>true</c>;otherwise, <see langword="null"/>.</param>
+            <returns><c>true</c>, if <paramref name="key"/> exists in current <see cref="T:TradeSystem.Communication.TaskCompletionManager`1"/>; otherwise, <c>false</c>.</returns>
+        </member>
+        <member name="M:TradeSystem.Communication.TaskCompletionManager`1.TryGetTask``1(`0,System.Threading.Tasks.Task{``0}@)">
+            <summary>
+            Tries the get a <see cref="T:System.Threading.Tasks.Task`1"/> with specified <paramref name="key"/>.
+            </summary>
+            <param name="key">The key of the <see cref="T:System.Threading.Tasks.Task`1"/> to get.</param>
+            <param name="task">The result <see cref="T:System.Threading.Tasks.Task`1"/> if the return value is <c>true</c>;otherwise, <see langword="null"/>.</param>
+            <returns><c>true</c>, if <paramref name="key"/> exists in current <see cref="T:TradeSystem.Communication.TaskCompletionManager`1"/>; otherwise, <c>false</c>.</returns>
+        </member>
+        <member name="M:TradeSystem.Communication.TaskCompletionManager`1.SetCompleted(`0,System.Boolean)">
+            <summary>
+            Sets a <see cref="T:System.Threading.Tasks.Task"/> completed of the specified <paramref name="key"/>, which was created by the <see cref="M:TradeSystem.Communication.TaskCompletionManager`1.CreateCompletableTask(`0)"/> method.
+            </summary>
+            <param name="key">The key of the <see cref="T:System.Threading.Tasks.Task"/> to complete.</param>
+            <param name="remove"><c>true</c> to remove the completed <see cref="T:System.Threading.Tasks.Task"/> from the <see cref="T:TradeSystem.Communication.TaskCompletionManager`1"/>; otherwise, <c>false</c>.</param>
+        </member>
+        <member name="M:TradeSystem.Communication.TaskCompletionManager`1.SetResult``1(`0,``0,System.Boolean)">
+            <summary>
+            Sets the result of a <see cref="T:System.Threading.Tasks.Task`1"/> of the specified <paramref name="key"/>, which was created by the <see cref="M:TradeSystem.Communication.TaskCompletionManager`1.CreateCompletableTask``1(`0)"/> method.
+            </summary>
+            <param name="key">The key of the <see cref="T:System.Threading.Tasks.Task`1"/> to complete.</param>
+            <param name="result">The desired result of the <see cref="T:System.Threading.Tasks.Task`1"/> to set.</param>
+            <param name="remove"><c>true</c> to remove the completed <see cref="T:System.Threading.Tasks.Task`1"/> from the <see cref="T:TradeSystem.Communication.TaskCompletionManager`1"/>; otherwise, <c>false</c>.</param>
+        </member>
+        <member name="M:TradeSystem.Communication.TaskCompletionManager`1.SetCanceled(`0,System.Boolean)">
+            <summary>
+            Cancels the <see cref="T:System.Threading.Tasks.Task"/> of the specified <paramref name="key"/>.
+            </summary>
+            <param name="key">The key of the <see cref="T:System.Threading.Tasks.Task"/> to cancel.</param>
+            <param name="remove"><c>true</c> to remove the completed <see cref="T:System.Threading.Tasks.Task`1"/> from the <see cref="T:TradeSystem.Communication.TaskCompletionManager`1"/>; otherwise, <c>false</c>.</param>
+        </member>
+        <member name="M:TradeSystem.Communication.TaskCompletionManager`1.SetError(`0,System.Exception,System.Boolean)">
+            <summary>
+            Fails the <see cref="T:System.Threading.Tasks.Task"/> of the specified <paramref name="key"/> with the provided <paramref name="error"/>.
+            </summary>
+            <param name="key">The key of the <see cref="T:System.Threading.Tasks.Task"/> to fail.</param>
+            <param name="error">The <see cref="T:System.Exception"/> to set.</param>
+            <param name="remove"><c>true</c> to remove the completed <see cref="T:System.Threading.Tasks.Task`1"/> from the <see cref="T:TradeSystem.Communication.TaskCompletionManager`1"/>; otherwise, <c>false</c>.</param>
+        </member>
+        <member name="M:TradeSystem.Communication.TaskCompletionManager`1.Remove(`0)">
+            <summary>
+            Removes the <see cref="T:System.Threading.Tasks.Task"/> of the specified <paramref name="key"/>.
+            It will be cancelled if it is not finished yet.
+            </summary>
+        </member>
+        <member name="T:TradeSystem.Communication.CurrencyPair">
+            <summary>
+            Represents a currency pair type <see cref="T:TradeSystem.Communication.Symbol"/>.
+            </summary>
+        </member>
+        <member name="P:TradeSystem.Communication.CurrencyPair.Base">
+            <summary>
+            Gets the base currency of the <see cref="T:TradeSystem.Communication.CurrencyPair"/>.
+            </summary>
+        </member>
+        <member name="P:TradeSystem.Communication.CurrencyPair.Quote">
+            <summary>
+            Gets the quote currency of the <see cref="T:TradeSystem.Communication.CurrencyPair"/>.
+            </summary>
+        </member>
+        <member name="M:TradeSystem.Communication.CurrencyPair.#ctor(System.String,System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:TradeSystem.Communication.CurrencyPair"/> class.
+            </summary>
+            <param name="baseCurrency">The base currency.</param>
+            <param name="quoteCurrency">The quote currency.</param>
+        </member>
+        <member name="M:TradeSystem.Communication.CurrencyPair.TryParse(System.String,TradeSystem.Communication.CurrencyPair@)">
+            <summary>
+            Tries to parse the specified <see cref="T:System.String"/> to a <see cref="T:TradeSystem.Communication.CurrencyPair"/>.
+            </summary>
+        </member>
+        <member name="M:TradeSystem.Communication.CurrencyPair.ToString(System.String)">
+            <summary>
+            Returns a <see cref="T:System.String" /> that represents this instance.
+            </summary>
+            <param name="format">The format specifier. See the constants defined in the <see cref="T:TradeSystem.Communication.Symbol"/> <see kangword="struct"/>.</param>
+            <returns>A <see cref="T:System.String" /> that represents this instance.</returns>
+        </member>
+        <member name="T:TradeSystem.Communication.OrderStatus">
+            <summary>
+            Represents the possible states of an <see cref="T:TradeSystem.Communication.OrderStatusReport"/> instance.
+            </summary>
+        </member>
+        <member name="F:TradeSystem.Communication.OrderStatus.Unknown">
+            <summary>
+            Represents an undefined or unsupported state.
+            </summary>
+        </member>
+        <member name="F:TradeSystem.Communication.OrderStatus.Accepted">
+            <summary>
+            The order request has been accepted for further processing.
+            </summary>
+        </member>
+        <member name="F:TradeSystem.Communication.OrderStatus.Rejected">
+            <summary>
+            The order request has been rejected.
+            </summary>
+        </member>
+        <member name="F:TradeSystem.Communication.OrderStatus.Canceled">
+            <summary>
+            The order has been canceled either by the server or for due to user request.
+            </summary>
+        </member>
+        <member name="F:TradeSystem.Communication.OrderStatus.Finished">
+            <summary>
+            The processing of the request has been finished.
+            </summary>
+        </member>
+        <member name="F:TradeSystem.Communication.OrderStatus.Updated">
+            <summary>
+            An update occurred during the processing of the request and further updates are expected.
+            </summary>
+        </member>
+        <member name="T:TradeSystem.Communication.Symbol">
+            <summary>
+            Represents an instrument symbol.
+            </summary>
+        </member>
+        <member name="F:TradeSystem.Communication.Symbol.Empty">
+            <summary>
+            Represents products, which do not have a symbol.
+            </summary>
+            <remarks>See <a href="http://www.onixs.biz/fix-dictionary/4.4/tagNum_55.html">FIX API Symbol Tag</a>.</remarks>
+        </member>
+        <member name="M:TradeSystem.Communication.Symbol.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:TradeSystem.Communication.Symbol"/> class.
+            </summary>
+            <param name="value">The value of the symbol.</param>
+        </member>
+        <member name="M:TradeSystem.Communication.Symbol.Parse(System.String,TradeSystem.Communication.SymbolParseOptions)">
+            <summary>
+            Parses the specified <see cref="T:System.String"/> to a <see cref="T:TradeSystem.Communication.Symbol"/>.
+            </summary>
+        </member>
+        <member name="M:TradeSystem.Communication.Symbol.TryParse(System.String,TradeSystem.Communication.Symbol@,TradeSystem.Communication.SymbolParseOptions)">
+            <summary>
+            Tries to parse the specified <see cref="T:System.String"/> to a <see cref="T:TradeSystem.Communication.Symbol"/>.
+            </summary>
+        </member>
+        <member name="M:TradeSystem.Communication.Symbol.ToString">
+            <summary>
+            Returns a <see cref="T:System.String" /> that represents this instance.
+            </summary>
+        </member>
+        <member name="M:TradeSystem.Communication.Symbol.ToString(System.String)">
+            <summary>
+            Returns a <see cref="T:System.String" /> that represents this instance.
+            </summary>
+            <param name="format">The format specifier. See the constants defined in the <see cref="T:TradeSystem.Communication.Symbol"/> and <see cref="T:TradeSystem.Communication.CurrencyPair"/> classes.</param>
+            <returns>A <see cref="T:System.String" /> that represents this instance.</returns>
+        </member>
+        <member name="M:TradeSystem.Communication.Symbol.Equals(System.Object)">
+            <summary>
+            Determines whether the specified <see cref="T:System.Object" />, is equal to this instance.
+            </summary>
+            <remarks>This implementation allows that a <see cref="T:TradeSystem.Communication.Symbol"/> can be equal to its derived types such as a <see cref="T:TradeSystem.Communication.CurrencyPair"/>. This is an intended behavior.</remarks>
+        </member>
+        <member name="M:TradeSystem.Communication.Symbol.GetHashCode">
+            <summary>
+            Returns a hash code for this instance.
+            </summary>
+        </member>
+        <member name="T:TradeSystem.Communication.DuplexStreamConcurrentHandler">
+            <summary>
+            Provides continuous <see cref="T:System.IO.Stream"/> read/write on dedicated <see cref="T:System.Threading.Thread"/>s and provides
+            events for handling statuses and incoming data. Suggested to use for streams, which have just occasionally available data, which has to be processed immediately.
+            </summary>
+        </member>
+        <member name="E:TradeSystem.Communication.DuplexStreamConcurrentHandler.DataReceived">
+            <summary>
+            Occurs when data is received on the underlying <see cref="T:System.IO.Stream"/>. The event is invoked on the reader thread.
+            </summary>
+            <remarks>
+            An unhandled non-fatal <see cref="T:System.Exception"/> in the event handler will not let the reader thread stop.
+            However, if an <see cref="T:System.OperationCanceledException"/> is caught from the handler, the <see cref="T:TradeSystem.Communication.DuplexStreamConcurrentHandler"/> will be stopped.
+            </remarks>
+        </member>
+        <member name="E:TradeSystem.Communication.DuplexStreamConcurrentHandler.StreamEnded">
+            <summary>
+            Occurs when the underlying <see cref="T:System.IO.Stream"/> is out of data.
+            The event is invoked on the reader or writer thread. The <see cref="T:TradeSystem.Communication.DuplexStreamConcurrentHandler"/> will be stopped after invoking the event.
+            </summary>
+        </member>
+        <member name="E:TradeSystem.Communication.DuplexStreamConcurrentHandler.Error">
+            <summary>
+            Occurs when exception is thrown in the dedicated writer or reader thread of the current <see cref="T:TradeSystem.Communication.DuplexStreamConcurrentHandler"/> instance.
+            The event is invoked on the reader or writer thread just before disposing the <see cref="T:TradeSystem.Communication.DuplexStreamConcurrentHandler"/> instance.
+            </summary>
+        </member>
+        <member name="P:TradeSystem.Communication.DuplexStreamConcurrentHandler.UnderlyingStream">
+            <summary>
+            Gets the underlying stream.
+            </summary>
+        </member>
+        <member name="P:TradeSystem.Communication.DuplexStreamConcurrentHandler.IsRunning">
+            <summary>
+            Gets whether the receiving/sending loop is running.
+            </summary>
+        </member>
+        <member name="P:TradeSystem.Communication.DuplexStreamConcurrentHandler.IsDisposed">
+            <summary>
+            Gets whether this <see cref="T:TradeSystem.Communication.DuplexStreamConcurrentHandler"/> instance is disposed.
+            </summary>
+        </member>
+        <member name="M:TradeSystem.Communication.DuplexStreamConcurrentHandler.#ctor(System.IO.Stream,System.Boolean,System.Func{System.Boolean},System.Int32[])">
+            <summary>
+            Initializes a new instance of the <see cref="T:TradeSystem.Communication.DuplexStreamConcurrentHandler"/> class.
+            </summary>
+            <param name="stream">The <see cref="T:System.IO.Stream"/> to read/write. Must be able to handle parallel read and write operations.</param>
+            <param name="closeStream"><c>true</c> to close the <paramref name="stream"/> on disposing this <see cref="T:TradeSystem.Communication.DuplexStreamConcurrentHandler"/> instance.
+            <br/>Default value: <c>true</c></param>
+            <param name="isDataAvailable">If provided, it will be polled from the reader thread whether data is available. May cause a few milliseconds delay in obtaining the data
+            but can help to react to <see cref="M:TradeSystem.Communication.DuplexStreamConcurrentHandler.Stop"/> nicely without aborting the reader thread.</param>
+            <param name="forwardPorts">If provided, stream will be forwarded to given ports for sharing</param>
+            <exception cref="T:System.ArgumentNullException"><param name="stream"> is <see langword="null"/>.</param></exception>
+            <remarks>
+            To start listening to the received and to be sent messages call the <see cref="M:TradeSystem.Communication.DuplexStreamConcurrentHandler.Start"/> method after subscribing events.
+            </remarks>
+        </member>
+        <member name="M:TradeSystem.Communication.DuplexStreamConcurrentHandler.Start">
+            <summary>
+            Starts listening to the received and to be sent messages. Before call this method subscribe events in order not to miss any incoming message.
+            </summary>
+            <exception cref="T:System.ObjectDisposedException">This <see cref="T:TradeSystem.Communication.DuplexStreamConcurrentHandler"/> instance is already disposed.</exception>
+        </member>
+        <member name="M:TradeSystem.Communication.DuplexStreamConcurrentHandler.StartForward(TradeSystem.Communication.DuplexStreamConcurrentHandler.Forward)">
+            <summary>
+            Prepare forward socket server for connection
+            </summary>
+            <param name="forward">Forward</param>
+        </member>
+        <member name="M:TradeSystem.Communication.DuplexStreamConcurrentHandler.Stop">
+            <summary>
+            Stops listening to the received and to be sent messages. Listening can be restarted by calling <see cref="M:TradeSystem.Communication.DuplexStreamConcurrentHandler.Start"/> again.
+            </summary>
+            <exception cref="T:System.ObjectDisposedException">This <see cref="T:TradeSystem.Communication.DuplexStreamConcurrentHandler"/> instance is already disposed.</exception>
+        </member>
+        <member name="M:TradeSystem.Communication.DuplexStreamConcurrentHandler.SendSynchronously(System.Byte[])">
+            <summary>
+            Sends the <paramref name="data"/> synchronously and immediately.
+            </summary>
+            <param name="data">The data to send.</param>
+        </member>
+        <member name="M:TradeSystem.Communication.DuplexStreamConcurrentHandler.EnqueueToSend(System.Byte[])">
+            <summary>
+            Enqueues the <paramref name="data"/> to be sent to the write queue and returns. If this <see cref="T:TradeSystem.Communication.DuplexStreamConcurrentHandler"/> is started,
+            then the data will be sent to the underlying stream on a separated thread.
+            </summary>
+            <param name="data">The data to send.</param>
+        </member>
+        <member name="M:TradeSystem.Communication.DuplexStreamConcurrentHandler.Dispose">
+            <summary>
+            Disposes the <see cref="T:TradeSystem.Communication.DuplexStreamConcurrentHandler"/> instance.
+            </summary>
+        </member>
+        <member name="P:TradeSystem.Communication.UpdateOrderRequest.OriginalOrderId">
+            <summary>
+            Gets or sets the original order identifier. That is, which was returned in the <see cref="P:TradeSystem.Communication.OrderStatusReport.OrderId"/>
+            property of the <see cref="M:TradeSystem.Communication.Interfaces.IConnector.PutNewOrderAsync(TradeSystem.Communication.NewOrderRequest)"/> method.
+            </summary>
+        </member>
+        <member name="M:TradeSystem.Communication.UpdateOrderRequest.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:TradeSystem.Communication.UpdateOrderRequest"/> class.
+            </summary>
+        </member>
+        <member name="M:TradeSystem.Communication.UpdateOrderRequest.#ctor(System.String,TradeSystem.Communication.NewOrderRequest)">
+            <summary>
+            Initializes a new instance of the <see cref="T:TradeSystem.Communication.UpdateOrderRequest"/> class.
+            </summary>
+            <param name="origOrderId">The original order identifier.</param>
+            <param name="request">The request to copy the properties from.</param>
+        </member>
+    </members>
+</doc>
