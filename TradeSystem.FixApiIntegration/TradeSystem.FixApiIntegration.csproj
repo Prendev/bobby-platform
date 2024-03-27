@@ -48,6 +48,25 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'TradeSystem.Duplicat|AnyCPU'">
+    <OutputPath>bin\TradeSystem.Duplicat\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'TradeSystem.Duplicat|x86'">
+    <OutputPath>bin\x86\TradeSystem.Duplicat\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Common.Logging, Version=3.4.1.0, Culture=neutral, PublicKeyToken=af08829b84f0328e, processorArchitecture=MSIL">
       <HintPath>..\packages\Common.Logging.3.4.1\lib\net40\Common.Logging.dll</HintPath>
@@ -57,6 +76,9 @@
     </Reference>
     <Reference Include="KGySoft.CoreLibraries, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b45eba277439ddfe, processorArchitecture=MSIL">
       <HintPath>..\packages\KGySoft.CoreLibraries.6.0.0\lib\net472\KGySoft.CoreLibraries.dll</HintPath>
+    </Reference>
+    <Reference Include="mt5api">
+      <HintPath>..\lib\MissingBobiDlls\mt5api.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
@@ -70,6 +92,33 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
+    <Reference Include="TradeSystem">
+      <HintPath>..\lib\MissingBobiDlls\TradeSystem.dll</HintPath>
+    </Reference>
+    <Reference Include="TradeSystem.Communication">
+      <HintPath>..\lib\MissingBobiDlls\TradeSystem.Communication.dll</HintPath>
+    </Reference>
+    <Reference Include="TradeSystem.Communication.DtcApi">
+      <HintPath>..\lib\MissingBobiDlls\TradeSystem.Communication.DtcApi.dll</HintPath>
+    </Reference>
+    <Reference Include="TradeSystem.Communication.Extensions">
+      <HintPath>..\lib\MissingBobiDlls\TradeSystem.Communication.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="TradeSystem.Communication.FixApi">
+      <HintPath>..\lib\MissingBobiDlls\TradeSystem.Communication.FixApi.dll</HintPath>
+    </Reference>
+    <Reference Include="TradeSystem.Communication.FixApi.Connectors.Strategies">
+      <HintPath>..\lib\MissingBobiDlls\TradeSystem.Communication.FixApi.Connectors.Strategies.dll</HintPath>
+    </Reference>
+    <Reference Include="TradeSystem.Communication.Mt5">
+      <HintPath>..\lib\MissingBobiDlls\TradeSystem.Communication.Mt5.dll</HintPath>
+    </Reference>
+    <Reference Include="TradeSystem.Communication.SnwApi">
+      <HintPath>..\lib\MissingBobiDlls\TradeSystem.Communication.SnwApi.dll</HintPath>
+    </Reference>
+    <Reference Include="TradeSystem.Communication.Strategies">
+      <HintPath>..\lib\MissingBobiDlls\TradeSystem.Communication.Strategies.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AccountInfo.cs" />
@@ -79,46 +128,6 @@
     <Compile Include="FillLogger.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\QvaDev.Wololo_old\mt5-net-api-main\mt5api.csproj">
-      <Project>{19f0e775-116d-4ac6-80f1-f6281acb81be}</Project>
-      <Name>mt5api</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\QvaDev.Wololo_old\TradeSystem.Communication.DtcApi\TradeSystem.Communication.DtcApi.csproj">
-      <Project>{eed1bd13-cc26-4ede-99e4-dd59eb4d09bb}</Project>
-      <Name>TradeSystem.Communication.DtcApi</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\QvaDev.Wololo_old\TradeSystem.Communication.FixApi.Connectors.Strategies\TradeSystem.Communication.FixApi.Connectors.Strategies.csproj">
-      <Project>{D025DB83-5628-432A-832D-0BB89E807252}</Project>
-      <Name>TradeSystem.Communication.FixApi.Connectors.Strategies</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\QvaDev.Wololo_old\TradeSystem.Communication.FixApi\TradeSystem.Communication.FixApi.csproj">
-      <Project>{5A7C14E4-C1F0-4A9E-8284-D01F0082B483}</Project>
-      <Name>TradeSystem.Communication.FixApi</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\QvaDev.Wololo_old\TradeSystem.Communication.Mt5\TradeSystem.Communication.Mt5.csproj">
-      <Project>{AA3796E1-5B4C-4BDD-A102-22D6411F9B93}</Project>
-      <Name>TradeSystem.Communication.Mt5</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\QvaDev.Wololo_old\TradeSystem.Communication.SnwApi\TradeSystem.Communication.SnwApi.csproj">
-      <Project>{3455f630-ea48-4c6f-8012-a9dfa9ce1428}</Project>
-      <Name>TradeSystem.Communication.SnwApi</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\QvaDev.Wololo_old\TradeSystem.Communication.Extensions\TradeSystem.Communication.Extensions.csproj">
-      <Project>{a12e5a21-bb5d-4b6e-b229-9a4c625f8dce}</Project>
-      <Name>TradeSystem.Communication.Extensions</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\QvaDev.Wololo_old\TradeSystem.Communication.Strategies\TradeSystem.Communication.Strategies.csproj">
-      <Project>{e2dec81b-0810-4592-b742-902a78059449}</Project>
-      <Name>TradeSystem.Communication.Strategies</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\QvaDev.Wololo_old\TradeSystem.Communication\TradeSystem.Communication.csproj">
-      <Project>{9b577bd6-aea9-4f64-9f1d-6ec760103295}</Project>
-      <Name>TradeSystem.Communication</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\QvaDev.Wololo_old\TradeSystem\TradeSystem.csproj">
-      <Project>{fdfce270-50ac-4930-8680-a760f6f7c637}</Project>
-      <Name>TradeSystem</Name>
-    </ProjectReference>
     <ProjectReference Include="..\TradeSystem.Common\TradeSystem.Common.csproj">
       <Project>{10a3ef89-12bb-4d00-9950-36bfed281b91}</Project>
       <Name>TradeSystem.Common</Name>

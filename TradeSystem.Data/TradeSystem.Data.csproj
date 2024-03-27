@@ -69,6 +69,35 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'TradeSystem.Duplicat|AnyCPU'">
+    <OutputPath>bin\TradeSystem.Duplicat\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'TradeSystem.Duplicat|x64'">
+    <OutputPath>bin\x64\TradeSystem.Duplicat\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'TradeSystem.Duplicat|x86'">
+    <OutputPath>bin\x86\TradeSystem.Duplicat\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Common.Logging.Core, Version=3.4.1.0, Culture=neutral, PublicKeyToken=af08829b84f0328e, processorArchitecture=MSIL">
       <HintPath>..\packages\Common.Logging.Core.3.4.1\lib\net40\Common.Logging.Core.dll</HintPath>
@@ -210,6 +239,12 @@
     <Reference Include="Twilio, Version=6.15.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Twilio.6.15.0\lib\net451\Twilio.dll</HintPath>
     </Reference>
+    <Reference Include="TradeSystem">
+      <HintPath>..\lib\MissingBobiDlls\TradeSystem.dll</HintPath>
+    </Reference>
+    <Reference Include="TradeSystem.Communication">
+      <HintPath>..\lib\MissingBobiDlls\TradeSystem.Communication.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DuplicatContext.cs" />
@@ -326,14 +361,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\QvaDev.Wololo_old\TradeSystem.Communication\TradeSystem.Communication.csproj">
-      <Project>{9b577bd6-aea9-4f64-9f1d-6ec760103295}</Project>
-      <Name>TradeSystem.Communication</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\QvaDev.Wololo_old\TradeSystem\TradeSystem.csproj">
-      <Project>{fdfce270-50ac-4930-8680-a760f6f7c637}</Project>
-      <Name>TradeSystem</Name>
-    </ProjectReference>
     <ProjectReference Include="..\TradeSystem.Common\TradeSystem.Common.csproj">
       <Project>{10a3ef89-12bb-4d00-9950-36bfed281b91}</Project>
       <Name>TradeSystem.Common</Name>
