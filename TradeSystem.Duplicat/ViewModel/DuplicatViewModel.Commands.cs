@@ -468,5 +468,10 @@ namespace TradeSystem.Duplicat.ViewModel
 		{
 			await _orchestrator.TradePositionClose(mtPosition);
 		}
+
+		public async void TradePositionRotateCommand(TradePosition mtPosition)
+		{
+			await _orchestrator.TradePositionRotate(mtPosition);
+		}
 	}
 }

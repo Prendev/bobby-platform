@@ -49,7 +49,7 @@ namespace TradeSystem.Duplicat.Views
 			SortableDataSourceChanged?.Invoke(this, e);
 		}
 
-		public void AddButtonColumn(string header, string buttonText)
+		public void AddButtonColumn(string name, string buttonText = null, string header = null)
 		{
 			DataGridViewCellStyle cellStyle = new DataGridViewCellStyle
 			{
@@ -58,7 +58,9 @@ namespace TradeSystem.Duplicat.Views
 
 			DataGridViewButtonColumn buttonColumn = new DataGridViewButtonColumn
 			{
-				HeaderText = header,
+				Name = $"{name}",
+				DataPropertyName = $"{name}Id",
+				HeaderText = $"{header ?? name}",
 				Text = buttonText,
 				UseColumnTextForButtonValue = true,
 				AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells,
