@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net48</TargetFramework>
     <Platforms>AnyCPU;x86</Platforms>
+    <Configurations>Debug;Release;TradeSystem.Duplicat</Configurations>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -18,9 +19,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\QvaDev.Wololo_old\TradeSystem\TradeSystem.csproj" />
     <ProjectReference Include="..\TradeSystem.Common\TradeSystem.Common.csproj" />
     <ProjectReference Include="..\TradeSystem.Data\TradeSystem.Data.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="TradeSystem">
+      <HintPath>..\lib\MissingBobiDlls\TradeSystem.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>
