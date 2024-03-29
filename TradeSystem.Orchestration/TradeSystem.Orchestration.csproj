@@ -282,9 +282,9 @@
       <Project>{73a2679e-f17e-4484-8874-461d3fc895dd}</Project>
       <Name>TradeSystem.Mt4Integration</Name>
     </ProjectReference>
-    <ProjectReference Include="..\TradeSystem.Mt4Nj4xIntegration\TradeSystem.Nj4xMt4Integration.csproj">
+    <ProjectReference Include="..\TradeSystem.Nj4xIntegration\TradeSystem.Nj4xIntegration.csproj">
       <Project>{99cb171b-43ea-429a-9835-36fbe59f87aa}</Project>
-      <Name>TradeSystem.Nj4xMt4Integration</Name>
+      <Name>TradeSystem.Nj4xIntegration</Name>
     </ProjectReference>
     <ProjectReference Include="..\TradeSystem.Strategies.MarketMaker\TradeSystem.Strategies.MarketMaker.csproj">
       <Project>{734bfde5-325e-4ef9-924c-1401562e6626}</Project>

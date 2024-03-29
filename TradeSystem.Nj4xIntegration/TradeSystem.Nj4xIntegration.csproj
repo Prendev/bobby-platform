@@ -7,8 +7,8 @@
     <ProjectGuid>{99CB171B-43EA-429A-9835-36FBE59F87AA}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>TradeSystem.Nj4xMt4Integration</RootNamespace>
-    <AssemblyName>TradeSystem.Nj4xMt4Integration</AssemblyName>
+    <RootNamespace>TradeSystem.Nj4xIntegration</RootNamespace>
+    <AssemblyName>TradeSystem.Nj4xIntegration</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -154,7 +154,7 @@
   <ItemGroup>
     <Compile Include="AccountInfo.cs" />
     <Compile Include="Connector.cs" />
-    <Compile Include="Nj4xMt4Logger.cs" />
+    <Compile Include="Nj4xLogger.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

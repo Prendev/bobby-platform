@@ -156,8 +156,8 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 		private void CheckPositions(LatencyArb set)
 		{
-			var longPositions = (set.LongAccount.Connector as Mt4Integration.Connector)?.Positions;
-			var shortPositions = (set.ShortAccount.Connector as Mt4Integration.Connector)?.Positions;
+			var longPositions = (set.LongAccount.Connector as IMtConnector)?.Positions;
+			var shortPositions = (set.ShortAccount.Connector as IMtConnector)?.Positions;
 			var error = false;
 
 			foreach (var pos in set.LivePositions)
@@ -416,7 +416,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			set.Stopwatch.Restart();
 			try
 			{
-				if (set.LongAccount.Connector is Mt4Integration.Connector connector)
+				if (set.LongAccount.Connector is IMtConnector connector)
 				{
 					var pos = connector.SendMarketOrderRequest(set.LongSymbol, Sides.Buy, (double) quantity,
 						signalPrice, set.Deviation, 0, set.LongComment2, 0, 0);
@@ -493,7 +493,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			set.Stopwatch.Restart();
 			try
 			{
-				if (set.ShortAccount.Connector is Mt4Integration.Connector connector)
+				if (set.ShortAccount.Connector is IMtConnector connector)
 				{
 					var pos = connector.SendMarketOrderRequest(set.ShortSymbol, Sides.Sell, (double) quantity,
 						signalPrice, set.Deviation, 0, set.ShortComment2, 0, 0);
@@ -660,7 +660,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 		}
 		private DateTime? GetShortOpenTime(LatencyArb set, LatencyArbPosition arbPos)
 		{
-			if (set.ShortAccount.Connector is Mt4Integration.Connector connector)
+			if (set.ShortAccount.Connector is IMtConnector connector)
 			{
 				if (!arbPos.ShortTicket.HasValue) return null;
 				connector.Positions.TryGetValue(arbPos.ShortTicket.Value, out var pos);
@@ -673,7 +673,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 		}
 		private DateTime? GetLongOpenTime(LatencyArb set, LatencyArbPosition arbPos)
 		{
-			if (set.LongAccount.Connector is Mt4Integration.Connector connector)
+			if (set.LongAccount.Connector is IMtConnector connector)
 			{
 				if (!arbPos.LongTicket.HasValue) return null;
 				connector.Positions.TryGetValue(arbPos.LongTicket.Value, out var pos);
@@ -847,7 +847,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			set.Stopwatch.Restart();
 			try
 			{
-				if (set.LongAccount.Connector is Mt4Integration.Connector connector)
+				if (set.LongAccount.Connector is IMtConnector connector)
 				{
 					if (!arbPos.LongTicket.HasValue) return null;
 					connector.Positions.TryGetValue(arbPos.LongTicket.Value, out var pos);
@@ -927,7 +927,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			set.Stopwatch.Restart();
 			try
 			{
-				if (set.ShortAccount.Connector is Mt4Integration.Connector connector)
+				if (set.ShortAccount.Connector is IMtConnector connector)
 				{
 					if (!arbPos.ShortTicket.HasValue) return null;
 					connector.Positions.TryGetValue(arbPos.ShortTicket.Value, out var pos);
@@ -1123,8 +1123,8 @@ namespace TradeSystem.Orchestration.Services.Strategies
 		{
 			if (set.State != LatencyArb.LatencyArbStates.Sync) return;
 			set.LatencyArbPositions.ForEach(p => p.Archived = true);
-			var longPositions = (set.LongAccount.Connector as Mt4Integration.Connector)?.Positions;
-			var shortPositions = (set.ShortAccount.Connector as Mt4Integration.Connector)?.Positions;
+			var longPositions = (set.LongAccount.Connector as IMtConnector)?.Positions;
+			var shortPositions = (set.ShortAccount.Connector as IMtConnector)?.Positions;
 			if (longPositions == null) return;
 			if (shortPositions == null) return;
 
@@ -1177,8 +1177,8 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			    !(set.ShortAccount.Connector is FixApiIntegration.Connector))
 				return;
 
-			var longPositions = (set.LongAccount.Connector as Mt4Integration.Connector)?.Positions;
-			var shortPositions = (set.ShortAccount.Connector as Mt4Integration.Connector)?.Positions;
+			var longPositions = (set.LongAccount.Connector as IMtConnector)?.Positions;
+			var shortPositions = (set.ShortAccount.Connector as IMtConnector)?.Positions;
 			if (longPositions == null && shortPositions == null) return;
 			
 			foreach (var longPos in longPositions ?? new ConcurrentDictionary<long, Position>())

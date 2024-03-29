@@ -2,11 +2,9 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using TradeSystem.Communication.FixApi;
-using TradeSystem.Communication;
 using TradeSystem.Data;
 using TradeSystem.Data.Models;
-using Remotion.Linq.Clauses;
+using TradeSystem.Common.Integration;
 
 namespace TradeSystem.Orchestration.Services.Strategies
 {
@@ -110,29 +108,13 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 			try
 			{
-				if (metaTraderPosition.Account.Connector is Mt4Integration.Connector mt4Connector)
+				if (metaTraderPosition.Account.Connector is IMtConnector mt4Connector)
 				{
 					var pos = mt4Connector.Positions.FirstOrDefault(p => p.Key == metaTraderPosition.PositionKey);
 
 					if (pos.Value != null)
 					{
 						var res = mt4Connector.SendClosePositionRequests(pos.Value);
-
-						if (res.Pos.IsClosed)
-						{
-							var tp = duplicatContext.TraderPositions.Local.First(t => t.Id == metaTraderPosition.Id);
-							duplicatContext.TraderPositions.Remove(tp);
-						}
-						else metaTraderPosition.IsRemoved = false;
-					}
-				}
-				else if (metaTraderPosition.Account.Connector is Nj4xMt4Integration.Connector nj4xMt4Connector)
-				{
-					var pos = nj4xMt4Connector.Positions.FirstOrDefault(p => p.Key == metaTraderPosition.PositionKey);
-
-					if (pos.Value != null)
-					{
-						var res = nj4xMt4Connector.SendClosePositionRequests(pos.Value);
 
 						if (res.Pos.IsClosed)
 						{
@@ -179,12 +161,12 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			await rotateOrderSemaphoreSlim.WaitAsync();
 			try
 			{
-				if (metaTraderPosition.Account.Connector is Mt4Integration.Connector mt4Connector)
+				if (metaTraderPosition.Account.Connector is IMtConnector mtConnector)
 				{
-					var pos = mt4Connector.Positions.FirstOrDefault(p => p.Key == metaTraderPosition.PositionKey).Value;
+					var pos = mtConnector.Positions.FirstOrDefault(p => p.Key == metaTraderPosition.PositionKey).Value;
 					if (pos == null) return;
 
-					var newPos = mt4Connector.SendMarketOrderRequest(pos.Symbol, pos.Side,
+					var newPos = mtConnector.SendMarketOrderRequest(pos.Symbol, pos.Side,
 					(double)pos.Lots, (int)pos.MagicNumber, pos.Comment, 0, 0);
 
 					var copierPositions = duplicatContext.CopierPositions.Where(s => s.MasterTicket == metaTraderPosition.PositionKey).ToList();

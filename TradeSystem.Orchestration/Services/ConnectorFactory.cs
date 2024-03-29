@@ -84,14 +84,14 @@ namespace TradeSystem.Orchestration.Services
 				account.DestinationPort = port;
 			}
 
-			if (!(account.Connector is Nj4xMt4Integration.Connector) ||
+			if (!(account.Connector is Nj4xIntegration.Connector) ||
 				account.Connector.Id != account.MetaTraderAccountId)
 				account.Connector = null;
 
 			if (account.Connector == null)
-				account.Connector = new Nj4xMt4Integration.Connector(_emailService);
-			((Nj4xMt4Integration.Connector)account.Connector)
-				.Connect(new Nj4xMt4Integration.AccountInfo()
+				account.Connector = new Nj4xIntegration.Connector(_emailService);
+			((Nj4xIntegration.Connector)account.Connector)
+				.Connect(new Nj4xIntegration.AccountInfo()
 				{
 					DbId = account.MetaTraderAccount.Id,
 					Description = account.MetaTraderAccount.Description,

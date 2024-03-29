@@ -1,8 +1,8 @@
 ﻿using nj4x;
 
-namespace TradeSystem.Nj4xMt4Integration
+namespace TradeSystem.Nj4xIntegration
 {
-	public static class Nj4xMt4Logger
+	public static class Nj4xLogger
 	{
 		public static void Log(Connector connector, IPositionChangeInfo e)
 		{

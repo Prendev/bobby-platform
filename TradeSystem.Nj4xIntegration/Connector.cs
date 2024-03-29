@@ -12,22 +12,9 @@ using TradeSystem.Common.Integration;
 using TradeSystem.Common.Services;
 using static nj4x.Strategy;
 
-namespace TradeSystem.Nj4xMt4Integration
+namespace TradeSystem.Nj4xIntegration
 {
-	public interface IConnector : Common.Integration.IConnector
-	{
-		PositionResponse SendMarketOrderRequest(string symbol, Sides side, double lots);
-
-		PositionResponse SendMarketOrderRequest(string symbol, Sides side, double lots, int magicNumber,
-			string comment, int maxRetryCount, int retryPeriodInMs);
-
-		PositionResponse SendMarketOrderRequest(string symbol, Sides side, double lots, decimal price, decimal deviation, int magicNumber,
-			string comment, int maxRetryCount, int retryPeriodInMs);
-
-		PositionResponse SendClosePositionRequests(Position position, int maxRetryCount, int retryPeriodInMs);
-	}
-
-	public class Connector : ConnectorBase, IConnector, INotifyPropertyChanged
+	public class Connector : ConnectorBase, IMtConnector, INotifyPropertyChanged
 	{
 		private readonly TaskCompletionManager<int> _taskCompletionManager;
 		private readonly List<string> _symbols = new List<string>();
@@ -89,6 +76,7 @@ namespace TradeSystem.Nj4xMt4Integration
 
 			try
 			{
+				Nj4xClient.TerminalClose(666);
 				Nj4xClient.Disconnect();
 			}
 			catch (Exception e)
@@ -396,7 +384,7 @@ namespace TradeSystem.Nj4xMt4Integration
 
 		private void Nj4xClient_OnOrdersUpdate(IPositionInfo currentPositionInfo, IPositionChangeInfo changes)
 		{
-			Nj4xMt4Logger.Log(this, changes);
+			Nj4xLogger.Log(this, changes);
 
 			OrdersUpdate(changes.GetNewOrders(), NewPositionActions.Open);
 			OrdersUpdate(changes.GetModifiedOrders(), NewPositionActions.Open);

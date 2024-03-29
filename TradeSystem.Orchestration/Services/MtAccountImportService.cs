@@ -110,6 +110,55 @@ namespace TradeSystem.Orchestration.Services
 					csvWriter.WriteHeader<SaveTheWeekendRecord>();
 					csvWriter.NextRecord();
 
+					var nj4xAccounts = duplicatContext.Accounts.Local
+						.Where(a => a.Run && a.MetaTraderAccountId.HasValue && a.Nj4x &&
+									a.ConnectionState == ConnectionStates.Connected);
+					foreach (var account in nj4xAccounts)
+					{
+						try
+						{
+							var conn = (Nj4xIntegration.Connector)account.Connector;
+							var orders = conn.Nj4xClient.OrderGetAll(nj4x.Metatrader.SelectionPool.MODE_HISTORY, from, to);
+							
+							// TODO!!!!
+							//var vvv = conn.Nj4xClient.Order
+							//orders[0]
+
+							//if ((orders?.Length ?? 0) == 0) continue;
+							//var us = orders.Where(o => symbols.Contains(o.Symbol.ToLowerInvariant()));
+							//us = us.Where(o => o.Type == Op.Buy || o.Type == Op.Sell);
+
+							//foreach (var order in us)
+							//{
+							//	var record = new SaveTheWeekendRecord()
+							//	{
+							//		Holder = conn.QuoteClient.AccountName,
+							//		Broker = conn.QuoteClient.Account.company,
+							//		Account = account.MetaTraderAccount.User,
+							//		ID = order.Ticket,
+							//		OpenTime = order.OpenTime,
+							//		Type = order.Type == Op.Buy ? "buy" : "sell",
+							//		Size = order.Lots,
+							//		Symbol = order.Symbol,
+							//		OpenPrice = order.OpenPrice,
+							//		Sl = order.StopLoss,
+							//		Tp = order.TakeProfit,
+							//		CloseTime = order.CloseTime,
+							//		Price = order.ClosePrice,
+							//		Commission = order.Commission,
+							//		Swap = order.Swap,
+							//		Profit = order.Profit
+							//	};
+							//	csvWriter.WriteRecord(record);
+							//	csvWriter.NextRecord();
+							//}
+						}
+						catch (Exception ex)
+						{
+							Logger.Error("MtAccountImportService.SaveTheWeekend error", ex);
+						}
+					}
+
 					var mt4Accounts = duplicatContext.Accounts.Local
 						.Where(a => a.Run && a.MetaTraderAccountId.HasValue &&
 						            a.ConnectionState == ConnectionStates.Connected);

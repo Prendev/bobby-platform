@@ -2,7 +2,7 @@
 using TradeSystem.Common.Integration;
 using static nj4x.Metatrader.Broker;
 
-namespace TradeSystem.Nj4xMt4Integration
+namespace TradeSystem.Nj4xIntegration
 {
 	public class AccountInfo : BaseAccountInfo
     {

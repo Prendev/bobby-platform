@@ -6,7 +6,6 @@ using TradeSystem.Common;
 using TradeSystem.Common.Integration;
 using TradeSystem.Data;
 using TradeSystem.Data.Models;
-using IConnector = TradeSystem.Mt4Integration.IConnector;
 
 namespace TradeSystem.Orchestration.Services.Strategies
 {
@@ -50,7 +49,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			spoofing.Push = null;
 			InitSpoof(spoofing);
 			var futureSide = spoofing.BetaOpenSide.Inv();
-			var betaConnector = (IConnector)spoofing.BetaMaster.Connector;
+			var betaConnector = (IMtConnector)spoofing.BetaMaster.Connector;
 			TakeHedgePositions(spoofing);
 
 			// Start first spoofing
@@ -70,7 +69,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			Logger.Debug("SpoofStrategyService.OpeningAlpha...");
 			InitPush(spoofing);
 			InitSpoof(spoofing);
-			var alphaConnector = (IConnector) spoofing.AlphaMaster.Connector;
+			var alphaConnector = (IMtConnector) spoofing.AlphaMaster.Connector;
 			var futureSide = spoofing.BetaOpenSide;
 			var prevHedges = TakeHedgePositions(spoofing);
 
@@ -95,8 +94,8 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			spoofing.Push = null;
 			InitSpoof(spoofing);
 			var firstConnector = spoofing.BetaOpenSide == spoofing.FirstCloseSide
-				? (IConnector)spoofing.BetaMaster.Connector
-				: (IConnector)spoofing.AlphaMaster.Connector;
+				? (IMtConnector)spoofing.BetaMaster.Connector
+				: (IMtConnector)spoofing.AlphaMaster.Connector;
 			var firstPos = spoofing.BetaOpenSide == spoofing.FirstCloseSide ? spoofing.BetaPosition : spoofing.AlphaPosition;
 			var futureSide = spoofing.FirstCloseSide;
 			TakeHedgePositions(spoofing);
@@ -119,8 +118,8 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			InitPush(spoofing);
 			InitSpoof(spoofing);
 			var secondConnector = spoofing.BetaOpenSide == spoofing.FirstCloseSide
-				? (IConnector)spoofing.AlphaMaster.Connector
-				: (IConnector)spoofing.BetaMaster.Connector;
+				? (IMtConnector)spoofing.AlphaMaster.Connector
+				: (IMtConnector)spoofing.BetaMaster.Connector;
 			var secondPos = spoofing.BetaOpenSide == spoofing.FirstCloseSide ? spoofing.AlphaPosition : spoofing.BetaPosition;
 			var futureSide = spoofing.FirstCloseSide.Inv();
 			var prevHedges = TakeHedgePositions(spoofing);
@@ -214,14 +213,14 @@ namespace TradeSystem.Orchestration.Services.Strategies
 		}
 		private void ClosePrevHedges(Spoofing spoofing, List<Position> prevHedges)
 		{
-			var hedgeConnector = (IConnector)spoofing.HedgeAccount?.Connector;
+			var hedgeConnector = (IMtConnector)spoofing.HedgeAccount?.Connector;
 			if (hedgeConnector == null) return;
 			foreach (var hedgePos in prevHedges)
 				hedgeConnector.SendClosePositionRequests(hedgePos, spoofing.MaxRetryCount, spoofing.RetryPeriodInMs);
 		}
 		private void OpenHedgeForMinPush(Spoofing spoofing)
 		{
-			var hedgeConnector = (IConnector)spoofing.HedgeAccount?.Connector;
+			var hedgeConnector = (IMtConnector)spoofing.HedgeAccount?.Connector;
 			if (hedgeConnector == null) return;
 			if (spoofing.Push == null) return;
 			if (spoofing.PushState == null) return;
@@ -240,7 +239,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			if (spoofing?.HedgeAccount == null) return;
 			if (string.IsNullOrWhiteSpace(spoofing.HedgeSymbol)) return;
 
-			var hedgeConnector = spoofing.HedgeAccount.Connector as Mt4Integration.Connector;
+			var hedgeConnector = spoofing.HedgeAccount.Connector as IMtConnector;
 			if (hedgeConnector?.IsConnected != true) return;
 
 			var pos = hedgeConnector.SendMarketOrderRequest(spoofing.HedgeSymbol, state.Side.Inv(), (double) e.Quantity,
@@ -267,14 +266,14 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 			if (position == spoofing.AlphaPosition)
 			{
-				var alphaConnector = (IConnector) spoofing.AlphaMaster.Connector;
+				var alphaConnector = (IMtConnector) spoofing.AlphaMaster.Connector;
 				var comment = isFirst ? null : $"CROSS|{spoofing.BetaPosition.Id}";
 				spoofing.AlphaPosition = alphaConnector.SendMarketOrderRequest(spoofing.AlphaSymbol, position.Side.Inv(), spoofing.AlphaLots, 0,
 					comment, spoofing.MaxRetryCount, spoofing.RetryPeriodInMs)?.Pos;
 			}
 			else if (position == spoofing.BetaPosition)
 			{
-				var betaConnector = (IConnector) spoofing.BetaMaster.Connector;
+				var betaConnector = (IMtConnector) spoofing.BetaMaster.Connector;
 				var comment = isFirst ? null : $"CROSS|{spoofing.AlphaPosition.Id}";
 				spoofing.BetaPosition = betaConnector.SendMarketOrderRequest(spoofing.BetaSymbol, position.Side.Inv(), spoofing.BetaLots, 0,
 					comment, spoofing.MaxRetryCount, spoofing.RetryPeriodInMs)?.Pos;

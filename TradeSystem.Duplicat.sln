@@ -93,7 +93,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "mt5api", "..\QvaDev.Wololo_
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradeSystem.Notification", "TradeSystem.Notification\TradeSystem.Notification.csproj", "{FAF355B7-1510-474E-BD4C-9ECC583347FA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradeSystem.Nj4xMt4Integration", "TradeSystem.Mt4Nj4xIntegration\TradeSystem.Nj4xMt4Integration.csproj", "{99CB171B-43EA-429A-9835-36FBE59F87AA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradeSystem.Nj4xIntegration", "TradeSystem.Nj4xIntegration\TradeSystem.Nj4xIntegration.csproj", "{99CB171B-43EA-429A-9835-36FBE59F87AA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
