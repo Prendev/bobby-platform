@@ -5,7 +5,6 @@ using System.Configuration;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-using TradeSystem.Common.BindingLists;
 using TradeSystem.Data.Models;
 
 namespace TradeSystem.Duplicat.ViewModel
@@ -378,7 +377,10 @@ namespace TradeSystem.Duplicat.ViewModel
 			IsLoading = true;
 			IsConfigReadonly = true;
 			await _orchestrator.StartStrategies(_duplicatContext, AutoLoadPositionsInSec);
+
+			LoadConnectedLocals();
 			_orchestrator.StartExposureStrategy(SymbolStatusVisibilities, AutoLoadPositionsInSec);
+
 			IsLoading = false;
 			IsConnected = true;
 			AreStrategiesStarted = true;
@@ -467,6 +469,11 @@ namespace TradeSystem.Duplicat.ViewModel
 		public async void TradePositionCloseCommand(TradePosition mtPosition)
 		{
 			await _orchestrator.TradePositionClose(mtPosition);
+		}
+
+		public async void TradePositionRotateCommand(TradePosition mtPosition)
+		{
+			await _orchestrator.TradePositionRotate(mtPosition);
 		}
 	}
 }

@@ -53,6 +53,7 @@ namespace TradeSystem.Orchestration
 		void StartTradeStrategy(int throttlingInSec);
 		void StopTradeStrategy();
 		Task TradePositionClose(TradePosition position);
+		Task TradePositionRotate(TradePosition position);
 		void StartRiskManagementStrategy(int throttlingInSec);
 		void SetThrottling(int throttlingInSec);
 	}
@@ -287,6 +288,11 @@ namespace TradeSystem.Orchestration
 		public async Task TradePositionClose(TradePosition position)
 		{
 			await _tradeService.TradePositionClose(_duplicatContext, position);
+		}
+
+		public async Task TradePositionRotate(TradePosition position)
+		{
+			await _tradeService.TradePositionRotate(_duplicatContext, position);
 		}
 
 		public void StartRiskManagementStrategy(int throttlingInSec)

@@ -12,6 +12,9 @@ namespace TradeSystem.Duplicat.Views._Strategies
 	{
 		private DuplicatViewModel _viewModel;
 
+		private readonly string rotateButton = "Rotate";
+		private readonly string closeButton = "Close";
+
 		public TradeUserControl()
 		{
 			InitializeComponent();
@@ -30,7 +33,8 @@ namespace TradeSystem.Duplicat.Views._Strategies
 		public void InitView(DuplicatViewModel viewModel)
 		{
 			_viewModel = viewModel;
-			scdvTrade.AddButtonColumn("Close", "X");
+			scdvTrade.AddButtonColumn(rotateButton, "X");
+			scdvTrade.AddButtonColumn(closeButton, "X");
 
 			scdvTrade.CellContentClick += FcdvTrade_CellContentClick;
 			scdvTrade.RowPrePaint += FcdvTrade_RowPrePaint;
@@ -65,14 +69,15 @@ namespace TradeSystem.Duplicat.Views._Strategies
 		{
 			var senderGrid = (DataGridView)sender;
 
-			if (senderGrid.Columns[e.ColumnIndex] is DataGridViewButtonColumn && e.RowIndex >= 0)
+			if (e.RowIndex >= 0 && senderGrid.Columns[e.ColumnIndex] is DataGridViewButtonColumn buttonColumn)
 			{
 				if (!_viewModel.SortedTradePositions.Any()) return;
 
 				var mtPosition = (scdvTrade.DataSource as BindingList<TradePosition>)[e.RowIndex];
 				if (mtPosition.IsRemoved) return;
 
-				_viewModel.TradePositionCloseCommand(mtPosition);
+				if(buttonColumn.Name == rotateButton) _viewModel.TradePositionRotateCommand(mtPosition);
+				else if(buttonColumn.Name == closeButton) _viewModel.TradePositionCloseCommand(mtPosition);
 			}
 		}
 
