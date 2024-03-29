@@ -122,6 +122,9 @@
     <Reference Include="mt5api">
       <HintPath>..\..\QvaDev.Wololo_old\ExternalReferences\MT5Api\mt5api.dll</HintPath>
     </Reference>
+    <Reference Include="nj4x, Version=2.9.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\nj4x.2.9.0\lib\net462\nj4x.dll</HintPath>
+    </Reference>
     <Reference Include="NPOI, Version=2.3.0.0, Culture=neutral, PublicKeyToken=0df73ec7942b34e1, processorArchitecture=MSIL">
       <HintPath>..\packages\NPOI.2.3.0\lib\net40\NPOI.dll</HintPath>
     </Reference>
@@ -178,6 +181,7 @@
       <HintPath>..\packages\System.Threading.Tasks.Dataflow.7.0.0\lib\net462\System.Threading.Tasks.Dataflow.dll</HintPath>
     </Reference>
     <Reference Include="System.Web" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -277,6 +281,10 @@
     <ProjectReference Include="..\TradeSystem.Mt4Integration\TradeSystem.Mt4Integration.csproj">
       <Project>{73a2679e-f17e-4484-8874-461d3fc895dd}</Project>
       <Name>TradeSystem.Mt4Integration</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TradeSystem.Mt4Nj4xIntegration\TradeSystem.Nj4xMt4Integration.csproj">
+      <Project>{99cb171b-43ea-429a-9835-36fbe59f87aa}</Project>
+      <Name>TradeSystem.Nj4xMt4Integration</Name>
     </ProjectReference>
     <ProjectReference Include="..\TradeSystem.Strategies.MarketMaker\TradeSystem.Strategies.MarketMaker.csproj">
       <Project>{734bfde5-325e-4ef9-924c-1401562e6626}</Project>

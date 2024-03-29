@@ -8,7 +8,6 @@ using System.Linq;
 using System.Windows.Forms;
 using System.Windows.Forms.VisualStyles;
 using TradeSystem.Common.Attributes;
-using TradeSystem.Common.Integration;
 using TradeSystem.Data.Models;
 
 namespace TradeSystem.Duplicat.Views

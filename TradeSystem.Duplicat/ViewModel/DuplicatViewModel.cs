@@ -64,6 +64,8 @@ namespace TradeSystem.Duplicat.ViewModel
 
 		public delegate void DataContextChangedEventHandler();
 
+		private List<Account> avtiveAccounts;
+
 		private DuplicatContext _duplicatContext;
 		private readonly IOrchestrator _orchestrator;
 		private readonly IBacktesterService _backtesterService;

@@ -126,6 +126,22 @@ namespace TradeSystem.Orchestration.Services.Strategies
 						else metaTraderPosition.IsRemoved = false;
 					}
 				}
+				else if (metaTraderPosition.Account.Connector is Nj4xMt4Integration.Connector nj4xMt4Connector)
+				{
+					var pos = nj4xMt4Connector.Positions.FirstOrDefault(p => p.Key == metaTraderPosition.PositionKey);
+
+					if (pos.Value != null)
+					{
+						var res = nj4xMt4Connector.SendClosePositionRequests(pos.Value);
+
+						if (res.Pos.IsClosed)
+						{
+							var tp = duplicatContext.TraderPositions.Local.First(t => t.Id == metaTraderPosition.Id);
+							duplicatContext.TraderPositions.Remove(tp);
+						}
+						else metaTraderPosition.IsRemoved = false;
+					}
+				}
 				else if (metaTraderPosition.Account.Connector is FixApiIntegration.Connector fixApiConnector)
 				{
 					var pos = fixApiConnector.Positions.FirstOrDefault(p => p.Key == metaTraderPosition.PositionKey);
