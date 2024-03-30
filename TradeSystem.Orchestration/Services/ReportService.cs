@@ -1,4 +1,8 @@
-﻿using System;
+﻿using nj4x;
+using nj4x.Metatrader;
+using NPOI.POIFS.FileSystem;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -16,40 +20,43 @@ using SymbolInfo = TradingAPI.MT4Server.SymbolInfo;
 
 namespace TradeSystem.Orchestration.Services
 {
-    public interface IReportService
-    {
-        Task OrderHistoryExport(List<Account> accounts);
-        Task HubArbsExport(List<StratHubArbPosition> arbPositions);
-	    Task SwapExport(List<Export> exports);
-	    Task BalanceProfitExport(List<Export> exports, DateTime from, DateTime to);
-    }
+	public interface IReportService
+	{
+		Task OrderHistoryExport(List<Account> accounts);
+		Task HubArbsExport(List<StratHubArbPosition> arbPositions);
+		Task SwapExport(List<Export> exports);
+		Task BalanceProfitExport(List<Export> exports, DateTime from, DateTime to);
+	}
 
-    public class ReportService : IReportService
-    {
-        public ReportService()
-        {
-	        ICSharpCode.SharpZipLib.Zip.ZipConstants.DefaultCodePage = 437;
+	public class ReportService : IReportService
+	{
+		public ReportService()
+		{
+			ICSharpCode.SharpZipLib.Zip.ZipConstants.DefaultCodePage = 437;
 		}
 
-        public async Task OrderHistoryExport(List<Account> accounts)
-        {
-	        var tasks = accounts.Select(account => Task.Run(() => InnerOrderHistoryExport(account)));
-	        await Task.WhenAll(tasks);
-	        Logger.Debug("Order history export is READY!");
+		public async Task OrderHistoryExport(List<Account> accounts)
+		{
+			var tasks = accounts.Select(account => Task.Run(() => InnerOrderHistoryExport(account)));
+			await Task.WhenAll(tasks);
+			Logger.Debug("Order history export is READY!");
 		}
 
-        private void InnerOrderHistoryExport(Account account)
-        {
-	        switch (account.Connector)
-	        {
-		        case Connector _:
-			        InnerOrderHistoryExportMt4(account);
-			        break;
-		        case FixApiIntegration.Connector fixConnector when fixConnector.GeneralConnector is Mt5Connector:
-			        InnerOrderHistoryExportMt5(account);
-			        break;
-	        }
-        }
+		private void InnerOrderHistoryExport(Account account)
+		{
+			switch (account.Connector)
+			{
+				case Connector _:
+					InnerOrderHistoryExportMt4(account);
+					break;
+				case Nj4xIntegration.Connector _:
+					InnerOrderHistoryExportNj4xMt4Mt5(account);
+					break;
+				case FixApiIntegration.Connector fixConnector when fixConnector.GeneralConnector is Mt5Connector:
+					InnerOrderHistoryExportMt5(account);
+					break;
+			}
+		}
 		private void InnerOrderHistoryExportMt4(Account account)
 		{
 			if (!(account.Connector is Connector connector)) return;
@@ -92,10 +99,53 @@ namespace TradeSystem.Orchestration.Services
 				wb.Write(stream);
 			}
 		}
+		private void InnerOrderHistoryExportNj4xMt4Mt5(Account account)
+		{
+			if (!(account.Connector is Nj4xIntegration.Connector connector)) return;
+
+			var templatePath = $@"{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}\Templates\OrderHistory.xlsx";
+			var filePath = $@"{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}\Reports\OrderHistories\{account.MetaTraderAccount.User}.xlsx";
+			new FileInfo(filePath).Directory?.Create();
+			using (var stream = new FileStream(filePath, FileMode.OpenOrCreate, FileAccess.ReadWrite))
+			{
+				var wb = new CustomWorkbook(templatePath);
+				var sheet = wb.GetSheetAt(0);
+
+				var orders = connector.Nj4xClient.OrderGetAll(nj4x.Metatrader.SelectionPool.MODE_HISTORY, DateTime.Now.AddYears(-5), DateTime.Now.AddDays(1));
+				var r = 0;
+				foreach (DictionaryEntry orderEntry in orders)
+				{
+					IOrderInfo order = (IOrderInfo)orderEntry.Value;
+					if (order.GetTradeOperation() != TradeOperation.OP_BUY &&
+						order.GetTradeOperation() != TradeOperation.OP_SELL) continue;
+
+					var c = 0;
+					var row = sheet.GetRow(++r) ?? sheet.CreateRow(r);
+
+					wb.CreateDateCell(row, c++, order.GetCloseTime().Date);
+					wb.CreateCell(row, c++, order.GetCommission() + order.GetSwap() + order.GetProfit());
+					wb.CreateCell(row, c++, order.Ticket());
+					wb.CreateCell(row, c++, order.GetOpenTime());
+					wb.CreateTextCell(row, c++, order.GetTradeOperation().ToString("F").ToLower());
+					wb.CreateCell(row, c++, order.GetLots());
+					wb.CreateTextCell(row, c++, order.GetSymbol());
+					wb.CreateCell(row, c++, order.GetOpenPrice());
+					wb.CreateCell(row, c++, order.GetStopLoss());
+					wb.CreateCell(row, c++, order.GetTakeProfit());
+					wb.CreateCell(row, c++, order.GetCloseTime());
+					wb.CreateCell(row, c++, order.GetClosePrice());
+					wb.CreateCell(row, c++, order.GetCommission());
+					wb.CreateCell(row, c++, order.GetSwap());
+					wb.CreateCell(row, c++, order.GetProfit());
+				}
+
+				wb.Write(stream);
+			}
+		}
 		private void InnerOrderHistoryExportMt5(Account account)
 		{
 			if (!(account.Connector is FixApiIntegration.Connector fixConnector &&
-			      fixConnector.GeneralConnector is Mt5Connector connector)) return;
+				  fixConnector.GeneralConnector is Mt5Connector connector)) return;
 
 			var templatePath = $@"{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}\Templates\OrderHistory.xlsx";
 			var filePath = $@"{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}\Reports\OrderHistories\{account.FixApiAccount.Description}.xlsx";
@@ -110,7 +160,7 @@ namespace TradeSystem.Orchestration.Services
 				foreach (var order in orders)
 				{
 					if (order.OrderType != OrderType.Buy &&
-					    order.OrderType != OrderType.Sell) continue;
+						order.OrderType != OrderType.Sell) continue;
 
 					var c = 0;
 					var row = sheet.GetRow(++r) ?? sheet.CreateRow(r);
@@ -137,10 +187,10 @@ namespace TradeSystem.Orchestration.Services
 		}
 
 		public Task HubArbsExport(List<StratHubArbPosition> arbPositions)
-	    {
+		{
 			return Task.Run(() => InnerHubArbsExport(arbPositions));
 		}
-	    private void InnerHubArbsExport(List<StratHubArbPosition> arbPositions)
+		private void InnerHubArbsExport(List<StratHubArbPosition> arbPositions)
 		{
 			try
 			{
@@ -181,25 +231,25 @@ namespace TradeSystem.Orchestration.Services
 			{
 				Logger.Error("Hub arbs export exception", e);
 			}
-	    }
+		}
 
-	    public async Task SwapExport(List<Export> exports)
+		public async Task SwapExport(List<Export> exports)
 		{
 			await Task.Run(() => InnerSwapExport(exports));
 			Logger.Debug("Swap export is READY!");
 		}
-	    private void InnerSwapExport(List<Export> exports)
-	    {
-		    var templatePath = $@"{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}\Templates\SwapReport.xlsx";
-		    var filePath = $@"{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}\Reports\SwapReports\Swap_{HiResDatetime.UtcNow:yyyyMMdd_hhmmss}.xlsx";
-		    new FileInfo(filePath).Directory?.Create();
-		    using (var stream = new FileStream(filePath, FileMode.OpenOrCreate, FileAccess.ReadWrite))
-		    {
-			    var wb = new CustomWorkbook(templatePath);
-			    var sheet = wb.GetSheetAt(0);
+		private void InnerSwapExport(List<Export> exports)
+		{
+			var templatePath = $@"{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}\Templates\SwapReport.xlsx";
+			var filePath = $@"{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}\Reports\SwapReports\Swap_{HiResDatetime.UtcNow:yyyyMMdd_hhmmss}.xlsx";
+			new FileInfo(filePath).Directory?.Create();
+			using (var stream = new FileStream(filePath, FileMode.OpenOrCreate, FileAccess.ReadWrite))
+			{
+				var wb = new CustomWorkbook(templatePath);
+				var sheet = wb.GetSheetAt(0);
 
-			    var r = 0;
-			    foreach (var export in exports)
+				var r = 0;
+				foreach (var export in exports)
 				{
 					if (export.Account.Connector is Connector mt4Connector)
 					{
@@ -209,8 +259,16 @@ namespace TradeSystem.Orchestration.Services
 							: qc.Symbols.Where(s => s == export.Symbol).ToList();
 						qc.Subscribe(symbols.ToArray());
 					}
+					else if (export.Account.Connector is Nj4xIntegration.Connector nj4xConnector)
+					{
+						var nj4xClient = nj4xConnector.Nj4xClient;
+						var symbols = export.Symbol.Contains('*')
+							? nj4xClient.Symbols.Where(s => s.Contains(export.Symbol.Replace("*", ""))).ToList()
+							: nj4xClient.Symbols.Where(s => s == export.Symbol).ToList();
+						symbols.ForEach(symbol => nj4xConnector.Subscribe(symbol));
+					}
 					else if (export.Account.Connector is FixApiIntegration.Connector fixConnector &&
-					         fixConnector.GeneralConnector is Mt5Connector mt5Connector)
+							 fixConnector.GeneralConnector is Mt5Connector mt5Connector)
 					{
 						var api = mt5Connector.Mt5Api;
 						var symbols = export.Symbol.Contains('*')
@@ -221,7 +279,7 @@ namespace TradeSystem.Orchestration.Services
 						symbols.ForEach(s => api.Subscribe(s));
 					}
 				}
-			    Thread.Sleep(TimeSpan.FromSeconds(5));
+				Thread.Sleep(TimeSpan.FromSeconds(5));
 
 				foreach (var export in exports)
 				{
@@ -262,8 +320,45 @@ namespace TradeSystem.Orchestration.Services
 							wb.CreateTextCell(row, c++, ThreeDays(symbolInfo.Ex.swap_rollover3days));
 						}
 					}
+					if (export.Account.Connector is Nj4xIntegration.Connector nj4xConnector)
+					{
+						var nj4xClient = nj4xConnector.Nj4xClient;
+						var symbols = export.Symbol.Contains('*')
+							? nj4xClient.Symbols.Where(s => s.Contains(export.Symbol.Replace("*", "")))
+							: nj4xClient.Symbols.Where(s => s == export.Symbol);
+
+						foreach (var symbol in symbols)
+						{
+							var quote = nj4xClient.SymbolInfo(symbol);
+							var symbolInfo = nj4xClient.SymbolInfo(symbol);
+							var c = 0;
+							var row = sheet.GetRow(++r) ?? sheet.CreateRow(r);
+
+							wb.CreateTextCell(row, c++, export.Group ?? "");
+							wb.CreateTextCell(row, c++, nj4xClient.AccountCompany());
+							wb.CreateTextCell(row, c++, export.Account.Connector.Description);
+							wb.CreateCell(row, c++, nj4xClient.AccountInfo().Login);
+							wb.CreateCell(row, c++, nj4xClient.AccountLeverage());
+							wb.CreateTextCell(row, c++, symbol);
+							wb.CreateTextCell(row, c++, symbolInfo.TradeMode.ToString());
+							if (symbolInfo.TradeMode == nj4x.Metatrader.TradeMode.Disabled) continue;
+							wb.CreateTextCell(row, c++, symbolInfo.ContractPriceCalculationMode.ToString());
+							wb.CreateCell(row, c++, 0); // Margin divider, unknown
+							wb.CreateTextCell(row, c++, symbolInfo.MarginCurrency);
+							wb.CreateCell(row, c++, symbolInfo.InitialMargin);
+							wb.CreateCell(row, c++, symbolInfo.Digits);
+							wb.CreateCell(row, c++, quote?.Ask);
+							wb.CreateCell(row, c++, quote?.Bid);
+							wb.CreateTextCell(row, c++, symbolInfo.SwapMode != SwapMode.Disabled ? "False" : "True");
+							if (symbolInfo.SwapMode == SwapMode.Disabled) continue;
+							wb.CreateTextCell(row, c++, symbolInfo.SwapMode.ToString());
+							wb.CreateCell(row, c++, symbolInfo.LongSwap);
+							wb.CreateCell(row, c++, symbolInfo.ShortSwap);
+							wb.CreateTextCell(row, c++, symbolInfo.SwapRollover3Days.ToString());
+						}
+					}
 					else if (export.Account.Connector is FixApiIntegration.Connector fixConnector &&
-					         fixConnector.GeneralConnector is Mt5Connector mt5Connector)
+							 fixConnector.GeneralConnector is Mt5Connector mt5Connector)
 					{
 						var api = mt5Connector.Mt5Api;
 						var symbols = export.Symbol.Contains('*')
@@ -281,7 +376,7 @@ namespace TradeSystem.Orchestration.Services
 							wb.CreateTextCell(row, c++, export.Group ?? "");
 							wb.CreateTextCell(row, c++, api.Server);
 							wb.CreateTextCell(row, c++, export.Account.Connector.Description);
-							wb.CreateCell(row, c++, (double) api.User);
+							wb.CreateCell(row, c++, (double)api.User);
 							wb.CreateCell(row, c++, api.Account.Leverage);
 							wb.CreateTextCell(row, c++, symbol);
 							wb.CreateTextCell(row, c++, groupInfo.TradeMode.ToString());
@@ -305,91 +400,113 @@ namespace TradeSystem.Orchestration.Services
 					}
 				}
 
-			    wb.Write(stream);
-		    }
-	    }
-	    private string TradeMode(int mode)
-	    {
-		    switch (mode)
-		    {
+				wb.Write(stream);
+			}
+		}
+		private string TradeMode(int mode)
+		{
+			switch (mode)
+			{
 				case 0: return "Disabled";
 				case 1: return "CloseOnly";
 				case 2: return "Full";
 				case 3: return "LongOnly";
 				case 4: return "ShortOnly";
 				default: return "Unknown";
-		    }
+			}
 		}
-	    private string SwapType(int type)
-	    {
-		    switch (type)
-		    {
-			    case 0: return "Points";
-			    case 1: return "InBaseCurrency";
-			    case 2: return "ByInterest";
-			    case 3: return "InMarginCurrency";
-			    default: return "Unknown";
-		    }
-		}
-	    private string ThreeDays(int day)
-	    {
-		    switch (day)
-		    {
-			    case 1: return "Monday";
-			    case 2: return "Tuesday";
-			    case 3: return "Wednesday";
-			    case 4: return "Thursday";
-			    case 5: return "Friday";
+		private string SwapType(int type)
+		{
+			switch (type)
+			{
+				case 0: return "Points";
+				case 1: return "InBaseCurrency";
+				case 2: return "ByInterest";
+				case 3: return "InMarginCurrency";
 				default: return "Unknown";
-		    }
-	    }
-	    private double? SymbolLeverage(int accountLeverage, SymbolInfo symbolInfo)
-	    {
-		    switch (symbolInfo.MarginMode)
-		    {
-			    case MarginMode.Forex:
-				    return accountLeverage * symbolInfo.MarginDivider;
-			    case MarginMode.CfdLeverage:
-				    return accountLeverage * symbolInfo.MarginDivider;
-			    case MarginMode.CFD:
-				    return 1.0 / symbolInfo.MarginDivider;
+			}
+		}
+		private string ThreeDays(int day)
+		{
+			switch (day)
+			{
+				case 1: return "Monday";
+				case 2: return "Tuesday";
+				case 3: return "Wednesday";
+				case 4: return "Thursday";
+				case 5: return "Friday";
+				default: return "Unknown";
+			}
+		}
+		private double? SymbolLeverage(int accountLeverage, SymbolInfo symbolInfo)
+		{
+			switch (symbolInfo.MarginMode)
+			{
+				case MarginMode.Forex:
+					return accountLeverage * symbolInfo.MarginDivider;
+				case MarginMode.CfdLeverage:
+					return accountLeverage * symbolInfo.MarginDivider;
+				case MarginMode.CFD:
+					return 1.0 / symbolInfo.MarginDivider;
 				default: return null;
-		    }
+			}
 		}
 
 		public async Task BalanceProfitExport(List<Export> exports, DateTime from, DateTime to)
-	    {
-		    await Task.Run(() => InnerBalanceProfitExport(exports, from, to));
-		    Logger.Debug("Balance-profit export is READY!");
+		{
+			await Task.Run(() => InnerBalanceProfitExport(exports, from, to));
+			Logger.Debug("Balance-profit export is READY!");
 		}
-	    private void InnerBalanceProfitExport(List<Export> exports, DateTime from, DateTime to)
-	    {
-		    var templatePath = $@"{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}\Templates\BalanceProfitReport.xlsx";
-		    var filePath = $@"{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}\Reports\BalanceProfitReports\BalanceProfit_{from:yyyyMMdd}_{to:yyyyMMdd}.xlsx";
-		    new FileInfo(filePath).Directory?.Create();
-		    using (var stream = new FileStream(filePath, FileMode.OpenOrCreate, FileAccess.ReadWrite))
-		    {
-			    var wb = new CustomWorkbook(templatePath);
-			    var sheet = wb.GetSheetAt(0);
+		private void InnerBalanceProfitExport(List<Export> exports, DateTime from, DateTime to)
+		{
+			var templatePath = $@"{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}\Templates\BalanceProfitReport.xlsx";
+			var filePath = $@"{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}\Reports\BalanceProfitReports\BalanceProfit_{from:yyyyMMdd}_{to:yyyyMMdd}.xlsx";
+			new FileInfo(filePath).Directory?.Create();
+			using (var stream = new FileStream(filePath, FileMode.OpenOrCreate, FileAccess.ReadWrite))
+			{
+				var wb = new CustomWorkbook(templatePath);
+				var sheet = wb.GetSheetAt(0);
 
-			    var r = 0;
+				var r = 0;
 
-			    foreach (var export in exports)
-			    {
-				    var qc = ((Connector)export.Account.Connector).QuoteClient;
-				    var history = qc.DownloadOrderHistory(from, to);
+				foreach (var export in exports)
+				{
+					if (export.Account.Connector is Connector mt4Connector)
+					{
+						var qc = mt4Connector.QuoteClient;
+						var history = qc.DownloadOrderHistory(from, to);
 
-				    var c = 0;
-				    var row = sheet.GetRow(++r) ?? sheet.CreateRow(r);
+						var c = 0;
+						var row = sheet.GetRow(++r) ?? sheet.CreateRow(r);
 
-				    wb.CreateTextCell(row, c++, export.Account.Connector.Description);
-				    wb.CreateCell(row, c++, export.Account.Connector.Id);
-				    wb.CreateCell(row, c++, qc.AccountBalance);
-				    wb.CreateCell(row, c++, history.Sum(h => h.Profit + h.Swap + h.Commission));
+						wb.CreateTextCell(row, c++, export.Account.Connector.Description);
+						wb.CreateCell(row, c++, export.Account.Connector.Id);
+						wb.CreateCell(row, c++, qc.AccountBalance);
+						wb.CreateCell(row, c++, history.Sum(h => h.Profit + h.Swap + h.Commission));
+					}
+					else if (export.Account.Connector is Nj4xIntegration.Connector nj4xConnector)
+					{
+						var historyOrders = nj4xConnector.Nj4xClient.OrderGetAll(nj4x.Metatrader.SelectionPool.MODE_HISTORY, from, to);
+						double historySum = 0;
+
+						foreach (DictionaryEntry orderEntry in historyOrders)
+						{
+							IOrderInfo order = (IOrderInfo)orderEntry.Value;
+							historySum += order.GetProfit() + order.GetSwap() + order.GetCommission();
+						}
+
+						var c = 0;
+						var row = sheet.GetRow(++r) ?? sheet.CreateRow(r);
+
+						wb.CreateTextCell(row, c++, export.Account.Connector.Description);
+						wb.CreateCell(row, c++, export.Account.Connector.Id);
+						wb.CreateCell(row, c++, nj4xConnector.Nj4xClient.AccountBalance());
+						wb.CreateCell(row, c++, historySum);
+					}
 				}
 
-			    wb.Write(stream);
-		    }
-	    }
+				wb.Write(stream);
+			}
+		}
 	}
 }
