@@ -147,7 +147,7 @@
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
     <Reference Include="TradeSystem">
-      <HintPath>..\lib\MissingBobiDlls\TradeSystem.dll</HintPath>
+      <HintPath>..\..\QvaDev.Wololo_old\TradeSystem\bin\Release\TradeSystem.dll</HintPath>
     </Reference>
     <Reference Include="WindowsBase" />
   </ItemGroup>
@@ -162,6 +162,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\QvaDev.Wololo_old\TradeSystem.Communication\TradeSystem.Communication.csproj">
+      <Project>{9B577BD6-AEA9-4F64-9F1D-6EC760103295}</Project>
+      <Name>TradeSystem.Communication</Name>
+    </ProjectReference>
     <ProjectReference Include="..\TradeSystem.Common\TradeSystem.Common.csproj">
       <Project>{10a3ef89-12bb-4d00-9950-36bfed281b91}</Project>
       <Name>TradeSystem.Common</Name>
