@@ -293,7 +293,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			set.Stopwatch.Restart();
 			try
 			{
-				if (account.Connector is Mt4Integration.Connector connector)
+				if (account.Connector is IMtConnector connector)
 				{
 					var pos = connector.SendMarketOrderRequest(symbol, Sides.Buy, (double)size, signalPrice, set.Deviation, 0, set.Comment, 0, 0);
 					if (pos?.Pos == null) return null;
@@ -352,7 +352,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			set.Stopwatch.Restart();
 			try
 			{
-				if (account.Connector is Mt4Integration.Connector connector)
+				if (account.Connector is IMtConnector connector)
 				{
 					var pos = connector.SendMarketOrderRequest(symbol, Sides.Sell, (double)size, signalPrice, set.Deviation, 0, set.Comment, 0, 0);
 					if (pos?.Pos == null) return null;
@@ -494,7 +494,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			set.Stopwatch.Restart();
 			try
 			{
-				if (account.Connector is Mt4Integration.Connector connector)
+				if (account.Connector is IMtConnector connector)
 				{
 					if (!arbPos.LongTicket.HasValue) return null;
 					connector.Positions.TryGetValue(arbPos.LongTicket.Value, out var pos);
@@ -543,7 +543,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			set.Stopwatch.Restart();
 			try
 			{
-				if (account.Connector is Mt4Integration.Connector connector)
+				if (account.Connector is IMtConnector connector)
 				{
 					if (!arbPos.ShortTicket.HasValue) return null;
 					connector.Positions.TryGetValue(arbPos.ShortTicket.Value, out var pos);

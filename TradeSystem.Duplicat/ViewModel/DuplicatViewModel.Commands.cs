@@ -80,7 +80,6 @@ namespace TradeSystem.Duplicat.ViewModel
 				_orchestrator.StartTradeStrategy(AutoLoadPositionsInSec);
 				_orchestrator.StartRiskManagementStrategy(AutoLoadPositionsInSec);
 
-
 				IsLoading = false;
 				IsConfigReadonly = true;
 				IsConnected = true;

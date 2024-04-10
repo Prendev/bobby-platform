@@ -78,7 +78,7 @@ namespace TradeSystem.Orchestration.Services
 
 	    public async Task Sync(Slave slave)
 		{
-			if (!(slave.Master.Account.Connector is Mt4Integration.Connector masterCon)) return;
+			if (!(slave.Master.Account.Connector is IMtConnector masterCon)) return;
 			if (!(slave.Account.Connector is FixApiIntegration.Connector)) return;
 
 			Logger.Info("CopierService.Sync started");
@@ -100,7 +100,7 @@ namespace TradeSystem.Orchestration.Services
 		}
 	    public async Task SyncNoOpen(Slave slave)
 	    {
-		    if (!(slave.Master.Account.Connector is Mt4Integration.Connector masterCon)) return;
+		    if (!(slave.Master.Account.Connector is IMtConnector masterCon)) return;
 		    if (!(slave.Account.Connector is FixApiIntegration.Connector)) return;
 
 		    Logger.Info("CopierService.Sync started");
@@ -183,7 +183,7 @@ namespace TradeSystem.Orchestration.Services
 			if (!slave.Master.Run) return;
 			if (!slave.Run) return;
 			if (!slave.CloseBothWays) return;
-			if (!(slave.Master.Account.Connector is Mt4Integration.Connector connector)) return;
+			if (!(slave.Master.Account.Connector is IMtConnector connector)) return;
 
 			// Close by copier position table
 			foreach (var copier in slave.Copiers)
@@ -280,7 +280,7 @@ namespace TradeSystem.Orchestration.Services
 
 	    private Task CopyToMtAccount(NewPosition e, Slave slave, string symbol)
 	    {
-		    if (!(slave.Account?.Connector is Mt4Integration.Connector slaveConnector)) return Task.FromResult(0);
+		    if (!(slave.Account?.Connector is IMtConnector slaveConnector)) return Task.FromResult(0);
 
 		    var tasks = slave.Copiers
 			    .Where(c => c.Run)
@@ -353,7 +353,7 @@ namespace TradeSystem.Orchestration.Services
 			    }, copier.DelayInMilliseconds));
 		    return Task.WhenAll(tasks);
 	    }
-	    private static void CopyToMtAccountClose(Copier copier, CopierPosition copierPos, Connector connector, long ticket)
+	    private static void CopyToMtAccountClose(Copier copier, CopierPosition copierPos, IMtConnector connector, long ticket)
 	    {
 		    if (copier.CrossCopier != null)
 		    {

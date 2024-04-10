@@ -10,20 +10,7 @@ using TradingAPI.MT4Server;
 
 namespace TradeSystem.Mt4Integration
 {
-	public interface IConnector : Common.Integration.IConnector
-	{
-		PositionResponse SendMarketOrderRequest(string symbol, Sides side, double lots);
-
-		PositionResponse SendMarketOrderRequest(string symbol, Sides side, double lots, int magicNumber,
-			string comment, int maxRetryCount, int retryPeriodInMs);
-
-		PositionResponse SendMarketOrderRequest(string symbol, Sides side, double lots, decimal price, decimal deviation, int magicNumber,
-			string comment, int maxRetryCount, int retryPeriodInMs);
-
-		PositionResponse SendClosePositionRequests(Position position, int maxRetryCount, int retryPeriodInMs);
-	}
-
-	public class Connector : ConnectorBase, IConnector
+	public class Connector : ConnectorBase, IMtConnector
 	{
 		private readonly TaskCompletionManager<int> _taskCompletionManager;
 		//private readonly HashSet<int> _finishedOrderIds = new HashSet<int>();

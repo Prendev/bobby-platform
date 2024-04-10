@@ -1,8 +1,12 @@
-﻿using System;
+﻿using nj4x;
+using nj4x.Metatrader;
+using System;
+using System.Collections;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using TradeSystem.Common.Integration;
+using TradeSystem.Communication;
 using TradeSystem.Communication.Mt5;
 using TradeSystem.Data;
 using TradeSystem.Data.Models;
@@ -36,7 +40,7 @@ namespace TradeSystem.Orchestration.Services
 				var records = csvReader.GetRecords<Record>().ToList();
 
 				var profile = duplicatContext.Profiles.FirstOrDefault(p => p.Description == "*Import-Export") ??
-				              duplicatContext.Profiles.Add(new Profile() {Description = "*Import-Export"}).Entity;
+							  duplicatContext.Profiles.Add(new Profile() { Description = "*Import-Export" }).Entity;
 
 				foreach (var srv in records.Select(r => r.Server).Distinct())
 				{
@@ -69,7 +73,7 @@ namespace TradeSystem.Orchestration.Services
 					}
 
 					if (mtAccount.Accounts.All(a => a.Profile != profile))
-						mtAccount.Accounts.AddSafe(new Account() {Profile = profile, Run = true});
+						mtAccount.Accounts.AddSafe(new Account() { Profile = profile, Run = true });
 				}
 
 				duplicatContext.SaveChanges();
@@ -110,14 +114,61 @@ namespace TradeSystem.Orchestration.Services
 					csvWriter.WriteHeader<SaveTheWeekendRecord>();
 					csvWriter.NextRecord();
 
+					var nj4xAccounts = duplicatContext.Accounts.Local
+						.Where(a => a.Run && a.MetaTraderAccountId.HasValue && a.Nj4x &&
+									a.ConnectionState == ConnectionStates.Connected);
+					foreach (var account in nj4xAccounts)
+					{
+						try
+						{
+							var conn = (Nj4xIntegration.Connector)account.Connector;
+							var orders = conn.Nj4xClient.OrderGetAll(nj4x.Metatrader.SelectionPool.MODE_HISTORY, from, to);
+
+							if ((orders?.Count ?? 0) == 0) continue;
+
+							foreach (DictionaryEntry orderEntry in orders)
+							{
+								IOrderInfo order = (IOrderInfo)orderEntry.Value;
+
+								if (!symbols.Contains(order.GetSymbol().ToLowerInvariant())) continue;
+
+								var record = new SaveTheWeekendRecord()
+								{
+									Holder = conn.Nj4xClient.AccountName(),
+									Broker = conn.Nj4xClient.AccountCompany(),
+									Account = account.MetaTraderAccount.User,
+									ID = order.Ticket(),
+									OpenTime = order.GetOpenTime(),
+									Type = order.GetTradeOperation() == TradeOperation.OP_BUY ? "buy" : "sell",
+									Size = order.GetLots(),
+									Symbol = order.GetSymbol(),
+									OpenPrice = order.GetOpenPrice(),
+									Sl = order.GetStopLoss(),
+									Tp = order.GetTakeProfit(),
+									CloseTime = order.GetCloseTime(),
+									Price = order.GetClosePrice(),
+									Commission = order.GetCommission(),
+									Swap = order.GetSwap(),
+									Profit = order.GetProfit()
+								};
+								csvWriter.WriteRecord(record);
+								csvWriter.NextRecord();
+							}
+						}
+						catch (Exception ex)
+						{
+							Logger.Error("Nj4xMtAccountImportService.SaveTheWeekend error", ex);
+						}
+					}
+
 					var mt4Accounts = duplicatContext.Accounts.Local
 						.Where(a => a.Run && a.MetaTraderAccountId.HasValue &&
-						            a.ConnectionState == ConnectionStates.Connected);
+									a.ConnectionState == ConnectionStates.Connected);
 					foreach (var account in mt4Accounts)
 					{
 						try
 						{
-							var conn = (Mt4Integration.Connector) account.Connector;
+							var conn = (Mt4Integration.Connector)account.Connector;
 							var orders = conn.QuoteClient.DownloadOrderHistory(from, to);
 							if ((orders?.Length ?? 0) == 0) continue;
 							var us = orders.Where(o => symbols.Contains(o.Symbol.ToLowerInvariant()));
@@ -156,15 +207,15 @@ namespace TradeSystem.Orchestration.Services
 
 					var mt5Accounts = duplicatContext.Accounts.Local.ToList()
 						.Where(a => a.Run && a.FixApiAccountId.HasValue &&
-						            a.ConnectionState == ConnectionStates.Connected &&
-						            a.Connector is FixApiIntegration.Connector fixConnector &&
-						            fixConnector.GeneralConnector is Mt5Connector);
+									a.ConnectionState == ConnectionStates.Connected &&
+									a.Connector is FixApiIntegration.Connector fixConnector &&
+									fixConnector.GeneralConnector is Mt5Connector);
 					foreach (var account in mt5Accounts)
 					{
 						try
 						{
 
-							var conn = (Mt5Connector) ((FixApiIntegration.Connector) account.Connector)
+							var conn = (Mt5Connector)((FixApiIntegration.Connector)account.Connector)
 								.GeneralConnector;
 							var api = conn.Mt5Api;
 							var orders = api.DownloadOrderHistory(from, to)?.Orders;
@@ -178,7 +229,7 @@ namespace TradeSystem.Orchestration.Services
 								{
 									Holder = api.Account.UserName,
 									Broker = api.AccountCompanyName,
-									Account = (long) api.Account.Login,
+									Account = (long)api.Account.Login,
 									ID = order.Ticket,
 									OpenTime = order.OpenTime,
 									Type = order.OrderType == OrderType.Buy ? "buy" : "sell",

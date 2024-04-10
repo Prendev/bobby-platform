@@ -119,6 +119,7 @@
     <Compile Include="Integration\ConnectionStates.cs" />
     <Compile Include="Integration\FixApiConnectorBase.cs" />
     <Compile Include="Integration\ConnectorBase.cs" />
+    <Compile Include="Integration\IMtConnector.cs" />
     <Compile Include="Integration\IFixConnector.cs" />
     <Compile Include="Integration\LimitFill.cs" />
     <Compile Include="Integration\LimitResponse.cs" />

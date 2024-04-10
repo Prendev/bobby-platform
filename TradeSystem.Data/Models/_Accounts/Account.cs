@@ -19,6 +19,7 @@ namespace TradeSystem.Data.Models
 
 		public int? MetaTraderAccountId { get; set; }
 		public MetaTraderAccount MetaTraderAccount { get; set; }
+		public bool Nj4x { get; set; }
 
 		public int? FixApiAccountId { get; set; }
 		public FixApiAccount FixApiAccount { get; set; }

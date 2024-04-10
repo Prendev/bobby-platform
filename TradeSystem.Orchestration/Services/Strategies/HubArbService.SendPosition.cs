@@ -48,7 +48,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 
 					else throw new NotImplementedException();
 				}
-				else if (account.Connector is Mt4Integration.IConnector mt4)
+				else if (account.Connector is IMtConnector mt4)
 				{
 					var resp = mt4.SendMarketOrderRequest(symbol, side, (double) size, 0, null, arb.MaxRetryCount, arb.RetryPeriodInMs);
 					if (resp?.Pos?.Lots > 0)
