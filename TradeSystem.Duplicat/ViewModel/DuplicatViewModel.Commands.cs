@@ -134,7 +134,6 @@ namespace TradeSystem.Duplicat.ViewModel
 				RiskManagementAccoutVisibilities.Clear();
 				SortedTradePositions.Clear();
 				SelectedRiskManagements.Clear();
-				SelectedRiskManagementSettings.Clear();
 				SelectedRiskManagementSetting = null;
 
 				_autoSaveTimer.Stop();
@@ -196,8 +195,6 @@ namespace TradeSystem.Duplicat.ViewModel
 			//if (IsConfigReadonly) return;
 			//if (IsLoading) return;
 			SelectedRiskManagementSetting = riskManagement.RiskManagementSetting;
-			SelectedRiskManagementSettings.Clear();
-			SelectedRiskManagementSettings.Add(riskManagement.RiskManagementSetting);
 		}
 
 

@@ -22,7 +22,7 @@ namespace TradeSystem.Duplicat.Views
 		private readonly Dictionary<string, CustomDateTimePicker> _dateTimePickers = new Dictionary<string, CustomDateTimePicker>();
 
 		public EventHandler RowDoubleClick;
-
+		public bool IsToolTip { get; set; }
 		public CustomDataGridView()
 		{
 			ShowCellToolTips = false;
@@ -57,12 +57,21 @@ namespace TradeSystem.Duplicat.Views
 			if (e.ColumnIndex < 0) return;
 			if (e.RowIndex != -1) return;
 			if (_tooltip != null) return;
+			if (!(DataSource is IBindingList bindingList)) return;
 
-			var column = Columns[e.ColumnIndex];
-			if (column.HeaderText == column.DataPropertyName) return;
-			if (column.HeaderText.Contains('*')) return;
+			var property = bindingList.GetType().GetGenericArguments()[0].GetProperty(Columns[e.ColumnIndex].DataPropertyName);
+			var tooltip = ((TooltipAttribute)Attribute.GetCustomAttribute(property, typeof(TooltipAttribute)))?.Tooltip;
+
+			if (string.IsNullOrEmpty(tooltip))
+			{
+				var column = Columns[e.ColumnIndex];
+				if (column.HeaderText == column.DataPropertyName) return;
+				if (column.HeaderText.Contains('*')) return;
+
+				tooltip = Columns[e.ColumnIndex].DataPropertyName;
+			}
 			_tooltip = new ToolTip();
-			_tooltip.SetToolTip(this, Columns[e.ColumnIndex].DataPropertyName);
+			_tooltip.SetToolTip(this, tooltip);
 		}
 
 		private void CustomDataGridView_CellMouseLeave(object sender, DataGridViewCellEventArgs e)

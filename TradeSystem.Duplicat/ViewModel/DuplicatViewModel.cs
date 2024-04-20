@@ -142,7 +142,6 @@ namespace TradeSystem.Duplicat.ViewModel
 		public BindingList<RiskManagement> RiskManagements { get; private set; }
 		public BindingList<RiskManagement> SelectedRiskManagements { get; private set; } = new BindingList<RiskManagement>();
 		public SortableBindingList<RiskManagerAccountVisibility> RiskManagementAccoutVisibilities { get; private set; } = new SortableBindingList<RiskManagerAccountVisibility>();
-		public BindingList<RiskManagementSetting> SelectedRiskManagementSettings { get; private set; } = new BindingList<RiskManagementSetting>();
 
 		public string FilterText { get => Get<string>(); set => Set(value); }
 		public int AutoSavePeriodInMin { get => Get<int>(); set => Set(value); }

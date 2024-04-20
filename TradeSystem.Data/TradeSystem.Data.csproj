@@ -237,6 +237,7 @@
     </Compile>
     <Compile Include="Migrations\DuplicatContextModelSnapshot.cs" />
     <Compile Include="Models\CopierPosition.cs" />
+    <Compile Include="Models\KeyValue.cs" />
     <Compile Include="Models\_Strategies\BrokerSymbolStatus.cs" />
     <Compile Include="Models\_Strategies\MtAccountPosition.cs" />
     <Compile Include="Models\_Strategies\MtPosition.cs" />

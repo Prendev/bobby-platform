@@ -1,5 +1,4 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
@@ -18,7 +17,6 @@ namespace TradeSystem.Duplicat.Views._Strategies
 		}
 		public void AttachDataSources()
 		{
-			cdgSettings.DataSource = _viewModel.SelectedRiskManagementSettings;
 			cdgRiskManagements.DataSource = _viewModel.SelectedRiskManagements;
 			cdgAccountVisibility.DataSource = _viewModel.RiskManagementAccoutVisibilities;
 		}
@@ -51,10 +49,7 @@ namespace TradeSystem.Duplicat.Views._Strategies
 			_viewModel = viewModel;
 			labelAccount.AddBinding<RiskManagementSetting, string>("Text", _viewModel, nameof(_viewModel.SelectedRiskManagementSetting), p => p?.RiskManagement.AccountName ?? "");
 
-			cdgSettings.AllowUserToAddRows = false;
-			cdgSettings.AllowUserToDeleteRows = false;
-			cdgSettings.RowHeadersVisible = false;
-			cdgSettings.CellEndEdit += CdgSettings_CellEndEdit;
+			kvdgRiskManagementSettings.ValueChanged += KvdgRiskManagementSettings_ValueChanged;
 
 			cdgRiskManagements.AllowUserToAddRows = false;
 			cdgRiskManagements.AllowUserToDeleteRows = false;
@@ -129,9 +124,10 @@ namespace TradeSystem.Duplicat.Views._Strategies
 		private void CdgRiskManagements_DoubleClick(object sender, System.EventArgs e)
 		{
 			_viewModel.LoadSettingCommand(cdgRiskManagements.GetSelectedItem<RiskManagement>());
+			kvdgRiskManagementSettings.MappingSelectedItem(_viewModel.SelectedRiskManagementSetting);
 		}
 
-		private void CdgSettings_CellEndEdit(object sender, DataGridViewCellEventArgs e)
+		private void KvdgRiskManagementSettings_ValueChanged(object sender, EventArgs e)
 		{
 			cdgRiskManagements.Refresh();
 		}

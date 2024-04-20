@@ -30,11 +30,13 @@ namespace TradeSystem.Data.Models
 		[NotMapped]
 		[ReadOnly(true)]
 		[DisplayPriority(4)]
+		[Tooltip("Count of open orders that have been open for the longest duration")]
 		public int? HighestTicketDuration { get => Get<int?>(); set => Set(value); }
 
 		[NotMapped]
 		[ReadOnly(true)]
 		[DisplayPriority(4)]
+		[Tooltip("Amount of orders with a value that’s greater than MaxTicketDuration")]
 		public int? NumTicketsHighDuration { get => Get<int?>(); set => Set(value); }
 
 		private int GetAccountAge()

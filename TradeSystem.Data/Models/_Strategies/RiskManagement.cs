@@ -30,6 +30,7 @@ namespace TradeSystem.Data.Models
 		public double PnL { get; set; }
 
 		[DisplayPriority(3)]
+		[Tooltip(" Hypothetical accrued swaps in money")]
 		public double HypoAccSwaps { get; set; }
 	}
 }

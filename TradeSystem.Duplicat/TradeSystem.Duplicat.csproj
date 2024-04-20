@@ -227,6 +227,12 @@
     <Compile Include="Views\CustomDateTimePicker.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Views\KeyValueDataGridView.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Views\KeyValueDataGridView.Designer.cs">
+      <DependentUpon>KeyValueDataGridView.cs</DependentUpon>
+    </Compile>
     <Compile Include="Views\Notifications\TelegramNotificationUserControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
