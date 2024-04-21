@@ -91,6 +91,12 @@ namespace TradeSystem.Duplicat.Views._Strategies
 						if (riskManagement.HighestTicketDuration != null) FormatCellFill(cell, riskManagement.RiskManagementSetting.MaxTicketDuration);
 						else cell.Style.BackColor = Color.White;
 						break;
+					case nameof(RiskManagement.LowEquity):
+						FormatEquityCell(cell, riskManagement.Account.Equity, riskManagement.LowEquity);
+						break;
+					case nameof(RiskManagement.HighEquity):
+						FormatEquityCell(cell, riskManagement.Account.Equity, riskManagement.HighEquity);
+						break;
 				}
 			}
 		}
@@ -121,6 +127,14 @@ namespace TradeSystem.Duplicat.Views._Strategies
 			}
 		}
 
+		private void FormatEquityCell(DataGridViewCell cell, double accountEquity, double? thresholdEquity)
+		{
+			if (thresholdEquity.HasValue && accountEquity < thresholdEquity) cell.Style.BackColor = Color.FromArgb(255, 0, 0);
+			else if (thresholdEquity.HasValue && Math.Abs(accountEquity - thresholdEquity.Value) / thresholdEquity.Value < 0.05) cell.Style.BackColor = Color.Yellow;
+			else if (thresholdEquity.HasValue) cell.Style.BackColor = Color.FromArgb(0, 255, 0);
+			else cell.Style.BackColor = Color.White;
+		}
+
 		private void CdgRiskManagements_DoubleClick(object sender, System.EventArgs e)
 		{
 			_viewModel.LoadSettingCommand(cdgRiskManagements.GetSelectedItem<RiskManagement>());
@@ -129,7 +143,27 @@ namespace TradeSystem.Duplicat.Views._Strategies
 
 		private void KvdgRiskManagementSettings_ValueChanged(object sender, EventArgs e)
 		{
+			_viewModel.SelectedRiskManagementSetting.RiskManagement.LowEquity = GetLowEquity();
+			_viewModel.SelectedRiskManagementSetting.RiskManagement.HighEquity = GetHighEquity();
 			cdgRiskManagements.Refresh();
+		}
+
+		private double? GetLowEquity()
+		{
+			if (_viewModel.SelectedRiskManagementSetting?.OptimumEquity != null && _viewModel.SelectedRiskManagementSetting?.AddEq != null)
+			{
+				return _viewModel.SelectedRiskManagementSetting.OptimumEquity * _viewModel.SelectedRiskManagementSetting.AddEq;
+			}
+			return null;
+		}
+
+		private double? GetHighEquity()
+		{
+			if (_viewModel.SelectedRiskManagementSetting?.OptimumEquity != null && _viewModel.SelectedRiskManagementSetting?.WdrawEq != null)
+			{
+				return _viewModel.SelectedRiskManagementSetting.OptimumEquity * _viewModel.SelectedRiskManagementSetting.WdrawEq;
+			}
+			return null;
 		}
 	}
 }

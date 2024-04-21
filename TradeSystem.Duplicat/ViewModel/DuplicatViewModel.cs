@@ -172,7 +172,6 @@ namespace TradeSystem.Duplicat.ViewModel
 		public Copier SelectedCopier { get => Get<Copier>(); set => Set(value); }
 		public Pushing SelectedPushing { get => Get<Pushing>(); set => Set(value); }
 		public Spoofing SelectedSpoofing { get => Get<Spoofing>(); set => Set(value); }
-		public RiskManagement SelectedRiskManagement { get => Get<RiskManagement>(); set => Set(value); }
 		public RiskManagementSetting SelectedRiskManagementSetting { get => Get<RiskManagementSetting>(); set => Set(value); }
 
 		public DuplicatViewModel(

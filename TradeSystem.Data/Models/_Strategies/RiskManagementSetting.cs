@@ -17,5 +17,8 @@ namespace TradeSystem.Data.Models
         public double MaxSwaps { get; set; }
 
 		public int MaxTicketDuration { get; set; }
+		public int OptimumEquity { get; set; }
+		public int AddEq { get; set; }
+		public int WdrawEq { get; set; }
 	}
 }

@@ -39,6 +39,20 @@ namespace TradeSystem.Data.Models
 		[Tooltip("Amount of orders with a value that’s greater than MaxTicketDuration")]
 		public int? NumTicketsHighDuration { get => Get<int?>(); set => Set(value); }
 
+		[NotMapped]
+		[ReadOnly(true)]
+		[DisplayPriority(4)]
+		[DisplayName("Low equity level")]
+		[Tooltip("OptimumEquity * AddEq => Red when Equity level of the account is below LowEquity amount, Yellow when Equity level is within 5% of LowEquity, Otherwise green")]
+		public double? LowEquity { get => Get<double?>(); set => Set(value); }
+
+		[NotMapped]
+		[ReadOnly(true)]
+		[DisplayPriority(4)]
+		[DisplayName("High equity level")]
+		[Tooltip("OptimumEquity * WdrawEq => Red when Equity level of the account is below HighEquity  amount, Yellow when Equity level is within 5% of HighEquity , Otherwise green")]
+		public double? HighEquity { get => Get<double?>(); set => Set(value); }
+
 		private int GetAccountAge()
 		{
 			if (firstActivity.HasValue)
