@@ -276,12 +276,16 @@
 			this.label1.Text = "Selected account:";
 			this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
 			// 
-			// keyValueDataGridView1
+			// kvdgRiskManagementSettings
 			// 
+			this.kvdgRiskManagementSettings.AllowUserToAddRows = false;
+			this.kvdgRiskManagementSettings.AllowUserToDeleteRows = false;
 			this.kvdgRiskManagementSettings.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
 			this.kvdgRiskManagementSettings.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.kvdgRiskManagementSettings.Item = null;
 			this.kvdgRiskManagementSettings.Location = new System.Drawing.Point(3, 28);
-			this.kvdgRiskManagementSettings.Name = "keyValueDataGridView1";
+			this.kvdgRiskManagementSettings.Name = "kvdgRiskManagementSettings";
+			this.kvdgRiskManagementSettings.RowHeadersVisible = false;
 			this.kvdgRiskManagementSettings.RowHeadersWidth = 51;
 			this.kvdgRiskManagementSettings.RowTemplate.Height = 24;
 			this.kvdgRiskManagementSettings.Size = new System.Drawing.Size(338, 616);

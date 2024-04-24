@@ -118,7 +118,7 @@
 			this.btnDisconnect = new System.Windows.Forms.Button();
 			this.btnConnect = new System.Windows.Forms.Button();
 			this.btnSave = new System.Windows.Forms.Button();
-			this.telegramNotificationUserControl1 = new TradeSystem.Duplicat.Views._Accounts.TelegramNotificationUserControl();
+			this.telegramUserControl = new TradeSystem.Duplicat.Views.Notifications.TelegramNotificationUserControl();
 			this.tabControlMain.SuspendLayout();
 			this.tabPageProfile.SuspendLayout();
 			this.tabPageAccount.SuspendLayout();
@@ -726,7 +726,7 @@
 			// 
 			// tabPageTelegram
 			// 
-			this.tabPageTelegram.Controls.Add(this.telegramNotificationUserControl1);
+			this.tabPageTelegram.Controls.Add(this.telegramUserControl);
 			this.tabPageTelegram.Location = new System.Drawing.Point(4, 25);
 			this.tabPageTelegram.Name = "tabPageTelegram";
 			this.tabPageTelegram.Padding = new System.Windows.Forms.Padding(3);
@@ -1207,14 +1207,13 @@
 			this.btnSave.Text = "Save config changes";
 			this.btnSave.UseVisualStyleBackColor = true;
 			// 
-			// telegramNotificationUserControl1
+			// telegramUserControl
 			// 
-			this.telegramNotificationUserControl1.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.telegramNotificationUserControl1.Location = new System.Drawing.Point(3, 3);
-			this.telegramNotificationUserControl1.Margin = new System.Windows.Forms.Padding(4);
-			this.telegramNotificationUserControl1.Name = "telegramNotificationUserControl1";
-			this.telegramNotificationUserControl1.Size = new System.Drawing.Size(1209, 445);
-			this.telegramNotificationUserControl1.TabIndex = 0;
+			this.telegramUserControl.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.telegramUserControl.Location = new System.Drawing.Point(4, 4);
+			this.telegramUserControl.Name = "telegramUserControl";
+			this.telegramUserControl.Size = new System.Drawing.Size(1511, 556);
+			this.telegramUserControl.TabIndex = 0;
 			// 
 			// MainForm
 			// 
@@ -1380,7 +1379,7 @@
 		private BtAccountsUserControl btAccountsUserControl;
 		private System.Windows.Forms.TabPage tabPageLogNotifications;
 		private System.Windows.Forms.RichTextBox rtbAllNotifications;
-		private _Accounts.TelegramNotificationUserControl telegramNotificationUserControl1;
+		private Notifications.TelegramNotificationUserControl telegramUserControl;
 	}
 }
 

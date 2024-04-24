@@ -600,6 +600,10 @@
       <Project>{99cb171b-43ea-429a-9835-36fbe59f87aa}</Project>
       <Name>TradeSystem.Nj4xIntegration</Name>
     </ProjectReference>
+    <ProjectReference Include="..\TradeSystem.Notification\TradeSystem.Notification.csproj">
+      <Project>{FAF355B7-1510-474E-BD4C-9ECC583347FA}</Project>
+      <Name>TradeSystem.Notification</Name>
+    </ProjectReference>
     <ProjectReference Include="..\TradeSystem.Orchestration\TradeSystem.Orchestration.csproj">
       <Project>{7fcd6735-2115-4096-b5c9-e5cd7b4a3c1c}</Project>
       <Name>TradeSystem.Orchestration</Name>

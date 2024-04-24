@@ -2,11 +2,11 @@
 using System.Windows.Forms;
 using TradeSystem.Duplicat.ViewModel;
 
-namespace TradeSystem.Duplicat.Views._Accounts
+namespace TradeSystem.Duplicat.Views.Notifications
 {
 	public partial class TelegramNotificationUserControl : UserControl, IMvvmUserControl
 	{
-        private DuplicatViewModel _viewModel;
+		private DuplicatViewModel _viewModel;
 		public TelegramNotificationUserControl()
 		{
 			InitializeComponent();
@@ -14,22 +14,22 @@ namespace TradeSystem.Duplicat.Views._Accounts
 
 		public void AttachDataSources()
 		{
-			dgvTelegramSettings.DataSource = _viewModel.TelegramSettings;
+			dgvChatSettings.AddComboBoxColumn(_viewModel.TelegramBots);
 			dgvChatSettings.DataSource = _viewModel.TelegramChatSettings;
+
+			cdgBotList.DataSource = _viewModel.TelegramBots;
 		}
 
 		public void InitView(DuplicatViewModel viewModel)
 		{
-            _viewModel = viewModel;
+			_viewModel = viewModel;
+			dgvChatSettings.AddBinding("ReadOnly", _viewModel, nameof(_viewModel.IsConfigReadonly));
+			cdgBotList.AddBinding("ReadOnly", _viewModel, nameof(_viewModel.IsConfigReadonly));
 
 			if (!bool.TryParse(ConfigurationManager.AppSettings["DisableGuiLogger"], out var disableLogger) || !disableLogger)
 			{
 				TextBoxAppender.ConfigureTextBoxAppender(rtbTelegram, "TELEGRAM", 1000);
 			}
-
-			dgvTelegramSettings.AllowUserToAddRows = false;
-			dgvTelegramSettings.RowHeadersVisible = false;
-			dgvTelegramSettings.AddBinding("ReadOnly", _viewModel, nameof(_viewModel.IsConfigReadonly));
 		}
 	}
 }

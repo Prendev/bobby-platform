@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using TradeSystem.Common.Services;
 using TradeSystem.Data;
 using TradeSystem.Data.Models;
+using TradeSystem.Notification.Services;
 using Mt4PlacedType = TradingAPI.MT4Server.PlacedType;
 using Mt5PlacedType = mtapi.mt5.PlacedType;
 
@@ -14,13 +15,19 @@ namespace TradeSystem.Orchestration.Services
 	{
 		private readonly CTraderIntegration.ICtConnectorFactory _ctConnectorFactory;
 		private readonly IEmailService _emailService;
+		private readonly ITelegramService _telegramService;
+		private readonly ITwilioService _twilioService;
 
 		public ConnectorFactory(
 			CTraderIntegration.ICtConnectorFactory ctConnectorFactory,
-			IEmailService emailService)
+			IEmailService emailService,
+			ITelegramService telegramService,
+			ITwilioService twilioService)
 		{
 			_emailService = emailService;
 			_ctConnectorFactory = ctConnectorFactory;
+			_telegramService = telegramService;
+			_twilioService = twilioService;
 		}
 		public async Task Create(Account account)
 		{
@@ -33,6 +40,10 @@ namespace TradeSystem.Orchestration.Services
 				else if (account.CqgClientApiAccountId.HasValue) await ConnectCqgClientApiAccount(account);
 				else if (account.IbAccountId.HasValue) await ConnectIbAccount(account);
 				else if (account.BacktesterAccountId.HasValue) ConnectBtAccount(account);
+				else return;
+
+				_telegramService.AddAccount(account);
+				_twilioService.AddAccount(account);
 			}
 			catch (Exception e)
 			{

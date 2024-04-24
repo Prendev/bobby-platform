@@ -108,6 +108,10 @@
       <Project>{73a2679e-f17e-4484-8874-461d3fc895dd}</Project>
       <Name>TradeSystem.Mt4Integration</Name>
     </ProjectReference>
+    <ProjectReference Include="..\TradeSystem.Notification\TradeSystem.Notification.csproj">
+      <Project>{FAF355B7-1510-474E-BD4C-9ECC583347FA}</Project>
+      <Name>TradeSystem.Notification</Name>
+    </ProjectReference>
     <ProjectReference Include="..\TradeSystem.Orchestration\TradeSystem.Orchestration.csproj">
       <Project>{7fcd6735-2115-4096-b5c9-e5cd7b4a3c1c}</Project>
       <Name>TradeSystem.Orchestration</Name>
