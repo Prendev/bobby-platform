@@ -99,16 +99,16 @@ namespace TradeSystem.Notification.Services
 						account.Connector.MarginLevel < account.MarginLevelAlert)
 					{
 						MarginErrorEvent?.Invoke(this, telegramKeyValue.Key);
-						await Task.Delay(1000 * /*60 **/ keyTelegramChatSetting.TelegramBot.CoolDownTimerInMin, cancellationTokenSource.Token);
+						await Task.Delay(1000 * 60 * keyTelegramChatSetting.TelegramBot.CoolDownTimerInMin, cancellationTokenSource.Token);
 					}
 
 					if (keyAccount == account &&
 						keyTelegramChatSetting.NotificationType == NotificationType.HighLowEquity && (
 						(account.RiskManagement.LowEquity.HasValue && account.Equity < account.RiskManagement.LowEquity.Value) ||
-						(account.RiskManagement.HighEquity.HasValue && account.Equity < account.RiskManagement.HighEquity.Value)))
+						(account.RiskManagement.HighEquity.HasValue && account.Equity > account.RiskManagement.HighEquity.Value)))
 					{
 						LowHighEquityErrorEvent?.Invoke(this, telegramKeyValue.Key);
-						await Task.Delay(1000 * /*60 **/ keyTelegramChatSetting.TelegramBot.CoolDownTimerInMin, cancellationTokenSource.Token);
+						await Task.Delay(1000 * 60 * keyTelegramChatSetting.TelegramBot.CoolDownTimerInMin, cancellationTokenSource.Token);
 					}
 
 					if (keyAccount == account &&
@@ -117,7 +117,7 @@ namespace TradeSystem.Notification.Services
 						account.RiskManagement.HighestTicketDuration.Value >= account.RiskManagement.RiskManagementSetting.MaxTicketDuration)
 					{
 						HighestTicketDurationErrorEvent?.Invoke(this, telegramKeyValue.Key);
-						await Task.Delay(1000 * /*60 **/ keyTelegramChatSetting.TelegramBot.CoolDownTimerInMin, cancellationTokenSource.Token);
+						await Task.Delay(1000 * 60 * keyTelegramChatSetting.TelegramBot.CoolDownTimerInMin, cancellationTokenSource.Token);
 					}
 				}
 				catch (OperationCanceledException) { }
@@ -210,7 +210,7 @@ namespace TradeSystem.Notification.Services
 							break;
 					}
 
-					await Task.Delay(/*60 **/ 1000);
+					await Task.Delay(60 * 1000);
 				}
 
 				if (accountErrorStateInMins != null)
@@ -233,8 +233,8 @@ namespace TradeSystem.Notification.Services
 
 			try
 			{
-				// -1000 because errorStateInMin gives an extra min
-				var coolDown = 1000 * /*60 **/ (tcs.TelegramBot.CoolDownTimerInMin - 1);
+				// -1min because errorStateInMin gives an extra min
+				var coolDown = 1000 * 60 * (tcs.TelegramBot.CoolDownTimerInMin - 1);
 				if (coolDown > 0)
 				{
 					await Task.Delay(coolDown, cancellationTokenSource.Token);

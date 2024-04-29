@@ -58,13 +58,13 @@ namespace TradeSystem.Notification.Services
 		private async void Account_MarginChanged(object sender, EventArgs e)
 		{
 			var account = sender as Account;
+			if (!accountSemaphoreDisconnectError.ContainsKey(account)) return;
 			if (!account.IsAlert) return;
 
 			await accountSemaphoreMarginError[account].WaitAsync();
 			try
 			{
-				if (account.IsAlert &&
-					account.Connector.MarginLevel < account.MarginLevelAlert &&
+				if (account.Connector.MarginLevel < account.MarginLevelAlert &&
 					!(account.Connector.Margin == 0 && account.Connector.MarginLevel == 0))
 				{
 					await SendTwilioNotifications(account);
@@ -81,6 +81,7 @@ namespace TradeSystem.Notification.Services
 		private async void Account_ConnectionChanged(object sender, Common.Integration.ConnectionStates e)
 		{
 			var account = sender as Account;
+			if (!accountSemaphoreDisconnectError.ContainsKey(account)) return;
 
 			if (e == ConnectionStates.Connected)
 			{
@@ -92,7 +93,61 @@ namespace TradeSystem.Notification.Services
 			}
 		}
 
-		private async Task SendTwilioNotifications(Account account)
+		private async Task DisconnectError(Account account)
+		{
+			await accountSemaphoreDisconnectError[account].WaitAsync();
+			try
+			{
+				while (account.ConnectionState == ConnectionStates.Error && account.HasAlreadyConnected && !cancellationTokenSource.IsCancellationRequested)
+				{
+					var currentUtcMinusOneHour = DateTime.UtcNow.AddHours(-1);
+					var isWeekEnd = currentUtcMinusOneHour.DayOfWeek == DayOfWeek.Saturday || currentUtcMinusOneHour.DayOfWeek == DayOfWeek.Sunday;
+
+					accountErrorStateInMins[account]++;
+					switch (account.DisconnectAlert)
+					{
+						case DisconnectAlert.WeekDays_3min:
+							if (!isWeekEnd && accountErrorStateInMins[account] > 3)
+							{
+								await SendTwilioNotifications(account, true);
+							}
+							break;
+						case DisconnectAlert.WeekEnd_2hours:
+							if (isWeekEnd && accountErrorStateInMins[account] > 120)
+							{
+								await SendTwilioNotifications(account, true);
+							}
+							break;
+						case DisconnectAlert.WeekDays_3min_WeekEnd_2hours:
+							if ((!isWeekEnd && accountErrorStateInMins[account] > 3) || (isWeekEnd && accountErrorStateInMins[account] > 120))
+							{
+								await SendTwilioNotifications(account, true);
+							}
+							break;
+						case DisconnectAlert.AllDay_3min:
+							if (accountErrorStateInMins[account] > 3)
+							{
+								await SendTwilioNotifications(account, true);
+							}
+							break;
+					}
+
+					await Task.Delay(60 * 1000);
+				}
+
+				if (accountErrorStateInMins != null)
+				{
+					accountErrorStateInMins[account] = 0;
+				}
+			}
+			finally
+			{
+				if (accountSemaphoreDisconnectError != null)
+					accountSemaphoreDisconnectError[account].Release();
+			}
+		}
+
+		private async Task SendTwilioNotifications(Account account, bool isDisconnectError = false)
 		{
 			var coolDownInMin = 1;
 
@@ -154,60 +209,11 @@ namespace TradeSystem.Notification.Services
 				}
 			}
 
-			await Task.Delay(coolDownInMin * /*60 **/ 1000);
-		}
-
-		private async Task DisconnectError(Account account)
-		{
-			await accountSemaphoreDisconnectError[account].WaitAsync();
-			try
+			// -1 because errorStateInMin gives an extra min
+			var coolDown = 1000 * 60 * (isDisconnectError ? (coolDownInMin - 1) : coolDownInMin);
+			if (coolDown > 0)
 			{
-				while (account.ConnectionState == ConnectionStates.Error && account.HasAlreadyConnected && !cancellationTokenSource.IsCancellationRequested)
-				{
-					var currentUtcMinusOneHour = DateTime.UtcNow.AddHours(-1);
-					var isWeekEnd = currentUtcMinusOneHour.DayOfWeek == DayOfWeek.Saturday || currentUtcMinusOneHour.DayOfWeek == DayOfWeek.Sunday;
-
-					accountErrorStateInMins[account]++;
-					switch (account.DisconnectAlert)
-					{
-						case DisconnectAlert.WeekDays_3min:
-							if (!isWeekEnd && accountErrorStateInMins[account] > 3)
-							{
-								await SendTwilioNotifications(account);
-							}
-							break;
-						case DisconnectAlert.WeekEnd_2hours:
-							if (isWeekEnd && accountErrorStateInMins[account] > 120)
-							{
-								await SendTwilioNotifications(account);
-							}
-							break;
-						case DisconnectAlert.WeekDays_3min_WeekEnd_2hours:
-							if ((!isWeekEnd && accountErrorStateInMins[account] > 3) || (isWeekEnd && accountErrorStateInMins[account] > 120))
-							{
-								await SendTwilioNotifications(account);
-							}
-							break;
-						case DisconnectAlert.AllDay_3min:
-							if (accountErrorStateInMins[account] > 3)
-							{
-								await SendTwilioNotifications(account);
-							}
-							break;
-					}
-
-					await Task.Delay(/*60 **/ 1000);
-				}
-
-				if (accountErrorStateInMins != null)
-				{
-					accountErrorStateInMins[account] = 0;
-				}
-			}
-			finally
-			{
-				if (accountSemaphoreDisconnectError != null)
-					accountSemaphoreDisconnectError[account].Release();
+				await Task.Delay(coolDown, cancellationTokenSource.Token);
 			}
 		}
 	}

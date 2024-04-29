@@ -92,10 +92,10 @@ namespace TradeSystem.Duplicat.Views._Strategies
 						else cell.Style.BackColor = Color.White;
 						break;
 					case nameof(RiskManagement.LowEquity):
-						FormatEquityCell(cell, riskManagement.Account.Equity, riskManagement.LowEquity);
+						FormatLowEquityCell(cell, riskManagement.Account.Equity, riskManagement.LowEquity);
 						break;
 					case nameof(RiskManagement.HighEquity):
-						FormatEquityCell(cell, riskManagement.Account.Equity, riskManagement.HighEquity);
+						FormatHighEquityCell(cell, riskManagement.Account.Equity, riskManagement.HighEquity);
 						break;
 				}
 			}
@@ -127,12 +127,20 @@ namespace TradeSystem.Duplicat.Views._Strategies
 			}
 		}
 
-		private void FormatEquityCell(DataGridViewCell cell, double accountEquity, double? thresholdEquity)
+		private void FormatLowEquityCell(DataGridViewCell cell, double accountEquity, double? lowEquity)
 		{
-			if (thresholdEquity.HasValue && accountEquity < thresholdEquity) cell.Style.BackColor = Color.FromArgb(255, 0, 0);
-			else if (thresholdEquity.HasValue && Math.Abs(accountEquity - thresholdEquity.Value) / thresholdEquity.Value < 0.05) cell.Style.BackColor = Color.Yellow;
-			else if (thresholdEquity.HasValue) cell.Style.BackColor = Color.FromArgb(0, 255, 0);
-			else cell.Style.BackColor = Color.White;
+			if (!lowEquity.HasValue) cell.Style.BackColor = Color.White;
+			else if (lowEquity.Value > accountEquity) cell.Style.BackColor = Color.FromArgb(255, 0, 0);
+			else if (lowEquity.Value * 1.05 > accountEquity) cell.Style.BackColor = Color.Yellow;
+			else cell.Style.BackColor = Color.FromArgb(0, 255, 0);
+		}
+
+		private void FormatHighEquityCell(DataGridViewCell cell, double accountEquity, double? highEquity)
+		{
+			if (!highEquity.HasValue) cell.Style.BackColor = Color.White;
+			else if (highEquity.Value < accountEquity) cell.Style.BackColor = Color.FromArgb(255, 0, 0);
+			else if (highEquity.Value * 0.95 < accountEquity) cell.Style.BackColor = Color.Yellow;
+			else cell.Style.BackColor = Color.FromArgb(0, 255, 0);
 		}
 
 		private void CdgRiskManagements_DoubleClick(object sender, System.EventArgs e)
