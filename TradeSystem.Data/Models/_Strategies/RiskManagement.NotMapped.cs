@@ -42,6 +42,14 @@ namespace TradeSystem.Data.Models
 		[NotMapped]
 		[ReadOnly(true)]
 		[DisplayPriority(4)]
+		[DecimalPrecision(2)]
+		[DisplayName("Equity")]
+		[Tooltip("Account's Equity")]
+		public double? Equity { get => Get<double?>(); set => Set(value); }
+
+		[NotMapped]
+		[ReadOnly(true)]
+		[DisplayPriority(4)]
 		[DisplayName("Low equity level")]
 		[Tooltip("OptimumEquity * AddEq => Red when Equity level of the account is below LowEquity amount, Yellow when Equity level is within 5% of LowEquity, Otherwise green")]
 		public double? LowEquity { get => Get<double?>(); set => Set(value); }

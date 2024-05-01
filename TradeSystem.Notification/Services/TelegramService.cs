@@ -4,6 +4,8 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Net;
+using System.Security.Principal;
 using System.Threading;
 using System.Threading.Tasks;
 using Telegram.Bot;
@@ -15,14 +17,15 @@ namespace TradeSystem.Notification.Services
 {
 	public interface ITelegramService
 	{
-		void AddAccount(Account account);
-		void Start();
+		void Start(List<Account> accounts);
 		void Stop();
 	}
 
 	public class TelegramService : ITelegramService
 	{
-		public DuplicatContext _duplicatContext;
+		private List<Account> telegramAccounts;
+
+		private DuplicatContext duplicatContext;
 		private List<TelegramChatSetting> telegramChatSettings;
 
 		private ConcurrentDictionary<(Account, TelegramChatSetting), SemaphoreSlim> telegramAccountChatSettings;
@@ -35,11 +38,11 @@ namespace TradeSystem.Notification.Services
 		public event EventHandler<(Account, TelegramChatSetting)> LowHighEquityErrorEvent;
 		public event EventHandler<(Account, TelegramChatSetting)> HighestTicketDurationErrorEvent;
 
-		public void Start()
+		public void Start(List<Account> accounts)
 		{
-			_duplicatContext = new DuplicatContext();
+			duplicatContext = new DuplicatContext();
 
-			telegramChatSettings = _duplicatContext.TelegramChatSettings.Include(tcs => tcs.TelegramBot)
+			telegramChatSettings = duplicatContext.TelegramChatSettings.Include(tcs => tcs.TelegramBot)
 				.Where(tcs => tcs.Active)
 				.ToList();
 
@@ -52,10 +55,31 @@ namespace TradeSystem.Notification.Services
 			MarginErrorEvent += TelegramService_BasicErrorEvent;
 			LowHighEquityErrorEvent += TelegramService_BasicErrorEvent;
 			HighestTicketDurationErrorEvent += TelegramService_BasicErrorEvent;
+
+			accounts.Where(acc => acc.IsValidAccount()).ToList().ForEach(account =>
+			{
+				telegramChatSettings.ForEach(tcs =>
+				{
+					telegramAccountChatSettings.TryAdd((account, tcs), new SemaphoreSlim(1, 1));
+				});
+
+				accountErrorStateInMins.TryAdd(account, 0);
+
+				account.MarginChanged += Account_MarginChanged;
+				account.ConnectionChanged += Account_ConnectionChanged;
+			});
 		}
 
 		public void Stop()
 		{
+			telegramAccounts.ForEach(account =>
+			{
+				{
+					account.MarginChanged -= Account_MarginChanged;
+					account.ConnectionChanged -= Account_ConnectionChanged;
+				}
+			});
+
 			DisconnectErrorEvent -= TelegramService_DisconnectErrorEvent;
 			MarginErrorEvent -= TelegramService_BasicErrorEvent;
 			LowHighEquityErrorEvent -= TelegramService_BasicErrorEvent;
@@ -64,20 +88,6 @@ namespace TradeSystem.Notification.Services
 			cancellationTokenSource.Cancel();
 			telegramAccountChatSettings = null;
 			accountErrorStateInMins = null;
-		}
-
-		public void AddAccount(Account account)
-		{
-			foreach (var tcs in telegramChatSettings)
-			{
-				if (telegramAccountChatSettings.ContainsKey((account, tcs))) continue;
-				telegramAccountChatSettings.TryAdd((account, tcs), new SemaphoreSlim(1, 1));
-			}
-
-			accountErrorStateInMins.TryAdd(account, 0);
-
-			account.MarginChanged += Account_MarginChanged;
-			account.ConnectionChanged += Account_ConnectionChanged;
 		}
 
 		private async void Account_MarginChanged(object sender, EventArgs e)

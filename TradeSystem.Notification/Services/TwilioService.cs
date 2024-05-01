@@ -11,18 +11,20 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Configuration;
 using TradeSystem.Common.Integration;
+using System.Collections.Generic;
 
 namespace TradeSystem.Notification.Services
 {
 	public interface ITwilioService
 	{
-		void Start();
+		void Start(List<Account> accounts);
 		void Stop();
-		void AddAccount(Account account);
 	}
 
 	public class TwilioService : ITwilioService
 	{
+		private List<Account> twilioAccounts;
+
 		private ConcurrentDictionary<Account, SemaphoreSlim> accountSemaphoreMarginError;
 
 		private ConcurrentDictionary<Account, int> accountErrorStateInMins;
@@ -30,35 +32,41 @@ namespace TradeSystem.Notification.Services
 
 		private CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
 
-		public void Start()
+		public void Start(List<Account> accounts)
 		{
 			cancellationTokenSource = new CancellationTokenSource();
 			accountErrorStateInMins = new ConcurrentDictionary<Account, int>();
 			accountSemaphoreMarginError = new ConcurrentDictionary<Account, SemaphoreSlim>();
 			accountSemaphoreDisconnectError = new ConcurrentDictionary<Account, SemaphoreSlim>();
+
+			twilioAccounts = accounts.Where(acc => acc.IsValidAccount()).ToList();
+			twilioAccounts.ForEach(account =>
+			{
+				account.MarginChanged += Account_MarginChanged;
+				account.ConnectionChanged += Account_ConnectionChanged; ;
+				accountSemaphoreMarginError.TryAdd(account, new SemaphoreSlim(1, 1));
+				accountSemaphoreDisconnectError.TryAdd(account, new SemaphoreSlim(1, 1));
+				accountErrorStateInMins.TryAdd(account, 0);
+			});
 		}
 
 		public void Stop()
 		{
+			twilioAccounts.ForEach(account =>
+			{
+				account.MarginChanged -= Account_MarginChanged;
+				account.ConnectionChanged -= Account_ConnectionChanged;
+			});
+
 			cancellationTokenSource.Cancel();
 			accountSemaphoreMarginError = null;
 			accountSemaphoreDisconnectError = null;
 			accountErrorStateInMins = null;
 		}
 
-		public void AddAccount(Account account)
-		{
-			account.MarginChanged += Account_MarginChanged;
-			account.ConnectionChanged += Account_ConnectionChanged; ;
-			accountSemaphoreMarginError.TryAdd(account, new SemaphoreSlim(1, 1));
-			accountSemaphoreDisconnectError.TryAdd(account, new SemaphoreSlim(1, 1));
-			accountErrorStateInMins.TryAdd(account, 0);
-		}
-
 		private async void Account_MarginChanged(object sender, EventArgs e)
 		{
 			var account = sender as Account;
-			if (!accountSemaphoreDisconnectError.ContainsKey(account)) return;
 			if (!account.IsAlert) return;
 
 			await accountSemaphoreMarginError[account].WaitAsync();
@@ -73,15 +81,13 @@ namespace TradeSystem.Notification.Services
 			catch (OperationCanceledException) { }
 			finally
 			{
-				if (accountSemaphoreMarginError != null && accountSemaphoreMarginError.ContainsKey(account))
-					accountSemaphoreMarginError[account].Release();
+				accountSemaphoreMarginError[account].Release();
 			}
 		}
 
 		private async void Account_ConnectionChanged(object sender, Common.Integration.ConnectionStates e)
 		{
 			var account = sender as Account;
-			if (!accountSemaphoreDisconnectError.ContainsKey(account)) return;
 
 			if (e == ConnectionStates.Connected)
 			{

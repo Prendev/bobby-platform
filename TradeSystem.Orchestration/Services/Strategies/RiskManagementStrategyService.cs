@@ -43,8 +43,6 @@ namespace TradeSystem.Orchestration.Services.Strategies
 					{
 						riskManagement.HighestTicketDuration = GetHighetTicketDuration(riskManagement.Account);
 						riskManagement.NumTicketsHighDuration = GetNumTicketsHighDuration(riskManagement.Account);
-						riskManagement.LowEquity = GetLowEquity(riskManagement.Account);
-						riskManagement.HighEquity = GetHighEquity(riskManagement.Account);
 					}
 				}
 				catch (OperationCanceledException)
@@ -76,24 +74,6 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			if (opennedPositions.Any())
 			{
 				return opennedPositions.Count(p => (DateTime.Now.Date - p.Value.OpenTime.Date).Days > account.RiskManagement.RiskManagementSetting.MaxTicketDuration);
-			}
-			return null;
-		}
-
-		private double? GetLowEquity(Account account)
-		{
-			if (account.RiskManagement.RiskManagementSetting?.OptimumEquity != null && account.RiskManagement?.RiskManagementSetting?.AddEq != null)
-			{
-				return account.RiskManagement.RiskManagementSetting.OptimumEquity * account.RiskManagement.RiskManagementSetting.AddEq;
-			}
-			return null;
-		}
-
-		private double? GetHighEquity(Account account)
-		{
-			if (account.RiskManagement.RiskManagementSetting?.OptimumEquity != null && account.RiskManagement?.RiskManagementSetting?.WdrawEq != null)
-			{
-				return account.RiskManagement.RiskManagementSetting.OptimumEquity * account.RiskManagement.RiskManagementSetting.WdrawEq;
 			}
 			return null;
 		}

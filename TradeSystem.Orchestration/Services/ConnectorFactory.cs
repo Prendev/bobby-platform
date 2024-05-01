@@ -41,9 +41,6 @@ namespace TradeSystem.Orchestration.Services
 				else if (account.IbAccountId.HasValue) await ConnectIbAccount(account);
 				else if (account.BacktesterAccountId.HasValue) ConnectBtAccount(account);
 				else return;
-
-				_telegramService.AddAccount(account);
-				_twilioService.AddAccount(account);
 			}
 			catch (Exception e)
 			{

@@ -49,8 +49,6 @@ namespace TradeSystem.Duplicat.Views._Strategies
 			_viewModel = viewModel;
 			labelAccount.AddBinding<RiskManagementSetting, string>("Text", _viewModel, nameof(_viewModel.SelectedRiskManagementSetting), p => p?.RiskManagement.AccountName ?? "");
 
-			kvdgRiskManagementSettings.ValueChanged += KvdgRiskManagementSettings_ValueChanged;
-
 			cdgRiskManagements.AllowUserToAddRows = false;
 			cdgRiskManagements.AllowUserToDeleteRows = false;
 			cdgRiskManagements.DoubleClick += CdgRiskManagements_DoubleClick;
@@ -147,31 +145,6 @@ namespace TradeSystem.Duplicat.Views._Strategies
 		{
 			_viewModel.LoadSettingCommand(cdgRiskManagements.GetSelectedItem<RiskManagement>());
 			kvdgRiskManagementSettings.MappingSelectedItem(_viewModel.SelectedRiskManagementSetting);
-		}
-
-		private void KvdgRiskManagementSettings_ValueChanged(object sender, EventArgs e)
-		{
-			_viewModel.SelectedRiskManagementSetting.RiskManagement.LowEquity = GetLowEquity();
-			_viewModel.SelectedRiskManagementSetting.RiskManagement.HighEquity = GetHighEquity();
-			cdgRiskManagements.Refresh();
-		}
-
-		private double? GetLowEquity()
-		{
-			if (_viewModel.SelectedRiskManagementSetting?.OptimumEquity != null && _viewModel.SelectedRiskManagementSetting?.AddEq != null)
-			{
-				return _viewModel.SelectedRiskManagementSetting.OptimumEquity * _viewModel.SelectedRiskManagementSetting.AddEq;
-			}
-			return null;
-		}
-
-		private double? GetHighEquity()
-		{
-			if (_viewModel.SelectedRiskManagementSetting?.OptimumEquity != null && _viewModel.SelectedRiskManagementSetting?.WdrawEq != null)
-			{
-				return _viewModel.SelectedRiskManagementSetting.OptimumEquity * _viewModel.SelectedRiskManagementSetting.WdrawEq;
-			}
-			return null;
 		}
 	}
 }

@@ -110,6 +110,8 @@ namespace TradeSystem.Data.Models
 
 		public Tick GetLastTick(string symbol) => Connector?.GetLastTick(symbol);
 
+		public bool IsValidAccount() => MetaTraderAccountId.HasValue || CTraderAccountId.HasValue || FixApiAccountId.HasValue || FixApiAccountId.HasValue || IbAccountId.HasValue || BacktesterAccountId.HasValue;
+
 		public override string ToString()
 		{
 			if (MetaTraderAccount != null) return $"{(Id == 0 ? "UNSAVED - " : "")}MT4 | {MetaTraderAccount.Description}";
@@ -150,6 +152,7 @@ namespace TradeSystem.Data.Models
 			}
 
 			MarginChanged?.Invoke(this, e);
+			RiskManagement.Equity = Equity;
 		}
 	}
 }

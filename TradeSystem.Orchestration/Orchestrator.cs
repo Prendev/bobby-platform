@@ -113,8 +113,8 @@ namespace TradeSystem.Orchestration
 				.Where(pa => pa.ConnectionState != ConnectionStates.Connected)
 				.ToList();
 
-			_twilioService.Start();
-			_telegramService.Start();
+			_twilioService.Start(accounts);
+			_telegramService.Start(accounts);
 
 			var tasks = accounts.Select(account => Task.Run(() => _connectorFactory.Create(account))).ToList();
 
