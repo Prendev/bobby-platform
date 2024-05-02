@@ -59,8 +59,10 @@ namespace TradeSystem.Duplicat.Views
 			if (_tooltip != null) return;
 			if (!(DataSource is IBindingList bindingList)) return;
 
+			string tooltip = string.Empty;
 			var property = bindingList.GetType().GetGenericArguments()[0].GetProperty(Columns[e.ColumnIndex].DataPropertyName);
-			var tooltip = ((TooltipAttribute)Attribute.GetCustomAttribute(property, typeof(TooltipAttribute)))?.Tooltip;
+			
+			if (property != null) tooltip = ((TooltipAttribute)Attribute.GetCustomAttribute(property, typeof(TooltipAttribute)))?.Tooltip;
 
 			if (string.IsNullOrEmpty(tooltip))
 			{

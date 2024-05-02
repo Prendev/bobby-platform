@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using TradeSystem.Data;
 using TradeSystem.Data.Models;
 using TradeSystem.Common.Integration;
+using TradeSystem.Communication;
 
 namespace TradeSystem.Orchestration.Services.Strategies
 {
@@ -166,8 +167,11 @@ namespace TradeSystem.Orchestration.Services.Strategies
 					var pos = mtConnector.Positions.FirstOrDefault(p => p.Key == metaTraderPosition.PositionKey).Value;
 					if (pos == null) return;
 
+					var lastTick = mtConnector.GetLastTick(pos.Symbol);
+					var signalPrice = pos.Side == Sides.Buy ? lastTick.Ask : lastTick.Bid;
+
 					var newPos = mtConnector.SendMarketOrderRequest(pos.Symbol, pos.Side,
-					(double)pos.Lots, (int)pos.MagicNumber, pos.Comment, 0, 0);
+					(double)pos.Lots, signalPrice, 0, (int)pos.MagicNumber, pos.Comment, 0, 0);
 
 					var copierPositions = duplicatContext.CopierPositions.Where(s => s.MasterTicket == metaTraderPosition.PositionKey).ToList();
 					copierPositions.ForEach(copierPosition =>
