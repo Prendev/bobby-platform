@@ -4,8 +4,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Net;
-using System.Security.Principal;
 using System.Threading;
 using System.Threading.Tasks;
 using Telegram.Bot;
@@ -28,7 +26,8 @@ namespace TradeSystem.Notification.Services
 		private DuplicatContext duplicatContext;
 		private List<TelegramChatSetting> telegramChatSettings;
 
-		private ConcurrentDictionary<(Account, TelegramChatSetting), SemaphoreSlim> telegramAccountChatSettings;
+		private ConcurrentDictionary<(Account, TelegramChatSetting), bool> telegramAccountChatSettings;
+
 		private ConcurrentDictionary<Account, int> accountErrorStateInMins;
 
 		private CancellationTokenSource cancellationTokenSource;
@@ -46,7 +45,7 @@ namespace TradeSystem.Notification.Services
 				.Where(tcs => tcs.Active)
 				.ToList();
 
-			telegramAccountChatSettings = new ConcurrentDictionary<(Account, TelegramChatSetting), SemaphoreSlim>();
+			telegramAccountChatSettings = new ConcurrentDictionary<(Account, TelegramChatSetting), bool>();
 			accountErrorStateInMins = new ConcurrentDictionary<Account, int>();
 
 			cancellationTokenSource = new CancellationTokenSource();
@@ -56,11 +55,13 @@ namespace TradeSystem.Notification.Services
 			LowHighEquityErrorEvent += TelegramService_BasicErrorEvent;
 			HighestTicketDurationErrorEvent += TelegramService_BasicErrorEvent;
 
-			accounts.Where(acc => acc.IsValidAccount()).ToList().ForEach(account =>
+			telegramAccounts = accounts.Where(acc => acc.IsValidAccount()).ToList();
+
+			telegramAccounts.ForEach(account =>
 			{
 				telegramChatSettings.ForEach(tcs =>
 				{
-					telegramAccountChatSettings.TryAdd((account, tcs), new SemaphoreSlim(1, 1));
+					telegramAccountChatSettings.TryAdd((account, tcs), false);
 				});
 
 				accountErrorStateInMins.TryAdd(account, 0);
@@ -90,58 +91,54 @@ namespace TradeSystem.Notification.Services
 			accountErrorStateInMins = null;
 		}
 
-		private async void Account_MarginChanged(object sender, EventArgs e)
+		private void Account_MarginChanged(object sender, EventArgs e)
 		{
 			var account = sender as Account;
 
-			foreach (var telegramKeyValue in telegramAccountChatSettings)
+			lock (account)
 			{
-				var (keyAccount, keyTelegramChatSetting) = telegramKeyValue.Key;
-				if (keyTelegramChatSetting.Active == false) continue;
-
-				await telegramKeyValue.Value.WaitAsync();
-				try
+				foreach (var telegramKeyValue in telegramAccountChatSettings)
 				{
-					if (keyAccount == account &&
-						keyTelegramChatSetting.NotificationType == NotificationType.Account_Margin_Error &&
+					var (keyAccount, keyTelegramChatSetting) = telegramKeyValue.Key;
+					if (keyAccount != account || keyTelegramChatSetting.Active == false || telegramKeyValue.Value) continue;
+
+					if (keyTelegramChatSetting.NotificationType == NotificationType.Account_Margin_Error &&
 						!(account.Connector.Margin == 0 && account.Connector.MarginLevel == 0) &&
 						account.IsAlert &&
 						account.Connector.MarginLevel < account.MarginLevelAlert)
 					{
 						MarginErrorEvent?.Invoke(this, telegramKeyValue.Key);
-						await Task.Delay(1000 * 60 * keyTelegramChatSetting.TelegramBot.CoolDownTimerInMin, cancellationTokenSource.Token);
 					}
 
-					if (keyAccount == account &&
-						keyTelegramChatSetting.NotificationType == NotificationType.HighLowEquity && (
+					if (keyTelegramChatSetting.NotificationType == NotificationType.HighLowEquity && (
 						(account.RiskManagement.LowEquity.HasValue && account.Equity < account.RiskManagement.LowEquity.Value) ||
 						(account.RiskManagement.HighEquity.HasValue && account.Equity > account.RiskManagement.HighEquity.Value)))
 					{
 						LowHighEquityErrorEvent?.Invoke(this, telegramKeyValue.Key);
-						await Task.Delay(1000 * 60 * keyTelegramChatSetting.TelegramBot.CoolDownTimerInMin, cancellationTokenSource.Token);
 					}
 
-					if (keyAccount == account &&
-						keyTelegramChatSetting.NotificationType == NotificationType.HighestTicketDuration &&
+					if (keyTelegramChatSetting.NotificationType == NotificationType.HighestTicketDuration &&
 						account.RiskManagement.HighestTicketDuration.HasValue &&
 						account.RiskManagement.HighestTicketDuration.Value >= account.RiskManagement.RiskManagementSetting.MaxTicketDuration)
 					{
 						HighestTicketDurationErrorEvent?.Invoke(this, telegramKeyValue.Key);
-						await Task.Delay(1000 * 60 * keyTelegramChatSetting.TelegramBot.CoolDownTimerInMin, cancellationTokenSource.Token);
 					}
-				}
-				catch (OperationCanceledException) { }
-				finally
-				{
-					if (telegramAccountChatSettings != null)
-						telegramKeyValue.Value.Release();
 				}
 			}
 		}
 
-		private async void TelegramService_BasicErrorEvent(object sender, (Account, TelegramChatSetting) telegramKeyValue)
+		private async void TelegramService_BasicErrorEvent(object sender, (Account, TelegramChatSetting) telegramKey)
 		{
-			await SendNotificationToTelegramChat(telegramKeyValue);
+			telegramAccountChatSettings[telegramKey] = true;
+			try
+			{
+				await SendNotificationToTelegramChat(telegramKey);
+				await Task.Delay(1000 * 60 * telegramKey.Item2.CoolDownTimerInMin, cancellationTokenSource.Token);
+			}
+			catch (OperationCanceledException) { }
+
+			if (telegramAccountChatSettings != null)
+				telegramAccountChatSettings[telegramKey] = false;
 		}
 
 		private void Account_ConnectionChanged(object sender, ConnectionStates e)
@@ -154,11 +151,14 @@ namespace TradeSystem.Notification.Services
 			}
 			else if (e == ConnectionStates.Error && account.HasAlreadyConnected && account.DisconnectAlert != null)
 			{
-				foreach (var telegramKeyValue in telegramAccountChatSettings)
+				lock (account)
 				{
-					if (telegramKeyValue.Key.Item1 == account && telegramKeyValue.Key.Item2.NotificationType == NotificationType.Account_Disconnection)
+					foreach (var telegramKeyValue in telegramAccountChatSettings)
 					{
-						DisconnectErrorEvent?.Invoke(this, telegramKeyValue.Key);
+						if (telegramKeyValue.Key.Item1 == account && telegramKeyValue.Key.Item2.NotificationType == NotificationType.Account_Disconnection && !telegramKeyValue.Value)
+						{
+							DisconnectErrorEvent?.Invoke(this, telegramKeyValue.Key);
+						}
 					}
 				}
 			}
@@ -182,78 +182,70 @@ namespace TradeSystem.Notification.Services
 
 		private async void TelegramService_DisconnectErrorEvent(object sender, (Account, TelegramChatSetting) telegramKeyValue)
 		{
-			await telegramAccountChatSettings[telegramKeyValue].WaitAsync();
-			try
+			telegramAccountChatSettings[telegramKeyValue] = true;
+			var (account, tcs) = telegramKeyValue;
+			while (account.ConnectionState == ConnectionStates.Error && account.HasAlreadyConnected && !cancellationTokenSource.IsCancellationRequested)
 			{
-				var (account, tcs) = telegramKeyValue;
-				while (account.ConnectionState == ConnectionStates.Error && account.HasAlreadyConnected && !cancellationTokenSource.IsCancellationRequested)
+				var currentUtcMinusOneHour = DateTime.UtcNow.AddHours(-1);
+				var isWeekEnd = currentUtcMinusOneHour.DayOfWeek == DayOfWeek.Saturday || currentUtcMinusOneHour.DayOfWeek == DayOfWeek.Sunday;
+
+				accountErrorStateInMins[account]++;
+				switch (account.DisconnectAlert)
 				{
-					var currentUtcMinusOneHour = DateTime.UtcNow.AddHours(-1);
-					var isWeekEnd = currentUtcMinusOneHour.DayOfWeek == DayOfWeek.Saturday || currentUtcMinusOneHour.DayOfWeek == DayOfWeek.Sunday;
-
-					accountErrorStateInMins[account]++;
-					switch (account.DisconnectAlert)
-					{
-						case DisconnectAlert.WeekDays_3min:
-							if (!isWeekEnd && accountErrorStateInMins[account] > 3)
-							{
-								await SendDisconnectErrorNotification(telegramKeyValue);
-							}
-							break;
-						case DisconnectAlert.WeekEnd_2hours:
-							if (isWeekEnd && accountErrorStateInMins[account] > 120)
-							{
-								await SendDisconnectErrorNotification(telegramKeyValue);
-							}
-							break;
-						case DisconnectAlert.WeekDays_3min_WeekEnd_2hours:
-							if ((!isWeekEnd && accountErrorStateInMins[account] > 3) || (isWeekEnd && accountErrorStateInMins[account] > 120))
-							{
-								await SendDisconnectErrorNotification(telegramKeyValue);
-							}
-							break;
-						case DisconnectAlert.AllDay_3min:
-							if (accountErrorStateInMins[account] > 3)
-							{
-								await SendDisconnectErrorNotification(telegramKeyValue);
-							}
-							break;
-					}
-
-					await Task.Delay(60 * 1000);
+					case DisconnectAlert.WeekDays_3min:
+						if (!isWeekEnd && accountErrorStateInMins[account] > 3)
+						{
+							await SendDisconnectErrorNotification(telegramKeyValue);
+						}
+						break;
+					case DisconnectAlert.WeekEnd_2hours:
+						if (isWeekEnd && accountErrorStateInMins[account] > 120)
+						{
+							await SendDisconnectErrorNotification(telegramKeyValue);
+						}
+						break;
+					case DisconnectAlert.WeekDays_3min_WeekEnd_2hours:
+						if ((!isWeekEnd && accountErrorStateInMins[account] > 3) || (isWeekEnd && accountErrorStateInMins[account] > 120))
+						{
+							await SendDisconnectErrorNotification(telegramKeyValue);
+						}
+						break;
+					case DisconnectAlert.AllDay_3min:
+						if (accountErrorStateInMins[account] > 3)
+						{
+							await SendDisconnectErrorNotification(telegramKeyValue);
+						}
+						break;
 				}
 
-				if (accountErrorStateInMins != null)
-				{
-					accountErrorStateInMins[account] = 0;
-				}
+				await Task.Delay(60 * 1000);
 			}
-			finally
+
+			if (accountErrorStateInMins != null)
 			{
-				if (telegramAccountChatSettings != null)
-					telegramAccountChatSettings[telegramKeyValue].Release();
+				accountErrorStateInMins[account] = 0;
 			}
+			if (telegramAccountChatSettings != null)
+				telegramAccountChatSettings[telegramKeyValue] = false;
 		}
 
-		private async Task SendDisconnectErrorNotification((Account, TelegramChatSetting) telegramKeyValue)
+		private async Task SendDisconnectErrorNotification((Account, TelegramChatSetting) telegramKey)
 		{
-			var (account, tcs) = telegramKeyValue;
-			await SendNotificationToTelegramChat(telegramKeyValue);
+			var (account, tcs) = telegramKey;
+
+			await SendNotificationToTelegramChat(telegramKey);
 			cancellationTokenSource.Token.ThrowIfCancellationRequested();
 
 			try
 			{
 				// -1min because errorStateInMin gives an extra min
-				var coolDown = 1000 * 60 * (tcs.TelegramBot.CoolDownTimerInMin - 1);
+				var coolDown = 1000 * 60 * (tcs.CoolDownTimerInMin - 1);
 				if (coolDown > 0)
 				{
 					await Task.Delay(coolDown, cancellationTokenSource.Token);
 				}
 			}
-			catch (OperationCanceledException)
-			{
-				return;
-			}
+			catch (OperationCanceledException) { }
 		}
 	}
 }

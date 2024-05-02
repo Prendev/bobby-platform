@@ -67,12 +67,12 @@ namespace TradeSystem.Notification.Services
 		private async void Account_MarginChanged(object sender, EventArgs e)
 		{
 			var account = sender as Account;
-			if (!account.IsAlert) return;
 
 			await accountSemaphoreMarginError[account].WaitAsync();
 			try
 			{
-				if (account.Connector.MarginLevel < account.MarginLevelAlert &&
+				if (account.IsAlert && account.Connector.IsConnected &&
+					account.Connector.MarginLevel < account.MarginLevelAlert &&
 					!(account.Connector.Margin == 0 && account.Connector.MarginLevel == 0))
 				{
 					await SendTwilioNotifications(account);
@@ -81,7 +81,8 @@ namespace TradeSystem.Notification.Services
 			catch (OperationCanceledException) { }
 			finally
 			{
-				accountSemaphoreMarginError[account].Release();
+				if (accountSemaphoreMarginError != null)
+					accountSemaphoreMarginError[account].Release();
 			}
 		}
 
@@ -146,6 +147,7 @@ namespace TradeSystem.Notification.Services
 					accountErrorStateInMins[account] = 0;
 				}
 			}
+			catch (OperationCanceledException) { }
 			finally
 			{
 				if (accountSemaphoreDisconnectError != null)

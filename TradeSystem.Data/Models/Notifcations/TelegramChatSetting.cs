@@ -8,11 +8,13 @@
 		public bool Active { get; set; }
 
 		public NotificationType? NotificationType { get; set; }
+		public int CoolDownTimerInMin { get; set; }
+
 		public string Message { get; set; }
 
 		public override string ToString()
 		{
-			return (Id == 0 ? "UNSAVED - " : "") + ChatId + " - "+ TelegramBot?.ToString();
+			return (Id == 0 ? "UNSAVED - " : "") + ChatId + " - " + TelegramBot?.ToString();
 		}
 	}
 
