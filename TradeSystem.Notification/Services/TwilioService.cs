@@ -23,6 +23,7 @@ namespace TradeSystem.Notification.Services
 
 	public class TwilioService : ITwilioService
 	{
+		private bool isSteup;
 		private List<Account> twilioAccounts;
 
 		private ConcurrentDictionary<Account, SemaphoreSlim> accountSemaphoreMarginError;
@@ -34,13 +35,20 @@ namespace TradeSystem.Notification.Services
 
 		public void Start(List<Account> accounts)
 		{
-			cancellationTokenSource = new CancellationTokenSource();
-			accountErrorStateInMins = new ConcurrentDictionary<Account, int>();
-			accountSemaphoreMarginError = new ConcurrentDictionary<Account, SemaphoreSlim>();
-			accountSemaphoreDisconnectError = new ConcurrentDictionary<Account, SemaphoreSlim>();
+			if (!isSteup)
+			{
+				isSteup = true;
+				twilioAccounts = new List<Account>();
+				cancellationTokenSource = new CancellationTokenSource();
+				accountErrorStateInMins = new ConcurrentDictionary<Account, int>();
+				accountSemaphoreMarginError = new ConcurrentDictionary<Account, SemaphoreSlim>();
+				accountSemaphoreDisconnectError = new ConcurrentDictionary<Account, SemaphoreSlim>();
+			}
 
-			twilioAccounts = accounts.Where(acc => acc.IsValidAccount()).ToList();
-			twilioAccounts.ForEach(account =>
+			var validAccounts = accounts.Where(acc => acc.IsValidAccount()).ToList();
+			twilioAccounts.AddRange(validAccounts);
+
+			validAccounts.ForEach(account =>
 			{
 				account.MarginChanged += Account_MarginChanged;
 				account.ConnectionChanged += Account_ConnectionChanged; ;
@@ -52,6 +60,8 @@ namespace TradeSystem.Notification.Services
 
 		public void Stop()
 		{
+			isSteup = false;
+
 			twilioAccounts.ForEach(account =>
 			{
 				account.MarginChanged -= Account_MarginChanged;
@@ -67,7 +77,7 @@ namespace TradeSystem.Notification.Services
 		private async void Account_MarginChanged(object sender, EventArgs e)
 		{
 			var account = sender as Account;
-
+			if (!accountSemaphoreMarginError.ContainsKey(account)) return;
 			await accountSemaphoreMarginError[account].WaitAsync();
 			try
 			{

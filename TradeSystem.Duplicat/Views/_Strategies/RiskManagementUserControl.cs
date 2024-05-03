@@ -127,7 +127,7 @@ namespace TradeSystem.Duplicat.Views._Strategies
 
 		private void FormatLowEquityCell(DataGridViewCell cell, double accountEquity, double? lowEquity)
 		{
-			if (!lowEquity.HasValue) cell.Style.BackColor = Color.White;
+			if (!lowEquity.HasValue || lowEquity.Value <= 0) cell.Style.BackColor = Color.White;
 			else if (lowEquity.Value > accountEquity) cell.Style.BackColor = Color.FromArgb(255, 0, 0);
 			else if (lowEquity.Value * 1.05 > accountEquity) cell.Style.BackColor = Color.Yellow;
 			else cell.Style.BackColor = Color.FromArgb(0, 255, 0);
@@ -135,7 +135,7 @@ namespace TradeSystem.Duplicat.Views._Strategies
 
 		private void FormatHighEquityCell(DataGridViewCell cell, double accountEquity, double? highEquity)
 		{
-			if (!highEquity.HasValue) cell.Style.BackColor = Color.White;
+			if (!highEquity.HasValue || highEquity.Value <= 0) cell.Style.BackColor = Color.White;
 			else if (highEquity.Value < accountEquity) cell.Style.BackColor = Color.FromArgb(255, 0, 0);
 			else if (highEquity.Value * 0.95 < accountEquity) cell.Style.BackColor = Color.Yellow;
 			else cell.Style.BackColor = Color.FromArgb(0, 255, 0);

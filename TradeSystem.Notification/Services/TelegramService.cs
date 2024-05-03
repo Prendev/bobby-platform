@@ -21,6 +21,7 @@ namespace TradeSystem.Notification.Services
 
 	public class TelegramService : ITelegramService
 	{
+		private bool isSetup;
 		private List<Account> telegramAccounts;
 
 		private DuplicatContext duplicatContext;
@@ -45,19 +46,24 @@ namespace TradeSystem.Notification.Services
 				.Where(tcs => tcs.Active)
 				.ToList();
 
-			telegramAccountChatSettings = new ConcurrentDictionary<(Account, TelegramChatSetting), bool>();
-			accountErrorStateInMins = new ConcurrentDictionary<Account, int>();
+			if (!isSetup)
+			{
+				isSetup = true;
+				telegramAccounts = new List<Account>();
+				cancellationTokenSource = new CancellationTokenSource();
+				accountErrorStateInMins = new ConcurrentDictionary<Account, int>();
+				telegramAccountChatSettings = new ConcurrentDictionary<(Account, TelegramChatSetting), bool>();
 
-			cancellationTokenSource = new CancellationTokenSource();
+				DisconnectErrorEvent += TelegramService_DisconnectErrorEvent;
+				MarginErrorEvent += TelegramService_BasicErrorEvent;
+				LowHighEquityErrorEvent += TelegramService_BasicErrorEvent;
+				HighestTicketDurationErrorEvent += TelegramService_BasicErrorEvent;
+			}
 
-			DisconnectErrorEvent += TelegramService_DisconnectErrorEvent;
-			MarginErrorEvent += TelegramService_BasicErrorEvent;
-			LowHighEquityErrorEvent += TelegramService_BasicErrorEvent;
-			HighestTicketDurationErrorEvent += TelegramService_BasicErrorEvent;
+			var validAccounts = accounts.Where(acc => acc.IsValidAccount()).ToList();
+			telegramAccounts.AddRange(validAccounts);
 
-			telegramAccounts = accounts.Where(acc => acc.IsValidAccount()).ToList();
-
-			telegramAccounts.ForEach(account =>
+			validAccounts.ForEach(account =>
 			{
 				telegramChatSettings.ForEach(tcs =>
 				{
@@ -73,6 +79,8 @@ namespace TradeSystem.Notification.Services
 
 		public void Stop()
 		{
+			isSetup = false;
+
 			telegramAccounts.ForEach(account =>
 			{
 				{
@@ -111,8 +119,8 @@ namespace TradeSystem.Notification.Services
 					}
 
 					if (keyTelegramChatSetting.NotificationType == NotificationType.HighLowEquity && (
-						(account.RiskManagement.LowEquity.HasValue && account.Equity < account.RiskManagement.LowEquity.Value) ||
-						(account.RiskManagement.HighEquity.HasValue && account.Equity > account.RiskManagement.HighEquity.Value)))
+						(account.RiskManagement.LowEquity.HasValue && account.RiskManagement.LowEquity > 0 && account.Equity < account.RiskManagement.LowEquity.Value) ||
+						(account.RiskManagement.HighEquity.HasValue && account.RiskManagement.HighEquity > 0 && account.Equity > account.RiskManagement.HighEquity.Value)))
 					{
 						LowHighEquityErrorEvent?.Invoke(this, telegramKeyValue.Key);
 					}
@@ -155,7 +163,8 @@ namespace TradeSystem.Notification.Services
 				{
 					foreach (var telegramKeyValue in telegramAccountChatSettings)
 					{
-						if (telegramKeyValue.Key.Item1 == account && telegramKeyValue.Key.Item2.NotificationType == NotificationType.Account_Disconnection && !telegramKeyValue.Value)
+						if (telegramKeyValue.Key.Item1 == account && telegramKeyValue.Key.Item2.Active &&
+							telegramKeyValue.Key.Item2.NotificationType == NotificationType.Account_Disconnection && !telegramKeyValue.Value)
 						{
 							DisconnectErrorEvent?.Invoke(this, telegramKeyValue.Key);
 						}

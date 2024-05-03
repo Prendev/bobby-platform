@@ -24,6 +24,5 @@
 		Account_Disconnection,
 		HighestTicketDuration,
 		HighLowEquity,
-		RunIsUnchecked
 	}
 }
