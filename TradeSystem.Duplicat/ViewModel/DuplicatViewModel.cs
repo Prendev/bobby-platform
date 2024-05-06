@@ -93,10 +93,14 @@ namespace TradeSystem.Duplicat.ViewModel
 		public BindingList<CustomGroup> CustomGroups { get; private set; }
 		public BindingList<MappingTable> MappingTables { get; private set; }
 		public BindingList<MappingTable> SelectedMappingTables { get; private set; }
+
+		public BindingList<TwilioSetting> TwilioBots { get; private set; }
 		public BindingList<TwilioSetting> TwilioSettings { get; private set; }
 		public BindingList<TwilioPhoneSetting> TwilioPhoneSettings { get; private set; }
-		public BindingList<TelegramSetting> TelegramSettings { get; private set; }
+
 		public BindingList<TelegramChatSetting> TelegramChatSettings { get; private set; }
+		public BindingList<TelegramBot> TelegramBots { get; private set; }
+
 		public BindingList<Account> Accounts { get; private set; }
 
 		public BindingList<Aggregator> Aggregators { get; private set; }
@@ -142,7 +146,6 @@ namespace TradeSystem.Duplicat.ViewModel
 		public BindingList<RiskManagement> RiskManagements { get; private set; }
 		public BindingList<RiskManagement> SelectedRiskManagements { get; private set; } = new BindingList<RiskManagement>();
 		public SortableBindingList<RiskManagerAccountVisibility> RiskManagementAccoutVisibilities { get; private set; } = new SortableBindingList<RiskManagerAccountVisibility>();
-		public BindingList<RiskManagementSetting> SelectedRiskManagementSettings { get; private set; } = new BindingList<RiskManagementSetting>();
 
 		public string FilterText { get => Get<string>(); set => Set(value); }
 		public int AutoSavePeriodInMin { get => Get<int>(); set => Set(value); }
@@ -173,7 +176,6 @@ namespace TradeSystem.Duplicat.ViewModel
 		public Copier SelectedCopier { get => Get<Copier>(); set => Set(value); }
 		public Pushing SelectedPushing { get => Get<Pushing>(); set => Set(value); }
 		public Spoofing SelectedSpoofing { get => Get<Spoofing>(); set => Set(value); }
-		public RiskManagement SelectedRiskManagement { get => Get<RiskManagement>(); set => Set(value); }
 		public RiskManagementSetting SelectedRiskManagementSetting { get => Get<RiskManagementSetting>(); set => Set(value); }
 
 		public DuplicatViewModel(
@@ -383,7 +385,7 @@ namespace TradeSystem.Duplicat.ViewModel
 				.Select(a => a.RiskManagement).ToList()
 				.ForEach(rm =>
 				{
-					RiskManagementAccoutVisibilities.Add(new RiskManagerAccountVisibility { AccountName = rm.Account.MetaTraderAccount?.Description ?? rm.Account.FixApiAccount.Description, RiskManagement = rm});
+					RiskManagementAccoutVisibilities.Add(new RiskManagerAccountVisibility { AccountName = rm.Account.MetaTraderAccount?.Description ?? rm.Account.FixApiAccount.Description, RiskManagement = rm });
 				});
 
 			//TODO
@@ -435,8 +437,8 @@ namespace TradeSystem.Duplicat.ViewModel
 			_duplicatContext.TwilioSettings.OrderBy(e => e.ToString()).Load();
 			_duplicatContext.TwilioPhoneSettings.OrderBy(e => e.ToString()).Load();
 
-			_duplicatContext.TelegramSettings.OrderByDescending(e => e.ToString()).Load();
 			_duplicatContext.TelegramChatSettings.OrderBy(e => e.ToString()).Load();
+			_duplicatContext.TelegramBots.OrderByDescending(e => e.ToString()).Load();
 
 			_duplicatContext.Proxies.OrderBy(e => e.ToString()).Load();
 			_duplicatContext.ProfileProxies.Where(e => e.ProfileId == p).OrderBy(e => e.ToString()).Load();
@@ -495,7 +497,6 @@ namespace TradeSystem.Duplicat.ViewModel
 			BacktesterInstrumentConfigs = ToFilteredBindingList(_duplicatContext.BacktesterInstrumentConfigs.Local,
 				e => e.BacktesterAccount, () => SelectedBacktesterAccount);
 
-
 			Profiles = _duplicatContext.Profiles.Local.ToBindingList();
 			Accounts = _duplicatContext.Accounts.Local.ToBindingList();
 
@@ -508,8 +509,8 @@ namespace TradeSystem.Duplicat.ViewModel
 			MappingTables = _duplicatContext.MappingTables.Local.ToBindingList();
 			TwilioSettings = _duplicatContext.TwilioSettings.Local.ToBindingList();
 			TwilioPhoneSettings = _duplicatContext.TwilioPhoneSettings.Local.ToBindingList();
-			TelegramSettings = _duplicatContext.TelegramSettings.Local.ToBindingList();
 			TelegramChatSettings = _duplicatContext.TelegramChatSettings.Local.ToBindingList();
+			TelegramBots = _duplicatContext.TelegramBots.Local.ToBindingList();
 
 			Masters = _duplicatContext.Masters.Local.ToBindingList();
 			Slaves = _duplicatContext.Slaves.Local.ToBindingList();

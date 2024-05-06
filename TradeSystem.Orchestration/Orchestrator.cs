@@ -8,6 +8,7 @@ using TradeSystem.Communication;
 using TradeSystem.Communication.Mt5;
 using TradeSystem.Data;
 using TradeSystem.Data.Models;
+using TradeSystem.Notification.Services;
 using TradeSystem.Orchestration.Services;
 using TradeSystem.Orchestration.Services.Strategies;
 using TradeSystem.Strategies.MarketMaker;
@@ -58,6 +59,8 @@ namespace TradeSystem.Orchestration
 		private readonly ITradeStrategyService _tradeService;
 		private readonly IRiskManagementStrategyService _riskManagementService;
 
+		private readonly ITwilioService _twilioService;
+		private readonly ITelegramService _telegramService;
 		public Orchestrator(
 			Func<SynchronizationContext> synchronizationContextFactory,
 			IConnectorFactory connectorFactory,
@@ -75,7 +78,9 @@ namespace TradeSystem.Orchestration
 			IMMStrategyService mmStrategyService,
 			IExposureStrategyService exposureStrategyService,
 			ITradeStrategyService tradeService,
-			IRiskManagementStrategyService riskManagementService)
+			IRiskManagementStrategyService riskManagementService,
+			ITelegramService telegramService,
+			ITwilioService twilioService)
 		{
 			_newsArbService = newsArbService;
 			_latencyArbService = latencyArbService;
@@ -94,6 +99,8 @@ namespace TradeSystem.Orchestration
 			_exposureStrategyService = exposureStrategyService;
 			_tradeService = tradeService;
 			_riskManagementService = riskManagementService;
+			_telegramService = telegramService;
+			_twilioService = twilioService;
 		}
 
 		public async Task Connect(DuplicatContext duplicatContext)
@@ -105,6 +112,9 @@ namespace TradeSystem.Orchestration
 				.Where(pa => pa.Run).ToList()
 				.Where(pa => pa.ConnectionState != ConnectionStates.Connected)
 				.ToList();
+
+			_twilioService.Start(accounts);
+			_telegramService.Start(accounts);
 
 			var tasks = accounts.Select(account => Task.Run(() => _connectorFactory.Create(account))).ToList();
 
@@ -137,6 +147,9 @@ namespace TradeSystem.Orchestration
 		public async Task Disconnect()
 		{
 			_duplicatContext.SaveChanges();
+			
+			_twilioService.Stop();
+			_telegramService.Stop();
 
 			foreach (var agg in _duplicatContext.Aggregators.Local)
 			{

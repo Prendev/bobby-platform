@@ -17,6 +17,7 @@ using TradeSystem.Strategies.MarketMaker;
 using ConnectorFactory = TradeSystem.Orchestration.Services.ConnectorFactory;
 using ExchangeRatesService = TradeSystem.Common.Services.ExchangeRatesService;
 using IExchangeRatesService = TradeSystem.Common.Services.IExchangeRatesService;
+using TradeSystem.Notification.Services;
 
 namespace TradeSystem.Duplicat
 {
@@ -88,6 +89,8 @@ namespace TradeSystem.Duplicat
 		    builder.RegisterType<ExchangeRatesService>().As<IExchangeRatesService>();
 		    builder.RegisterType<NewsCalendarService>().As<INewsCalendarService>();
 		    builder.RegisterType<EmailService>().As<IEmailService>();
+		    builder.RegisterType<TelegramService>().As<ITelegramService>().SingleInstance();
+		    builder.RegisterType<TwilioService>().As<ITwilioService>().SingleInstance();
 		}
 
 		private static void RegisterData(ContainerBuilder builder)

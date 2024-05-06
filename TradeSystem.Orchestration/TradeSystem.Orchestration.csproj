@@ -286,6 +286,10 @@
       <Project>{99cb171b-43ea-429a-9835-36fbe59f87aa}</Project>
       <Name>TradeSystem.Nj4xIntegration</Name>
     </ProjectReference>
+    <ProjectReference Include="..\TradeSystem.Notification\TradeSystem.Notification.csproj">
+      <Project>{FAF355B7-1510-474E-BD4C-9ECC583347FA}</Project>
+      <Name>TradeSystem.Notification</Name>
+    </ProjectReference>
     <ProjectReference Include="..\TradeSystem.Strategies.MarketMaker\TradeSystem.Strategies.MarketMaker.csproj">
       <Project>{734bfde5-325e-4ef9-924c-1401562e6626}</Project>
       <Name>TradeSystem.Strategies.MarketMaker</Name>

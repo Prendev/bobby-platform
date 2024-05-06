@@ -237,6 +237,8 @@
     </Compile>
     <Compile Include="Migrations\DuplicatContextModelSnapshot.cs" />
     <Compile Include="Models\CopierPosition.cs" />
+    <Compile Include="Models\KeyValue.cs" />
+    <Compile Include="Models\Notifcations\TelegramBot.cs" />
     <Compile Include="Models\_Strategies\BrokerSymbolStatus.cs" />
     <Compile Include="Models\_Strategies\MtAccountPosition.cs" />
     <Compile Include="Models\_Strategies\MtPosition.cs" />
@@ -249,10 +251,10 @@
     <Compile Include="Models\_Accounts\TradePosition.cs" />
     <Compile Include="Models\_Strategies\RiskManagerAccountVisibility.cs" />
     <Compile Include="Models\_Strategies\SymbolStatus.cs" />
-    <Compile Include="Models\_Strategies\TelegramSetting.cs" />
-    <Compile Include="Models\_Strategies\TelegramChatSetting.cs" />
-    <Compile Include="Models\_Strategies\TwilioSettings.cs" />
-    <Compile Include="Models\_Strategies\TwilioPhoneSetting.cs" />
+    <Compile Include="Models\Notifcations\TelegramSetting.cs" />
+    <Compile Include="Models\Notifcations\TelegramChatSetting.cs" />
+    <Compile Include="Models\Notifcations\TwilioSettings.cs" />
+    <Compile Include="Models\Notifcations\TwilioPhoneSetting.cs" />
     <Compile Include="Models\_Strategies\CustomGroup.cs" />
     <Compile Include="Models\Slave.NotMapped.cs" />
     <Compile Include="Models\StrategyEntityBase.cs" />
@@ -339,10 +341,6 @@
     <ProjectReference Include="..\TradeSystem.FileContextCore\TradeSystem.FileContextCore.csproj">
       <Project>{b0df0796-17ed-470a-858d-a7cabb3f36f8}</Project>
       <Name>TradeSystem.FileContextCore</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\TradeSystem.Notification\TradeSystem.Notification.csproj">
-      <Project>{FAF355B7-1510-474E-BD4C-9ECC583347FA}</Project>
-      <Name>TradeSystem.Notification</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

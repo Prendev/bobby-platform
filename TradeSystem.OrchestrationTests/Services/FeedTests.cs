@@ -17,7 +17,7 @@ namespace TradeSystem.OrchestrationTests.Services
 		[SetUp]
 		public void SetUp()
 		{
-			var connectorFactory = new ConnectorFactory(null, null);
+			var connectorFactory = new ConnectorFactory(null, null, null, null);
 			Account = new Account()
 			{
 				Run = true,

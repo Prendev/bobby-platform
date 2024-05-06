@@ -30,7 +30,6 @@
 		{
 			System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
 			System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
-			System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
 			this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
 			this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
 			this.gbControl = new System.Windows.Forms.GroupBox();
@@ -43,10 +42,10 @@
 			this.cdgAccountVisibility = new TradeSystem.Duplicat.Views.CustomDataGridView();
 			this.gbSettings = new System.Windows.Forms.GroupBox();
 			this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
-			this.cdgSettings = new TradeSystem.Duplicat.Views.CustomDataGridView();
 			this.panel1 = new System.Windows.Forms.Panel();
 			this.labelAccount = new System.Windows.Forms.Label();
 			this.label1 = new System.Windows.Forms.Label();
+			this.kvdgRiskManagementSettings = new TradeSystem.Duplicat.Views.KeyValueDataGridView();
 			this.tableLayoutPanel1.SuspendLayout();
 			this.tableLayoutPanel3.SuspendLayout();
 			this.gbControl.SuspendLayout();
@@ -57,8 +56,8 @@
 			((System.ComponentModel.ISupportInitialize)(this.cdgAccountVisibility)).BeginInit();
 			this.gbSettings.SuspendLayout();
 			this.tableLayoutPanel2.SuspendLayout();
-			((System.ComponentModel.ISupportInitialize)(this.cdgSettings)).BeginInit();
 			this.panel1.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)(this.kvdgRiskManagementSettings)).BeginInit();
 			this.SuspendLayout();
 			// 
 			// tableLayoutPanel1
@@ -170,6 +169,7 @@
 			this.cdgRiskManagements.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
 			this.cdgRiskManagements.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
 			this.cdgRiskManagements.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.cdgRiskManagements.IsToolTip = false;
 			this.cdgRiskManagements.Location = new System.Drawing.Point(4, 19);
 			this.cdgRiskManagements.Margin = new System.Windows.Forms.Padding(4);
 			this.cdgRiskManagements.MultiSelect = false;
@@ -203,6 +203,7 @@
 			this.cdgAccountVisibility.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle2;
 			this.cdgAccountVisibility.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
 			this.cdgAccountVisibility.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.cdgAccountVisibility.IsToolTip = false;
 			this.cdgAccountVisibility.Location = new System.Drawing.Point(3, 18);
 			this.cdgAccountVisibility.Margin = new System.Windows.Forms.Padding(4);
 			this.cdgAccountVisibility.MultiSelect = false;
@@ -229,8 +230,8 @@
 			// 
 			this.tableLayoutPanel2.ColumnCount = 1;
 			this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-			this.tableLayoutPanel2.Controls.Add(this.cdgSettings, 0, 1);
 			this.tableLayoutPanel2.Controls.Add(this.panel1, 0, 0);
+			this.tableLayoutPanel2.Controls.Add(this.kvdgRiskManagementSettings, 0, 1);
 			this.tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.tableLayoutPanel2.Location = new System.Drawing.Point(4, 19);
 			this.tableLayoutPanel2.Margin = new System.Windows.Forms.Padding(4);
@@ -240,28 +241,6 @@
 			this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
 			this.tableLayoutPanel2.Size = new System.Drawing.Size(344, 647);
 			this.tableLayoutPanel2.TabIndex = 3;
-			// 
-			// cdgSettings
-			// 
-			this.cdgSettings.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
-			dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-			dataGridViewCellStyle3.BackColor = System.Drawing.SystemColors.Control;
-			dataGridViewCellStyle3.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-			dataGridViewCellStyle3.ForeColor = System.Drawing.SystemColors.WindowText;
-			dataGridViewCellStyle3.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-			dataGridViewCellStyle3.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-			dataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
-			this.cdgSettings.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle3;
-			this.cdgSettings.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-			this.cdgSettings.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.cdgSettings.Location = new System.Drawing.Point(4, 29);
-			this.cdgSettings.Margin = new System.Windows.Forms.Padding(4);
-			this.cdgSettings.MultiSelect = false;
-			this.cdgSettings.Name = "cdgSettings";
-			this.cdgSettings.RowHeadersWidth = 51;
-			this.cdgSettings.ShowCellToolTips = false;
-			this.cdgSettings.Size = new System.Drawing.Size(336, 614);
-			this.cdgSettings.TabIndex = 2;
 			// 
 			// panel1
 			// 
@@ -297,6 +276,21 @@
 			this.label1.Text = "Selected account:";
 			this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
 			// 
+			// kvdgRiskManagementSettings
+			// 
+			this.kvdgRiskManagementSettings.AllowUserToAddRows = false;
+			this.kvdgRiskManagementSettings.AllowUserToDeleteRows = false;
+			this.kvdgRiskManagementSettings.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+			this.kvdgRiskManagementSettings.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.kvdgRiskManagementSettings.Item = null;
+			this.kvdgRiskManagementSettings.Location = new System.Drawing.Point(3, 28);
+			this.kvdgRiskManagementSettings.Name = "kvdgRiskManagementSettings";
+			this.kvdgRiskManagementSettings.RowHeadersVisible = false;
+			this.kvdgRiskManagementSettings.RowHeadersWidth = 51;
+			this.kvdgRiskManagementSettings.RowTemplate.Height = 24;
+			this.kvdgRiskManagementSettings.Size = new System.Drawing.Size(338, 616);
+			this.kvdgRiskManagementSettings.TabIndex = 4;
+			// 
 			// RiskManagementUserControl
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -315,9 +309,9 @@
 			((System.ComponentModel.ISupportInitialize)(this.cdgAccountVisibility)).EndInit();
 			this.gbSettings.ResumeLayout(false);
 			this.tableLayoutPanel2.ResumeLayout(false);
-			((System.ComponentModel.ISupportInitialize)(this.cdgSettings)).EndInit();
 			this.panel1.ResumeLayout(false);
 			this.panel1.PerformLayout();
+			((System.ComponentModel.ISupportInitialize)(this.kvdgRiskManagementSettings)).EndInit();
 			this.ResumeLayout(false);
 
 		}
@@ -327,7 +321,6 @@
 		private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
 		private System.Windows.Forms.GroupBox gbSettings;
 		private System.Windows.Forms.TableLayoutPanel tableLayoutPanel2;
-		private CustomDataGridView cdgSettings;
 		private System.Windows.Forms.Panel panel1;
 		private System.Windows.Forms.Label labelAccount;
 		private System.Windows.Forms.Label label1;
@@ -340,5 +333,6 @@
 		private CustomDataGridView cdgRiskManagements;
 		private System.Windows.Forms.GroupBox gbAccountSelection;
 		private CustomDataGridView cdgAccountVisibility;
+		private KeyValueDataGridView kvdgRiskManagementSettings;
 	}
 }

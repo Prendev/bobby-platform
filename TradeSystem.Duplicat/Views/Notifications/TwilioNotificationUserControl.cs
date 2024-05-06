@@ -30,6 +30,7 @@ namespace TradeSystem.Duplicat.Views._Accounts
 			dgvTwilioSettings.AllowUserToAddRows = false;
 			dgvTwilioSettings.RowHeadersVisible = false;
 			dgvTwilioSettings.AddBinding("ReadOnly", _viewModel, nameof(_viewModel.IsConfigReadonly));
+			dgvPhoneSettings.AddBinding("ReadOnly", _viewModel, nameof(_viewModel.IsConfigReadonly));
 		}
 	}
 }

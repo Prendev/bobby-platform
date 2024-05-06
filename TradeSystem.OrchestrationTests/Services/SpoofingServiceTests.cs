@@ -19,7 +19,7 @@ namespace TradeSystem.OrchestrationTests.Services
 		{
 			SpoofingService = new SpoofingService();
 
-			var connectorFactory = new ConnectorFactory(null, null);
+			var connectorFactory = new ConnectorFactory(null, null, null, null);
 			var feedAccount = new Account()
 			{
 				Run = true,

@@ -103,6 +103,7 @@
     <Compile Include="Attributes\CheckBoxAttribute.cs" />
     <Compile Include="Attributes\DateTimePickerAttribute.cs" />
     <Compile Include="Attributes\DecimalPrecisionAttribute.cs" />
+    <Compile Include="Attributes\TooltipAttribute.cs" />
     <Compile Include="Attributes\DisplayPriorityAttribute.cs" />
     <Compile Include="Attributes\EditableColumnAttribute.cs" />
     <Compile Include="Attributes\FilterableColumnAttribute.cs" />

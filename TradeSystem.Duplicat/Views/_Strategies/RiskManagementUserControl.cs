@@ -1,5 +1,4 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
@@ -18,7 +17,6 @@ namespace TradeSystem.Duplicat.Views._Strategies
 		}
 		public void AttachDataSources()
 		{
-			cdgSettings.DataSource = _viewModel.SelectedRiskManagementSettings;
 			cdgRiskManagements.DataSource = _viewModel.SelectedRiskManagements;
 			cdgAccountVisibility.DataSource = _viewModel.RiskManagementAccoutVisibilities;
 		}
@@ -50,11 +48,6 @@ namespace TradeSystem.Duplicat.Views._Strategies
 		{
 			_viewModel = viewModel;
 			labelAccount.AddBinding<RiskManagementSetting, string>("Text", _viewModel, nameof(_viewModel.SelectedRiskManagementSetting), p => p?.RiskManagement.AccountName ?? "");
-
-			cdgSettings.AllowUserToAddRows = false;
-			cdgSettings.AllowUserToDeleteRows = false;
-			cdgSettings.RowHeadersVisible = false;
-			cdgSettings.CellEndEdit += CdgSettings_CellEndEdit;
 
 			cdgRiskManagements.AllowUserToAddRows = false;
 			cdgRiskManagements.AllowUserToDeleteRows = false;
@@ -96,6 +89,12 @@ namespace TradeSystem.Duplicat.Views._Strategies
 						if (riskManagement.HighestTicketDuration != null) FormatCellFill(cell, riskManagement.RiskManagementSetting.MaxTicketDuration);
 						else cell.Style.BackColor = Color.White;
 						break;
+					case nameof(RiskManagement.LowEquity):
+						FormatLowEquityCell(cell, riskManagement.Account.Equity, riskManagement.LowEquity);
+						break;
+					case nameof(RiskManagement.HighEquity):
+						FormatHighEquityCell(cell, riskManagement.Account.Equity, riskManagement.HighEquity);
+						break;
 				}
 			}
 		}
@@ -126,14 +125,26 @@ namespace TradeSystem.Duplicat.Views._Strategies
 			}
 		}
 
+		private void FormatLowEquityCell(DataGridViewCell cell, double accountEquity, double? lowEquity)
+		{
+			if (!lowEquity.HasValue || lowEquity.Value <= 0) cell.Style.BackColor = Color.White;
+			else if (lowEquity.Value > accountEquity) cell.Style.BackColor = Color.FromArgb(255, 0, 0);
+			else if (lowEquity.Value * 1.05 > accountEquity) cell.Style.BackColor = Color.Yellow;
+			else cell.Style.BackColor = Color.FromArgb(0, 255, 0);
+		}
+
+		private void FormatHighEquityCell(DataGridViewCell cell, double accountEquity, double? highEquity)
+		{
+			if (!highEquity.HasValue || highEquity.Value <= 0) cell.Style.BackColor = Color.White;
+			else if (highEquity.Value < accountEquity) cell.Style.BackColor = Color.FromArgb(255, 0, 0);
+			else if (highEquity.Value * 0.95 < accountEquity) cell.Style.BackColor = Color.Yellow;
+			else cell.Style.BackColor = Color.FromArgb(0, 255, 0);
+		}
+
 		private void CdgRiskManagements_DoubleClick(object sender, System.EventArgs e)
 		{
 			_viewModel.LoadSettingCommand(cdgRiskManagements.GetSelectedItem<RiskManagement>());
-		}
-
-		private void CdgSettings_CellEndEdit(object sender, DataGridViewCellEventArgs e)
-		{
-			cdgRiskManagements.Refresh();
+			kvdgRiskManagementSettings.MappingSelectedItem(_viewModel.SelectedRiskManagementSetting);
 		}
 	}
 }

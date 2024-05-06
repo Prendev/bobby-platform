@@ -10,7 +10,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using TradeSystem.Common.Integration;
 using TradeSystem.Common.Services;
-using TradeSystem.Communication;
 using static nj4x.Strategy;
 
 namespace TradeSystem.Nj4xIntegration
