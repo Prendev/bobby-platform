@@ -50,13 +50,16 @@ namespace TradeSystem.Data.Models
 		public DisconnectAlert? DisconnectAlert { get; set; }
 
 		[EditableColumn]
+		[DecimalPrecision]
 		public double MarginLevelAlert { get; set; }
 
 		[EditableColumn]
+		[DecimalPrecision]
 		public double MarginLevelWarning { get; set; }
 
 		[DisplayPriority(-1, true)]
 		[EditableColumn]
+		[DecimalPrecision]
 		public double PendingTransfers { get; set; }
 
 		[DisplayPriority(-1, true)]

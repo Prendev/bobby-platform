@@ -27,8 +27,47 @@ namespace TradeSystem.Duplicat.Views._Strategies
 			{
 				cdgAccountVisibility.EndEdit();
 			}
+
+			cdgAccountVisibility.MouseClick += dataGridView1_MouseClick;
 		}
 
+		private void dataGridView1_MouseClick(object sender, MouseEventArgs e)
+		{
+			//check if column header was clicked
+			//lastly fix the bug on context menu not showing when all columns are hidden
+			if (cdgAccountVisibility.HitTest(e.X, e.Y).Type == DataGridViewHitTestType.ColumnHeader ||
+				cdgAccountVisibility.HitTest(e.X, e.Y).Type == DataGridViewHitTestType.TopLeftHeader)
+			{
+				//create a context menu
+				ContextMenu menu = new ContextMenu();
+
+				//add items on the menu
+				foreach (DataGridViewColumn column in cdgAccountVisibility.Columns)
+				{
+					MenuItem item = new MenuItem();
+
+					item.Text = column.HeaderText;
+					item.Checked = column.Visible;
+
+					//now lets add the event if the item was clicked
+					item.Click += (obj, ea) =>
+					{
+						column.Visible = !item.Checked;
+
+						//lets update the check
+						item.Checked = column.Visible;
+
+						//show the selection again
+						menu.Show(cdgAccountVisibility, e.Location);
+					};
+
+					menu.MenuItems.Add(item);
+				}
+
+				//show the menu
+				menu.Show(cdgAccountVisibility, e.Location);
+			}
+		}
 		private void RiskManagementAccoutVisibilities_ListChanged(object sender, System.ComponentModel.ListChangedEventArgs e)
 		{
 			if (!_viewModel.IsConnected) return;
@@ -141,10 +180,14 @@ namespace TradeSystem.Duplicat.Views._Strategies
 			else cell.Style.BackColor = Color.FromArgb(0, 255, 0);
 		}
 
-		private void CdgRiskManagements_DoubleClick(object sender, System.EventArgs e)
+		private void CdgRiskManagements_DoubleClick(object sender, EventArgs e)
 		{
-			_viewModel.LoadSettingCommand(cdgRiskManagements.GetSelectedItem<RiskManagement>());
-			kvdgRiskManagementSettings.MappingSelectedItem(_viewModel.SelectedRiskManagementSetting);
+			var riskManagement = cdgRiskManagements.GetSelectedItem<RiskManagement>();
+			if (riskManagement != null)
+			{
+				_viewModel.LoadSettingCommand(riskManagement);
+				kvdgRiskManagementSettings.MappingSelectedItem(_viewModel.SelectedRiskManagementSetting);
+			}
 		}
 	}
 }

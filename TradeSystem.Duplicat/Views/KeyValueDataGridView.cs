@@ -16,6 +16,8 @@ namespace TradeSystem.Duplicat.Views
 			AllowUserToAddRows = false;
 			AllowUserToDeleteRows = false;
 			RowHeadersVisible = false;
+
+			CellFormatting += CustomDataGridView_CellFormatting;
 		}
 
 		public object Item { get; set; }
@@ -54,6 +56,24 @@ namespace TradeSystem.Duplicat.Views
 			{
 				selectedItem.Value = originalValue;
 			}
+		}
+
+		private void CustomDataGridView_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
+		{
+			try
+			{
+				if (Rows[e.RowIndex].DataBoundItem != null && e.Value != null && double.TryParse(e.Value.ToString(), out double originalValue))
+				{
+					var property = Rows[e.RowIndex].DataBoundItem.GetType().GetProperty(Columns[e.ColumnIndex].Name);
+					var decimalPrecisionAttribute = (DecimalPrecisionAttribute)Attribute.GetCustomAttribute(property, typeof(DecimalPrecisionAttribute));
+
+					int decimalPlaces = BitConverter.GetBytes(decimal.GetBits((decimal)originalValue)[3])[2];
+					var formattedValue = string.Format($"{{0:N{decimalPlaces}}}", originalValue);
+					e.Value = formattedValue;
+					e.FormattingApplied = true;
+				}
+			}
+			catch { }
 		}
 	}
 }
