@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Data.Common;
 using System.Drawing;
 using System.Globalization;
 using System.Linq;
@@ -19,6 +20,8 @@ namespace TradeSystem.Duplicat.Views
 		private Tuple<CustomDateTimePicker, DataGridViewCell> lastUsedDateTimePicker = null;
 
 		private readonly List<string> _invisibleColumns = new List<string>();
+		private readonly List<string> _showHideColumns = new List<string>();
+
 		private readonly Dictionary<string, CustomDateTimePicker> _dateTimePickers = new Dictionary<string, CustomDateTimePicker>();
 
 		public EventHandler RowDoubleClick;
@@ -50,6 +53,8 @@ namespace TradeSystem.Duplicat.Views
 			Scroll += CustomDataGridView_Close_DateTimePicker;
 			CellLeave += CustomDataGridView_Close_DateTimePicker;
 			RowHeaderMouseClick += CustomDataGridView_Close_DateTimePicker;
+
+			ColumnHeaderMouseClick += CustomDataGridView_ColumnHeaderMouseClick;
 		}
 
 		private void CustomDataGridView_CellMouseEnter(object sender, DataGridViewCellEventArgs e)
@@ -61,7 +66,7 @@ namespace TradeSystem.Duplicat.Views
 
 			string tooltip = string.Empty;
 			var property = bindingList.GetType().GetGenericArguments()[0].GetProperty(Columns[e.ColumnIndex].DataPropertyName);
-			
+
 			if (property != null) tooltip = ((TooltipAttribute)Attribute.GetCustomAttribute(property, typeof(TooltipAttribute)))?.Tooltip;
 
 			if (string.IsNullOrEmpty(tooltip))
@@ -104,6 +109,41 @@ namespace TradeSystem.Duplicat.Views
 			if (e.ColumnIndex < 0 || e.RowIndex < 0) return;
 			if ((ModifierKeys & Keys.Alt) == 0 || (ModifierKeys & Keys.Control) == 0) return;
 			Rows[e.RowIndex].Cells[e.ColumnIndex].Value = null;
+		}
+
+		private void CustomDataGridView_ColumnHeaderMouseClick(object sender, DataGridViewCellMouseEventArgs e)
+		{
+			//check if column header was clicked by right
+			//fix the bug on context menu not showing when all columns are hidden
+			if (_showHideColumns.Count > 0 && e.Button == MouseButtons.Right && (
+				HitTest(e.X, e.Y).Type == DataGridViewHitTestType.ColumnHeader ||
+				HitTest(e.X, e.Y).Type == DataGridViewHitTestType.TopLeftHeader))
+			{
+				ContextMenu menu = new ContextMenu();
+
+				foreach (var columnName in _showHideColumns)
+				{
+					DataGridViewColumn column = Columns[columnName];
+
+					MenuItem item = new MenuItem();
+
+					item.Text = column.HeaderText;
+					item.Checked = column.Visible;
+
+					item.Click += (obj, ea) =>
+					{
+						column.Visible = !item.Checked;
+
+						item.Checked = column.Visible;
+
+						menu.Show(this, e.Location);
+					};
+
+					menu.MenuItems.Add(item);
+				}
+
+				menu.Show(this, e.Location);
+			}
 		}
 
 		public void AddComboBoxColumn<T>(BindingList<T> list, string name = null, string header = null) where T : BaseEntity
@@ -152,11 +192,18 @@ namespace TradeSystem.Duplicat.Views
 
 					if (decimalPrecisionAttribute != null)
 					{
-						var decimalPlaces = decimalPrecisionAttribute.DecimalPlaces;
-						var roundedValue = Math.Round(originalValue, decimalPlaces);
-
-						string formattedValue = string.Format($"{{0:N{decimalPlaces}}}", roundedValue);
-
+						var formattedValue = string.Empty;
+						if (decimalPrecisionAttribute.DecimalPlaces >= 0)
+						{
+							var decimalPlaces = decimalPrecisionAttribute.DecimalPlaces;
+							var roundedValue = Math.Round(originalValue, decimalPlaces);
+							formattedValue = string.Format($"{{0:N{decimalPlaces}}}", roundedValue);
+						}
+						else
+						{
+							int decimalPlaces = BitConverter.GetBytes(decimal.GetBits((decimal)originalValue)[3])[2];
+							formattedValue = string.Format($"{{0:N{decimalPlaces}}}", originalValue);
+						}
 						e.Value = formattedValue;
 						e.FormattingApplied = true;
 					}
@@ -175,6 +222,11 @@ namespace TradeSystem.Duplicat.Views
 			// Set invisible columns
 			foreach (var prop in genericArgs[0].GetProperties().Where(p => Columns.Contains(p.Name)))
 			{
+				if (prop.GetCustomAttributes(true).FirstOrDefault(a => a is ShowHideColumnAttribute) != null)
+				{
+					_showHideColumns.Add(prop.Name);
+				}
+
 				if (prop.GetCustomAttributes(true).FirstOrDefault(a => a is InvisibleColumnAttribute) != null)
 				{
 					if (!_invisibleColumns.Contains(prop.Name))
@@ -182,33 +234,30 @@ namespace TradeSystem.Duplicat.Views
 					if (Columns.Contains($"{prop.Name}*") && !_invisibleColumns.Contains($"{prop.Name}*"))
 						_invisibleColumns.Add($"{prop.Name}*");
 				}
-				else
+				else if (prop.GetCustomAttributes(true).Any(a => a is DateTimePickerAttribute) && !_dateTimePickers.ContainsKey(prop.Name))
 				{
-					if (prop.GetCustomAttributes(true).Any(a => a is DateTimePickerAttribute) && !_dateTimePickers.ContainsKey(prop.Name))
+					var dtp = new CustomDateTimePicker();
+					Columns[prop.Name].MinimumWidth = 130;
+					var format = ((DateTimePickerAttribute)Attribute.GetCustomAttribute(prop, typeof(DateTimePickerAttribute))).Format;
+
+					if (format == null)
 					{
-						var dtp = new CustomDateTimePicker();
-						Columns[prop.Name].MinimumWidth = 130;
-						var format = ((DateTimePickerAttribute)Attribute.GetCustomAttribute(prop, typeof(DateTimePickerAttribute))).Format;
-
-						if (format == null)
-						{
-							dtp.Format = DateTimePickerFormat.Short;
-							Columns[prop.Name].DefaultCellStyle.Format = "d";
-							Columns[prop.Name].DefaultCellStyle.FormatProvider = CultureInfo.CurrentCulture;
-						}
-						else
-						{
-							Columns[prop.Name].DefaultCellStyle.Format = format;
-							dtp.Format = DateTimePickerFormat.Custom;
-							dtp.CustomFormat = format;
-						}
-
-						dtp.Visible = false;
-						dtp.ValueChanged += Dp_TextChanged;
-
-						Controls.Add(dtp);
-						_dateTimePickers.Add(prop.Name, dtp);
+						dtp.Format = DateTimePickerFormat.Short;
+						Columns[prop.Name].DefaultCellStyle.Format = "d";
+						Columns[prop.Name].DefaultCellStyle.FormatProvider = CultureInfo.CurrentCulture;
 					}
+					else
+					{
+						Columns[prop.Name].DefaultCellStyle.Format = format;
+						dtp.Format = DateTimePickerFormat.Custom;
+						dtp.CustomFormat = format;
+					}
+
+					dtp.Visible = false;
+					dtp.ValueChanged += Dp_TextChanged;
+
+					Controls.Add(dtp);
+					_dateTimePickers.Add(prop.Name, dtp);
 				}
 			}
 			foreach (var name in _invisibleColumns)
@@ -338,91 +387,6 @@ namespace TradeSystem.Duplicat.Views
 				Columns.Insert(index, c);
 
 			});
-		}
-	}
-	//public class CheckBoxStateChangedEventArgs : EventArgs
-	//{
-	//	public bool IsChecked { get; set; }
-	//	public int ColumnIndex { get; set; }
-	//}
-
-	//public delegate void CheckBoxHeaderCellStateChangedHandler(object sender, CheckBoxStateChangedEventArgs e);
-
-	public class DataGridViewCheckBoxHeaderCell2 : DataGridViewColumnHeaderCell
-	{
-		private Point checkBoxLocation;
-		private bool isChecked = false;
-		private readonly string _headerText;
-
-		public DataGridViewCheckBoxHeaderCell2(string headerText = "")
-		{
-			_headerText = headerText;
-		}
-
-		public event CheckBoxHeaderCellStateChangedHandler CheckBoxHeaderCellStateChanged;
-
-		protected void OnCheckBoxHeaderCellStateChanged(CheckBoxStateChangedEventArgs e)
-		{
-			CheckBoxHeaderCellStateChanged?.Invoke(this, e);
-		}
-
-		private int extraSpaceWidth = 10; // Adjust this value according to your needs
-
-		//protected override Size GetPreferredSize(Graphics graphics, DataGridViewCellStyle cellStyle, int rowIndex, Size constraintSize)
-		//{
-		//	Size size = base.GetPreferredSize(graphics, cellStyle, rowIndex, constraintSize);
-		//	size.Width += extraSpaceWidth;
-		//	return size;
-		//}
-
-		//protected override Rectangle GetContentBounds(Graphics graphics, DataGridViewCellStyle cellStyle, int rowIndex)
-		//{
-		//	Rectangle bounds = base.GetContentBounds(graphics, cellStyle, rowIndex);
-		//	bounds.Width += extraSpaceWidth;
-		//	return bounds;
-		//}
-
-		//protected override void Paint(Graphics graphics, Rectangle clipBounds, Rectangle cellBounds, int rowIndex, DataGridViewElementStates dataGridViewElementState, object value, object formattedValue, string errorText, DataGridViewCellStyle cellStyle, DataGridViewAdvancedBorderStyle advancedBorderStyle, DataGridViewPaintParts paintParts)
-		//{
-		//	cellBounds.Width += extraSpaceWidth;
-		//	base.Paint(graphics, clipBounds, cellBounds, rowIndex, dataGridViewElementState, value, formattedValue, errorText, cellStyle, advancedBorderStyle, paintParts);
-		//}
-
-		protected override void Paint(Graphics graphics, Rectangle clipBounds, Rectangle cellBounds, int rowIndex, DataGridViewElementStates dataGridViewElementState, object value, object formattedValue, string errorText, DataGridViewCellStyle cellStyle, DataGridViewAdvancedBorderStyle advancedBorderStyle, DataGridViewPaintParts paintParts)
-		{
-			cellBounds.Width += extraSpaceWidth;
-			base.Paint(graphics, clipBounds, cellBounds, rowIndex, dataGridViewElementState, value, formattedValue, errorText, cellStyle, advancedBorderStyle, paintParts);
-			// Calculate the location and size of the checkbox
-			int x = cellBounds.Location.X + (cellBounds.Width - 16) / 2 + 1;
-			int y = cellBounds.Location.Y + (cellBounds.Height - 16) / 2 + 2;
-
-			if (!string.IsNullOrEmpty(_headerText))
-			{
-				Size textSize = TextRenderer.MeasureText(_headerText, cellStyle.Font);
-				//x = cellBounds.Location.X + textSize.Width;
-			}
-			checkBoxLocation = new Point(x, y);
-			// Draw the checkbox
-			CheckBoxRenderer.DrawCheckBox(graphics, checkBoxLocation, isChecked ? CheckBoxState.CheckedNormal : CheckBoxState.UncheckedNormal);
-		}
-
-		protected override void OnMouseClick(DataGridViewCellMouseEventArgs e)
-		{
-			base.OnMouseClick(e);
-
-			// Toggle the checkbox state when clicked
-			isChecked = !isChecked;
-			DataGridView.InvalidateCell(this);
-
-
-			// Fire the event with the updated state
-			OnCheckBoxHeaderCellStateChanged(new CheckBoxStateChangedEventArgs { IsChecked = isChecked, ColumnIndex = e.ColumnIndex });
-		}
-
-		public void SetCheckedState(bool state)
-		{
-			isChecked = state;
-			DataGridView?.InvalidateCell(this);
 		}
 	}
 }

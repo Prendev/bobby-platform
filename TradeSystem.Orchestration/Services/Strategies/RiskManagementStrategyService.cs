@@ -73,7 +73,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			var opennedPositions = account.Connector.Positions.Where(p => !p.Value.IsClosed);
 			if (opennedPositions.Any())
 			{
-				return opennedPositions.Count(p => (DateTime.Now.Date - p.Value.OpenTime.Date).Days > account.RiskManagement.RiskManagementSetting.MaxTicketDuration);
+				return opennedPositions.Count(p => (DateTime.Now.Date - p.Value.OpenTime.Date).Days >= account.RiskManagement.RiskManagementSetting.MaxTicketDuration);
 			}
 			return null;
 		}
