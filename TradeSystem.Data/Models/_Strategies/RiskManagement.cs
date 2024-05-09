@@ -13,6 +13,7 @@ namespace TradeSystem.Data.Models
 
 		[DateTimePicker("yyyy.MM.dd")]
 		[DisplayPriority(1)]
+		[ShowHideColumn]
 		public DateTime? FirstActivity
 		{
 			get => firstActivity;
@@ -23,14 +24,20 @@ namespace TradeSystem.Data.Models
 			}
 		}
 
-		[DisplayPriority(3)]
+		[DisplayPriority(4)]
+		[InvisibleColumn]
+		[ShowHideColumn]
 		public bool Regulated { get; set; }
 
-		[DisplayPriority(3)]
+		[DisplayPriority(4)]
+		[InvisibleColumn]
+		[ShowHideColumn]
 		public double PnL { get; set; }
 
-		[DisplayPriority(3)]
+		[DisplayPriority(4)]
+		[InvisibleColumn]
 		[Tooltip(" Hypothetical accrued swaps in money")]
+		[ShowHideColumn]
 		public double HypoAccSwaps { get; set; }
 	}
 }

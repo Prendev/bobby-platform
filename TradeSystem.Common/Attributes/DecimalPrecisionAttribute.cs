@@ -6,7 +6,7 @@ namespace TradeSystem.Common.Attributes
     {
         public int DecimalPlaces { get; }
 
-        public DecimalPrecisionAttribute(int decimalPlaces)
+		public DecimalPrecisionAttribute(int decimalPlaces = -1)
         {
 			DecimalPlaces = decimalPlaces;
         }
