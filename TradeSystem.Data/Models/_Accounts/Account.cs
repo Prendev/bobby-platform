@@ -27,6 +27,9 @@ namespace TradeSystem.Data.Models
 		public int? CTraderAccountId { get; set; }
 		public CTraderAccount CTraderAccount { get; set; }
 
+		public int? Plus500AccountId { get; set; }
+		public Plus500Account Plus500Account { get; set; }
+
 		[InvisibleColumn] public int? CqgClientApiAccountId { get; set; }
 		[InvisibleColumn] public CqgClientApiAccount CqgClientApiAccount { get; set; }
 

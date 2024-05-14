@@ -82,6 +82,7 @@ namespace TradeSystem.Duplicat.ViewModel
 		public BindingList<MetaTraderInstrumentConfig> MtInstrumentConfigs { get; private set; }
 		public BindingList<CTraderAccount> CtAccounts { get; private set; }
 		public BindingList<FixApiAccount> FixAccounts { get; private set; }
+		public BindingList<Plus500Account> Plus500Accounts { get; private set; }
 		public BindingList<IlyaFastFeedAccount> IlyaFastFeedAccounts { get; private set; }
 		public BindingList<CqgClientApiAccount> CqgClientApiAccounts { get; private set; }
 		public BindingList<IbAccount> IbAccounts { get; private set; }
@@ -140,6 +141,7 @@ namespace TradeSystem.Duplicat.ViewModel
 
 		public BindingList<TradePosition> TradePositions { get; private set; }
 		public SortableBindingList<TradePosition> SortedTradePositions { get; private set; } = new SortableBindingList<TradePosition>();
+		public SortableBindingList<Plus500Integration.PositionResponse> SortedPlus500TradePositions { get; private set; } = new SortableBindingList<Plus500Integration.PositionResponse>();
 
 		public SortableBindingList<SymbolStatus> SymbolStatusVisibilities { get; private set; } = new SortableBindingList<SymbolStatus>();
 
@@ -218,7 +220,7 @@ namespace TradeSystem.Duplicat.ViewModel
 					//TODO
 					CheckDuplicatedPositions();
 				}
-			};
+            };
 
 			_backtesterService = backtesterService;
 			_xmlService = xmlService;
@@ -370,6 +372,11 @@ namespace TradeSystem.Duplicat.ViewModel
 		{
 			foreach (var account in Accounts)
 			{
+				if(account.ConnectionState == ConnectionStates.Connected)
+				{
+					Account_ConnectionChanged(account, ConnectionStates.Connected);
+				}
+
 				account.ConnectionChanged -= Account_ConnectionChanged;
 				account.ConnectionChanged += Account_ConnectionChanged;
 			}
@@ -401,7 +408,7 @@ namespace TradeSystem.Duplicat.ViewModel
 				ConnectedAccounts.Add(account);
 				account.PropertyChanged += Account_PropertyChanged;
 			}
-			else if (ConnectedAccounts.Contains(account) && (e == ConnectionStates.Disconnected || e == ConnectionStates.Error))
+			else if ((e == ConnectionStates.Disconnected || e == ConnectionStates.Error) && ConnectedAccounts.Contains(account))
 			{
 				ConnectedAccounts.Remove(account);
 				account.PropertyChanged -= Account_PropertyChanged;
@@ -426,6 +433,7 @@ namespace TradeSystem.Duplicat.ViewModel
 			_duplicatContext.MetaTraderInstrumentConfigs.OrderBy(e => e.ToString()).Load();
 			_duplicatContext.CTraderAccounts.OrderBy(e => e.ToString()).Load();
 			_duplicatContext.FixApiAccounts.OrderBy(e => e.ToString()).Load();
+			_duplicatContext.Plus500Accounts.OrderBy(e => e.ToString()).Load();
 			_duplicatContext.IlyaFastFeedAccounts.OrderBy(e => e.ToString()).Load();
 			_duplicatContext.CqgClientApiAccounts.OrderBy(e => e.ToString()).Load();
 			_duplicatContext.IbAccounts.OrderBy(e => e.ToString()).Load();
@@ -492,6 +500,7 @@ namespace TradeSystem.Duplicat.ViewModel
 				e => e.MetaTraderAccount, () => SelectedMt4Account);
 			CtAccounts = _duplicatContext.CTraderAccounts.Local.ToBindingList();
 			FixAccounts = _duplicatContext.FixApiAccounts.Local.ToBindingList();
+			Plus500Accounts = _duplicatContext.Plus500Accounts.Local.ToBindingList();
 			IlyaFastFeedAccounts = _duplicatContext.IlyaFastFeedAccounts.Local.ToBindingList();
 			CqgClientApiAccounts = _duplicatContext.CqgClientApiAccounts.Local.ToBindingList();
 			IbAccounts = _duplicatContext.IbAccounts.Local.ToBindingList();

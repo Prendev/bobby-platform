@@ -60,6 +60,7 @@ namespace TradeSystem.Data
 		public DbSet<TradePosition> TraderPositions { get; set; }
 		public DbSet<CTraderAccount> CTraderAccounts { get; set; }
 		public DbSet<FixApiAccount> FixApiAccounts { get; set; }
+		public DbSet<Plus500Account> Plus500Accounts { get; set; }
 		public DbSet<IlyaFastFeedAccount> IlyaFastFeedAccounts { get; set; }
 		public DbSet<CqgClientApiAccount> CqgClientApiAccounts { get; set; }
 		public DbSet<IbAccount> IbAccounts { get; set; }

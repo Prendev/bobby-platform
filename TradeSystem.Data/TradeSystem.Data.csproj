@@ -274,6 +274,7 @@
     <Compile Include="Models\CopierPosition.cs" />
     <Compile Include="Models\KeyValue.cs" />
     <Compile Include="Models\Notifcations\TelegramBot.cs" />
+    <Compile Include="Models\_Accounts\Plus500Account.cs" />
     <Compile Include="Models\_Strategies\BrokerSymbolStatus.cs" />
     <Compile Include="Models\_Strategies\MtAccountPosition.cs" />
     <Compile Include="Models\_Strategies\MtPosition.cs" />

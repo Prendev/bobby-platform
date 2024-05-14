@@ -40,6 +40,7 @@ namespace TradeSystem.Orchestration.Services
 				else if (account.MetaTraderAccountId.HasValue) ConnectMtAccount(account);
 				else if (account.CTraderAccountId.HasValue) ConenctCtAccount(account);
 				else if (account.FixApiAccountId.HasValue) await ConnectFixAccount(account);
+				else if (account.Plus500AccountId.HasValue) await ConnectPlus500Account(account);
 				else if (account.CqgClientApiAccountId.HasValue) await ConnectCqgClientApiAccount(account);
 				else if (account.IbAccountId.HasValue) await ConnectIbAccount(account);
 				else if (account.BacktesterAccountId.HasValue) ConnectBtAccount(account);
@@ -170,6 +171,24 @@ namespace TradeSystem.Orchestration.Services
 				}, _emailService);
 
 			await ((FixApiIntegration.Connector)account.Connector).Connect();
+		}
+
+		private async Task ConnectPlus500Account(Account account)
+		{
+			if (!(account.Connector is Plus500Integration.Connector) ||
+				account.Connector.Id != account.Plus500AccountId)
+				account.Connector = null;
+
+			if (account.Connector == null)
+				account.Connector = new Plus500Integration.Connector(new Plus500Integration.AccountInfo
+				{
+					DbId = account.Plus500Account.Id,
+					Description = account.Plus500Account.Description,
+					ClientId = account.Plus500Account.ClientId,
+					SrvPath = account.Plus500Account.SrvPath
+				}, _emailService);
+
+			await ((Plus500Integration.Connector)account.Connector).Connect();
 		}
 
 		private async Task ConnectCqgClientApiAccount(Account account)

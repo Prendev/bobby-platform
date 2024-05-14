@@ -36,6 +36,9 @@
 			this.tabPageFix = new System.Windows.Forms.TabPage();
 			this.tabPageCt = new System.Windows.Forms.TabPage();
 			this.tabPageBt = new System.Windows.Forms.TabPage();
+			this.btAccountsUserControl = new TradeSystem.Duplicat.Views.BtAccountsUserControl();
+			this.tabPagePlus500 = new System.Windows.Forms.TabPage();
+			this.plus500UserControl1 = new TradeSystem.Duplicat.Views._Accounts.Plus500UserControl();
 			this.tabPageAggregator = new System.Windows.Forms.TabPage();
 			this.tabPageCopier = new System.Windows.Forms.TabPage();
 			this.tabPageStrategy = new System.Windows.Forms.TabPage();
@@ -59,6 +62,7 @@
 			this.tabControlNotifications = new System.Windows.Forms.TabControl();
 			this.tabPageTwillio = new System.Windows.Forms.TabPage();
 			this.tabPageTelegram = new System.Windows.Forms.TabPage();
+			this.telegramUserControl = new TradeSystem.Duplicat.Views.Notifications.TelegramNotificationUserControl();
 			this.tabPageLog = new System.Windows.Forms.TabPage();
 			this.tabControl1 = new System.Windows.Forms.TabControl();
 			this.tabPage1 = new System.Windows.Forms.TabPage();
@@ -122,6 +126,8 @@
 			this.connectorTesterUserControl1 = new TradeSystem.Duplicat.Views.ConnectorTesterUserControl();
 			this.mtAlertUserControl2 = new TradeSystem.Duplicat.Views._Accounts.TwilioNotificationUserControl();
 			this.telegramUserControl = new TradeSystem.Duplicat.Views.Notifications.TelegramNotificationUserControl();
+			this.tabPagePlus500Trade = new System.Windows.Forms.TabPage();
+			this.plus500TradeUserControl1 = new TradeSystem.Duplicat.Views._Strategies.Plus500TradeUserControl();
 			this.tabControlMain.SuspendLayout();
 			this.tabPageProfile.SuspendLayout();
 			this.tabPageAccount.SuspendLayout();
@@ -130,6 +136,7 @@
 			this.tabPageFix.SuspendLayout();
 			this.tabPageCt.SuspendLayout();
 			this.tabPageBt.SuspendLayout();
+			this.tabPagePlus500.SuspendLayout();
 			this.tabPageAggregator.SuspendLayout();
 			this.tabPageCopier.SuspendLayout();
 			this.tabPageStrategy.SuspendLayout();
@@ -172,6 +179,7 @@
 			((System.ComponentModel.ISupportInitialize)(this.nudThrottling)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.nudAutoSave)).BeginInit();
 			this.pCopiers.SuspendLayout();
+			this.tabPagePlus500Trade.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// tabControlMain
@@ -224,6 +232,7 @@
 			this.tabControlAccounts.Controls.Add(this.tabPageFix);
 			this.tabControlAccounts.Controls.Add(this.tabPageCt);
 			this.tabControlAccounts.Controls.Add(this.tabPageBt);
+			this.tabControlAccounts.Controls.Add(this.tabPagePlus500);
 			this.tabControlAccounts.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.tabControlAccounts.Location = new System.Drawing.Point(3, 2);
 			this.tabControlAccounts.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
@@ -277,6 +286,34 @@
 			this.tabPageBt.Text = "Backtester";
 			this.tabPageBt.UseVisualStyleBackColor = true;
 			// 
+			// btAccountsUserControl
+			// 
+			this.btAccountsUserControl.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.btAccountsUserControl.Location = new System.Drawing.Point(0, 0);
+			this.btAccountsUserControl.Margin = new System.Windows.Forms.Padding(5);
+			this.btAccountsUserControl.Name = "btAccountsUserControl";
+			this.btAccountsUserControl.Size = new System.Drawing.Size(1215, 453);
+			this.btAccountsUserControl.TabIndex = 0;
+			// 
+			// tabPagePlus500
+			// 
+			this.tabPagePlus500.Controls.Add(this.plus500UserControl1);
+			this.tabPagePlus500.Location = new System.Drawing.Point(4, 25);
+			this.tabPagePlus500.Name = "tabPagePlus500";
+			this.tabPagePlus500.Padding = new System.Windows.Forms.Padding(3);
+			this.tabPagePlus500.Size = new System.Drawing.Size(1215, 453);
+			this.tabPagePlus500.TabIndex = 5;
+			this.tabPagePlus500.Text = "Plus500";
+			this.tabPagePlus500.UseVisualStyleBackColor = true;
+			// 
+			// plus500UserControl1
+			// 
+			this.plus500UserControl1.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.plus500UserControl1.Location = new System.Drawing.Point(3, 3);
+			this.plus500UserControl1.Name = "plus500UserControl1";
+			this.plus500UserControl1.Size = new System.Drawing.Size(1209, 447);
+			this.plus500UserControl1.TabIndex = 0;
+			// 
 			// tabPageAggregator
 			// 
 			this.tabPageAggregator.Controls.Add(this.aggregatorUserControl);
@@ -325,6 +362,7 @@
 			this.tabControlStrategies.Controls.Add(this.tabPageExposure);
 			this.tabControlStrategies.Controls.Add(this.tabTrade);
 			this.tabControlStrategies.Controls.Add(this.tabPageRiskManagement);
+			this.tabControlStrategies.Controls.Add(this.tabPagePlus500Trade);
 			this.tabControlStrategies.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.tabControlStrategies.Location = new System.Drawing.Point(3, 2);
 			this.tabControlStrategies.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
@@ -548,6 +586,14 @@
 			this.tabPageTelegram.TabIndex = 1;
 			this.tabPageTelegram.Text = "Telegram";
 			this.tabPageTelegram.UseVisualStyleBackColor = true;
+			// 
+			// telegramUserControl
+			// 
+			this.telegramUserControl.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.telegramUserControl.Location = new System.Drawing.Point(3, 3);
+			this.telegramUserControl.Name = "telegramUserControl";
+			this.telegramUserControl.Size = new System.Drawing.Size(1209, 445);
+			this.telegramUserControl.TabIndex = 0;
 			// 
 			// tabPageLog
 			// 
@@ -1255,6 +1301,24 @@
 			this.telegramUserControl.Name = "telegramUserControl";
 			this.telegramUserControl.Size = new System.Drawing.Size(1209, 421);
 			this.telegramUserControl.TabIndex = 0;
+			// tabPagePlus500Trade
+			// 
+			this.tabPagePlus500Trade.Controls.Add(this.plus500TradeUserControl1);
+			this.tabPagePlus500Trade.Location = new System.Drawing.Point(4, 25);
+			this.tabPagePlus500Trade.Name = "tabPagePlus500Trade";
+			this.tabPagePlus500Trade.Padding = new System.Windows.Forms.Padding(3);
+			this.tabPagePlus500Trade.Size = new System.Drawing.Size(1215, 453);
+			this.tabPagePlus500Trade.TabIndex = 12;
+			this.tabPagePlus500Trade.Text = "Plus500 Trade";
+			this.tabPagePlus500Trade.UseVisualStyleBackColor = true;
+			// 
+			// plus500TradeUserControl1
+			// 
+			this.plus500TradeUserControl1.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.plus500TradeUserControl1.Location = new System.Drawing.Point(4, 4);
+			this.plus500TradeUserControl1.Name = "plus500TradeUserControl1";
+			this.plus500TradeUserControl1.Size = new System.Drawing.Size(1511, 559);
+			this.plus500TradeUserControl1.TabIndex = 0;
 			// 
 			// MainForm
 			// 
@@ -1273,6 +1337,7 @@
 			this.tabPageFix.ResumeLayout(false);
 			this.tabPageCt.ResumeLayout(false);
 			this.tabPageBt.ResumeLayout(false);
+			this.tabPagePlus500.ResumeLayout(false);
 			this.tabPageAggregator.ResumeLayout(false);
 			this.tabPageCopier.ResumeLayout(false);
 			this.tabPageStrategy.ResumeLayout(false);
@@ -1318,6 +1383,7 @@
 			((System.ComponentModel.ISupportInitialize)(this.nudThrottling)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.nudAutoSave)).EndInit();
 			this.pCopiers.ResumeLayout(false);
+			this.tabPagePlus500Trade.ResumeLayout(false);
 			this.ResumeLayout(false);
 
         }
@@ -1396,6 +1462,10 @@
         private System.Windows.Forms.RichTextBox rtbCopy;
         private System.Windows.Forms.TabPage tabPageExposure;
         private ExposureUserControl exposureUserControl1;
+		private System.Windows.Forms.TabPage tabPagePlus500;
+		private _Accounts.Plus500UserControl plus500UserControl1;
+		private System.Windows.Forms.TabPage tabPagePlus500Trade;
+		private _Strategies.Plus500TradeUserControl plus500TradeUserControl1;
         private System.Windows.Forms.TabPage tabTrade;
         private _Strategies.TradeUserControl tradeUserControl1;
         private System.Windows.Forms.Label lbThrottling;

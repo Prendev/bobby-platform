@@ -81,6 +81,7 @@ namespace TradeSystem.Duplicat.Views
 			dgvAccounts.AddComboBoxColumn(_viewModel.MtAccounts, header: "MT4");
 			dgvAccounts.AddComboBoxColumn(_viewModel.CtAccounts, header: "CT");
 			dgvAccounts.AddComboBoxColumn(_viewModel.FixAccounts, header: "IConn.");
+			dgvAccounts.AddComboBoxColumn(_viewModel.Plus500Accounts, header: "Plus500");
 			dgvAccounts.AddComboBoxColumn(_viewModel.BacktesterAccounts, header: "Backtester");
 
 			dgvProfiles.DataSource = _viewModel.Profiles;

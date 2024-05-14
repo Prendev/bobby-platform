@@ -314,6 +314,10 @@
     <ProjectReference Include="..\TradeSystem.Notification\TradeSystem.Notification.csproj">
       <Project>{FAF355B7-1510-474E-BD4C-9ECC583347FA}</Project>
       <Name>TradeSystem.Notification</Name>
+	</ProjectReference>
+	<ProjectReference Include="..\TradeSystem.Plus500Integration\TradeSystem.Plus500Integration.csproj">
+      <Project>{8c468bd2-2710-40d9-85ac-a40f2d4c0cfa}</Project>
+      <Name>TradeSystem.Plus500Integration</Name>
     </ProjectReference>
     <ProjectReference Include="..\TradeSystem.Strategies.MarketMaker\TradeSystem.Strategies.MarketMaker.csproj">
       <Project>{734bfde5-325e-4ef9-924c-1401562e6626}</Project>
