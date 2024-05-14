@@ -173,14 +173,24 @@ namespace TradeSystem.Orchestration.Services.Strategies
 					var newPos = mtConnector.SendMarketOrderRequest(pos.Symbol, pos.Side,
 					(double)pos.Lots, signalPrice, 0, (int)pos.MagicNumber, pos.Comment, 0, 0);
 
-					var copierPositions = duplicatContext.CopierPositions.Where(s => s.MasterTicket == metaTraderPosition.PositionKey).ToList();
-					copierPositions.ForEach(copierPosition =>
+					var copierPositionsToUpdate = duplicatContext.CopierPositions
+					.Where(s => s.MasterTicket == metaTraderPosition.PositionKey || s.SlaveTicket == metaTraderPosition.PositionKey)
+					.ToList();
+
+					copierPositionsToUpdate.ForEach(copierPosition =>
 					{
-						copierPosition.MasterTicket = newPos.Pos.Id;
+						if (copierPosition.MasterTicket == metaTraderPosition.PositionKey)
+						{
+							copierPosition.MasterTicket = newPos.Pos.Id;
+						}
+						if (copierPosition.SlaveTicket == metaTraderPosition.PositionKey)
+						{
+							copierPosition.SlaveTicket = newPos.Pos.Id;
+						}
 						copierPosition.State = CopierPosition.CopierPositionStates.Active;
 					});
 
-					duplicatContext.CopierPositions.UpdateRange(copierPositions);
+					duplicatContext.CopierPositions.UpdateRange(copierPositionsToUpdate);
 				}
 				else if (metaTraderPosition.Account.Connector is FixApiIntegration.Connector fixApiConnector)
 				{
@@ -190,14 +200,24 @@ namespace TradeSystem.Orchestration.Services.Strategies
 					var newPos = await fixApiConnector.SendMarketOrderRequest(pos.Symbol, pos.Side, pos.Lots);
 					if (!newPos.OrderIds.Any() || !long.TryParse(newPos.OrderIds.First(), out long orderId)) return;
 
-					var copierPositions = duplicatContext.CopierPositions.Where(s => s.MasterTicket == metaTraderPosition.PositionKey).ToList();
-					copierPositions.ForEach(copierPosition =>
+					var copierPositionsToUpdate = duplicatContext.CopierPositions
+					.Where(s => s.MasterTicket == metaTraderPosition.PositionKey || s.SlaveTicket == metaTraderPosition.PositionKey)
+					.ToList();
+
+					copierPositionsToUpdate.ForEach(copierPosition =>
 					{
-						copierPosition.MasterTicket = orderId;
+						if (copierPosition.MasterTicket == metaTraderPosition.PositionKey)
+						{
+							copierPosition.MasterTicket = orderId;
+						}
+						if (copierPosition.SlaveTicket == metaTraderPosition.PositionKey)
+						{
+							copierPosition.SlaveTicket = orderId;
+						}
 						copierPosition.State = CopierPosition.CopierPositionStates.Active;
 					});
 
-					duplicatContext.CopierPositions.UpdateRange(copierPositions);
+					duplicatContext.CopierPositions.UpdateRange(copierPositionsToUpdate);
 				}
 
 				await duplicatContext.SaveChangesAsync();
