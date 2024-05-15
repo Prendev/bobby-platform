@@ -469,13 +469,11 @@ namespace TradeSystem.Duplicat.ViewModel
 
 		public async void TradePositionRotateCommand(TradePosition mtPosition)
 		{
-			var areCopiersStarted = AreCopiersStarted;
-
-			if (areCopiersStarted) StopCopiersCommand();
+			if (AreCopiersStarted) StopCopiersCommand();
 
 			await _orchestrator.TradePositionRotate(mtPosition);
 
-			if (areCopiersStarted) StartCopiersCommand();
+			if (AreCopiersStarted) StartCopiersCommand();
 		}
 	}
 }
