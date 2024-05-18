@@ -417,6 +417,8 @@ namespace TradeSystem.Duplicat.ViewModel
 
 			var p = SelectedProfile?.Id;
 
+			_duplicatContext.TelegramChatSettings.Include(tcs => tcs.TelegramBot);
+
 			_duplicatContext.TraderPositions.Load();
 			_duplicatContext.MetaTraderPlatforms.OrderBy(e => e.ToString()).Load();
 			_duplicatContext.CTraderPlatforms.OrderBy(e => e.ToString()).Load();

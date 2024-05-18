@@ -23,7 +23,7 @@ namespace TradeSystem.Duplicat.Views.Notifications
 		public void InitView(DuplicatViewModel viewModel)
 		{
 			_viewModel = viewModel;
-			dgvChatSettings.AddBinding("ReadOnly", _viewModel, nameof(_viewModel.IsConfigReadonly));
+			//dgvChatSettings.AddBinding("ReadOnly", _viewModel, nameof(_viewModel.IsConfigReadonly));
 			cdgBotList.AddBinding("ReadOnly", _viewModel, nameof(_viewModel.IsConfigReadonly));
 
 			if (!bool.TryParse(ConfigurationManager.AppSettings["DisableGuiLogger"], out var disableLogger) || !disableLogger)
