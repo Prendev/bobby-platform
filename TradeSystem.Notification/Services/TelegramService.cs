@@ -15,7 +15,7 @@ namespace TradeSystem.Notification.Services
 {
 	public interface ITelegramService
 	{
-		void Start(List<Account> accounts);
+		void Start(List<Account> accounts, List<TelegramChatSetting> telegramChatSettings);
 		void Stop();
 	}
 
@@ -24,7 +24,6 @@ namespace TradeSystem.Notification.Services
 		private bool isSetup;
 		private List<Account> telegramAccounts;
 
-		private DuplicatContext duplicatContext;
 		private List<TelegramChatSetting> telegramChatSettings;
 
 		private ConcurrentDictionary<(Account, TelegramChatSetting), bool> telegramAccountChatSettings;
@@ -38,13 +37,9 @@ namespace TradeSystem.Notification.Services
 		public event EventHandler<(Account, TelegramChatSetting)> LowHighEquityErrorEvent;
 		public event EventHandler<(Account, TelegramChatSetting)> HighestTicketDurationErrorEvent;
 
-		public void Start(List<Account> accounts)
+		public void Start(List<Account> accounts, List<TelegramChatSetting> telegramChatSettings)
 		{
-			duplicatContext = new DuplicatContext();
-
-			telegramChatSettings = duplicatContext.TelegramChatSettings.Include(tcs => tcs.TelegramBot)
-				.Where(tcs => tcs.Active)
-				.ToList();
+			this.telegramChatSettings = telegramChatSettings;
 
 			if (!isSetup)
 			{

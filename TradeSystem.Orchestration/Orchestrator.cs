@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -113,8 +114,10 @@ namespace TradeSystem.Orchestration
 				.Where(pa => pa.ConnectionState != ConnectionStates.Connected)
 				.ToList();
 
+			var telegramChatSettings = duplicatContext.TelegramChatSettings.Local.ToList();
+
 			_twilioService.Start(accounts);
-			_telegramService.Start(accounts);
+			_telegramService.Start(accounts, telegramChatSettings);
 
 			var tasks = accounts.Select(account => Task.Run(() => _connectorFactory.Create(account))).ToList();
 
