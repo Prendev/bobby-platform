@@ -159,37 +159,6 @@ namespace TradeSystem.Duplicat.ViewModel
 			DataContextChanged?.Invoke();
 		}
 
-		public void MoveToAccount(bool moveToDown)
-		{
-			if (IsConfigReadonly) return;
-			if (IsLoading) return;
-
-			if (SelectedAccount == null ||
-				(moveToDown && Accounts.IndexOf(SelectedAccount) == Accounts.Count - 1) ||
-				(!moveToDown && Accounts.IndexOf(SelectedAccount) == 0)) return;
-
-			var selectedIndex = Accounts.IndexOf(SelectedAccount);
-			var orderNumber = SelectedAccount.OrderNumber;
-
-			if (moveToDown)
-			{
-				SelectedAccount.OrderNumber = Accounts[selectedIndex + 1].OrderNumber;
-				Accounts[selectedIndex + 1].OrderNumber = orderNumber;
-			}
-			else
-			{
-				SelectedAccount.OrderNumber = Accounts[selectedIndex - 1].OrderNumber;
-				Accounts[selectedIndex - 1].OrderNumber = orderNumber;
-			}
-
-			_duplicatContext.SaveChanges();
-
-			InitDataContext();
-			DataContextChanged?.Invoke();
-
-			SelectedAccount = Accounts.First(a => a.Id == SelectedAccount.Id);
-		}
-
 		public void LoadSettingCommand(RiskManagement riskManagement)
 		{
 			//if (IsConfigReadonly) return;
