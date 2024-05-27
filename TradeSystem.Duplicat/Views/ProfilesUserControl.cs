@@ -35,10 +35,10 @@ namespace TradeSystem.Duplicat.Views
 
 			btnHeatUp.Click += (s, e) => { _viewModel.HeatUp(); };
 
-			btnAccountUp.Click += (s, e) => _viewModel.MoveToAccount(false);
+			btnAccountUp.Click += (s, e) => MoveToAccount(-1);
 			btnAccountUp.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsConfigReadonly), true);
 
-			btnAccountDown.Click += (s, e) => _viewModel.MoveToAccount(true);
+			btnAccountDown.Click += (s, e) => MoveToAccount(1);
 			btnAccountDown.AddBinding("Enabled", _viewModel, nameof(_viewModel.IsConfigReadonly), true);
 
 			gbProfile.AddBinding<Profile, string>("Text", _viewModel, nameof(_viewModel.SelectedProfile),
@@ -147,6 +147,33 @@ namespace TradeSystem.Duplicat.Views
 			else dgvAccounts.Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.White;
 
 		}
+
+
+		public enum MovingDircetion
+		{
+			UP,
+			DOWN
+		}
+
+		/// <summary>
+		/// Moves the selected account up or down in the DataGridView.
+		/// </summary>
+		/// <param name="direction">If direction is -1, move the selected account up. If direction is +1, move the selected account down.</param>
+		private void MoveToAccount(int direction)
+		{
+			if (_viewModel.SelectedAccount == null ||
+				(direction == 1 && _viewModel.Accounts.IndexOf(_viewModel.SelectedAccount) == _viewModel.Accounts.Count - 1) ||
+				(direction == -1 && _viewModel.Accounts.IndexOf(_viewModel.SelectedAccount) == 0)) return;
+
+			var selectedIndex = _viewModel.Accounts.IndexOf(_viewModel.SelectedAccount);
+			var orderNumber = _viewModel.SelectedAccount.OrderNumber;
+
+			_viewModel.SelectedAccount.OrderNumber = _viewModel.Accounts[selectedIndex + direction].OrderNumber;
+			_viewModel.Accounts[selectedIndex + direction].OrderNumber = orderNumber;
+
+			dgvAccounts.Sort(dgvAccounts.Columns["OrderNumber"], ListSortDirection.Ascending);
+		}
+
 
 		// If you click the checkbox field, it also triggers and halts the updating process. Therefore, this event cannot be used when the field is a checkbox
 		private void DgvAccounts_CellBeginEdit(object sender, DataGridViewCellCancelEventArgs e)
