@@ -9,7 +9,6 @@ using TradeSystem.Common;
 using TradeSystem.Common.Integration;
 using TradeSystem.Data;
 using TradeSystem.Data.Models;
-using TradeSystem.Mt4Integration;
 
 namespace TradeSystem.Orchestration.Services
 {
@@ -294,7 +293,10 @@ namespace TradeSystem.Orchestration.Services
 				    var lots = Math.Abs((double)(copier.ValueCopy ? 1.0m : e.Position.Lots) * (double)copier.CopyRatio);
 				    var side = copier.CopyRatio < 0 ? e.Position.Side.Inv() : e.Position.Side;
 
-				    if (e.Action == NewPositionActions.Open)
+					var lastTick = slaveConnector.GetLastTick(symbol);
+					var signalPrice = lastTick == null ? 0 : side == Sides.Buy ? lastTick.Ask : lastTick.Bid;
+
+					if (e.Action == NewPositionActions.Open)
 				    {
 					    if (copier.Mode == Copier.CopierModes.CloseOnly) return Task.CompletedTask;
 					    if (!SpreadCheck(copier.ToString(), slaveConnector, symbol,
@@ -310,8 +312,8 @@ namespace TradeSystem.Orchestration.Services
 						    if (reopenPos == null) return Task.CompletedTask;
 
 						    reopenPos.MasterTicket = e.Position.Id;
-						    var newPos = slaveConnector.SendMarketOrderRequest(symbol, side, lots, (int)e.Position.MagicNumber,
-							    copier.TradeComment, copier.MaxRetryCount, copier.RetryPeriodInMs);
+						    var newPos = slaveConnector.SendMarketOrderRequest(symbol, side, lots, signalPrice, 0, (int)e.Position.MagicNumber,
+								copier.TradeComment, copier.MaxRetryCount, copier.RetryPeriodInMs);
 						    if (newPos?.Pos == null) return Task.CompletedTask;
 
 						    UpdateCrossPosition(copier, reopenPos.SlaveTicket, newPos.Pos.Id);
@@ -320,8 +322,8 @@ namespace TradeSystem.Orchestration.Services
 					    }
 					    else
 					    {
-						    var newPos = slaveConnector.SendMarketOrderRequest(symbol, side, lots, (int)e.Position.MagicNumber,
-							    copier.TradeComment, copier.MaxRetryCount, copier.RetryPeriodInMs);
+						    var newPos = slaveConnector.SendMarketOrderRequest(symbol, side, lots, signalPrice, 0, (int)e.Position.MagicNumber,
+								copier.TradeComment, copier.MaxRetryCount, copier.RetryPeriodInMs);
 
 						    if (newPos == null)
 							{
