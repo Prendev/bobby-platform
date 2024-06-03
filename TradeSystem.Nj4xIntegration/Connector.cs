@@ -463,7 +463,7 @@ namespace TradeSystem.Nj4xIntegration
 		private Broker CreateStrategyBroker(string srvFilePath)
 		{
 
-			if (_accountInfo.ProxyEnable) return new Broker(srvFilePath, _accountInfo.ProxyHost, _accountInfo.ProxyType, _accountInfo.ProxyUser, _accountInfo.ProxyPassword);
+			if (_accountInfo.ProxyEnable) return new Broker(srvFilePath, $"{_accountInfo.ProxyHost}:{_accountInfo.ProxyPort}", _accountInfo.ProxyType, _accountInfo.ProxyUser, _accountInfo.ProxyPassword);
 			else return new Broker(srvFilePath);
 		}
 
