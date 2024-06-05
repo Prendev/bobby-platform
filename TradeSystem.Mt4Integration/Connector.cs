@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using TradeSystem.Common.Integration;
@@ -444,7 +445,7 @@ namespace TradeSystem.Mt4Integration
 			{
 				return new QuoteClient(accountInfo.User, accountInfo.Password,
 				accountInfo.LocalPortForProxy.HasValue ? "localhost" : host,
-				accountInfo.LocalPortForProxy ?? port, accountInfo.ProxyHost, accountInfo.ProxyPort, accountInfo.ProxyUser, accountInfo.ProxyPassword, accountInfo.ProxyType);
+				accountInfo.LocalPortForProxy ?? port, GetProxyHostIP(accountInfo), accountInfo.ProxyPort, accountInfo.ProxyUser, accountInfo.ProxyPassword, accountInfo.ProxyType);
 			}
 			else
 			{
@@ -531,6 +532,24 @@ namespace TradeSystem.Mt4Integration
 				OnMarginChanged();
 			}
 			catch { }
+		}
+
+		private string GetProxyHostIP(AccountInfo accountInfo)
+		{
+			if (accountInfo.ProxyEnable && !IPAddress.TryParse(accountInfo.ProxyHost, out IPAddress ipAddress))
+			{
+				try
+				{
+					IPHostEntry hostEntry = Dns.GetHostEntry(accountInfo.ProxyHost);
+					return hostEntry.AddressList.FirstOrDefault(a => a.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork).ToString();
+				}
+				catch (Exception e)
+				{
+					Logger.Error($"Failed to resolve hostname '{accountInfo.ProxyHost}': No IPv4 address found for the hostname.");
+				}
+			}
+
+			return accountInfo.ProxyHost;
 		}
 
 		~Connector()

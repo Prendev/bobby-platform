@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Configuration;
 using System.Linq;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using TradeSystem.Common.Integration;
@@ -463,7 +464,7 @@ namespace TradeSystem.Nj4xIntegration
 		private Broker CreateStrategyBroker(string srvFilePath)
 		{
 
-			if (_accountInfo.ProxyEnable) return new Broker(srvFilePath, $"{_accountInfo.ProxyHost}:{_accountInfo.ProxyPort}", _accountInfo.ProxyType, _accountInfo.ProxyUser, _accountInfo.ProxyPassword);
+			if (_accountInfo.ProxyEnable) return new Broker(srvFilePath, $"{GetProxyHostIP(_accountInfo)}:{_accountInfo.ProxyPort}", _accountInfo.ProxyType, _accountInfo.ProxyUser, _accountInfo.ProxyPassword);
 			else return new Broker(srvFilePath);
 		}
 
@@ -540,6 +541,24 @@ namespace TradeSystem.Nj4xIntegration
 				OnMarginChanged();
 			}
 			catch { }
+		}
+
+		private string GetProxyHostIP(AccountInfo accountInfo)
+		{
+			if (accountInfo.ProxyEnable && !IPAddress.TryParse(accountInfo.ProxyHost, out IPAddress ipAddress))
+			{
+				try
+				{
+					IPHostEntry hostEntry = Dns.GetHostEntry(accountInfo.ProxyHost);
+					return hostEntry.AddressList.FirstOrDefault(a => a.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork).ToString();
+				}
+				catch (Exception e)
+				{
+					Logger.Error($"Failed to resolve hostname '{accountInfo.ProxyHost}': No IPv4 address found for the hostname.");
+				}
+			}
+
+			return accountInfo.ProxyHost;
 		}
 
 		~Connector()

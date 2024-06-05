@@ -77,7 +77,7 @@ namespace TradeSystem.Orchestration.Services
 					InstrumentConfigs = account.MetaTraderAccount.InstrumentConfigs?
 						.ToDictionary(ic => ic.Symbol, ic => ic.Multiplier ?? 1),
 					ProxyEnable = account.MetaTraderAccount.ProxyEnable,
-					ProxyHost = GetProxyHostIP(account.MetaTraderAccount),
+					ProxyHost = account.MetaTraderAccount.ProxyHost,
 					ProxyPort = account.MetaTraderAccount.ProxyPort,
 					ProxyType = account.MetaTraderAccount.ProxyType == Proxy.ProxyTypes.Socks5 ?
 					TradingAPI.MT4Server.ProxyTypes.Socks5 : account.MetaTraderAccount.ProxyType == Proxy.ProxyTypes.Socks4
@@ -113,7 +113,7 @@ namespace TradeSystem.Orchestration.Services
 					InstrumentConfigs = account.MetaTraderAccount.InstrumentConfigs?
 						.ToDictionary(ic => ic.Symbol, ic => ic.Multiplier ?? 1),
 					ProxyEnable = account.MetaTraderAccount.ProxyEnable,
-					ProxyHost = GetProxyHostIP(account.MetaTraderAccount),
+					ProxyHost = account.MetaTraderAccount.ProxyHost,
 					ProxyPort = account.MetaTraderAccount.ProxyPort,
 					ProxyType = account.MetaTraderAccount.ProxyType == Proxy.ProxyTypes.Socks5 ?
 					nj4x.Metatrader.Broker.ProxyType.SOCKS5 : account.MetaTraderAccount.ProxyType == Proxy.ProxyTypes.Socks4
@@ -216,24 +216,6 @@ namespace TradeSystem.Orchestration.Services
 			if (account.Connector == null)
 				account.Connector = new Backtester.Connector(account.BacktesterAccount);
 			((Backtester.Connector)account.Connector).Connect();
-		}
-
-		private string GetProxyHostIP(MetaTraderAccount metaTraderAccount)
-		{
-			if (metaTraderAccount.ProxyEnable && !IPAddress.TryParse(metaTraderAccount.ProxyHost, out IPAddress ipAddress))
-			{
-				try
-				{
-					IPHostEntry hostEntry = Dns.GetHostEntry(metaTraderAccount.ProxyHost);
-					return hostEntry.AddressList.FirstOrDefault(a => a.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork).ToString();
-				}
-				catch (Exception e)
-				{
-					Logger.Error($"Failed to resolve hostname '{metaTraderAccount.ProxyHost}': No IPv4 address found for the hostname.");
-				}
-			}
-
-			return metaTraderAccount.ProxyHost;
 		}
 	}
 }
