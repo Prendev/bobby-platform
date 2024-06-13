@@ -61,6 +61,22 @@ namespace TradeSystem.Duplicat.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to {\rtf1\ansi
+        ///{\fonttbl\f0\fswiss Arial;}
+        ///{\colortbl ;\red0\green0\blue0;}
+        ///
+        ///\par
+        ///\b\ul RISK Disclaimer:\b0\ulnone\par
+        ///\par
+        ///BOBI (Broker - Oriented - Business - Intelligence) is designed to assist users in making informed trading decisions through advanced AI and data analytics. However, trading and investment carry inherent risks, and BOBI does not guarantee profits or eliminate the risk of losses. Users are solely responsible for their trading decisions and the resulting financial outcomes. The provid [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string AboutTextRtf {
+            get {
+                return ResourceManager.GetString("AboutTextRtf", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
         internal static System.Drawing.Bitmap calendarDark {
