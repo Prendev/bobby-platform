@@ -77,8 +77,8 @@ namespace TradeSystem.Nj4xIntegration
 
 			try
 			{
-				Nj4xClient.TerminalClose(666);
-				Nj4xClient.Disconnect();
+				Nj4xClient.Disconnect(true);
+				Nj4xClient?.Dispose();
 			}
 			catch (Exception e)
 			{
