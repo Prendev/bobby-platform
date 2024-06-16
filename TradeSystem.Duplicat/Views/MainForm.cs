@@ -83,6 +83,8 @@ namespace TradeSystem.Duplicat.Views
 			btnStart.Click += (s, e) => { _viewModel.StartCopiersCommand(); };
 			btnStop.Click += (s, e) => { _viewModel.StopCopiersCommand(); };
 
+			richTb_About.Rtf = GetRtfAboutText();
+
 			_viewModel.DataContextChanged += () => AttachDataSources(this);
 			_viewModel.ConnectedDataContextChanged += () => AttachConnectedDataSources(this);
 
@@ -128,6 +130,30 @@ namespace TradeSystem.Duplicat.Views
 		{
 			var assembly = Assembly.GetExecutingAssembly();
 			return AssemblyName.GetAssemblyName(assembly.Location).Version.ToString();
+		}
+
+		private string GetRtfAboutText()
+		{
+			return @"{\rtf1\ansi
+{\fonttbl\f0\fswiss Arial;}
+{\colortbl ;\red0\green0\blue0;}
+
+\par
+\b\ul RISK Disclaimer:\b0\ulnone\par
+\par
+BOBI (Broker - Oriented - Business - Intelligence) is designed to assist users in making informed trading decisions through advanced AI and data analytics. 
+However, trading and investment carry inherent risks, and BOBI does not guarantee profits or eliminate the risk of losses. 
+Users are solely responsible for their trading decisions and the resulting financial outcomes. 
+The provider of BOBI shall not be held liable for any financial losses incurred. 
+Users should consult with their financial advisors to understand the risks involved and to make well-informed decisions.\par
+\par
+\b\ul Intellectual Property Notice:\b0\ulnone\par
+\par
+BOBI is the exclusive intellectual property of Happy Crow Partners LTD, a company registered in Cyprus (Registration HE441196). 
+All rights, title, and interest in and to the Software, including all related intellectual property rights, are and will remain the exclusive property of Happy Crow Partners LTD. 
+The software is protected by copyright, trademark, and other laws of Cyprus and foreign countries. 
+Any unauthorized use, copying, replication, distribution, or modification of the software is strictly prohibited and may result in severe legal consequences.\par
+\par}";
 		}
 	}
 }
