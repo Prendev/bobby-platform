@@ -1,6 +1,9 @@
 ﻿using mtapi.mt5;
 using System;
 using System.Linq;
+using System.Net;
+using System.Runtime.CompilerServices;
+using System.Security.Principal;
 using System.Threading.Tasks;
 using TradeSystem.Common.Services;
 using TradeSystem.Data;
