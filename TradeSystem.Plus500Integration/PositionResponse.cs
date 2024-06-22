@@ -1,7 +1,8 @@
 ﻿using System;
+using System.Text.RegularExpressions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
-
+using TradeSystem.Common.Attributes;
 
 namespace TradeSystem.Plus500Integration
 {
@@ -26,8 +27,14 @@ namespace TradeSystem.Plus500Integration
 		[JsonProperty("type")]
 		public Op? Type { get; set; }
 
+		[InvisibleColumn]
 		[JsonProperty("amount")]
 		public string Amount { get; set; }
+
+		public decimal Unit
+		{
+			get => ConvertAmountToUnit();
+		}
 
 		[JsonProperty("symbol")]
 		public string Symbol { get; set; }
@@ -58,5 +65,19 @@ namespace TradeSystem.Plus500Integration
 
 		[JsonProperty("profit")]
 		public double? Profit { get; set; }
+
+		private decimal ConvertAmountToUnit()
+		{
+			// Regular expression to match numeric part
+			// Step 1: Remove non-numeric characters except for the decimal point
+			string cleanedStr = Regex.Replace(Amount, "[^0-9.,]", "");
+
+			// Step 2: Remove commas
+			cleanedStr = cleanedStr.Replace(",", "");
+
+			var success = decimal.TryParse(cleanedStr, out var value);
+
+			return success ? value : 0;
+		}
 	}
 }

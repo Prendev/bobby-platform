@@ -32,6 +32,8 @@ namespace TradeSystem.Plus500Integration
 		{
 			_emailService = emailService;
 			_accountInfo = accountInfo;
+
+			Broker = "Plus500";
 		}
 
 
@@ -43,13 +45,13 @@ namespace TradeSystem.Plus500Integration
 
 				SocketIOClient = new SocketIOClient.SocketIO(ip);
 				SocketIOClient.OnConnected += SocketIOClient_OnConnected;
-				
+
 				var connectTask = SocketIOClient.ConnectAsync();
 				var timeoutTask = Task.Delay(10000);
 
 				var completedTask = await Task.WhenAny(connectTask, timeoutTask);
 
-				if(completedTask == timeoutTask) throw new TimeoutException();
+				if (completedTask == timeoutTask) throw new TimeoutException();
 
 				OnConnectionChanged(IsConnected ? ConnectionStates.Connected : ConnectionStates.Error);
 				if (!IsConnected) return;
@@ -122,7 +124,7 @@ namespace TradeSystem.Plus500Integration
 			Equity = response[0].Equity;
 			PnL = response[0].PnL;
 			Margin = Equity != 0 && response[0].AvailableBalance != 0 ? Equity - response[0].AvailableBalance : 0;
-			
+
 			FreeMargin = Equity - Margin;
 			Balance = Equity - PnL;
 			MarginLevel = Math.Round(Margin != 0 ? Equity / Margin * 100 : 0, 2);
@@ -136,10 +138,29 @@ namespace TradeSystem.Plus500Integration
 
 			var response = JsonConvert.DeserializeObject<PositionResponse[]>(jsonResponse);
 			if (response == null || !response.Any()) return;
-			
+
 			var position = response[0];
 
 			Plus500Positions.AddOrUpdate(position.Id, key => position, (key, old) => position);
+
+
+			//var pos = new Position
+			//{
+			//	Id = o.Ticket,
+			//	Lots = (decimal)position..Lots / M(o.Symbol),
+			//	Symbol = o.Symbol,
+			//	Side = o.Type == Op.Buy ? Sides.Buy : Sides.Sell,
+			//	RealVolume = (long)(o.Lots * GetSymbolInfo(o.Symbol).ContractSize * (o.Type == Op.Buy ? 1 : -1)),
+			//	MagicNumber = o.MagicNumber,
+			//	Profit = o.Profit,
+			//	Commission = o.Commission,
+			//	Swap = o.Swap,
+			//	OpenTime = o.OpenTime,
+			//	OpenPrice = (decimal)o.OpenPrice,
+			//	Comment = o.Comment
+			//};
+
+			//Positions.AddOrUpdate(position.Id, )
 			//Equity = response[0].Equity;
 			//PnL = response[0].PnL;
 			//Margin = Equity != 0 && response[0].AvailableBalance != 0 ? Equity - response[0].AvailableBalance : 0;

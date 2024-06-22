@@ -276,6 +276,7 @@
     <Compile Include="Models\Notifcations\TelegramBot.cs" />
     <Compile Include="Models\_Accounts\Plus500Account.cs" />
     <Compile Include="Models\_Strategies\BrokerSymbolStatus.cs" />
+    <Compile Include="Models\_Strategies\Exposure.cs" />
     <Compile Include="Models\_Strategies\MtAccountPosition.cs" />
     <Compile Include="Models\_Strategies\MtPosition.cs" />
     <Compile Include="Models\_Strategies\RiskManagement.NotMapped.cs" />

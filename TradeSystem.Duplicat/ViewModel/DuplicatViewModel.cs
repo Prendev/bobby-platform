@@ -133,7 +133,7 @@ namespace TradeSystem.Duplicat.ViewModel
 		public event DataContextChangedEventHandler ConnectedDataContextChanged;
 
 		public List<Account> ConnectedAccounts { get; private set; } = new List<Account>();
-		public List<Account> ConnectedMt4Mt5Accounts { get; private set; } = new List<Account>();
+		public List<Account> ConnectedMt4Mt5Plus500Accounts { get; private set; } = new List<Account>();
 		public List<Account> ConnectedMt4AndConnectorAccounts { get; private set; } = new List<Account>();
 		public BindingList<AccountMetric> AccountMetrics { get; }
 
@@ -381,11 +381,13 @@ namespace TradeSystem.Duplicat.ViewModel
 				account.ConnectionChanged += Account_ConnectionChanged;
 			}
 
-			ConnectedMt4Mt5Accounts = Accounts
+			ConnectedMt4Mt5Plus500Accounts = Accounts
 				.Where(a => a.Connector?.IsConnected == true &&
 					(a.MetaTraderAccount != null ||
 					(a.FixApiAccount != null &&
-					(a.Connector as FixApiIntegration.Connector).GeneralConnector is Mt5Connector)))
+					(a.Connector as FixApiIntegration.Connector).GeneralConnector is Mt5Connector) ||
+					(a.Connector is Plus500Integration.Connector)
+					))
 				.ToList();
 
 			Accounts.Where(a => (a.MetaTraderAccount != null || a.FixApiAccount != null) && a.Connector?.IsConnected == true)

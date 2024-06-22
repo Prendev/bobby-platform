@@ -5,7 +5,9 @@ using System.Linq;
 using System.Threading;
 using TradeSystem.Common.BindingLists;
 using TradeSystem.Common.Integration;
+using TradeSystem.Communication.Mt5;
 using TradeSystem.Data.Models;
+using TradeSystem.Data.Models._Strategies;
 
 namespace TradeSystem.Orchestration.Services.Strategies
 {
@@ -37,35 +39,52 @@ namespace TradeSystem.Orchestration.Services.Strategies
 			Logger.Info("Exposure is stopped");
 		}
 
+		private List<Exposure> GetAccountLot(Account acc)
+		{
+			if (acc.MetaTraderAccount == null &&
+				acc.FixApiAccount == null &&
+				acc.Connector is Plus500Integration.Connector connector)
+			{
+				return connector.Plus500Positions/*.Where(p => !p.Value.CloseTime)*/
+					.GroupBy(p => p.Value.Symbol)
+					.Select(gp => new Exposure
+					{
+						Symbol = gp.Key,
+						AccountSum = new AccountLot
+						{
+							Account = acc,
+							Instrument = gp.Key,
+							SumLot = gp.Sum(p => p.Value.Type == Plus500Integration.Op.Buy ? p.Value.Unit : -p.Value.Unit)
+						},
+					})
+					.ToList();
+			}
+
+			return acc.Connector.Positions
+				.Where(p => !p.Value.IsClosed)
+				.GroupBy(p => p.Value.Symbol)
+				.Select(gp => new Exposure
+				{
+					Symbol = gp.Key,
+					AccountSum = new AccountLot
+					{
+						Account = acc,
+						Instrument = gp.Key,
+						SumLot = gp.Sum(p => p.Value.Side == Sides.Buy ? p.Value.Lots : -p.Value.Lots)
+					},
+				}).ToList();
+		}
+
 		private void SetLoop(List<Account> accounts, BindingList<MappingTable> mappingTables, SortableBindingList<SymbolStatus> symbolStatuses, CancellationToken token)
 		{
 			while (!token.IsCancellationRequested)
 			{
 				try
 				{
-					var positionsSummary = accounts.SelectMany(a => a.Connector.Positions
-						.Where(p => !p.Value.IsClosed)
-						.GroupBy(p => p.Value.Symbol)
-						.Select(gp => new
-						{
-							Symbol = gp.Key,
-							AccountSum = new AccountLot { Account = a, SumLot = gp.Sum(p => p.Value.Side == Sides.Buy ? p.Value.Lots : -p.Value.Lots) },
-						})).ToList();
+					var positionsSummary = accounts.SelectMany(a => GetAccountLot(a)).ToList();
 
-					var instrumentSummaryDict = accounts.SelectMany(a => a.Connector.Positions
-						.Where(p => !p.Value.IsClosed)
-						.GroupBy(p => p.Value.Symbol)
-						.Select(gp => new
-						{
-							Instrument = gp.Key,
-							AccountSum = new AccountLot
-							{
-								Account = a,
-								Instrument = gp.Key,
-								SumLot = gp.Sum(p => p.Value.Side == Sides.Buy ? p.Value.Lots : -p.Value.Lots)
-							},
-						}))
-						.GroupBy(item => item.Instrument)
+					var instrumentSummaryDict = accounts.SelectMany(a => GetAccountLot(a))
+						.GroupBy(item => item.Symbol)
 						.ToDictionary(
 							g => g.Key,
 							g => g.Select(item => item.AccountSum).ToList()
@@ -142,16 +161,21 @@ namespace TradeSystem.Orchestration.Services.Strategies
 							if (mappingTable != null)
 							{
 								var symbolStatus = symbolStatuses.FirstOrDefault(ss => ss.IsCreatedGroup && (ss.CustomGroup.Equals(mappingTable.CustomGroup)));
+
+								var sumLot = accountLot.Account.Connector is Plus500Integration.Connector ?
+								mappingTable.LotSize == 0 ? 0 : accountLot.SumLot / mappingTable.LotSize :
+								accountLot.SumLot * mappingTable.LotSize;
+
 								if (symbolStatus != null && symbolStatus.AccountLotList.FirstOrDefault(accLot => accLot.Account.Equals(accountLot.Account)) is AccountLot symbolStatusAccountLot)
 								{
 									_syncContext.Send(_ =>
-									symbolStatusAccountLot.SumLot = accountLot.SumLot * mappingTable.LotSize
+									symbolStatusAccountLot.SumLot = sumLot
 									, null);
 								}
 								else if (symbolStatus != null)
 								{
 									_syncContext.Send(_ =>
-									symbolStatus.AccountLotList.Add(new AccountLot { Account = accountLot.Account, SumLot = accountLot.SumLot * mappingTable.LotSize, Instrument = accountLot.Instrument })
+									symbolStatus.AccountLotList.Add(new AccountLot { Account = accountLot.Account, SumLot = sumLot, Instrument = accountLot.Instrument })
 									, null);
 								}
 								else
@@ -163,7 +187,7 @@ namespace TradeSystem.Orchestration.Services.Strategies
 										CustomGroup = mappingTable.CustomGroup,
 									};
 
-									newSymbolStatus.AccountLotList.Add(new AccountLot { Account = accountLot.Account, SumLot = accountLot.SumLot * mappingTable.LotSize, Instrument = accountLot.Instrument });
+									newSymbolStatus.AccountLotList.Add(new AccountLot { Account = accountLot.Account, SumLot = sumLot, Instrument = accountLot.Instrument });
 
 									_syncContext.Send(_ =>
 									symbolStatuses.Add(newSymbolStatus)

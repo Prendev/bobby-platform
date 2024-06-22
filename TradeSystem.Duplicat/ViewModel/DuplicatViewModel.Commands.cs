@@ -129,7 +129,7 @@ namespace TradeSystem.Duplicat.ViewModel
 			}
 			finally
 			{
-				ConnectedMt4Mt5Accounts.Clear();
+				ConnectedMt4Mt5Plus500Accounts.Clear();
 				SymbolStatusVisibilities.Clear();
 				RiskManagementAccoutVisibilities.Clear();
 				SortedTradePositions.Clear();

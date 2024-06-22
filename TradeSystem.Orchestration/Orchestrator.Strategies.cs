@@ -260,15 +260,17 @@ namespace TradeSystem.Orchestration
 
 		public void StartExposureStrategy(SortableBindingList<SymbolStatus> symbolStatuses, int throttlingInSec)
 		{
-			var connectedMt4Mt5Accounts = _duplicatContext.Accounts.Local
+			var connectedAccounts = _duplicatContext.Accounts.Local
 				.Where(a => a.Connector?.IsConnected == true &&
 					(a.MetaTraderAccount != null ||
 					(a.FixApiAccount != null &&
-					(a.Connector as FixApiIntegration.Connector).GeneralConnector is Mt5Connector)))
+					(a.Connector as FixApiIntegration.Connector).GeneralConnector is Mt5Connector)) ||
+					a.Plus500Account != null
+					)
 				.ToList();
 
 			var mappingTables = _duplicatContext.MappingTables.Local.ToBindingList();
-			_exposureStrategyService.Start(connectedMt4Mt5Accounts, mappingTables, symbolStatuses, throttlingInSec);
+			_exposureStrategyService.Start(connectedAccounts, mappingTables, symbolStatuses, throttlingInSec);
 		}
 		public void StopExposureStrategy()
 		{
